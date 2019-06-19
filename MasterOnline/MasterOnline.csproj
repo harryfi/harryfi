@@ -690,6 +690,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\API_LOG_MARKETPLACE_HANGFIRE.cs" />
     <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
@@ -1034,6 +1035,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
     <Compile Include="ViewModels\BayarPiutangViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
@@ -1310,7 +1312,10 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
+    <Compile Include="ViewModels\mdlUploadBarang.cs" />
+    <Compile Include="ViewModels\mdlPromosi.cs" />
     <Compile Include="ViewModels\mdlJurnal.cs" />
+    <Compile Include="ViewModels\mdlHargaJual.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
     <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
@@ -1331,6 +1336,7 @@
     <Compile Include="ViewModels\SupplierViewModel.cs" />
     <Compile Include="ViewModels\SyncMenuViewModel.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
+    <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6061,9 +6067,15 @@
     <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
     <Content Include="Views\Manage\LihatFakturA5.cshtml" />
+    <Content Include="Views\Manage\SettingKodeVariasiPartial.cshtml" />
+    <Content Include="Views\Manage\TableMarketPlaceLog.cshtml" />
+    <Content Include="Views\Admin\HangfireServerStatus.cshtml" />
+    <Content Include="Views\Admin\TableHangfireServerStatus.cshtml" />
     <Content Include="Views\Manage\TransferExcel.cshtml" />
     <Content Include="Views\Manage\SyncMenu.cshtml" />
     <Content Include="Views\Manage\SyncMenuPartialPage.cshtml" />
+    <Content Include="Views\Manage\TableFakturTempoPartial.cshtml" />
+    <Content Include="Views\Manage\TableInvoiceTempoPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

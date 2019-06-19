@@ -1,6 +1,46 @@
 ﻿@using System.Globalization
-@model MasterOnline.ViewModels.InvoiceViewModel
-<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+@*@model MasterOnline.ViewModels.InvoiceViewModel*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<mdlPesanan>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_invoice_lunas_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_invoice_lunas_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_invoice_lunas_tab">
+    <div id="loading_invoice_lunas_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page2" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+    @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
     <thead>
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Invoice</th>
@@ -9,21 +49,22 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Supplier</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
-        <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
-        <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
         </tr>
     </thead>
     <tbody>
-        @foreach (var invoice in Model.ListInvoice)
+        @*@foreach (var invoice in Model.ListInvoice)*@
+        @foreach (var invoice in Model)
         {
-            var nInvoice = Model.ListNInvoice.FirstOrDefault(n => n.NINV == invoice.INV);
+            //var nInvoice = Model.ListNInvoice.FirstOrDefault(n => n.NINV == invoice.INV);
 
             <tr>
-                <td>@invoice.INV</td>
+                <td>@invoice.NO_FAKTUR</td>
                 <td>@(invoice.TGL?.ToString("dd/MM/yyyy"))</td>
-                <td>@(invoice.TGJT?.ToString("dd/MM/yyyy"))</td>
-                <td>@invoice.NAMA</td>
-                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NETTO)</td>
+                <td>@(invoice.TGLJTTEMPO?.ToString("dd/MM/yyyy"))</td>
+                <td>@invoice.SUPPLIER</td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.TOTAL)</td>
                 @*<td>@(Convert.ToString(invoice.POSTING) == "Y" ? "Sudah" : "Belum")</td>
                 <td class="edit-hapus-col">
                     @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)
@@ -57,3 +98,48 @@
         }
     </tbody>
 </table>
+
+@* add by nurul 15/5/2019, paging *@
+@if (Model.PageCount > 1)
+{
+    <div id="tabelinvoicelunaspartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTableInvoiceLunas", new
+   {
+       page,
+       search = ViewData["searchParam"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelinvoicelunaspartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_invoice_lunas_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-invoice-lunas-partial').html(response);
+                        $('#loading_invoice_lunas_tab').hide();
+                    }
+                });
+            }
+            return false;
+
+        });
+    });
+</script>
+@* end add by nurul 15/5/2019, paging *@

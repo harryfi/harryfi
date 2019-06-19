@@ -10,7 +10,15 @@ using MasterOnline.Models;
 using MasterOnline.Services;
 using MasterOnline.ViewModels;
 
+using Hangfire;
+using Hangfire.Server;
+using Hangfire.Storage;
+using Hangfire.SqlServer;
+using Erasoft.Function;
 using System.Collections.Generic;
+using System.Collections;
+using System.Reflection;
+using PagedList;
 
 namespace MasterOnline.Controllers
 {
@@ -80,7 +88,7 @@ namespace MasterOnline.Controllers
 
                 Session["SessionAdmin"] = adminFromDb;
 
-                result="DashboardAdmin";
+                result = "DashboardAdmin";
             }
             else if (adminFromDb.Email == "csmasteronline@gmail.com")
             {
@@ -92,10 +100,10 @@ namespace MasterOnline.Controllers
 
                 Session["SessionAdmin"] = adminFromDb;
 
-                result="DashboardAdm";
+                result = "DashboardAdm";
 
             }
-            return RedirectToAction(result);          
+            return RedirectToAction(result);
 
         }
 
@@ -372,7 +380,7 @@ namespace MasterOnline.Controllers
 
             return View(vm);
         }
-        
+
         public ActionResult EditSubs(int? idSub)
         {
             var vm = new SubsViewModel()
@@ -439,6 +447,7 @@ namespace MasterOnline.Controllers
 
         // =============================================== Bagian History Pembayaran (START)
 
+        [SessionAdminCheck]
         public ActionResult AktivitasSubscription()
         {
             var vm = new SubsViewModel()
@@ -870,7 +879,7 @@ namespace MasterOnline.Controllers
         //add by Iman 15/04/2019
         [Route("admin/manage/reminder-expired")]
         [SessionAdminCheck]
-        public ActionResult AccountReminderExpired(string param)    
+        public ActionResult AccountReminderExpired(string param)
         {
             //if (param != null)
             //{
@@ -916,22 +925,22 @@ namespace MasterOnline.Controllers
             string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
             var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var vm = new MenuAccount  
+            var vm = new MenuAccount
             {
                 //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
                 ListPartner = MoDbContext.Partner.ToList()
             };
 
-            return View("AccountReminderExpired",vm);
+            return View("AccountReminderExpired", vm);
 
-                //var date = DateTime.Today.AddMonths(+1);
-                //var vm = new MenuAccount()
-                //{                    
-                //    ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date && a.Status == true).ToList(),
-                //    ListPartner = MoDbContext.Partner.ToList()
-                //};
-                //return View(vm);
-                //}
+            //var date = DateTime.Today.AddMonths(+1);
+            //var vm = new MenuAccount()
+            //{                    
+            //    ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date && a.Status == true).ToList(),
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
+            //return View(vm);
+            //}
         }
         public ActionResult TAccountReminderExpired(string param)
         {
@@ -939,7 +948,7 @@ namespace MasterOnline.Controllers
             {
                 if (param.Length > 1)
                 {
-                   
+
                     string dr = (param.Split(';')[param.Split(';').Length - 2]);
                     string sd = (param.Split(';')[param.Split(';').Length - 1]);
                     string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
@@ -992,7 +1001,7 @@ namespace MasterOnline.Controllers
 
                 DateTime dateTime = DateTime.UtcNow.Date;
                 DateTime Nextmonth = dateTime.AddMonths(1);
-                param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");          
+                param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
                 string dr = (param.Split(';')[param.Split(';').Length - 2]);
                 string sd = (param.Split(';')[param.Split(';').Length - 1]);
                 string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
@@ -1487,7 +1496,7 @@ namespace MasterOnline.Controllers
             string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
             string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
             string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
-            
+
             var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
             var accCS = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION > drTgl).ToList();
@@ -1603,7 +1612,7 @@ namespace MasterOnline.Controllers
             };
             return PartialView("AccDetail", vm);
         }
-        
+
         // Mengubah status akun utama
         public async Task<ActionResult> ChangeStatusAccount(int? accId)
         {
@@ -1934,7 +1943,7 @@ namespace MasterOnline.Controllers
             };
             return View(vm);
         }
-        
+
         [SessionAdminCheck]
         public ActionResult RefreshDashboardSalesCS(string param)
         {
@@ -2122,6 +2131,203 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian History Pembayaran (END)
-        
+
+
+
+        // status hangfire server
+
+        [Route("admin/manage/hangfirestatus")]
+        [SessionAdminCheck]
+        public ActionResult HangfireServerStatus()
+        {
+            return View();
+        }
+        [SessionAdminCheck]
+        public ActionResult RefreshHangfireServerStatus(int? page = 1, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["LastPage"] = page;
+            ViewData["searchParam"] = search;
+            var accountInDb = (from a in MoDbContext.Account
+                               where (a.Email.Contains(search) || a.Username.Contains(search) || a.NamaTokoOnline.Contains(search))
+                               orderby a.LAST_LOGIN_DATE descending
+                               select a);
+
+            var accountinDbPaging = accountInDb.Skip(pagenumber * 5).Take(5).ToList();
+
+            var pageContent = new List<HANGFIRE_SERVER_STATUS>();
+            foreach (var item in accountinDbPaging)
+            {
+                var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+
+                string EDBConnID = EDB.GetConnectionString("ConnID");
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                var monitoringApi = sqlStorage.GetMonitoringApi();
+                var serverList = monitoringApi.Servers();
+
+                pageContent.Add(new HANGFIRE_SERVER_STATUS()
+                {
+                    Email = item.Email,
+                    LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
+                    Username = item.Username,
+                    DatabasePathErasoft = item.DatabasePathErasoft,
+                    NamaTokoOnline = item.NamaTokoOnline,
+                    TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
+                    HangfireServerCount = serverList.Count()
+                });
+            }
+
+            var totalAccountInDb = accountInDb.Count();
+            IPagedList<HANGFIRE_SERVER_STATUS> pageOrders = new StaticPagedList<HANGFIRE_SERVER_STATUS>(pageContent, pagenumber + 1, 5, totalAccountInDb);
+
+            return PartialView("TableHangfireServerStatus", pageOrders);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult DeactivateRecentActiveUsers()
+        {
+            var lastYear = DateTime.UtcNow.AddYears(-1);
+            var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            var datenow = DateTime.UtcNow.AddHours(7);
+
+            var accountInDb = (from a in MoDbContext.Account
+                               where
+                               (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                               &&
+                               (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                               orderby a.LAST_LOGIN_DATE descending
+                               select a).ToList();
+            foreach (var item in accountInDb)
+            {
+                AdminStopHangfireServer(item.DatabasePathErasoft);
+            }
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AdminStopHangfireServer(string nourut = "")
+        {
+            var EDB = new DatabaseSQL(nourut);
+
+            string EDBConnID = EDB.GetConnectionString("ConnID");
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+            var monitoringApi = sqlStorage.GetMonitoringApi();
+            var serverList = monitoringApi.Servers();
+
+            if (serverList.Count() > 0)
+            {
+                foreach (var server in serverList)
+                {
+                    var serverConnection = sqlStorage.GetConnection();
+                    serverConnection.RemoveServer(server.Name);
+                    serverConnection.Dispose();
+                }
+            }
+
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult ActivateRecentActiveUsers() {
+
+            var lastYear = DateTime.UtcNow.AddYears(-1);
+            var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+            var datenow = DateTime.UtcNow.AddHours(7);
+
+            var accountInDb = (from a in MoDbContext.Account
+                               where 
+                               (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                               &&
+                               (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                               orderby a.LAST_LOGIN_DATE descending
+                               select a).ToList();
+            foreach (var item in accountInDb)
+            {
+                AdminStartHangfireServer(item.DatabasePathErasoft);
+            }
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AdminStartHangfireServer(string nourut = "", string timer = "")
+        {
+            int interval = 30;
+            try
+            {
+                interval = Convert.ToInt32(timer);
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            var EDB = new DatabaseSQL(nourut);
+
+            string EDBConnID = EDB.GetConnectionString("ConnID");
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+            var monitoringApi = sqlStorage.GetMonitoringApi();
+            var serverList = monitoringApi.Servers();
+
+            if (serverList.Count() == 0)
+            {
+                var optionsStatusResiServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "StatusResiPesanan",
+                    Queues = new[] { "1_manage_pesanan" },
+                    WorkerCount = 2,
+
+                };
+                var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
+
+                var options = new BackgroundJobServerOptions
+                {
+                    ServerName = "Account",
+                    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+                    WorkerCount = 1,
+                };
+                var newserver = new BackgroundJobServer(options, sqlStorage);
+
+                var optionsStokServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "Stok",
+                    Queues = new[] { "1_update_stok" },
+                    WorkerCount = 3,
+                };
+                var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+
+                var optionsBarangServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "Product",
+                    Queues = new[] { "1_create_product" },
+                    WorkerCount = 2,
+                };
+                var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
+
+                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+                {
+                    QueueName = "3_general"
+                };
+                using (var connection = sqlStorage.GetConnection())
+                {
+                    foreach (var recurringJob in connection.GetRecurringJobs())
+                    {
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
+                    }
+                }
+            }
+
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AdminBroadcastMessage(string pesan) {
+
+            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+            contextNotif.Clients.All.broadcastmessage(pesan);
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
     }
 }

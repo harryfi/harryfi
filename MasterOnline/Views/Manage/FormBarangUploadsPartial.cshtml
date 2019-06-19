@@ -215,7 +215,12 @@
     @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
     @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 </div>
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+        initRequired();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">

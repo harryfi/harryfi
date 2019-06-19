@@ -182,19 +182,21 @@
                                 //change by nurul 26/7/2018
                                 //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
                                 var nm = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
+                                var nm2 = "";
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
                                     nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
+                                    nm2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)?.NAMA2;
                                 }
 
                                 var stnbarang = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
-                                    stnbarang= listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
+                                    stnbarang = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
                                 }
                                 //end change
                             }
-                            @nm
+                            @nm @nm2
                         </td>
                         <td class="stn-barang">
                             @*@{

@@ -228,9 +228,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                         <span>Import Persediaan Barang</span>
                                     </button>
@@ -293,9 +293,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                             </div>
                         </div>
                     </div>
@@ -304,7 +304,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-barang-kosong-partial">
-                            @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())
+                            @*@Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -322,9 +322,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                             </div>
                         </div>
                     </div>
@@ -333,7 +333,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-barang-tidak-laku-partial">
-                            @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())
+                            @*@Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -351,9 +351,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                             </div>
                         </div>
                     </div>
@@ -362,7 +362,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-barang-minimum-stok-partial">
-                            @Html.Partial("TableBarangDibawahMinimumStokPartial", new List<PenjualanBarang>())
+                            @*@Html.Partial("TableBarangDibawahMinimumStokPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -380,9 +380,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                             </div>
                         </div>
                     </div>
@@ -575,11 +575,13 @@
             });
         }
         function refreshTableBarang() {
-            var link = '@Url.Action("RefreshTableBarang", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_barang').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
 
             $.ajax({
                 type: "GET",
-                url: link,
+                url: $link,
                 beforeSend: function () {
                     $('#table-barang-1-partial').hide();
                     $('#loading_barang_tab').show();
@@ -4012,10 +4014,10 @@
 
                         $('#loading_structure_partial').hide();
                         $('#loading_detail_variant_partial').hide();
-                        
+
                         //remark by calvin 24 april 2019
                         //$('#var-structure-partial').html(response);
-                        
+
                         GetStrukturVariant();
                         GetDetailBarangVariant();
 

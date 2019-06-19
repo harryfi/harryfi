@@ -1,0 +1,74 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model SettingKodeVariasiPartialViewModel
+@{
+    var MapKodeVarTemp = Model.MapKodeVariasiTemp.ToList();
+    var MapNamaVarTemp = Model.MapNamaVariasiTemp.ToList();
+}
+<script type="text/javascript">
+    function AutoKodeVariasiPartial() {
+        $('#table_setting_kode_variasi input[data-jenis="kode_var"]').each(function (i, item) {
+            $(item).val($(item).attr("data-kode-barang"))
+        });
+    }
+</script>
+<style>
+    
+    #loading_spinner_setting {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_spinner_setting_variasi {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div id="loading_spinner_setting">
+            <div id="loading_spinner_setting_variasi">
+                <img src="~/Content/Images/spinner.gif" />
+            </div>
+        </div>
+        <table id="table_setting_kode_variasi" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="200">Nama Variasi</th>
+                    <th width="100">Kode Variasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Variasi in MapNamaVarTemp)
+                {
+                    <tr data-kode-variasi="@Variasi.Key">
+                        <td>
+                            @Variasi.Value
+                        </td>
+                        <td>
+                            <div class="form-group">
+                                @Html.TextBox("txtNamaUntukVariasi_" + Variasi.Key, "", new { @class = "form-control", required = "required", maxlength = "20", data_jenis = "kode_var", data_kode_barang = Variasi.Key })
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

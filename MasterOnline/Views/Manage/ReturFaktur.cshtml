@@ -67,7 +67,7 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="faktur-tab" role="tab" data-toggle="tab" aria-expanded="true">Retur</a>
                 </li>
@@ -91,7 +91,7 @@
                             <div class="input-group">
                                 <input id="search_faktur" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_faktur_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -99,20 +99,20 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>
                             </div>
                         </div>
                     </div>
                     <div class="row faktur_table_section" style="margin-top: 5px;">
-                        <div class="col-sm-12" id="table-faktur-partial">
-                            @Html.Partial("TableReturPartial")
+                        <div class="col-sm-12 addpixeltretur" id="table-faktur-partial">
+                            @*@Html.Partial("TableReturPartial")*@
                         </div>
                     </div>
                     <div class="row faktur_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Retur Penjualan</h2>
                                 <span class="title-accent"></span>
@@ -134,7 +134,7 @@
                                 @using (Html.BeginForm("SaveFaktur", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-faktur" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("BarangReturPartial")
+                                        @*@Html.Partial("BarangReturPartial")*@
                                     </div>
                                 }
                             </div>
@@ -330,7 +330,7 @@
 
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -350,7 +350,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -370,7 +370,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
@@ -406,17 +406,19 @@
         var $totalAwal = 0;
         var $totalAwalBarang = 0;
         var $nettoSebelumnya = 0;
+        var $modeEdit = 0; // 0 new, 1 edit
 
-        var table = $('#datatable').DataTable({
-            "order": [[0,1, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    "order": [[0,1, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
-        $('#search_faktur').keyup(function () {
-            table.search($(this).val()).draw();
-        });
+        //$('#search_faktur').keyup(function () {
+        //    table.search($(this).val()).draw();
+        //});
 
         $(document).ready(function () {
+            refreshTableFaktur1();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -436,13 +438,53 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
-            Initialize();
-            //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
+            $('#search_faktur').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableFaktur1();
+                    return false;
+                }
             });
-            $('#datatable').DataTable().page($page).draw(false);
+            $('#search_faktur_click').click(function () {
+                searchTableFaktur1();
+            });
+
+            //Initialize();
+            //add by nurul 12/2/2019
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            $('#tambah_faktur').on('click', function () {
+                refreshForm1();
+                //$('.faktur_table_section').hide();
+                //$('.faktur_editor_section').show();
+            });
+            $('#close-editor-1').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.faktur_table_section').show();
+                    $('.faktur_editor_section').hide();
+                    //refreshForm1();
+                    refreshTableFaktur1();
+                    $modeEdit = 0; // 0 new, 1 edit
+                    $bakalNetto = 0;
+                    $nettoSebelumnya = 0;
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
         });
 
         function closeEditor() {
@@ -452,15 +494,16 @@
             });
             $('.faktur_table_section').show();
             $('.faktur_editor_section').hide();
-            refreshForm1();
+            //refreshForm1();
             refreshTableFaktur1();
+            $modeEdit = 0; // 0 new, 1 edit
             $bakalNetto = 0;
             $nettoSebelumnya = 0;
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -479,33 +522,34 @@
             //        }
             //    });
 
-            $('#tambah_faktur').on('click', function () {
-                //refreshForm1();
-                $('.faktur_table_section').hide();
-                $('.faktur_editor_section').show();
-            });
+            //$('#tambah_faktur').on('click', function () {
+            //    refreshForm1();
+            //    //$('.faktur_table_section').hide();
+            //    //$('.faktur_editor_section').show();
+            //});
 
-            $('#close-editor-1').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.faktur_table_section').show();
-                    $('.faktur_editor_section').hide();
-                    refreshForm1();
-                    refreshTableFaktur1();
-                    $bakalNetto = 0;
-                    $nettoSebelumnya = 0;
-                    //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor-1').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $('input, select, .btn-danger').each(function() {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.faktur_table_section').show();
+            //        $('.faktur_editor_section').hide();
+            //        //refreshForm1();
+            //        refreshTableFaktur1();
+            //        $modeEdit = 0; // 0 new, 1 edit
+            //        $bakalNetto = 0;
+            //        $nettoSebelumnya = 0;
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //    }
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_faktur').click();
@@ -513,9 +557,12 @@
 
             $('#table_tambah_faktur > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getMarketplace();
-            getFaktur();
+            //getTanggal();
+            //getMarketplace();
+            //getFaktur();
+
+            //refreshInputan();
+            //refreshNetto();
 
             if ($('#Faktur_TGL').val() != '') {
                 $('#TGL').val($('#Faktur_TGL').val());
@@ -538,8 +585,7 @@
                 }
             });
 
-            refreshInputan();
-            refreshNetto();
+            
 
             $('#tambah-pembeli').click(function() {
                 window.open('@Url.Action("BuyerPopup", "Manage")', "popupWindow", "width=600, height=400, scrollbars=yes");
@@ -551,37 +597,89 @@
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function getTanggal() {
-            $('#TGL').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
-                if ($(this).val() == '') {
-                    $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
-                    return;
-                }
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
 
-                var $tgl = moment($(this).val(), "DD/MM/YYYY");
-                $('#Faktur_TGL').val($(this).val());
-                //add by nurul 31/10/2018
-                $(this).datepicker('hide');
-                //end add
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Faktur_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $('#TGL').datepicker('hide');
+                    //end add
 
-                if ($('#Faktur_TERM').val() == '') {
-                    $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
-                } else {
-                    var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
-                    $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
-                }
-                $('#btn-simpan-perubahan-row').show();
+
+                    if ($('#Faktur_TERM').val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+                        $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
                 });
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Faktur_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $('#TGL').datepicker('hide');
+                    //end add
+
+                    if ($('#Faktur_TERM').val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+                        $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $modeEdit = 1;
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+            //$('#TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //    $('#Faktur_TGL').val($(this).val());
+            //    //add by nurul 31/10/2018
+            //    $(this).datepicker('hide');
+            //    //end add
+
+            //    if ($('#Faktur_TERM').val() == '') {
+            //        $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+            //        $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //    $('#btn-simpan-perubahan-row').show();
+            //    });
 
             if ($('#Faktur_TGL').val() != '') {
                 $('#TGL').val($('#Faktur_TGL').val().substr(0, 10));
@@ -722,10 +820,10 @@
             //});
             $('#btn-autoload').off('click').on('click', autoloadFaktur);
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -1102,13 +1200,16 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
                                 $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
                                 getFaktur(false);
-                                $('#tambah_faktur').click();
+                                //$('#tambah_faktur').click();
+                                $('.faktur_table_section').hide();
+                                $('.faktur_editor_section').show();
                                 $nettoSebelumnya += $bakalNetto;
 
                                 $(' select ').each(function () {
@@ -1224,13 +1325,17 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 1; // 0 new, 1 edit
                     $('#form-partial').html(response);
+                    $('#form-partial').show();
                     $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur();
-                    $('#tambah_faktur').click();
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
                     $nettoSebelumnya += $bakalNetto;
                     $('tr[data-faktur-id="0"]').hide();
 
@@ -1259,13 +1364,17 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $modeEdit = 1; // 0 new, 1 edit
                     $('#form-partial').html(response);
+                    $('#form-partial').show();
                     $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur(false);
-                    $('#tambah_faktur').click();
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
                     $nettoSebelumnya += $bakalNetto;
 
                     $(' select ').each(function () {
@@ -1319,11 +1428,12 @@
                         alert(response.Errors[0]);
                     } else {
                         $('#table-faktur-partial').html(response);
-                        var table = $('#datatable').DataTable({
-                            "order": [[0, 1, "desc"]], //or asc
-                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                        });
-                        Initialize();
+                        //var table = $('#datatable').DataTable({
+                        //    "order": [[0, 1, "desc"]], //or asc
+                        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        //});
+                        //Initialize();
+                        refreshTableFaktur1();
                         $('#konfHapusFaktur').modal('hide');
                         $('#loading_spinner').hide();
                     }
@@ -1335,7 +1445,7 @@
             });
         }
 
-        function refreshTableFaktur1() {
+        @*function refreshTableFaktur1() {
             var link = '@Url.Action("RefreshTableRetur1", "Manage")';
 
             $.ajax({
@@ -1343,10 +1453,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[0,1, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[0,1, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
                     $('#search_faktur').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -1354,13 +1464,59 @@
                     table.search($('#search_faktur').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
+
+        function refreshTableFaktur1() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableRetur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-faktur-partial').hide();
+                    $('#loading_returfaktur_tab').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-partial').html(response);
+                    $('#loading_returfaktur_tab').hide();
+                    $('#table-faktur-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableFaktur1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableRetur1", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_faktur_click')[0].disabled = true;
+                    $('#loading_returfaktur_tab').show();
+                },
+                success: function (response) {
+                    $('#search_faktur_click')[0].disabled = false;
+                    $('#table-faktur-partial').html(response);
+                    $('#loading_returfaktur_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_faktur_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1376,11 +1532,17 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $modeEdit = 0; // 0 new, 1 edit
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur();
+
+                    //refreshNetto();
                     $nobuk = 0;
                     if (baru) {
 
@@ -1538,6 +1700,7 @@
                     },
                     success: function (response) {
                         if (response.Errors == null) {
+                            $modeEdit = 1; // 0 new, 1 edit
                             //add by calvin 8 nov 2018
                             $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
                             $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
@@ -1625,13 +1788,16 @@
                         $('#loading_spinner').hide();
                         alert(response.Errors[0]);
                     } else {
+                        $modeEdit = 1; // 0 new, 1 edit
                         $('#form-partial').html(response);
                         $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                         refreshInputan();
                         getTanggal();
                         getMarketplace();
                         getFaktur(false);
-                        $('#tambah_faktur').click();
+                        //$('#tambah_faktur').click();
+                        $('.faktur_table_section').hide();
+                        $('.faktur_editor_section').show();
                         $nettoSebelumnya += $bakalNetto;
                         //add by nurul 16/11/2018
                         $(' select ').each(function () {

@@ -39,6 +39,35 @@
         #REK {
             width: 150px !important;
         }
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 42%;
+            }
+
+            .addpixeljurnal {
+                width: 850px;
+            }
+
+            .addpixelbhutang {
+                width: 808px;
+            }
+
+            .addpixeltpiutangg {
+                width: 334px;
+            }
+
+            .addpixeldjurnal {
+                width: 800px;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .modalresponsive {
+                width: 400px;
+            }
+        }
     </style>
 }
 
@@ -77,9 +106,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_jurnal">Tambah Baru</button>
                             </div>
                         </div>
@@ -310,7 +339,7 @@
 
 <div class="modal fade" id="konfHapusJurnal" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -330,7 +359,7 @@
 
 <div class="modal fade" id="konfHapusDetail" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -350,7 +379,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
@@ -557,40 +586,40 @@
             //        }
             //    });
 
-            $('#tambah_jurnal').on('click', function () {
-                //$('.jurnal_table_section').hide();
-                //$('.jurnal_editor_section').show();
-                refreshForm1();
-            });
+            //$('#tambah_jurnal').on('click', function () {
+            //    //$('.jurnal_table_section').hide();
+            //    //$('.jurnal_editor_section').show();
+            //    refreshForm1();
+            //});
 
-            $('#close-editor-1').off('click').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    //add by nurul 31/10/2018
-                    $saved = 1;
-                    //end add
-                    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
-                        alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
-                        //konfirmasiData();
-                        return;
-                    }
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.jurnal_table_section').show();
-                    $('.jurnal_editor_section').hide();
-                    //refreshForm1();
-                    refreshTableJurnal1();
-                    $saved = 0;
-                    //add by nurul 12/2/2019
-                    //$('#datatable').on('page.dt', function () {
-                    //    $page = $('#datatable').DataTable().page.info().page;
-                    //});
-                    //$('#datatable').DataTable().page($page).draw(false);
-            //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor-1').off('click').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        //add by nurul 31/10/2018
+            //        $saved = 1;
+            //        //end add
+            //        if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+            //            alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+            //            //konfirmasiData();
+            //            return;
+            //        }
+            //        $('input, select, .btn-danger').each(function() {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.jurnal_table_section').show();
+            //        $('.jurnal_editor_section').hide();
+            //        //refreshForm1();
+            //        refreshTableJurnal1();
+            //        $saved = 0;
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            ////end add by nurul 12/2/2019
+            //    }
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_jurnal').click();
@@ -598,16 +627,16 @@
 
             $('#table_tambah_jurnal > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getRekening();
+            //getTanggal();
+            //getRekening();
+
+            //refreshInputan();
 
             if ($('#Jurnal_tgl').val() != '') {
                 $('#TGL').val($('#Jurnal_tgl').val());
             } else {
                 $('#Jurnal_tgl').val($('#TGL').val());
             }
-
-            refreshInputan();
 
             //$('a').click(function () {
             //    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
@@ -1117,6 +1146,7 @@
                     getTanggal();
                     getRekening();
                     refreshInputan();
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

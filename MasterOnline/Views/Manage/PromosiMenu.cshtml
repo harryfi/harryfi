@@ -58,7 +58,7 @@
                 <div class="input-group">
                     <input id="search_promosi" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_promosi_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -66,20 +66,20 @@
             </div>
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
+                    @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
                         <span>Refresh</span>
-                    </button>
+                    </button>*@
                     <button class="btn btn-primary btn_tambah_data" id="tambah_promosi">Tambah Baru</button>
                 </div>
             </div>
         </div>
         <div class="row promosi_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12" id="table-promosi-partial">
-                @Html.Partial("TablePromosiPartial")
+            <div class="col-sm-12 addpixel" id="table-promosi-partial">
+                @*@Html.Partial("TablePromosiPartial")*@
             </div>
         </div>
         <div class="row promosi_editor_section" style="display: none;">
-            <div class="col-lg-12">
+            <div class="col-lg-12 modalresponsive">
                 <div class="page-editor">
                     <h2 class="editor-title">Promosi</h2>
                     <span class="title-accent"></span>
@@ -101,7 +101,7 @@
                     @using (Html.BeginForm("SavePromosi", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-promosi" }))
                     {
                         <div id="form-partial">
-                            @Html.Partial("BarangPromosiPartial")
+                            @*@Html.Partial("BarangPromosiPartial")*@
                         </div>
                     }
                 </div>
@@ -112,7 +112,7 @@
 
 <div class="modal fade" id="konfHapusPromosi" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -132,7 +132,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -152,7 +152,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
@@ -186,6 +186,7 @@
             //end add by nurul 12/2/2019
 
         $(document).ready(function () {
+            refreshTablePromosi1();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -211,15 +212,53 @@
                 $('#refresh_promosi').show();
             });
 
-            Initialize();
+            //Initialize();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
-                
-            
+
+            $('#search_promosi').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromosi1();
+                    return false;
+                }
+            });
+            $('#search_promosi_click').click(function () {
+                searchTablePromosi1();
+            });
+
+            $('#tambah_promosi').on('click', function () {
+                $modeEdit = 0;
+                refreshForm1();
+            });
+
+            $('#close-editor-1').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $modeEdit = 0;
+                    refreshTablePromosi1();
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.promosi_editor_section').hide();
+                    $('.promosi_table_section').show();
+                    $('.btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
         });
 
         function closeEditor() {
@@ -235,23 +274,35 @@
                 $(this).removeAttr('disabled');
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
             //var tableNunggu = $('#datatable_nunggu').DataTable();
             //var tableSedangProses = $('#datatable_sedangproses').DataTable();
             //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             //var tableSelesai = $('#datatable_selesai').DataTable();
 
-            $('#search_promosi').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_promosi').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+
+            $('#search_promosi').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromosi1();
+                    return false;
+                }
+            });
+            $('#search_promosi_click').click(function () {
+                searchTablePromosi1();
             });
 
             //$('#search_selesai').keyup(function () {
@@ -287,33 +338,33 @@
             //        }
             //    });
 
-            $('#tambah_promosi').on('click', function () {
-                $modeEdit = 0;
-                refreshForm1();
-            });
+            //$('#tambah_promosi').on('click', function () {
+            //    $modeEdit = 0;
+            //    refreshForm1();
+            //});
 
-            $('#close-editor-1').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $modeEdit = 0;
-                    refreshTablePromosi1();
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.promosi_editor_section').hide();
-                    $('.promosi_table_section').show();
-                    $('.btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor-1').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $modeEdit = 0;
+            //        refreshTablePromosi1();
+            //        $('input, select, .btn-danger').each(function() {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.promosi_editor_section').hide();
+            //        $('.promosi_table_section').show();
+            //        $('.btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //    }
+            //});
 
             if ($('.message-error').text() !== '') {
                 //$('#tambah_promosi').click();
@@ -323,15 +374,15 @@
 
             $('#table_tambah_promosi > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getMarketplace();
-            getDataBarang();
-            refreshInputan();
+            //getTanggal();
+            //getMarketplace();
+            //getDataBarang();
+            //refreshInputan();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -485,10 +536,10 @@
                 });
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
         var $angka;
@@ -953,7 +1004,8 @@
                 },
                 success: function (response) {
                     $('#table-promosi-partial').html(response);
-                    Initialize();
+                    //Initialize();
+                    refreshTablePromosi1();
                     $('#loading_spinner').hide();
                     $('#konfHapusPromosi').modal('hide');
                 },
@@ -1006,7 +1058,7 @@
             });
         }
 
-        function refreshTablePromosi1() {
+        @*function refreshTablePromosi1() {
             var link = '@Url.Action("RefreshTablePromosi", "Manage")';
 
             $.ajax({
@@ -1036,6 +1088,52 @@
                     console.log(error);
                 }
             });
+        }*@
+
+        function refreshTablePromosi1() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_promosi').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-promosi-partial').hide();
+                    $('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#table-promosi-partial').html(response);
+                    $('#loading_promosi_tab').hide();
+                    $('#table-promosi-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePromosi1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_promosi').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_promosi_click')[0].disabled = true;
+                    $('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#search_promosi_click')[0].disabled = false;
+                    $('#table-promosi-partial').html(response);
+                    $('#loading_promosi_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_promosi_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
         }
 
         function refreshForm1() {
@@ -1048,14 +1146,15 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $('.promosi_table_section').hide();
+                    $('.promosi_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getDataBarang();
                     $('#loading_spinner').hide();
-                    $('.promosi_table_section').hide();
-                    $('.promosi_editor_section').show();
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

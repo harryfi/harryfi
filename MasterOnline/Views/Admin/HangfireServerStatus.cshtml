@@ -1,0 +1,229 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    ViewBag.Title = "Aktivitas Hangfire";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section styles
+{
+    <style>
+        #loading_barang_tab {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_barang_tab_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+    </style>
+}
+
+<script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#search_api_log_btn').click(function () {
+            searchTableLog();
+        });
+
+        $('#search_api_log').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTableLog();
+                return false;
+            }
+        });
+
+        $('#broadcase_message_btn').click(function () {
+            adminBroadcast();
+        });
+
+        $('#broadcase_message_text').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                adminBroadcast();
+                return false;
+            }
+        });
+
+        refreshTableLog();
+    });
+
+    function searchTableLog() {
+        var $link = '@Html.Raw(Url.Action("RefreshHangfireServerStatus", "Admin", new { search = "replaceSearch" }))';
+        $link = $link.replace("replaceSearch", $('#search_api_log').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#table-barang-1-partial').hide();
+                $('#search_api_log_btn')[0].disabled = true;
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#search_api_log_btn')[0].disabled = false;
+                $('#table-market-log-partial-div').html(response);
+                $('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                $('#search_api_log_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+    function refreshTableLog() {
+        var $link = '@Html.Raw(Url.Action("RefreshHangfireServerStatus", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+        $link = $link.replace("replaceSearch", $('#search_api_log').val());
+        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#table-barang-1-partial').hide();
+                $('#search_api_log_btn')[0].disabled = true;
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                $('#search_api_log_btn')[0].disabled = false;
+                $('#table-market-log-partial-div').html(response);
+                $('#loading_barang_tab').hide();
+            },
+            error: function (xhr, status, error) {
+                $('#search_api_log_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+
+    function StopActiveUserServers() {
+        var link = '@Url.Action("DeactivateRecentActiveUsers", "Admin")';
+
+        $.ajax({
+            type: "POST",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            beforeSend: function () {
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                refreshTableLog();
+            },
+            error: function (response) {
+            }
+        });
+    }
+
+    function StartActiveUserServers() {
+        var link = '@Url.Action("ActivateRecentActiveUsers", "Admin")';
+
+        $.ajax({
+            type: "POST",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            beforeSend: function () {
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                refreshTableLog();
+            },
+            error: function (response) {
+            }
+        });
+    }
+
+    function adminBroadcast() {
+        var $link = '@Html.Raw(Url.Action("AdminBroadcastMessage", "Admin", new { pesan = "replacePesanBroadcast" }))';
+        $link = $link.replace("replacePesanBroadcast", $('#broadcase_message_text').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#table-barang-1-partial').hide();
+                $('#broadcase_message_btn')[0].disabled = true;
+                $('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                alert("Pesan berhasil dikirim.");
+                $('#broadcase_message_btn')[0].disabled = false;
+                $('#loading_barang_tab').hide();
+                $('#broadcase_message_text').val("");
+            },
+            error: function (xhr, status, error) {
+                $('#broadcase_message_btn')[0].disabled = false;
+                console.log(error);
+            }
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <input id="search_api_log" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_api_log_btn" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                        onclick="StartActiveUserServers()">
+                    <span>Activate All Active Users</span>
+                </button>
+                <button class="btn btn-danger" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                        onclick="StopActiveUserServers()">
+                    <span>Deactivate All Active Users</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div class="input-group">
+                    <input id="broadcase_message_text" type="text" class="form-control" placeholder="Pesan">
+                    <span class="input-group-btn">
+                        <button type="button" id="broadcase_message_btn" class="btn btn-primary">
+                            <i class="fa fa-arrow-right"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row" style="margin-top: 5px;">
+            <div class="col-sm-12" id="table-market-log-partial-div">
+                @* TableMarketPlaceLog.cshtml *@
+            </div>
+        </div>
+    </div>
+</div>

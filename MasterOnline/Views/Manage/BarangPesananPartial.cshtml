@@ -18,6 +18,15 @@
     }
 }
 
+<style>
+    @@media screen and (max-width: 767px) {
+        .addmarginLeft {
+            margin-left: -51px;
+        }
+    }
+</style>
+
+
 @Html.AntiForgeryToken()
 @Html.HiddenFor(m => m.Pesanan.RecNum)
 @Html.HiddenFor(m => m.Pesanan.STATUS_TRANSAKSI, new { Value = " " })
@@ -57,7 +66,7 @@
 
     $(document).ready(function () {
         Initialize();
-        refreshInputan();
+        //refreshInputan();
     });
 </script>
 @*//end add by nurul 14/5/2019*@
@@ -65,7 +74,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-                @Html.LabelFor(m => m.Pesanan.NO_BUKTI, "No. Order", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                @Html.LabelFor(m => m.Pesanan.NO_BUKTI, "No. Pesanan", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     @Html.HiddenFor(m => m.Pesanan.NO_BUKTI)
                     @if (Model.Pesanan != null)
@@ -295,132 +304,134 @@
 @Html.HiddenFor(m => m.PesananDetail.DISC_TITIPAN, new { Value = 0 })
 @Html.HiddenFor(m => m.PesananDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 <div class="row" style="margin-top: 15px;">
-    <div class="col-lg-12">
-        <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
-            <thead>
-                <tr>
-                    <th width="100">Kode Brg</th>
-                    <th width="150">Nama Brg</th>
-                    <th>Stn</th>
-                    <th>Harga</th>
-                    <th width="45">Qty</th>
-                    <th width="55">Disc%</th>
-                    @* change by nurul 14/11/2018 -- <th><div data-tip="Nilai diskon untuk semua Qty">NDisc (?)</div></th>*@
-                    <th><div data-tip="Nilai diskon untuk semua Qty">Total Nilai Disc</div></th>
-                    <th width="55">Disc2%</th>
-                    @*change by nurul 14/11/2018 -- <th><div data-tip="Nilai diskon setelah dikurangi NDisc">NDisc2 (?)</div></th>*@
-                    <th><div data-tip="Nilai diskon setelah dikurangi NDisc">Total Nilai Disc2</div></th>
-                    <th width="100">Total</th>
-                    <th width="45">Simpan</th>
-                    <th width="45">Hapus</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
+    <div class="col-lg-12 addmarginLeft">
+        <div class="hscroll table-responsive">
+            <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="100">Kode Brg</th>
+                        <th width="150">Nama Brg</th>
+                        <th>Stn</th>
+                        <th>Harga</th>
+                        <th width="45">Qty</th>
+                        <th width="55">Disc%</th>
+                        @* change by nurul 14/11/2018 -- <th><div data-tip="Nilai diskon untuk semua Qty">NDisc (?)</div></th>*@
+                        <th><div data-tip="Nilai diskon untuk semua Qty">Total Nilai Disc</div></th>
+                        <th width="55">Disc2%</th>
+                        @*change by nurul 14/11/2018 -- <th><div data-tip="Nilai diskon setelah dikurangi NDisc">NDisc2 (?)</div></th>*@
+                        <th><div data-tip="Nilai diskon setelah dikurangi NDisc">Total Nilai Disc2</div></th>
+                        <th width="100">Total</th>
+                        <th width="45">Simpan</th>
+                        <th width="45">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
                     var listBarang = Model.ListBarang.ToList();
                     var iPd = 0;
-                }
-                @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
-                {
-                    <tr data-barang-id="brg-@pesanan.NO_URUT">
-                        @{
-                            var stnBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.STN2;
-                            var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.HJUAL;
-                        }
-                        <td>
-                            @pesanan.BRG
+                    }
+                    @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                    {
+                        <tr data-barang-id="brg-@pesanan.NO_URUT">
+                            @{
+                        var stnBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.STN2;
+                        var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.HJUAL;
+                            }
+                            <td>
+                                @pesanan.BRG
+                            </td>
+                            <td class="nama-barang">
+                                @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA) @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA2)
+                            </td>
+                            <td class="stn-barang">
+                                @stnBarang
+                            </td>
+                            <td class="harga-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
+                            </td>
+                            <td class="qty-barang">
+                                @pesanan.QTY
+                            </td>
+                            <td class="disc1-barang">
+                                @pesanan.DISCOUNT
+                            </td>
+                            <td class="ndisc1-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                            </td>
+                            <td class="disc2-barang">
+                                @pesanan.DISCOUNT_2
+                            </td>
+                            <td class="ndisc2-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                            </td>
+                            <td class="netto-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    iPd = iPd + 1;
+                    }
+                    <tr data-pesanan-id="0">
+                        @Html.HiddenFor(m => m.PesananDetail.NO_URUT)
+                        <td style="width: 120px; max-width: 120px;">
+                            <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.PesananDetail.BRG)
                         </td>
-                        <td class="nama-barang">
-                            @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA) @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA2)
-                        </td>
+                        <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
                         <td class="stn-barang">
-                            @stnBarang
+                            -
+                            @Html.HiddenFor(m => m.PesananDetail.SATUAN)
                         </td>
-                        <td class="harga-barang" style = "text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
+                        <td class="harga-barang" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananDetail.H_SATUAN)
                         </td>
                         <td class="qty-barang">
-                            @pesanan.QTY
+                            0
+                            @Html.HiddenFor(m => m.PesananDetail.QTY)
                         </td>
                         <td class="disc1-barang">
-                            @pesanan.DISCOUNT
+                            0
+                            @Html.HiddenFor(m => m.PesananDetail.DISCOUNT)
                         </td>
-                        <td class="ndisc1-barang" style = "text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                        <td class="ndisc1-barang" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_1)
                         </td>
                         <td class="disc2-barang">
-                            @pesanan.DISCOUNT_2
+                            0
+                            @Html.HiddenFor(m => m.PesananDetail.DISCOUNT_2)
                         </td>
-                        <td class="ndisc2-barang" style = "text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                        <td class="ndisc2-barang" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_2)
                         </td>
-                        <td class="netto-barang" style = "text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                        <td class="netto-barang" style="text-align:right">
+                            0,00
+                            @Html.HiddenFor(m => m.PesananDetail.HARGA)
                         </td>
                         <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary" disabled="disabled">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                             </button>
                         </td>
                         <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
                     </tr>
-                    iPd = iPd + 1;
-                }
-                <tr data-pesanan-id="0">
-                    @Html.HiddenFor(m => m.PesananDetail.NO_URUT)
-                    <td style="width: 120px; max-width: 120px;">
-                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
-                        @Html.HiddenFor(m => m.PesananDetail.BRG)
-                    </td>
-                    <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
-                    <td class="stn-barang">
-                        -
-                        @Html.HiddenFor(m => m.PesananDetail.SATUAN)
-                    </td>
-                    <td class="harga-barang" style = "text-align:right">
-                        0,00
-                        @Html.HiddenFor(m => m.PesananDetail.H_SATUAN)
-                    </td>
-                    <td class="qty-barang">
-                        0
-                        @Html.HiddenFor(m => m.PesananDetail.QTY)
-                    </td>
-                    <td class="disc1-barang">
-                        0
-                        @Html.HiddenFor(m => m.PesananDetail.DISCOUNT)
-                    </td>
-                    <td class="ndisc1-barang" style = "text-align:right">
-                        0,00
-                        @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_1)
-                    </td>
-                    <td class="disc2-barang">
-                        0
-                        @Html.HiddenFor(m => m.PesananDetail.DISCOUNT_2)
-                    </td>
-                    <td class="ndisc2-barang" style = "text-align:right">
-                        0,00
-                        @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_2)
-                    </td>
-                    <td class="netto-barang" style = "text-align:right">
-                        0,00
-                        @Html.HiddenFor(m => m.PesananDetail.HARGA)
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
-                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

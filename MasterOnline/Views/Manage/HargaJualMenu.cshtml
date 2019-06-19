@@ -18,14 +18,12 @@
         username = dataSession?.Account.Username;
     }
 }
-
 @section styles
 {
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
-
     <style>
         #hargaJual-section > div {
             background-color: #fff;
@@ -42,17 +40,30 @@
             color: orange;
             font-weight: bold;
         }
+
+        @@media screen and (max-width: 767px) {
+            .marginmin {
+                margin-left: 0px;
+            }
+
+            #hargaJual-section > div {
+                padding: 2px;
+            }
+
+            .dataTables_paginate {
+                margin-top: 9px;
+            }
+        }
     </style>
 }
-
 <div class="row" id="hargaJual-section">
     <div class="col-lg-12 col-md-12">
-        <div class="row hargaJual_table_section">
+        <div class="row hargaJual_table_section marginmin">
             <div class="col-lg-4 col-sm-6">
                 <div class="input-group">
                     <input id="search_hargaJual" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_hargaJual_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -60,9 +71,9 @@
             </div>
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
-                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                    @*<button type="button" class=" btn btn-default" data-style="expand-right">
                         <span>Refresh</span>
-                    </button>
+                    </button>*@
                     <button type="button" onclick="exportExcel()" class=" btn btn-primary" data-style="expand-right">
                         <span>Export ke Excel</span>
                     </button>
@@ -71,12 +82,11 @@
         </div>
         <div class="row hargaJual_table_section">
             <div class="col-sm-12" id="table-hargaJual-partial">
-                @Html.Partial("TableHargaJualPartial")
+                @*@Html.Partial("TableHargaJualPartial")*@
             </div>
         </div>
     </div>
 </div>
-
 <!-- Modal Hapus hargaJual -->
 <div class="modal fade" id="konfHapusHargaJual" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -97,7 +107,6 @@
         </div>
     </div>
 </div>
-
 <!-- Modal Edit Harga Jual -->
 <div class="modal fade" id="modalEditHargaJual" tabindex="-1" role="dialog" aria-labelledby="editHargaJualLabel">
     <div class="modal-dialog" role="document">
@@ -131,16 +140,14 @@
         </div>
     </div>
 </div>
-
 @section scripts
 {
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
-
     <script type="text/javascript">
         //add by nurul 12/2/2019
         var $page = window.text;
-            //end add by nurul 12/2/2019
+        //end add by nurul 12/2/2019
         var $recNum = 0;
 
         $(document).on('ready',
@@ -148,13 +155,26 @@
                 //add by nurul 12/2/2019
                 $page = 0;
             //end add by nurul 12/2/2019
-                Initialize();
+                //Initialize();
+                refreshTableHargaJual();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+                $('#search_hargaJual').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableHargaJual();
+                        return false;
+                    }
+                });
+                $('#search_hargaJual_click').click(function () {
+                    searchTableHargaJual();
+                });
             });
         //add by Tri, 27 Mei 2019
         function exportExcel() {
@@ -172,7 +192,7 @@
                 success: function (response) {
                     $('#loading_spinner_btn').hide();
                     if (response.Errors.length == 0) {
-                       
+
                         @*var url2 = '@Url.Action("DownloadFileExcel", "TransferExcel", new { file = "replace1", fileName = "replace2" })';
                         url2 = url2.replace("replace1", response.byteExcel);
                         url2 = url2.replace("replace2", response.namaFile);
@@ -229,10 +249,10 @@
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("DownloadFileExcel", "TransferExcel")',
-                contentType:"application/json;charset=utf-8",
+                contentType: "application/json;charset=utf-8",
                 data: dataPost,
                 //dataType: "json",
-                async:true,
+                async: true,
                 //processData: false,  // tell jQuery not to process the data
                 //contentType: false,  // tell jQuery not to set contentType
                 beforeSend: function () {
@@ -240,7 +260,7 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        
+
                     }
                 },
                 error: function (xhr, status, error) {
@@ -253,19 +273,31 @@
         //end add by Tri, 27 Mei 2019
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
 
-            $('#search_hargaJual').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_hargaJual').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_hargaJual').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHargaJual();
+                    return false;
+                }
             });
+            $('#search_hargaJual_click').click(function () {
+                searchTableHargaJual();
+            });
+
             //add by nurul 26 nov 2018, setelah di close, search lg
-            table.search($('#search_hargaJual').val()).draw();
+            //table.search($('#search_hargaJual').val()).draw();
             //end add by nurul 26 nov 2018, setelah di close, search lg
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -296,9 +328,11 @@
                     $('#btnUbahHJual').show();
                     $('#loading_spinner_btn').hide();
                     if (res.message == null) {
+                        refreshTableHargaJual();
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
-                        Initialize();
+                        //Initialize();
+                        
                         $('#modalEditHargaJual').modal('hide');
                     } else {
                         alert(res.message);
@@ -339,5 +373,53 @@
             }
             //end change by calvin 26 september 2018
         }
+
+        //add by nurul 13/6/2019
+        function refreshTableHargaJual() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-hargaJual-partial').hide();
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#table-hargaJual-partial').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                    $('#table-hargaJual-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableHargaJual(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_hargaJual_click')[0].disabled = true;
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#search_hargaJual_click')[0].disabled = false;
+                    $('#table-hargaJual-partial').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_hargaJual_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 13/6/2019
     </script>
 }

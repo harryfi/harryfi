@@ -41,13 +41,48 @@
         #FAKTUR {
             width: 120px !important;
         }
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 44%;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .addpixeltpiutang {
+                width: 813px;
+            }
+
+            .addpixeltpiutangbyr {
+                width: 780px;
+            }
+
+            .addpixelmodaltpiutang {
+                width: 393px;
+            }
+
+            .modalresponsive {
+                width: 400px;
+            }
+        }
+
+        @@media screen and (max-width: 325px) {
+            .table-responsive {
+                width: 35%;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
     </style>
 }
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="piutang-tab" role="tab" data-toggle="tab" aria-expanded="true">Pembayaran Piutang</a>
                 </li>
@@ -71,7 +106,7 @@
                             <div class="input-group">
                                 <input id="search_piutang" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_piutang_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -79,20 +114,20 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_piutang">Tambah Baru</button>
                             </div>
                         </div>
                     </div>
                     <div class="row piutang_table_section" style="margin-top: 5px;">
-                        <div class="col-sm-12" id="table-piutang-partial">
-                            @Html.Partial("TableBayarPiutangPartial")
+                        <div class="col-sm-12 addpixeltpiutang" id="table-piutang-partial">
+                            @*@Html.Partial("TableBayarPiutangPartial")*@
                         </div>
                     </div>
                     <div class="row piutang_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Pembayaran Piutang</h2>
                                 <span class="title-accent"></span>
@@ -114,7 +149,7 @@
                                 @using (Html.BeginForm("SavePiutang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-piutang" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("DetailBayarPiutangPartial")
+                                        @*@Html.Partial("DetailBayarPiutangPartial")*@
                                     </div>
                                 }
                             </div>
@@ -312,7 +347,7 @@
 
 <div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -332,7 +367,7 @@
 
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -352,7 +387,7 @@
 
 <div class="modal fade" id="konfAutoload" tabindex="-1" role="dialog" aria-labelledby="konfirmasiAutoload">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiAutoload">Autoload Pembayaran Piutang</h4>
@@ -410,10 +445,12 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var $modeEdit = 0; // 0 new, 1 edit
         //add by nurul 12/2/2019
         var $page = window.text;
             //end add by nurul 12/2/2019
         $(document).ready(function () {
+            refreshTablePiutang1();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -433,31 +470,79 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
-            Initialize();
+            //Initialize();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            $('#search_piutang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePiutang1();
+                    return false;
+                }
+            });
+            $('#search_piutang_click').click(function () {
+                searchTablePiutang1();
+            });
+            $('#tambah_piutang').on('click', function () {
+                //$('.piutang_table_section').hide();
+                //$('.piutang_editor_section').show();
+                //$('#TGL').change();
+                refreshForm1();
+            });
+
+            $('#close-editor-1').on('click', function () {
+
+                $('input, select, .btn-danger').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+
+                $('.piutang_table_section').show();
+                $('.piutang_editor_section').hide();
+                //refreshForm1();
+                refreshTablePiutang1();
+                $modeEdit = 0; // 0 new, 1 edit
+                //add by nurul 12/2/2019
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
+                //end add by nurul 12/2/2019
+            });
         });
 
-        var table = $('#datatable').DataTable({
-            "order": [[0,1, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    "order": [[0,1, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
         function Initialize() {
             $('#konfAutoload').modal('hide');
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
             //var tableNunggu = $('#datatable_nunggu').DataTable();
             //var tableSedangProses = $('#datatable_sedangproses').DataTable();
             //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             //var tableSelesai = $('#datatable_selesai').DataTable();
 
-            $('#search_piutang').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_piutang').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_piutang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePiutang1();
+                    return false;
+                }
+            });
+            $('#search_piutang_click').click(function () {
+                searchTablePiutang1();
             });
 
             //$('#search_selesai').keyup(function () {
@@ -493,29 +578,31 @@
             //        }
             //    });
 
-            $('#tambah_piutang').on('click', function () {
-                $('.piutang_table_section').hide();
-                $('.piutang_editor_section').show();
-                $('#TGL').change();
-            });
+            //$('#tambah_piutang').on('click', function () {
+            //    //$('.piutang_table_section').hide();
+            //    //$('.piutang_editor_section').show();
+            //    //$('#TGL').change();
+            //    refreshForm1();
+            //});
 
-            $('#close-editor-1').on('click', function () {
+            //$('#close-editor-1').on('click', function () {
 
-                $('input, select, .btn-danger').each(function() {
-                    $(this).removeAttr('disabled');
-                });
+            //    $('input, select, .btn-danger').each(function() {
+            //        $(this).removeAttr('disabled');
+            //    });
 
-                $('.piutang_table_section').show();
-                $('.piutang_editor_section').hide();
-                refreshForm1();
-                refreshTablePiutang1();
-                //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-            });
+            //    $('.piutang_table_section').show();
+            //    $('.piutang_editor_section').hide();
+            //    //refreshForm1();
+            //    refreshTablePiutang1();
+            //    $modeEdit = 0; // 0 new, 1 edit
+            //    //add by nurul 12/2/2019
+            //    //$('#datatable').on('page.dt', function () {
+            //    //    $page = $('#datatable').DataTable().page.info().page;
+            //    //});
+            //    //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_piutang').click();
@@ -523,35 +610,98 @@
 
             $('#table_tambah_piutang > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getMarketplace();
-            getFaktur(null);
+            //getTanggal();
+            //getMarketplace();
+            //getFaktur(null);
 
+            //refreshInputan();
+            
+            //if ($('#Piutang_TGL').val() != '') {
+            //    var $tgl = $('#Piutang_TGL').val();
+            //    $('#TGL').val($tgl.format('dd/MM/yyyy'));
+            //} else {
+            //    var $tgl = $('#TGL').val();
+            //    $('#Piutang_TGL').val($tgl.format('dd/MM/yyyy'));
+            //}
             if ($('#Piutang_TGL').val() != '') {
                 $('#TGL').val($('#Piutang_TGL').val());
             } else {
                 $('#Piutang_TGL').val($('#TGL').val());
             }
 
-            refreshInputan();
+            
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function getTanggal() {
-            $('#TGL').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
-                $('#Piutang_TGL').val($(this).val());
-                //add by nurul 31/10/2018
-                $(this).datepicker('hide');
-                //end add
+            //if ($modeEdit == 1) { // mode edit
+            //    $('#TGL').datepicker({
+            //        format: 'dd/mm/yyyy',
+            //        language: 'id'
+            //    }).change(function () {
+            //        //var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //        $('#Piutang_TGL').val($(this).val());
+            //        $('#TGL').datepicker('hide');
+            //        $('#btn-simpan-perubahan-row').show();
+            //    });
+            //}
+            //else { //new
+            //    $('#TGL').datepicker({
+            //        format: 'dd/mm/yyyy',
+            //        language: 'id'
+            //    }).datepicker('setDate', '0').change(function () {
+            //        //var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //        $('#Piutang_TGL').val($(this).val());
+            //        $('#TGL').datepicker('hide');
+                    
+            //        $modeEdit = 1;
+            //        $('#btn-simpan-perubahan-row').show();
+            //    });
+            //}
+            if ($modeEdit == 1) {
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    $('#Piutang_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
                 });
+            } else {
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    $('#Piutang_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+                    $modeEdit = 1;
+                });
+            }
+            
+
+            if ($('#Piutang_TGL').val() != '') {
+                $('#TGL').val($('#Piutang_TGL').val().substr(0, 10));
+            } else {
+                $('#Piutang_TGL').val($('#TGL').val());
+            }
+            ////$('#TGL').datepicker({
+            ////    format: 'dd/mm/yyyy',
+            ////    language: 'id'
+            ////}).datepicker('setDate', '0').change(function () {
+            ////    $('#Piutang_TGL').val($(this).val());
+            ////    //add by nurul 31/10/2018
+            ////    $(this).datepicker('hide');
+            ////    //end add
+            ////    });
+
             //$('#DR_TGL').datepicker({
             //    format: 'dd/mm/yyyy',
             //    language: 'id'
@@ -575,8 +725,13 @@
         var $flagPerubahan = 0;
 
         function refreshInputan() {
+            //if ($('#Piutang_tgl').val() != '') {
+            //    var $tgl = $('#Piutang_TGL').val();
+            //    $('#TGL').val($tgl.format('dd/MM/yyyy'));
+            //    //$('#TGL').val($('#Piutang_TGL').val());
+            //}
             if ($('#Piutang_tgl').val() != '') {
-                $('#TGL').val($('#Piutang_TGL').val());
+                $('#TGL').val($('#Piutang_tgl').val());
             }
 
             $('#TOTALBAYAR').attr('readonly', 'readonly').css('background-color', '#eee')
@@ -617,6 +772,8 @@
                     }
                 });
             });
+
+            
             //var $totalPot = 0;
             //var $totalBayar = 0;
             //var $totalSemua = 0;
@@ -651,10 +808,10 @@
             //$('#btn-autoload').off('click').on('click', $('#konfAutoload').show());
 
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -708,6 +865,7 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
                                 //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                                 refreshInputan();
@@ -800,7 +958,7 @@
                     .change(function () {
                         //unremark by calvin 8 nov 2018, proteksi qty
                         //if ($(this).val() > $qtyAwal) {
-                        if ($(this).val() + convertToAngka($potInputBox.val()) > convertToAngka($sisaInitialSpan.text())) {
+                        if ((convertToAngka($(this).val()) + convertToAngka($potInputBox.val())) > convertToAngka($sisaInitialSpan.text())) {
                             alert('Nilai bayar ditambah potongan tidak boleh lebih besar dari sisa (' + $sisaInitialSpan.text() + ')!');
                             $(this).val(convertToRupiah(convertToAngka($sisaInitialSpan.text()) - convertToAngka($potInputBox.val())));
                             //refreshNettoBarang($idFaktur);
@@ -1050,12 +1208,17 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 1; // 0 new, 1 edit
+                    $('.piutang_table_section').hide();
+                    $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());
-                    $('#tambah_piutang').click();
+                    
+                    //$('#tambah_piutang').click();
+                    //$('#TGL').change();
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
@@ -1074,12 +1237,17 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 1; // 0 new, 1 edit
+                    $('.piutang_table_section').hide();
+                    $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());
-                    $('#tambah_piutang').click();
+                    
+                    //$('#tambah_piutang').click();
+                    //$('#TGL').change();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1100,11 +1268,12 @@
                 url: link,
                 success: function (response) {
                     $('#table-piutang-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
-                    Initialize();
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[0, 1, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
+                    //Initialize();
+                    refreshTablePiutang1();
                     $('#konfHapusPiutang').modal('hide');
                 },
                 error: function (xhr, status, error) {
@@ -1129,6 +1298,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (response) {
+                    $modeEdit = 1; // 0 new, 1 edit
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
@@ -1142,7 +1312,7 @@
             });
         }
 
-        function refreshTablePiutang1() {
+        @*function refreshTablePiutang1() {
             var link = '@Url.Action("RefreshTableBayarPiutang1", "Manage")';
 
             $.ajax({
@@ -1150,10 +1320,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-piutang-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[0,1, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[0,1, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
                     $('#search_piutang').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -1161,13 +1331,59 @@
                     table.search($('#search_piutang').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
+
+        function refreshTablePiutang1() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBayarPiutang1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-piutang-partial').hide();
+                    $('#loading_bayarpiutang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-piutang-partial').html(response);
+                    $('#loading_bayarpiutang_tab').hide();
+                    $('#table-piutang-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePiutang1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBayarPiutang1", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_piutang_click')[0].disabled = true;
+                    $('#loading_bayarpiutang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_piutang_click')[0].disabled = false;
+                    $('#table-piutang-partial').html(response);
+                    $('#loading_bayarpiutang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_piutang_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1180,12 +1396,16 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 0; // 0 new, 1 edit
+                    $('.piutang_table_section').hide();
+                    $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
-                    refreshInputan();
+                    //refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur(null);
-                    $('#TGL').change();
+
+                    //$('#TGL').change();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1243,6 +1463,7 @@
                         data: $('#form-piutang').serialize(),
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
                                 refreshInputan();
                                 getTanggal();

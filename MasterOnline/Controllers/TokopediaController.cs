@@ -644,8 +644,8 @@ namespace MasterOnline.Controllers
                     REQUEST_ID = milis.ToString(),
                     REQUEST_ACTION = "Create Product",
                     REQUEST_DATETIME = milisBack,
-                    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-                    REQUEST_ATTRIBUTE_2 = "brg : " + brg,
+                    REQUEST_ATTRIBUTE_1 = brg,
+                    REQUEST_ATTRIBUTE_2 = "fs : " + iden.merchant_code,
                     REQUEST_STATUS = "Pending",
                 };
                 CreateProductTokpedData newData = new CreateProductTokpedData()
@@ -1589,6 +1589,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ItemListResult)) as ItemListResult;
+                long shopid = Convert.ToInt64(iden.API_secret_key);
                 bool adaError = false;
                 //foreach (var item in result.data)
                 //{
@@ -1616,6 +1617,11 @@ namespace MasterOnline.Controllers
                     {
                         ret.message = "";
                     }
+
+                    //add by calvin 13 juni 2019, ternyata tokoped return semua item dengan FSID (Fulfillment Service ID) yang sama, maka perlu difilter sebelum insert data
+                    result.data = result.data.Where(p => p.shop_id == shopid).ToList().ToArray();
+                    //end add by calvin 13 juni 2019
+
                     ret.status = 1;
                     ret.recordCount = recordCount;
                     List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();

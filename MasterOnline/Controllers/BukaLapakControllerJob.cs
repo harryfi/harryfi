@@ -634,23 +634,23 @@ namespace MasterOnline.Controllers
             string connectionID = Guid.NewGuid().ToString();
 
             Utils.HttpRequest req = new Utils.HttpRequest();
-            string url = "transactions.json";
+            string url = "transactions.json?seller=1&created_since=" + DateTime.Now.AddDays(-10).ToString("yyyy-MM-dd");
             //if (!string.IsNullOrEmpty(transId))
             //    url = "transactions/" + transId + ".json";
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Order",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
-                REQUEST_ATTRIBUTE_2 = email,
-                REQUEST_ATTRIBUTE_3 = connectionID,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = token,
+            //    REQUEST_ATTRIBUTE_2 = email,
+            //    REQUEST_ATTRIBUTE_3 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
 
-            var bindOrder = req.CallBukaLapakAPI("", url, "", userId, token, typeof(BukaLapakOrder)) as BukaLapakOrder;
+            var bindOrder = req.CallBukaLapakAPI("", url + "?", "", userId, token, typeof(BukaLapakOrder)) as BukaLapakOrder;
             if (bindOrder != null)
             {
                 //ret = bindOrder;
@@ -676,32 +676,80 @@ namespace MasterOnline.Controllers
                     var dtNow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     foreach (Transaction order in bindOrder.transactions)
                     {
+                        if (Convert.ToString(order.id) == "192164002916")
+                        {
+
+                        }
                         if (!order.buyer.email.Equals(email))//cek email pembeli != email user untuk mendapatkan order penjualan
                         {
                             bool doInsert = true;
-                            if (OrderNoInDb.Contains(Convert.ToString(order.id)) && order.state.ToString().ToLower() == "paid")
+                            //change by calvin 11 juni 2019
+                            //if (OrderNoInDb.Contains(Convert.ToString(order.id)) && order.state.ToString().ToLower() == "paid")
+                            //{
+                            //    doInsert = false;
+                            //}
+                            //else if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
+                            //{
+                            //    if (OrderNoInDb.Contains(Convert.ToString(order.id)))
+                            //    {
+                            //        //tidak ubah status menjadi selesai jika belum diisi faktur
+                            //        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
+                            //        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                            //        {
+                            //            doInsert = false;
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        //tidak diinput jika order sudah selesai sebelum masuk MO
+                            //        doInsert = false;
+                            //    }
+                            //}
+                            if (OrderNoInDb.Contains(Convert.ToString(order.id)))
                             {
-                                doInsert = false;
-                            }
-                            //add 19 Feb 2019
-                            else if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
-                            {
-                                if (OrderNoInDb.Contains(Convert.ToString(order.id)))
+                                //tidak ubah status menjadi selesai jika belum diisi faktur
+                                if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
                                 {
-                                    //tidak ubah status menjadi selesai jika belum diisi faktur
-                                    var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
-                                    if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                    if (order.state.ToString().ToLower() == "remitted")
                                     {
                                         doInsert = false;
                                     }
+                                    else
+                                    {
+                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
+                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        {
+                                            doInsert = false;
+                                        }
+                                    }
                                 }
                                 else
+                                {
+                                    if (order.state.ToString().ToLower() == "paid")
+                                    {
+                                        //tidak perlu insert karena pesanan sudah ada di MO pada saat statusnya masih pending / addressed / payment_chosen / confirm_payment, 
+                                        //update status transaksi jadi 01 dan bila perlu update juga ongkir dll
+                                        doInsert = false;
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN ('" + order.id + "') AND STATUS_TRANSAKSI = '0'");
+                                    }
+                                    if (order.state.ToString().ToLower() == "rejected" || order.state.ToString().ToLower() == "expired" || order.state.ToString().ToLower() == "cancelled" || order.state.ToString().ToLower() == "refunded")
+                                    {
+                                        //tidak perlu insert karena pesanan sudah ada di MO, 
+                                        //update status transaksi jadi cancel
+                                        doInsert = false;
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.id + "')");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
                                 {
                                     //tidak diinput jika order sudah selesai sebelum masuk MO
                                     doInsert = false;
                                 }
                             }
-                            //end add 19 Feb 2019
+                            //end change by calvin 11 juni 2019
 
                             if (doInsert)
                             {
@@ -713,6 +761,8 @@ namespace MasterOnline.Controllers
                                     case "addressed":
                                     case "payment_chosen":
                                     case "confirm_payment":
+                                        statusEra = "0";
+                                        break;
                                     case "paid":
                                         statusEra = "01";
                                         break;
@@ -826,12 +876,13 @@ namespace MasterOnline.Controllers
                         }
                         if (!string.IsNullOrEmpty(errorMsg))
                         {
-                            currentLog.REQUEST_EXCEPTION = errorMsg;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                            throw new Exception(errorMsg);
+                            //currentLog.REQUEST_EXCEPTION = errorMsg;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                         }
                         else
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                         }
 
                         ret.status = 1;
@@ -875,21 +926,23 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                     }
                 }
                 else
                 {
                     ret.message = bindOrder.message;
-                    currentLog.REQUEST_EXCEPTION = bindOrder.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                    throw new Exception(ret.message);
+                    //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                 }
             }
             else
             {
                 ret.message = "failed to call buka lapak api";
-                currentLog.REQUEST_EXCEPTION = ret.message;
-                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                throw new Exception(ret.message);
+                //currentLog.REQUEST_EXCEPTION = ret.message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
 
 
@@ -900,7 +953,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Bukalapak Gagal.")]
-        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/string dbPathEra,string namaPemesan, string uname, string shipCode, string transId, string courier, string userId, string token)
+        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, string shipCode, string transId, string courier, string userId, string token)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -959,7 +1012,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                    throw new Exception("failed to call Buka Lapak api");
+                throw new Exception("failed to call Buka Lapak api");
                 //ret.message = "failed to call Buka Lapak api";
                 //currentLog.REQUEST_EXCEPTION = ret.message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
@@ -1028,7 +1081,7 @@ namespace MasterOnline.Controllers
                             kdBrgInduk = brg.id;
                             var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                             var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
-                            if(tempbrginDBInduk == null && brgInDBInduk == null)
+                            if (tempbrginDBInduk == null && brgInDBInduk == null)
                             {
                                 var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
                                 if (insert1.status == 1)
@@ -1109,7 +1162,7 @@ namespace MasterOnline.Controllers
                             #endregion
                             if (haveVarian)
                             {
-                                for(int i = 0; i < brg.product_sku.Count; i++)
+                                for (int i = 0; i < brg.product_sku.Count; i++)
                                 {
                                     var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
                                     if (insert2.status == 1)
@@ -1195,7 +1248,7 @@ namespace MasterOnline.Controllers
 
                 if (brg.images != null)
                 {
-                    if(type != 2)
+                    if (type != 2)
                     {
                         urlImage = brg.images[0];
                         if (brg.images.Length >= 2)
@@ -1209,7 +1262,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if(brg.product_sku[i].images != null)
+                        if (brg.product_sku[i].images != null)
                         {
                             urlImage = brg.product_sku[i].images[0];
                             if (brg.product_sku[i].images.Length >= 2)
@@ -1222,9 +1275,9 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    
+
                 }
-                if(type != 2)
+                if (type != 2)
                 {
                     sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
                 }
@@ -1233,7 +1286,7 @@ namespace MasterOnline.Controllers
                     sSQL_Value += "('" + brg.product_sku[i].id + "' , '" + brg.product_sku[i].sku_name + "' , '";
                 }
                 string brand = "";
-                if(brg.specs != null)
+                if (brg.specs != null)
                 {
                     brand = brg.specs.merek;
                     if (string.IsNullOrEmpty(brand))
@@ -1241,7 +1294,7 @@ namespace MasterOnline.Controllers
                         brand = brg.specs.brand;
                     }
                 }
-                
+
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                 sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
@@ -1251,7 +1304,7 @@ namespace MasterOnline.Controllers
                 ret.status = 1;
                 ret.message = sSQL_Value;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
@@ -1292,7 +1345,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        
+
         public BindingBase GetCategoryBL(string noBukti, string transId, string userId, string token)
         {
             var ret = new BindingBase();
