@@ -2251,8 +2251,17 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
-        public ActionResult AdminStartHangfireServer(string nourut = "")
+        public ActionResult AdminStartHangfireServer(string nourut = "", string timer = "")
         {
+            int interval = 30;
+            try
+            {
+                interval = Convert.ToInt32(timer);
+            }
+            catch (Exception ex)
+            {
+                
+            }
             var EDB = new DatabaseSQL(nourut);
 
             string EDBConnID = EDB.GetConnectionString("ConnID");
@@ -2305,7 +2314,7 @@ namespace MasterOnline.Controllers
                 {
                     foreach (var recurringJob in connection.GetRecurringJobs())
                     {
-                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
                     }
                 }
             }

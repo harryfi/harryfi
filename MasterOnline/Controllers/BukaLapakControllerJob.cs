@@ -638,17 +638,17 @@ namespace MasterOnline.Controllers
             //if (!string.IsNullOrEmpty(transId))
             //    url = "transactions/" + transId + ".json";
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Order",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
-                REQUEST_ATTRIBUTE_2 = email,
-                REQUEST_ATTRIBUTE_3 = connectionID,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = token,
+            //    REQUEST_ATTRIBUTE_2 = email,
+            //    REQUEST_ATTRIBUTE_3 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
 
             var bindOrder = req.CallBukaLapakAPI("", url + "?", "", userId, token, typeof(BukaLapakOrder)) as BukaLapakOrder;
             if (bindOrder != null)
@@ -676,6 +676,10 @@ namespace MasterOnline.Controllers
                     var dtNow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     foreach (Transaction order in bindOrder.transactions)
                     {
+                        if (Convert.ToString(order.id) == "192164002916")
+                        {
+
+                        }
                         if (!order.buyer.email.Equals(email))//cek email pembeli != email user untuk mendapatkan order penjualan
                         {
                             bool doInsert = true;
@@ -706,10 +710,17 @@ namespace MasterOnline.Controllers
                                 //tidak ubah status menjadi selesai jika belum diisi faktur
                                 if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
                                 {
-                                    var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
-                                    if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                    if (order.state.ToString().ToLower() == "remitted")
                                     {
                                         doInsert = false;
+                                    }
+                                    else
+                                    {
+                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
+                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        {
+                                            doInsert = false;
+                                        }
                                     }
                                 }
                                 else
@@ -865,12 +876,13 @@ namespace MasterOnline.Controllers
                         }
                         if (!string.IsNullOrEmpty(errorMsg))
                         {
-                            currentLog.REQUEST_EXCEPTION = errorMsg;
-                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                            throw new Exception(errorMsg);
+                            //currentLog.REQUEST_EXCEPTION = errorMsg;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                         }
                         else
                         {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                         }
 
                         ret.status = 1;
@@ -914,21 +926,23 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                     }
                 }
                 else
                 {
                     ret.message = bindOrder.message;
-                    currentLog.REQUEST_EXCEPTION = bindOrder.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                    throw new Exception(ret.message);
+                    //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                 }
             }
             else
             {
                 ret.message = "failed to call buka lapak api";
-                currentLog.REQUEST_EXCEPTION = ret.message;
-                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                throw new Exception(ret.message);
+                //currentLog.REQUEST_EXCEPTION = ret.message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
 
 

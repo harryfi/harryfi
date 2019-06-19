@@ -582,17 +582,18 @@ namespace MasterOnline.Controllers
             //        //end add by calvin 8 nov 2018
             //    }
             //}
+            
+
             //var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             //var listBLShop = List_ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             //if (listBLShop.Count > 0)
             //{
             //    foreach (ARF01 tblCustomer in listBLShop)
             //    {
-            //        var blApi = new BukaLapakController();
+            //        var blApi = new BukaLapakControllerJob();
             //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-            //            blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
+            //            blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, usernameLogin);
             //    }
-
             //}
 
             //var kdLzd = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
@@ -601,9 +602,9 @@ namespace MasterOnline.Controllers
             //{
             //    foreach (ARF01 tblCustomer in listLzdShop)
             //    {
-            //        var lzdApi = new LazadaController();
+            //        var lzdApi = new LazadaControllerJob();
             //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-            //            lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
+            //            lzdApi.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, usernameLogin);
             //    }
             //}
 
@@ -635,12 +636,14 @@ namespace MasterOnline.Controllers
             //var listShopeeShop = List_ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
             //if (listShopeeShop.Count > 0)
             //{
-            //    var shopeeApi = new ShopeeController();
+            //    var shopeeApi = new ShopeeControllerJob();
             //    foreach (ARF01 tblCustomer in listShopeeShop)
             //    {
-            //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+            //        ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
             //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 0);
+            //        iden.DatabasePathErasoft = dbPathEra;
+            //        iden.username = usernameLogin;
+            //        await shopeeApi.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0,0,0);
             //    }
             //}
 
@@ -11966,7 +11969,7 @@ namespace MasterOnline.Controllers
             //var totalCount = Pesanan.Count();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -15742,7 +15745,7 @@ namespace MasterOnline.Controllers
             //}
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
-            new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_100144", "Calvin");
+            //new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_100144", "Calvin");
 
             return View();
         }
@@ -16036,7 +16039,7 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var ListStt01a = ErasoftDbContext.Database.SqlQuery<mdlJurnal>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            
+
             //var ListGlftran = Glftran.Skip(pagenumber * 10).Take(10).ToList();
 
             var pageContent = new List<mdlJurnal>();
@@ -16388,7 +16391,7 @@ namespace MasterOnline.Controllers
                 //ListPiutangDetail = ErasoftDbContext.ART03B.ToList()
                 Errors = null
             };
-            
+
             return Json(piutangInDb, JsonRequestBehavior.AllowGet);
 
             //return PartialView("TableBayarPiutangPartial", vm);
@@ -16632,7 +16635,7 @@ namespace MasterOnline.Controllers
                 //ListHutangDetail = ErasoftDbContext.APT03B.ToList()
                 Errors = null
             };
-            
+
             return Json(hutangInDb, JsonRequestBehavior.AllowGet);
 
             //return PartialView("TableBayarHutangPartial", vm);
@@ -18506,29 +18509,29 @@ namespace MasterOnline.Controllers
                         var cekItem = listSTF02H.Where(p => (p.BRG_MP ?? "").Contains(faktur.ProductID)).FirstOrDefault();
                         if (cekItem == null)
                         {
-                            //change by calvin 21 maret 2019
-                            ////log item belum ada di master
-                            //barangFakturLolosValidasi = false;
-                            //adaWarning = true;
-                            //if (message == "")
-                            //{
-                            //    message = "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload." + System.Environment.NewLine;
-                            //    message += "Masalah pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
-                            //    tw.WriteLine(message);
-                            //}
-                            //messageWarning = "- Item [" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
-                            //tw.WriteLine(messageWarning);
                             barangFakturLolosValidasi = false;
-                            adaWarning = true;
-                            if (message == "")
+                            //add by calvin 18 juni 2019
+                            if (!string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU))
                             {
-                                message = "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan warning." + System.Environment.NewLine;
-                                message += "Mohon perbaiki data pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
-                                tw.WriteLine(message);
+                                var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.StockKeepingUnitSKU)).FirstOrDefault();
+                                if (cekItemBySKU != null)
+                                {
+                                    barangFakturLolosValidasi = true;
+                                }
                             }
-                            messageWarning = "- Item [" + faktur.ProductID + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
-                            tw.WriteLine(messageWarning);
-                            //end change by calvin 21 maret 2019
+                            //end add by calvin 18 juni 2019
+                            if (!barangFakturLolosValidasi)
+                            {
+                                adaWarning = true;
+                                if (message == "")
+                                {
+                                    message = "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan warning." + System.Environment.NewLine;
+                                    message += "Mohon perbaiki data pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
+                                    tw.WriteLine(message);
+                                }
+                                messageWarning = "- Item [" + faktur.ProductID + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                                tw.WriteLine(messageWarning);
+                            }
                         }
                     }
                     #endregion
@@ -18708,8 +18711,8 @@ namespace MasterOnline.Controllers
                         if (!barangFakturLolosValidasi)
                         {
                             newfakturdetail.BRG = "NOT_FOUND";
-                            newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.ProductName + "_;_" + faktur.ProductID;
                         }
+                        newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.ProductName + "_;_" + faktur.ProductID + "_;_" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? "" : faktur.StockKeepingUnitSKU);
 
                         newFaktursDetails.Add(newfakturdetail);
                         #endregion
@@ -19369,8 +19372,8 @@ namespace MasterOnline.Controllers
                 //ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 Errors = null
             };
-            
-            
+
+
             return Json(promosiInDb, JsonRequestBehavior.AllowGet);
             //return PartialView("TablePromosiPartial", vm);
         }
@@ -19792,7 +19795,7 @@ namespace MasterOnline.Controllers
             return View("HargaJualMenu", vm);
             //return View(vm);
         }
-        
+
         //add by nurul 13/6/2019
         public ActionResult RefreshTableHargaJual(int? page, string search = "")
         {
@@ -21427,21 +21430,21 @@ namespace MasterOnline.Controllers
                     if (skipDataError > 0)
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
                     //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
-                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -23620,8 +23623,8 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
+                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
                 if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();

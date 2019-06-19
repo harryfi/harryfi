@@ -1444,7 +1444,7 @@ namespace MasterOnline.Controllers
 #elif Debug_AWS
                     string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                    string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                     string a = "";
                     int i = 0;
@@ -1705,7 +1705,7 @@ namespace MasterOnline.Controllers
                     var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
                     if (filtered.Count() > 0)
                     {
-                        await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST);
+                        await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
                         jmlhNewOrder = filtered.Count();
                     }
 
@@ -1915,7 +1915,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
+        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";

@@ -31,23 +31,27 @@
         });
     }
     function StartHangfireServer(jobid) {
-        var link = '@Url.Action("AdminStartHangfireServer", "Admin", new { nourut = "replaceNoUrut" })';
-        link = link.replace("replaceNoUrut", jobid);
+        var timerMinute = prompt("Recurring Job Interval ?", "30");
+        if (timerMinute != null && timerMinute != "") {
+            var link = '@Html.Raw(Url.Action("AdminStartHangfireServer", "Admin", new { nourut = "replaceNoUrut", timer = "replaceTimer" }))';
+            link = link.replace("replaceNoUrut", jobid);
+            link = link.replace("replaceTimer", timerMinute);
 
-        $.ajax({
-            type: "POST",
-            url: link,
-            contentType: 'application/json',
-            cache: false,
-            beforeSend: function () {
-                $('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                refreshTableLog();
-            },
-            error: function (response) {
-            }
-        });
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    refreshTableLog();
+                },
+                error: function (response) {
+                }
+            });
+        }
     }
 
 </script>

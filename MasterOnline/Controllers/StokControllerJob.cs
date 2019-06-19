@@ -424,7 +424,9 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("303");
+                    listBrg.Add("1319");
+                    listBrg.Add("2377");
+                    listBrg.Add("2392");
                 }
 
                 foreach (string kdBrg in listBrg)

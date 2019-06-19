@@ -949,6 +949,9 @@ namespace MasterOnline.Controllers
                     string connId_JobId = "";
                     if (sync_pesanan_stok == "1")
                     {
+                        connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
@@ -960,6 +963,9 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
 

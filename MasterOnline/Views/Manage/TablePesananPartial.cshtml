@@ -116,6 +116,17 @@
                 //    NamaMarket = market.NamaMarket;
                 //}
 
+                //add by calvin 19 juni 2019
+                var pesananAutoFromAPI = new List<string>();
+                pesananAutoFromAPI.Add("Auto Elevenia");
+                pesananAutoFromAPI.Add("Auto Blibli");
+                pesananAutoFromAPI.Add("Auto Bukalapak");
+                pesananAutoFromAPI.Add("Auto Lazada");
+                pesananAutoFromAPI.Add("Auto Tokped");
+                pesananAutoFromAPI.Add("Auto Shopee");
+                pesananAutoFromAPI.Add("Auto JDID");
+                //end add by calvin 19 juni 2019
+
                 //add by nurul 22/1/2019
                 var StatusTx = "";
                 if (pesanan.STATUS == "0")
@@ -144,80 +155,80 @@
                 }
                 //end add by nurul 22/1/2019
 
-            <tr>
-                @*<td>@pesanan.NO_BUKTI</td>*@
-                <td>@pesanan.NOSO</td>
-                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
-                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-                <td>
-                    @if (pesanan.PERSO != "")
+                <tr>
+                    @*<td>@pesanan.NO_BUKTI</td>*@
+                    <td>@pesanan.NOSO</td>
+                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                    @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                    <td>
+                        @if (pesanan.PERSO != "")
                         {
-                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                            @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
                         }
                         else
                         {
-                        @pesanan.MARKET
+                            @pesanan.MARKET
                         }
-                </td>
-                <td>
-                    @*change by nurul 30/1/2019 -- @(buyer.NAMA + " (" + perso + ")")*@
-                    @*@(buyerNama + " (" + perso + ")") 'change by nurul 14/2/2019*@
-                    @*@buyerNama*@
-                    @*@pesanan.NAMAPEMESAN*@
-                    @pesanan.PEMBELI
-                </td>
-                @*<td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>*@
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                @*add by nurul 22/1/2019*@
-                <td>@StatusTx</td>
-                @*end add by nurul 22/1/2019*@
-                <td class="edit-hapus-col">
-                    @if (StatusTx == "Pesanan Baru")
+                    </td>
+                    <td>
+                        @*change by nurul 30/1/2019 -- @(buyer.NAMA + " (" + perso + ")")*@
+                        @*@(buyerNama + " (" + perso + ")") 'change by nurul 14/2/2019*@
+                        @*@buyerNama*@
+                        @*@pesanan.NAMAPEMESAN*@
+                        @pesanan.PEMBELI
+                    </td>
+                    @*<td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>*@
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                    @*add by nurul 22/1/2019*@
+                    <td>@StatusTx</td>
+                    @*end add by nurul 22/1/2019*@
+                    <td class="edit-hapus-col">
+                        @if (StatusTx == "Pesanan Baru" && !pesananAutoFromAPI.Contains(pesanan.USER_NAME))
                         {
-                        @*<button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">*@
-                        <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
-                            @* change by nurul 8/10/2018 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </button>
+                            @*<button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">*@
+                            <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
+                                @* change by nurul 8/10/2018 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                                @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </button>
                         }
                         else
                         {
-                        <button style="background-color:darkgray; cursor:not-allowed">
-                            <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
-                        </button>
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
+                            </button>
                         }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (StatusTx == "Pesanan Baru")
+                    </td>
+                    <td class="edit-hapus-col">
+                        @if (StatusTx == "Pesanan Baru" && !pesananAutoFromAPI.Contains(pesanan.USER_NAME))
                         {
-                        <button class="btn btn-primary" onclick="editPesanan1(@pesanan.RECNUM)">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                        </button>
+                            <button class="btn btn-primary" onclick="editPesanan1(@pesanan.RECNUM)">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </button>
                         }
                         else
                         {
-                        <button class="btn btn-primary" onclick="LihatPesanan1(@(pesanan.RECNUM))">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                        </button>
+                            <button class="btn btn-primary" onclick="LihatPesanan1(@(pesanan.RECNUM))">
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            </button>
                         }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (StatusTx == "Pesanan Baru")
+                    </td>
+                    <td class="edit-hapus-col">
+                        @if (StatusTx == "Pesanan Baru" && !pesananAutoFromAPI.Contains(pesanan.USER_NAME))
                         {
-                        @*<button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RecNum, '@pesanan.NO_BUKTI')">*@
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RECNUM, '@pesanan.NOSO')">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
+                            @*<button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RecNum, '@pesanan.NO_BUKTI')">*@
+                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RECNUM, '@pesanan.NOSO')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
                         }
                         else
                         {
-                        <button style="background-color:darkgray; cursor:not-allowed">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="false"></span>
-                        </button>
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="false"></span>
+                            </button>
                         }
-                </td>
-            </tr>
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
@@ -244,27 +255,27 @@
     }
 </div>
 <script type="text/javascript">
-        $(function () {
-            $('#tabelpesananpartialpager').on('click', 'a', function () {
-                if (this.href != "") {
-                    $.ajax({
-                        url: this.href,
-                        type: 'GET',
-                        cache: false,
-                        beforeSend: function () {
-                            $('#loading_pesanan_tab').show();
-                        },
-                        success: function (response) {
-                            $('#table-pesanan-partial').html(response);
-                            $('#loading_pesanan_tab').hide();
-                            $page = @Model.PageNumber;
-                            $GetPage = @Model.PageCount;
+    $(function () {
+        $('#tabelpesananpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_pesanan_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-pesanan-partial').html(response);
+                        $('#loading_pesanan_tab').hide();
+                        $page = @Model.PageNumber;
+                        $GetPage = @Model.PageCount;
 
-                        }
-                    });
-                }
-                return false;
-            });
+                    }
+                });
+            }
+            return false;
         });
+    });
 </script>
 @* end add by nurul 30/4/2019, paging *@
