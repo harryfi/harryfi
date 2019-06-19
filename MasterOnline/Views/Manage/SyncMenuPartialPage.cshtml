@@ -1,0 +1,114 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.SyncMenuViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                @*<div class="x_title">
+                        <h2 style="font-size: 16px">Detail Barang di Marketplace</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>*@
+                <div class="x_content">
+                    <div id="div_with_list">
+                        <div>
+                            List Toko :
+                        </div>
+                        <div>
+                            @if (Model != null)
+                            {
+                                foreach (var customer in Model.Customers)
+                                {
+                                    <div class="row" style="margin-bottom:5px;">
+                                        <div class="col-md-1" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
+                                                <span id="cbsp_@customer.cust" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            @customer.namaMarket (@customer.namaCust)
+                                        </div>
+                                        <div class="col-md-1" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
+                                            <i class='fa fa-spinner fa-spin pull-right'></i>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label id="hiddenlbl_@customer.cust" hidden="hidden">0</label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div id="div_with_upload">
+                        <div>
+                            Upload file excel yang sudah anda edit, Anda dapat memilih beberapa file sekaligus pada saat browse file.
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-4 file_upload_section">
+                                <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                       accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary" onclick="uploadfileexcel();" data-style="expand-right">
+                                    <span>Upload dan Update</span>
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>
+                        <div id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;"></div>
+                    </div>
+                    <div>
+                        <input type="button" class="btn btn-primary pull-right" id="proses_btn" value="Ambil Data" onclick="GetAllDataBrg()" />
+                        <input type="button" class="btn btn-primary pull-right" id="download_btn" value="Download ke Excel" onclick="DownloadAllExcel()" />
+                        <div id="upload_btn">
+                            <hr />
+                            <table align="right">
+                                <tr>
+                                    <td style="padding-right:10px">
+                                        <label>Sinkronisasi</label>
+                                    </td>
+                                    <td style="padding-right:10px">
+                                        @*<input type="button" class="btn btn-primary pull-right" id="link_btn" value="Satu per Satu " onclick="GetAllDataBrg()" />*@
+                                        <a class="btn btn-primary pull-right" href="@Url.Action("master/uploadbarang")">Satu per Satu</a>
+                                    </td>
+                                    <td style="padding-right:10px">
+                                        <label>atau</label>
+                                    </td>
+                                    <td>                                        
+                                        <input type="button" class="btn btn-primary pull-right" id="sync_btn" value="Semua Data" onclick="startSyncAll();showProgressBar();" />
+                                    </td>
+                                </tr>                                
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

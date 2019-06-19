@@ -1329,6 +1329,7 @@
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
+    <Compile Include="ViewModels\SyncMenuViewModel.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
@@ -6061,6 +6062,8 @@
     <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
     <Content Include="Views\Manage\LihatFakturA5.cshtml" />
     <Content Include="Views\Manage\TransferExcel.cshtml" />
+    <Content Include="Views\Manage\SyncMenu.cshtml" />
+    <Content Include="Views\Manage\SyncMenuPartialPage.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

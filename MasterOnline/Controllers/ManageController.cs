@@ -1474,6 +1474,21 @@ namespace MasterOnline.Controllers
             }
 
             #endregion
+            #region tokped
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket.ToString()))
+            {
+                TokopediaController.TokopediaAPIData dataTokped = new TokopediaController.TokopediaAPIData
+                {
+                    merchant_code = customer.Customers.Sort1_Cust, //FSID
+                    API_client_password = customer.Customers.API_CLIENT_P, //Client Secret
+                    API_client_username = customer.Customers.API_CLIENT_U, //Client ID
+                    API_secret_key = customer.Customers.API_KEY, //Shop ID 
+                    idmarket = customer.Customers.RecNum.Value,
+                };
+                TokopediaController tokopediaApi = new TokopediaController();
+                tokopediaApi.GetToken(dataTokped);
+            }               
+            #endregion
             //end add by Tri call bl/lzd api get access key
             ModelState.Clear();
 
@@ -19966,14 +19981,18 @@ namespace MasterOnline.Controllers
                 }
                 if (dataBrg.Count > 0)
                 {
-                    var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).FirstOrDefault();
-                    if (defaultCategoryCode == null)
+                    //var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).FirstOrDefault();
+                    var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).ToList();
+                    if (defaultCategoryCode.Count == 0)
+                    //if (defaultCategoryCode == null)
                     {
                         barangVm.Errors.Add("Kode Kategori tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
-                    var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).FirstOrDefault();
-                    if (defaultBrand == null)
+                    //var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).FirstOrDefault();
+                    var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).ToList();
+                    if (defaultBrand.Count == 0)
+                    //if (defaultBrand == null)
                     {
                         barangVm.Errors.Add("Kode Merek tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
@@ -20008,13 +20027,13 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
                             bool createSTF02Induk = true;
-                            var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK.Trim()).FirstOrDefault();
                             var tempBrgInduk = tempBrgInduktemp.Where(b => (b.BRG_MP == null ? "" : b.BRG_MP) == item.KODE_BRG_INDUK).FirstOrDefault();
                             //var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
                             //var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
                             if (brgInduk != null)
                             {
-                                var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG).FirstOrDefault();
+                                var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG.Trim()).FirstOrDefault();
                                 //var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
                                 if (stf02h_induk == null)
                                 {
@@ -20050,7 +20069,7 @@ namespace MasterOnline.Controllers
                         }
                         #endregion
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
-                        var barangInDB = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG).ToUpper() == item.SELLER_SKU.ToUpper()).FirstOrDefault();
+                        var barangInDB = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG).ToUpper() == item.SELLER_SKU.ToUpper().Trim()).FirstOrDefault();
                         if (barangInDB != null)
                         {
                             //var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
@@ -20066,8 +20085,12 @@ namespace MasterOnline.Controllers
                                     brgMp.HJUAL = item.HJUAL;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.BRG_MP = item.BRG_MP;
-                                    brgMp.CATEGORY_CODE = defaultCategoryCode.KODE;
-                                    brgMp.CATEGORY_NAME = defaultBrand.KODE;
+                                    //change 14 juni 2019, ambil kategori dari temp table
+                                    //brgMp.CATEGORY_CODE = defaultCategoryCode.KODE;
+                                    //brgMp.CATEGORY_NAME = defaultBrand.KODE;
+                                    brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
+                                    brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
+                                    //end change 14 juni 2019, ambil kategori dari temp table
                                     brgMp.DeliveryTempElevenia = item.DeliveryTempElevenia;
                                     brgMp.PICKUP_POINT = item.PICKUP_POINT;
                                     #region attribute mp
@@ -20478,10 +20501,33 @@ namespace MasterOnline.Controllers
                             stf02.TINGGI = item.TINGGI;
                             stf02.LEBAR = item.LEBAR;
                             stf02.PANJANG = item.PANJANG;
-                            stf02.Sort1 = defaultCategoryCode.KODE;
-                            stf02.Sort2 = defaultBrand.KODE;
-                            stf02.KET_SORT1 = defaultCategoryCode.KET;
-                            stf02.KET_SORT2 = defaultBrand.KET;
+                            //change 14 juni 2019, ambil kategori dan merk dari temp table
+                            //stf02.Sort1 = defaultCategoryCode.KODE;
+                            //stf02.Sort2 = defaultBrand.KODE;
+                            //stf02.KET_SORT1 = defaultCategoryCode.KET;
+                            //stf02.KET_SORT2 = defaultBrand.KET;
+                            if (string.IsNullOrEmpty(item.AVALUE_40))
+                            {
+                                stf02.Sort1 = defaultCategoryCode[0].KODE;
+                                stf02.KET_SORT1 = defaultCategoryCode[0].KET;
+                            }
+                            else
+                            {
+                                stf02.Sort1 = item.AVALUE_40;
+                                stf02.KET_SORT1 = defaultCategoryCode.Where(m => m.KODE == item.AVALUE_40 && m.LEVEL == "1").FirstOrDefault().KET;
+                            }
+
+                            if (string.IsNullOrEmpty(item.MEREK))
+                            {
+                                stf02.Sort2 = defaultBrand[0].KODE;
+                                stf02.KET_SORT2 = defaultBrand[0].KET;
+                            }
+                            else
+                            {
+                                stf02.Sort2 = item.MEREK;
+                                stf02.KET_SORT2 = defaultBrand.Where(m => m.KODE == item.MEREK && m.LEVEL == "2").FirstOrDefault().KET;
+                            }
+                            //end change 14 juni 2019, ambil kategori dan merk dari temp table
                             stf02.Deskripsi = (string.IsNullOrEmpty(item.Deskripsi) ? "-" : item.Deskripsi);
 
                             //add 25 Jan 2019, handle brg induk & varian
@@ -20684,15 +20730,37 @@ namespace MasterOnline.Controllers
                             brgMp.AVALUE_50 = item.AVALUE_50;
                             #endregion
                             ErasoftDbContext.STF02H.Add(brgMp);
-                            ErasoftDbContext.SaveChanges();
-                            listBrgSuccess.Add(item.BRG_MP);
 
-                            //add 25 April 2019, create stf02h untuk mp offline
-                            if (offlineId != null)
+                            //change 17 juni 2019, handle gagal save
+                            //ErasoftDbContext.SaveChanges();
+                            //listBrgSuccess.Add(item.BRG_MP);
+
+                            ////add 25 April 2019, create stf02h untuk mp offline
+                            //if (offlineId != null)
+                            //{
+                            //    CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                            //}
+                            ////end add 25 April 2019, create stf02h untuk mp offline
+                            try
                             {
-                                CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                                ErasoftDbContext.SaveChanges();
+                                listBrgSuccess.Add(item.BRG_MP);
+
+                                //add 25 April 2019, create stf02h untuk mp offline
+                                if (offlineId != null)
+                                {
+                                    CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                                }
+                                //end add 25 April 2019, create stf02h untuk mp offline
                             }
-                            //end add 25 April 2019, create stf02h untuk mp offline
+                            catch (Exception ex)
+                            {
+                                ErasoftDbContext.STF02.Remove(stf02);
+                                ErasoftDbContext.STF02H.Remove(brgMp);
+                                barangVm.Errors.Add("Kode Barang " + stf02.BRG + " gagal tersimpan. Error : " + ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                            }
+
+                            //end change 17 juni 2019, handle gagal save
                         }
                     }
                     if (listBrgSuccess.Count > 0)
@@ -22058,6 +22126,26 @@ namespace MasterOnline.Controllers
                         retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                         retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
                         retBarang.TYPE = tempBrg.TYPE;
+                        //add 14 juni 2019, kategori dan merek dari transfer excel
+                        if (!string.IsNullOrEmpty(tempBrg.AVALUE_40))//kategori mo di avalue_40
+                        {
+                            var cat = ErasoftDbContext.STF02E.Where(m => m.KODE == tempBrg.AVALUE_40 && m.LEVEL == "1").FirstOrDefault();
+                            if (cat != null)
+                            {
+                                retBarang.Sort1 = cat.KODE;
+                                retBarang.KET_SORT1 = cat.KET;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(tempBrg.MEREK))
+                        {
+                            var mrk = ErasoftDbContext.STF02E.Where(m => m.KODE == tempBrg.MEREK && m.LEVEL == "2").FirstOrDefault();
+                            if (mrk != null)
+                            {
+                                retBarang.Sort2 = mrk.KODE;
+                                retBarang.KET_SORT2 = mrk.KET;                            
+                            }
+                        }
+                        //end add 14 juni 2019, kategori code dari transfer excel
 
                         if (!string.IsNullOrEmpty(tempBrg.KODE_BRG_INDUK))
                         {
@@ -22266,6 +22354,58 @@ namespace MasterOnline.Controllers
             //}
 
             return View(ret);
+        }
+
+        [Route("manage/SyncMenu")]
+        public ActionResult SyncMenu()
+        {
+            var ret = new SyncMenuViewModel
+            {
+                Customers = new List<BindingCustomer>()
+            };
+            var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+            var mp = MoDbContext.Marketplaces.ToList();
+            if (customer.Count > 0)
+            {
+                foreach (var tbl in customer)
+                {
+                    var data = new BindingCustomer
+                    {
+                        cust = tbl.CUST,
+                        namaCust = tbl.PERSO,
+                    };
+                    data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+                    ret.Customers.Add(data);
+                }
+            }
+            return View(ret);
+        }
+
+        [Route("manage/GetDataMenu")]
+        public ActionResult GetDataMenu()
+        {
+            //var ret = new SyncMenuViewModel
+            //{
+            //    Customers = new List<BindingCustomer>()
+            //};
+            //var customer = ErasoftDbContext.ARF01.ToList();
+            //var mp = MoDbContext.Marketplaces.ToList();
+            //if(customer.Count > 0)
+            //{
+            //    foreach (var tbl in customer)
+            //    {
+            //        var data = new BindingCustomer
+            //        {
+            //            cust = tbl.CUST,
+            //            namaCust = tbl.PERSO,
+            //        };
+            //        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+            //        ret.Customers.Add(data);
+            //    }
+            //}
+            return PartialView("SyncMenuPartialPage");
         }
 
         public ActionResult GetCustomerData()
