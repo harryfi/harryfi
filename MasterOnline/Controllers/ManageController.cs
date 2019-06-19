@@ -23911,6 +23911,32 @@ namespace MasterOnline.Controllers
         [Route("manage/SyncMenu")]
         public ActionResult SyncMenu()
         {
+            //var ret = new SyncMenuViewModel
+            //{
+            //    Customers = new List<BindingCustomer>()
+            //};
+            //var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA != "18").OrderBy(m => m.NAMA).ToList();
+            //var mp = MoDbContext.Marketplaces.ToList();
+            //if (customer.Count > 0)
+            //{
+            //    foreach (var tbl in customer)
+            //    {
+            //        var data = new BindingCustomer
+            //        {
+            //            cust = tbl.CUST,
+            //            namaCust = tbl.PERSO,
+            //        };
+            //        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
+
+            //        ret.Customers.Add(data);
+            //    }
+            //}
+            return View();
+        }
+
+        [Route("manage/GetDataMenu")]
+        public ActionResult GetDataMenu()
+        {
             var ret = new SyncMenuViewModel
             {
                 Customers = new List<BindingCustomer>()
@@ -23931,33 +23957,7 @@ namespace MasterOnline.Controllers
                     ret.Customers.Add(data);
                 }
             }
-            return View(ret);
-        }
-
-        [Route("manage/GetDataMenu")]
-        public ActionResult GetDataMenu()
-        {
-            //var ret = new SyncMenuViewModel
-            //{
-            //    Customers = new List<BindingCustomer>()
-            //};
-            //var customer = ErasoftDbContext.ARF01.ToList();
-            //var mp = MoDbContext.Marketplaces.ToList();
-            //if(customer.Count > 0)
-            //{
-            //    foreach (var tbl in customer)
-            //    {
-            //        var data = new BindingCustomer
-            //        {
-            //            cust = tbl.CUST,
-            //            namaCust = tbl.PERSO,
-            //        };
-            //        data.namaMarket = mp.Where(m => m.IdMarket.ToString() == tbl.NAMA).FirstOrDefault().NamaMarket;
-
-            //        ret.Customers.Add(data);
-            //    }
-            //}
-            return PartialView("SyncMenuPartialPage");
+            return PartialView("SyncMenuPartialPage", ret);
         }
 
         public ActionResult GetCustomerData()

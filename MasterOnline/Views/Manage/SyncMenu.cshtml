@@ -319,7 +319,7 @@
             <button id="close-editor-1" type="button" class="pull-right page-close">
                 <span class="close-btn thick"></span>
             </button>
-            <div class="form-horizontal" id="form_subs">
+            <div class="form-horizontal" id="form-partial">
                 @Html.Partial("SyncMenuPartialPage")
             </div>
         </div>
@@ -340,7 +340,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
                     @*<button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>*@
                 </div>
             </div>
@@ -365,11 +365,11 @@
 
         function GetDataMenu(step) {
             var link = '@Url.Action("GetDataMenu", "Manage")';
-            setMode(step);
+            //setMode(step);
             $('.label_record').hide();
-            $('.ckCustomers').each(function (i, item) {
-                $(item).prop('checked', true);
-            });
+            //$('.ckCustomers').each(function (i, item) {
+            //    $(item).prop('checked', true);
+            //});
             rows_selected = [];
             listErrorMessage = '';
 
@@ -378,17 +378,19 @@
                 url: link,
                 beforeSend: function() {
                     $('#loading_spinner').show();
+                    $('#form-partial').html('');
                 },
                 success: function (response) {
+                    $('#form-partial').html(response);
                     $('.sync_editor_section').show();
                     $('.sync_step').hide();
-                    $('#form-partial').html(response);
-
+                    setMode(step);
                     $('#loading_spinner').hide();
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
                     $('#loading_spinner').hide();
+                    setMode(step);
                 }
             });
         }
@@ -400,7 +402,7 @@
             $('#div_with_list').hide();
             $('#div_with_upload').hide();
             $('#tbl_progbar').remove();
-
+            $('.div-spinner').hide();
             if (step == 1) {
                 $('#proses_btn').show();
                 $('#div_with_list').show();
@@ -451,7 +453,19 @@
 
                     return false;
                 }
+                updateList();
             }
+        }
+
+        function updateList (){
+            var input = document.getElementById('file_upload_excel');
+            var output = document.getElementById('fileList');
+
+            output.innerHTML = '<ul>';
+            for (var i = 0; i < input.files.length; ++i) {
+                output.innerHTML += '<li>' + input.files.item(i).name + '</li>';
+            }
+            output.innerHTML += '</ul>';
         }
 
         //get data barang with record
@@ -463,6 +477,7 @@
                     url: link,
                     beforeSend: function () {
                         //$('#loading_barang_tab').show();
+                        document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data : 0';
                         $('#lblRecord_' + cust).show();
                         $('#spinner_' + cust).show();
                     },
@@ -496,7 +511,7 @@
                             //$('#loading_barang_tab').hide();
                             //$('#datatable').show();
                             //$('#info_record').hide();
-                            document.getElementById('#lblListError').innerText = response.Errors;
+                            document.getElementById('lblListError').innerText = response.Errors;
                             $('#modalError').modal('show');
                             $('#spinner_' + cust).hide();
                             rows_selected.shift();
@@ -638,7 +653,7 @@
                                 err += response.Errors[i] + "\n";
                             }
                             //alert(err);
-                            document.getElementById('#lblListError').innerText = err;
+                            document.getElementById('lblListError').innerText = err;
                             $('#modalError').modal('show');
                             $('#loading_spinner').hide();
                             $('#upload_btn').show();
@@ -768,7 +783,7 @@
                             } else {
                                 alert('Proses sinkronisasi data barang telah selesai.');
                                 //alert(listErrorMessage);
-                                document.getElementById('#lblListError').innerText = listErrorMessage;
+                                document.getElementById('lblListError').innerText = listErrorMessage;
                                 $('#modalError').modal('show');
                             }
                         } else {
@@ -782,7 +797,7 @@
                         } else {
                             alert('Proses mengambil data barang dari marketplace telah selesai.');
                             //alert(listErrorMessage);
-                            document.getElementById('#lblListError').innerText = listErrorMessage;
+                            document.getElementById('lblListError').innerText = listErrorMessage;
                             $('#modalError').modal('show');
                         }
                     }

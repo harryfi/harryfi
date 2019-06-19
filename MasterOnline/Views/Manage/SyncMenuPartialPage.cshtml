@@ -30,7 +30,7 @@
                         </ul>
                         <div class="clearfix"></div>
                     </div>*@
-                <div class="x_content">
+                <div class="x_content" style="font-size:15px;">
                     <div id="div_with_list">
                         <div>
                             List Toko :
@@ -43,15 +43,15 @@
                                     <div class="row" style="margin-bottom:5px;">
                                         <div class="col-md-1" style="padding-bottom:10px">
                                             <label class="checkbox-container">
-                                                <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
+                                                <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" checked="checked" class="cbx ckCustomers" name="cb_@customer.cust" />
                                                 <span id="cbsp_@customer.cust" class="checkmark"></span>
                                             </label>
                                         </div>
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             @customer.namaMarket (@customer.namaCust)
                                         </div>
-                                        <div class="col-md-1" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
-                                            <i class='fa fa-spinner fa-spin pull-right'></i>
+                                        <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
+                                            <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
                                         </div>
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
@@ -81,6 +81,10 @@
                             <div class="col-md-4">
                             </div>
                         </div>
+                        <div>
+                            Selected files:
+                            <div id="fileList"></div>
+                        </div>
                         <div id="div_with_pbar" class="col-md-12" style="margin-bottom:20px;"></div>
                     </div>
                     <div>
@@ -100,10 +104,10 @@
                                     <td style="padding-right:10px">
                                         <label>atau</label>
                                     </td>
-                                    <td>                                        
+                                    <td>
                                         <input type="button" class="btn btn-primary pull-right" id="sync_btn" value="Semua Data" onclick="startSyncAll();showProgressBar();" />
                                     </td>
-                                </tr>                                
+                                </tr>
                             </table>
                         </div>
                     </div>
