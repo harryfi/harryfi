@@ -13,6 +13,25 @@ namespace MasterOnline.Models
 
     public class UploadFakturTokpedDataDetail
     {
+        public object this[string propertyName]
+        {
+            get
+            {
+                // probably faster without reflection:
+                // like:  return Properties.Settings.Default.PropertyValues[propertyName] 
+                // instead of the following
+                Type myType = typeof(UploadFakturTokpedDataDetail);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                return myPropInfo.GetValue(this, null);
+            }
+            set
+            {
+                Type myType = typeof(UploadFakturTokpedDataDetail);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                myPropInfo.SetValue(this, value, null);
+
+            }
+        }
         public string Count { get; set; }
         public string Invoice { get; set; }
         public string PaymentDate { get; set; }
@@ -34,5 +53,6 @@ namespace MasterOnline.Models
         public string TotalShippingFeeRp { get; set; }
         public string TotalAmountRp { get; set; }
         public string AWB { get; set; }
+        public string JenisLayanan { get; set; }
     }
 }

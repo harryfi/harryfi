@@ -1962,6 +1962,8 @@
                     //end add by nurul 12/2/2019
                 }
             });
+            getMarketplaceTokopediaShopee();
+
         });
 
         //add by Tri, call midtrans api get token
@@ -2623,7 +2625,7 @@
                 }
             });
 
-           
+
         }
 
         function getTanggal() {
@@ -4311,87 +4313,37 @@
                 $('#file_upload_faktur').click();
             }
             else {
-                var files = $('#file_upload_faktur')[0].files;
-                var i,f;
-                for (i = 0, f = files[i]; i != files.length; ++i) {
-                    var reader = new FileReader();
-                    var name = f.name;
-                    reader.onload = function(e) {
-                        var data = e.target.result;
-                        //var cust = $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val();
-                        var workbook = XLSX.read(data, {type: 'binary'});
-
-                        var worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                        var jsondata = '';
-                        var link = '';
-                        if ($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '15') {
-
-                            var range = XLSX.utils.decode_range(worksheet['!ref']);
-                            range.s.r = 4; // <-- zero-indexed, so setting to 4 will skip row 0,1,2,4
-                            worksheet['!ref'] = XLSX.utils.encode_range(range);
-
-                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
-                                ["Count","Invoice","PaymentDate","OrderStatus","ProductID",
-                                "ProductName","Quantity","StockKeepingUnitSKU","Notes","PriceRp",
-                                "CustomerName","CustomerPhone","Recipient","RecipientNumber","RecipientAddress",
-                                "Courier","ShippingPricefeeRp","InsuranceRp","TotalShippingFeeRp","TotalAmountRp",
-                                "AWB"
-                                ],
-                                raw:true});
-
-                            link = '@Url.Action("UploadFakturTokped", "Manage")';
-                        }
-                        else if($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '17') {
-
-                            var range = XLSX.utils.decode_range(worksheet['!ref']);
-                            range.s.r = 1; // <-- zero-indexed, so setting to 3 will skip row 0,1,2
-                            worksheet['!ref'] = XLSX.utils.encode_range(range);
-
-                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
-                                ["NoPesanan","StatusPesanan","StatusPembatalanPengembalian","NoResi","OpsiPengiriman",
-                                "Antarkecounterpickup","PesananHarusDikirimkanSebelumMenghindariketerlambatan","WaktuPengirimanDiatur","WaktuPesananDibuat","WaktuPembayaranDilakukan",
-                                "SKUInduk","NamaProduk","NomorReferensiSKU","NamaVariasi","HargaSebelumDiskon",
-                                "HargaSetelahDiskon","Jumlah","TotalHargaProduk","TotalDiskon","DiskonDariPenjual",
-                                "DiskonDariShopee","BeratProduk","JumlahProdukdiPesan","TotalBerat","VoucherDitanggungPenjual",
-                                "VoucherDitanggungShopee","PaketDiskon","PaketDiskonDiskondariShopee","PaketDiskonDiskondariPenjual","PotonganKoinShopee",
-                                "DiskonKartuKredit","OngkosKirimDibayarolehPembeli","TotalPembayarandibayarpembeli","PerkiraanOngkosKirim","CatatandariPembeli",
-                                "Catatan","UsernamePembeli","NamaPenerima","NoTelepon","AlamatPengiriman",
-                                "KotaKabupaten","Provinsi","WaktuPesananSelesai"
-                                ],raw:true});
-
-                            link = '@Url.Action("UploadFakturShopee", "Manage")';
-                        }
-                        //console.log(
-                        //JSON.stringify({
-                        //    data : jsondata,
-                        //    cust: $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val(),
-                        //    perso: $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val()
-                        //}));
-                        $.ajax({
-                            type: "POST",
-                            url: link,
-                            // The key needs to match your method's input parameter (case-sensitive).
-                            data: JSON.stringify({
-                                data : jsondata,
-                                cust: $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val(),
-                                nama_cust: $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val(),
-                                perso: $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val()
-                            }),
-                            contentType: "application/json; charset=UTF-8",
-                            cache: false,
-                            success: function(response){
-                                $('#uploadfakturviewdiv').html(response);
-                                document.getElementById("file_upload_faktur").value = "";
-
-                            },
-                            error: function(errMsg) {
-                                alert(errMsg);
-                                document.getElementById("file_upload_faktur").value = "";
-                            },
-                        });
-                    };
-                    reader.readAsBinaryString(f);
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_faktur');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
                 }
+                formdata.append("cust", $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val());
+                formdata.append("nama_cust", $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val());
+                formdata.append("perso", $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val());
+                
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadFakturTokped", "Manage")',
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function(response){
+                        $('#uploadfakturviewdiv').html(response);
+                        document.getElementById("file_upload_faktur").value = "";
+                        $('#loading_spinner').hide();
+                    },
+                    error: function(errMsg) {
+                        alert(errMsg);
+                        document.getElementById("file_upload_faktur").value = "";
+                    },
+                });
             }
         }
         function downloadLogUploadFaktur(txt){

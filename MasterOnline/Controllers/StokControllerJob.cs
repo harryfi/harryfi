@@ -424,9 +424,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("1319");
-                    listBrg.Add("2377");
-                    listBrg.Add("2392");
+                    listBrg.Add("MUGPOLOSBIRU");
                 }
 
                 foreach (string kdBrg in listBrg)
@@ -441,13 +439,12 @@ namespace MasterOnline.Controllers
                         var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
                         if (marketPlace.NAMA.Equals(kdBL.ToString()))
                         {
-                            //blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.API_KEY, marketPlace.TOKEN);
                             client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                         {
-                            //lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
+                            //client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
+                            Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
                         }
                         else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
                         {
@@ -513,8 +510,8 @@ namespace MasterOnline.Controllers
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
                                 var BliApi = new BlibliController();
-                                //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
-                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null));
+                                //client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null));
+                                Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null).Wait());
                             }
                         }
                         //add by calvin 18 desember 2018
@@ -547,7 +544,6 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        //Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
                                         client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
                                     }
                                 }
@@ -564,17 +560,15 @@ namespace MasterOnline.Controllers
                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                 if (brg_mp.Count() == 2)
                                 {
-                                    if (brg_mp[1] == "0")
+                                    if (brg_mp[1] == "0" || brg_mp[1] == "")
                                     {
-                                        //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
-                                        //Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                                     }
                                     else if (brg_mp[1] != "")
                                     {
-                                        //Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
-                                        //Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                                     }
                                 }
                             }
@@ -591,8 +585,8 @@ namespace MasterOnline.Controllers
                             };
                             if (stf02h.BRG_MP != "")
                             {
-                                //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
                                 client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                //Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                             }
                         }
                         //end add by Tri 11 April 2019

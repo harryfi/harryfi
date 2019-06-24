@@ -519,7 +519,12 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    <div data-tip="@getLatestLog.REQUEST_RESULT">
+                                                                    var data_tip = getLatestLog.REQUEST_RESULT;
+                                                                    if (string.IsNullOrWhiteSpace(getLatestLog.REQUEST_RESULT))
+                                                                    {
+                                                                        data_tip = getLatestLog.REQUEST_EXCEPTION;
+                                                                    }
+                                                                    <div data-tip="@data_tip">
                                                                         @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
                                                                     </div>
                                                                 }

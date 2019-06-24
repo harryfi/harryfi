@@ -1755,6 +1755,109 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
+        public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            string connID = Guid.NewGuid().ToString();
+            SetupContext(iden);
+
+            long seconds = CurrentTimeSecond();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
+            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/get";
+
+            ShopeeGetOrderByStatusData HttpBody = new ShopeeGetOrderByStatusData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                pagination_offset = page,
+                pagination_entries_per_page = 50,
+                create_time_from = timeStampFrom,
+                create_time_to = timeStampTo,
+                order_status = stat.ToString()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //}
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
+                
+                string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
+                string ordersn = "";
+                foreach (var item in ordersn_list)
+                {
+                    ordersn = ordersn + "'" + item + "',";
+                }
+                if (ordersn_list.Count() > 0)
+                {
+                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                    var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN ('" + ordersn + "') AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + ordersn + "') AND STATUS_TRANSAKSI <> '11'");
+                    if (brgAffected > 0)
+                    {
+                        new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                    }
+                    jmlhNewOrder = jmlhNewOrder + rowAffected;
+                    if (listOrder.more)
+                    {
+                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                    }
+                    //else
+                    //{
+                    //    if (jmlhNewOrder > 0)
+                    //    {
+                    //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    //        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari Shopee sudah selesai.");
+                    //    }
+                    //}
+                }
+
+                //}
+                //catch (Exception ex2)
+                //{
+                //}
+            }
+            return ret;
+        }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             int MOPartnerID = 841371;
