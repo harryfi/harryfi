@@ -582,7 +582,7 @@ namespace MasterOnline.Controllers
             //        //end add by calvin 8 nov 2018
             //    }
             //}
-            
+
 
             //var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             //var listBLShop = List_ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
@@ -1527,7 +1527,7 @@ namespace MasterOnline.Controllers
                 };
                 TokopediaController tokopediaApi = new TokopediaController();
                 tokopediaApi.GetToken(dataTokped);
-            }               
+            }
             #endregion
             //end add by Tri call bl/lzd api get access key
             ModelState.Clear();
@@ -4042,31 +4042,38 @@ namespace MasterOnline.Controllers
 
                 saveBarangTokpedVariant(2, barang.BRG, false);
 
-                if (updateDisplay)
+                #region lazada
+                if (listLazadaShop.Count > 0)
                 {
-                    #region lazada
-                    if (listLazadaShop.Count > 0)
+                    foreach (ARF01 tblCustomer in listLazadaShop)
                     {
-                        foreach (ARF01 tblCustomer in listLazadaShop)
+                        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                         {
-                            if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+                            var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
+                            if (tokoLazada.DISPLAY && string.IsNullOrEmpty(tokoLazada.BRG_MP))//display = true and brg_mp = null -> create product
                             {
-                                var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                                if (tokoLazada.DISPLAY && string.IsNullOrEmpty(tokoLazada.BRG_MP))//display = true and brg_mp = null -> create product
+                                createBarangLazada(dataBarang, imgPath, tblCustomer);
+                            }
+                            else
+                            {
+                                if (!string.IsNullOrEmpty(tokoLazada.BRG_MP))
                                 {
-                                    createBarangLazada(dataBarang, imgPath, tblCustomer);
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(tokoLazada.BRG_MP))
+                                    if (updateDisplay)
                                     {
                                         var resultLazada = lzdApi.setDisplay(tokoLazada.BRG_MP, tokoLazada.DISPLAY, tblCustomer.TOKEN);
+                                    }
+                                    if (updateHarga)
+                                    {
+                                        var resultLazada = lzdApi.UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
                                     }
                                 }
                             }
                         }
                     }
-                    #endregion
+                }
+                #endregion
+                if (updateDisplay)
+                {
                     #region Elevenia
                     saveBarangElevenia(3, dataBarang, imgPath);
                     #endregion
@@ -4102,20 +4109,6 @@ namespace MasterOnline.Controllers
                 }
                 if (updateHarga)
                 {
-                    #region lazada
-                    if (listLazadaShop.Count > 0)
-                    {
-                        foreach (ARF01 tblCustomer in listLazadaShop)
-                        {
-                            if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                            {
-                                //var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
-                                var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                                var resultLazada = lzdApi.UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
-                            }
-                        }
-                    }
-                    #endregion
                     #region Bukalapak
                     if (listBLShop.Count > 0)
                     {
@@ -15760,7 +15753,13 @@ namespace MasterOnline.Controllers
             //}
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
-            //new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_100144", "Calvin");
+            //new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_rahmamk", "Calvin");
+            //Task.Run(() => new LazadaControllerJob().GetOrdersCancelled("000023", "50000800209xk7TpgeUPD1314839fwAmIv1NwB8Zj1gHyaSrcXdEt7qWzCWIIn", dbPathEra, "Calvin")).Wait();
+            //ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
+            //iden.merchant_code = "50679377";
+            //iden.DatabasePathErasoft = dbPathEra;
+            //iden.username = "Calvin";
+            //Task.Run(() => new ShopeeControllerJob().GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, "000022", "Hazam Shop", 0, 0)).Wait();
 
             return View();
         }
@@ -18405,7 +18404,8 @@ namespace MasterOnline.Controllers
             return PartialView("UploadFakturView", partialVm);
         }
         [HttpPost]
-        public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
+        //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
+        public ActionResult UploadFakturTokped()
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
@@ -18414,6 +18414,49 @@ namespace MasterOnline.Controllers
                 success = "0",
                 resultMessage = ""
             };
+            var data = new List<UploadFakturTokpedDataDetail>();
+            string cust = Request["cust"];
+            string nama_cust = Request["nama_cust"];
+            string perso = Request["perso"];
+            for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+            {
+                var file = Request.Files[file_index];
+                if (file != null && file.ContentLength > 0)
+                {
+                    byte[] dataByte;
+                    using (Stream inputStream = file.InputStream)
+                    {
+                        MemoryStream memoryStream = inputStream as MemoryStream;
+                        if (memoryStream == null)
+                        {
+                            memoryStream = new MemoryStream();
+                            inputStream.CopyTo(memoryStream);
+                        }
+                        dataByte = memoryStream.ToArray();
+                    }
+                    using (MemoryStream stream = new MemoryStream(dataByte))
+                    {
+                        using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                        {
+                            //loop all worksheets
+                            var worksheet = excelPackage.Workbook.Worksheets[1];
+                            string[] mapColumn = { "Count", "Invoice", "PaymentDate", "OrderStatus", "ProductID", "ProductName", "Quantity", "StockKeepingUnitSKU", "Notes", "PriceRp", "CustomerName", "CustomerPhone", "Recipient", "RecipientNumber", "RecipientAddress", "Courier", "ShippingPricefeeRp", "InsuranceRp", "TotalShippingFeeRp", "TotalAmountRp", "AWB", "JenisLayanan" };
+                            for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                            {
+                                //Columns start from A5, start mapping column
+                                //Count, Invoice, Payment Date, Order Status, Product ID, Product Name, Quantity, Stock Keeping Unit (SKU), Notes, Price (Rp.), Customer Name, Customer Phone, Recipient, Recipient Number, Recipient Address, Courier, Shipping Price + fee (Rp.), Insurance (Rp.), Total Shipping Fee (Rp.), Total Amount (Rp.), AWB, Jenis Layanan
+                                var newData = new UploadFakturTokpedDataDetail();
+                                for (int c = 0; c < mapColumn.Count(); c++)
+                                {
+                                    var ColumnName = mapColumn[c];
+                                    newData[ColumnName] = worksheet.Cells[i, c + 1].Value == null ? "" : Convert.ToString(worksheet.Cells[i, c + 1].Value);
+                                }
+                                data.Add(newData);
+                            }
+                        }
+                    }
+                }
+            }
 
             #region Logging
             string message = "";
@@ -18572,13 +18615,17 @@ namespace MasterOnline.Controllers
                             if (cekPembeli == null)
                             {
                                 lastRecnumARF01C++;
-
+                                string noTelp = "-";
+                                if (!string.IsNullOrWhiteSpace(faktur.CustomerPhone.Trim()))
+                                {
+                                    noTelp = faktur.CustomerPhone;
+                                }
                                 ARF01C newPembeli = new ARF01C
                                 {
                                     BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
                                     NAMA = faktur.CustomerName.Length > 30 ? faktur.CustomerName.Substring(0, 27) + "..." : faktur.CustomerName,
                                     AL = faktur.RecipientAddress,
-                                    TLP = faktur.CustomerPhone,
+                                    TLP = noTelp,
                                     PERSO = perso,
                                     TERM = 0,
                                     LIMIT = 0,
@@ -21484,21 +21531,21 @@ namespace MasterOnline.Controllers
                     if (skipDataError > 0)
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
                     //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
-                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -22364,10 +22411,10 @@ namespace MasterOnline.Controllers
                     //TempBrg = new TEMP_BRG_MP(),
                     Errors = null
                 };
-               
-            return Json(barangInDb, JsonRequestBehavior.AllowGet);
-            //return PartialView("TableUploadBarangPartial", barangVm);
-            //end change by nurul 17/6/2019, paging 
+
+                return Json(barangInDb, JsonRequestBehavior.AllowGet);
+                //return PartialView("TableUploadBarangPartial", barangVm);
+                //end change by nurul 17/6/2019, paging 
                 //end change by calvin 14 januari 2019
             }
             catch (Exception ex)
@@ -23668,7 +23715,7 @@ namespace MasterOnline.Controllers
                             if (mrk != null)
                             {
                                 retBarang.Sort2 = mrk.KODE;
-                                retBarang.KET_SORT2 = mrk.KET;                            
+                                retBarang.KET_SORT2 = mrk.KET;
                             }
                         }
                         //end add 14 juni 2019, kategori code dari transfer excel
@@ -23754,8 +23801,8 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
+                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
                 if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();

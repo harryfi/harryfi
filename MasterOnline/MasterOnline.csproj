@@ -5649,9 +5649,11 @@
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Development.pubxml" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
+    <None Include="Properties\PublishProfiles\Dev Publish.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\MasterOnline Dev.pubxml" />
     <None Include="Properties\PublishProfiles\MasterOnline Production.pubxml" />
+    <None Include="Properties\PublishProfiles\Production Publish.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
