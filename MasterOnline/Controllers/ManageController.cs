@@ -15753,7 +15753,7 @@ namespace MasterOnline.Controllers
             //}
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
-            new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_rahmamk", "Calvin");
+            //new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_rahmamk", "Calvin");
 
             return View();
         }
