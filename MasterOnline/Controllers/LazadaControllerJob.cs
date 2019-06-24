@@ -2123,6 +2123,7 @@ namespace MasterOnline.Controllers
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
                                    where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
                                    select new { a.NO_REFERENSI }).ToList();
+            var connIDStok = Guid.NewGuid().ToString();
             foreach (var order in orderUnpaidList)
             {
                 ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -2148,7 +2149,6 @@ namespace MasterOnline.Controllers
                             {
                                 var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
 
-                                var connIDStok = Guid.NewGuid().ToString();
                                 
                                 if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
                                 {
