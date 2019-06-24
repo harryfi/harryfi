@@ -40,23 +40,23 @@
                             {
                                 foreach (var customer in Model.Customers)
                                 {
-                                    <div class="row" style="margin-bottom:5px;">
-                                        <div class="col-md-1" style="padding-bottom:10px">
-                                            <label class="checkbox-container">
-                                                <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" checked="checked" class="cbx ckCustomers" name="cb_@customer.cust" />
-                                                <span id="cbsp_@customer.cust" class="checkmark"></span>
-                                            </label>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            @customer.namaMarket (@customer.namaCust)
-                                        </div>
-                                        <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
-                                            <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
-                                        </div>
-                                        <div class="col-md-3" style="padding-top: 7px;">
-                                            <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
-                                        </div>
-                                    </div>
+                            <div class="row" style="margin-bottom:5px;">
+                                <div class="col-md-1" style="padding-bottom:10px">
+                                    <label class="checkbox-container">
+                                        <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
+                                        <span id="cbsp_@customer.cust" class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-3" style="padding-top: 7px;">
+                                    @customer.namaMarket (@customer.namaCust)
+                                </div>
+                                <div class="col-md-3" style="padding-top: 7px;">
+                                    <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                </div>
+                                <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
+                                    <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
+                                </div>
+                            </div>
                                     <div>
                                         <label id="hiddenlbl_@customer.cust" hidden="hidden">0</label>
                                     </div>
@@ -116,3 +116,22 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+
+        $('.ckCustomers').each(function (i, item) {
+            $(item).prop('checked', false);
+        });
+        //alert('ready');
+        //debugger;
+        if (window.selected_cust.length > 0) {
+            for (j = 0; j < window.selected_cust.length; j++) {
+                $('#cb_' + window.selected_cust[j]).prop('checked', true);
+            }
+        } else {
+            $('.ckCustomers').each(function (i, item) {
+                $(item).prop('checked', true);
+            });
+        }
+    });
+</script>

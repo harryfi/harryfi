@@ -421,6 +421,7 @@
         }
 
         var rows_selected = [];
+        window.selected_cust = [];
 
         function GetAllDataBrg(listCust) {
             if (listCust == undefined) {
@@ -500,6 +501,7 @@
                                 //document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
                                 $('#spinner_' + cust).hide();
                                 rows_selected.shift();
+                                window.selected_cust.push(cust);
                                 if (rows_selected.length > 0) {
                                     GetAllDataBrg(rows_selected);
                                 } else {
@@ -515,6 +517,7 @@
                             $('#modalError').modal('show');
                             $('#spinner_' + cust).hide();
                             rows_selected.shift();
+                            window.selected_cust.push(cust);
                             if (rows_selected.length > 0) {
                                 GetAllDataBrg(rows_selected);
                             } else {
@@ -526,6 +529,7 @@
                         console.log(error);
                         $('#spinner_' + cust).hide();
                         rows_selected.shift();
+                        window.selected_cust.push(cust);
                         if (rows_selected.length > 0) {
                             GetAllDataBrg(rows_selected);
                         } else {
@@ -643,8 +647,8 @@
                     success: function (response) {
                         if (response.Errors.length == 0) {
                             $('#loading_spinner').hide();
-                            alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
-                            $('#upload_btn').show();
+                            //alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
+                            //$('#upload_btn').show();
                             rows_selected = response.cust;
                             listCustomerUploaded = response.namaCust;
                         } else {
@@ -654,12 +658,13 @@
                             }
                             //alert(err);
                             document.getElementById('lblListError').innerText = err;
-                            $('#modalError').modal('show');
+                            //$('#modalError').modal('show');
                             $('#loading_spinner').hide();
-                            $('#upload_btn').show();
+                            //$('#upload_btn').show();
                             rows_selected = response.cust;
                             listCustomerUploaded = response.namaCust;
                         }
+                        $('#sync_btn').click();
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
