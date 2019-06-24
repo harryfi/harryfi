@@ -19916,127 +19916,132 @@ namespace MasterOnline.Controllers
             }
             if (doAPI)
             {
-                var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
+                if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
+                {
+                    var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
 
-                //add by Tri, update harga ke marketplace
-                if (customer.NAMA.Equals(kdLazada))
-                {
-                    var lzdApi = new LazadaController();
-                    lzdApi.UpdatePriceQuantity(hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.TOKEN);
-                }
-                else if (customer.NAMA.Equals(kdBL))
-                {
-                    var blApi = new BukaLapakController();
-                    blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.API_KEY, customer.TOKEN);
-                }
-                else if (customer.NAMA.Equals(kdBlibli))
-                {
-                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                    //add by Tri, update harga ke marketplace
+                    if (customer.NAMA.Equals(kdLazada))
                     {
-                        merchant_code = customer.Sort1_Cust,
-                        API_client_password = customer.API_CLIENT_P,
-                        API_client_username = customer.API_CLIENT_U,
-                        API_secret_key = customer.API_KEY,
-                        token = customer.TOKEN,
-                        mta_username_email_merchant = customer.EMAIL,
-                        mta_password_password_merchant = customer.PASSWORD,
-                        idmarket = customer.RecNum.Value
-                    };
-                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
-                    {
-                        kode = brg.BRG,
-                        kode_mp = hJualInDb.BRG_MP,
-                        Qty = Convert.ToString(qtyOnHand),
-                        MinQty = "0",
-                        nama = brg.NAMA
-                    };
-                    data.Price = hargaJualBaru.ToString();
-                    data.MarketPrice = hJualInDb.HJUAL.ToString();
-                    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                    data.display = display ? "true" : "false";
-                    var BliApi = new BlibliController();
-                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
-                }
-                else if (customer.NAMA.Equals(kdElevenia))
-                {
-                    string[] imgID = new string[3];
-                    //change by calvin 4 desember 2018
-                    //                for (int i = 0; i < 3; i++)
-                    //                {
-                    //#if AWS
-                    //                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-                    //#else
-                    //                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-                    //#endif
-                    //                }
-                    for (int i = 0; i < 3; i++)
-                    {
-                        switch (i)
-                        {
-                            case 0:
-                                imgID[0] = brg.LINK_GAMBAR_1;
-                                break;
-                            case 1:
-                                imgID[1] = brg.LINK_GAMBAR_2;
-                                break;
-                            case 2:
-                                imgID[2] = brg.LINK_GAMBAR_3;
-                                break;
-                        }
+                        var lzdApi = new LazadaController();
+                        if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
+                            lzdApi.UpdatePriceQuantity(hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.TOKEN);
                     }
-                    //end change by calvin 4 desember 2018
-                    EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                    else if (customer.NAMA.Equals(kdBL))
                     {
-                        api_key = customer.API_KEY,
-                        kode = hJualInDb.BRG,
-                        nama = brg.NAMA + ' ' + brg.NAMA2 + ' ' + brg.NAMA3,
-                        berat = (brg.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                        imgUrl = imgID,
-                        Keterangan = brg.Deskripsi,
-                        Qty = Convert.ToString(qtyOnHand),
-                        DeliveryTempNo = hJualInDb.DeliveryTempElevenia.ToString(),
-                        IDMarket = customer.RecNum.ToString(),
-                    };
-                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == brg.Sort2 && m.LEVEL == "2").KET;
-                    data.Price = hargaJualBaru.ToString();
-                    data.kode_mp = hJualInDb.BRG_MP;
-
-                    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                    if (!string.IsNullOrEmpty(data.kode_mp))
-                    {
-                        var result = new EleveniaController().UpdateProduct(data);
+                        var blApi = new BukaLapakController();
+                        if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
+                            blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.API_KEY, customer.TOKEN);
                     }
-                }
-                //end add by Tri, update harga ke marketplace
-                //add by calvin 18 desember 2018
-                else if (customer.NAMA.Equals(kdShopee))
-                {
-                    if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                    else if (customer.NAMA.Equals(kdBlibli))
                     {
-                        var ShopeeApi = new ShopeeController();
-
-                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                         {
                             merchant_code = customer.Sort1_Cust,
+                            API_client_password = customer.API_CLIENT_P,
+                            API_client_username = customer.API_CLIENT_U,
+                            API_secret_key = customer.API_KEY,
+                            token = customer.TOKEN,
+                            mta_username_email_merchant = customer.EMAIL,
+                            mta_password_password_merchant = customer.PASSWORD,
+                            idmarket = customer.RecNum.Value
                         };
-                        if (hJualInDb.BRG_MP != "")
+                        BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                         {
-                            string[] brg_mp = hJualInDb.BRG_MP.Split(';');
-                            if (brg_mp.Count() == 2)
+                            kode = brg.BRG,
+                            kode_mp = hJualInDb.BRG_MP,
+                            Qty = Convert.ToString(qtyOnHand),
+                            MinQty = "0",
+                            nama = brg.NAMA
+                        };
+                        data.Price = hargaJualBaru.ToString();
+                        data.MarketPrice = hJualInDb.HJUAL.ToString();
+                        var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                        data.display = display ? "true" : "false";
+                        var BliApi = new BlibliController();
+                        Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                    }
+                    else if (customer.NAMA.Equals(kdElevenia))
+                    {
+                        string[] imgID = new string[3];
+                        //change by calvin 4 desember 2018
+                        //                for (int i = 0; i < 3; i++)
+                        //                {
+                        //#if AWS
+                        //                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                        //#else
+                        //                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                        //#endif
+                        //                }
+                        for (int i = 0; i < 3; i++)
+                        {
+                            switch (i)
                             {
-                                if (brg_mp[1] == "0")
+                                case 0:
+                                    imgID[0] = brg.LINK_GAMBAR_1;
+                                    break;
+                                case 1:
+                                    imgID[1] = brg.LINK_GAMBAR_2;
+                                    break;
+                                case 2:
+                                    imgID[2] = brg.LINK_GAMBAR_3;
+                                    break;
+                            }
+                        }
+                        //end change by calvin 4 desember 2018
+                        EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                        {
+                            api_key = customer.API_KEY,
+                            kode = hJualInDb.BRG,
+                            nama = brg.NAMA + ' ' + brg.NAMA2 + ' ' + brg.NAMA3,
+                            berat = (brg.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                            imgUrl = imgID,
+                            Keterangan = brg.Deskripsi,
+                            Qty = Convert.ToString(qtyOnHand),
+                            DeliveryTempNo = hJualInDb.DeliveryTempElevenia.ToString(),
+                            IDMarket = customer.RecNum.ToString(),
+                        };
+                        data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == brg.Sort2 && m.LEVEL == "2").KET;
+                        data.Price = hargaJualBaru.ToString();
+                        data.kode_mp = hJualInDb.BRG_MP;
+
+                        var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                        if (!string.IsNullOrEmpty(data.kode_mp))
+                        {
+                            var result = new EleveniaController().UpdateProduct(data);
+                        }
+                    }
+                    //end add by Tri, update harga ke marketplace
+                    //add by calvin 18 desember 2018
+                    else if (customer.NAMA.Equals(kdShopee))
+                    {
+                        if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                        {
+                            var ShopeeApi = new ShopeeController();
+
+                            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                            {
+                                merchant_code = customer.Sort1_Cust,
+                            };
+                            if (hJualInDb.BRG_MP != "")
+                            {
+                                string[] brg_mp = hJualInDb.BRG_MP.Split(';');
+                                if (brg_mp.Count() == 2)
                                 {
-                                    Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
-                                }
-                                else if (brg_mp[1] != "")
-                                {
-                                    Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    if (brg_mp[1] == "0")
+                                    {
+                                        Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    }
+                                    else if (brg_mp[1] != "")
+                                    {
+                                        Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    }
                                 }
                             }
                         }
                     }
+                    //end add by calvin 18 desember 2018
                 }
-                //end add by calvin 18 desember 2018
             }
 
             //change by nurul 13/6/2019

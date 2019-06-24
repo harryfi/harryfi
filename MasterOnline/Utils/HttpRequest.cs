@@ -698,7 +698,7 @@ namespace MasterOnline.Utils
                 }
                 else
                 {
-                    retFail.message += "\n" + ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    retFail.message += "\n" + (ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                 }
                 return retFail;
             }
