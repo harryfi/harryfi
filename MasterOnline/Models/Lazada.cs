@@ -373,4 +373,12 @@ namespace MasterOnline.Models
     {
         public string name { get; set; }
     }
+
+
+    public class SingleOrderReturn
+    {
+        public Order data { get; set; }
+        public string code { get; set; }
+        public string request_id { get; set; }
+    }
 }

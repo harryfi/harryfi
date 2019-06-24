@@ -2100,6 +2100,7 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public BindingBase GetOrdersCancelled(string cust, string accessToken, string dbPathEra, string uname)
         {
+            //order unpaid yang cancelled
             var ret = new BindingBase();
             ret.status = 0;
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
@@ -2117,48 +2118,46 @@ namespace MasterOnline.Controllers
             //};
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest();
-            request.SetApiName("/orders/get");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
-            request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
-            request.AddApiParameter("sort_direction", "DESC");
-            request.AddApiParameter("offset", "0");
-            request.AddApiParameter("limit", "100");
-            request.AddApiParameter("sort_by", "updated_at");
-            request.AddApiParameter("status", "canceled");
-            try
+            //pesanan baru yang unpaid
+            var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
+            var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
+                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
+                                   select new { a.NO_REFERENSI }).ToList();
+            foreach (var order in orderUnpaidList)
             {
-                LazopResponse response = client.Execute(request, accessToken);
-                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
-                if (bindOrder != null)
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/order/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("order_id", order.NO_REFERENSI);
+                try
                 {
-                    //ret = bindOrder;
-                    if (bindOrder.code.Equals("0"))
+                    LazopResponse response = client.Execute(request, accessToken);
+                    var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+                    if (bindOrder != null)
                     {
-                        //change 12 Maret 2019, handle record > 100
-                        //string listOrderId = "[";
-                        List<string> listOrderId = new List<string>();
-                        //end change 12 Maret 2019, handle record > 100
-                        //TEMP_ALL_MP_ORDER_ITEM
-                        if (bindOrder.data.orders.Count > 0)
+                        //ret = bindOrder;
+                        if (bindOrder.code.Equals("0"))
                         {
-                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
-
-                            var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
-                            var connIDStok = Guid.NewGuid().ToString();
-
-                            foreach (Order order in bindOrder.data.orders)
+                            //change 12 Maret 2019, handle record > 100
+                            //string listOrderId = "[";
+                            List<string> listOrderId = new List<string>();
+                            //end change 12 Maret 2019, handle record > 100
+                            //TEMP_ALL_MP_ORDER_ITEM
+                            if (!string.IsNullOrWhiteSpace(bindOrder.data.order_id))
                             {
-                                if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+
+                                var connIDStok = Guid.NewGuid().ToString();
+                                
+                                if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
                                 {
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
                                     if (rowAffected > 0)
                                     {
                                         var orderDetail = (from a in ErasoftDbContext.SOT01A
-                                                           join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                                           where a.NO_REFERENSI == order.order_id
+                                                            join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                                                            where a.NO_REFERENSI == bindOrder.data.order_id
                                                            select new { b.BRG }).ToList();
                                         foreach (var item in orderDetail)
                                         {
@@ -2170,49 +2169,49 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            var itemCount = brgCancelled.Count();
-                            if (itemCount > 0)
+                            else
                             {
-                                string sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID)" + System.Environment.NewLine;
-                                int indexCount = 0;
-                                foreach (var item in brgCancelled)
-                                {
-                                    indexCount = indexCount + 1;
-                                    sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
-                                    if (indexCount < itemCount)
-                                    {
-                                        sSQL += "UNION ALL " + System.Environment.NewLine;
-                                    }
-                                }
-                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
-                                new StokControllerJob().updateStockMarketPlace(connIDStok, dbPathEra, uname);
+                                ret.message = "no order";
                             }
                         }
                         else
                         {
-                            ret.message = "no order";
+                            //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                            ret.message = "lazada api return error";
                         }
                     }
                     else
                     {
-                        //currentLog.REQUEST_EXCEPTION = bindOrder.message;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                        ret.message = "lazada api return error";
-                        if (string.IsNullOrEmpty(bindOrder.message))
-                            ret.message += "\n" + bindOrder.message.ToString();
+                        ret.message = "failed to call lazada api";
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    ret.message = "failed to call lazada api";
+                    ret.message = ex.ToString();
+                    //currentLog.REQUEST_EXCEPTION = ex.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
                 }
             }
-            catch (Exception ex)
+
+            var itemCount = brgCancelled.Count();
+            if (itemCount > 0)
             {
-                ret.message = ex.ToString();
-                //currentLog.REQUEST_EXCEPTION = ex.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                string sSQL = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID)" + System.Environment.NewLine;
+                int indexCount = 0;
+                foreach (var item in brgCancelled)
+                {
+                    indexCount = indexCount + 1;
+                    sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                    if (indexCount < itemCount)
+                    {
+                        sSQL += "UNION ALL " + System.Environment.NewLine;
+                    }
+                }
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
+                new StokControllerJob().updateStockMarketPlace(connIDStok, dbPathEra, uname);
             }
+
             return ret;
         }
 
