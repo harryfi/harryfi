@@ -876,11 +876,14 @@
         }
         //add by nurul 18/12/2018
         function getGudangForBarang() {
-            if ($('#BarangStok_Nobuk').val() != '') {
-
+            if ($('#BarangStok_Nobuk').val() != "-") {
+                var $nobuk = "";
+                if ($('#BarangStok_Nobuk').val() != "-") {
+                    $nobuk = $('#BarangStok_Nobuk').val();
+                }            
                 @*var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';*@
                 var link = '@Url.Action("GetGudangBarangStok", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", $('#BarangStok_Nobuk').val());
+                link = link.replace("replaceId", $nobuk);
                 $.ajax({
                     type: "GET",
                     url: link,

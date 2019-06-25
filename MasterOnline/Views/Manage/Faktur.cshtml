@@ -1531,7 +1531,10 @@
 @*add by nurul 3/12/2018 - tambah cetak faktur*@
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content modalresponsive" style="margin:auto">
+        @*//change by nurul 25/6/2019*@
+        @*<div class="modal-content modalresponsive" style="margin:auto">*@
+        <div class="modal-content" style="margin:auto; width:600px;">
+            @*//end change by nurul 25/6/2019*@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
@@ -1541,7 +1544,7 @@
                 <br />
                 <div class="row">
                     @*<div class="col-md-1">
-                        </div>*@
+                    </div>*@
                     <div class="col-md-4" style="text-align:left">
                         <label>Nama Toko </label>
                     </div>
@@ -1550,11 +1553,25 @@
                     </div>
                     <div class="col-md-2"></div>
                 </div>
+                @*//add by nurul 24/6/2019*@
+                <br />
+                <div class="row">
+                    @*<div class="col-md-2">
+                    </div>*@
+                    <div class="col-md-4" style="text-align:left">
+                        <label>No Telepon Toko </label>
+                    </div>
+                    <div class="col-md-6" style="text-align:left">
+                        <input id="tlp_toko" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                @*//add by nurul 24/6/2019*@
                 <br />
                 @*//add by nurul 2/5/2019*@
                 <div class="row">
                     @*<div class="col-md-1">
-                        </div>*@
+                    </div>*@
                     <div class="col-md-4" style="text-align:left">
                         <label>Pilih Format Kertas </label>
                     </div>
@@ -4570,11 +4587,16 @@
             $('#ctk_alamat').attr('checked', true);
             $('#ctk_tlp').attr('checked', true);
             $('#nama_toko').val("");
+            $('#tlp_toko').val("");
             //end add
 
             $('#btn-print-faktur').off('click').on('click', function () {
                 var toko = $('#nama_toko').val();
                 var $toko = '&toko=' + encodeURIComponent(toko);
+                //add by nurul 24/6/2019
+                var tlpToko = $('#tlp_toko').val();
+                var $tlpToko = '&tlpToko=' + encodeURIComponent(tlpToko);
+                //add by nurul 24/6/2019
                 var faktur = 0;
                 var label = 0;
                 var alamat = 0;
@@ -4639,7 +4661,7 @@
                 var $alamat = '&alamat=' + alamat;
                 var $tlp = '&tlp=' + tlp;
 
-                var win = encodeURIComponent(window.open(link += $faktur += $label += $alamat += $tlp += $toko, '_blank'));
+                var win = encodeURIComponent(window.open(link += $faktur += $label += $alamat += $tlp += $toko += $tlpToko, '_blank'));
                 $('#modalPrintOption').modal('hide');
                 //end add
                 if (win) {

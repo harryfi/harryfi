@@ -394,32 +394,39 @@
             </div>
             <div class="modal-body">
                 @*<div class="row text-center">
-                    <h4>Apakah Anda ingin autoload faktur dengan periode di bawah?</h4>
-                </div>*@
+            <h4>Apakah Anda ingin autoload faktur dengan periode di bawah?</h4>
+        </div>*@
                 @*<div class="row">
-                    <label class="col-md-4 col-sm-4 col-xs-12 control-label">Dari Tanggal :</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <div class="input-group date">
-                            <input type="text" id="DR_TGL" class="form-control" />
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </div>
+            <label class="col-md-4 col-sm-4 col-xs-12 control-label">Dari Tanggal :</label>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="input-group date">
+                    <input type="text" id="DR_TGL" class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <label class="col-md-4 col-sm-4 col-xs-12 control-label"> Sampai Tanggal :</label>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="input-group date">
+                    <input type="text" id="SD_TGL" class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>*@
+                @*//add by nurul 21/6/2019*@
                 <div class="row">
-                    <label class="col-md-4 col-sm-4 col-xs-12 control-label"> Sampai Tanggal :</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">
-                        <div class="input-group date">
-                            <input type="text" id="SD_TGL" class="form-control" />
-                            <span class="input-group-addon">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </div>
-                </div>*@
+                    @Html.Label("Nilai ini akan melunasi faktur-faktur yang belum lunas berdasarkan data faktur terlama", new { @class = "col-md-12 col-sm-12 control-label" })
+                </div>
+                <br />
+                @*//end add by nurul 21/6/2019*@
                 <div class="row">
-                    @Html.Label("Total Pelunasan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                    @*@Html.Label("Total Pelunasan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })*@
+                    @Html.Label("Total Penarikan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                     <div class="col-md-6">
                         @*@Html.TextBoxFor(m => m.bayarPiutang, new { Value = 0, @class = "form-control", type = "number", min = 0 })*@
                         <input type="number" id="BAYAR_PIUTANG" class="form-control" />

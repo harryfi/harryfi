@@ -245,9 +245,9 @@
             </div>
         </div>
         <div class="row" style="margin-top: 5px;">
-            @*<div id="loading_barang_tab" class="text-center">
+            <div id="loading_barang_tab" class="text-center">
                 <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+            </div>
             <div class="col-sm-12 barang_table_section" id="table-upload-barang-partial">
                 @*@Html.Partial("TableUploadBarangPartial")*@
             </div>
@@ -742,11 +742,13 @@
                 url: $link,
                 beforeSend: function () {
                     $('#table-upload-barang-partial').hide();
+                    $('#loading_barang_tab').show();
                     $('#loading_uploadbarang_tab').show();
                 },
                 success: function (response) {
                     $('#table-upload-barang-partial').html(response);
                     $('#loading_uploadbarang_tab').hide();
+                    $('#loading_barang_tab').hide();
                     $('#table-upload-barang-partial').show();
 
                 },
@@ -765,11 +767,13 @@
                 url: $link,
                 beforeSend: function () {
                     $('#search_barang_click')[0].disabled = true;
+                    $('#loading_barang_tab').show();
                     $('#loading_uploadbarang_tab').show();
                 },
                 success: function (response) {
                     $('#search_barang_click')[0].disabled = false;
                     $('#table-upload-barang-partial').html(response);
+                    $('#loading_barang_tab').hide();
                     $('#loading_uploadbarang_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1556,6 +1560,7 @@
         function showPromptBarangTextBoxWindow(typeBrg) {
             var $link = '@Url.Action("PromptBarang", "Manage")';
             //$link = $link.replace("replaceCust", $('#promptHiddenField').val());
+            //$link += '?cust=' + $('#promptHiddenField').val() + '&nama=' + $('#TempBrg_NAMA').val() + '&typeBrg=' + typeBrg;
             $link += '?cust=' + $('#promptHiddenField').val() + '&nama=' + $('#TempBrg_NAMA').val() + '&typeBrg=' + typeBrg;
             window.open($link, "popupWindow", "width=700, height=500, scrollbars=yes");
         }

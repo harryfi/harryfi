@@ -6073,6 +6073,7 @@
     <Content Include="Views\Manage\TransferExcel.cshtml" />
     <Content Include="Views\Manage\TableFakturTempoPartial.cshtml" />
     <Content Include="Views\Manage\TableInvoiceTempoPartial.cshtml" />
+    <Content Include="Views\Manage\TablePromptBarangPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

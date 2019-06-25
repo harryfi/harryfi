@@ -1094,11 +1094,20 @@
                 }
             });
         }*@
-        function refreshTableStok() {
+        function refreshTableStok($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val(); 
+            } else if ($savePage != "1") {
+                $tpPage = $savePage;
+            } else{
+                $tpPage = $('#txt_last_page').val();
+            }
             //var link = '@Url.Action("RefreshTableTransaksiMasuk", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiMasuk", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_stok').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
@@ -1173,9 +1182,10 @@
         }
 
         function deleteStok() {
+            var $savePage = $('#txt_last_page').val()
             var link = '@Url.Action("DeleteTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", this.$idStok);
-
+            
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1187,7 +1197,7 @@
                         //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                         //});
                         //Initialize();
-                        refreshTableStok();
+                        refreshTableStok($savePage);
                     } else {
                         alert(response.Errors[0]);
                     }

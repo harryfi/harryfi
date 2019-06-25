@@ -26,5 +26,20 @@ namespace MasterOnline.ViewModels
         public string NAMA_BRG { get; set; }
         public List<PromptBarangViewModel> data { get; set; }
         public string typeBrg { get; set; }
+
+        public string cust { get; set; }
     }
+
+    //ADD BY NURUL 19/6/2019
+    public class PromptBrgBaru
+    {
+        public string NAMA_BRG { get; set; }
+        public string typeBrg { get; set; }
+
+        public string KODE { get; set; }
+        public string NAMA { get; set; }
+        public Double HARGA { get; set; }
+        //public string ulang { get; set; }
+    }
+    //END ADD BY NURUL 19/6/2019
 }

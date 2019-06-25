@@ -179,6 +179,7 @@
                         </div>
                         <div hidden="hidden">
                             @Html.Label(Model.NamaToko, new { @id = "nm_toko" })
+                            @Html.Label(Model.TlpToko, new { @id = "no_toko" })
                         </div>
                         //add by nurul 29/11/2018
                         <div id="div_faktur">
@@ -204,7 +205,8 @@
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2">
-                                                            <div id="tlp_faktur" class="col-md-12"><span>@Model.TlpToko</span></div>
+                                                            @*<div id="tlp_faktur" class="col-md-12"><span>@Model.TlpToko</span></div>*@
+                                                            <div id="tlp_faktur" class="col-md-12"><span id="tlp_toko"></span></div>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -431,6 +433,14 @@
                                         <span class="block_subtitle_label">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
                                     </td>
                                 </tr>
+                                @*//add by nurul 24/6/2019*@
+                                <tr>
+                                    <td class="sub_title">
+                                        @*<span class="block_subtitle_label">Nama Penjual</span> @(Model.NamaToko)*@
+                                        <span class="block_subtitle_label">Nama Penjual</span><span id="nama_toko_label"></span>
+                                    </td>
+                                </tr>
+                                @*//end add by nurul 24/6/2019*@
                                 <tr>
                                     <td class="sub_title">
                                         <div id="alamat_label">
@@ -441,7 +451,8 @@
                                 <tr>
                                     <td class="sub_title">
                                         <div id="tlp_label">
-                                            <span class="block_subtitle_label">No. Telepon Penjual</span> @(Model.TlpToko)
+                                            @*<span class="block_subtitle_label">No. Telepon Penjual</span> @(Model.TlpToko)*@
+                                            <span class="block_subtitle_label">No. Telepon Penjual</span><span id="tlp_toko_label"></span>
                                         </div>
                                     </td>
                                 </tr>
@@ -563,6 +574,9 @@
             var url3 = qs.alamat; //alamat
             var url4 = qs.tlp; //tlp
             var url5 = qs.toko; //nama toko
+            //add by nurul 24/6/2019
+            var url6 = qs.tlpToko; //tlp toko
+            //end add nurul 24/6/2019
             if (url1 == "1" && url2 == "1") {
                 $('#div_faktur').show()
                 $('#div_gunting').show()
@@ -589,6 +603,13 @@
                 $('#alamat_label').hide()
             }
             if (url4 == "1") {
+                if (url6 != "") {
+                    $('#tlp_toko').text(url6);
+                    $('#tlp_toko_label').text(url6);
+                } else if (url6 == "") {
+                    $('#tlp_toko').text($('#no_toko').text());
+                    $('#tlp_toko_label').text($('#no_toko').text());
+                }
                 $('#tlp_faktur').show()
                 $('#tlp_label').show()
             } else if (url4 == "0") {

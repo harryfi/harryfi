@@ -43,6 +43,9 @@ namespace MasterOnline
         //ADD BY CALVIN 19 JUNI 2019
         public string USER_NAME { get; set; }
         //END ADD BY CALVIN 19 JUNI 2019
+        //ADD BY NURUL 20/6/2019, FLAG PRINT FAKTUR
+        public string PRINT_FAKTUR { get; set; }
+        //END ADD BY NURUL 20/6/2019
 
         //[Key]
         //[StringLength(15)]

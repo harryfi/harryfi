@@ -1375,7 +1375,8 @@
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
                     <div class="row pesanan_table_section form-group">
-                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
+                        @*@Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })*@
+                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
                             @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
                             <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
@@ -1403,7 +1404,7 @@
                         @* remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
                     </div>
                     <div class="row pesanan_table_section" style="margin-top:5px;">
-                        <div class="col-lg-4 col-sm-6" style="padding-bottom:13px;padding-top:13px;">
+                        <div class="col-lg-4 col-sm-6" >
                             <div class="input-group">
                                 <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -2415,7 +2416,7 @@
 </div>
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content" style="margin:auto;height:400px;">
+        <div class="modal-content" style="margin:auto;height:430px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
@@ -2432,39 +2433,39 @@
             </div>
             <div class="modal-body">
                 @*<div class="row">
-                        <div class="col-md-2">
-                        </div>
-                        <div class="col-md-3" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                <span id="ctk_faktur" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-5" style="padding-top: 7px;">
-                            Faktur
-                        </div>
-                        <div class="col-md-2">
-                        </div>
-                    </div>*@
-                @*<div class="row" style="margin-top:5px">
-                        <div class="col-md-2">
-                        </div>
-                        <div class="col-md-3" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                <span id="ctk_label" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-5" style="padding-top: 7px;">
-                            Label
-                        </div>
-                        <div class="col-md-2">
-                        </div>
-                    </div>*@
-                <div class="row">
                     <div class="col-md-2">
                     </div>
-                    <div class="col-md-2" style="text-align:left"> 
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span id="ctk_faktur" class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Faktur
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>*@
+                @*<div class="row" style="margin-top:5px">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span id="ctk_label" class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Label
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>*@
+                <div class="row">
+                    @*<div class="col-md-2">
+                    </div>*@
+                    <div class="col-md-4" style="text-align:left">
                         <label>Nama Toko(Dropship) </label>
                     </div>
                     <div class="col-md-6" style="text-align:left">
@@ -2472,11 +2473,25 @@
                     </div>
                     <div class="col-md-2"></div>
                 </div>
+                @*//add by nurul 24/6/2019*@
+                <br />
+                <div class="row">
+                    @*<div class="col-md-2">
+                    </div>*@
+                    <div class="col-md-4" style="text-align:left">
+                        <label>No Telepon Toko(Dropship) </label>
+                    </div>
+                    <div class="col-md-6" style="text-align:left">
+                        <input id="tlp_toko" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                @*//add by nurul 24/6/2019*@
                 <br />
                 @*//add by nurul 2/5/2019*@
                 <div class="row">
                     @*<div class="col-md-1">
-                        </div>*@
+                    </div>*@
                     <div class="col-md-4" style="padding-top: 7px; text-align:left">
                         <label>Pilih Format Kertas </label>
                     </div>
@@ -3637,7 +3652,7 @@
             //$('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             //getTanggal();
-            //getMarketplace();            
+            //getMarketplace();
             //getExpedisi();
             //getBuyer();
             //getGudang();
@@ -3684,7 +3699,7 @@
             });
             //end add
 
-            
+
 
             $('#tambah-pembeli').click(function() {
                 @*window.open('@Url.Action("BuyerPopup", "Manage")',*@
@@ -3887,7 +3902,7 @@
 
                                         refreshInputan();
                                         refreshNetto();
-                                        
+
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
 
@@ -7567,6 +7582,7 @@
             $('#ctk_alamat').attr('checked', true);
             $('#ctk_tlp').attr('checked', true);
             $('#nama_toko').val("");
+            $('#tlp_toko').val("");
             //end add
 
             $('#btn-print-faktur').off('click').on('click', function() {
@@ -7574,6 +7590,10 @@
                 //link = link.replace('replaceNoBuk', nobuk);
                 var toko = $('#nama_toko').val();
                 var $toko = '&toko=' + encodeURIComponent(toko);
+                //add by nurul 24/6/2019
+                var tlpToko = $('#tlp_toko').val();
+                var $tlpToko = '&tlpToko=' + encodeURIComponent(tlpToko);
+                //add by nurul 24/6/2019
                 var faktur = 0;
                 var label = 0;
                 var alamat = 0;
@@ -7656,7 +7676,7 @@
                 var $alamat = '&alamat=' + alamat;
                 var $tlp = '&tlp=' + tlp;
 
-                var win = encodeURIComponent(window.open(link += $faktur += $label += $alamat += $tlp += $toko, '_blank'));
+                var win = encodeURIComponent(window.open(link += $faktur += $label += $alamat += $tlp += $toko +=$tlpToko, '_blank'));
                 $('#modalPrintOption').modal('hide');
                 //end add
                 if (win) {
