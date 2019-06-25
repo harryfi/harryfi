@@ -1413,9 +1413,9 @@
                                         else {
                                             //textbox
                                             if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             } else {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             }
                                         }
 
@@ -3880,11 +3880,15 @@
             });
         }
         function simpanBarang1(btnClicked) {
+            $(btnClicked).attr("disabled", true);
             toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
             var valid2 = cekValidasi();
+            
 
+            
+            if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
 
@@ -3933,6 +3937,7 @@
             });
 
             //end add by calvin 1 maret 2019
+            $(btnClicked).attr("disabled", false);
 
             $.ajax({
                 type: "POST",
@@ -3971,6 +3976,12 @@
             return false;
         }
 
+        function removeTag(html) {
+            var tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
+        }
+
         function simpanBarangInduk(btnClicked) {
             toggleRequiredDetailPerMarketplace();
 
@@ -3984,6 +3995,14 @@
             var angka = convertToAngka(input);
             $("#Stf02_HJUAL").val(angka);
             $('#Stf02_STN').val($('#Stf02_STN2').val());
+
+            //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
+            $.each($(".removeHTMLTag"),
+                function () {
+                    var newText = removeTag($(this).val());
+                    $(this).val(newText);
+                });
+            //end add by calvin 20 juni 2019
 
             $.each($("#hjualmarket-section input.form-control"),
                 function () {

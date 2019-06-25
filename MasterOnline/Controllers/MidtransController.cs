@@ -502,7 +502,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
+                    Password = "erasoft1988MO"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";

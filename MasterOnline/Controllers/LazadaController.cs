@@ -4601,6 +4601,7 @@ namespace MasterOnline.Controllers
                 if (bindData != null)
                 {
                     //return data;
+                    var catLzd = MoDbContext.CATEGORY_LAZADA.Select(m => m.CATEGORY_ID).ToList();
                     foreach (CategoryNew cat in bindData.data)
                     {
                         var tblCategory = new CATEGORY_LAZADA();
@@ -4608,18 +4609,20 @@ namespace MasterOnline.Controllers
                         tblCategory.NAME = cat.Name.Replace('\'', '_');
                         tblCategory.LEAF = cat.leaf;
                         tblCategory.PARENT_ID = "";
-
-                        MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
-                        MoDbContext.SaveChanges();
+                        if (!catLzd.Contains(cat.category_id.ToString()))
+                        {
+                            MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
+                            MoDbContext.SaveChanges();
+                        }                            
 
                         if (cat.Children != null)
-                            recursiveCategory(cat.category_id.ToString(), cat.Children);
+                            recursiveCategory(cat.category_id.ToString(), cat.Children, catLzd);
                     }
                 }
             }
             //return null;
         }
-        public void recursiveCategory(string parentId, List<CategoryNew> data)
+        public void recursiveCategory(string parentId, List<CategoryNew> data, List<string> catInDB)
         {
             foreach (CategoryNew cat in data)
             {
@@ -4630,15 +4633,18 @@ namespace MasterOnline.Controllers
                 tblCategory.PARENT_ID = parentId;
                 try
                 {
-                    MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
-                    MoDbContext.SaveChanges();
+                    if (!catInDB.Contains(cat.category_id.ToString()))
+                    {
+                        MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
+                        MoDbContext.SaveChanges();
+                    }
                 }
                 catch (Exception ex)
                 {
                     var a = ex;
                 }
                 if (cat.Children != null)
-                    recursiveCategory(cat.category_id.ToString(), cat.Children);
+                    recursiveCategory(cat.category_id.ToString(), cat.Children, catInDB);
             }
         }
 

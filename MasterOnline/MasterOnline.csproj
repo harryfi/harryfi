@@ -27,7 +27,7 @@
     <UseGlobalApplicationHostFile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1334,6 +1334,7 @@
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
+    <Compile Include="ViewModels\SyncMenuViewModel.cs" />
     <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
@@ -5648,9 +5649,11 @@
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Development.pubxml" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
+    <None Include="Properties\PublishProfiles\Dev Publish.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\MasterOnline Dev.pubxml" />
     <None Include="Properties\PublishProfiles\MasterOnline Production.pubxml" />
+    <None Include="Properties\PublishProfiles\Production Publish.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -6071,6 +6074,8 @@
     <Content Include="Views\Admin\HangfireServerStatus.cshtml" />
     <Content Include="Views\Admin\TableHangfireServerStatus.cshtml" />
     <Content Include="Views\Manage\TransferExcel.cshtml" />
+    <Content Include="Views\Manage\SyncMenu.cshtml" />
+    <Content Include="Views\Manage\SyncMenuPartialPage.cshtml" />
     <Content Include="Views\Manage\TableFakturTempoPartial.cshtml" />
     <Content Include="Views\Manage\TableInvoiceTempoPartial.cshtml" />
     <Content Include="Views\Manage\TablePromptBarangPartial.cshtml" />

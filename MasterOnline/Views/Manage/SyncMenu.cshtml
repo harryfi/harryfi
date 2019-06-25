@@ -1,0 +1,835 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "Sinkronisasi Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    MoDbContext context = new MoDbContext();
+    ErasoftContext erasoftContext = null;
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+    if (dataSession?.Account != null)
+    {
+        //change by nurul 3/10/2018
+        //erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
+    }
+    else
+    {
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        //change by nurul 3/10/2018
+        //erasoftContext = new ErasoftContext(accFromUser.UserId);
+        erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+    }
+
+    //var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
+    //var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+    var listCustomer = erasoftContext.ARF01.OrderBy(m => m.NAMA).ToList();
+}
+
+@section styles
+{
+    <style>
+        .langkah-done {
+            color: green !important;
+            font-size: 40px;
+            position: absolute;
+            right: 20px;
+            top: 7px;
+        }
+
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        #statusBorder {
+            position: relative;
+            height: 5px;
+            width: 100px;
+            border: solid 1px gray;
+            display: none;
+        }
+
+        #statusFill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            background-color: Blue;
+            height: 5px;
+        }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        .progress {
+            margin-bottom: 0 !important;
+        }
+        .x_panel {
+            height:100%;
+        }
+        .row-tbl {
+            display: flex; /* equal height of the children */
+        }
+
+        .col-tbl {
+            flex: 1; /* additionally, equal width */
+            padding: 1em;
+            /*border: solid;*/
+        }
+    </style>
+}
+<div class="sync_step">
+    <div class="row">
+        <div class="col-lg-12" style="margin-bottom: 16px;">
+            <h2>
+                <strong>Langkah untuk men-sinkronisasi barang di marketplace dengan Master Online</strong>
+            </h2>
+        </div>
+    </div>
+    <div class="row animated fadeInRight row-tbl">
+        <div class="col-md-3 col-tbl">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h5>
+                        @*<strong>Isi Data Perusahaan</strong>*@
+                        <strong>Ambil Data Barang</strong>
+                    </h5>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <img alt="Perusahaan" class="img-responsive-35 center-block" src="~/Content/Images/import_data.png">
+                    @*<img alt="Perusahaan" class="img-responsive-35 center-block" src="https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/b04ed99e-9af7-484e-ab96-383e33ee4a29.jpg" style="max-width:58%">*@
+                    <br />
+                    <p>
+                        @*Masukkan data-data perusahaan Anda seperti:*@
+                        Ambil data barang dari semua akun markeplace yang sudah Anda link dengan Master Online
+                    </p>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-primary btn-lg btn-block" onclick="GetDataMenu(1)">
+                                <i class="fa"></i> Ambil Data
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-tbl">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h5>
+                        <strong>Download Data Barang</strong>
+                        @*@if (jumlahAkunMarketplace > 0)
+                            {
+                                <span class="fa fa-check-circle langkah-done"></span>
+                            }*@
+                    </h5>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <img alt="Marketplace" class="img-responsive-35 center-block" src="~/Content/Images/excel_dl.png">
+                    @*<img alt="Marketplace" class="img-responsive-35 center-block" src="https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/b06dae43-658e-4f2d-b6dd-856ccca59e38.jpg">*@
+                    <br />
+                    <p>
+                        Download data barang yang ada di Master Online(format file excel).
+                    </p>
+                    <br>
+                    <div class="row" style="padding-top:15px;">
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-primary btn-lg btn-block" onclick="GetDataMenu(2)">
+                                <i class="fa"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-tbl">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h5>
+                        <strong>Edit Data Barang</strong>
+                        @*@if (dataUsahaInDb.NAMA_PT != "PT ERAKOMP INFONUSA")
+                            {
+                                <span class="fa fa-check-circle langkah-done"></span>
+                            }*@
+                    </h5>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <img alt="masterdata" class="img-responsive-35 center-block" src="~/Content/Images/edit_data.png">
+                    <br />
+                    <p>
+                        Edit data barang anda pada file excel yang sudah di-download.
+                        <br />
+                        Isi kode barang, kategory, dan merk untuk Master Online.
+                    </p>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 text-center" hidden="hidden">
+                            <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(2);">
+                                <i class="fa"></i> Buka Menu Master
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-tbl">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h5><strong>Sinkronisasi Data Barang</strong></h5>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <img alt="Saldo Awal" class="img-responsive-35 center-block" src="~/Content/Images/excelImportIcon300.png">
+                    <br />
+                    <p>Upload file excel yang sudah anda edit, untuk meng-Update data barang di Master Online. </p>
+                    <br>
+                    <div class="row" style="padding-top:5px;">
+                        <div class="col-md-12 text-center">
+                            <div class="col-md-12 text-center">
+                                <a class="btn btn-primary btn-lg btn-block" onclick="GetDataMenu(4)">
+                                    <i class="fa"></i> Sinkronisasi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row sync_editor_section" style="display: none;">
+    <div class="col-lg-12">
+        <div class="page-editor">
+            <h2 class="editor-title" id="lblForm">Sinkronisasi data barang</h2>
+            <span class="title-accent"></span>
+            <button id="close-editor-1" type="button" class="pull-right page-close">
+                <span class="close-btn thick"></span>
+            </button>
+            <div class="form-horizontal" id="form-partial">
+                @Html.Partial("SyncMenuPartialPage")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-center">
+                       <label id="lblListError"></label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                    @*<button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section scripts
+{
+    <script>
+        function warningDataPerusahaan() {
+            alert('Isi data perusahaan terlebih dahulu!');
+            return;
+        }
+
+        $(document).ready(function () {
+            $('#close-editor-1').off('click').on('click', function () {
+                //$('#close-editor-1')[0].disabled = true;
+                $('.sync_editor_section').hide();
+                $('.sync_step').show();
+            });
+        });
+
+        function GetDataMenu(step) {
+            var link = '@Url.Action("GetDataMenu", "Manage")';
+            //setMode(step);
+            $('.label_record').hide();
+            //$('.ckCustomers').each(function (i, item) {
+            //    $(item).prop('checked', true);
+            //});
+            rows_selected = [];
+            listErrorMessage = '';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_spinner').show();
+                    $('#form-partial').html('');
+                },
+                success: function (response) {
+                    $('#form-partial').html(response);
+                    $('.sync_editor_section').show();
+                    $('.sync_step').hide();
+                    setMode(step);
+                    $('#loading_spinner').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                    setMode(step);
+                }
+            });
+        }
+
+        function setMode(step) {
+            $('#proses_btn').hide();
+            $('#download_btn').hide();
+            $('#upload_btn').hide();
+            $('#div_with_list').hide();
+            $('#div_with_upload').hide();
+            $('#tbl_progbar').remove();
+            $('.div-spinner').hide();
+            if (step == 1) {
+                $('#proses_btn').show();
+                $('#div_with_list').show();
+                document.getElementById('lblForm').innerText = "Ambil Data Barang dari Markeplace";
+            }
+            else if (step == 2) {
+                $('#download_btn').show();
+                $('#div_with_list').show();
+                document.getElementById('lblForm').innerText = "Download Data Barang ke Excel";
+            }
+            else if (step == 4) {
+                //$('#upload_btn').show();
+                $('#div_with_upload').show();
+                document.getElementById('lblForm').innerText = "Upload Excel dan Sinkronisasi Data Barang ke Master Online";
+            }
+        }
+
+        var rows_selected = [];
+        window.selected_cust = [];
+
+        function GetAllDataBrg(listCust) {
+            if (listCust == undefined) {
+                $('.ckCustomers').each(function (i, item) {
+                    if ($(item).is(":checked")) {
+                        rows_selected.push($(item).attr("data-cust"));
+                    }
+                });
+
+                if (rows_selected.length == 0) {
+                    alert('Anda belum memilih Toko yang akan diambil data barangnya.');
+                } else {
+                    GetDataBrgWithRecord(rows_selected[0], 0, 0, 1);
+                }
+            } else {
+                GetDataBrgWithRecord(listCust[0], 0, 0, 1);
+            }
+
+        }
+
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+                updateList();
+            }
+        }
+
+        function updateList (){
+            var input = document.getElementById('file_upload_excel');
+            var output = document.getElementById('fileList');
+
+            output.innerHTML = '<ul>';
+            for (var i = 0; i < input.files.length; ++i) {
+                output.innerHTML += '<li>' + input.files.item(i).name + '</li>';
+            }
+            output.innerHTML += '</ul>';
+        }
+
+        //get data barang with record
+        function GetDataBrgWithRecord(cust, page, recordCount, statBL) {
+                 var link = '@Url.Action("ImportDataMP", "Manage")';
+                link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL;
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        //$('#loading_barang_tab').show();
+                        document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data : 0';
+                        $('#lblRecord_' + cust).show();
+                        $('#spinner_' + cust).show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null || response.Errors.length == 0) {
+                            if (response.RecordCount != null) {
+                                document.getElementById('lblRecord_'+ cust).innerText = 'Jumlah data : ' + response.RecordCount;
+                            }
+                            if (response.Recursive) {
+                                if (response.BLProductActive == 1) {
+                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 1);
+                                } else {
+                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 0);
+                                }
+                            } else {
+                                //document.getElementById('txtInfo').innerText = '';
+                                //alert('Jumlah data berhasil tersimpan :' + response.RecordCount);
+                                //refreshTableBarangUpload();
+                                //$('#info_record').hide();
+                                //document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                $('#spinner_' + cust).hide();
+                                rows_selected.shift();
+                                window.selected_cust.push(cust);
+                                if (rows_selected.length > 0) {
+                                    GetAllDataBrg(rows_selected);
+                                } else {
+                                    alert('Proses mengambil data barang dari marketplace telah selesai.');
+                                }
+                            }
+                        } else {
+                            //alert(response.Errors);
+                            //$('#loading_barang_tab').hide();
+                            //$('#datatable').show();
+                            //$('#info_record').hide();
+                            document.getElementById('lblListError').innerText = response.Errors;
+                            $('#modalError').modal('show');
+                            $('#spinner_' + cust).hide();
+                            rows_selected.shift();
+                            window.selected_cust.push(cust);
+                            if (rows_selected.length > 0) {
+                                GetAllDataBrg(rows_selected);
+                            } else {
+                                alert('Proses mengambil data barang dari marketplace telah selesai.');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#spinner_' + cust).hide();
+                        rows_selected.shift();
+                        window.selected_cust.push(cust);
+                        if (rows_selected.length > 0) {
+                            GetAllDataBrg(rows_selected);
+                        } else {
+                            alert('Proses mengambil data barang dari marketplace telah selesai.');
+                        }
+                        //var err = JSON.parse(xhr.responseText);
+                        //alert(err.Message);
+                        //console.log(err.error);
+
+                    }
+                });
+                //$('#konfTarikData').modal('hide');
+                //$('#konfSyncAll').modal('hide');
+        }
+        //end get data barang with record
+
+        function DownloadAllExcel(listCust) {
+            if (listCust == undefined) {
+                $('.ckCustomers').each(function (i, item) {
+                    if ($(item).is(":checked")) {
+                        rows_selected.push($(item).attr("data-cust"));
+                    }
+                });
+
+                if (rows_selected.length == 0) {
+                    alert('Anda belum memilih Toko yang akan diambil data barangnya.');
+                } else {
+                    exportExcel(rows_selected[0]);
+                }
+            } else {
+                exportExcel(listCust[0]);
+            }
+        }
+
+        function exportExcel(cust) {
+            var link = '@Html.Raw(Url.Action("SQLtoExcel", "TransferExcel"))';
+            link += "?cust=" + cust;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                    $('#lblRecord_' + cust).show();
+                    $('#spinner_' + cust).show();
+                },
+                success: function (response) {
+                    $('#loading_spinner_btn').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                        document.getElementById('lblRecord_' + cust).innerText = 'sukses download';
+                    } else {
+                        //alert(response.Errors[0]);
+                        document.getElementById('lblRecord_' + cust).innerText = 'gagal download : ' + response.Errors[0];
+                    }
+                    $('#spinner_' + cust).hide();
+                    rows_selected.shift();
+                    if (rows_selected.length > 0) {
+                        DownloadAllExcel(rows_selected);
+                    } else {
+                        //alert('Proses mengambil data barang dari marketplace telah selesai.');
+                        alert('Proses download data barang telah selesai.');
+                    }
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                    $('#spinner_' + cust).hide();
+                    rows_selected.shift();
+                    if (rows_selected.length > 0) {
+                        DownloadAllExcel(rows_selected);
+                    } else {
+                        alert('Proses download data barang telah selesai.');
+                    }
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        };
+
+        var listCustomerUploaded = [];
+        function uploadfileexcel() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+            }
+            else
+            {
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadXcel", "TransferExcel")',
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors.length == 0) {
+                            $('#loading_spinner').hide();
+                            //alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
+                            //$('#upload_btn').show();
+                            rows_selected = response.cust;
+                            listCustomerUploaded = response.namaCust;
+                        } else {
+                            var err = "";
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                            //alert(err);
+                            document.getElementById('lblListError').innerText = err;
+                            //$('#modalError').modal('show');
+                            $('#loading_spinner').hide();
+                            //$('#upload_btn').show();
+                            rows_selected = response.cust;
+                            listCustomerUploaded = response.namaCust;
+                        }
+                        $('#sync_btn').click();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+        }
+
+        //sync all brg
+        function showProgressBar() {
+            $('#tbl_progbar').remove();
+            var sHTML = '<table class="col-md-12" id="tbl_progbar">';
+            for (i = 0; i < rows_selected.length; i++) {
+                sHTML += '<tr>';
+                sHTML += '<td class="col-md-2"><label>' + listCustomerUploaded[i] + '</label></td>';
+                sHTML += '<td class="col-md-10"><div class="progress"><div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"';
+                sHTML += ' id="pBar_' + rows_selected[i] + '" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">0% Complete (success)</div></div>';
+                sHTML += '</td></tr>';
+            }
+            sHTML += "</table>";
+            $('#div_with_pbar').append(sHTML);
+        }
+
+        var listErrorMessage = "";
+
+        function startSyncAll() {
+            //if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+            //    alert('Anda belum memilih Toko');
+            //} else {
+                //$('.progress-bar').css('width', '0%').attr('aria-valuenow', 0 * 100);
+                //$('.progress-bar').html('0% Complete');
+                //$('#table-upload-barang-partial').hide();
+                //listErrorMessage = '';
+                //document.getElementById('txtMessage').innerText = '';
+                //$('#datatable').hide();
+                //$('#konfSyncAll').modal('hide');
+                //$('#btnSelesai').prop('disabled', true);
+                var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
+                link = link.replace("replaceId", rows_selected[0]);
+                var maxPage = "";
+                var dataPerPage = 0;
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        //$('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            if (response.Total != null && response.Total != "") {
+                                if (parseInt(response.Total) > 0) {
+                                    //showProgressBar();
+                                    if (parseInt(response.Total) <= 10) {
+                                        //UploadAllBrg();
+                                        maxPage = 0;
+                                        dataPerPage = parseInt(response.Total);
+                                    } else {
+                                        //$('#progressDiv').show();
+                                        //controlButton();
+                                        if (parseInt(response.Total) <= 50) {
+                                            maxPage = 4;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
+                                        } else {
+                                            maxPage = 9;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
+                                        }
+                                        //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                    }
+                                    UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                } else {
+                                    alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                    //$('#table-upload-barang-partial').show();
+                                }
+                            } else {
+                                alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                //$('#table-upload-barang-partial').show();
+                            }
+                        } else {
+                            alert(response.Errors);
+                            //$('#table-upload-barang-partial').show();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        //$('#table-upload-barang-partial').show();
+                        console.log(error);
+                    }
+                });
+            //}
+        }
+
+        function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
+
+            var link = '@Url.Action("UploadItemByCust", "Manage")';
+            link += "?cust=" + rows_selected[0] + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                //beforeSend: function () {
+                //    $('#loading_barang_tab').show();
+                //},
+                success: function (response) {
+                    if (response.Errors != null) {
+                        if (response.Errors.length > 0) {
+                            response.Errors.forEach(ErrorMessageDialog);
+                            //alert(listErrorMessage);
+                            //document.getElementById('txtMessage').innerText = listErrorMessage;
+                        }
+                    }
+                    $('#pBar_' + rows_selected[0]).css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                    $('#pBar_' + rows_selected[0]).html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
+                    if (response.contRecursive == "1") {                        
+                        if ((currentPage + 1) > maxPage) {
+                            //alert('Sinkronisasi barang selesai');
+                            //$('#btnSelesai').prop('disabled', false)
+                            rows_selected.shift();
+                            if (rows_selected.length > 0) {
+                                //DownloadAllExcel(rows_selected);
+                                startSyncAll();
+                            } else {
+                                alert('Proses sinkronisasi data barang telah selesai.');
+                                //alert(listErrorMessage);
+                                document.getElementById('lblListError').innerText = listErrorMessage;
+                                $('#modalError').modal('show');
+                            }
+                        } else {
+                            UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
+                        }
+                    } else {
+                        //$('#btnSelesai').prop('disabled', false);
+                        rows_selected.shift();
+                        if (rows_selected.length > 0) {
+                            startSyncAll();
+                        } else {
+                            alert('Proses mengambil data barang dari marketplace telah selesai.');
+                            //alert(listErrorMessage);
+                            document.getElementById('lblListError').innerText = listErrorMessage;
+                            $('#modalError').modal('show');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    //$('#table-upload-barang-partial').show();
+                    //$('#btnSelesai').prop('disabled', false);
+                }
+            });
+
+        }
+
+        var listErrorMessage = "";
+        function ErrorMessageDialog(item, index) {
+            var error = item.split(';');
+            if (error.length > 1) {
+                if (error.length > 2) {
+                    listErrorMessage += '\nKode Barang :' + error[0] + '\nError message :' + error[2] + '\n';
+                } else {
+                    listErrorMessage += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                }
+            } else {
+                listErrorMessage += error;
+            }
+        }
+        //end sync all brg
+    </script>
+}

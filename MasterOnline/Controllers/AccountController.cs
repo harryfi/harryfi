@@ -752,10 +752,20 @@ namespace MasterOnline.Controllers
                             connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                             //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                         }
                         else
                         {
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.RemoveIfExists(connId_JobId);
                         }
                     }
@@ -958,6 +968,9 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
+                        connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
                         ////hanya untuk testing
                         //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
@@ -970,6 +983,9 @@ namespace MasterOnline.Controllers
                         recurJobM.RemoveIfExists(connId_JobId);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
                     }
                 }
@@ -1158,7 +1174,7 @@ namespace MasterOnline.Controllers
             //                var credential = new NetworkCredential
             //                {
             //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "erasoft123"
+            //                    Password = "erasoft1988MO"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1172,7 +1188,7 @@ namespace MasterOnline.Controllers
             //                var credential = new NetworkCredential
             //                {
             //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "erasoft123"
+            //                    Password = "erasoft1988MO"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";

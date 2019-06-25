@@ -229,7 +229,10 @@
                                 </li>
                                 @if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
                                 {
-                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    //change by Tri, sort by scrid
+                                    //var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
+                                    //end change by Tri, sort by scrid                                
                                     var listChild = listAnak.ToList();
                                     var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
 
