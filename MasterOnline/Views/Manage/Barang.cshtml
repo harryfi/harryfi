@@ -3880,11 +3880,15 @@
             });
         }
         function simpanBarang1(btnClicked) {
+            $(btnClicked).attr("disabled", true);
             toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
             var valid2 = cekValidasi();
+            
 
+            
+            if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
 
@@ -3933,6 +3937,7 @@
             });
 
             //end add by calvin 1 maret 2019
+            $(btnClicked).attr("disabled", false);
 
             $.ajax({
                 type: "POST",

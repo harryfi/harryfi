@@ -371,11 +371,11 @@ namespace MasterOnline.Controllers
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
-                //var qty_stock = new StokControllerJob(DatabasePathErasoft, "").GetQOHSTF08A(data.kdBrg, "ALL");
-                //if (qty_stock > 0)
-                //{
-                //xmlString += "<quantity>1</quantity>";
-                //}
+                var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(data.kdBrg, "ALL");
+                if (qty_stock > 0)
+                {
+                    xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                }
                 //end add by calvin 1 mei 2019
 
                 //xmlString += "<quantity>1</quantity>";
@@ -500,6 +500,13 @@ namespace MasterOnline.Controllers
                         }
                         //end change 8 Apriil 2019, get attr from api
 
+                        //add by calvin 1 mei 2019
+                        var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
+                        if (qty_stock > 0)
+                        {
+                            xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                        }
+                        //end add by calvin 1 mei 2019
                         xmlString += "<price>" + data.harga + "</price>";
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                         xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
@@ -2149,15 +2156,15 @@ namespace MasterOnline.Controllers
                             {
                                 var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
 
-                                
+
                                 if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
                                 {
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
                                     if (rowAffected > 0)
                                     {
                                         var orderDetail = (from a in ErasoftDbContext.SOT01A
-                                                            join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                                            where a.NO_REFERENSI == bindOrder.data.order_id
+                                                           join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                                                           where a.NO_REFERENSI == bindOrder.data.order_id
                                                            select new { b.BRG }).ToList();
                                         foreach (var item in orderDetail)
                                         {
