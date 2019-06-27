@@ -442,17 +442,17 @@ namespace MasterOnline.Controllers
                         if (marketPlace.NAMA.Equals(kdBL.ToString()))
                         {
 #if (DEBUG || Debug_AWS)
-                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
 #endif
                         }
                         else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                         {
 #if (DEBUG || Debug_AWS)
-                            Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
+                            Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
 #else
-                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
 #endif
                         }
                         else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
@@ -490,7 +490,7 @@ namespace MasterOnline.Controllers
                             data.Price = stf02h.HJUAL.ToString();
                             data.kode_mp = stf02h.BRG_MP;
                             //eleApi.UpdateProductQOH_Price(data);
-                            client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdBli.ToString()))
                         {
@@ -520,9 +520,9 @@ namespace MasterOnline.Controllers
                                 data.display = display ? "true" : "false";
                                 var BliApi = new BlibliController();
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null).Wait());
+                                Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null).Wait());
 #else
-                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null));
+                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null));
 #endif
                             }
                         }
@@ -557,9 +557,9 @@ namespace MasterOnline.Controllers
                                     else
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null)).Wait();
+                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null)).Wait();
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
 #endif
                                     }
                                 }
@@ -579,17 +579,17 @@ namespace MasterOnline.Controllers
                                     if (brg_mp[1] == "0" || brg_mp[1] == "")
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
                                     }
                                     else if (brg_mp[1] != "")
                                     {
 #if (DEBUG || Debug_AWS)
-                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
                                     }
                                 }
@@ -608,9 +608,9 @@ namespace MasterOnline.Controllers
                             if (stf02h.BRG_MP != "")
                             {
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
 #else
-                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
 #endif
                             }
                         }
@@ -624,7 +624,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Bukalapak gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Bukalapak gagal.")]
         public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string log_CUST, string log_ActionCategory, string log_ActionName, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
@@ -707,7 +707,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Lazada gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Lazada gagal.")]
         public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
@@ -806,7 +806,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Elevenia gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Elevenia gagal.")]
         public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
@@ -937,7 +937,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Blibli gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Blibli gagal.")]
         public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
         {
             string ret = "";
@@ -1173,7 +1173,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Tokopedia gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Tokopedia gagal.")]
         public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
@@ -1232,7 +1232,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Shopee gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Shopee gagal.")]
         public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
@@ -1332,7 +1332,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke Shopee gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke Shopee gagal.")]
         public async Task<string> Shopee_updateVariationStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
@@ -1427,7 +1427,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
-        [NotifyOnFailed("Update Stock {obj} ke JD.ID gagal.")]
+        [NotifyOnFailed("Update Stok {obj} ke JD.ID gagal.")]
         public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);

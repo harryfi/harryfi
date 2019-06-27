@@ -42,6 +42,7 @@
 @Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
 @Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
 @Html.HiddenFor(m => m.Stf02.STN)
+@Html.HiddenFor(m => m.Stf02.MAXI, new { Value = 99 })
 @Html.HiddenFor(m => m.Stf02.Metoda, new { Value = "1" })
 @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
@@ -240,18 +241,25 @@
                                         </div>
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.MINI, "Stok Minimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                            <div class="col-md-1 col-sm-2 col-xs-12">
                                                 @*@Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
                                                 @Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
                                             </div>
+                                            <div class="text-left">
+                                                <h5>Stok Minimum adalah quantity minimal yang harus ada di gudang.</h5>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
+                                        @*<div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-2 col-sm-2 col-xs-12">
-                                                @*@Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
                                                 @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
                                             </div>
                                         </div>
+                                        <br />
+                                        <div class="text-left">
+                                            <h5>Maximum Stok adalah quantity maksimal yang boleh ada di gudang.</h5>
+                                        </div>
+                                        <br />*@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
