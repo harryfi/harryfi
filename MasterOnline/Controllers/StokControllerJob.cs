@@ -1089,25 +1089,25 @@ namespace MasterOnline.Controllers
                             if (responseFromServer != null)
                             {
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                                if (string.IsNullOrEmpty(result2.errorCode.Value))
-                                {
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                //if (string.IsNullOrEmpty(result2.errorCode.Value))
+                                //{
+                                //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
-                                    //remark by calvin 2 april 2019
-                                    //BlibliQueueFeedData queueData = new BlibliQueueFeedData
-                                    //{
-                                    //    request_id = result2.requestId.Value,
-                                    //    log_request_id = currentLog.REQUEST_ID
-                                    //};
-                                    //await GetQueueFeedDetail(iden, queueData);
-                                    //end remark by calvin 2 april 2019
-                                }
-                                else
-                                {
-                                    //currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
-                                    //currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                                }
+                                //    //remark by calvin 2 april 2019
+                                //    //BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                                //    //{
+                                //    //    request_id = result2.requestId.Value,
+                                //    //    log_request_id = currentLog.REQUEST_ID
+                                //    //};
+                                //    //await GetQueueFeedDetail(iden, queueData);
+                                //    //end remark by calvin 2 april 2019
+                                //}
+                                //else
+                                //{
+                                //    //currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
+                                //    //currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
+                                //    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                //}
                             }
                         }
                     }
