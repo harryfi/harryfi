@@ -131,7 +131,7 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
                 </li>
@@ -148,7 +148,7 @@
                     <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
                 </li>
             </ul>
-            <div id="myTabContent" class="tab-content">
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="barang-tab">
                     <div class="row barang_table_section">
                         <div class="col-lg-4 col-sm-6">
@@ -161,20 +161,13 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                                @*<button type="button" class=" btn btn-default" data-style="expand-right">
-            <span>Import Persediaan Barang</span>
-        </button>
-        <button type="button" class=" btn btn-default" data-style="expand-right">
-            <span>Import Harga</span>
-        </button>*@
-                                @* remark by nurul 28/8/2108 -- <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>*@
-                            </div>
-                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @* remark by calvin 24 mei 2019 <div id="loading_barang_tab" class="text-center">
@@ -226,18 +219,18 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                            </div>
-                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                            <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_kosong_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-barang-kosong-partial">
                             @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())*@
                         </div>
@@ -255,13 +248,13 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                            </div>
-                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                            <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="row">
                         <div class="col-md-2">
@@ -289,8 +282,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_tidak_laku_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-barang-tidak-laku-partial">
                             @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())*@
                         </div>
@@ -308,14 +301,13 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
-                            @*//remark by nurul 17/6/2019*@
-                            <div class="pull-right">
-                                @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                            </div>
-                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                            <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="row">
                         <div class="col-md-2">
@@ -365,13 +357,13 @@
                         @*<div class="col-sm-3">
                                 <h4 style="border-bottom:solid; ">Periode 3 Bulan Terakhir</h4>
                             </div>*@
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right">
-                                @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
-                            </div>
-                        </div>
+                        @*<div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                            <span>Refresh</span>
+                                        </button>
+                                </div>
+                            </div>*@
                     </div>
                     <div class="row">
                         <div class="col-md-2">
@@ -399,8 +391,8 @@
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_palinglaku_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-barang-paling-laku-partial">
                         </div>
                     </div>
