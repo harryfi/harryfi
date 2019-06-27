@@ -1182,7 +1182,7 @@
         }
 
         function deleteStok() {
-            var $savePage = $('#txt_last_page').val()
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", this.$idStok);
             

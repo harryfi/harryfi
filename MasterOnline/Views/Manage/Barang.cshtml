@@ -3959,11 +3959,12 @@
                     } else {
                         if (response.errorHargaPerMP == null) {
                             console.log(response.Errors);
+                            alert(response.Errors);
                         } else {
                             response.Errors.forEach(setErrorfield);
                         }
 
-                        alert('Ada data yang tidak valid!');
+                        //alert('Ada data yang tidak valid!');
                         $('#loading_spinner').hide();
                     }
                 },
@@ -4049,11 +4050,12 @@
                     } else {
                         if (response.errorHargaPerMP == null) {
                             console.log(response.Errors);
+                            alert(response.Errors);
                         } else {
                             response.Errors.forEach(setErrorfield);
                         }
 
-                        alert('Ada data yang tidak valid!');
+                        //alert('Ada data yang tidak valid!');
                         $('#loading_spinner').hide();
                     }
                 },

@@ -3435,6 +3435,9 @@
                                 term: item.TOP,
                                 //add by nurul 2/10/2018
                                 akun: item.PERSO
+                                //add by nurul 26/6/2019, tambah hide untuk status link marketplace
+                                //stat: item.STATUS_API
+                                //end add by nurul 26/6/2019
                             };
                         });
 
@@ -3453,6 +3456,9 @@
                                 //$("#Faktur_CUST").val(value);
                                 $("#Faktur_CUST").val(value).trigger('change');
                                 //end change
+                                //add by nurul 26/6/2019
+                                //$("#status_api").val(stat);
+                                //end add by nurul 26/6/2019
                                 if ($objSup[0] != null) {
                                     $("#Faktur_TERM").val($objSup[0].term).change();
                                 }
@@ -3816,7 +3822,11 @@
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
 
                                             $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
-                                            $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                            //if ($("#status_api").val() == "1") {
+                                                $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                            //} else {
+                                            //    $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" value="">');
+                                            //}
                                             //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
                                             getGudangForBarang();
@@ -3995,6 +4005,7 @@
         }
 
         function deleteFaktur() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteFaktur", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", this.$idFaktur);
 
@@ -4017,7 +4028,8 @@
                     //$('.faktur_table_section').show();
                     //$('.faktur_editor_section').hide();
                     //END CHANGE BY NURUL 16/4/2019
-                    refreshTableFaktur1();
+                    //refreshTableFaktur1();
+                    refreshTableFaktur1($savePage);
                     $('#loading_spinner').hide();
 
                 },
@@ -4106,10 +4118,23 @@
                 }
             });
         }*@
-        function refreshTableFaktur1() {
+        function refreshTableFaktur1($savePage) {
+            //add by nurul 27/6/2019
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
+            //end add by nurul 27/6/2019
             var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_faktur').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
