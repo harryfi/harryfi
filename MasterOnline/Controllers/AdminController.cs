@@ -2230,14 +2230,15 @@ namespace MasterOnline.Controllers
         }
 
         [SessionAdminCheck]
-        public ActionResult ActivateRecentActiveUsers() {
+        public ActionResult ActivateRecentActiveUsers()
+        {
 
             var lastYear = DateTime.UtcNow.AddYears(-1);
             var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
             var datenow = DateTime.UtcNow.AddHours(7);
 
             var accountInDb = (from a in MoDbContext.Account
-                               where 
+                               where
                                (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
                                &&
                                (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
@@ -2260,7 +2261,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                
+
             }
             var EDB = new DatabaseSQL(nourut);
 
@@ -2312,18 +2313,30 @@ namespace MasterOnline.Controllers
                 };
                 using (var connection = sqlStorage.GetConnection())
                 {
+                    //remove semua recurring job
+                    foreach (var recurringJob in connection.GetRecurringJobs())
+                    {
+                        recurJobM.RemoveIfExists(recurringJob.Id);
+                    }
+                    //run semua recurring job seperti user login
+                    var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
+                    Task.Run(() => new AccountController().SyncMarketplace(nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval)).Wait();
+                }
+                using (var connection = sqlStorage.GetConnection())
+                {
+                    //update semua recurring job dengan interval sesuai setting timer
                     foreach (var recurringJob in connection.GetRecurringJobs())
                     {
                         recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
                     }
                 }
             }
-
             return Json("", JsonRequestBehavior.AllowGet);
         }
 
         [SessionAdminCheck]
-        public ActionResult AdminBroadcastMessage(string pesan) {
+        public ActionResult AdminBroadcastMessage(string pesan)
+        {
 
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
             contextNotif.Clients.All.broadcastmessage(pesan);
