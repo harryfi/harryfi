@@ -3121,7 +3121,7 @@
                 }
             });
             $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                $(item).on('click', function () {
+                $(item).off('click').on('click', function () {
                     if ($(item).prop('checked') == true) {
                         $(".ubah-dibayar").attr('disabled', 'disabled');
                     } else {
@@ -3158,7 +3158,7 @@
                 }
             });
             $(".checkbox_gntstatus_packing").each(function (i, item) {
-                $(item).on('click', function () {
+                $(item).off('click').on('click', function () {
                     if ($(item).prop('checked') == true) {
                         $(".ubah-packing").attr('disabled', 'disabled');
                     } else {
@@ -3243,7 +3243,7 @@
             //end remark by calvin 17 juni 2019
 
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
-                .on('shown.bs.modal',
+                .off('shown.bs.modal').on('shown.bs.modal',
                 function () {
                     //add by nurul 19/2/2019
                     if ($TabAktif == 0) {
@@ -3296,7 +3296,7 @@
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
-                .on('hidden.bs.modal',
+                .off('hidden.bs.modal').on('hidden.bs.modal',
                     function() {
                         $('.no_pesanan').text('-');
                         $('.tgl_pesanan').text('-');
@@ -3307,12 +3307,20 @@
                         $('#SudahBayarKonfUbahStatusText').html("");
                         $('#footer_info_pesananSudahBayar').hide();
                         //end add by calvin 17 desember 2018
+                        $(this).removeData('bs.modal');
                     });
-
-            $('.modal').on('hidden.bs.modal',
+            //change by calvin 27 juni 2019
+            //$('.modal').off('hidden.bs.modal').on('hidden.bs.modal',
+            //    function() {
+            //        $(this).removeData('bs.modal');
+            //    });
+            $('#modalTransfer', '#konfHapusBarang', '#modalIsiResi', '#modalIsiResiShopee', '#modalIsiResiTokped', '#modalFixNotFound', '#modalGudangDanQty', '#modalPricing', '#modalTransfer', '#modalPricingExpired', '#modalPrintOption', '#modalTutupEditor', '#modalUbahStatusMultiDibayar', '#modalUbahStatusMultiPacking')
+                .off('hidden.bs.modal').on('hidden.bs.modal',
                 function() {
                     $(this).removeData('bs.modal');
                 });
+            //end change by calvin 27 juni 2019
+
         });
 
         //add by Tri, call midtrans api get token
@@ -3717,7 +3725,7 @@
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
-                .on('shown.bs.modal',
+                .off('shown.bs.modal').on('shown.bs.modal',
                 function () {
                     //add by nurul 19/2/2019
                     if ($TabAktif == 0) {
@@ -3769,9 +3777,8 @@
                 });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
-            $(
-                    '#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
-                .on('hidden.bs.modal',
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+                .off('hidden.bs.modal').on('hidden.bs.modal',
                     function() {
                         $('.no_pesanan').text('-');
                         $('.tgl_pesanan').text('-');
@@ -3782,12 +3789,21 @@
                         $('#SudahBayarKonfUbahStatusText').html("");
                         $('#footer_info_pesananSudahBayar').hide();
                         //end add by calvin 17 desember 2018
+                        $(this).removeData('bs.modal');
                     });
 
-            $('.modal').on('hidden.bs.modal',
+            //change by calvin 27 juni 2019
+            //$('.modal').on('hidden.bs.modal',
+            //    function() {
+            //        $(this).removeData('bs.modal');
+            //    });
+            $('#modalTransfer', '#konfHapusBarang', '#modalIsiResi', '#modalIsiResiShopee', '#modalIsiResiTokped', '#modalFixNotFound', '#modalGudangDanQty', '#modalPricing', '#modalTransfer', '#modalPricingExpired', '#modalPrintOption', '#modalTutupEditor', '#modalUbahStatusMultiDibayar', '#modalUbahStatusMultiPacking')
+                .off('hidden.bs.modal').on('hidden.bs.modal',
                 function() {
                     $(this).removeData('bs.modal');
                 });
+            //end change by calvin 27 juni 2019
+
             //add by nurul 12/2/2019
             //$('#datatable').on('page.dt', function () {
             //    $page = $('#datatable').DataTable().page.info().page;
@@ -3822,7 +3838,7 @@
                         $('#tambah_baru_tombol_section')
                             .append(
                             '<button class="btn btn-primary btn_tambah_data" id="tambah_pesanan">Tambah Baru</button>');
-                        $('#tambah_pesanan').on('click',
+                        $('#tambah_pesanan').off('click').on('click',
                             function () {
                                 $('.pesanan_table_section').hide();
                                 $('.pesanan_editor_section').show();
@@ -3852,7 +3868,7 @@
                         $('#tambah_baru_tombol_section')
                             .append(
                             '<button class="btn btn-primary btn_tambah_data" id="tambah_pesanan">Tambah Baru</button>');
-                        $('#tambah_pesanan').on('click',
+                        $('#tambah_pesanan').off('click').on('click',
                             function () {
                                 $('.pesanan_table_section').hide();
                                 $('.pesanan_editor_section').show();
@@ -3876,7 +3892,7 @@
                         $('#tambah_baru_tombol_section')
                             .append(
                                 '<button class="btn btn-primary btn_tambah_data" id="tambah_pesanan">Tambah Baru</button>');
-                        $('#tambah_pesanan').on('click',
+                        $('#tambah_pesanan').off('click').on('click',
                             function() {
                                 var link = '@Url.Action("TambahBaruPesanan", "Manage")';
                                 $.ajax({
@@ -4042,7 +4058,7 @@
         var $flagPerubahan = 0;
 
         function refreshInputan() {
-            $(window).on('resize', function () {
+            $(window).off('resize').on('resize', function () {
                 //var win = $(this); //this = window
                 var style = $('.selectivity-dropdown').attr('style');
                 if (style !== undefined && style !== null) {
@@ -4141,7 +4157,7 @@
                 refreshNetto();
             });
 
-            $("input.num-only").on('keydown',
+            $("input.num-only").off('keydown').on('keydown',
                 function(e) {
 
                     // Allow: backspace, delete, tab, escape, enter and .
@@ -5715,7 +5731,7 @@
                         }
                     });
                     $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).on('click', function () {
+                        $(item).off('click').on('click', function () {
                             //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-dibayar").attr('disabled', 'disabled');
@@ -5842,7 +5858,7 @@
                         }
                     });
                     $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).on('click', function () {
+                        $(item).off('click').on('click', function () {
                             //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-dibayar").attr('disabled', 'disabled');
@@ -5903,7 +5919,7 @@
                         }
                     });
                     $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
-                        $(item).on('click', function () {
+                        $(item).off('click').on('click', function () {
                             //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-dibayar").attr('disabled', 'disabled');
@@ -6029,7 +6045,7 @@
                         }
                     });
                     $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).on('click', function () {
+                        $(item).off('click').on('click', function () {
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-packing").attr('disabled', 'disabled');
                             } else {
@@ -6076,7 +6092,7 @@
                         }
                     });
                     $(".checkbox_gntstatus_packing").each(function (i, item) {
-                        $(item).on('click', function () {
+                        $(item).off('click').on('click', function () {
                             if ($(item).prop('checked') == true) {
                                 $(".ubah-packing").attr('disabled', 'disabled');
                             } else {
@@ -7923,7 +7939,7 @@
                         },
                         success: function (response) {
 
-                            console.log(response);
+                            //console.log(response);
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
                             refreshInputan();

@@ -6204,7 +6204,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
-        protected async Task<string> CreateProductSuccess_1(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string data_kode, string result_value_queueFeedId, string milis)
+        public async Task<string> CreateProductSuccess_1(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string data_kode, string result_value_queueFeedId, string milis)
         {
             var token = SetupContext(iden);
             using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
@@ -6255,7 +6255,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
-        protected async Task<string> CreateProductSuccess_2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string data_kode, string result_value_queueFeedId, string milis)
+        public async Task<string> CreateProductSuccess_2(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string data_kode, string result_value_queueFeedId, string milis)
         {
             var token = SetupContext(iden);
             using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
