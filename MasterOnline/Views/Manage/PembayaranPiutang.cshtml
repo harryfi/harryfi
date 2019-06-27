@@ -1270,6 +1270,7 @@
         }
 
         function deletePiutang() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", this.$idPiutang);
 
@@ -1283,7 +1284,7 @@
                     //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     //});
                     //Initialize();
-                    refreshTablePiutang1();
+                    refreshTablePiutang1($savePage);
                     $('#konfHapusPiutang').modal('hide');
                 },
                 error: function (xhr, status, error) {
@@ -1353,10 +1354,21 @@
             });
         }*@
 
-        function refreshTablePiutang1() {
+        function refreshTablePiutang1($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
             var $link = '@Html.Raw(Url.Action("RefreshTableBayarPiutang1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_piutang').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
