@@ -993,6 +993,7 @@
         }
 
         function deletePromosi() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeletePromosi", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", this.$idPromosi);
 
@@ -1005,7 +1006,7 @@
                 success: function (response) {
                     $('#table-promosi-partial').html(response);
                     //Initialize();
-                    refreshTablePromosi1();
+                    refreshTablePromosi1($savePage);
                     $('#loading_spinner').hide();
                     $('#konfHapusPromosi').modal('hide');
                 },
@@ -1090,10 +1091,21 @@
             });
         }*@
 
-        function refreshTablePromosi1() {
+        function refreshTablePromosi1($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
             var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_promosi').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
@@ -1167,7 +1179,7 @@
                 $('#Promosi_NAMA_MARKET').val() != '' &&
                 $('#Promosi_NAMA_PROMOSI').val() != ''
             ) {
-                if ($('#Promosi_TGL_AKHIR').val() < $('#Promosi_TGL_MULAI').val()) {
+                if (moment($('#Promosi_TGL_AKHIR').val(), 'DD-MM-YYYY') < moment($('#Promosi_TGL_MULAI').val(), 'DD-MM-YYYY')) {
                     alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
                     return false;
                 }

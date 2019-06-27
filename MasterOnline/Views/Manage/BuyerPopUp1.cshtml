@@ -74,7 +74,7 @@
                 <div class="input-group">
                     <input id="search_pembeli" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_pembeli_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -91,7 +91,7 @@
         </div>
         <div class="row pembeli_table_section">
             <div id="table-buyer-popup" class="col-sm-12">
-                @Html.Partial("TableBuyerPopUp")
+                @*@Html.Partial("TableBuyerPopUp")*@
             </div>
         </div>
         <div class="row pembeli_editor_section" style="display: none; ">
@@ -247,14 +247,26 @@
 
         $(document).on('ready',
             function () {
+                refreshTableBuyer();
                 Initialize();
             });
 
         function Initialize() {
-            var table = $('#datatable_buyer').DataTable();
+            //var table = $('#datatable_buyer').DataTable();
 
-            $('#search_pembeli').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_pembeli').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_pembeli').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBuyer();
+                    return false;
+                }
+            });
+            $('#search_pembeli_click').click(function () {
+                searchTableBuyer();
             });
 
             $('#tambah_pembeli').on('click', function () {
@@ -388,11 +400,12 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-buyer-popup').html(response);
-                    Initialize();
+                    //$('#table-buyer-popup').html(response);
+                    //Initialize();
                     $('#close-editor').click();
                     $("html, body").animate({ scrollTop: 0 }, "slow");
                     $('#loading_spinner').hide();
+                    refreshTableBuyer();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -563,8 +576,9 @@
                         $('#konfHapusPembeli').modal('hide');
                         alert(response.Errors[0]);
                     } else {
-                        $('#table-buyer-popup').html(response);
-                        Initialize();
+                        //$('#table-buyer-popup').html(response);
+                        //Initialize();
+                        refreshTableBuyer();
                         $('#konfHapusPembeli').modal('hide');
                     }
                     //end change
@@ -615,5 +629,52 @@
                 window.opener.afterPromptPembeli($value);
             }
         }
+
+        //add by nurul 30/4/2019
+        function refreshTableBuyer() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableBuyerPopUp", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-buyer-popup').hide();
+                    $('#loading_pembeli_tab').show();
+                },
+                success: function (response) {
+                    $('#table-buyer-popup').html(response);
+                    $('#loading_pembeli_tab').hide();
+                    $('#table-buyer-popup').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableBuyer(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBuyerPopUp", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_pembeli_click')[0].disabled = true;
+                    $('#loading_pembeli_tab').show();
+                },
+                success: function (response) {
+                    $('#search_pembeli_click')[0].disabled = false;
+                    $('#table-buyer-popup').html(response);
+                    $('#loading_pembeli_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_pembeli_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 30/4/2019
     </script>
 }

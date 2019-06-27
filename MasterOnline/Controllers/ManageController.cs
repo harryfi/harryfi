@@ -959,6 +959,32 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
+        //add by nurul 26/6/2019
+        public ActionResult RefreshTableBuyerPopUp(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            //change by calvin 22 april 2019
+            //var barangVm = new BarangViewModel()
+            //{
+            ////change by nurul 18/1/2019 -- ListStf02S = ErasoftDbContext.STF02.ToList(),
+            //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+            //};
+            var arf01c = (from p in ErasoftDbContext.ARF01C
+                          where (p.BUYER_CODE.Contains(search) || p.NAMA.Contains(search) || p.EMAIL.Contains(search) || p.AL.Contains(search) || p.TLP.Contains(search))
+                          orderby p.NAMA
+                          select p);
+            var ListArf01c = arf01c.Skip(pagenumber * 10).Take(10).ToList();
+            var totalCount = arf01c.Count();
+            //end change by calvin 22 april 2019
+
+            IPagedList<ARF01C> pageOrders = new StaticPagedList<ARF01C>(ListArf01c, pagenumber + 1, 10, totalCount);
+            //return PartialView("TableBarang1Partial", barangVm);
+            return PartialView("TableBuyerPopUp", pageOrders);
+        }
+        //end add by nurul 26/6/2019
+
 
         // =============================================== Menu Manage (END)
 
@@ -1099,12 +1125,16 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
-            var partialVm = new BuyerViewModel()
-            {
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
-            };
+            //change by nurul 26/6/2019
+            //var partialVm = new BuyerViewModel()
+            //{
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
+            //};
 
-            return PartialView("TableBuyerPopUp", partialVm);
+            //return PartialView("TableBuyerPopUp", partialVm);
+            dataBuyer.Errors = null;
+            return Json(dataBuyer, JsonRequestBehavior.AllowGet);
+            //end change by nurul 26/6/2019
         }
         //end add
 
@@ -3113,31 +3143,31 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by nurul 21/6/2019, validasi berat,p,l,t
-                if (dataBarang.Stf02.BERAT <= 0)
+                //if (dataBarang.Stf02.BERAT <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Berat tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                //if (dataBarang.Stf02.PANJANG <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Panjang tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                //if (dataBarang.Stf02.LEBAR <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Lebar tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                if (dataBarang.Stf02.BERAT <= 0 || dataBarang.Stf02.PANJANG <= 0 || dataBarang.Stf02.LEBAR <= 0 || dataBarang.Stf02.TINGGI <= 0 )
                 {
                     List<string> listError = new List<string>();
-                    listError.Add("Berat tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.PANJANG <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Panjang tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.LEBAR <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Lebar tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.TINGGI <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Tinggi tidak boleh kurang atau sama dengan 0 !");
+                    listError.Add("Berat, panjang, lebar dan tinggi tidak boleh kurang atau sama dengan 0 !");
                     dataBarang.Errors = listError;
                     return Json(dataBarang, JsonRequestBehavior.AllowGet);
                 }
@@ -4197,31 +4227,31 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by nurul 21/6/2019, validasi berat,p,l,t
-                if (dataBarang.Stf02.BERAT <= 0)
+                //if (dataBarang.Stf02.BERAT <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Berat tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                //if (dataBarang.Stf02.PANJANG <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Panjang tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                //if (dataBarang.Stf02.LEBAR <= 0)
+                //{
+                //    List<string> listError = new List<string>();
+                //    listError.Add("Lebar tidak boleh kurang atau sama dengan 0 !");
+                //    dataBarang.Errors = listError;
+                //    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                //}
+                if (dataBarang.Stf02.BERAT <= 0 || dataBarang.Stf02.PANJANG <= 0 || dataBarang.Stf02.LEBAR <= 0 || dataBarang.Stf02.TINGGI <= 0)
                 {
                     List<string> listError = new List<string>();
-                    listError.Add("Berat tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.PANJANG <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Panjang tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.LEBAR <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Lebar tidak boleh kurang atau sama dengan 0 !");
-                    dataBarang.Errors = listError;
-                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
-                }
-                if (dataBarang.Stf02.TINGGI <= 0)
-                {
-                    List<string> listError = new List<string>();
-                    listError.Add("Tinggi tidak boleh kurang atau sama dengan 0 !");
+                    listError.Add("Berat, panjang, lebar dan tinggi tidak boleh kurang atau sama dengan 0 !");
                     dataBarang.Errors = listError;
                     return Json(dataBarang, JsonRequestBehavior.AllowGet);
                 }
@@ -9875,7 +9905,7 @@ namespace MasterOnline.Controllers
             //IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             //var vm = new FakturViewModel()
             //{
-            //    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
+            //    ListFaktur = ErasoftDbContext.SIT01A.Wher e(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
             //                .ToList(),
             //    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
             //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
@@ -16133,7 +16163,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM GLFTRAN1 ";
             if (search != "")
             {
-                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+                sSQL2 += "WHERE (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
@@ -16558,7 +16588,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM ART03A ";
             if (search != "")
             {
-                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+                sSQL2 += "WHERE (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
@@ -16803,7 +16833,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM APT03A ";
             if (search != "")
             {
-                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+                sSQL2 += "WHERE (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
@@ -19406,7 +19436,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             if (search != "")
             {
-                sSQL2 += "AND (A.NAMA_PROMOSI LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
+                sSQL2 += "WHERE (A.NAMA_PROMOSI LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL_AKHIR DESC, A.NAMA_PROMOSI DESC  ";

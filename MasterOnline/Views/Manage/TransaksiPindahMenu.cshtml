@@ -876,14 +876,14 @@
         }
         //add by nurul 18/12/2018
         function getGudangForBarang() {
-            if ($('#BarangStok_Nobuk').val() != "-") {
-                var $nobuk = "";
-                if ($('#BarangStok_Nobuk').val() != "-") {
-                    $nobuk = $('#BarangStok_Nobuk').val();
+            if ($('#BarangStok_Kobar').val() != "-") {
+                var $kobar = "";
+                if ($('#BarangStok_Kobar').val() != "-") {
+                    $kobar = $('#BarangStok_Kobar').val();
                 }            
                 @*var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';*@
                 var link = '@Url.Action("GetGudangBarangStok", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", $nobuk);
+                link = link.replace("replaceId", $kobar);
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -1010,7 +1010,7 @@
                                         $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field Satuan must be a string with a maximum length of 10." data-val-length-max="10" id="BarangStok_Satuan" name="BarangStok.Satuan" type="hidden" value="">');
                                         $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
                                         //add by nurul 18/12/2018
-                                        $('#BarangStok_Nobuk').val(item.BRG);
+                                        $('#BarangStok_Kobar').val(item.BRG);
                                         getGudangForBarang();
                                         //end add
                                         return;

@@ -626,13 +626,13 @@
 
             $('#table_tambah > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
+            //getTanggal();
             //$modeEdit = 0;
-            getSupplier();
-            getInvoice();
+            //getSupplier();
+            //getInvoice();
 
-            refreshInputan();
-            refreshNetto();
+            //refreshInputan();
+            //refreshNetto();
 
             if ($('#Invoice_TGL').val() != '') {
                 $('#TGL').val($('#Invoice_TGL').val());
@@ -713,7 +713,7 @@
                         var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
                         $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
                     }
-                    $modeEdit = 1;
+                    //$modeEdit = 1;
                     $('#btn-simpan-perubahan-row').show();
                 });
             }
@@ -961,8 +961,8 @@
                                 refreshInputan();
                                 //$('#Invoice_TGL').val($('#Invoice_TGL').val().format('DD/MM/YYYY'));
                                 getTanggal();
-                                //getSupplier();
-                                //getInvoice();
+                                getSupplier();
+                                getInvoice();
                                 //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                                 $('#btn-simpan-perubahan-row').hide();
                                 $('#btn-autoload-row').hide();
@@ -1554,7 +1554,7 @@
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
-                    //getSupplier();
+                    getSupplier();
                     //getInvoice(false);
                     //getInvoice();
                     //$('#tambah_invoice').click();
@@ -1583,6 +1583,7 @@
         }
 
         function deleteInvoice() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteReturInvoice", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", this.$idInvoice);
 
@@ -1613,7 +1614,7 @@
                         //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                         //});
                         //Initialize();
-                        refreshTableInvoice1();
+                        refreshTableInvoice1($savePage);
                         $('#konfHapusInvoice').modal('hide');
                         $('#loading_spinner').hide();
                     }
@@ -1763,10 +1764,21 @@
             });
         }*@
 
-        function refreshTableInvoice1() {
+        function refreshTableInvoice1($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
             var $link = '@Html.Raw(Url.Action("RefreshTableReturInvoice", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_invoice').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
@@ -1823,9 +1835,10 @@
                     $modeEdit = 0;
                     $('#form-partial').html(response);
                     refreshInputan();
-                    getTanggal();
+                    
                     getSupplier();
-                    getInvoice();
+                    getTanggal();
+                    getInvoiceNew();
 
                     //refreshNetto();
                     $nobuk = 0;
