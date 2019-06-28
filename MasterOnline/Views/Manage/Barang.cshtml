@@ -3760,6 +3760,25 @@
                 ret = false;
             }
 
+            //add by nurul 27/6/2019
+            if (convertToAngka($("#Stf02_BERAT").val()) <= 0) {
+                addError($("#Stf02_BERAT").parent().parent(), "Berat harus lebih dari 0.");
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_PANJANG").val()) <= 0) {
+                addError($("#Stf02_PANJANG").parent().parent(), "Panjang harus lebih dari 0.");
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_LEBAR").val()) <= 0) {
+                addError($("#Stf02_LEBAR").parent().parent(), "Lebar harus lebih dari 0.");
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_TINGGI").val()) <= 0) {
+                addError($("#Stf02_TINGGI").parent().parent(), "Tinggi harus lebih dari 0.");
+                ret = false;
+            }
+            //end add by nurul 27/6/2019
+
             //add by calvin 23 april 2019
             var belumSetFocus = true;
             if (errorShopee == 1) {

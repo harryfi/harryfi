@@ -1188,11 +1188,24 @@
             });
         }*@
 
-        function refreshTableStok() {
+        function refreshTableStok($savePage) {
+            //add by nurul 27/6/2019
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
+            //end add by nurul 27/6/2019
             //var link = '@Url.Action("RefreshTableTransaksiPindah", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiPindah", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_stok').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
@@ -1267,6 +1280,7 @@
         }
 
         function deleteStok() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteTransaksiPindah", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", this.$idStok);
 
@@ -1281,7 +1295,7 @@
                         //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                         //});
                         //Initialize();
-                        refreshTableStok();
+                        refreshTableStok($savePage);
                     } else {
                         alert(response.Errors[0]);
                     }
