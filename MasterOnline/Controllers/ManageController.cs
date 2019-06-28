@@ -20512,7 +20512,7 @@ namespace MasterOnline.Controllers
                     {
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
-                        var tokped = MoDbContext.Marketplaces.Where(a => a.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault().IdMarket;
+                        var tokped = 15;
 
                         if (customer.NAMA != Convert.ToString(tokped))
                         {
@@ -20548,7 +20548,7 @@ namespace MasterOnline.Controllers
                                                     BRG_MP = stf02h_induk.BRG_MP,
                                                     CATEGORY_CODE = stf02h_induk.CATEGORY_CODE,
                                                     CATEGORY_NAME = stf02h_induk.CATEGORY_NAME,
-                                                    HJUAL = stf02h_induk.HJUAL,
+                                                    HJUAL = data.TempBrg.HJUAL_MP,
                                                     IDMARKET = stf02h_induk.IDMARKET,
                                                     AKUNMARKET = stf02h_induk.AKUNMARKET,
                                                     USERNAME = stf02h_induk.USERNAME,
@@ -20792,7 +20792,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    brgMp.HJUAL = data.Stf02.HJUAL;
+                                    brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                     brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
@@ -20959,7 +20959,7 @@ namespace MasterOnline.Controllers
                                 brgMp = new STF02H();
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                                brgMp.HJUAL = data.Stf02.HJUAL;
+                                brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -21173,7 +21173,7 @@ namespace MasterOnline.Controllers
                             var brgMp = new STF02H();
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                            brgMp.HJUAL = data.Stf02.HJUAL;
+                            brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                             brgMp.DISPLAY = data.TempBrg.DISPLAY;
                             brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -21822,7 +21822,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    brgMp.HJUAL = item.HJUAL;
+                                    brgMp.HJUAL = item.HJUAL_MP;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.BRG_MP = item.BRG_MP;
                                     //change 14 juni 2019, ambil kategori dari temp table
@@ -22004,7 +22004,7 @@ namespace MasterOnline.Controllers
                                 brgMp.BRG = item.SELLER_SKU;
                                 //end change stf02h brg = seller sku
                                 brgMp.BRG_MP = item.BRG_MP;
-                                brgMp.HJUAL = item.HJUAL;
+                                brgMp.HJUAL = item.HJUAL_MP;
                                 brgMp.DISPLAY = item.DISPLAY;
                                 brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
@@ -22322,7 +22322,7 @@ namespace MasterOnline.Controllers
                             //brgMp.BRG = item.BRG_MP;
                             brgMp.BRG = stf02.BRG;
                             brgMp.BRG_MP = item.BRG_MP;
-                            brgMp.HJUAL = item.HJUAL;
+                            brgMp.HJUAL = item.HJUAL_MP;
                             brgMp.DISPLAY = item.DISPLAY;
                             brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
