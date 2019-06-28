@@ -40,23 +40,23 @@
                             {
                                 foreach (var customer in Model.Customers)
                                 {
-                            <div class="row" style="margin-bottom:5px;">
-                                <div class="col-md-1" style="padding-bottom:10px">
-                                    <label class="checkbox-container">
-                                        <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
-                                        <span id="cbsp_@customer.cust" class="checkmark"></span>
-                                    </label>
-                                </div>
-                                <div class="col-md-3" style="padding-top: 7px;">
-                                    @customer.namaMarket (@customer.namaCust)
-                                </div>
-                                <div class="col-md-3" style="padding-top: 7px;">
-                                    <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
-                                </div>
-                                <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
-                                    <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
-                                </div>
-                            </div>
+                                    <div class="row" style="margin-bottom:5px;">
+                                        <div class="col-md-1" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="cb_@customer.cust" type="checkbox" data-cust="@customer.cust" class="cbx ckCustomers" name="cb_@customer.cust" />
+                                                <span id="cbsp_@customer.cust" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            <label id="lblNama_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
+                                        </div>
+                                        <div class="col-md-2" style="padding-top: 7px;">
+                                            <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                        </div>
+                                        <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
+                                            <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
+                                        </div>
+                                    </div>
                                     <div>
                                         <label id="hiddenlbl_@customer.cust" hidden="hidden">0</label>
                                     </div>
@@ -89,7 +89,7 @@
                     </div>
                     <div>
                         <input type="button" class="btn btn-primary pull-right" id="proses_btn" value="Ambil Data" onclick="GetAllDataBrg()" />
-                        <input type="button" class="btn btn-primary pull-right" id="download_btn" value="Download ke Excel" onclick="DownloadAllExcel()" />
+                        <input type="button" class="btn btn-primary pull-right" id="download_btn" value="Download ke Excel" onclick="ApproveDl()" />
                         <div id="upload_btn">
                             <hr />
                             <table align="right">

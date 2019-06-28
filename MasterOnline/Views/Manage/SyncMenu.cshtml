@@ -7,16 +7,18 @@
     MoDbContext context = new MoDbContext();
     ErasoftContext erasoftContext = null;
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-
+    var username = "";
     if (dataSession?.Account != null)
     {
         //change by nurul 3/10/2018
         //erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
         erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
+        username = dataSession.Account.Username;
     }
     else
     {
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        username = accFromUser.Username;
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(accFromUser.UserId);
         erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
@@ -174,9 +176,11 @@
         .progress {
             margin-bottom: 0 !important;
         }
+
         .x_panel {
-            height:100%;
+            height: 100%;
         }
+
         .row-tbl {
             display: flex; /* equal height of the children */
         }
@@ -328,24 +332,24 @@
 
 
 <div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <label id="lblListError"></label>
                 </div>
-                <div class="modal-body">
-                    <div class="row text-center">
-                       <label id="lblListError"></label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
-                    @*<button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>*@
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>*@
             </div>
         </div>
     </div>
+</div>
 
 @section scripts
 {
@@ -545,7 +549,25 @@
                 //$('#konfSyncAll').modal('hide');
         }
         //end get data barang with record
+        function ApproveDl() {
+            $('.ckCustomers').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-cust"));
+                }
+            });
 
+            if (rows_selected.length == 0) {
+                alert('Anda belum memilih Toko yang akan diambil data barangnya.');
+            } else {
+                var msg = "Apakah anda ingin mendownload file berikut ini :";
+                for (i = 0; i < rows_selected.length; i++) {
+                    msg += "\n" + '@username' + "_" + $('#lblNama_' + rows_selected[i])[0].innerText + ".xlsx";
+                }
+                if (confirm(msg)) {
+                    exportExcel(rows_selected[0]);
+                }
+            }
+        }
         function DownloadAllExcel(listCust) {
             if (listCust == undefined) {
                 $('.ckCustomers').each(function (i, item) {
@@ -595,7 +617,7 @@
                         DownloadAllExcel(rows_selected);
                     } else {
                         //alert('Proses mengambil data barang dari marketplace telah selesai.');
-                        alert('Proses download data barang telah selesai.');
+                        //alert('Proses download data barang telah selesai.');
                     }
                 },
                 error: function (xhr) {
@@ -606,7 +628,7 @@
                     if (rows_selected.length > 0) {
                         DownloadAllExcel(rows_selected);
                     } else {
-                        alert('Proses download data barang telah selesai.');
+                        //alert('Proses download data barang telah selesai.');
                     }
                 }
             });
@@ -618,7 +640,9 @@
             link.href = window.URL.createObjectURL(blob);
             var fileName = reportName;
             link.download = fileName;
+            //document.body.appendChild(link);
             link.click();
+            //document.body.removeChild(link);
         };
 
         var listCustomerUploaded = [];
@@ -778,7 +802,7 @@
                     }
                     $('#pBar_' + rows_selected[0]).css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
                     $('#pBar_' + rows_selected[0]).html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
-                    if (response.contRecursive == "1") {                        
+                    if (response.contRecursive == "1") {
                         if ((currentPage + 1) > maxPage) {
                             //alert('Sinkronisasi barang selesai');
                             //$('#btnSelesai').prop('disabled', false)
@@ -789,8 +813,11 @@
                             } else {
                                 alert('Proses sinkronisasi data barang telah selesai.');
                                 //alert(listErrorMessage);
-                                document.getElementById('lblListError').innerText = listErrorMessage;
-                                $('#modalError').modal('show');
+                                if (listErrorMessage != "") {
+                                    document.getElementById('lblListError').innerText = listErrorMessage;
+                                    $('#modalError').modal('show');
+                                }
+                                
                             }
                         } else {
                             UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
@@ -803,8 +830,10 @@
                         } else {
                             alert('Proses mengambil data barang dari marketplace telah selesai.');
                             //alert(listErrorMessage);
-                            document.getElementById('lblListError').innerText = listErrorMessage;
-                            $('#modalError').modal('show');
+                            if (listErrorMessage != "") {
+                                document.getElementById('lblListError').innerText = listErrorMessage;
+                                $('#modalError').modal('show');
+                            }
                         }
                     }
                 },

@@ -1342,7 +1342,6 @@
     <Compile Include="ViewModels\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="bin\BarcodeLib.dll" />
     <Content Include="Content\404Style.css" />
     <Content Include="Content\admin\AffiliateTerms.html" />
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\icon-font.min.css" />
@@ -6082,6 +6081,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="bin\" />
     <Folder Include="Content\Uploaded\" />
     <Folder Include="Views\BCA\" />
     <Folder Include="Views\Blibli\" />
