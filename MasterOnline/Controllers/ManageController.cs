@@ -5622,7 +5622,7 @@ namespace MasterOnline.Controllers
                                             };
 
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                            data.Price = barangInDb.HJUAL.ToString();
                                             data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
@@ -5680,7 +5680,7 @@ namespace MasterOnline.Controllers
                                                         Qty = Convert.ToString(qtyOnHand),
                                                         MinQty = "0"
                                                     };
-                                                    data.Price = stf02h.HJUAL.ToString();
+                                                    data.Price = barangInDb.HJUAL.ToString();
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
@@ -5737,7 +5737,7 @@ namespace MasterOnline.Controllers
                                                         dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(stf02h.HJUAL);
+                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
                                                     data.MarketPrice = Convert.ToString(stf02h.HJUAL);
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
@@ -5832,7 +5832,7 @@ namespace MasterOnline.Controllers
                                                 dataBarangInDb = barangInDb
                                             };
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                            data.Price = barangInDb.HJUAL.ToString();
                                             data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
@@ -5890,7 +5890,7 @@ namespace MasterOnline.Controllers
                                                         Qty = Convert.ToString(qtyOnHand),
                                                         MinQty = "0"
                                                     };
-                                                    data.Price = stf02h.HJUAL.ToString();
+                                                    data.Price = barangInDb.HJUAL.ToString();
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
@@ -5947,7 +5947,7 @@ namespace MasterOnline.Controllers
                                                         dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(stf02h.HJUAL);
+                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
                                                     data.MarketPrice = Convert.ToString(stf02h.HJUAL);
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
@@ -20128,7 +20128,7 @@ namespace MasterOnline.Controllers
                             MinQty = "0",
                             nama = brg.NAMA
                         };
-                        data.Price = hargaJualBaru.ToString();
+                        data.Price = brg.HJUAL.ToString();
                         data.MarketPrice = hJualInDb.HJUAL.ToString();
                         var display = Convert.ToBoolean(hJualInDb.DISPLAY);
                         data.display = display ? "true" : "false";
@@ -20467,7 +20467,7 @@ namespace MasterOnline.Controllers
                     {
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
-                        var tokped = MoDbContext.Marketplaces.Where(a => a.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault().IdMarket;
+                        var tokped = 15;
 
                         if (customer.NAMA != Convert.ToString(tokped))
                         {
@@ -20503,7 +20503,7 @@ namespace MasterOnline.Controllers
                                                     BRG_MP = stf02h_induk.BRG_MP,
                                                     CATEGORY_CODE = stf02h_induk.CATEGORY_CODE,
                                                     CATEGORY_NAME = stf02h_induk.CATEGORY_NAME,
-                                                    HJUAL = stf02h_induk.HJUAL,
+                                                    HJUAL = data.TempBrg.HJUAL_MP,
                                                     IDMARKET = stf02h_induk.IDMARKET,
                                                     AKUNMARKET = stf02h_induk.AKUNMARKET,
                                                     USERNAME = stf02h_induk.USERNAME,
@@ -20747,7 +20747,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    brgMp.HJUAL = data.Stf02.HJUAL;
+                                    brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                     brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
@@ -20914,7 +20914,7 @@ namespace MasterOnline.Controllers
                                 brgMp = new STF02H();
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                                brgMp.HJUAL = data.Stf02.HJUAL;
+                                brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -21128,7 +21128,7 @@ namespace MasterOnline.Controllers
                             var brgMp = new STF02H();
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                            brgMp.HJUAL = data.Stf02.HJUAL;
+                            brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                             brgMp.DISPLAY = data.TempBrg.DISPLAY;
                             brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -21777,7 +21777,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    brgMp.HJUAL = item.HJUAL;
+                                    brgMp.HJUAL = item.HJUAL_MP;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.BRG_MP = item.BRG_MP;
                                     //change 14 juni 2019, ambil kategori dari temp table
@@ -21959,7 +21959,7 @@ namespace MasterOnline.Controllers
                                 brgMp.BRG = item.SELLER_SKU;
                                 //end change stf02h brg = seller sku
                                 brgMp.BRG_MP = item.BRG_MP;
-                                brgMp.HJUAL = item.HJUAL;
+                                brgMp.HJUAL = item.HJUAL_MP;
                                 brgMp.DISPLAY = item.DISPLAY;
                                 brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
@@ -22261,7 +22261,7 @@ namespace MasterOnline.Controllers
                             //brgMp.BRG = item.BRG_MP;
                             brgMp.BRG = stf02.BRG;
                             brgMp.BRG_MP = item.BRG_MP;
-                            brgMp.HJUAL = item.HJUAL;
+                            brgMp.HJUAL = item.HJUAL_MP;
                             brgMp.DISPLAY = item.DISPLAY;
                             brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
