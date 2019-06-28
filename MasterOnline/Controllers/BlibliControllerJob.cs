@@ -5924,7 +5924,7 @@ namespace MasterOnline.Controllers
                 {
                     upcCode = data.dataBarangInDb.BRG,
                     merchantSku = data.dataBarangInDb.BRG,
-                    price = Convert.ToInt32(stf02h.HJUAL),
+                    price = Convert.ToInt32(data.Price),
                     salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     stock = Convert.ToInt32(data.dataBarangInDb.MINI),
@@ -6110,7 +6110,7 @@ namespace MasterOnline.Controllers
                     {
                         upcCode = var_item.BRG,
                         merchantSku = var_item.BRG,
-                        price = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        price = Convert.ToInt32(var_item.HJUAL),
                         salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
                         minimumStock = Convert.ToInt32(var_item.MINI),
                         stock = Convert.ToInt32(var_item.MINI),
