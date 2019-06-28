@@ -1718,6 +1718,7 @@ namespace MasterOnline.Controllers
                         {
                             ordersn = ordersn + "'" + item + "',";
                         }
+                        ordersn = ordersn.Substring(0, ordersn.Length - 1);
                         var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
                         if (rowAffected > 0)
                         {
