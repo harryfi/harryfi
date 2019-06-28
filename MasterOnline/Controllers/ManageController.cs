@@ -5680,7 +5680,7 @@ namespace MasterOnline.Controllers
                                                         Qty = Convert.ToString(qtyOnHand),
                                                         MinQty = "0"
                                                     };
-                                                    data.Price = stf02h.HJUAL.ToString();
+                                                    data.Price = barangInDb.HJUAL.ToString();
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
@@ -5890,7 +5890,7 @@ namespace MasterOnline.Controllers
                                                         Qty = Convert.ToString(qtyOnHand),
                                                         MinQty = "0"
                                                     };
-                                                    data.Price = stf02h.HJUAL.ToString();
+                                                    data.Price = barangInDb.HJUAL.ToString();
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
@@ -20128,7 +20128,7 @@ namespace MasterOnline.Controllers
                             MinQty = "0",
                             nama = brg.NAMA
                         };
-                        data.Price = hargaJualBaru.ToString();
+                        data.Price = brg.HJUAL.ToString();
                         data.MarketPrice = hJualInDb.HJUAL.ToString();
                         var display = Convert.ToBoolean(hJualInDb.DISPLAY);
                         data.display = display ? "true" : "false";
