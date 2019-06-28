@@ -5622,7 +5622,7 @@ namespace MasterOnline.Controllers
                                             };
 
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                            data.Price = barangInDb.HJUAL.ToString();
                                             data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
@@ -5737,7 +5737,7 @@ namespace MasterOnline.Controllers
                                                         dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(stf02h.HJUAL);
+                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
                                                     data.MarketPrice = Convert.ToString(stf02h.HJUAL);
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
@@ -5832,7 +5832,7 @@ namespace MasterOnline.Controllers
                                                 dataBarangInDb = barangInDb
                                             };
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                            data.Price = barangInDb.HJUAL.ToString();
                                             data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
@@ -5947,7 +5947,7 @@ namespace MasterOnline.Controllers
                                                         dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(stf02h.HJUAL);
+                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
                                                     data.MarketPrice = Convert.ToString(stf02h.HJUAL);
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
