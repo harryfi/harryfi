@@ -12993,7 +12993,7 @@ namespace MasterOnline.Controllers
                             {
                                 //change by calvin 10 april 2019, jadi pakai backgroundjob
                                 //blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
-                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.KonfirmasiPengiriman(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", usernameLogin, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN));
+                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.KonfirmasiPengiriman(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
@@ -13036,7 +13036,7 @@ namespace MasterOnline.Controllers
                                     //lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
                                     if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(pesanan.NO_REFERENSI))
                                     {
-                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", usernameLogin, ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN));
+                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN));
                                     }
                                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                 }
@@ -13064,7 +13064,7 @@ namespace MasterOnline.Controllers
                                         //var elApi = new EleveniaController();
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
                                         //elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
-                                        clientJobServer.Enqueue<EleveniaControllerJob>(x => x.UpdateAWBNumber(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", usernameLogin, marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq));
+                                        clientJobServer.Enqueue<EleveniaControllerJob>(x => x.UpdateAWBNumber(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
@@ -13106,7 +13106,7 @@ namespace MasterOnline.Controllers
                                             DatabasePathErasoft = dbPathEra,
                                             username = usernameLogin
                                         };
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID));
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
@@ -13591,7 +13591,7 @@ namespace MasterOnline.Controllers
                 {
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
-                    clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
+                    clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
@@ -13672,7 +13672,7 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo));
                     //await new ShopeeControllerJob().InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -13698,7 +13698,7 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
                 else if (metode == "2") // NON INTEGRATED
@@ -13717,7 +13717,7 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
-                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
