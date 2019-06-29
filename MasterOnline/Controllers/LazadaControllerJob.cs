@@ -1595,7 +1595,7 @@ namespace MasterOnline.Controllers
 
                         if (bindOrder.data.orders.Count > 0)
                         {
-                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
                             bool adaInsert = false;
 
                             string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
@@ -1880,7 +1880,7 @@ namespace MasterOnline.Controllers
 
                         if (bindOrder.data.orders.Count > 0)
                         {
-                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
                             bool adaInsert = false;
 
                             string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
@@ -1902,10 +1902,10 @@ namespace MasterOnline.Controllers
                             foreach (Order order in bindOrder.data.orders)
                             {
                                 bool doInsert = true;
-                                //if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing"))
-                                //{
-                                //    doInsert = false;
-                                //}
+                                if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                {
+                                    doInsert = false;
+                                }
                                 ////add 19 Feb 2019
                                 //else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
                                 //{
@@ -2154,8 +2154,7 @@ namespace MasterOnline.Controllers
                             //TEMP_ALL_MP_ORDER_ITEM
                             if (!string.IsNullOrWhiteSpace(bindOrder.data.order_id))
                             {
-                                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
-
+                                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
 
                                 if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
                                 {
