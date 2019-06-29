@@ -2543,7 +2543,7 @@ namespace MasterOnline.Controllers
 
             SetupContext(data);
 
-            var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+            var arf01inDB = ErasoftDbContext.ARF01.Where(p => (p.RecNum ?? 0) == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
             {
                 string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
