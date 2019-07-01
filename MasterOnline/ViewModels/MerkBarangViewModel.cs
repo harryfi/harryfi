@@ -10,5 +10,6 @@ namespace MasterOnline.ViewModels
     {
         public STF02E Merk { get; set; }
         public List<STF02E> ListMerk { get; set; } = new List<STF02E>();
+        public List<string> Errors { get; set; } = new List<string>();
     }
 }
