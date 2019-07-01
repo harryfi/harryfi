@@ -2695,7 +2695,11 @@ namespace MasterOnline.Controllers
         public ActionResult GetAttributeLazadaVar(string code)
         {
             string[] codelist = code.Split(';');
-            var listAttributeLazada = MoDbContext.ATTRIBUTE_LAZADA.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var listAttributeLazada = MoDbContext.ATTRIBUTE_LAZADA.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            var listAttributeLazada = new List<ATTRIBUTE_LAZADA>();
+            var lzdApi = new LazadaController();
+            var attrLzd = lzdApi.getAttrLzd(code);
+            listAttributeLazada.Add(attrLzd);
             return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -5102,7 +5106,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
                 //}
-                
+
                 //var result = lzdApi.CreateProduct(dataLazada);
                 clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
             }
