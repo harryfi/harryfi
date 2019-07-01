@@ -1710,6 +1710,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var $statusAPI = window.text
         //add by nurul 11/2/2019
         var $jumlahPesanan = true;
         //end add by nurul 11/2/2019
@@ -1754,6 +1755,7 @@
 
         }
         $(document).ready(function () {
+            $statusAPI = "";
             refreshTableFaktur1();
             //add by nurul 12/2/2019
             $page = 0;
@@ -1964,7 +1966,7 @@
                     //refreshForm1();
 
                     $modeEdit = 0;
-
+                    $statusAPI = "";
                     $bakalNetto = 0;
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
@@ -2482,7 +2484,7 @@
             });
             refreshTableFaktur1();
             //refreshForm1();
-
+            $statusAPI = "";
             //add by nurul 6/11/2018
             $('#myTab li a').each(function (index) {
                 $(this).attr('data-toggle', 'tab');
@@ -3146,12 +3148,20 @@
             }
             if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
         }
+
         function modeEditTd() {
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .qty-barang').addClass('editable');
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .disc1-barang').addClass('editable');
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .ndisc1-barang').addClass('editable');
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .disc2-barang').addClass('editable');
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .ndisc2-barang').addClass('editable');
+            //add by nurul 1/7/2019
+            if ($statusAPI == "1") {
+                $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .harga-barang').removeClass('editable');
+            } else {
+                $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .harga-barang').addClass('editable');
+            }
+            //end add by nurul 1/7/2019
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.editable').off('click').on('click', function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
@@ -3173,6 +3183,15 @@
                 } else if ($class == 'ndisc1-barang editable' || $class == 'ndisc2-barang editable') {
                     $inputClass = 'ndisc-input';
                 }
+                //ADD BY NURUL 28/6/2019
+                else if ($statusAPI == "1") {
+                    if ($class == 'harga-barang editable') {
+                        $inputClass = 'harga-input';
+                    }
+                    var $hargaBarangAwal = convertToAngka($($trElement + ' .harga-barang').text());
+                }
+
+                //END ADD BY NURUL 28/6/2019
 
                 var $input = $('<input>', {
                     'class': $inputClass + ' num-only',
@@ -3186,6 +3205,14 @@
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
                                 //end add
+                            }
+                            //add by nurul 1/7/2019
+                            else if ($class === 'harga-barang editable') {
+                                    //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                    $this.html(convertToRupiah($hargaBarangAwal) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                    hitungUlangdisc1();
+                                    hitungUlangdisc2();
+                                //end add by nurul 1/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
@@ -3235,6 +3262,13 @@
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
                                 //end add
+                            }
+                            //add by nurul 1/7/2019
+                            else if ($class === 'harga-barang editable') {
+                                    $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                    hitungUlangdisc1();
+                                    hitungUlangdisc2();
+                            //end add by nurul 1/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
@@ -3434,9 +3468,9 @@
                                 text: $namaMarket + " (" + item.PERSO + ")",
                                 term: item.TOP,
                                 //add by nurul 2/10/2018
-                                akun: item.PERSO
+                                akun: item.PERSO,
                                 //add by nurul 26/6/2019, tambah hide untuk status link marketplace
-                                //stat: item.STATUS_API
+                                stat: item.STATUS_API
                                 //end add by nurul 26/6/2019
                             };
                         });
@@ -3455,6 +3489,7 @@
                                 //change by nurul 2/10/2018
                                 //$("#Faktur_CUST").val(value);
                                 $("#Faktur_CUST").val(value).trigger('change');
+                                $statusAPI = $objSup[0].stat;
                                 //end change
                                 //add by nurul 26/6/2019
                                 //$("#status_api").val(stat);
@@ -3822,11 +3857,7 @@
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
 
                                             $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
-                                            //if ($("#status_api").val() == "1") {
-                                                $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                                            //} else {
-                                            //    $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" value="">');
-                                            //}
+                                            $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
                                             //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
                                             getGudangForBarang();
@@ -4189,6 +4220,7 @@
                 },
                 success: function (response) {
                     $('#form-partial').html(response);
+                    $statusAPI = "";
                     refreshInputan();
                     getTanggal();
                     getMarketplace();

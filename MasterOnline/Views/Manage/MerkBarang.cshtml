@@ -57,9 +57,12 @@
                     <div class="input-group">
                         <input id="search_merk_input" type="text" class="form-control" placeholder="Pencarian">
                         <span class="input-group-btn">
-                            <a id="search_merk_button" href="@Url.Action("MerkBarang", "Manage")" type="button" class="btn btn-primary">
+                            @*<a id="search_merk_button" href="@Url.Action("MerkBarang", "Manage")" type="button" class="btn btn-primary">
+            <i class="fa fa-search"></i>
+        </a>*@
+                            <button type="button" id="search_merk_button" class="btn btn-primary">
                                 <i class="fa fa-search"></i>
-                            </a>
+                            </button>
                         </span>
                     </div>
                 </div>
@@ -74,11 +77,11 @@
             </div>
             <div class="row">
                 <div id="table-merk-partial" class="col-lg-12">
-                    @{
+                    @*@{
                         var currentPage = (int)ViewData["currentPage"];
                     }
 
-                    @Html.Partial("TableMerkPartial", Model.ListMerk.ToPagedList(currentPage, 10))
+                    @Html.Partial("TableMerkPartial", Model.ListMerk.ToPagedList(currentPage, 10))*@
                 </div>
             </div>
         </div>
@@ -180,57 +183,90 @@
         //add by nurul 12/2/2019
         $page = 0;
             //end add by nurul 12/2/2019
-            $('#search_merk_button').click(function () {
-                event.preventDefault();
-                var url = $(this).attr('href');
-                var searchQuery = $('#search_merk_input').val();
-                if (searchQuery != '') {
-                    url = url + "?page=1&search=" + searchQuery;
-                }
-                window.location.href = url;
-            });
+        //    $('#search_merk_button').click(function () {
+        //        event.preventDefault();
+        //        var url = $(this).attr('href');
+        //        var searchQuery = $('#search_merk_input').val();
+        //        if (searchQuery != '') {
+        //            url = url + "?page=1&search=" + searchQuery;
+        //        }
+        //        window.location.href = url;
+        //    });
 
-            $('#search_merk_input').keypress(function (e) {
-                if (e.which == 13) {
-                    var url = $('#search_merk_button').attr('href');
-                    var searchQuery = $(this).val();
-                    if (searchQuery != '') {
-                        url = url + "?page=1&search=" + searchQuery;
-                    }
-                    window.location.href = url;
-                }
-            });
+        //    $('#search_merk_input').keypress(function (e) {
+        //        if (e.which == 13) {
+        //            var url = $('#search_merk_button').attr('href');
+        //            var searchQuery = $(this).val();
+        //            if (searchQuery != '') {
+        //                url = url + "?page=1&search=" + searchQuery;
+        //            }
+        //            window.location.href = url;
+        //        }
+        //});
 
+        $('#search_merk_input').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTableMerk();
+                return false;
+            }
+        });
+        $('#search_merk_button').click(function () {
+            searchTableMerk();
+        });
+
+        $('#tambah_merk').on('click', function () {
+            $('.merk_table_section').hide();
+            $('.merk_editor_section').show();
+        });
+
+        $('#close-editor').on('click', function () {
+            $('.merk_table_section').show();
+            $('.merk_editor_section').hide();
+            $('#Merk_KODE, #Merk_KET, #Merk_RecNum').val("");
+            $('#Merk_KODE').removeAttr('disabled');
+            resetError();
+            //add by nurul 12/2/2019
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
+        });
+
+        refreshTableMerk();
             Initialize();
 
-        $('#search_merk_input').val(getUrlParameter('search'));
+        //$('#search_merk_input').val(getUrlParameter('search'));
+
         //add by nurul 12/2/2019
-        $('#datatable').on('page.dt', function () {
-            $page = $('#datatable').DataTable().page.info().page;
-        });
-        $('#datatable').DataTable().page($page).draw(false);
+        //$('#datatable').on('page.dt', function () {
+        //    $page = $('#datatable').DataTable().page.info().page;
+        //});
+        //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         });
 
         function Initialize() {
-            $('#tambah_merk').on('click', function () {
-                $('.merk_table_section').hide();
-                $('.merk_editor_section').show();
-            });
+            //$('#tambah_merk').on('click', function () {
+            //    $('.merk_table_section').hide();
+            //    $('.merk_editor_section').show();
+            //});
 
-            $('#close-editor').on('click', function () {
-                $('.merk_table_section').show();
-                $('.merk_editor_section').hide();
-                $('#Merk_KODE, #Merk_KET, #Merk_RecNum').val("");
-                $('#Merk_KODE').removeAttr('disabled');
-                resetError();
-                //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-            });
+            //$('#close-editor').on('click', function () {
+            //    $('.merk_table_section').show();
+            //    $('.merk_editor_section').hide();
+            //    $('#Merk_KODE, #Merk_KET, #Merk_RecNum').val("");
+            //    $('#Merk_KODE').removeAttr('disabled');
+            //    resetError();
+            //    //add by nurul 12/2/2019
+            //    //$('#datatable').on('page.dt', function () {
+            //    //    $page = $('#datatable').DataTable().page.info().page;
+            //    //});
+            //    //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_merk').click();
@@ -251,10 +287,10 @@
                     }
                 });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
     }
@@ -298,10 +334,11 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-merk-partial').html(response);
-                    Initialize();
+                    //$('#table-merk-partial').html(response);
+                    //Initialize();
                     $('#close-editor').click();
                     $("html, body").animate({ scrollTop: 0 }, "slow");
+                    refreshTableMerk();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -356,9 +393,68 @@
                     $('#loading_spinner').show();
                 },
                 success: function () {
-                    location.reload();
+                    $('#hapusMerk').modal('hide');
+                    //location.reload();
+                    refreshTableMerk();
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+    }
+
+    function refreshTableMerk() {
+            //var $tpPage = "";
+            //if ($savePage == undefined) {
+            //    $tpPage = $('#txt_last_page').val();
+            //} else {
+            //    if ($('#txt_last_page').val() == undefined) {
+            //        $tpPage = $savePage;
+            //    } else {
+            //        $tpPage = $('#txt_last_page').val();
+            //    }
+            //}
+            var $link = '@Html.Raw(Url.Action("RefreshTableMerk", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_merk_input').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-merk-partial').hide();
+                    $('#loading_merk_tab').show();
+                },
+                success: function (response) {
+                    $('#table-merk-partial').html(response);
+                    $('#loading_merk_tab').hide();
+                    $('#table-merk-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableMerk(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableMerk", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_merk_input').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_merk_button')[0].disabled = true;
+                    $('#loading_merk_tab').show();
+                },
+                success: function (response) {
+                    $('#search_merk_button')[0].disabled = false;
+                    $('#table-merk-partial').html(response);
+                    $('#loading_merk_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_merk_button')[0].disabled = false;
                     console.log(error);
                 }
             });

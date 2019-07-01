@@ -913,7 +913,7 @@ namespace MasterOnline.Controllers
         {
             var merkVm = new MerkBarangViewModel()
             {
-                ListMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "2" && (m.KET.Contains(search) || m.KODE.Contains(search))).OrderByDescending(m => m.RecNum).ToList()
+                ListMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "2" && (m.KET.Contains(search) || m.KODE.Contains(search))).OrderBy(m => m.KET).ToList()
             };
 
             ViewData["searchParam"] = search;
@@ -921,6 +921,24 @@ namespace MasterOnline.Controllers
 
             return View(merkVm);
         }
+        //add by nurul 1/7/2019
+        public ActionResult RefreshTableMerk(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            var stf02e = (from p in ErasoftDbContext.STF02E
+                         where p.LEVEL == "2" &&
+                         (p.KET.Contains(search) || p.KODE.Contains(search))
+                         orderby p.KET
+                         select p);
+            var ListStf02e = stf02e.Skip(pagenumber * 10).Take(10).ToList();
+            var totalCount = stf02e.Count();
+
+            IPagedList<STF02E> pageOrders = new StaticPagedList<STF02E>(ListStf02e, pagenumber + 1, 10, totalCount);
+            return PartialView("TableMerkPartial", pageOrders);
+        }
+        //end add by nurul 1/7/2019
 
         [Route("manage/master/marketplace")]
         public ActionResult Pelanggan()
@@ -9060,15 +9078,19 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            return RedirectToAction("RefreshTableMerk");
+            //return RedirectToAction("RefreshTableMerk");
+            dataMerk.Errors = null;
+            return Json(dataMerk, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult RefreshTableMerk()
-        {
-            var listKategori = ErasoftDbContext.STF02E.Where(k => k.LEVEL == "2").ToList();
+        //remark by nurul 1/7/2019
+        //public ActionResult RefreshTableMerk()
+        //{
+        //    var listKategori = ErasoftDbContext.STF02E.Where(k => k.LEVEL == "2").ToList();
 
-            return PartialView("TableMerkPartial", listKategori.ToPagedList(1, 10));
-        }
+        //    return PartialView("TableMerkPartial", listKategori.ToPagedList(1, 10));
+        //}
+        //remark by nurul 1/7/2019
 
         public ActionResult EditMerk(int? recNum)
         {
@@ -9087,7 +9109,15 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.STF02E.Remove(merkInDb);
             ErasoftDbContext.SaveChanges();
 
-            return RedirectToAction("RefreshTableMerk");
+            //change by nurul 1/7/2019
+            //return RedirectToAction("RefreshTableMerk");
+            var partialVm = new MerkBarangViewModel()
+            {
+                Errors = null
+            };
+
+            return Json(partialVm, JsonRequestBehavior.AllowGet);
+            //end change by nurul 1/7/2019
         }
 
         // =============================================== Bagian Barang (START)
