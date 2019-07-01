@@ -1025,7 +1025,7 @@ namespace MasterOnline.Controllers
                                         myData += "\"gdnSku\": \"" + brg_mp[0] + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
-                                        myData += "\"price\": " + data.MarketPrice + ", ";
+                                        myData += "\"price\": " + data.Price + ", ";
                                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
