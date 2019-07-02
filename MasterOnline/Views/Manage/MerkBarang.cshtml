@@ -336,10 +336,20 @@
                 success: function (response) {
                     //$('#table-merk-partial').html(response);
                     //Initialize();
-                    $('#close-editor').click();
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                    refreshTableMerk();
-                    $('#loading_spinner').hide();
+                    //$('#close-editor').click();
+                    //$("html, body").animate({ scrollTop: 0 }, "slow");
+                    //refreshTableMerk();
+                    //$('#loading_spinner').hide();
+                    if (response.Errors == null) {
+                        $('#close-editor').click();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        refreshTableMerk();
+                        $('#loading_spinner').hide();
+                    } else {
+                        alert(response.Errors);
+
+                        $('#loading_spinner').hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

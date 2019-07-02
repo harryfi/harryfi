@@ -6403,15 +6403,19 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", $@"Kategori dengan kode {dataKategori.Kategori.KODE} sudah dipakai oleh Anda / orang lain! Coba kode yang lain!");
+                    //change by nurul 2/7/2019
+                    //ModelState.AddModelError("", $@"Kategori dengan kode {dataKategori.Kategori.KODE} sudah dipakai oleh Anda / orang lain! Coba kode yang lain!");
 
-                    var kategoriVm = new KategoriBarangViewModel()
-                    {
-                        Kategori = dataKategori.Kategori,
-                        ListKategori = ErasoftDbContext.STF02E.Where(k => k.LEVEL == "1").ToList()
-                    };
+                    //var kategoriVm = new KategoriBarangViewModel()
+                    //{
+                    //    Kategori = dataKategori.Kategori,
+                    //    ListKategori = ErasoftDbContext.STF02E.Where(k => k.LEVEL == "1").ToList()
+                    //};
 
-                    return View("KategoriBarang", kategoriVm);
+                    //return View("KategoriBarang", kategoriVm);
+                    dataKategori.Errors.Add($@"Kategori dengan kode {dataKategori.Kategori.KODE} sudah dipakai oleh Anda / orang lain! Coba kode yang lain!");
+                    return Json(dataKategori, JsonRequestBehavior.AllowGet);
+                    //end change by nurul 2/7/2019
                 }
             }
             else
@@ -9050,15 +9054,19 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", $@"Merk dengan kode {dataMerk.Merk.KODE} sudah ada! Coba kode yang lain!");
+                    //change by nurul 2/7/2019
+                    //ModelState.AddModelError("", $@"Merk dengan kode {dataMerk.Merk.KODE} sudah ada! Coba kode yang lain!");
 
-                    var merkVm = new MerkBarangViewModel()
-                    {
-                        Merk = dataMerk.Merk,
-                        ListMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "2").ToList()
-                    };
+                    //var merkVm = new MerkBarangViewModel()
+                    //{
+                    //    Merk = dataMerk.Merk,
+                    //    ListMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "2").ToList()
+                    //};
 
-                    return View("MerkBarang", merkVm);
+                    //return View("MerkBarang", merkVm);
+                    dataMerk.Errors.Add($@"Merk dengan kode {dataMerk.Merk.KODE} sudah dipakai oleh Anda / orang lain! Coba kode yang lain!");
+                    return Json(dataMerk, JsonRequestBehavior.AllowGet);
+                    //end change by nurul 2/7/2019
                 }
             }
             else
@@ -14802,15 +14810,19 @@ namespace MasterOnline.Controllers
 
                 if (suppInDb != null)
                 {
-                    ModelState.AddModelError("", $@"Supplier dengan kode {dataVm.Supplier.SUPP} sudah ada! Coba kode yang lain!");
+                    //change by nurul 2/7/2019
+                    //ModelState.AddModelError("", $@"Supplier dengan kode {dataVm.Supplier.SUPP} sudah ada! Coba kode yang lain!");
 
-                    var vm = new SupplierViewModel()
-                    {
-                        Supplier = dataVm.Supplier,
-                        ListSupplier = ErasoftDbContext.APF01.ToList()
-                    };
+                    //var vm = new SupplierViewModel()
+                    //{
+                    //    Supplier = dataVm.Supplier,
+                    //    ListSupplier = ErasoftDbContext.APF01.ToList()
+                    //};
 
-                    return View("SupplierMenu", vm);
+                    //return View("SupplierMenu", vm);
+                    dataVm.Errors.Add($@"Supplier dengan kode {dataVm.Supplier.SUPP} sudah dipakai oleh Anda / orang lain! Coba kode yang lain!");
+                    return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    //end change by nurul 2/7/2019
                 }
 
                 ErasoftDbContext.APF01.Add(dataVm.Supplier);
@@ -20375,7 +20387,9 @@ namespace MasterOnline.Controllers
             sSQL2 += "WHERE CUST = '" + cust + "' ";
             if (search != "")
             {
-                sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
+                //sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
+                sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ISNULL(NAMA2, '')) LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
+                
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY SELLER_SKU ASC ";
