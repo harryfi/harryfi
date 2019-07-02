@@ -514,7 +514,7 @@ namespace MasterOnline.Controllers
                                     Qty = "",
                                     MinQty = "0"
                                 };
-                                data.Price = stf02h.HJUAL.ToString();
+                                data.Price = barangInDb.HJUAL.ToString();
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
