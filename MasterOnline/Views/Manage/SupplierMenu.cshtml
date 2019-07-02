@@ -630,10 +630,20 @@
                 success: function (response) {
                     //$('#table-supplier-partial').html(response);
                     //Initialize();
-                    $('#close-editor').click();
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                    $('#loading_spinner').hide();
-                    refreshTableSupp();
+                    ////$('#close-editor').click();
+                    ////$("html, body").animate({ scrollTop: 0 }, "slow");
+                    ////$('#loading_spinner').hide();
+                    ////refreshTableSupp();
+                    if (response.Errors == null) {
+                        $('#close-editor').click();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#loading_spinner').hide();
+                        refreshTableSupp();
+                    } else {
+                        alert(response.Errors);
+
+                        $('#loading_spinner').hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
