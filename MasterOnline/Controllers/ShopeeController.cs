@@ -176,7 +176,7 @@ namespace MasterOnline.Controllers
                     {
                         if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                         {
-                            if (item.item_id == 2253878714 || item.item_id == 2253885754)
+                            if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
                             {
 
                             }
@@ -367,7 +367,7 @@ namespace MasterOnline.Controllers
             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
             sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30) VALUES ";
 
-            string namaBrg = barang_name;
+            string namaBrg = barang_name.Replace('\'', '`');
             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
             urlImage = "";
             urlImage2 = "";
@@ -1130,7 +1130,7 @@ namespace MasterOnline.Controllers
             }
 
             #endregion
-            sSQL = sSQL.Replace("REPLACE_MEREK", brand);
+            sSQL = sSQL.Replace("REPLACE_MEREK", brand.Replace('\'', '`'));
             var retRec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
             ret.status = retRec;
             return ret;
