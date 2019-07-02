@@ -22568,7 +22568,29 @@ namespace MasterOnline.Controllers
             {
                 return JsonErrorMessage(ex.Message);
             }
+        }
 
+        public ActionResult DeleteAllSyncBrg(string cust)
+        {
+            try
+            {
+                //var barangInDb = ErasoftDbContext.TEMP_BRG_MP.Single(b => b.BRG_MP.ToUpper() == barangId.ToUpper() && b.CUST == cust);
+
+                //ErasoftDbContext.TEMP_BRG_MP.Remove(barangInDb);
+                ErasoftDbContext.TEMP_BRG_MP.Where(m => m.CUST == cust).Delete();
+                ErasoftDbContext.SaveChanges();
+                
+                var barangVm = new UploadBarangViewModel()
+                {
+                    Errors = null
+                };
+
+                return Json(barangVm, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage(ex.Message);
+            }
         }
 
         [Route("manage/PromptCustomer")]
