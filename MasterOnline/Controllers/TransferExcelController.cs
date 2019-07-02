@@ -206,11 +206,15 @@ namespace MasterOnline.Controllers
                                     sheet2.Cells[4 + j, 2].Value = kategori[j].KET;
                                 }
                             }
-                            var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 5, worksheet.Dimension.End.Row, 5].Address);
-                            validation.ShowErrorMessage = true;
-                            validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
-                            validation.ErrorTitle = "An invalid value was entered";
-                            validation.Formula.ExcelFormula = string.Format("=master_Kategori_dan_Merek!${0}${1}:${2}${3}", "A", 4, "A", kategori.Count);
+
+                            if (dsBarang.Tables[0].Rows.Count > 0)
+                            {
+                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 5, worksheet.Dimension.End.Row, 5].Address);
+                                validation.ShowErrorMessage = true;
+                                validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                                validation.ErrorTitle = "An invalid value was entered";
+                                validation.Formula.ExcelFormula = string.Format("=master_Kategori_dan_Merek!${0}${1}:${2}${3}", "A", 4, "A", 3 + kategori.Count);
+                            }
 
                             var merk = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "2").ToList();
                             if (merk.Count > 0)
@@ -222,11 +226,14 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             //var a = new OfficeOpenXml.ExcelTableAddress[3, 1, 3, 2];
-                            var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 6, worksheet.Dimension.End.Row, 6].Address);
-                            validation2.ShowErrorMessage = true;
-                            validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
-                            validation2.ErrorTitle = "An invalid value was entered";
-                            validation2.Formula.ExcelFormula = string.Format("=master_Kategori_dan_Merek!${0}${1}:${2}${3}", "F", 4, "F", merk.Count);
+                            if (dsBarang.Tables[0].Rows.Count > 0)
+                            {
+                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 6, worksheet.Dimension.End.Row, 6].Address);
+                                validation2.ShowErrorMessage = true;
+                                validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                                validation2.ErrorTitle = "An invalid value was entered";
+                                validation2.Formula.ExcelFormula = string.Format("=master_Kategori_dan_Merek!${0}${1}:${2}${3}", "F", 4, "F", 3 + merk.Count);
+                            }
 
                             using (var range = sheet2.Cells[3, 1, 3, 2])
                             {
@@ -274,7 +281,7 @@ namespace MasterOnline.Controllers
                             }
 
                             //sheet2.Cells.AutoFitColumns(0);
-                            
+
                             //return File(package.GetAsByteArray(), System.Net.Mime.MediaTypeNames.Application.Octet, username + "_" + mp.NamaMarket + "(" + customer.PERSO + ")" + ".xlsx");
                             ret.byteExcel = package.GetAsByteArray();
                             ret.namaFile = username + "_" + mp.NamaMarket + "(" + customer.PERSO + ")" + ".xlsx";

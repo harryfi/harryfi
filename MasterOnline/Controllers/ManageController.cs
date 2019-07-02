@@ -21729,14 +21729,14 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
                             bool createSTF02Induk = true;
-                            var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK.Trim()).FirstOrDefault();
-                            var tempBrgInduk = tempBrgInduktemp.Where(b => (b.BRG_MP == null ? "" : b.BRG_MP) == item.KODE_BRG_INDUK).FirstOrDefault();
-                            //var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
-                            //var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
+                            //var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK.Trim()).FirstOrDefault();
+                            //var tempBrgInduk = tempBrgInduktemp.Where(b => (b.BRG_MP == null ? "" : b.BRG_MP) == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
                             if (brgInduk != null)
                             {
-                                var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG.Trim()).FirstOrDefault();
-                                //var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                //var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG.Trim()).FirstOrDefault();
+                                var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
                                 if (stf02h_induk == null)
                                 {
                                     createSTF02Induk = false;
@@ -22216,8 +22216,16 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                stf02.Sort1 = item.AVALUE_40;
-                                stf02.KET_SORT1 = defaultCategoryCode.Where(m => m.KODE == item.AVALUE_40 && m.LEVEL == "1").FirstOrDefault().KET;
+                                if (defaultCategoryCode.Where(m => m.KODE == item.AVALUE_40 && m.LEVEL == "1").FirstOrDefault() != null)
+                                {
+                                    stf02.KET_SORT1 = defaultCategoryCode.Where(m => m.KODE == item.AVALUE_40 && m.LEVEL == "1").FirstOrDefault().KET;
+                                    stf02.Sort1 = item.AVALUE_40;
+                                }
+                                else
+                                {
+                                    stf02.Sort1 = defaultCategoryCode[0].KODE;
+                                    stf02.KET_SORT1 = defaultCategoryCode[0].KET;
+                                }
                             }
 
                             if (string.IsNullOrEmpty(item.MEREK))
@@ -22227,8 +22235,16 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                stf02.Sort2 = item.MEREK;
-                                stf02.KET_SORT2 = defaultBrand.Where(m => m.KODE == item.MEREK && m.LEVEL == "2").FirstOrDefault().KET;
+                                if (defaultBrand.Where(m => m.KODE == item.MEREK && m.LEVEL == "2").FirstOrDefault() != null)
+                                {
+                                    stf02.KET_SORT2 = defaultBrand.Where(m => m.KODE == item.MEREK && m.LEVEL == "2").FirstOrDefault().KET;
+                                    stf02.Sort2 = item.MEREK;
+                                }
+                                else
+                                {
+                                    stf02.Sort2 = defaultBrand[0].KODE;
+                                    stf02.KET_SORT2 = defaultBrand[0].KET;
+                                }
                             }
                             //end change 14 juni 2019, ambil kategori dan merk dari temp table
                             stf02.Deskripsi = (string.IsNullOrEmpty(item.Deskripsi) ? "-" : item.Deskripsi);
@@ -22555,7 +22571,29 @@ namespace MasterOnline.Controllers
             {
                 return JsonErrorMessage(ex.Message);
             }
+        }
 
+        public ActionResult DeleteAllSyncBrg(string cust)
+        {
+            try
+            {
+                //var barangInDb = ErasoftDbContext.TEMP_BRG_MP.Single(b => b.BRG_MP.ToUpper() == barangId.ToUpper() && b.CUST == cust);
+
+                //ErasoftDbContext.TEMP_BRG_MP.Remove(barangInDb);
+                ErasoftDbContext.TEMP_BRG_MP.Where(m => m.CUST == cust).Delete();
+                ErasoftDbContext.SaveChanges();
+                
+                var barangVm = new UploadBarangViewModel()
+                {
+                    Errors = null
+                };
+
+                return Json(barangVm, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage(ex.Message);
+            }
         }
 
         [Route("manage/PromptCustomer")]
