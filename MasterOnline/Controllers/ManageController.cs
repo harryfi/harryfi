@@ -6377,7 +6377,10 @@ namespace MasterOnline.Controllers
 
             if (dataKategori.Kategori.RecNum == null)
             {
-                var checkData = ErasoftDbContext.STF02E.SingleOrDefault(k => k.KODE == dataKategori.Kategori.KODE);
+                //change by Tri 2 Juli 2019, kategori : level = 1
+                //var checkData = ErasoftDbContext.STF02E.SingleOrDefault(k => k.KODE == dataKategori.Kategori.KODE);
+                var checkData = ErasoftDbContext.STF02E.SingleOrDefault(k => k.KODE == dataKategori.Kategori.KODE && k.LEVEL == "1");
+                //end change by Tri 2 Juli 2019, kategori : level = 1
 
                 if (checkData == null)
                 {
