@@ -473,9 +473,17 @@ namespace MasterOnline.Controllers
                         {
                             if (!attributesAdded.Contains(dsSku[i].ToString()))
                             {
-                                xmlString += "<" + dsSku[i].ToString() + ">";
-                                xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                xmlString += "</" + dsSku[i].ToString() + ">";
+                                try
+                                {
+                                    var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                    xmlString += "<" + dsSku[i].ToString() + ">";
+                                    xmlString += getAttrValue;
+                                    xmlString += "</" + dsSku[i].ToString() + ">";
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                             }
                         }
                         //end change 8 Apriil 2019, get attr from api
@@ -4569,15 +4577,28 @@ namespace MasterOnline.Controllers
                     var ret = new List<ATTRIBUTE_OPT_LAZADA>();
                     if (attrBrg != null)
                     {
-                        foreach (var opt in attrBrg.options)
+                        if (attrBrg.input_type.ToUpper() == "TEXT")
                         {
                             var optAttrBrg = new ATTRIBUTE_OPT_LAZADA
                             {
-                                A_NAME = attrBrg.name,
+                                A_NAME = "INPUT_TEXT",
                                 CATEGORY_CODE = code,
-                                O_NAME = opt.name,
+                                O_NAME = "INPUT_TEXT",
                             };
                             ret.Add(optAttrBrg);
+                        }
+                        else
+                        {
+                            foreach (var opt in attrBrg.options)
+                            {
+                                var optAttrBrg = new ATTRIBUTE_OPT_LAZADA
+                                {
+                                    A_NAME = attrBrg.name,
+                                    CATEGORY_CODE = code,
+                                    O_NAME = opt.name,
+                                };
+                                ret.Add(optAttrBrg);
+                            }
                         }
                     }
 

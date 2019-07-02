@@ -493,9 +493,17 @@ namespace MasterOnline.Controllers
                         {
                             if (!attributesAdded.Contains(dsSku[i].ToString()))
                             {
-                                xmlString += "<" + dsSku[i].ToString() + ">";
-                                xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                xmlString += "</" + dsSku[i].ToString() + ">";
+                                try
+                                {
+                                    var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                    xmlString += "<" + dsSku[i].ToString() + ">";
+                                    xmlString += getAttrValue;
+                                    xmlString += "</" + dsSku[i].ToString() + ">";
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
                             }
                         }
                         //end change 8 Apriil 2019, get attr from api
