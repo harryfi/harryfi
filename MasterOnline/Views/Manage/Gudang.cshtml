@@ -339,10 +339,20 @@
                 success: function (response) {
                     //$('#table-gudang-partial').html(response);
                     //Initialize();
-                    $('#close-editor').click();
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                    $('#loading_spinner').hide();
-                        refreshTableGudang();
+                    ////$('#close-editor').click();
+                    ////$("html, body").animate({ scrolltop: 0 }, "slow");
+                    ////$('#loading_spinner').hide();
+                    ////    refreshtablegudang();
+                    if (response.Errors == null) {
+                        $('#close-editor').click();
+                        $("html, body").animate({ scrolltop: 0 }, "slow");
+                        $('#loading_spinner').hide();
+                        refreshtablegudang();
+                    } else {
+                        alert(response.Errors);
+                        
+                        $('#loading_spinner').hide();
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
