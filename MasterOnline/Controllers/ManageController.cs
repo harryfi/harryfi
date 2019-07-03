@@ -5630,7 +5630,8 @@ namespace MasterOnline.Controllers
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
                                             clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #endif
@@ -5745,7 +5746,8 @@ namespace MasterOnline.Controllers
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
                                                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #endif
