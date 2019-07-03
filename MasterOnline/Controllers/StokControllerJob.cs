@@ -151,7 +151,7 @@ namespace MasterOnline.Controllers
                             sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + context.BackgroundJob.CreatedAt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
                             sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
                             sSQL += "'" + this._deskripsi.Replace("{obj}", subjectDescription) + "' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
-                            sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS = 'FAILED'";
+                            sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         }
                         //end add by calvin 14 mei 2019
@@ -514,7 +514,7 @@ namespace MasterOnline.Controllers
                                     Qty = "",
                                     MinQty = "0"
                                 };
-                                data.Price = stf02h.HJUAL.ToString();
+                                data.Price = barangInDb.HJUAL.ToString();
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
@@ -1025,7 +1025,7 @@ namespace MasterOnline.Controllers
                                         myData += "\"gdnSku\": \"" + brg_mp[0] + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
-                                        myData += "\"price\": " + data.MarketPrice + ", ";
+                                        myData += "\"price\": " + data.Price + ", ";
                                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
