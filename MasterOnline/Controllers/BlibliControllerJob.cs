@@ -1788,7 +1788,7 @@ namespace MasterOnline.Controllers
                                         myData += "\"gdnSku\": \"" + brg_mp[0] + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
-                                        myData += "\"price\": " + data.MarketPrice + ", ";
+                                        myData += "\"price\": " + data.Price + ", ";
                                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                                                                               //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
@@ -2308,7 +2308,7 @@ namespace MasterOnline.Controllers
                             merchantSku = result.value.items[0].skuCode;
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
+                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
                         sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
                         //add kode brg induk dan type brg
                         sSQL += ", '" + kdBrgInduk + "' , '3'";
@@ -3361,7 +3361,7 @@ namespace MasterOnline.Controllers
             //string merchantSku = result.value.items[0].merchantSku.ToString();
             sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
+            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
             //add kode brg induk dan type brg
             sSQL += ", '' , '4'";
@@ -5924,7 +5924,7 @@ namespace MasterOnline.Controllers
                 {
                     upcCode = data.dataBarangInDb.BRG,
                     merchantSku = data.dataBarangInDb.BRG,
-                    price = Convert.ToInt32(stf02h.HJUAL),
+                    price = Convert.ToInt32(data.Price),
                     salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     stock = Convert.ToInt32(data.dataBarangInDb.MINI),
@@ -6110,7 +6110,7 @@ namespace MasterOnline.Controllers
                     {
                         upcCode = var_item.BRG,
                         merchantSku = var_item.BRG,
-                        price = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        price = Convert.ToInt32(var_item.HJUAL),
                         salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
                         minimumStock = Convert.ToInt32(var_item.MINI),
                         stock = Convert.ToInt32(var_item.MINI),
