@@ -478,11 +478,28 @@
 
         @@media only screen and (min-width: 768px) {
             .checkmark {
-                left: 53px;
+                left: -11px;
             }
         }
 
         @@media only screen and (max-width: 767px) {
+            .modalresponsive3 {
+                width: 40%;
+            }
+
+            .modalresponsive2 {
+                width: 44%;
+            }
+
+            .fakturctkfaktur {
+                width: 45%;
+                margin-left: 89px;
+            }
+
+            .uploadtokpedmodal {
+                width: 32%;
+            }
+
             .checkmark {
                 left: -9px;
             }
@@ -506,12 +523,12 @@
             }
             
             .modalresponsive {
-                width: 400px;
+                width: 100%;
                 
             }
 
             .addmarginleftfaktur2 {
-                margin-left: -91px;
+                margin-left: -115px;
             }
 
             .snip1404 .plan {
@@ -538,6 +555,12 @@
             .snip1404 .plan {
                 width: 100%;
             }
+
+            
+        }
+
+        @@media screen and (max-width: 375px) {
+            
         }
 
         body {
@@ -604,7 +627,7 @@
     .checkmark {
         position: absolute;
         top: 0;
-        left: 18px;
+        /*left: 18px;*/
         height: 25px;
         width: 25px;
         background-color: #eee;
@@ -1179,7 +1202,7 @@
             <div id="myTabContent" class="tab-content" style="padding-top:10px;">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="faktur-tab">
                     <div class="row faktur_table_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom: 7px;">
                             <div class="input-group">
                                 <input id="search_faktur" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1375,7 +1398,7 @@
 </div>
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive addmarginleftfaktur2">
+        <div class="modal-content modalresponsive2 addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1394,7 +1417,7 @@
 </div>
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive addmarginleftfaktur2">
+        <div class="modal-content modalresponsive3 addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1428,7 +1451,7 @@
 </div>
 <div class="modal fade" id="modalUploadFaktur" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload-faktur" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content uploadtokpedmodal">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
@@ -1533,7 +1556,7 @@
     <div class="modal-dialog" id="modal-print-option" role="document">
         @*//change by nurul 25/6/2019*@
         @*<div class="modal-content modalresponsive" style="margin:auto">*@
-        <div class="modal-content" style="margin:auto; width:600px;">
+        <div class="modal-content fakturctkfaktur">
             @*//end change by nurul 25/6/2019*@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
