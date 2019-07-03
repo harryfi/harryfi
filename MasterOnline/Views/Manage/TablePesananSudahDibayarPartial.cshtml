@@ -32,6 +32,28 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    @@media screen and (max-width: 425px) {
+        .table-responsivetsdhbyr {
+            width: 47%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .table-responsivetsdhbyr {
+            width: 40%;
+        }
+    }
+
+
+    @@media screen and (max-width: 325px) {
+        .table-responsivetsdhbyr {
+            width: 34%;
+        }
+    }
+
+    
+    
 </style>
 <div id="loading_pesanan_nunggu_tab">
     <div id="loading_pesanan_nunggu_tab_image">
@@ -39,7 +61,7 @@
     </div>
 </div>
 <input id="txt_last_page_2" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-<div class="hscroll table-responsive">
+<div class="hscroll table-responsive table-responsivetsdhbyr">
     <table class="table table-striped table-bordered table-hover">
         @*<table id="datatable_nunggu" class="table table-striped table-bordered dataTable display select" role="grid" aria-describedby="datatable_info">*@
         <thead>
@@ -51,9 +73,9 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Siap Kirim</th>*@
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; border-right:hidden;">Ubah Status</th>
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="checkbox_all_gntstatus_sudahdibayar" style="margin-top: 20px; border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                 @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="checkbox_all_gntstatus_sudahdibayar" name="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden; align-self:flex-start; width:30px; height:28px; align-content:center;" /></th>*@
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Lihat Detail</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Lihat Detail</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>*@
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Batal</th>

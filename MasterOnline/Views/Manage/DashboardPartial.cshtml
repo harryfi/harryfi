@@ -6,6 +6,14 @@
     var listBarangMiniStok = new List<PenjualanBarang>();
 }
 
+<style>
+    @@media screen and (max-width: 767px) {
+        .tblgrafik {
+            width: 100%;
+        }
+    }
+</style>
+
 <div class="row angka-mode">
     <div class="col-lg-4 col-md-4 col-xs-12">
         <div class="x_panel">
@@ -153,48 +161,50 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
-                            <th class="text-center date_label" colspan="2">Hari Ini</th>
-                            <th class="text-center month_label" colspan="2">Bulan Ini</th>
-                        </tr>
-                        <tr>
-                            <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
-                            <th class="text-center">Nilai Pesanan</th>
-                            <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
-                            <th class="text-center">Nilai Pesanan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model?.ListPesananPerMarketplace.Count > 0)
-                        {
-                            foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplace)
+                <div class="hscroll table-responsive tblgrafik">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                                <th class="text-center date_label" colspan="2">Hari Ini</th>
+                                <th class="text-center month_label" colspan="2">Bulan Ini</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                                <th class="text-center">Nilai Pesanan</th>
+                                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                                <th class="text-center">Nilai Pesanan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model?.ListPesananPerMarketplace.Count > 0)
+                            {
+                                foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplace)
+                                {
+                                    <tr>
+                                        <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                                        <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                                        <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                                        <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                                        <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                                    </tr>
+                                }
+                            }
+                            else
                             {
                                 <tr>
-                                    <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
-                                    <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
-                                    <td class="text-right">@pesananPerMarketplace.NilaiPesananHariIni</td>
-                                    <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
-                                    <td class="text-right">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                                    <td class="text-center">---</td>
+                                    <td class="text-center">---</td>
+                                    <td class="text-center">---</td>
+                                    <td class="text-center">---</td>
+                                    <td class="text-center">---</td>
                                 </tr>
                             }
-                        }
-                        else
-                        {
-                            <tr>
-                                <td class="text-center">---</td>
-                                <td class="text-center">---</td>
-                                <td class="text-center">---</td>
-                                <td class="text-center">---</td>
-                                <td class="text-center">---</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+                </div>
             </div>
-        </div>
     </div>
 </div>
 <div class="row">

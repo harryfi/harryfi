@@ -21,9 +21,26 @@
 <style>
     @@media screen and (max-width: 767px) {
         .addmarginLeft {
-            margin-left: -51px;
+            margin-left: -20px;
         }
     }
+
+    @@media screen and (max-width: 425px) {
+        .patdualimatpesanan {
+            width: 32%;
+        }
+
+        .addmarginLeft {
+            margin-left: -20px;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .patdualimatpesanan {
+            width: 27%;
+        }
+    }
+
 </style>
 
 
@@ -305,7 +322,7 @@
 @Html.HiddenFor(m => m.PesananDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12 addmarginLeft">
-        <div class="hscroll table-responsive">
+        <div class="hscroll table-responsive patdualimatpesanan">
             <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
                 <thead>
                     <tr>
