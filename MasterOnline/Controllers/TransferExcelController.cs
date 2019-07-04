@@ -274,7 +274,7 @@ namespace MasterOnline.Controllers
                             }
 
                             //sheet2.Cells.AutoFitColumns(0);
-                            
+
                             //return File(package.GetAsByteArray(), System.Net.Mime.MediaTypeNames.Application.Octet, username + "_" + mp.NamaMarket + "(" + customer.PERSO + ")" + ".xlsx");
                             ret.byteExcel = package.GetAsByteArray();
                             ret.namaFile = username + "_" + mp.NamaMarket + "(" + customer.PERSO + ")" + ".xlsx";
@@ -490,7 +490,7 @@ namespace MasterOnline.Controllers
         {
             return File(/*data.byteExcel*/ new byte[1], /*System.Net.Mime.MediaTypeNames.Application.Octet,*/ /*data.namaFile +*/ ".xlsx");
         }
-
+        
     }
 
 
