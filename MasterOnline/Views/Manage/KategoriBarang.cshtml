@@ -261,11 +261,22 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-kategori-partial').html(response);
-                    Initialize();
-                    $('#close-editor').click();
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                    $('#loading_spinner').hide();
+                    //$('#table-kategori-partial').html(response);
+                    //Initialize();
+                    //$('#close-editor').click();
+                    //$("html, body").animate({ scrollTop: 0 }, "slow");
+                    //$('#loading_spinner').hide();
+                    if (response.Errors == null) {
+                        $('#table-kategori-partial').html(response);
+                        Initialize();
+                        $('#close-editor').click();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#loading_spinner').hide();
+                    } else {
+                        alert(response.Errors);
+
+                        $('#loading_spinner').hide();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

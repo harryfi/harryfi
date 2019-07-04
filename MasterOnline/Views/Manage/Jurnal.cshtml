@@ -966,6 +966,7 @@
         }
 
         function deleteJurnal() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteJurnal", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", this.$idJurnal);
 
@@ -979,7 +980,7 @@
                     //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     //});
                     //Initialize();
-                    refreshTableJurnal1();
+                    refreshTableJurnal1($savePage);
                     $('#konfHapusJurnal').modal('hide');
                 },
                 error: function (xhr, status, error) {
@@ -1046,10 +1047,23 @@
                 }
             });
         }*@
-        function refreshTableJurnal1() {
+        function refreshTableJurnal1($savePage) {
+            //add by nurul 27/6/2019
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
+            //end add by nurul 27/6/2019
             var $link = '@Html.Raw(Url.Action("RefreshTableJurnal1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_jurnal').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
 
             $.ajax({
                 type: "GET",
