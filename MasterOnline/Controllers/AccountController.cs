@@ -1174,7 +1174,7 @@ namespace MasterOnline.Controllers
             //                var credential = new NetworkCredential
             //                {
             //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "erasoft1988MO"
+            //                    Password = "ymkglmknkacqslui"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1188,7 +1188,7 @@ namespace MasterOnline.Controllers
             //                var credential = new NetworkCredential
             //                {
             //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "erasoft1988MO"
+            //                    Password = "ymkglmknkacqslui"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1297,7 +1297,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft1988MO"
+                    Password = "ymkglmknkacqslui"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1612,7 +1612,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft1988MO"
+                    Password = "ymkglmknkacqslui"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1626,7 +1626,7 @@ namespace MasterOnline.Controllers
                     var credential = new NetworkCredential
                     {
                         UserName = "csmasteronline@gmail.com",
-                        Password = "erasoft1988MO"
+                        Password = "ymkglmknkacqslui"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";
