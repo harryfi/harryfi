@@ -78,7 +78,7 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[4, 1].Value = "KODE_BRG_MO";
                             worksheet.Cells[4, 2].Value = "tidak boleh lebih dari 20 karakter";
                             worksheet.Cells[5, 1].Value = "KODE_BRG_INDUK_MO";
-                            worksheet.Cells[5, 2].Value = "tidak boleh lebih dari 11 karakter";
+                            worksheet.Cells[5, 2].Value = "tidak boleh lebih dari 11 karakter, tidak perlu diisi untuk barang non varian atau barang Induk";
                             worksheet.Cells[6, 1].Value = "KODE_KATEGORI_MO";
                             worksheet.Cells[6, 2].Value = "diisi dengan kode dari sheet Master Kategori dan Merk";
                             worksheet.Cells[7, 1].Value = "KODE_MEREK_MO";
