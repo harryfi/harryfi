@@ -12288,6 +12288,8 @@ namespace MasterOnline.Controllers
                 {
                     AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                     string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    
+                    Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
                     var accControl = new AccountController();
                     Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
@@ -12295,12 +12297,12 @@ namespace MasterOnline.Controllers
 
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                    DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    //DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
                 };
 
                 return PartialView("Pesanan", vm);

@@ -1149,6 +1149,30 @@
         border: 2px solid #891539 !important;
         color: #891539;
     }
+    #loading_upload_faktur {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_upload_faktur_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
 </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -1434,6 +1458,11 @@
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
             </div>
             <div class="modal-body" id="modal-upload-faktur-body">
+                <div id="loading_upload_faktur">
+                    <div id="loading_upload_faktur_image">
+                        <img src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>
                 @*add by nurul 19/10/2018*@
                 <div class="row">
                     <div class="col-md-11">
@@ -4406,14 +4435,15 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_spinner').show();
+                        $('#loading_upload_faktur').show();
                     },
                     success: function(response){
                         $('#uploadfakturviewdiv').html(response);
                         document.getElementById("file_upload_faktur").value = "";
-                        $('#loading_spinner').hide();
+                        $('#loading_upload_faktur').hide();
                     },
                     error: function(errMsg) {
+                        $('#loading_upload_faktur').hide();
                         alert(errMsg);
                         document.getElementById("file_upload_faktur").value = "";
                     },
