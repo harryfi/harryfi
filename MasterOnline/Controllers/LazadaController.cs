@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml;
 
 namespace MasterOnline.Controllers
 {
@@ -288,7 +289,7 @@ namespace MasterOnline.Controllers
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
-            xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
+            xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             xmlString += "<brand>No Brand</brand>";
@@ -335,7 +336,7 @@ namespace MasterOnline.Controllers
             foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += lzdAttr.Value.ToString();
+                xmlString += XmlEscape(lzdAttr.Value.ToString());
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
@@ -346,7 +347,7 @@ namespace MasterOnline.Controllers
             if (Convert.ToString(stf02.TYPE) == "3")
             {
 
-                xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
+                xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
@@ -388,7 +389,7 @@ namespace MasterOnline.Controllers
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
                     xmlString += "<" + lzdSkuAttr.Key + ">";
-                    xmlString += lzdSkuAttr.Value.ToString();
+                    xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
                     xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
                 //end change 8 Apriil 2019, get attr from api
@@ -445,7 +446,7 @@ namespace MasterOnline.Controllers
                     var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
                     if (input && (GetStf02h != null))
                     {
-                        xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
+                        xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
                         xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                         foreach (var attribute in KombinasiAttribute)
@@ -453,7 +454,7 @@ namespace MasterOnline.Controllers
                             if (attribute.Value == item.BRG)
                             {
                                 string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                xmlString += "<" + getId[0] + ">" + getId[1] + "</" + getId[0] + ">";
+                                xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
                                 attributesAdded.Add(getId[0]);
                             }
                         }
@@ -477,7 +478,7 @@ namespace MasterOnline.Controllers
                                 {
                                     var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
                                     xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += getAttrValue;
+                                    xmlString += XmlEscape(getAttrValue);
                                     xmlString += "</" + dsSku[i].ToString() + ">";
                                 }
                                 catch (Exception ex)
@@ -613,6 +614,22 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
             }
             return ret;
+        }
+
+        public static string XmlEscape(string unescaped)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlNode node = doc.CreateElement("root");
+            node.InnerText = unescaped;
+            return node.InnerXml;
+        }
+
+        public static string XmlUnescape(string escaped)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlNode node = doc.CreateElement("root");
+            node.InnerXml = escaped;
+            return node.InnerText;
         }
 
         public BindingBase UpdateProduct(BrgViewModel data)
