@@ -2162,9 +2162,12 @@ namespace MasterOnline.Controllers
                             //TEMP_ALL_MP_ORDER_ITEM
                             if (!string.IsNullOrWhiteSpace(bindOrder.data.order_id))
                             {
-                                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
+                                //change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
+                                //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
 
-                                if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
+                                //if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
+                                if(bindOrder.data.statuses[0].ToLower() == "canceled")
+                                //end change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
                                 {
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
                                     if (rowAffected > 0)
