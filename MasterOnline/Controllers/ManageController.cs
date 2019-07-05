@@ -19599,6 +19599,30 @@ namespace MasterOnline.Controllers
                                 {
                                     noTelp = faktur.HPPembeli;
                                 }
+
+                                var temp_AL_KIRIM = faktur.AlamatPembeli;
+                                string AL_KIRIM1 = temp_AL_KIRIM;
+                                string AL_KIRIM2 = "";
+                                string AL_KIRIM3 = "";
+                                if (temp_AL_KIRIM.Length > 30)
+                                {
+                                    AL_KIRIM1 = temp_AL_KIRIM.Substring(0, 30);
+                                    temp_AL_KIRIM = temp_AL_KIRIM.Substring(30, temp_AL_KIRIM.Length - 30);
+
+                                    AL_KIRIM2 = temp_AL_KIRIM;
+                                    if (temp_AL_KIRIM.Length > 30)
+                                    {
+                                        AL_KIRIM2 = temp_AL_KIRIM.Substring(0, 30);
+                                        temp_AL_KIRIM = temp_AL_KIRIM.Substring(30, temp_AL_KIRIM.Length - 30);
+
+                                        AL_KIRIM3 = temp_AL_KIRIM;
+                                        if (temp_AL_KIRIM.Length > 30)
+                                        {
+                                            AL_KIRIM3 = temp_AL_KIRIM.Substring(0, 27) + "...";
+                                        }
+                                    }
+                                }
+
                                 ARF01C newPembeli = new ARF01C
                                 {
                                     BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
@@ -19613,9 +19637,9 @@ namespace MasterOnline.Controllers
                                     KODE_CABANG = 1,
                                     VLT = "IDR",
                                     KDHARGA = "01",
-                                    AL_KIRIM1 = faktur.AlamatPembeli.Length > 30 ? faktur.AlamatPembeli.Substring(0, 30) : faktur.AlamatPembeli,
-                                    AL_KIRIM2 = faktur.AlamatPembeli.Length > 60 ? faktur.AlamatPembeli.Substring(30, 30) : faktur.AlamatPembeli.Substring(30, faktur.AlamatPembeli.Length - 30),
-                                    AL_KIRIM3 = faktur.AlamatPembeli.Length > 90 ? faktur.AlamatPembeli.Substring(60, 27) + "..." : faktur.AlamatPembeli.Substring(60, faktur.AlamatPembeli.Length - 60),
+                                    AL_KIRIM1 = AL_KIRIM1,
+                                    AL_KIRIM2 = AL_KIRIM2,
+                                    AL_KIRIM3 = AL_KIRIM3,
                                     DISC_NOTA = 0,
                                     NDISC_NOTA = 0,
                                     DISC_ITEM = 0,
