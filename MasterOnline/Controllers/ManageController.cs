@@ -21969,7 +21969,7 @@ namespace MasterOnline.Controllers
         {
             var barangVm = new UploadBarangViewModel()
             {
-                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+                //ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
                 Stf02 = new STF02(),
                 TempBrg = new TEMP_BRG_MP(),
@@ -22832,7 +22832,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
                     }
                     //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
-                    barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
+                    //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
 
                     barangVm.contRecursive = "1";
                     //if (barangVm.Errors.Count == 0)
@@ -22856,7 +22856,7 @@ namespace MasterOnline.Controllers
         {
             var barangVm = new UploadBarangViewModel()
             {
-                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
+                //ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
                 Stf02 = new STF02(),
                 TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp.ToUpper()) && t.CUST == cust).FirstOrDefault(),
