@@ -255,7 +255,7 @@ namespace MasterOnline.Controllers
 
             //end change by calvin 8 juli 2019
 
-            //remark by calvin 8 juli 2019, barang tidak laku sudah tidak dipakai
+            //Change by calvin 8 juli 2019, barang tidak laku sudah tidak dipakai
             //foreach (var barang in vm.ListBarang.Where(b => b.Tgl_Input?.Month >= (selectedMonth - 3) && b.Tgl_Input?.Month <= selectedMonth))
             //{
             //    var barangTerpesan = vm.ListPesananDetail.FirstOrDefault(b => b.BRG == barang.BRG);
@@ -272,7 +272,21 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            //end remark by calvin 8 juli 2019
+            sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,0 AS QTY FROM( ";
+            sSQL += "SELECT DISTINCT BRG FROM SOT01B WHERE MONTH(TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(TGL_INPUT) <= " + (selectedMonth).ToString() + " AND BRG <> 'NOT_FOUND' ";
+            sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = ''";
+            var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+            foreach (var item in ListBarangAndQtyNotInPesanan)
+            {
+                vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                {
+                    KodeBrg = item.BRG,
+                    NamaBrg = item.NAMA,
+                    Qty = item.QTY,
+                    Laku = false
+                });
+            }
+            //end change by calvin 8 juli 2019
 
             return PartialView(vm);
         }
