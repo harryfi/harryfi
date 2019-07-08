@@ -2414,16 +2414,16 @@
                                     $('.faktur_editor_section').show();
                                     $('#form-partial').html(response);
 
-                                        $('#form-partial').show();
-                                        $('#form_subs').hide();
-                                        getTanggal();
-                                        getMarketplace();
-                                        getBuyer();
+                                    $('#form-partial').show();
+                                    $('#form_subs').hide();
+                                    getTanggal();
+                                    getMarketplace();
+                                    getBuyer();
 
-                                        refreshInputan();
-                                        refreshNetto();
-                                        //add by nurul 17/10/2018
-                                        $('#myTab li a').each(function () {
+                                    refreshInputan();
+                                    refreshNetto();
+                                    //add by nurul 17/10/2018
+                                    $('#myTab li a').each(function () {
                                         $(this).removeAttr('data-toggle');
 
                                         if ($(this).attr('id') === 'faktur-tab') return;
@@ -3183,7 +3183,7 @@
                 } else if ($class == 'ndisc1-barang editable' || $class == 'ndisc2-barang editable') {
                     $inputClass = 'ndisc-input';
                 }
-                //ADD BY NURUL 28/6/2019
+                    //ADD BY NURUL 28/6/2019
                 else if ($statusAPI == "1") {
                     if ($class == 'harga-barang editable') {
                         $inputClass = 'harga-input';
@@ -3206,12 +3206,12 @@
                                 hitungUlangdisc2();
                                 //end add
                             }
-                            //add by nurul 1/7/2019
+                                //add by nurul 1/7/2019
                             else if ($class === 'harga-barang editable') {
-                                    //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                                    $this.html(convertToRupiah($hargaBarangAwal) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                                    hitungUlangdisc1();
-                                    hitungUlangdisc2();
+                                //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                $this.html(convertToRupiah($hargaBarangAwal) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
                                 //end add by nurul 1/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
@@ -3263,12 +3263,12 @@
                                 hitungUlangdisc2();
                                 //end add
                             }
-                            //add by nurul 1/7/2019
+                                //add by nurul 1/7/2019
                             else if ($class === 'harga-barang editable') {
-                                    $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                                    hitungUlangdisc1();
-                                    hitungUlangdisc2();
-                            //end add by nurul 1/7/2019
+                                $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                //end add by nurul 1/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
@@ -3585,7 +3585,9 @@
         }
 
         function getBuyer() {
-            $.ajax({
+            @*
+                remark by calvin 8 juli 2019
+                $.ajax({
                 type: "GET",
                 url: '@Url.Action("GetPembeli", "Manage")',
                 contentType: 'application/json',
@@ -3629,6 +3631,7 @@
                     console.log(xhr);
                 }
             });
+                *@
         }
 
         function getGudang() {
@@ -4397,7 +4400,7 @@
                 formdata.append("cust", $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val());
                 formdata.append("nama_cust", $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val());
                 formdata.append("perso", $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val());
-                
+
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("UploadFakturTokped", "Manage")',
