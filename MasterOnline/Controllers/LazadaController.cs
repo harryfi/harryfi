@@ -3703,6 +3703,7 @@ namespace MasterOnline.Controllers
                     string namaVar = brg.skus[i]._compatible_variation_;
                     namaBrg += " " + namaVar;
                 }
+                namaBrg = namaBrg.Replace('\'','`');//add by Tri 8 Juli 2019, replace petik pada nama barang
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                 urlImage = "";
                 urlImage2 = "";
