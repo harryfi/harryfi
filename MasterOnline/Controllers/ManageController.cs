@@ -19006,6 +19006,23 @@ namespace MasterOnline.Controllers
                                 {
                                     barangFakturLolosValidasi = true;
                                 }
+                                else
+                                {
+                                    if (listItem.Where(p=> p.BRG == faktur.StockKeepingUnitSKU).Count() > 0)
+                                    {
+                                        string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
+                                        sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
+                                        sSQL += "from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket = '" + market.RecNum + "' ";
+                                        sSQL += "where a.brg = '" + faktur.StockKeepingUnitSKU + "' and isnull(b.brg, '') = ''";
+
+                                        int berhasilinsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                        if (berhasilinsert > 0)
+                                        {
+                                            barangFakturLolosValidasi = true;
+                                        }
+                                    }
+                                }
                             }
                             //end add by calvin 18 juni 2019
                             if (!barangFakturLolosValidasi)
@@ -19041,7 +19058,7 @@ namespace MasterOnline.Controllers
                             string provinsi = ((faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 1]).Substring(6, (faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 1]).Length - 6));
                             var cekPembeli = (from p in ErasoftDbContext.ARF01C
                                               where p.EMAIL == (faktur.CustomerName.Replace(" ", "").Length > 36 ? faktur.CustomerName.Replace(" ", "").Substring(0, 36) + "@tokopedia.com" : faktur.CustomerName.Replace(" ", "") + "@tokopedia.com")
-                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).SingleOrDefault();
+                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).FirstOrDefault();
                             if (cekPembeli == null)
                             {
                                 lastRecnumARF01C++;
@@ -19110,7 +19127,11 @@ namespace MasterOnline.Controllers
                                     NAMA_KABKOT = kabupaten.Length > 50 ? kabupaten.Substring(0, 47) + "..." : kabupaten,
                                     NAMA_PROV = provinsi.Length > 50 ? provinsi.Substring(0, 47) + "..." : provinsi,
                                 };
-                                newARF01Cs.Add(newPembeli);
+
+                                if (newARF01Cs.Where(p=>p.EMAIL == newPembeli.EMAIL).Count() == 0)
+                                {
+                                    newARF01Cs.Add(newPembeli);
+                                }
                                 //ErasoftDbContext.ARF01C.Add(newPembeli);
 
                                 buyercode = newPembeli.BUYER_CODE;
