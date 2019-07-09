@@ -22811,7 +22811,8 @@ namespace MasterOnline.Controllers
                             {
                                 ErasoftDbContext.STF02.Remove(stf02);
                                 ErasoftDbContext.STF02H.Remove(brgMp);
-                                barangVm.Errors.Add("Kode Barang " + stf02.BRG + " gagal tersimpan. Error : " + ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                ErasoftDbContext.SaveChanges();
+                                barangVm.Errors.Add("Kode Barang " + stf02.BRG + " gagal tersimpan. Error : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message)) + "\n";
                             }
 
                             //end change 17 juni 2019, handle gagal save
