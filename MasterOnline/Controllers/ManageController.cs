@@ -273,8 +273,8 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,0 AS QTY FROM( ";
-            sSQL += "SELECT DISTINCT BRG FROM SOT01B WHERE MONTH(TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(TGL_INPUT) <= " + (selectedMonth).ToString() + " AND BRG <> 'NOT_FOUND' ";
+            sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
+            sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01B WHERE MONTH(TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(TGL_INPUT) <= " + (selectedMonth).ToString() + " AND BRG <> 'NOT_FOUND' ";
             sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = ''";
             var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyNotInPesanan)
