@@ -372,11 +372,11 @@ namespace MasterOnline.Controllers
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
-                //var qty_stock = new StokControllerJob(DatabasePathErasoft, "").GetQOHSTF08A(data.kdBrg, "ALL");
-                //if (qty_stock > 0)
-                //{
-                //xmlString += "<quantity>1</quantity>";
-                //}
+                var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(data.kdBrg, "ALL");	                
+                if (qty_stock > 0)	                
+                {	                
+                    xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";	                
+                }
                 //end add by calvin 1 mei 2019
 
                 //xmlString += "<quantity>1</quantity>";
@@ -508,7 +508,11 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //end change 8 Apriil 2019, get attr from api
-
+                        var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");	
+                        if (qty_stock > 0)	
+                        {	
+                            xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";	
+                        }
                         xmlString += "<price>" + data.harga + "</price>";
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                         xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
