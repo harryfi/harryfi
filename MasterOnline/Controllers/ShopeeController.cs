@@ -3097,31 +3097,33 @@ namespace MasterOnline.Controllers
                 {
                     //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
                     //{
-                    //await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
                     //}
+                    //await UpdateTierVariationIndex(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
                     await UpdateTierVariationList(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
                 }
             }
 
             return ret;
         }
-        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeVariation> MOVariationNew)
+        public async Task<string> UpdateTierVariationList(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
         {
+            //Use this api to update tier-variation list or upload variation image of a tier-variation item
             string ret = "";
             string brg = brgInDb.BRG;
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/add";
+            string urll = "https://partner.uat.shopeemobile.com/api/v1/item/tier_var/update_list";
 
-            ShopeeAddTierVariation HttpBody = new ShopeeAddTierVariation
+            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
             {
                 partner_id = MOPartnerID,
                 item_id = item_id,
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                variation = MOVariation.ToArray()
+                tier_variation = tier_variation.ToArray()
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -3184,7 +3186,86 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<string> UpdateTierVariationList(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
+        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeVariation> MOVariationNew)
+        {
+            string ret = "";
+            string brg = brgInDb.BRG;
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/add";
+            MOVariationNew[0].tier_index[0] = 0;
+            ShopeeAddTierVariation HttpBody = new ShopeeAddTierVariation
+            {
+                partner_id = MOPartnerID,
+                item_id = item_id,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                variation = MOVariationNew.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+
+            if (responseFromServer != null)
+            {
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
+                if (resServer.variation_id_list != null)
+                {
+                    if (resServer.variation_id_list.Count() > 0)
+                    {
+                        foreach (var variasi in resServer.variation_id_list)
+                        {
+                            string key_map_tier_index_recnum = "";
+                            foreach (var indexes in variasi.tier_index)
+                            {
+                                key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                            }
+                            int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+                            //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
+                            //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+                            //ErasoftDbContext.SaveChanges();
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
+        public async Task<string> UpdateTierVariationIndex(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
         {
             List<object> variation = new List<object>();
             string ret = "";
@@ -3204,18 +3285,19 @@ namespace MasterOnline.Controllers
                     variation_id = item.variation_id
                 });
             }
-            foreach (var item in MOVariationNew)
-            {
-                variation.Add(new ShopeeVariation()
-                {
-                    price = item.price,
-                    stock = item.stock,
-                    tier_index = item.tier_index,
-                    variation_sku = item.variation_sku
-                });
-            }
+            //foreach (var item in MOVariationNew)
+            //{
+            //    variation.Add(new ShopeeVariation()
+            //    {
+            //        price = item.price,
+            //        stock = item.stock,
+            //        tier_index = item.tier_index,
+            //        variation_sku = item.variation_sku,
+                    
+            //    });
+            //}
 
-            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
+            ShopeeUpdateTierVariationIndex HttpBody = new ShopeeUpdateTierVariationIndex
             {
                 partner_id = MOPartnerID,
                 item_id = item_id,
@@ -5346,7 +5428,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        public class ShopeeUpdateTierVariationList
+        public class ShopeeUpdateTierVariationIndex
         {
             public long item_id { get; set; }
             public ShopeeTierVariation[] tier_variation { get; set; }
@@ -5357,11 +5439,10 @@ namespace MasterOnline.Controllers
             public long partner_id { get; set; }
             public long timestamp { get; set; }
         }
-        public class ShopeeUpdateTierVariationIndex
+        public class ShopeeUpdateTierVariationList
         {
             public long item_id { get; set; }
-            //public ShopeeTierVariation[] tier_variation { get; set; }
-            public ShopeeVariation[] variation { get; set; }
+            public ShopeeTierVariation[] tier_variation { get; set; }
             public long shopid { get; set; }
             public long partner_id { get; set; }
             public long timestamp { get; set; }
@@ -5720,6 +5801,22 @@ namespace MasterOnline.Controllers
             public long partner_id { get; set; }
             public long timestamp { get; set; }
 
+        }
+        public class ShopeeAddVariation
+        {
+            public long item_id { get; set; }
+            public ShopeeNewVariation[] variations { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
+            public long timestamp { get; set; }
+
+        }
+        public class ShopeeNewVariation {
+
+            public string name { get; set; }
+            public int stock { get; set; }
+            public float price { get; set; }
+            public string variation_sku { get; set; }
         }
     }
 }
