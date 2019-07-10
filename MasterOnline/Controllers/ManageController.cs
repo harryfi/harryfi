@@ -5185,7 +5185,8 @@ namespace MasterOnline.Controllers
                 //change by calvin 9 juni 2019
                 if(mode == 1)
                 {
-                    var result = lzdApi.CreateProduct(dataLazada);
+                    //var result = lzdApi.CreateProduct(dataLazada);
+                    clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
                 }
                 else if (mode == 2)
                 {
