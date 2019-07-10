@@ -919,8 +919,8 @@ namespace MasterOnline.Controllers
                 LazopResponse response = client.Execute(request, data.token);
 
                 //change by calvin 10 juni 2019
-                //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
-                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCommonRes)) as LazadaCommonRes;
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
+                //var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCommonRes)) as LazadaCommonRes;
                 //end change by calvin 10 juni 2019
                 if (res.code.Equals("0"))
                 {
@@ -948,41 +948,41 @@ namespace MasterOnline.Controllers
                 else
                 {
                     //change by calvin 10 juni 2019
-                    //if (res.detail != null)
-                    //{
-                    //    if (res.detail.Length == 1)
-                    //    {
-                    //        if (!string.IsNullOrEmpty(res.detail[0].field))
-                    //        {
-                    //            ret.message = res.detail[0].field + " : " + res.detail[0].message;
-                    //        }
-                    //        else
-                    //        {
-                    //            ret.message = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        if (res.detail.Length == 1)
+                        {
+                            if (!string.IsNullOrEmpty(res.detail[0].field))
+                            {
+                                ret.message = res.detail[0].field + " : " + res.detail[0].message;
+                            }
+                            else
+                            {
+                                ret.message = res.detail[0].message;
 
-                    //        }
-                    //    }
-                    //    else if (res.detail.Length > 1)
-                    //    {
-                    //        ret.message = "";
-                    //        for (int i = 0; i < res.detail.Length; i++)
-                    //        {
-                    //            if (!string.IsNullOrEmpty(res.detail[i].field))
-                    //            {
-                    //                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
-                    //            }
-                    //            else
-                    //            {
-                    //                ret.message += res.detail[i].message + "\n";
+                            }
+                        }
+                        else if (res.detail.Length > 1)
+                        {
+                            ret.message = "";
+                            for (int i = 0; i < res.detail.Length; i++)
+                            {
+                                if (!string.IsNullOrEmpty(res.detail[i].field))
+                                {
+                                    ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                }
+                                else
+                                {
+                                    ret.message += res.detail[i].message + "\n";
 
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    ret.message = res.message;
-                    //}
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                     //end change by calvin 10 juni 2019

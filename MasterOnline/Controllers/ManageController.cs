@@ -4304,7 +4304,7 @@ namespace MasterOnline.Controllers
                 //end change by calvin 23 april 2019
                 //add by nurul 21/6/2019, validasi berat,p,l,t
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("Error");
             }
