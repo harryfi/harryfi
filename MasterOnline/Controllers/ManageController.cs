@@ -19073,6 +19073,8 @@ namespace MasterOnline.Controllers
                                 || faktur.OrderStatus.Contains("Pesanan dikomplain"))
                             {
                                 status_allow_insert = false;
+                                message = "Faktur [" + faktur_invoice + "] berstatus "+ faktur.OrderStatus +", tidak diupload ke MasterOnline." + System.Environment.NewLine;
+                                tw.WriteLine(message);
                             }
                         }
                     }
