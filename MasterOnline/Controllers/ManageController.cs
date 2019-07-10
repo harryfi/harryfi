@@ -19010,12 +19010,17 @@ namespace MasterOnline.Controllers
                             message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
                             tw.WriteLine(message);
                         }
+
                         status_allow_insert = false;
                         if (fakturLolosValidasi)
                         {
-                            if (faktur.OrderStatus.Contains("sedang diproses") || faktur.OrderStatus.Contains("Transaksi selesai"))
+                            status_allow_insert = true;
+                            if (faktur.OrderStatus.Contains("Transaksi ditolak") 
+                                || faktur.OrderStatus.Contains("Verifikasi Konfirmasi Pembayaran")
+                                || faktur.OrderStatus.Contains("Transaksi dibatalkan")
+                                || faktur.OrderStatus.Contains("Pesanan dikomplain"))
                             {
-                                status_allow_insert = true;
+                                status_allow_insert = false;
                             }
                         }
                     }
@@ -19054,6 +19059,9 @@ namespace MasterOnline.Controllers
                                         if (berhasilinsert > 0)
                                         {
                                             barangFakturLolosValidasi = true;
+                                            listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
+                                            listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
                                         }
                                     }
                                 }
