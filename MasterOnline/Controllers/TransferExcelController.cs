@@ -565,7 +565,7 @@ namespace MasterOnline.Controllers
         {
             return File(/*data.byteExcel*/ new byte[1], /*System.Net.Mime.MediaTypeNames.Application.Octet,*/ /*data.namaFile +*/ ".xlsx");
         }
-
+        
     }
 
 

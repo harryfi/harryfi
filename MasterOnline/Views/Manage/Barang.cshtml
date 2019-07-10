@@ -1349,9 +1349,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -1729,9 +1733,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2112,9 +2120,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2482,9 +2494,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2837,9 +2853,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -3134,9 +3154,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     //debugger;
                     var loop = 0;
                     var fieldAVALUE = "";
@@ -4023,6 +4047,7 @@
         }
 
         function simpanBarangInduk(btnClicked) {
+            $(btnClicked).attr("disabled", true);
             toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
