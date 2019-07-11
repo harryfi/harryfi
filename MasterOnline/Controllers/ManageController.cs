@@ -936,10 +936,10 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             var stf02e = (from p in ErasoftDbContext.STF02E
-                         where p.LEVEL == "2" &&
-                         (p.KET.Contains(search) || p.KODE.Contains(search))
-                         orderby p.KET
-                         select p);
+                          where p.LEVEL == "2" &&
+                          (p.KET.Contains(search) || p.KODE.Contains(search))
+                          orderby p.KET
+                          select p);
             var ListStf02e = stf02e.Skip(pagenumber * 10).Take(10).ToList();
             var totalCount = stf02e.Count();
 
@@ -20671,7 +20671,7 @@ namespace MasterOnline.Controllers
             {
                 //sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
                 sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ISNULL(NAMA2, '')) LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
-                
+
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -21761,6 +21761,21 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF02.Add(stf02);
 
                 }
+                //add 10 Juni 2019, update panjang/lebar/tinggi
+                else
+                {
+                    var stf02inDB = ErasoftDbContext.STF02.Where(m => m.BRG == kdBrgMO).FirstOrDefault();
+                    if (stf02inDB != null)
+                    {
+                        if (stf02inDB.PANJANG == 0 && data.PANJANG > 0)
+                            stf02inDB.PANJANG = data.PANJANG;
+                        if (stf02inDB.LEBAR == 0 && data.LEBAR > 0)
+                            stf02inDB.LEBAR = data.LEBAR;
+                        if (stf02inDB.TINGGI == 0 && data.TINGGI > 0)
+                            stf02inDB.TINGGI = data.TINGGI;
+                    }
+                }
+                //end add 10 Juni 2019, update panjang/lebar/tinggi
                 bool insertSTF02h = false;
                 var brgMp = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrgMO && p.IDMARKET == tempBrg.IDMARKET).FirstOrDefault();
                 if (brgMp == null)
@@ -22000,21 +22015,21 @@ namespace MasterOnline.Controllers
                     if (skipDataError > 0)
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
                     //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
-                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -22119,6 +22134,21 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add 10 Juni 2019, update panjang/lebar/tinggi
+                                    if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
+                                    {
+                                        barangInDB.PANJANG = item.PANJANG;
+                                    }
+                                    if (barangInDB.LEBAR == 0 && item.LEBAR > 0)
+                                    {
+                                        barangInDB.LEBAR = item.LEBAR;
+                                    }
+                                    if (barangInDB.TINGGI == 0 && item.TINGGI > 0)
+                                    {
+                                        barangInDB.TINGGI = item.TINGGI;
+                                    }
+                                    //end add 10 Juni 2019, update panjang/lebar/tinggi
+
                                     brgMp.HJUAL = item.HJUAL_MP;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.BRG_MP = item.BRG_MP;
@@ -22295,6 +22325,18 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
+                                {
+                                    barangInDB.PANJANG = item.PANJANG;
+                                }
+                                if (barangInDB.LEBAR == 0 && item.LEBAR > 0)
+                                {
+                                    barangInDB.LEBAR = item.LEBAR;
+                                }
+                                if (barangInDB.TINGGI == 0 && item.TINGGI > 0)
+                                {
+                                    barangInDB.TINGGI = item.TINGGI;
+                                }
                                 brgMp = new STF02H();
                                 //change stf02h brg = seller sku
                                 //brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
@@ -24391,8 +24433,8 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
+                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
                 if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();
