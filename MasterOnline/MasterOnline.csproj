@@ -710,7 +710,10 @@
     <Compile Include="Models\CATEGORY_JDID.cs" />
     <Compile Include="Models\CATEGORY_TOKPED.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
+    <Compile Include="Models\DashboardBulananModel.cs" />
+    <Compile Include="Models\DashboardTahunanModel.cs" />
     <Compile Include="Models\MenuAccount.cs" />
+    <Compile Include="Models\DashboardMingguanModel.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />
