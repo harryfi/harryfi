@@ -1526,6 +1526,67 @@
                     //end region faktur
                     //end add by nurul 4/7/2019
 
+                    //add by nurul 4/7/2019
+                    //region 10 barang laku
+                    var d = new Date();
+                    d.setMonth(d.getMonth() - 3);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', d);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal').val($('#DrTanggal').val());
+                        $('#DrTanggal').datepicker('hide');
+                        RefreshTableDashboardBaranglakuPartial();
+                    });
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal').val($('#SdTanggal').val());
+                        $('#SdTanggal').datepicker('hide');
+                        RefreshTableDashboardBaranglakuPartial();
+                    });
+                    RefreshTableDashboardBaranglakuPartial();
+                    //end region 10 barang laku
+                    //region faktur
+                    var c = new Date();
+                    c.setMonth(c.getMonth() - 1);
+                    $('#DrTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', c);
+                    $('#DrTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal1').val($('#DrTanggal1').val());
+                        $('#DrTanggal1').datepicker('hide');
+                        RefreshTableDashboardFaktur();
+                    });
+                    $('#SdTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal1').val($('#SdTanggal1').val());
+                        $('#SdTanggal1').datepicker('hide');
+                        RefreshTableDashboardFaktur();
+                        });
+                    RefreshTableDashboardFaktur();
+                    //end region faktur
+                    //end add by nurul 4/7/2019
+
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
