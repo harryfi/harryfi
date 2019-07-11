@@ -21,6 +21,19 @@ namespace MasterOnline.ViewModels
         public List<PenjualanBarang> ListBarangLaku { get; set; } = new List<PenjualanBarang>();
         public List<PenjualanBarang> ListBarangTidakLaku { get; set; } = new List<PenjualanBarang>();
         public List<PenjualanBarang> ListBarangMiniStok = new List<PenjualanBarang>();
+        //add by nurul 11/7/2019
+        public List<DashboardMingguanModel> ListdashboardPesananMingguan { get; set; } = new List<DashboardMingguanModel>();
+        public List<DashboardBulananModel> ListdashboardPesananBulanan { get; set; } = new List<DashboardBulananModel>();
+        public List<DashboardTahunanModel> ListdashboardPesananTahunan { get; set; } = new List<DashboardTahunanModel>();
+
+        public List<DashboardMingguanModel> ListdashboardFakturMingguan { get; set; } = new List<DashboardMingguanModel>();
+        public List<DashboardBulananModel> ListdashboardFakturBulanan { get; set; } = new List<DashboardBulananModel>();
+        public List<DashboardTahunanModel> ListdashboardFakturTahunan { get; set; } = new List<DashboardTahunanModel>();
+
+        public List<DashboardMingguanModel> ListdashboardReturMingguan { get; set; } = new List<DashboardMingguanModel>();
+        public List<DashboardBulananModel> ListdashboardReturBulanan { get; set; } = new List<DashboardBulananModel>();
+        public List<DashboardTahunanModel> ListdashboardReturTahunan { get; set; } = new List<DashboardTahunanModel>();
+        //end add by nurul 11/7/2019
 
         public int? JumlahPesananHariIni { get; set; }
         public double? NilaiPesananHariIni { get; set; }
