@@ -1,0 +1,22 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listPieFaktur = Model.ListFakturPerMarketplace.Where(a => Convert.ToDouble(a.JumlahFaktur) > 0).OrderByDescending(a => a.NilaiFaktur);
+    }
+    var listPieFaktur = @Html.Raw(Json.Encode(listPieFaktur));
+</script>
+@if (listPieFaktur.Count() > 0)
+{
+    <canvas id="chart-faktur" height="200"></canvas>
+    <div class="legend text-left" id="myChartLegend" style="float:left;"></div>
+    <div style="clear: both;" />
+}
+else
+{
+    <div class="center">
+        <h4>Silahkan proses faktur penjualan Anda !</h4>
+    </div>
+}
+

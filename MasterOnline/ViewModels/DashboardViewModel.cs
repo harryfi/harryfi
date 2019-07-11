@@ -22,6 +22,10 @@ namespace MasterOnline.ViewModels
         public List<PenjualanBarang> ListBarangTidakLaku { get; set; } = new List<PenjualanBarang>();
         public List<PenjualanBarang> ListBarangMiniStok = new List<PenjualanBarang>();
 
+        //add by nurul 5/7/2019
+        public List<FakturPerMarketplaceModel> ListFakturPerMarketplace { get; set; } = new List<FakturPerMarketplaceModel>();
+        //end add by nurul 5/7/2019
+
         public int? JumlahPesananHariIni { get; set; }
         public double? NilaiPesananHariIni { get; set; }
         public int? JumlahPesananBulanIni { get; set; }

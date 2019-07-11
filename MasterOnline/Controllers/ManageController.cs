@@ -292,6 +292,100 @@ namespace MasterOnline.Controllers
             return PartialView(vm);
         }
 
+        public ActionResult RefreshDashboardBaranglakuPartial(string drTgl, string sdTgl)
+        {
+            
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-3));
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+
+            var vm = new DashboardViewModel()
+            {
+                ////ListPesananDetail = ErasoftDbContext.SOT01B.ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            };
+
+            string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
+            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01B WHERE TGL_INPUT >= '" + tempDrtgl + "' AND TGL_INPUT <= '" + tempSdtgl + "' AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
+            var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+            foreach (var item in ListBarangAndQtyInPesanan)
+            {
+                vm.ListBarangLaku.Add(new PenjualanBarang
+                {
+                    KodeBrg = item.BRG,
+                    NamaBrg = item.NAMA,
+                    Qty = item.QTY,
+                    Laku = true
+                });
+            }
+
+            //if (vm.ListBarang != null && vm.ListPesananDetail != null)
+            //{
+            //    foreach (var barang in vm.ListBarang)
+            //    {
+            //        var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
+
+            //        if (listBarangTerpesan.Count > 0)
+            //        {
+            //            //var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
+            //            //                                              b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
+            //            var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT >= Drtgl &&
+            //                                                          b.TGL_INPUT <= Sdtgl).Sum(b => b.QTY);
+            //            vm.ListBarangLaku.Add(new PenjualanBarang
+            //            {
+            //                KodeBrg = barang.BRG,
+            //                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+            //                Qty = qtyBarang,
+            //                Laku = true
+            //            });
+            //        }
+
+            //    }
+            //}
+
+            return PartialView("TableDashboardBarangLakuPartial", vm);
+        }
+
+        public ActionResult RefreshDashboardFakturPartial(string drTgl, string sdTgl)
+        {
+
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+
+            var vm = new DashboardViewModel()
+            {
+                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
+                ListMarket = MoDbContext.Marketplaces.ToList(),
+            };
+            if (vm.ListAkunMarketplace.Count > 0)
+            {
+                foreach (var marketplace in vm.ListAkunMarketplace)
+                {
+                    var idMarket = Convert.ToInt32(marketplace.NAMA);
+                    var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+                    var jmlFaktur = vm.ListFaktur?
+                        .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
+                    var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+                    
+                    vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
+                    {
+                        NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                        JumlahFaktur = jmlFaktur.ToString(),
+                        NilaiFaktur = nilaiFaktur
+                    });
+                }
+            }
+
+            return PartialView("TableDashboardFakturPartial", vm);
+        }
+
         // =============================================== Dashboard (END)
 
         // =============================================== Menu Manage (START)
