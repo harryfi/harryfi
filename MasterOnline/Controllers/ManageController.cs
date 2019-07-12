@@ -122,7 +122,7 @@ namespace MasterOnline.Controllers
             };
             return View(vm);
         }
-        
+
         public ActionResult DashboardPartial(string selDate)
         {
             var selectedDate = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
@@ -162,7 +162,7 @@ namespace MasterOnline.Controllers
             var listNoPesanan = vm.ListPesanan.Select(p => p.NO_BUKTI).ToList();
             vm.ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => listNoPesanan.Contains(p.NO_BUKTI)).ToList();
             var listNoFaktur = vm.ListFaktur.Select(p => p.NO_BUKTI).ToList();
-            vm.ListFakturDetail = ErasoftDbContext.SIT01B.Where(p=> listNoFaktur.Contains(p.NO_BUKTI)).ToList();
+            vm.ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => listNoFaktur.Contains(p.NO_BUKTI)).ToList();
 
             // Pesanan
             vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Count();
@@ -245,7 +245,8 @@ namespace MasterOnline.Controllers
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyInPesanan)
             {
-                vm.ListBarangLaku.Add(new PenjualanBarang {
+                vm.ListBarangLaku.Add(new PenjualanBarang
+                {
                     KodeBrg = item.BRG,
                     NamaBrg = item.NAMA,
                     Qty = item.QTY,
@@ -973,10 +974,10 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             var stf02e = (from p in ErasoftDbContext.STF02E
-                         where p.LEVEL == "2" &&
-                         (p.KET.Contains(search) || p.KODE.Contains(search))
-                         orderby p.KET
-                         select p);
+                          where p.LEVEL == "2" &&
+                          (p.KET.Contains(search) || p.KODE.Contains(search))
+                          orderby p.KET
+                          select p);
             var ListStf02e = stf02e.Skip(pagenumber * 10).Take(10).ToList();
             var totalCount = stf02e.Count();
 
@@ -19005,13 +19006,13 @@ namespace MasterOnline.Controllers
                         if (fakturLolosValidasi)
                         {
                             status_allow_insert = true;
-                            if (faktur.OrderStatus.Contains("Transaksi ditolak") 
+                            if (faktur.OrderStatus.Contains("Transaksi ditolak")
                                 || faktur.OrderStatus.Contains("Verifikasi Konfirmasi Pembayaran")
                                 || faktur.OrderStatus.Contains("Transaksi dibatalkan")
                                 || faktur.OrderStatus.Contains("Pesanan dikomplain"))
                             {
                                 status_allow_insert = false;
-                                message = "Faktur [" + faktur_invoice + "] berstatus "+ faktur.OrderStatus +", tidak diupload ke MasterOnline." + System.Environment.NewLine;
+                                message = "Faktur [" + faktur_invoice + "] berstatus " + faktur.OrderStatus + ", tidak diupload ke MasterOnline." + System.Environment.NewLine;
                                 tw.WriteLine(message);
                             }
                         }
@@ -19039,7 +19040,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    if (listItem.Where(p=> p.BRG == faktur.StockKeepingUnitSKU).Count() > 0)
+                                    if (listItem.Where(p => p.BRG == faktur.StockKeepingUnitSKU).Count() > 0)
                                     {
                                         string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
                                         sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
@@ -19162,7 +19163,7 @@ namespace MasterOnline.Controllers
                                     NAMA_PROV = provinsi.Length > 50 ? provinsi.Substring(0, 47) + "..." : provinsi,
                                 };
 
-                                if (newARF01Cs.Where(p=>p.EMAIL == newPembeli.EMAIL).Count() == 0)
+                                if (newARF01Cs.Where(p => p.EMAIL == newPembeli.EMAIL).Count() == 0)
                                 {
                                     newARF01Cs.Add(newPembeli);
                                 }
@@ -20740,7 +20741,7 @@ namespace MasterOnline.Controllers
             {
                 //sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
                 sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ISNULL(NAMA2, '')) LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
-                
+
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -22544,6 +22545,52 @@ namespace MasterOnline.Controllers
                                     CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
                                 }
                                 //end add 25 April 2019, create stf02h untuk mp offline
+                                //add by calvin 11 juli 2019 jika lazada, cek attribute value 44, jika terisi dengan tgl promo dan harga promo, isi ke master promo
+                                if (customer.NAMA == "7")
+                                {
+                                    try
+                                    {
+                                        if (brgMp.AVALUE_44.Contains(";"))
+                                        {
+                                            var splitAvalue_44 = brgMp.AVALUE_44.Split(';');
+                                            if (splitAvalue_44.Count() == 3) // 0 - tgl from, 1 - tgl to, 2 - promo price
+                                            {
+                                                string dateFrom = Convert.ToDateTime(splitAvalue_44[0]).ToString("yyyy-MM-dd");
+                                                string dateTo = Convert.ToDateTime(splitAvalue_44[1]).ToString("yyyy-MM-dd");
+                                                string sSQL = "INSERT INTO PROMOSIS (NAMA_PROMOSI,NAMA_MARKET,TGL_MULAI,TGL_AKHIR,TGL_INPUT) " + Environment.NewLine;
+                                                sSQL += "SELECT A.NAMA_PROMOSI,A.NAMA_MARKET,A.TGL_MULAI,A.TGL_AKHIR,GETDATE() FROM ( " + Environment.NewLine;
+                                                sSQL += "SELECT 'LAZADA_FROM_SYNC' NAMA_PROMOSI, '" + customer.CUST + "' NAMA_MARKET, " + Environment.NewLine;
+                                                sSQL += "'" + dateFrom + "' TGL_MULAI, " + Environment.NewLine;
+                                                sSQL += "'" + dateTo + "' TGL_AKHIR, " + Environment.NewLine;
+                                                sSQL += ") A LEFT JOIN PROMOSIS B ON A.NAMA_PROMOSI = B.NAMA_PROMOSI AND A.NAMA_MARKET = B.NAMA_MARKET AND A.TGL_MULAI = B.TGL_MULAI AND A.TGL_AKHIR = B.TGL_AKHIR WHERE ISNULL(B.RECNUM,0) = 0" + Environment.NewLine;
+                                                EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                                var promosis = ErasoftDbContext.Database.SqlQuery<Promosi>("SELECT TOP 1 * FROM PROMOSIS WHERE NAMA_MARKET='LAZADA_FROM_SYNC' AND NAMA_MARKET = '" + customer.CUST + "' AND TGL_MULAI = '" + dateFrom + "' AND TGL_AKHIR = '" + dateTo + "'").FirstOrDefault();
+                                                if (promosis != null)
+                                                {
+                                                    sSQL = "INSERT INTO DETAILPROMOSIS (KODE_BRG,HARGA_NORMAL,HARGA_PROMOSI,TGL_INPUT,RecNumPromosi,MAX_QTY,PERSEN_PROMOSI) " + Environment.NewLine;
+                                                    sSQL += "SELECT A.KODE_BRG, A.HARGA_NORMAL, A.HARGA_PROMOSI, GETDATE(), '" + promosis.RecNum + "' RecNumPromosi, 1 AS MAX_QTY, 0 AS PERSEN_PROMOSI FROM " + Environment.NewLine;
+                                                    sSQL += "(SELECT '" + brgMp.BRG + "' KODE_BRG, " + Convert.ToString(item.HJUAL).Replace(",", ".") + " HARGA_NORMAL, " + Convert.ToString(splitAvalue_44[2]).Replace(",", ".") + " HARGA_PROMOSI " + Environment.NewLine;
+                                                    sSQL += ") A LEFT JOIN DETAILPROMOSIS B ON B.RECNUMPROMOSI = '" + promosis.RecNum + "' AND A.KODE_BRG = B.KODE_BRG WHERE ISNULL(B.RECNUMPROMOSI,0)" + Environment.NewLine;
+                                                    int recordTerinsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                                    if (recordTerinsert == 0)
+                                                    {
+                                                        sSQL = "UPDATE DETAILPROMOSIS SET HARGA_NORMAL = " + Convert.ToString(item.HJUAL).Replace(",", ".") + ", HARGA_PROMOSI = " + Convert.ToString(splitAvalue_44[2]).Replace(",", ".") + " " + Environment.NewLine;
+                                                        sSQL += "WHERE RECNUMPROMOSI = '" + promosis.RecNum + "' AND KODE_BRG = '" + brgMp.BRG + "'" + Environment.NewLine;
+                                                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                //end add by calvin 11 juli 2019
                             }
                         }
                         else
@@ -22885,6 +22932,53 @@ namespace MasterOnline.Controllers
                             }
 
                             //end change 17 juni 2019, handle gagal save
+
+                            //add by calvin 11 juli 2019 jika lazada, cek attribute value 44, jika terisi dengan tgl promo dan harga promo, isi ke master promo
+                            if (customer.NAMA == "7")
+                            {
+                                try
+                                {
+                                    if (brgMp.AVALUE_44.Contains(";"))
+                                    {
+                                        var splitAvalue_44 = brgMp.AVALUE_44.Split(';');
+                                        if (splitAvalue_44.Count() == 3) // 0 - tgl from, 1 - tgl to, 2 - promo price
+                                        {
+                                            string dateFrom = Convert.ToDateTime(splitAvalue_44[0]).ToString("yyyy-MM-dd");
+                                            string dateTo = Convert.ToDateTime(splitAvalue_44[1]).ToString("yyyy-MM-dd");
+                                            string sSQL = "INSERT INTO PROMOSIS (NAMA_PROMOSI,NAMA_MARKET,TGL_MULAI,TGL_AKHIR,TGL_INPUT) " + Environment.NewLine;
+                                            sSQL += "SELECT A.NAMA_PROMOSI,A.NAMA_MARKET,A.TGL_MULAI,A.TGL_AKHIR,GETDATE() FROM ( " + Environment.NewLine;
+                                            sSQL += "SELECT 'LAZADA_FROM_SYNC' NAMA_PROMOSI, '" + customer.CUST + "' NAMA_MARKET, " + Environment.NewLine;
+                                            sSQL += "'" + dateFrom + "' TGL_MULAI, " + Environment.NewLine;
+                                            sSQL += "'" + dateTo + "' TGL_AKHIR, " + Environment.NewLine;
+                                            sSQL += ") A LEFT JOIN PROMOSIS B ON A.NAMA_PROMOSI = B.NAMA_PROMOSI AND A.NAMA_MARKET = B.NAMA_MARKET AND A.TGL_MULAI = B.TGL_MULAI AND A.TGL_AKHIR = B.TGL_AKHIR WHERE ISNULL(B.RECNUM,0) = 0" + Environment.NewLine;
+                                            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                            var promosis = ErasoftDbContext.Database.SqlQuery<Promosi>("SELECT TOP 1 * FROM PROMOSIS WHERE NAMA_MARKET='LAZADA_FROM_SYNC' AND NAMA_MARKET = '" + customer.CUST + "' AND TGL_MULAI = '" + dateFrom + "' AND TGL_AKHIR = '" + dateTo + "'").FirstOrDefault();
+                                            if (promosis != null)
+                                            {
+                                                sSQL = "INSERT INTO DETAILPROMOSIS (KODE_BRG,HARGA_NORMAL,HARGA_PROMOSI,TGL_INPUT,RecNumPromosi,MAX_QTY,PERSEN_PROMOSI) " + Environment.NewLine;
+                                                sSQL += "SELECT A.KODE_BRG, A.HARGA_NORMAL, A.HARGA_PROMOSI, GETDATE(), '" + promosis.RecNum + "' RecNumPromosi, 1 AS MAX_QTY, 0 AS PERSEN_PROMOSI FROM " + Environment.NewLine;
+                                                sSQL += "(SELECT '" + brgMp.BRG + "' KODE_BRG, " + Convert.ToString(item.HJUAL).Replace(",", ".") + " HARGA_NORMAL, " + Convert.ToString(splitAvalue_44[2]).Replace(",", ".") + " HARGA_PROMOSI " + Environment.NewLine;
+                                                sSQL += ") A LEFT JOIN DETAILPROMOSIS B ON B.RECNUMPROMOSI = '" + promosis.RecNum + "' AND A.KODE_BRG = B.KODE_BRG WHERE ISNULL(B.RECNUMPROMOSI,0)" + Environment.NewLine;
+                                                int recordTerinsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                                if (recordTerinsert == 0)
+                                                {
+                                                    sSQL = "UPDATE DETAILPROMOSIS SET HARGA_NORMAL = " + Convert.ToString(item.HJUAL).Replace(",", ".") + ", HARGA_PROMOSI = " + Convert.ToString(splitAvalue_44[2]).Replace(",", ".") + " " + Environment.NewLine;
+                                                    sSQL += "WHERE RECNUMPROMOSI = '" + promosis.RecNum + "' AND KODE_BRG = '" + brgMp.BRG + "'" + Environment.NewLine;
+                                                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+
+                                }
+                            }
+                            //end add by calvin 11 juli 2019
                         }
                     }
                     if (listBrgSuccess.Count > 0)
