@@ -2779,7 +2779,7 @@ namespace MasterOnline.Controllers.Api
                         //{
                         var cekjumlahFaktur = fakturMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == nmDay[i]).Count();
                         //var cekNilaiPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]).Sum(p => p.NETTO);
-                        var NilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == day[i]).Sum(p => p.NETTO))}";
+                        var NilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == nmDay[i]).Sum(p => p.NETTO))}";
                         //var cekPesanan1 = (from a in pesananMingguIni
                         //                   where Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]
                         //                   select a);
@@ -2826,7 +2826,7 @@ namespace MasterOnline.Controllers.Api
                         //{
                         var cekjumlahRetur = returMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == nmDay[i]).Count();
                         //var cekNilaiPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]).Sum(p => p.NETTO);
-                        var NilaiRetur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", returMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == day[i]).Sum(p => p.NETTO))}";
+                        var NilaiRetur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", returMingguIni.Where(a => Convert.ToString(a.TGL.DayOfWeek) == nmDay[i]).Sum(p => p.NETTO))}";
                         //var cekPesanan1 = (from a in pesananMingguIni
                         //                   where Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]
                         //                   select a);
