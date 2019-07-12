@@ -1342,6 +1342,7 @@
     <Compile Include="ViewModels\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="404.html" />
     <Content Include="Content\404Style.css" />
     <Content Include="Content\admin\AffiliateTerms.html" />
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\icon-font.min.css" />
@@ -4803,6 +4804,7 @@
     <Content Include="fonts\rounded_elegance.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="MasterOnline_404.jpg" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">
