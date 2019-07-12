@@ -19265,6 +19265,20 @@ namespace MasterOnline.Controllers
                             if (cekPembeli == null)
                             {
                                 lastRecnumARF01C++;
+                                var UniqueCode = false;
+                                while (!UniqueCode)
+                                {
+                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == lastRecnumARF01C.ToString().PadLeft(10, '0') select p.BUYER_CODE).FirstOrDefault();
+                                    if (cekDuplikatArf01c == null)
+                                    {
+                                        UniqueCode = true;
+                                    }
+                                    else
+                                    {
+                                        lastRecnumARF01C++;
+                                    }
+                                }
+
                                 string noTelp = "-";
                                 if (!string.IsNullOrWhiteSpace(faktur.CustomerPhone.Trim()))
                                 {
