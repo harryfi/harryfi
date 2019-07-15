@@ -1891,11 +1891,11 @@ namespace MasterOnline.Controllers
                                     myData += "\"items\": [ {";
                                     myData += "\"itemSku\": \"" + result.value.items[0].itemSku + "\",  ";
                                     myData += "\"skuCode\": \"" + result.value.items[0].skuCode + "\", ";
-                                    myData += "\"price\": [ {" ;
+                                    myData += "\"price\": [ {";
                                     myData += "\"discountAmount\": " + data.promoPrice + ", ";
                                     myData += "\"discountStartDate\": \"" + data.promoStart + "\", ";
-                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";     
-                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";   
+                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";
+                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";
                                     myData += "} ], \"attributes\" : null, \"images\" : null }";
                                 }
                             }
@@ -2111,6 +2111,17 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                //create barang
+                DataSet dsRequestIdCreateBarang = new DataSet();
+                dsRequestIdCreateBarang = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT BRG, BRG_MP,ACODE_40,ANAME_40 FROM [STF02H] WHERE BRG_MP = 'PENDING' AND [IDMARKET] = '" + data.idmarket + "'");
+                if (dsRequestIdCreateBarang.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsRequestIdCreateBarang.Tables[0].Rows.Count; i++)
+                    {
+                        await prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ACODE_40"]), Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ANAME_40"]));
+                    }
+                }
+
                 DataSet dsRequestIdList = new DataSet();
                 dsRequestIdList = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT * FROM [QUEUE_FEED_BLIBLI] WHERE MERCHANT_CODE='" + data.merchant_code + "' AND [STATUS] = '1'");
                 if (dsRequestIdList.Tables[0].Rows.Count > 0)
@@ -2148,22 +2159,39 @@ namespace MasterOnline.Controllers
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
-            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + (string.IsNullOrEmpty(productCode) ? "" : "&gdnSku=" + Uri.EscapeDataString(productCode));
-            urll += "&page=" + page + "&size=10";
+                                                                 //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
+                                                                 //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + (string.IsNullOrEmpty(productCode) ? "" : "&gdnSku=" + Uri.EscapeDataString(productCode)) + "&channelId=MasterOnline";
+                                                                 //urll += "&page=" + page + "&size=10";
+            BLibliListProduct newData = new BLibliListProduct
+            {
+                page = page,
+                size = 10,
+                //isArchive = false,
+                //displayable = "true",
+                //buyable = "true"
+            };
+            string myData = JsonConvert.SerializeObject(newData);
+            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getProductList", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getProductList?requestId=" + Uri.EscapeDataString("MasterOnline-" + Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&username=" + Uri.EscapeDataString(userMTA) + "&channelId=MasterOnline";
+            //urll += "&page=" + page + "&size=10";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
+            myReq.Method = "POST";
             myReq.Headers.Add("Authorization", ("bearer " + iden.token));
             myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
             myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
             myReq.Headers.Add("sessionId", milis.ToString());
             myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
             try
             {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -2318,6 +2346,7 @@ namespace MasterOnline.Controllers
                         urlImage = "";
                         urlImage2 = "";
                         urlImage3 = "";
+                        namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
                         if (namaBrg.Length > 30)
                         {
                             nama = namaBrg.Substring(0, 30);
@@ -4572,9 +4601,9 @@ namespace MasterOnline.Controllers
                                                     if (getKodeItem != null)
                                                     {
                                                         oCommand.CommandType = CommandType.Text;
-                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                        oCommand.Parameters[1].Value = Convert.ToString(getKodeItem.REQUEST_ATTRIBUTE_1);
+                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H WHERE ISNULL(H.BRG_MP,'') = 'PENDING' AND ACODE_40='" + requestId + "' AND AVALUE_40='" + log_request_id + "' AND IDMARKET='" + data.idmarket + "'";
+                                                        oCommand.ExecuteNonQuery();
+                                                        oCommand.CommandText = "UPDATE API_LOG_MARKETPLACE SET REQUEST_STATUS='Failed',REQUEST_EXCEPTION = '" + Convert.ToString(item.errorMessage).Replace(",", ".").Replace("'", "`") + "' WHERE REQUEST_ID = '" + log_request_id + "' AND MARKETPLACE='Blibli'";
                                                         oCommand.ExecuteNonQuery();
                                                     }
                                                 }
@@ -6860,5 +6889,18 @@ namespace MasterOnline.Controllers
             public string locationPath { get; set; }
         }
 
+        public class BLibliListProduct
+        {
+            public string gdnSku { get; set; }
+            public List<string> merchantSkus { get; set; }
+            public string productName { get; set; }
+            public string categoryCode { get; set; }
+            public string pickupPointCode { get; set; }
+            public string displayable { get; set; }
+            public string buyable { get; set; }
+            public bool isArchive { get; set; }
+            public int page { get; set; }
+            public int size { get; set; }
+        }
     }
 }

@@ -78,7 +78,7 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[4, 1].Value = "KODE_BRG_MO";
                             worksheet.Cells[4, 2].Value = "tidak boleh lebih dari 20 karakter";
                             worksheet.Cells[5, 1].Value = "KODE_BRG_INDUK_MO";
-                            worksheet.Cells[5, 2].Value = "tidak boleh lebih dari 11 karakter";
+                            worksheet.Cells[5, 2].Value = "tidak boleh lebih dari 11 karakter. Diisi khusus untuk tipe barang variasi";
                             worksheet.Cells[6, 1].Value = "KODE_KATEGORI_MO";
                             worksheet.Cells[6, 2].Value = "diisi dengan kode dari sheet Master Kategori dan Merk";
                             worksheet.Cells[7, 1].Value = "KODE_MEREK_MO";
@@ -95,18 +95,68 @@ namespace MasterOnline.Controllers
                             worksheet.Cells[6, 4].Value = "= Kaos Berkerah Polo Biru Ukuran S";
                             worksheet.Cells[7, 3].Value = "03.POL.02.M";
                             worksheet.Cells[7, 4].Value = "= Kaos Berkerah Polo Biru Ukuran M";
+
+                            worksheet.Cells[9, 1].Value = "CONTOH PENGISIAN";
+                            worksheet.Cells[9, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[9, 1].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                            worksheet.Cells[11, 3].Value = "03.POL";
+                            worksheet.Cells[11, 1].Value = "Kaos Berkerah Polo";
+                            worksheet.Cells[12, 3].Value = "03.POL.01.S";
+                            worksheet.Cells[12, 1].Value = "Kaos Berkerah Polo Merah Ukuran S";
+                            worksheet.Cells[13, 3].Value = "03.POL.01.M";
+                            worksheet.Cells[13, 1].Value = "Kaos Berkerah Polo Merah Ukuran M";
+                            worksheet.Cells[14, 3].Value = "03.POL.02.S";
+                            worksheet.Cells[14, 1].Value = "Kaos Berkerah Polo Biru Ukuran S";
+                            worksheet.Cells[15, 3].Value = "03.POL.02.M";
+                            worksheet.Cells[15, 1].Value = "Kaos Berkerah Polo Biru Ukuran M";
+                            worksheet.Cells[11, 4].Value = "(dikosongkan)";
+                            worksheet.Cells[12, 4].Value = "03.POL";
+                            worksheet.Cells[13, 4].Value = "03.POL";
+                            worksheet.Cells[14, 4].Value = "03.POL";
+                            worksheet.Cells[15, 4].Value = "03.POL";
+                            worksheet.Cells[11, 5].Value = "Atasan";
+                            worksheet.Cells[12, 5].Value = "Atasan";
+                            worksheet.Cells[13, 5].Value = "Atasan";
+                            worksheet.Cells[14, 5].Value = "Atasan";
+                            worksheet.Cells[15, 5].Value = "Atasan";
+                            worksheet.Cells[11, 6].Value = "Polo";
+                            worksheet.Cells[12, 6].Value = "Polo";
+                            worksheet.Cells[13, 6].Value = "Polo";
+                            worksheet.Cells[14, 6].Value = "Polo";
+                            worksheet.Cells[15, 6].Value = "Polo";
+                            worksheet.Cells[11, 7].Value = "100000";
+                            worksheet.Cells[12, 7].Value = "100000";
+                            worksheet.Cells[13, 7].Value = "100000";
+                            worksheet.Cells[14, 7].Value = "100000";
+                            worksheet.Cells[15, 7].Value = "100000";
+                            worksheet.Cells[11, 8].Value = "100000";
+                            worksheet.Cells[12, 8].Value = "100000";
+                            worksheet.Cells[13, 8].Value = "100000";
+                            worksheet.Cells[14, 8].Value = "100000";
+                            worksheet.Cells[15, 8].Value = "100000";
+                            worksheet.Cells[11, 9].Value = "100";
+                            worksheet.Cells[12, 9].Value = "100";
+                            worksheet.Cells[13, 9].Value = "100";
+                            worksheet.Cells[14, 9].Value = "100";
+                            worksheet.Cells[15, 9].Value = "100";
+                            worksheet.Cells[11, 11].Value = "a1234";
+                            worksheet.Cells[12, 11].Value = "b3143";
+                            worksheet.Cells[13, 11].Value = "b1233";
+                            worksheet.Cells[14, 11].Value = "b4123";
+                            worksheet.Cells[15, 11].Value = "b1231";
+
                             #endregion
-                            //worksheet.Cells[9, 1].Value = "NAMA1";
-                            //worksheet.Cells[9, 2].Value = "NAMA2";
-                            //worksheet.Cells[9, 3].Value = "KODE_BRG_MO";
-                            //worksheet.Cells[9, 4].Value = "KODE_BRG_INDUK_MO";
-                            //worksheet.Cells[9, 5].Value = "KODE_KATEGORI_MO";
-                            //worksheet.Cells[9, 6].Value = "KODE_MEREK_MO";
-                            //worksheet.Cells[9, 7].Value = "HJUAL";
-                            //worksheet.Cells[9, 8].Value = "HJUAL_MARKETPLACE";
-                            //worksheet.Cells[9, 9].Value = "BERAT";
-                            //worksheet.Cells[9, 10].Value = "IMAGE";
-                            //worksheet.Cells[9, 11].Value = "KODE_BRG_MARKETPLACE";
+                            worksheet.Cells[10, 1].Value = "NAMA1";
+                            worksheet.Cells[10, 2].Value = "NAMA2";
+                            worksheet.Cells[10, 3].Value = "KODE_BRG_MO";
+                            worksheet.Cells[10, 4].Value = "KODE_BRG_INDUK_MO (diisi khusus untuk barang variasi)";
+                            worksheet.Cells[10, 5].Value = "KODE_KATEGORI_MO";
+                            worksheet.Cells[10, 6].Value = "KODE_MEREK_MO";
+                            worksheet.Cells[10, 7].Value = "HJUAL";
+                            worksheet.Cells[10, 8].Value = "HJUAL_MARKETPLACE";
+                            worksheet.Cells[10, 9].Value = "BERAT";
+                            worksheet.Cells[10, 10].Value = "IMAGE";
+                            worksheet.Cells[10, 11].Value = "KODE_BRG_MARKETPLACE";
 
                             string sSQL = "SELECT replace(replace(BRG_MP, char(10), ''), char(13), '') AS BRG_MP, ";
                             sSQL += "replace(replace(NAMA, char(10), ''), char(13), '') NAMA, ";
@@ -120,17 +170,17 @@ namespace MasterOnline.Controllers
 
                             for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
                             {
-                                worksheet.Cells[10 + i, 1].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
-                                worksheet.Cells[10 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA2"].ToString();
-                                worksheet.Cells[10 + i, 3].Value = dsBarang.Tables[0].Rows[i]["SELLER_SKU"].ToString();
-                                worksheet.Cells[10 + i, 4].Value = dsBarang.Tables[0].Rows[i]["KODE_BRG_INDUK"].ToString();
+                                worksheet.Cells[19 + i, 1].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                                worksheet.Cells[19 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA2"].ToString();
+                                worksheet.Cells[19 + i, 3].Value = dsBarang.Tables[0].Rows[i]["SELLER_SKU"].ToString();
+                                worksheet.Cells[19 + i, 4].Value = dsBarang.Tables[0].Rows[i]["KODE_BRG_INDUK"].ToString();
                                 //worksheet.Cells[10 + i, 5].Value = "KODE_KATEGORI_MO";
                                 //worksheet.Cells[10 + i, 6].Value = "KODE_MEREK_MO";
-                                worksheet.Cells[10 + i, 7].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
-                                worksheet.Cells[10 + i, 8].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
-                                worksheet.Cells[10 + i, 9].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
-                                worksheet.Cells[10 + i, 10].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
-                                worksheet.Cells[10 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
+                                worksheet.Cells[19 + i, 7].Value = dsBarang.Tables[0].Rows[i]["HJUAL"].ToString();
+                                worksheet.Cells[19 + i, 8].Value = dsBarang.Tables[0].Rows[i]["HJUAL_MP"].ToString();
+                                worksheet.Cells[19 + i, 9].Value = dsBarang.Tables[0].Rows[i]["BERAT"].ToString();
+                                worksheet.Cells[19 + i, 10].Value = dsBarang.Tables[0].Rows[i]["IMAGE"].ToString();
+                                worksheet.Cells[19 + i, 11].Value = dsBarang.Tables[0].Rows[i]["BRG_MP"].ToString();
                             }
 
                             #region formatting
@@ -150,7 +200,25 @@ namespace MasterOnline.Controllers
                                 range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                             }
 
-                            using (var range = worksheet.Cells[9, 1, 9, 11])
+                            using (var range = worksheet.Cells[10, 1, 10, 11])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                range.Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                            }
+
+                            using (var range = worksheet.Cells[11, 1, 15, 11])
+                            {
+                                //range.Style.Font.Bold = true;
+                                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                                range.Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                                //range.Style.Font.Color.SetColor(Color.White);
+                            }
+
+                            using (var range = worksheet.Cells[18, 1, 18, 11])
                             {
                                 range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                                 range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
@@ -159,13 +227,13 @@ namespace MasterOnline.Controllers
                             }
                             #endregion
 
-                            ExcelRange rg0 = worksheet.Cells[9, 1, worksheet.Dimension.End.Row, 11];
+                            ExcelRange rg0 = worksheet.Cells[18, 1, worksheet.Dimension.End.Row, 11];
                             string tableName0 = "TableBarang";
                             ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
                             table0.Columns[0].Name = "NAMA1";
                             table0.Columns[1].Name = "NAMA2";
                             table0.Columns[2].Name = "KODE_BRG_MO";
-                            table0.Columns[3].Name = "KODE_BRG_INDUK_MO";
+                            table0.Columns[3].Name = "KODE_BRG_INDUK_MO (diisi khusus untuk barang variasi)";
                             table0.Columns[4].Name = "KODE_KATEGORI_MO";
                             table0.Columns[5].Name = "KODE_MEREK_MO";
                             table0.Columns[6].Name = "HJUAL";
@@ -209,7 +277,7 @@ namespace MasterOnline.Controllers
 
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 5, worksheet.Dimension.End.Row, 5].Address);
+                                var validation = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 5, worksheet.Dimension.End.Row, 5].Address);
                                 validation.ShowErrorMessage = true;
                                 validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation.ErrorTitle = "An invalid value was entered";
@@ -228,7 +296,7 @@ namespace MasterOnline.Controllers
                             //var a = new OfficeOpenXml.ExcelTableAddress[3, 1, 3, 2];
                             if (dsBarang.Tables[0].Rows.Count > 0)
                             {
-                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[10, 6, worksheet.Dimension.End.Row, 6].Address);
+                                var validation2 = worksheet.DataValidations.AddListValidation(worksheet.Cells[19, 6, worksheet.Dimension.End.Row, 6].Address);
                                 validation2.ShowErrorMessage = true;
                                 validation2.ErrorStyle = ExcelDataValidationWarningStyle.warning;
                                 validation2.ErrorTitle = "An invalid value was entered";
@@ -355,7 +423,7 @@ namespace MasterOnline.Controllers
                                         if (listTemp.Count > 0)
                                         {
                                             //loop all rows
-                                            for (int i = 10; i <= worksheet.Dimension.End.Row; i++)
+                                            for (int i = 19; i <= worksheet.Dimension.End.Row; i++)
                                             {
                                                 var kd_brg_mp = worksheet.Cells[i, 11].Value == null ? "" : worksheet.Cells[i, 11].Value.ToString();
                                                 if (!string.IsNullOrEmpty(kd_brg_mp))
@@ -497,7 +565,7 @@ namespace MasterOnline.Controllers
         {
             return File(/*data.byteExcel*/ new byte[1], /*System.Net.Mime.MediaTypeNames.Application.Octet,*/ /*data.namaFile +*/ ".xlsx");
         }
-
+        
     }
 
 
