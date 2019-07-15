@@ -2634,6 +2634,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.exception = 0;
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/products/get");
@@ -3641,12 +3642,16 @@ namespace MasterOnline.Controllers
                                         if (!varian)
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
+                                            if(retSQL.exception == 1)
+                                                ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
                                         else
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk);
+                                            if (retSQL.exception == 1)
+                                                ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
@@ -3672,6 +3677,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.status = 0;
                 ret.message = ex.Message;
             }
@@ -4573,6 +4579,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
