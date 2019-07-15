@@ -2019,6 +2019,7 @@ namespace MasterOnline.Controllers
 
             BindingBase ret = new BindingBase();
             ret.message = "";// jika perlu lanjut recursive, isi
+            ret.exception = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -2073,6 +2074,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }

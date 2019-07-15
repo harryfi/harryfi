@@ -337,7 +337,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
-                                if(listKtg.Count > 0)
+                                if (listKtg.Count > 0)
                                 {
                                     EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
                                 }
@@ -590,6 +590,7 @@ namespace MasterOnline.Controllers
             {
                 status = 0,
                 recordCount = recordCount,
+                exception = 0
             };
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -685,9 +686,15 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                     }
                 }
+                else
+                {
+                    ret.exception = 1;
+
+                }
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
@@ -700,6 +707,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0
             };
 
             try
@@ -770,6 +778,8 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.exception == 1)
+                                                ret.exception = 1;
                                             if (retData.status == 1)
                                             {
                                                 ret.recordCount += retData.recordCount;
@@ -786,6 +796,8 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.exception == 1)
+                                                ret.exception = 1;
                                             if (retData.status == 1)
                                             {
                                                 ret.recordCount += retData.recordCount;
@@ -812,9 +824,14 @@ namespace MasterOnline.Controllers
                         ret.message = retProd.openapi_msg;
                     }
                 }
+                else
+                {
+                    ret.exception = 1;
+                }
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
 
@@ -826,6 +843,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0
             };
 
             try
@@ -863,17 +881,23 @@ namespace MasterOnline.Controllers
                                     if (createParent)
                                     {
                                         var retSQL = CreateSQLValue(item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
+                                        if(retSQL.exception == 1)
+                                            ret.exception = 1;
                                         if (retSQL.status == 1)
                                             sSQLVal += retSQL.message;
                                     }
 
                                     var retSQL2 = CreateSQLValue(item, detailData.model[0], kdBrgInduk, skuId, cust, IdMarket, 2, itemFromList);
+                                    if (retSQL2.exception == 1)
+                                        ret.exception = 1;
                                     if (retSQL2.status == 1)
                                         sSQLVal += retSQL2.message;
                                 }
                                 else
                                 {
                                     var retSQL = CreateSQLValue(item, detailData.model[0], "", skuId, cust, IdMarket, 0, itemFromList);
+                                    if (retSQL.exception == 1)
+                                        ret.exception = 1;
                                     if (retSQL.status == 1)
                                         sSQLVal += retSQL.message;
                                 }
@@ -895,6 +919,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    ret.exception = 1;
                     ret.message = response;
                 }
 
@@ -909,6 +934,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
@@ -920,6 +946,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0
             };
 
             string sSQL_Value = "";
@@ -1047,6 +1074,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;

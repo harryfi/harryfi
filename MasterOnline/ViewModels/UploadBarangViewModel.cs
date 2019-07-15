@@ -30,6 +30,7 @@ namespace MasterOnline.ViewModels
         public int Page { get; set; }
         public int RecordCount { get; set; }
         public int BLProductActive { get; set; }
+        public int exception { get; set; }
     }
 
     public class SimpleJsonObject

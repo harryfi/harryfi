@@ -2131,6 +2131,7 @@ namespace MasterOnline.Controllers
             {
                 status = 0,
                 recordCount = recordCount,
+                exception = 0
             };
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2193,6 +2194,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 //ret.message = ex.Message;
+                ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
@@ -2229,6 +2231,8 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
+                                        if(retDet.exception == 1)
+                                            ret.exception = 1;
                                         if (retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
@@ -2278,6 +2282,7 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             var ret = new BindingBase();
             ret.status = 0;
+            ret.exception = 0;
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
@@ -2308,6 +2313,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.Message;
             }
 

@@ -342,8 +342,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="btnDeleteAll" class="btn btn-success" onclick="deleteAllBrg();">Ya</button>
-                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1);">Ya</button>
-                <button type="button" id="btnSyncAll" class="btn btn-success" onclick="startSyncAll();">Ya</button>
+                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1);exGetData = 0;">Ya</button>
+                @*<button type="button" id="btnSyncAll" class="btn btn-success" onclick="startSyncAll();">Ya</button>*@
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
             </div>
         </div>
@@ -883,6 +883,9 @@
             }
 
         }
+
+        var exGetData = 0;
+
         function GetDataBrgWithRecord(page, recordCount, statBL) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
@@ -906,6 +909,8 @@
                             if (response.RecordCount != null) {
                                 document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount;
                             }
+                            if (response.exception == 1)
+                                exGetData = 1;
                             if (response.Recursive) {
                                 if (response.BLProductActive == 1) {
                                     GetDataBrgWithRecord(response.Page, response.RecordCount, 1);
@@ -914,7 +919,11 @@
                                 }
                             } else {
                                 document.getElementById('txtInfo').innerText = '';
-                                alert('Jumlah data berhasil tersimpan :' + response.RecordCount);
+                                var msg = "Jumlah data berhasil tersimpan :" + response.RecordCount;
+                                if (exGetData == 1) {
+                                    msg += '\nAda data barang yang tidak masuk ke MO. Silahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
+                                }
+                                alert(msg);
                                 //$('#table-upload-barang-partial').html(response);
                                 //var table = $('#datatable').DataTable();
                                 //$('#search_barang').keyup(function () {
