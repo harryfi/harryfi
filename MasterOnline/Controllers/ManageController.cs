@@ -49,8 +49,6 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         string dbPathEra = "";
         string EDBConnID = "";
-        SqlServerStorage sqlStorage;
-        BackgroundJobClient clientJobServer;
         string usernameLogin;
         public ManageController()
         {
@@ -66,8 +64,6 @@ namespace MasterOnline.Controllers
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
                 EDBConnID = EDB.GetConnectionString("ConnID");
-                sqlStorage = new SqlServerStorage(EDBConnID);
-                clientJobServer = new BackgroundJobClient(sqlStorage);
                 usernameLogin = sessionData.Account.Username;
 
             }
@@ -81,8 +77,6 @@ namespace MasterOnline.Controllers
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
                     EDBConnID = EDB.GetConnectionString("ConnID");
-                    sqlStorage = new SqlServerStorage(EDBConnID);
-                    clientJobServer = new BackgroundJobClient(sqlStorage);
                     usernameLogin = sessionData.User.Username;
                 }
             }
@@ -13075,12 +13069,17 @@ namespace MasterOnline.Controllers
                                     DatabasePathErasoft = dbPathEra,
                                     username = usernameLogin
                                 };
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
                             if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
                             {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
                                 if (sot01b.Count > 0)
                                 {
@@ -13106,6 +13105,9 @@ namespace MasterOnline.Controllers
                             dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                 {
                                     string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
@@ -13147,6 +13149,9 @@ namespace MasterOnline.Controllers
                                 //    idmarket = marketPlace.RecNum.Value
                                 //};
                                 //Task.Run(() => TokoAPI.PostAckOrder(iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI)).Wait();
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                 {
                                     merchant_code = marketPlace.Sort1_Cust, //FSID
@@ -13168,6 +13173,9 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             {
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //change by calvin 10 april 2019, jadi pakai backgroundjob
                                 //blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
                                 clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.KonfirmasiPengiriman(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN));
@@ -13213,6 +13221,9 @@ namespace MasterOnline.Controllers
                                     //lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
                                     if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(pesanan.NO_REFERENSI))
                                     {
+
+                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                         clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN));
                                     }
                                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -13228,6 +13239,10 @@ namespace MasterOnline.Controllers
                                 dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                                 if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                                 {
+
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+
                                     for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                     {
                                         string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
@@ -13253,6 +13268,9 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(Convert.ToString(pesanan.NO_REFERENSI)))
                                 {
+
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                                     //var bliAPI = new BlibliController();
                                     var listDetail = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                                     foreach (var item in listDetail)
@@ -13766,6 +13784,9 @@ namespace MasterOnline.Controllers
                 string[] referensi = pesananInDb.NO_REFERENSI.Split(';');
                 if (referensi.Count() > 0)
                 {
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
                     clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
@@ -13849,6 +13870,9 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo));
                     //await new ShopeeControllerJob().InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -13875,6 +13899,8 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -13894,6 +13920,9 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -18841,13 +18870,13 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult ListImportFaktur(string cust)
         {
-            var partialVm = new FakturViewModel()
-            {
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            };
-
-            return PartialView("UploadFakturView", partialVm);
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
         }
         [HttpPost]
         //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
@@ -19099,7 +19128,8 @@ namespace MasterOnline.Controllers
                                 var UniqueCode = false;
                                 while (!UniqueCode)
                                 {
-                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == lastRecnumARF01C.ToString().PadLeft(10, '0') select p.BUYER_CODE).FirstOrDefault();
+                                    var currentBuyerCode = lastRecnumARF01C.ToString().PadLeft(10, '0');
+                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == currentBuyerCode select p.BUYER_CODE).FirstOrDefault();
                                     if (cekDuplikatArf01c == null)
                                     {
                                         UniqueCode = true;
@@ -19392,16 +19422,58 @@ namespace MasterOnline.Controllers
             }
 
 
-            var partialVm = new FakturViewModel()
-            {
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            };
-
-            return PartialView("UploadFakturView", partialVm);
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
             //return new EmptyResult();
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
+
+        public ActionResult RefreshTableUploadFaktur(int? page, string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.UPLOADER AS UPLOADER , A.LAST_FAKTUR_UPLOADED AS LAST_FAKTUR_UPLOADED, A.UPLOAD_DATETIME AS UPLOAD_DATETIME, A.LAST_FAKTUR_UPLOADED_DATETIME AS LAST_FAKTUR_UPLOADED_DATETIME, ISNULL(B.PERSO,'') AS CUST, A.LOG_FILE AS LOG_FILE ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM LOG_IMPORT_FAKTUR A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            if (cust != "")
+            {
+                sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.UPLOAD_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<ListImportFaktur>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<ListImportFaktur> pageOrders = new StaticPagedList<ListImportFaktur>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("UploadFakturView", pageOrders);
+        }
+
         [HttpPost]
         public ActionResult UploadFakturShopee(UploadFakturShopeeDataDetail[] data, string cust, string nama_cust, string perso)
         {
@@ -24604,6 +24676,8 @@ namespace MasterOnline.Controllers
                 //string EDBConnID = EDB.GetConnectionString("ConnID");
                 //var sqlStorage = new Hangfire.SqlServer.SqlServerStorage(EDBConnID);
 
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var clientJobServer = new BackgroundJobClient(sqlStorage);
                 //var client = new BackgroundJobClient(sqlStorage);
                 clientJobServer.Requeue(jobid);
 
@@ -24702,6 +24776,8 @@ namespace MasterOnline.Controllers
         }
         public ActionResult MarketplaceLogRetryAllJobs()
         {
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+            var clientJobServer = new BackgroundJobClient(sqlStorage);
             var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
                                     where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
                                     && a.REQUEST_STATUS == "FAILED"
@@ -24728,6 +24804,8 @@ namespace MasterOnline.Controllers
                 string sSQL = "UPDATE B SET REQUEST_STATUS = 'RETRYING', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
                 sSQL += "FROM API_LOG_MARKETPLACE B WHERE REQUEST_ID = '" + nourut + "'";
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var clientJobServer = new BackgroundJobClient(sqlStorage);
                 clientJobServer.Requeue(jobid);
 
                 return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };

@@ -1035,6 +1035,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\ListImportFaktur.cs" />
     <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
     <Compile Include="ViewModels\BayarPiutangViewModel.cs" />
