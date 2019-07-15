@@ -1,0 +1,44 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listPesananMingguan = Model.ListdashboardPesananMingguan.ToList();
+        var listPesananBulanan = Model.ListdashboardPesananBulanan.ToList();
+        var listPesananTahunan = Model.ListdashboardPesananTahunan.ToList();
+
+        var listFakturMingguan = Model.ListdashboardFakturMingguan.ToList();
+        var listFakturBulanan = Model.ListdashboardFakturBulanan.ToList();
+        var listFakturTahunan = Model.ListdashboardFakturTahunan.ToList();
+
+        var listReturMingguan = Model.ListdashboardReturMingguan.ToList();
+        var listReturBulanan = Model.ListdashboardReturBulanan.ToList();
+        var listReturTahunan = Model.ListdashboardReturTahunan.ToList();
+    }
+    var listPesananMingguan = @Html.Raw(Json.Encode(listPesananMingguan));
+    var listPesananBulanan = @Html.Raw(Json.Encode(listPesananBulanan));
+    var listPesananTahunan = @Html.Raw(Json.Encode(listPesananTahunan));
+
+    var listFakturMingguan = @Html.Raw(Json.Encode(listFakturMingguan));
+    var listFakturBulanan = @Html.Raw(Json.Encode(listFakturBulanan));
+    var listFakturTahunan = @Html.Raw(Json.Encode(listFakturTahunan));
+
+    var listReturMingguan = @Html.Raw(Json.Encode(listReturMingguan));
+    var listReturBulanan = @Html.Raw(Json.Encode(listReturBulanan));
+    var listReturTahunan = @Html.Raw(Json.Encode(listReturTahunan));
+</script>
+@*@if (listPieFaktur.Count() > 0)
+{*@
+@*<div class="col-md-12" id="chart-mingguan-section">*@
+    <canvas id="chartMingguan" height="400"></canvas>
+    @*<div class="legend text-left" id="MingguanLegend" style="float:left;"></div>
+    <div style="clear: both;" />*@
+@*</div>*@
+    
+@*}
+else
+{
+    <div class="center">
+        <h4>Silahkan proses faktur penjualan Anda !</h4>
+    </div>
+}*@

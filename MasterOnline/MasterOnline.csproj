@@ -6097,6 +6097,7 @@
     <Content Include="Views\Manage\TableDashboardBarangLakuPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardFakturPartial.cshtml" />
     <Content Include="Views\Manage\SyncBarangLog.cshtml" />
+    <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
