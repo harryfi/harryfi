@@ -659,6 +659,31 @@
         .nav-row > div > a {
             padding: 7px;
         }
+        
+    #loading_upload_faktur_tokped {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.5);
+    }
+
+    #loading_upload_faktur_tokped_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
 
     #loading_spinner {
         display: none;
@@ -1429,6 +1454,11 @@
 <div class="modal fade" id="modalUploadFaktur" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload-faktur" role="document">
         <div class="modal-content modalresponsive">
+            <div id="loading_upload_faktur_tokped" class="text-center">
+                <div id="loading_upload_faktur_tokped_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
@@ -1487,7 +1517,7 @@
                 </div>
                 <br />
                 <div id="uploadfakturviewdiv">
-                    @Html.Partial("UploadFakturView")
+                    @*@Html.Partial("UploadFakturView")*@
                 </div>
             </div>
             @*<div class="modal-footer">
@@ -4409,12 +4439,12 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_spinner').show();
+                        $('#loading_upload_faktur_tokped').show();
                     },
                     success: function(response){
                         $('#uploadfakturviewdiv').html(response);
                         document.getElementById("file_upload_faktur").value = "";
-                        $('#loading_spinner').hide();
+                        $('#loading_upload_faktur_tokped').hide();
                     },
                     error: function(errMsg) {
                         alert(errMsg);
