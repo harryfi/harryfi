@@ -875,12 +875,13 @@
         <div class="col-md-2 col-sm-12">
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span id="mode">Angka</span>
+                    <span id="mode">Tabel</span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a onclick="changeMode(1)">Angka</a></li>
                     <li><a onclick="changeMode(0)">Grafik</a></li>
+                    @*<li><a onclick="changeMode(1)">Angka</a></li>*@
+                    <li><a onclick="changeMode(1)">Tabel</a></li>
                 </ul>
             </div>
         </div>
@@ -946,6 +947,7 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     @*//end add by nurul 22/2/2019*@
     <script type="text/javascript">
+        //var $tipeTampilan = 0;
         var $tipeTampilan = 1;
         var $tipeStyle = 1;
 
@@ -1052,7 +1054,8 @@
                 $('.angka-mode').hide();
                 $tipeTampilan = 0;
             } else {
-                $('#mode').text('Angka');
+                //$('#mode').text('Angka');
+                $('#mode').text('Tabel');
                 $('.chart-mode').hide();
                 $('.angka-mode').show();
                 $tipeTampilan = 1;
@@ -1453,22 +1456,30 @@
                     if ($selectedMonth !== '' && $selectedMonth !== monthVal) {
                         $('.month_label').text('Bulan ' + monthName);
                     }
-
-                    if ($tipeTampilan == 0)
-                    {
-                        $('#mode').text('Grafik');
+                  
+                    if ($tipeTampilan == 0) {
                         $('.chart-mode').show();
                         $('.angka-mode').hide();
-                        $tipeTampilan = 0;
                     }
-                    else
-                    {
-                        $('#mode').text('Angka');
+                    else {
                         $('.chart-mode').hide();
                         $('.angka-mode').show();
-                        $tipeTampilan = 1;
                     }
-
+                    //if ($tipeTampilan == 0)
+                    //{
+                    //    $('#mode').text('Grafik');
+                    //    $('.chart-mode').show();
+                    //    $('.angka-mode').hide();
+                    //    $tipeTampilan = 0;
+                    //}
+                    //else
+                    //{
+                    //    $('#mode').text('Angka');
+                    //    $('.chart-mode').hide();
+                    //    $('.angka-mode').show();
+                    //    $tipeTampilan = 1;
+                    //}
+                  
                     //add by nurul 4/7/2019
                     //region 10 barang laku
                     var d = new Date();
@@ -1716,7 +1727,8 @@
                 $('.pie-mode').show();
                 $tipeStyle = 1;
             } else {
-                $('#mode_Baranglaku').text('Angka');
+                //$('#mode_Baranglaku').text('Angka');
+                $('#mode_Baranglaku').text('Tabel');
                 $('.pie-mode').hide();
                 $('.table-mode').show();
                 $tipeStyle = 2;
