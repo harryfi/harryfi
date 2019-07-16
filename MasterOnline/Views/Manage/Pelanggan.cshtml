@@ -1002,7 +1002,7 @@
                 <div class="input-group">
                     <input id="search_customer" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_customer_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -1018,7 +1018,7 @@
         </div>
         <div class="row customer_table_section">
             <div class="col-sm-12" id="table-customer-partial">
-                @Html.Partial("TableCustomerPartial")
+                @*@Html.Partial("TableCustomerPartial")*@
             </div>
         </div>
         <div class="row customer_editor_section" style="display: none;">
@@ -1383,6 +1383,7 @@
         }
         $(document).on('ready',
             function () {
+                refreshTableCustomer();
                 Initialize();
 
                 //add 09-10-2018, function button di subscription
@@ -1457,7 +1458,8 @@
                             Customers_KODEPOS.value = '.';
                             Customers_KODEKABKOT.value = '3174';
                             Customers_KODEPROV.value = '31';
-                            Customers_Sort1_Cust.value = '';
+                            //Customers_Sort1_Cust.value = '';
+                            $('#Customers_Sort1_Cust').val('');
                             //Customers_API_CLIENT_U.value = '';
                             //Customers_API_CLIENT_P.value = '';
                             //Customers_API_KEY.value = '';
@@ -1764,7 +1766,8 @@
                                             if (confirm("Generate New API Key?")) {
                                                 GenerateLazadaCode(custCode);
                                             } else {
-                                                window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                                                //window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                                                refreshTableCustomer();
                                             }
                                         }
                                         else if (response.marketplace == "SHOPEE") {
@@ -1780,7 +1783,8 @@
                                         //end add
                                     } else {
                                         $('#table-customer-partial').html(response);
-                                        Initialize();
+                                        //Initialize();
+                                        refreshTableCustomer();
                                         $('#close-editor').click();
                                         $('#loading_spinner').hide();
                                         $("html, body").animate({ scrollTop: 0 }, "slow");
@@ -1997,8 +2001,19 @@
             $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" style="display: none;" id="tambah_market_pricing">Modal Pricing</button>');
             var table = $('#datatable').DataTable();
 
-            $('#search_customer').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_customer').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_customer').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableCustomer();
+                    return false;
+                }
+            });
+            $('#search_customer_click').click(function () {
+                searchTableCustomer();
             });
 
             $('#tambah_market').on('click', function () {
@@ -2014,6 +2029,9 @@
 
             $('#close-editor').on('click', function () {
                 $('.customer_table_section').show();
+                //add by nurul 16/7/2019
+                refreshTableCustomer();
+                //end add by nurul 16/7/2019
                 $('.customer_editor_section').hide();
                 $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
                     '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_PERSO, #Customers_API_KEY').val('');
@@ -2024,6 +2042,7 @@
                 var namaMarket = $('#MARKET').selectize();
                 namaMarket[0].selectize.setValue(null, true);
                 resetError();
+                
             });
 
             if ($('.message-error').text() !== '') {
@@ -2665,6 +2684,7 @@
         }
 
         function deletecustomer() {
+            var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteCustomer", "Manage", new { recNum = "replaceId" })';
             link = link.replace("replaceId", this.$customerId);
 
@@ -2672,9 +2692,12 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-customer-partial').html(response);
-                    Initialize();
                     $('#konfHapuscustomer').modal('hide');
+                    //$('#table-customer-partial').html(response);
+                    refreshTableCustomer($savePage);
+                    Initialize();
+                    
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -2731,5 +2754,64 @@
             return false;
         }
         //end add by nurul
+
+        //ADD BY NURUL 16/7/2019, PAGING
+        function refreshTableCustomer($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTableCustomer", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_customer').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-customer-partial').hide();
+                    $('#loading_customer_tab').show();
+                },
+                success: function (response) {
+                    $('#table-customer-partial').html(response);
+                    $('#loading_customer_tab').hide();
+                    $('#table-customer-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableCustomer(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableCustomer", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_customer').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#search_customer_click')[0].disabled = true;
+                    $('#loading_customer_tab').show();
+                },
+                success: function (response) {
+                    //$('#search_customer_click')[0].disabled = false;
+                    $('#table-customer-partial').html(response);
+                    $('#loading_customer_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    //$('#search_customer_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //END ADD BY NURUL 16/7/2019, PAGING 
     </script>
 }
