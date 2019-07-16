@@ -10427,16 +10427,16 @@ namespace MasterOnline.Controllers
         public ActionResult EditFaktur(int? orderId)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "2");
-
             var vm = new FakturViewModel()
             {
                 Faktur = fakturInDb,
                 ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                 ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
             };
-
+            var listBarangInFakturDetail = vm.ListFakturDetail.Select(p => p.BRG).ToList();
+            vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList();
             return PartialView("BarangFakturPartial", vm);
         }
 
@@ -12581,6 +12581,10 @@ namespace MasterOnline.Controllers
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
             //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
             var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
+            //add 16 juli 2019 by Tri, barang yg diambil dari stf02h juga yg tipe = 3
+            var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
+            ListBarangMarket = ListBarangMarket.Where(p => ListKodeBarangMarket2.Contains(p.BRG)).ToList();
+            //end add 16 juli 2019 by Tri, barang yg diambil dari stf02h juga yg tipe = 3
             var vm = new FakturViewModel()
             {
                 FakturDetail = FakturDetail,
