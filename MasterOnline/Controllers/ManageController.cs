@@ -12444,6 +12444,10 @@ namespace MasterOnline.Controllers
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
             //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
             var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
+            //add 16 juli 2019 by Tri, barang yg diambil dari stf02h juga yg tipe = 3
+            var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
+            ListBarangMarket = ListBarangMarket.Where(p => ListKodeBarangMarket2.Contains(p.BRG)).ToList();
+            //end add 16 juli 2019 by Tri, barang yg diambil dari stf02h juga yg tipe = 3
             var vm = new FakturViewModel()
             {
                 FakturDetail = FakturDetail,
