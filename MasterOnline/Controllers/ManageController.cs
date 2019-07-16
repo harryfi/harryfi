@@ -10310,16 +10310,16 @@ namespace MasterOnline.Controllers
         public ActionResult EditFaktur(int? orderId)
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "2");
-
             var vm = new FakturViewModel()
             {
                 Faktur = fakturInDb,
                 ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                 ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
             };
-
+            var listBarangInFakturDetail = vm.ListFakturDetail.Select(p => p.BRG).ToList();
+            vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList();
             return PartialView("BarangFakturPartial", vm);
         }
 
