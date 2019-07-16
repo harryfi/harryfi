@@ -506,7 +506,7 @@
             }
 
             .modalresponsive {
-                width: 400px;
+                width: 100%;
             }
 
             .addmarginleftfaktur2 {
@@ -537,6 +537,9 @@
             .snip1404 .plan {
                 width: 100%;
             }
+        }
+
+        @@media screen and (max-width: 375px) {
         }
 
         body {
@@ -1218,12 +1221,13 @@
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
                                             data-target="#modalUploadFaktur">
-                                        <span>Upload Faktur Tokopedia</span>
+                                        @*<span>Upload Faktur Tokopedia</span>*@
+                                        <span>Upload Faktur</span>
                                     </button>
-                                    <button type="button" id="btn-upload-faktur-bl" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
-                                            data-target="#modalUploadFakturBL">
-                                        <span>Upload Faktur Bukalapak</span>
-                                    </button>
+                                    @*<button type="button" id="btn-upload-faktur-bl" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
+                                                data-target="#modalUploadFakturBL">
+                                            <span>Upload Faktur Bukalapak</span>
+                                        </button>*@
                                     @*<button type="button" class="btn btn-default" data-style="expand-right">
                                             <span>Refresh</span>
                                         </button>*@
@@ -1464,15 +1468,20 @@
             </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
+                <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur</h4>
             </div>
             <div class="modal-body" id="modal-upload-faktur-body">
                 @*add by nurul 19/10/2018*@
                 <div class="row">
                     <div class="col-md-11">
-                        <h5>Proses ini hanya untuk anda yang Merchant Tokopedia, tetapi bukan Official Store, sehingga TIDAK MEMPUNYAI API KEY untuk koneksi ke Tokopedia.</h5>
-                        <h5>Anda bisa “UPLOAD” data penjualan (Faktur) ke MasterOnline (MO), tanpa harus input satu per satu, dengan cara:</h5>
+                        @*<h5>Proses ini hanya untuk anda yang Merchant Tokopedia, tetapi bukan Official Store, sehingga TIDAK MEMPUNYAI API KEY untuk koneksi ke Tokopedia.</h5>*@
+                        <h5>Anda bisa “UPLOAD” data penjualan (Faktur) ke MasterOnline (MO), tanpa harus input satu per satu, :</h5>
+                        <h5>Untuk Marketplace Tokopedia dengan cara :</h5>
                         <h5>1. Lakukan “Download” data penjualan (faktur) dari aplikasi Tokopedia (menu "Penjualan") dalam bentuk file excel.</h5>
+                        <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
+                        <br />
+                        <h5>Untuk Marketplace Bukalapak dengan cara:</h5>
+                        <h5>1. Lakukan “Download” data penjualan (faktur) dari website Bukalapak (menu transaksi > download transaksi).</h5>
                         @*<h5>   dalam bentuk file excel.</h5>*@
                         <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
                     </div>
@@ -1498,8 +1507,13 @@
                         <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
                     </div>
                     <div class="col-md-2">
+                        <label style="margin-top:5px;text-align:end">Format Excel :</label>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4" style="font-size:16px;">
+                        <select style="margin-top:5px;" id="format_excel" placeholder="Harap Pilih Format Excel" required="required">
+                            <option value="15" style="font-size:16px;">Tokopedia</option>
+                            <option value="8" style="font-size:16px;">Bukalapak</option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                     </div>
@@ -1508,7 +1522,7 @@
                 <div class="row">
                     <div class="col-md-4 file_upload_section">
                         <input type='file' id='file_upload_faktur' name="file_upload_faktur" onchange="checkfile(this);"
-                               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" />
                     </div>
                     <div class="col-md-4">
                         <button type="button" class="btn btn-primary" onclick="uploadfilefaktur();" data-style="expand-right">
@@ -2138,7 +2152,7 @@
                 }
             });
             getMarketplaceTokopediaShopee();
-            getMarketplaceBukalapak();
+            //getMarketplaceBukalapak();
         });
 
         //add by Tri, call midtrans api get token
@@ -4543,6 +4557,9 @@
             if ($('#CUSTOMER_UPLOAD_FAKTUR_CUST').val() == "") {
                 alert('Harap pilih akun terlebih dahulu.');
             }
+            else if ($('#format_excel').val() == "") {
+                alert('Harap pilih format excel terlebih dahulu.');
+            }
             else if ($('#file_upload_faktur')[0].files.length < 1) {
                 $('#file_upload_faktur').click();
             }
@@ -4558,9 +4575,17 @@
                 formdata.append("nama_cust", $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val());
                 formdata.append("perso", $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val());
 
+                var url = "";
+                if ($('#format_excel').val() == "15") {
+                    url = '@Url.Action("UploadFakturTokped", "Manage")';
+                }
+                else if ($('#format_excel').val() == "8") {
+                    url = '@Url.Action("UploadFakturBukaLapak", "Manage")';
+                }
+
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UploadFakturTokped", "Manage")',
+                    url: url,
                     // The key needs to match your method's input parameter (case-sensitive).
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
@@ -4569,7 +4594,12 @@
                         $('#loading_upload_faktur_tokped').show();
                     },
                     success: function(response){
-                        $('#uploadfakturviewdiv').html(response);
+                        //$('#uploadfakturviewdiv').html(response);
+                        if (response.Errors == null) {
+                            $('#uploadfakturviewdiv').html(response);
+                        } else {
+                            alert(response.Errors[0]);
+                        }
                         document.getElementById("file_upload_faktur").value = "";
                         $('#loading_upload_faktur_tokped').hide();
                     },
@@ -4610,8 +4640,12 @@
                     beforeSend: function () {
                         $('#loading_spinner').show();
                     },
-                    success: function(response){
-                        $('#uploadfakturblviewdiv').html(response);
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#uploadfakturblviewdiv').html(response);
+                        } else {
+                            alert(response.Errors[0]);
+                        }
                         document.getElementById("file_upload_faktur_bl").value = "";
                         $('#loading_spinner').hide();
                     },

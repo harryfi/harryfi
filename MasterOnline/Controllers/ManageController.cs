@@ -968,10 +968,10 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             var stf02e = (from p in ErasoftDbContext.STF02E
-                         where p.LEVEL == "2" &&
-                         (p.KET.Contains(search) || p.KODE.Contains(search))
-                         orderby p.KET
-                         select p);
+                          where p.LEVEL == "2" &&
+                          (p.KET.Contains(search) || p.KODE.Contains(search))
+                          orderby p.KET
+                          select p);
             var ListStf02e = stf02e.Skip(pagenumber * 10).Take(10).ToList();
             var totalCount = stf02e.Count();
 
@@ -11635,10 +11635,12 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPelangganAkunTokpedShopee()
         {
+            //change by Tri, 16/7/2019, filter tokped, bl dan offline
             //change by nurul 29/4/2019, filter hanya tokped 
             //var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15" || m.NAMA == "17").ToList();
-            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList();
+            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15" || m.NAMA == "8" || m.NAMA == "18").ToList();
             //end change by nurul 29/4/2019
+            //end change by Tri, 16/7/2019, filter tokped, bl dan offline
 
             return Json(listPelanggan, JsonRequestBehavior.AllowGet);
         }
@@ -19466,6 +19468,8 @@ namespace MasterOnline.Controllers
             {
                 var file = Request.Files[file_index];
                 TextReader tr;
+                string fileName = file.FileName;
+                var fExt = fileName.Split('.');
                 if (file != null && file.ContentLength > 0)
                 {
                     byte[] dataByte;
@@ -19480,54 +19484,136 @@ namespace MasterOnline.Controllers
                         dataByte = memoryStream.ToArray();
                         tr = new StreamReader(inputStream);
                     }
-                    string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                    System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), dataByte);
-                    using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
+                    if (fExt[fExt.Length - 1] == "csv")
                     {
-                        var reader = new CsvReader(sr);
-                        reader.Configuration.PrepareHeaderForMatch = (header, index) => Regex.Replace(header, @"\s", string.Empty);
-                        var records_excell = reader.GetRecords<BukaLapakExcelFaktur>();
-                        foreach (var dataFaktur in records_excell)
+                        string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
+                        System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), dataByte);
+                        using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                         {
-                            var a = new BukaLapakExcelFaktur
+                            var reader = new CsvReader(sr);
+                            reader.Configuration.Delimiter = ";";
+                            //reader.Configuration.BadDataFound = null;
+                            //reader.Configuration.HeaderValidated = null;
+                            //reader.Configuration.MissingFieldFound = null;
+                            reader.Configuration.PrepareHeaderForMatch = (header, index) => Regex.Replace(header, @"\s", string.Empty);
+                            var records_excell = reader.GetRecords<BukaLapakExcelFaktur>();
+                            //var recCount = records_excell.Count();
+                            //if (recCount > 0)
+                            try
                             {
-                                Tanggal = dataFaktur.Tanggal,
-                                IDTransaksi = dataFaktur.IDTransaksi,
-                                AlamatPembeli = dataFaktur.AlamatPembeli,
-                                BiayaAsuransi = dataFaktur.BiayaAsuransi,
-                                BiayaPengiriman = dataFaktur.BiayaPengiriman,
-                                DetailDropshipper = dataFaktur.DetailDropshipper,
-                                HargaProduk = dataFaktur.HargaProduk,
-                                HPPembeli = dataFaktur.HPPembeli,
-                                JumlahProduk = dataFaktur.JumlahProduk,
-                                KecamatanPembeli = dataFaktur.KecamatanPembeli,
-                                KodePosPembeli = dataFaktur.KodePosPembeli,
-                                KodeTracking = dataFaktur.KodeTracking,
-                                KotaPembeli = dataFaktur.KotaPembeli,
-                                Kurir = dataFaktur.Kurir,
-                                NamaDropshipper = dataFaktur.NamaDropshipper,
-                                NamaProduk = dataFaktur.NamaProduk,
-                                Pembeli = dataFaktur.Pembeli,
-                                Penjual = dataFaktur.Penjual,
-                                PropinsiPembeli = dataFaktur.PropinsiPembeli,
-                                SKU = dataFaktur.SKU,
-                                Status = dataFaktur.Status,
-                                TotalTerbayar = dataFaktur.TotalTerbayar,
-                                TransaksiDropshipper = dataFaktur.TransaksiDropshipper,
-                                UsernamePembeli = dataFaktur.UsernamePembeli,
-                                Varian = dataFaktur.Varian
-                            };
-                            if (!string.IsNullOrEmpty(a.Status))
-                            {
-                                if(a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak")
+                                foreach (var dataFaktur in records_excell)
                                 {
-                                    records.Add(a);
+                                    var a = new BukaLapakExcelFaktur
+                                    {
+                                        Tanggal = dataFaktur.Tanggal,
+                                        IDTransaksi = dataFaktur.IDTransaksi,
+                                        AlamatPembeli = dataFaktur.AlamatPembeli,
+                                        BiayaAsuransi = dataFaktur.BiayaAsuransi,
+                                        BiayaPengiriman = dataFaktur.BiayaPengiriman,
+                                        DetailDropshipper = dataFaktur.DetailDropshipper,
+                                        HargaProduk = dataFaktur.HargaProduk,
+                                        HPPembeli = dataFaktur.HPPembeli,
+                                        JumlahProduk = dataFaktur.JumlahProduk,
+                                        KecamatanPembeli = dataFaktur.KecamatanPembeli,
+                                        KodePosPembeli = dataFaktur.KodePosPembeli,
+                                        KodeTracking = dataFaktur.KodeTracking,
+                                        KotaPembeli = dataFaktur.KotaPembeli,
+                                        Kurir = dataFaktur.Kurir,
+                                        NamaDropshipper = dataFaktur.NamaDropshipper,
+                                        NamaProduk = dataFaktur.NamaProduk,
+                                        Pembeli = dataFaktur.Pembeli,
+                                        Penjual = dataFaktur.Penjual,
+                                        PropinsiPembeli = dataFaktur.PropinsiPembeli,
+                                        SKU = dataFaktur.SKU,
+                                        Status = dataFaktur.Status,
+                                        TotalTerbayar = dataFaktur.TotalTerbayar,
+                                        TransaksiDropshipper = dataFaktur.TransaksiDropshipper,
+                                        UsernamePembeli = dataFaktur.UsernamePembeli,
+                                        Varian = dataFaktur.Varian
+                                    };
+                                    if (!string.IsNullOrEmpty(a.Status))
+                                    {
+                                        if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak")
+                                        {
+                                            records.Add(a);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //return JsonErrorMessage(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                return JsonErrorMessage("Format file yang anda upload salah.");
+                            }
+
+                        }
+                        System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
+
+                    }
+                    else if (fExt[fExt.Length - 1] == "xlsx")
+                    {
+                        using (MemoryStream stream = new MemoryStream(dataByte))
+                        {
+                            using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                            {
+                                //loop all worksheets
+                                var worksheet = excelPackage.Workbook.Worksheets[1];
+                                //string[] mapColumn = { "Count", "Invoice", "PaymentDate", "OrderStatus", "ProductID", "ProductName", "Quantity", "StockKeepingUnitSKU", "Notes", "PriceRp", "CustomerName", "CustomerPhone", "Recipient", "RecipientNumber", "RecipientAddress", "Courier", "ShippingPricefeeRp", "InsuranceRp", "TotalShippingFeeRp", "TotalAmountRp", "AWB", "JenisLayanan" };
+                                for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
+                                {
+                                    //Columns start from A5, start mapping column
+                                    //Count, Invoice, Payment Date, Order Status, Product ID, Product Name, Quantity, Stock Keeping Unit (SKU), Notes, Price (Rp.), Customer Name, Customer Phone, Recipient, Recipient Number, Recipient Address, Courier, Shipping Price + fee (Rp.), Insurance (Rp.), Total Shipping Fee (Rp.), Total Amount (Rp.), AWB, Jenis Layanan
+                                    //var newData = new UploadFakturTokpedDataDetail();
+                                    //for (int c = 0; c < mapColumn.Count(); c++)
+                                    //{
+                                    //    var ColumnName = mapColumn[c];
+                                    //    newData[ColumnName] = worksheet.Cells[i, c + 1].Value == null ? "" : Convert.ToString(worksheet.Cells[i, c + 1].Value);
+                                    //}
+                                    //data.Add(newData);
+                                    var a = new BukaLapakExcelFaktur
+                                    {
+                                        Tanggal = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
+                                        IDTransaksi = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
+                                        TransaksiDropshipper = worksheet.Cells[i, 3].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 3].Value),
+                                        NamaDropshipper = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                        DetailDropshipper = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                        Penjual = worksheet.Cells[i, 6].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 6].Value),
+                                        Pembeli = worksheet.Cells[i, 7].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 7].Value),
+                                        UsernamePembeli = worksheet.Cells[i, 8].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 8].Value),
+                                        HPPembeli = worksheet.Cells[i, 9].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 9].Value),
+                                        AlamatPembeli = worksheet.Cells[i, 10].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 10].Value),
+                                        KecamatanPembeli = worksheet.Cells[i, 11].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 11].Value),
+                                        KotaPembeli = worksheet.Cells[i, 12].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 12].Value),
+                                        PropinsiPembeli = worksheet.Cells[i, 13].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 13].Value),
+                                        KodePosPembeli = worksheet.Cells[i, 14].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 14].Value),
+                                        NamaProduk = worksheet.Cells[i, 15].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 15].Value),
+                                        HargaProduk = worksheet.Cells[i, 16].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 16].Value),
+                                        BiayaPengiriman = worksheet.Cells[i, 17].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 17].Value),
+                                        BiayaAsuransi = worksheet.Cells[i, 18].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 18].Value),
+                                        TotalTerbayar = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
+                                        JumlahProduk = worksheet.Cells[i, 20].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 20].Value),
+                                        SKU = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
+                                        Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                        Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
+                                        KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
+                                        Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                    };
+                                    if(records.Where(m => m.IDTransaksi == a.IDTransaksi).ToList().Count() > 0)
+                                    {
+                                        a.IDTransaksi = "";
+                                    }
+                                    if (!string.IsNullOrEmpty(a.Status))
+                                    {
+                                        if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak" || a.Status == "Driver menuju lokasi Pelapak")
+                                        {
+                                            records.Add(a);
+                                        }
+                                    }
                                 }
                             }
                         }
-
                     }
-                    System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
+
                     //using (MemoryStream stream = new MemoryStream(dataByte))
                     //{
                     //    using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
@@ -19570,7 +19656,7 @@ namespace MasterOnline.Controllers
 
             if (records.Count() == 0)
             {
-                return JsonErrorMessage("Format data tidak sesuai");
+                return JsonErrorMessage("Tidak ada data faktur yang dapat diupload.");
             }
             else
             {
@@ -19664,14 +19750,42 @@ namespace MasterOnline.Controllers
                         {
                             barangFakturLolosValidasi = false;
                             //add by calvin 18 juni 2019
-                            //if (!string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU))
+                            //if (!string.IsNullOrWhiteSpace(faktur.SKU))
                             //{
-                            //    var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.StockKeepingUnitSKU)).FirstOrDefault();
+                            //    var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.SKU)).FirstOrDefault();
                             //    if (cekItemBySKU != null)
                             //    {
                             //        barangFakturLolosValidasi = true;
                             //    }
                             //}
+                            if (!string.IsNullOrWhiteSpace(faktur.SKU))
+                            {
+                                var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.SKU)).FirstOrDefault();
+                                if (cekItemBySKU != null)
+                                {
+                                    barangFakturLolosValidasi = true;
+                                }
+                                else
+                                {
+                                    if (listItem.Where(p => p.BRG == faktur.SKU).Count() > 0)
+                                    {
+                                        string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
+                                        sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
+                                        sSQL += "from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket = '" + market.RecNum + "' ";
+                                        sSQL += "where a.brg = '" + faktur.SKU + "' and isnull(b.brg, '') = ''";
+
+                                        int berhasilinsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                        if (berhasilinsert > 0)
+                                        {
+                                            barangFakturLolosValidasi = true;
+                                            listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
+                                            listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
+                                        }
+                                    }
+                                }
+                            }
                             //end add by calvin 18 juni 2019
                             if (!barangFakturLolosValidasi)
                             {
@@ -19682,7 +19796,7 @@ namespace MasterOnline.Controllers
                                     message += "Mohon perbaiki data pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
                                     tw.WriteLine(message);
                                 }
-                                messageWarning = "- Item [" + (string.IsNullOrEmpty( faktur.SKU) ? faktur.NamaProduk : faktur.SKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                                messageWarning = "- Item [" + (string.IsNullOrEmpty(faktur.SKU) ? faktur.NamaProduk : faktur.SKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
                                 tw.WriteLine(messageWarning);
                             }
                         }
@@ -19706,10 +19820,24 @@ namespace MasterOnline.Controllers
                             string provinsi = faktur.PropinsiPembeli;
                             var cekPembeli = (from p in ErasoftDbContext.ARF01C
                                               where p.EMAIL == (faktur.Pembeli.Replace(" ", "").Length > 36 ? faktur.Pembeli.Replace(" ", "").Substring(0, 36) + "@bukalapak.com" : faktur.Pembeli.Replace(" ", "") + "@bukalapak.com")
-                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).SingleOrDefault();
+                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).FirstOrDefault();
                             if (cekPembeli == null)
                             {
                                 lastRecnumARF01C++;
+                                var UniqueCode = false;
+                                while (!UniqueCode)
+                                {
+                                    var currentBuyerCode = lastRecnumARF01C.ToString().PadLeft(10, '0');
+                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == currentBuyerCode select p.BUYER_CODE).FirstOrDefault();
+                                    if (cekDuplikatArf01c == null)
+                                    {
+                                        UniqueCode = true;
+                                    }
+                                    else
+                                    {
+                                        lastRecnumARF01C++;
+                                    }
+                                }
                                 string noTelp = "-";
                                 if (!string.IsNullOrWhiteSpace(faktur.HPPembeli.Trim()))
                                 {
@@ -19807,7 +19935,7 @@ namespace MasterOnline.Controllers
                                 TGL = Convert.ToDateTime(faktur.Tanggal),
                                 PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.Tanggal).ToString("MM")),
                                 PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.Tanggal).ToString("yyyy").Substring(2, 2)),
-                                USERNAME = uname,
+                                USERNAME = "UPLOAD_FAKTUR_BL",
                                 JENIS_RETUR = "-",
                                 STATUS = "1",
                                 ST_POSTING = "T",
@@ -19850,12 +19978,16 @@ namespace MasterOnline.Controllers
                                 N_UCAPAN = "-",
                                 SUPP = "-",
                                 KOMISI = 0,
-                                N_KOMISI = 0
+                                N_KOMISI = 0,
+                                
                             };
-                            newFakturs.Add(newfaktur);
-                            //ErasoftDbContext.SIT01A.Add(newfaktur);
-                            lastFakturInUpload = faktur_invoice;
-                            lastFakturDateInUpload = Convert.ToDateTime(faktur.Tanggal);
+                            //if (newFakturs.Where(m => m.NO_REF == faktur_invoice).ToList().Count() == 0)
+                            //{
+                                newFakturs.Add(newfaktur);
+                                //ErasoftDbContext.SIT01A.Add(newfaktur);
+                                lastFakturInUpload = faktur_invoice;
+                                lastFakturDateInUpload = Convert.ToDateTime(faktur.Tanggal);
+                            //}
                         }
                         #endregion
                         #region insert sit01b
@@ -19863,7 +19995,7 @@ namespace MasterOnline.Controllers
                         {
                             JENIS_FORM = "2",
                             NO_BUKTI = noOrder,
-                            USERNAME = uname,
+                            USERNAME = "UPLOAD_FAKTUR_BL",
                             CATATAN = "-",
                             TGLINPUT = DateTime.Now,
                             //NILAI_DISC = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
@@ -19894,7 +20026,7 @@ namespace MasterOnline.Controllers
                         {
                             newfakturdetail.BRG = "NOT_FOUND";
                         }
-                        newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.NamaProduk + "_;_" + (faktur.SKU ?? "SKU_IS_EMPTY");
+                        newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.NamaProduk.Replace('\'', '`') + " " + faktur.Varian.Replace('\'', '`') + "_;_" + (faktur.SKU ?? "SKU_IS_EMPTY");
 
                         newFaktursDetails.Add(newfakturdetail);
                         #endregion
@@ -21392,7 +21524,7 @@ namespace MasterOnline.Controllers
             {
                 //sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
                 sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ISNULL(NAMA2, '')) LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
-                
+
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
