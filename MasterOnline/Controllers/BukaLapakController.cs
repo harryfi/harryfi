@@ -1318,7 +1318,10 @@ namespace MasterOnline.Controllers
                 }
                 if (type != 2)
                 {
-                    sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    sSQL_Value += "('" + brg.id + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {

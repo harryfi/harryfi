@@ -178,10 +178,10 @@ namespace MasterOnline.Controllers
                     {
                         if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                         {
-                            if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
-                            {
+                            //if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
+                            //{
 
-                            }
+                            //}
                             string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
                             string brgMp = item.item_id.ToString() + ";0";
                             //change 13 Feb 2019, tuning
@@ -332,10 +332,12 @@ namespace MasterOnline.Controllers
                             foreach (var item in detailBrg.item.variations)
                             {
                                 sellerSku = item.variation_sku;
-                                if (string.IsNullOrEmpty(sellerSku))
-                                {
-                                    sellerSku = item.variation_id.ToString();
-                                }
+                                //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                //if (string.IsNullOrEmpty(sellerSku))
+                                //{
+                                //    sellerSku = item.variation_id.ToString();
+                                //}
+                                //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                                 string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
                                 //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                                 //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
@@ -351,7 +353,11 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
+                            //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                            //sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
+                            sellerSku = detailBrg.item.item_sku;
+                            //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+
                             //ret.recordCount++;
                             var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden);
                             ret.recordCount += ret0.status;

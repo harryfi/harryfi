@@ -3642,7 +3642,7 @@ namespace MasterOnline.Controllers
                                         if (!varian)
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
-                                            if(retSQL.exception == 1)
+                                            if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;

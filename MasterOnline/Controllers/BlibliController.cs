@@ -2197,6 +2197,7 @@ namespace MasterOnline.Controllers
                 ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return ret;
             }
 
             if (responseFromServer != "")
@@ -2424,8 +2425,10 @@ namespace MasterOnline.Controllers
                         string desc = result.value.description;
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
-                        if (string.IsNullOrEmpty(merchantSku))
-                            merchantSku = result.value.items[0].skuCode;
+                        //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                        //if (string.IsNullOrEmpty(merchantSku))
+                        //    merchantSku = result.value.items[0].skuCode;
+                        //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
@@ -3479,7 +3482,10 @@ namespace MasterOnline.Controllers
             string desc = result.value.description;
             string categoryCode = result.value.categoryCode.ToString();
             //string merchantSku = result.value.items[0].merchantSku.ToString();
-            sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+            //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += "('" + kdBrg + "' , '' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
             sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
