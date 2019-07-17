@@ -426,6 +426,7 @@
 
         var rows_selected = [];
         window.selected_cust = [];
+        var exGetData = 0;
 
         function GetAllDataBrg(listCust) {
             if (listCust == undefined) {
@@ -473,6 +474,7 @@
             output.innerHTML += '</ul>';
         }
 
+        var msg2 = '';
         //get data barang with record
         function GetDataBrgWithRecord(cust, page, recordCount, statBL) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
@@ -491,6 +493,8 @@
                             if (response.RecordCount != null) {
                                 document.getElementById('lblRecord_'+ cust).innerText = 'Jumlah data : ' + response.RecordCount;
                             }
+                            if (response.exception == 1)
+                                exGetData = 1;
                             if (response.Recursive) {
                                 if (response.BLProductActive == 1) {
                                     GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 1);
@@ -503,13 +507,22 @@
                                 //refreshTableBarangUpload();
                                 //$('#info_record').hide();
                                 //document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                if (exGetData == 1) {
+                                    msg2 += '\nAda data barang yang tidak masuk ke MO dari akun : ' + document.getElementById('lblNama_' + cust).innerText + '.';
+                                    exGetData = 0;
+                                }
+
                                 $('#spinner_' + cust).hide();
                                 rows_selected.shift();
                                 window.selected_cust.push(cust);
                                 if (rows_selected.length > 0) {
                                     GetAllDataBrg(rows_selected);
                                 } else {
-                                    alert('Proses mengambil data barang dari marketplace telah selesai.');
+                                    if (msg2 != '') {
+                                        msg2 += '\nSilahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
+                                    }
+                                    alert('Proses mengambil data barang dari marketplace telah selesai.' + msg2);
+                                    msg2 = '';
                                 }
                             }
                         } else {
