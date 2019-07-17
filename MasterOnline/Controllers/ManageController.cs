@@ -20140,13 +20140,16 @@ namespace MasterOnline.Controllers
             }
 
 
-            var partialVm = new FakturViewModel()
-            {
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            };
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
 
-            return PartialView("UploadFakturView", partialVm);
+            //return PartialView("UploadFakturView", partialVm);
+
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
             //return new EmptyResult();
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
