@@ -2112,6 +2112,7 @@ namespace MasterOnline.Controllers
                             urlImage = "";
                             urlImage2 = "";
                             urlImage3 = "";
+                            namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
                             if (namaBrg.Length > 30)
                             {
                                 nama = namaBrg.Substring(0, 30);
