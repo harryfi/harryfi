@@ -972,12 +972,18 @@ namespace MasterOnline.Controllers
 
                 if (typeBrg != 1)
                 {
-                    sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    sSQL_Value += " ( '" + skuId + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
                     namaBrg = itemFromList.spuName;
-                    sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
+                    sSQL_Value += " ( '" + kdBrgInduk + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
 
                 if (typeBrg == 2)

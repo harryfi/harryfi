@@ -2148,7 +2148,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID,username);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, username);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -3642,7 +3642,7 @@ namespace MasterOnline.Controllers
                                         if (!varian)
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
-                                            if(retSQL.exception == 1)
+                                            if (retSQL.exception == 1)
                                                 ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
@@ -3709,6 +3709,7 @@ namespace MasterOnline.Controllers
                     string namaVar = brg.skus[i]._compatible_variation_;
                     namaBrg += " " + namaVar;
                 }
+                namaBrg = namaBrg.Replace('\'', '`');//handle nama barang di avalue 45
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                 urlImage = "";
                 urlImage2 = "";
@@ -4658,7 +4659,7 @@ namespace MasterOnline.Controllers
                         {
                             MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
                             MoDbContext.SaveChanges();
-                        }                            
+                        }
 
                         if (cat.Children != null)
                             recursiveCategory(cat.category_id.ToString(), cat.Children, catLzd);
