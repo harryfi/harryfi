@@ -1506,7 +1506,7 @@
                         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_PERSO")
                         <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2" style="text-align:right">
                         <label style="margin-top:5px;text-align:end">Format Excel :</label>
                     </div>
                     <div class="col-md-4" style="font-size:16px;">
@@ -1595,7 +1595,7 @@
                 </div>
                 <br />
                 <div id="uploadfakturblviewdiv">
-                    @Html.Partial("UploadFakturView")
+                    @*@Html.Partial("UploadFakturView")*@
                 </div>
             </div>
             @*<div class="modal-footer">
@@ -2152,6 +2152,8 @@
                 }
             });
             getMarketplaceTokopediaShopee();
+            $('#format_excel').selectize();
+
             //getMarketplaceBukalapak();
         });
 
@@ -3712,7 +3714,7 @@
                                 akun: item.PERSO
                             };
                         });
-
+                    
                     var custSelect = $('#CUSTOMER_UPLOAD_FAKTUR').selectize({
                         valueField: 'id',
                         searchField: 'text',
