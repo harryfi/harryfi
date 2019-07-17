@@ -103,7 +103,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
 
-            } 
+            }
 
             if (!string.IsNullOrEmpty(stringRet))
             {
@@ -1020,6 +1020,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.exception = 0;
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1092,6 +1093,8 @@ namespace MasterOnline.Controllers
                                 if (tempbrginDBInduk == null && brgInDBInduk == null)
                                 {
                                     var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
+                                    if (insert1.exception == 1)
+                                        ret.exception = 1;
                                     if (insert1.status == 1)
                                         sSQL_Value += insert1.message;
                                 }
@@ -1173,6 +1176,8 @@ namespace MasterOnline.Controllers
                                     for (int i = 0; i < brg.product_sku.Count; i++)
                                     {
                                         var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
+                                        if (insert2.exception == 1)
+                                            ret.exception = 1;
                                         if (insert2.status == 1)
                                             sSQL_Value += insert2.message;
                                     }
@@ -1180,6 +1185,8 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     var insert2 = CreateTempQry(brg, cust, IdMarket, display, 0, "", 0);
+                                    if (insert2.exception == 1)
+                                        ret.exception = 1;
                                     if (insert2.status == 1)
                                         sSQL_Value += insert2.message;
                                 }
@@ -1203,6 +1210,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    ret.exception = 1;
                     ret.message = "failed to call Buka Lapak api";
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
@@ -1210,6 +1218,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, userId, currentLog);
@@ -1309,7 +1318,10 @@ namespace MasterOnline.Controllers
                 }
                 if (type != 2)
                 {
-                    sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    sSQL_Value += "('" + brg.id + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
@@ -1871,6 +1883,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;

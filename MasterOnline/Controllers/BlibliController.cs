@@ -2131,6 +2131,7 @@ namespace MasterOnline.Controllers
             {
                 status = 0,
                 recordCount = recordCount,
+                exception = 0
             };
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2193,8 +2194,10 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 //ret.message = ex.Message;
+                ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return ret;
             }
 
             if (responseFromServer != "")
@@ -2229,6 +2232,8 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
+                                        if(retDet.exception == 1)
+                                            ret.exception = 1;
                                         if (retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
@@ -2278,6 +2283,7 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             var ret = new BindingBase();
             ret.status = 0;
+            ret.exception = 0;
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
@@ -2308,6 +2314,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.Message;
             }
 
@@ -2418,8 +2425,10 @@ namespace MasterOnline.Controllers
                         string desc = result.value.description;
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
-                        if (string.IsNullOrEmpty(merchantSku))
-                            merchantSku = result.value.items[0].skuCode;
+                        //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                        //if (string.IsNullOrEmpty(merchantSku))
+                        //    merchantSku = result.value.items[0].skuCode;
+                        //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
@@ -3473,7 +3482,10 @@ namespace MasterOnline.Controllers
             string desc = result.value.description;
             string categoryCode = result.value.categoryCode.ToString();
             //string merchantSku = result.value.items[0].merchantSku.ToString();
-            sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+            //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += "('" + kdBrg + "' , '' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
             sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";

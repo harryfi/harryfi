@@ -1643,6 +1643,7 @@ namespace MasterOnline.Controllers
                                 urlImage = "";
                                 urlImage2 = "";
                                 urlImage3 = "";
+                                namaBrg = namaBrg.Replace('\'','`');
                                 if (namaBrg.Length > 30)
                                 {
                                     nama = namaBrg.Substring(0, 30);
@@ -1673,7 +1674,10 @@ namespace MasterOnline.Controllers
 
                                 Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
                                 {
-                                    SELLER_SKU = Convert.ToString(item.product_id),
+                                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                    //SELLER_SKU = Convert.ToString(item.product_id),
+                                    SELLER_SKU = "",
+                                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                                     BRG_MP = Convert.ToString(item.product_id),
                                     NAMA = nama,
                                     NAMA2 = nama2,
@@ -2019,6 +2023,7 @@ namespace MasterOnline.Controllers
 
             BindingBase ret = new BindingBase();
             ret.message = "";// jika perlu lanjut recursive, isi
+            ret.exception = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -2073,6 +2078,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
