@@ -18228,6 +18228,13 @@ namespace MasterOnline.Controllers
                 ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
+            List<string> listBrg = new List<string>();
+            //foreach (var brg in vm.ListBarang)
+            //{
+            listBrg.Add(dataVm.BarangStok.Kobar);
+            //}
+            updateStockMarketPlace(listBrg, "[MOVE_WH][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
             return PartialView("BarangTransaksiPindahPartial", vm);
         }
 
@@ -18352,6 +18359,7 @@ namespace MasterOnline.Controllers
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
 
             //add by calvin, 25 juni 2018 validasi QOH
+            List<string> brg = new List<string>();
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
             {
@@ -18366,6 +18374,9 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa dihapus, Qty Barang ( " + item.Kobar + " ) di gudang " + Convert.ToString(item.Ke_Gd) + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+
+                brg.Add(item.Kobar);
+
                 //add by nurul 13/9/2018
                 ErasoftDbContext.STT01B.Remove(item);
                 ErasoftDbContext.SaveChanges();
@@ -18382,6 +18393,8 @@ namespace MasterOnline.Controllers
                 Errors = null
             };
 
+            updateStockMarketPlace(brg, "[DEL_MOVE_WH_A][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
             //return PartialView("TableTransaksiPindahPartial", vm);
 
             return Json(stokInDb, JsonRequestBehavior.AllowGet);
@@ -18395,6 +18408,8 @@ namespace MasterOnline.Controllers
                 var barangStokInDb = ErasoftDbContext.STT01B.Single(b => b.No == noUrut);
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
+                List<string> brg = new List<string>();
+                brg.Add(barangStokInDb.Kobar);
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
 
@@ -18421,6 +18436,8 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
                 };
+
+                updateStockMarketPlace(brg, "[DEL_MOVE_WH_B][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
 
                 return PartialView("BarangTransaksiPindahPartial", vm);
             }
