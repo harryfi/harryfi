@@ -53,6 +53,7 @@
         InitSettingVariantTokped();
         InitSettingVariantBlibli();
         InitSettingVariantLazada();
+        InitSettingVariantElevenia();
         InitSettingVariantJdid();
 
         $('#variant-tabs a:first').tab('show');
@@ -699,6 +700,11 @@
             $('#lazada_detail_tab_variant_button').remove();
         }
     }
+
+    function InitSettingVariantElevenia() {
+        $('#elevenia_detail_tab_variant_button').remove();
+    }
+
     function SearchOptVariantLazada(level, variant_id) {
         var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtLazadaCategoryCodeFound').val() + '__CATEGORY_CODE';
         $('#txtKodeKategoriLazada').val($(fieldCategoryCode).val());

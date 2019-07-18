@@ -7429,6 +7429,7 @@ namespace MasterOnline.Controllers
                         STF02H newVariantDataStf02H = new STF02H();
                         newVariantDataStf02H = CopyStf02h(stf02h_induk);
                         newVariantDataStf02H.BRG = KodeBarangVariasi;
+                        newVariantDataStf02H.BRG_MP = "";
                         ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
                     }
                 }
