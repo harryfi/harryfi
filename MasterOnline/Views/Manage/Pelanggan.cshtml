@@ -1409,7 +1409,37 @@
                     $('#selected-package-' + $kodeSubs).text($pilihan);
                     $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
                 });
+
                 //end add 09-10-2018, function button di subscription
+
+                $('#search_customer').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableCustomer();
+                        return false;
+                    }
+                });
+                $('#search_customer_click').click(function () {
+                    searchTableCustomer();
+                });
+
+                $('#close-editor').on('click', function () {
+                $('.customer_table_section').show();
+                //add by nurul 16/7/2019
+                refreshTableCustomer();
+                //end add by nurul 16/7/2019
+                $('.customer_editor_section').hide();
+                $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
+                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_PERSO, #Customers_API_KEY').val('');
+                $('#CUSTNUMBER').val('[AUTO]');
+                $('#Customers_USERNAME').val('@(username)');
+                $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
+                $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
+                var namaMarket = $('#MARKET').selectize();
+                namaMarket[0].selectize.setValue(null, true);
+                resetError();
+                });
 
             });
 
@@ -2004,17 +2034,7 @@
             //$('#search_customer').keyup(function () {
             //    table.search($(this).val()).draw();
             //});
-            $('#search_customer').keypress(function (e) {
-                var key = e.which;
-                if (key == 13)// the enter key code
-                {
-                    searchTableCustomer();
-                    return false;
-                }
-            });
-            $('#search_customer_click').click(function () {
-                searchTableCustomer();
-            });
+            
 
             $('#tambah_market').on('click', function () {
                 $('.customer_table_section').hide();
@@ -2027,23 +2047,7 @@
                 //END ADD
             });
 
-            $('#close-editor').on('click', function () {
-                $('.customer_table_section').show();
-                //add by nurul 16/7/2019
-                refreshTableCustomer();
-                //end add by nurul 16/7/2019
-                $('.customer_editor_section').hide();
-                $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
-                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_PERSO, #Customers_API_KEY').val('');
-                $('#CUSTNUMBER').val('[AUTO]');
-                $('#Customers_USERNAME').val('@(username)');
-                $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
-                $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
-                var namaMarket = $('#MARKET').selectize();
-                namaMarket[0].selectize.setValue(null, true);
-                resetError();
-                
-            });
+            
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_market').click();
@@ -2695,7 +2699,35 @@
                     $('#konfHapuscustomer').modal('hide');
                     //$('#table-customer-partial').html(response);
                     refreshTableCustomer($savePage);
-                    Initialize();
+                    //Initialize();
+
+                    $('#modalPricing').on('hidden.bs.modal', function () {
+                namaMarket[0].selectize.setValue(null, true);
+            });
+
+            cekJumlahMarketplace();
+
+            //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+            //    'data-target="#modalPricing" id="tambah_market_pricing" style="display: none;">Modal Pricing</button>');
+            $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" style="display: none;" id="tambah_market_pricing">Modal Pricing</button>');
+            var table = $('#datatable').DataTable();
+
+            //$('#search_customer').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            
+
+            $('#tambah_market').on('click', function () {
+                $('.customer_table_section').hide();
+                $('.customer_editor_section').show();
+                //add by nruul 18/10/2018
+                $("#Customers_TOP").keydown(
+                    function () {
+                        validateInput($(this), 'TOP');
+                    });
+                //END ADD
+            });
+
                     
                     
                 },

@@ -990,7 +990,7 @@ namespace MasterOnline.Controllers
         {
             var custVm = new CustomerViewModel()
             {
-                ListCustomer = ErasoftDbContext.ARF01.ToList(),
+                //ListCustomer = ErasoftDbContext.ARF01.ToList(),
                 ListSubs = MoDbContext.Subscription.ToList()
             };
 
@@ -1714,14 +1714,15 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            var partialVm = new CustomerViewModel()
-            {
-                //ListCustomer = ErasoftDbContext.ARF01.ToList()
-                Errors = null
-            };
-                        
-            return Json(custInDb, JsonRequestBehavior.AllowGet);
+            //var partialVm = new CustomerViewModel()
+            //{
+            //    //ListCustomer = ErasoftDbContext.ARF01.ToList()
+            //    Errors = null
+            //};
+
+            //return Json(partialVm, JsonRequestBehavior.AllowGet);
             //return PartialView("TableCustomerPartial", partialVm);
+            return null;
         }
 
         [HttpGet]
