@@ -584,13 +584,14 @@ namespace MasterOnline.Controllers
             return listOpt;
         }
 
-        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount)
+        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
         {
             var ret = new BindingBase
             {
                 status = 0,
                 recordCount = recordCount,
-                exception = 0
+                exception = 0,
+                totalData = totalData//add 18 Juli 2019, show total record
             };
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -642,6 +643,7 @@ namespace MasterOnline.Controllers
                                         if (item.wareStatus == 1 || item.wareStatus == 2)
                                         {
                                             var retProd = GetProduct(data, item, IdMarket, cust);
+                                            ret.totalData += retProd.totalData;//add 18 Juli 2019, show total record
                                             if (retProd.status == 1)
                                             {
                                                 ret.recordCount += retProd.recordCount;
@@ -702,12 +704,12 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust)
-        {
+        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust) { 
             var ret = new BindingBase
             {
                 status = 0,
-                exception = 0
+                exception = 0,
+                totalData = 0,//add 18 Juli 2019, show total record
             };
 
             try
@@ -738,7 +740,7 @@ namespace MasterOnline.Controllers
                                 {
                                     haveVarian = true;
                                 }
-
+                                ret.totalData += dataProduct.model.Count();//add 18 Juli 2019, show total record
                                 foreach (var item in dataProduct.model)
                                 {
                                     var tempbrginDB = new TEMP_BRG_MP();

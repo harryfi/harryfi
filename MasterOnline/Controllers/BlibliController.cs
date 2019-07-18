@@ -1891,11 +1891,11 @@ namespace MasterOnline.Controllers
                                     myData += "\"items\": [ {";
                                     myData += "\"itemSku\": \"" + result.value.items[0].itemSku + "\",  ";
                                     myData += "\"skuCode\": \"" + result.value.items[0].skuCode + "\", ";
-                                    myData += "\"price\": [ {" ;
+                                    myData += "\"price\": [ {";
                                     myData += "\"discountAmount\": " + data.promoPrice + ", ";
                                     myData += "\"discountStartDate\": \"" + data.promoStart + "\", ";
-                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";     
-                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";   
+                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";
+                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";
                                     myData += "} ], \"attributes\" : null, \"images\" : null }";
                                 }
                             }
@@ -2125,12 +2125,13 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust, int recordCount)
+        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust, int recordCount, int totalData)
         {
             var ret = new BindingBase
             {
                 status = 0,
                 recordCount = recordCount,
+                totalData = totalData,
                 exception = 0
             };
             long milis = CurrentTimeMillis();
@@ -2200,7 +2201,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
 
-            if (responseFromServer != "")
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
                 if (listBrg != null)
@@ -2232,8 +2233,9 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
-                                        if(retDet.exception == 1)
+                                        if (retDet.exception == 1)
                                             ret.exception = 1;
+                                        ret.totalData += retDet.totalData;//add 18 Juli 2019, show total record
                                         if (retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
@@ -2318,7 +2320,7 @@ namespace MasterOnline.Controllers
                 ret.message = ex.Message;
             }
 
-            if (responseFromServer != "")
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 //var brg = JsonConvert.DeserializeObject(responseFromServer, typeof(DetailBrgBlibli)) as DetailBrgBlibli;
 
@@ -2397,8 +2399,10 @@ namespace MasterOnline.Controllers
                                 numVarian++;
                             }
                         }
+                        ret.totalData += 1;//add 18 Juli 2019, show total record
                         if (numVarian > 1)
                         {
+                            ret.totalData = numVarian;//add 18 Juli 2019, show total record
                             //remove bussiness partner code from productsku -> max length < 20
                             string productSku = result.value.productSku;
                             var splitSku = productSku.Split('-');
@@ -2413,7 +2417,7 @@ namespace MasterOnline.Controllers
                             if (brgIndukinDB == null && tempBrgIndukinDB == null)
                             {
                                 insertParent = true;
-                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3);
+                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3, iden);
                             }
                             else if (brgIndukinDB != null)
                             {
@@ -2437,7 +2441,9 @@ namespace MasterOnline.Controllers
                         sSQL += ", '" + kdBrgInduk + "' , '3'";
                         //end add kode brg induk dan type brg
 
-                        var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                        //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                        var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                        var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
                         #region set attribute
                         if (attributeBlibli != null)
                         {
@@ -3448,7 +3454,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust, string IdMarket, int display, string urlImage, string urlImage2, string urlImage3)
+        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust, string IdMarket, int display, string urlImage, string urlImage2, string urlImage3, BlibliAPIData iden)
         {
             string sSQL = "";
             string namaBrg = result.value.productName;
@@ -3493,7 +3499,10 @@ namespace MasterOnline.Controllers
             sSQL += ", '' , '4'";
             //end add kode brg induk dan type brg
 
-            var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            //var attributeBlibli = Task.Run(() => GetAttributeToList(iden, CategoryBlibli).Wait());
+            var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
             #region set attribute
             if (attributeBlibli != null)
             {
@@ -5100,6 +5109,109 @@ namespace MasterOnline.Controllers
             public List<string> options { get; set; }
         }
 
+        public ATTRIBUTE_BLIBLI_AND_OPT GetAttributeToListSync(BlibliAPIData data, CATEGORY_BLIBLI category)
+        {
+            //var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+            //string ret = "";
+            ATTRIBUTE_BLIBLI_AND_OPT ret = new ATTRIBUTE_BLIBLI_AND_OPT();
+            //foreach (var item in category)
+            //{
+            string categoryCode = category.CATEGORY_CODE;
+            string categoryName = category.CATEGORY_NAME;
+            //    string categoryCode = "3 -1000001";
+            //string categoryName = "3 Kamar +";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+            //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+            //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + data.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetAttributeBlibliResult)) as GetAttributeBlibliResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    if (result.value.attributes.Count() > 0)
+                    {
+                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        int i = 0;
+                        string a = "";
+                        foreach (var attribs in result.value.attributes)
+                        {
+                            a = Convert.ToString(i + 1);
+                            returnData.CATEGORY_CODE = category.CATEGORY_CODE;
+                            returnData.CATEGORY_NAME = category.CATEGORY_NAME;
+
+                            //sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                            //oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                            //oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                            //oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                            //oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                            returnData["ACODE_" + a] = Convert.ToString(attribs.attributeCode);
+                            returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
+                            returnData["ANAME_" + a] = Convert.ToString(attribs.name);
+                            returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+
+                            if (attribs.options.Count() > 0)
+                            {
+                                var optList = attribs.options.ToList();
+                                var listOpt = optList.Select(x => new ATTRIBUTE_OPT_BLIBLI(attribs.attributeCode.ToString(), attribs.attributeType.ToString(), attribs.name.ToString(), x)).ToList();
+                                ret.attribute_opt.AddRange(listOpt);
+                            }
+                            i = i + 1;
+                        }
+                        ret.attributes.Add(returnData);
+                    }
+                }
+            }
+            //}
+
+            return ret;
+        }
 
         public async Task<ATTRIBUTE_BLIBLI_AND_OPT> GetAttributeToList(BlibliAPIData data, CATEGORY_BLIBLI category)
         {

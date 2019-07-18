@@ -1015,11 +1015,12 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
+        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount, int totaldata)
         {
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.totalData = totaldata;//add 18 Juli 2019, show total record
             ret.exception = 0;
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -1082,6 +1083,7 @@ namespace MasterOnline.Controllers
                         string sSQL_Value = "";
                         foreach (var brg in resListProd.products)
                         {
+                            ret.recordCount += 1;//add 18 Juli 2019, show total record
                             bool haveVarian = false;
                             string kdBrgInduk = "";
                             if (brg.product_sku.Count > 0)
@@ -1173,6 +1175,7 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 if (haveVarian)
                                 {
+                                    ret.totalData += brg.product_sku.Count;//add 18 Juli 2019, show total record
                                     for (int i = 0; i < brg.product_sku.Count; i++)
                                     {
                                         var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
