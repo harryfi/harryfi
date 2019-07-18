@@ -631,7 +631,7 @@
 
         function searchTableBarangKosong() {
             var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { search = "replaceSearch" }))';
-            link = link.replace("replaceSearch", $('#search_barang').val());
+            link = link.replace("replaceSearch", $('#search_kosong').val());
 
             $.ajax({
                 type: "GET",
