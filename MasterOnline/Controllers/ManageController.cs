@@ -708,12 +708,12 @@ namespace MasterOnline.Controllers
         {
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").OrderByDescending(f => f.TGL).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").OrderByDescending(f => f.TGL).ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
 
             return View(vm);
@@ -724,14 +724,14 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").OrderByDescending(f => f.TGL).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").OrderByDescending(f => f.TGL).ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListSubs = MoDbContext.Subscription.ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListNInvoice = ErasoftDbContext.APT03B.ToList()
             };
 
             return View(vm);
@@ -742,12 +742,12 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderByDescending(f => f.TGL).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
 
             return View(vm);
@@ -10585,7 +10585,7 @@ namespace MasterOnline.Controllers
 
                 var vm = new FakturViewModel()
                 {
-                    Faktur = fakturInDb,
+                    //Faktur = fakturInDb,
                     //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                     ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
@@ -11296,7 +11296,7 @@ namespace MasterOnline.Controllers
 
                 var vm = new InvoiceViewModel()
                 {
-                    Invoice = invoiceInDb,
+                    //Invoice = invoiceInDb,
                     ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => 0 == 1).ToList(),
                 };
 
@@ -13007,7 +13007,7 @@ namespace MasterOnline.Controllers
 
                 var vm = new PesananViewModel()
                 {
-                    Pesanan = pesananInDb,
+                    //Pesanan = pesananInDb,
                     //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                     ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
@@ -15628,10 +15628,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListGudang = ErasoftDbContext.STF18.ToList()
+                //ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
+                ////change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
             return View(vm);
@@ -16481,9 +16481,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                //ListPiutang = ErasoftDbContext.ART03A.ToList(),
                 ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
             return View(vm);
@@ -16884,9 +16884,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.ToList(),
+                //ListHutang = ErasoftDbContext.APT03A.ToList(),
                 ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
             return View(vm);
@@ -17291,10 +17291,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListGudang = ErasoftDbContext.STF18.ToList()
+                //ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
+                ////change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
             return View(vm);
@@ -17493,13 +17493,23 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                var stokInDb = new STT01A();
+
                 var vm = new StokViewModel()
                 {
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
+                    //Stok = stokInDb,
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListBarangStok = ErasoftDbContext.STT01B.Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    ListBarang = ErasoftDbContext.STF02.Where(pd => 0 == 1).ToList()
                 };
+                //var vm = new StokViewModel()
+                //{
+                //    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
+                //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //    ListGudang = ErasoftDbContext.STF18.ToList()
+                //};
 
                 return PartialView("BarangTransaksiMasukPartial", vm);
             }
@@ -17514,15 +17524,21 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
-
+                
+                //add by nurul 8/7/2019, tuning
+                var ListStokDetail = ErasoftDbContext.STT01B.Where(pd => pd.Nobuk == stokInDb.Nobuk).ToList();
+                var listBarangInStokDetail = ListStokDetail.Select(p => p.Kobar).ToList();
+                //end add by nurul 8/7/2019, tuning
                 var vm = new StokViewModel()
                 {
                     Stok = stokInDb,
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
-                    ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    //ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
+                    //ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    ListBarangStok = ListStokDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInStokDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
 
                 return PartialView("BarangTransaksiMasukPartial", vm);
@@ -17683,10 +17699,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListGudang = ErasoftDbContext.STF18.ToList()
+                //ListStok = ErasoftDbContext.STT01A.ToList(),
+                ////change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
             return View(vm);
@@ -17842,7 +17858,7 @@ namespace MasterOnline.Controllers
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInKeluarDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
-                ListGudang = ErasoftDbContext.STF18.ToList()
+                //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
             //add by Tri, panggil api marketplace to change stock
@@ -17921,13 +17937,23 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                var stokInDb = new STT01A();
+
                 var vm = new StokViewModel()
                 {
-                    ListStok = ErasoftDbContext.STT01A.ToList(),
+                    //Stok = stokInDb,
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListBarangStok = ErasoftDbContext.STT01B.Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    ListBarang = ErasoftDbContext.STF02.Where(pd => 0 == 1).ToList()
                 };
+                //var vm = new StokViewModel()
+                //{
+                //    ListStok = ErasoftDbContext.STT01A.ToList(),
+                //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //    ListGudang = ErasoftDbContext.STF18.ToList()
+                //};
 
                 return PartialView("BarangTransaksiKeluarPartial", vm);
             }
@@ -17942,15 +17968,21 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
-
+                
+                //add by nurul 8/7/2019, tuning
+                var ListStokDetail = ErasoftDbContext.STT01B.Where(pd => pd.Nobuk == stokInDb.Nobuk).ToList();
+                var listBarangInStokDetail = ListStokDetail.Select(p => p.Kobar).ToList();
+                //end add by nurul 8/7/2019, tuning
                 var vm = new StokViewModel()
                 {
                     Stok = stokInDb,
-                    ListStok = ErasoftDbContext.STT01A.ToList(),
-                    ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    //ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList(),
+                    //ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    ListBarangStok = ListStokDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInStokDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
 
                 return PartialView("BarangTransaksiKeluarPartial", vm);
@@ -18054,10 +18086,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListGudang = ErasoftDbContext.STF18.ToList()
+                //ListStok = ErasoftDbContext.STT01A.ToList(),
+                ////change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
             return View(vm);
@@ -18288,13 +18320,23 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                var stokInDb = new STT01A();
+
                 var vm = new StokViewModel()
                 {
-                    ListStok = ErasoftDbContext.STT01A.ToList(),
+                    //Stok = stokInDb,
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListBarangStok = ErasoftDbContext.STT01B.Where(pd => 0 == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    ListBarang = ErasoftDbContext.STF02.Where(pd => 0 == 1).ToList()
                 };
+                //var vm = new StokViewModel()
+                //{
+                //    ListStok = ErasoftDbContext.STT01A.ToList(),
+                //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //    ListGudang = ErasoftDbContext.STF18.ToList()
+                //};
 
                 return PartialView("BarangTransaksiPindahPartial", vm);
             }
@@ -18309,15 +18351,21 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
-
+                
+                //add by nurul 8/7/2019, tuning
+                var ListStokDetail = ErasoftDbContext.STT01B.Where(pd => pd.Nobuk == stokInDb.Nobuk).ToList();
+                var listBarangInStokDetail = ListStokDetail.Select(p => p.Kobar).ToList();
+                //end add by nurul 8/7/2019, tuning
                 var vm = new StokViewModel()
                 {
                     Stok = stokInDb,
-                    ListStok = ErasoftDbContext.STT01A.ToList(),
-                    ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    //ListStok = ErasoftDbContext.STT01A.ToList(),
+                    //ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    ListBarangStok = ListStokDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInStokDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
 
                 return PartialView("BarangTransaksiPindahPartial", vm);
