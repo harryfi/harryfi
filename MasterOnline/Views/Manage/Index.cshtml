@@ -24,7 +24,10 @@
 
 @section styles {
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" />
+    @*<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet" />*@
+    @*<link type="text/css" rel="stylesheet" href="css/default.css" />*@
 
     <style>
         .label_waktu {
@@ -901,6 +904,7 @@
         <div id="dashboard_line">
             <h4>Grafik Pesanan, Faktur dan Retur</h4>
             <div class="col-md-12" id="grafik-line-section">
+                @*<canvas id="chartMingguan" height="400"></canvas>*@
                 @*<canvas id="chart-mingguan" height="200"></canvas>*@
                 @*@Html.Partial("TableDashboardLinePartial")*@
             </div>
@@ -951,6 +955,13 @@
     <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
 
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" type="text/javascript"></script>*@
+    <script src="js/jquery.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+    <script src="js/line.js"></script>
     @*//add by nurul 22/2/2019*@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
@@ -1752,8 +1763,9 @@
                 }),
                 contentType: "application/json; charset=UTF-8",
                 cache: false,*@
-                type: "GET",
+                type: "POST",
                 url: link,
+                contentType: "application/json; charset=UTF-8",
                 beforeSend: function () {
                     $('#grafik-line-section').hide();
                     //$('#loading_dashboard_faktur').show();
@@ -1771,25 +1783,41 @@
                     //var maxTicksBasic = Math.ceil(max / 10) * 10;
 
                     //var steppingBasic = (Math.ceil(max / 10) * 10) / 5;
-                    //var listDataPesananM = listPesananMingguan;
+                    var listDataPesananM = listPesananTahunan;
                     //var listDataPesananB = listPesananBulanan;
                     //var listDataPesananT = listPesananTahunan;
-                    //var listDataFakturM = listFakturMingguan;
+                    var listDataFakturM = listFakturTahunan;
                     //var listDataFakturB = listFakturBulanan;
                     //var listDataFakturT = listFakturTahunan;
-                    //var listDataReturM = listReturMingguan;
+                    var listDataReturM = listReturTahunan;
                     //var listDataReturB = listReturBulanan;
                     //var listDataReturT = listReturTahunan;
 
-                    //var labelpesananMingguan = [];
-                    //var labelfakturMingguan = [];
-                    //var labelreturMingguan = [];
-                    //var jumlahpesananMingguan = [];
-                    //var jumlahfakturMingguan = [];
-                    //var jumlahreturMingguan = [];
-                    //var nilaipesananMingguan = [];
-                    //var nilaifakturMingguan = [];
-                    //var nilaireturMingguan = [];
+                    var labelpesananMingguan = [];
+                    var labelfakturMingguan = [];
+                    var labelreturMingguan = [];
+                    var jumlahpesananMingguan = [];
+                    var jumlahfakturMingguan = [];
+                    var jumlahreturMingguan = [];
+                    var nilaipesananMingguan = [];
+                    var nilaifakturMingguan = [];
+                    var nilaireturMingguan = [];
+
+                    for (var i = 0; i < listDataPesananM.length; i++) {
+                        labelpesananMingguan.push(listDataPesananM[i].No);
+                        jumlahpesananMingguan.push(listDataPesananM[i].Jumlah);
+                        nilaipesananMingguan.push(listDataPesananM[i].Nilai);
+                    }
+                    for (var i = 0; i < listDataFakturM.length; i++) {
+                        //labelpesananMingguan.push(listDataPesananM[i].No);
+                        jumlahfakturMingguan.push(listDataFakturM[i].Jumlah);
+                        nilaifakturMingguan.push(listDataFakturM[i].Nilai);
+                    }
+                    for (var i = 0; i < listDataReturM.length; i++) {
+                        //labelpesananMingguan.push(listDataPesananM[i].No);
+                        jumlahreturMingguan.push(listDataReturM[i].Jumlah);
+                        nilaireturMingguan.push(listDataReturM[i].Nilai);
+                    }
 
                     //labelpesananMingguan.push(listDataPesananM.No);
                     //labelfakturMingguan.push(listDataFakturM.No);
@@ -1801,217 +1829,164 @@
                     //nilaifakturMingguan.push(listDataFakturM.Nilai);
                     //nilaireturMingguan.push(listDataReturM.Nilai);
 
-                    //var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
-                    //var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
-                    //var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
-                    //var dataMaxJumlah = [maxJumlahPesananMingguan, maxJumlahFakturMingguan, maxJumlahReturMingguan];
-                    //var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
+                    var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
+                    var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
+                    var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
+                    var dataMaxJumlah = [maxJumlahPesananMingguan, maxJumlahFakturMingguan, maxJumlahReturMingguan];
+                    var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
 
-                    //var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
+                    var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
 
-                    //var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
+                    var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
 
                     var ctxMingguan = document.getElementById("chartMingguan").getContext('2d');
-                    Chart.defaults.global.defaultFontFamily = "Lato";
-                    Chart.defaults.global.defaultFontSize = 18;
 
-                    var dataFirst = {
-                        label: "Car A - Speed (mph)",
-                        data: [0, 59, 75, 20, 20, 55, 40],
-                        lineTension: 0.3,
-                        fill: false,
-                        borderColor: 'red',
-                        backgroundColor: 'transparent',
-                        pointBorderColor: 'red',
-                        pointBackgroundColor: 'lightgreen',
-                        pointRadius: 5,
-                        pointHoverRadius: 15,
-                        pointHitRadius: 30,
-                        pointBorderWidth: 2,
-                        pointStyle: 'rect'
-                    };
-
-                    var dataSecond = {
-                        label: "Car B - Speed (mph)",
-                        data: [20, 15, 60, 60, 65, 30, 70],
-                        lineTension: 0.3,
-                        fill: false,
-                        borderColor: 'purple',
-                        backgroundColor: 'transparent',
-                        pointBorderColor: 'purple',
-                        pointBackgroundColor: 'lightgreen',
-                        pointRadius: 5,
-                        pointHoverRadius: 15,
-                        pointHitRadius: 30,
-                        pointBorderWidth: 2
-                    };
-
-                    var speedData = {
-                        labels: ["0s", "10s", "20s", "30s", "40s", "50s", "60s"],
-                        datasets: [dataFirst, dataSecond]
-                    };
-
-                    var chartOptions = {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                boxWidth: 80,
-                                fontColor: 'black'
+                    var data = {
+                        labels: labelpesananMingguan,
+                        datasets: [
+                            {
+                                label: "Pesanan",
+                                data: jumlahpesananMingguan,
+                                data1: nilaireturMingguan,
+                                //backgroundColor: "red",
+                                //borderColor: "lightred",
+                                //fill: false,
+                                //lineTension: 0,
+                                //radius: 5
+                                borderColor: "#f3545d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#f3545d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            },
+                            {
+                                label: "Faktur",
+                                data: jumlahfakturMingguan,
+                                data1: nilaifakturMingguan,
+                                //backgroundColor: "blue",
+                                //borderColor: "lightblue",
+                                //fill: false,
+                                //lineTension: 0,
+                                //radius: 5
+                                borderColor: "#1d7af3",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#1d7af3",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            },
+                            {
+                                label: "Retur",
+                                data: jumlahreturMingguan,
+                                data1: nilaireturMingguan,
+                                //backgroundColor: "green",
+                                //borderColor: "lightgreen",
+                                //fill: false,
+                                //lineTension: 0,
+                                //radius: 5
+                                borderColor: "#59d05d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#59d05d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 4,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
                             }
+                        ]
+                        };
+
+            //options
+            var options = {
+                responsive: true,
+                title: {
+                    display: true,
+                    position: "top",
+                    text: "Pesanan, Faktur, dan Retur Mingguan",
+                    fontSize: 18,
+                    fontColor: "#111"
+                },
+                //legend: {
+                //    display: true,
+                //    position: "bottom",
+                //    labels: {
+                //        fontColor: "#333",
+                //        fontSize: 16
+                //    }
+                //},
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            max: maxTicksBasic,
+                            min: -5,
+                            stepSize: steppingBasic
                         }
-                    };
+                    }]
+                },
+                legendCallback: function (chart) {
+                                    var text = [];
+                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    for (var i = 0; i < chart.data.datasets.length; i++) {
+                                        if (chart.data.datasets[i].label) {
+                                            text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                            text.push(chart.data.datasets[i].label);
+                                            text.join(' ');
+                                        }
+                                    }
+                                    text.push('</ul>');
 
-                    var lineChart = new Chart(ctxMingguan, {
-                        type: 'line',
-                        data: speedData,
-                        options: chartOptions
-                    });
-                    //var myChart = new Chart(ctxMingguan, {
-                    //    type: 'line',
-                    //    data: {
-                    //        labels: labelpesananMingguan,
-                    //        datasets: [{
-                    //            label: "Rp. " + nilaipesananMingguan,
-                    //            borderColor: "#1d7af3",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#1d7af3",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahpesananMingguan + " Pesanan"
-                    //        }, {
-                    //            label: "Rp. " + nilaifakturMingguan,
-                    //            borderColor: "#59d05d",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#59d05d",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahfakturMingguan + " Faktur"
-                    //        }, {
-                    //            label: "Rp. " + nilaireturMingguan,
-                    //            borderColor: "#f3545d",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#f3545d",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahreturMingguan + " Retur"
-                    //        }]
-                    //    },
-                    //    options: {
-                    //        responsive: true,
-                    //        maintainAspectRatio: false,
-                    //        legend: {
-                    //            position: 'top',
-                    //        },
-                    //        tooltips: {
-                    //            bodySpacing: 4,
-                    //            mode: "nearest",
-                    //            intersect: 0,
-                    //            position: "nearest",
-                    //            xPadding: 10,
-                    //            yPadding: 10,
-                    //            caretPadding: 10
-                    //        },
-                    //        layout: {
-                    //            padding: { left: 15, right: 15, top: 15, bottom: 15 }
-                    //        }
-                    //    }
-                    //});
-                    //-------------------------------------------------
-                    //var dataPesanan = {
-                    //    label: "Rp. " + nilaipesananMingguan,
-                    //    data: jumlahpesananMingguan + " Pesanan",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'red',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'red',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2,
-                    //    pointStyle: 'rect'
-                    //};
+                                    return text.join('');
+                },
+                legend: { display: false },
+                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                            var total = meta.total;
+                                            var currentValue = dataset.label;
+                                            var label = dataset.data[tooltipItem.index]
+                                            var nilai = dataset.data1[tooltipItem.index]
+                                            var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                            return currentValue + ': ' + label;
+                                        },
+                                        //afterLabel: function (tooltipItem, data) {
+                                        //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                        //    var nilai = dataset.data[tooltipItem.index]
+                                        //    return 'Rp. ' + convertToRupiah(nilai);
+                                        //},
+                                        title: function (tooltipItem, data) {
+                                            return data.labels[tooltipItem[0].index];
+                                        }
+                                    },
+                                    backgroundColor: '#FFF',
+                                    titleFontColor: '#0066ff',
+                                    bodyFontColor: '#000'
+                }
+            };
 
-                    //var dataFaktur = {
-                    //    label: "Rp. " + nilaifakturMingguan,
-                    //    data: jumlahfakturMingguan + " Faktur",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'blue',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'blue',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2
-                    //};
+            //create Chart class object
+            var chart = new Chart(ctxMingguan, {
+                type: "line",
+                data: data,
+                options: options
+            });
 
-                    //var dataRetur = {
-                    //    label: "Rp. " + nilaireturMingguan,
-                    //    data: jumlahreturMingguan + " Retur",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'green',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'green',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2
-                    //};
+                    $("#MingguanLegend").html(chart.generateLegend());
 
-                    //var mingguanData = {
-                    //    labels: labelpesananMingguan,
-                    //    datasets: [dataPesanan, dataFaktur, dataRetur]
-                    //};
-
-                    //var chartOptions = {
-                    //    legend: {
-                    //        display: true,
-                    //        position: 'top',
-                    //        labels: {
-                    //            boxWidth: 80,
-                    //            fontColor: 'black'
-                    //        }
-                    //    },
-                    //    scales: {
-                    //        yAxes: [{
-                    //            ticks: {
-                    //                beginAtZero: true,
-                    //                stepSize: steppingBasic,
-                    //                max: maxTicksBasic
-                    //            }
-                    //        }],
-
-                    //    }
-                    //};
-
-                    //var lineChart = new Chart(ctxMingguan, {
-                    //    type: 'line',
-                    //    data: mingguanData,
-                    //    options: chartOptions
-                    //});
-                    //Chart.defaults.global.defaultFontFamily = "Lato";
-                    //Chart.defaults.global.defaultFontSize = 18;
                     //#end region Mingguan
                     //#region Tahunan
                     //#end region Tahunan
@@ -2100,7 +2075,7 @@
                         //$("#myChartLegend").html(chart.generateLegend());
                     //}
 
-                    //$('#loading_dashboard_faktur').hide();
+                    $('#loading_dashboard_faktur').hide();
                     $('#grafik-line-section').show();
                 },
                 error: function (xhr, status, error) {
