@@ -24,6 +24,7 @@
 
 @section styles {
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" />
 
     <style>
         .label_waktu {
@@ -292,6 +293,32 @@
         }
     </style>
     <style type="text/css">
+        /*//add by nurul 5/7/2019*/
+        [class$="-legend"] {
+            list-style: none;
+            cursor: pointer;
+            padding-left: 0;
+        }
+
+            [class$="-legend"] li {
+                display: inline-block;
+                padding: 0 5px;
+            }
+
+                [class$="-legend"] li.hidden {
+                    text-decoration: line-through;
+                }
+
+                [class$="-legend"] li span {
+                    border-radius: 5px;
+                    display: inline-block;
+                    height: 10px;
+                    margin-right: 10px;
+                    width: 10px;
+                }
+
+        /*//end add by nurul 5/7/2019*/
+
         .bar {
             font-size: 30px;
             color: #ed1338;
@@ -848,12 +875,13 @@
         <div class="col-md-2 col-sm-12">
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span id="mode">Angka</span>
+                    <span id="mode">Tabel</span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a onclick="changeMode(1)">Angka</a></li>
                     <li><a onclick="changeMode(0)">Grafik</a></li>
+                    @*<li><a onclick="changeMode(1)">Angka</a></li>*@
+                    <li><a onclick="changeMode(1)">Tabel</a></li>
                 </ul>
             </div>
         </div>
@@ -919,12 +947,15 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     @*//end add by nurul 22/2/2019*@
     <script type="text/javascript">
+        //var $tipeTampilan = 0;
         var $tipeTampilan = 1;
+        var $tipeStyle = 1;
 
         var $href = "";
 
         $(document).ready(function () {
             getTanggal();
+
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
 
@@ -934,7 +965,7 @@
                     $('#dashboard_page').show();
                     $('.pricing_page').hide();
                 });
-
+            
             //add by nurul 22/2/2019
             $href = window.location.href.split('home')[1];
             if ($href != "") {
@@ -1023,7 +1054,8 @@
                 $('.angka-mode').hide();
                 $tipeTampilan = 0;
             } else {
-                $('#mode').text('Angka');
+                //$('#mode').text('Angka');
+                $('#mode').text('Tabel');
                 $('.chart-mode').hide();
                 $('.angka-mode').show();
                 $tipeTampilan = 1;
@@ -1425,20 +1457,74 @@
                         $('.month_label').text('Bulan ' + monthName);
                     }
 
-                    if ($tipeTampilan == 0)
-                    {
-                        $('#mode').text('Grafik');
+                    if ($tipeTampilan == 0) {
                         $('.chart-mode').show();
                         $('.angka-mode').hide();
-                        $tipeTampilan = 0;
                     }
-                    else
-                    {
-                        $('#mode').text('Angka');
+                    else {
                         $('.chart-mode').hide();
                         $('.angka-mode').show();
-                        $tipeTampilan = 1;
                     }
+                    //add by nurul 4/7/2019
+                    //region 10 barang laku
+                    var d = new Date();
+                    d.setMonth(d.getMonth() - 3);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', d);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal').val($('#DrTanggal').val());
+                        $('#DrTanggal').datepicker('hide');
+                        RefreshTableDashboardBaranglakuPartial();
+                    });
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal').val($('#SdTanggal').val());
+                        $('#SdTanggal').datepicker('hide');
+                        RefreshTableDashboardBaranglakuPartial();
+                    });
+                    RefreshTableDashboardBaranglakuPartial();
+                    //end region 10 barang laku
+                    //region faktur
+                    var c = new Date();
+                    c.setMonth(c.getMonth() - 1);
+                    $('#DrTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', c);
+                    $('#DrTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal1').val($('#DrTanggal1').val());
+                        $('#DrTanggal1').datepicker('hide');
+                        RefreshTableDashboardFaktur();
+                    });
+                    $('#SdTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal1').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal1').val($('#SdTanggal1').val());
+                        $('#SdTanggal1').datepicker('hide');
+                        RefreshTableDashboardFaktur();
+                        });
+                    RefreshTableDashboardFaktur();
+                    //end region faktur
+                    //end add by nurul 4/7/2019
 
                     $('#loading_spinner').hide();
                 },
@@ -1610,12 +1696,310 @@
                         //window.open(response, "_self");
                         //window.location.href(response);
 
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        $('#modalTransfer').modal('hide');
-                    }
-                });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#modalTransfer').modal('hide');
+                }
+            });
+        }
+
+        //add by nurul 4/7/2019
+        function changeStyle(tipe) {
+            if (tipe === 1 ) {
+                $('#mode_Baranglaku').text('Grafik');
+                $('.table-mode').hide();
+                $('.pie-mode').show();
+                $tipeStyle = 1;
+            } else {
+                //$('#mode_Baranglaku').text('Angka');
+                $('#mode_Baranglaku').text('Tabel');
+                $('.pie-mode').hide();
+                $('.table-mode').show();
+                $tipeStyle = 2;
             }
+        }
+
+        function RefreshTableDashboardBaranglakuPartial() {
+            var $Drtgl = "";
+            if ($('#DrTanggal').val() != undefined) {
+                $Drtgl = $('#DrTanggal').val();
+            }
+            var $Sdtgl = "";
+            if ($('#SdTanggal').val() != undefined) {
+                $Sdtgl = $('#SdTanggal').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardBaranglakuPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl);
+            link = link.replace("replaceSdtgl", $Sdtgl);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-baranglaku-partial').hide();
+                    $('#chart-baranglaku-section').hide();
+                    $('#loading_dashboard_baranglaku').show();
+                },
+                success: function (response) {
+                    $('#table-baranglaku-partial').html(response);
+                    if (listPieBarang.length > 0) {
+
+                        //var dataBrgLaku = response.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10);
+                        var dataBrgLaku = listPieBarang;
+                        var kdBarang = [];
+                        var nmBarang = [];
+                        var qty = [];
+
+                        for (var i = 0; i < dataBrgLaku.length; i++) {
+                            kdBarang.push(dataBrgLaku[i].KodeBrg);
+                            nmBarang.push(dataBrgLaku[i].NamaBrg);
+                            qty.push(dataBrgLaku[i].Qty);
+                        }
+
+                        var ctxBarangLaku = document.getElementById("chart-baranglaku").getContext('2d');
+                        var chart = new Chart(ctxBarangLaku, {
+                            type: 'pie',
+                            data: {
+
+                                //labels: kdBarang,
+                                labels: nmBarang,
+                                datasets: [{
+                                    data: qty,
+                                    backgroundColor: [
+                                        "#f990a7",
+                                        "#9966FF",
+                                        "#99e5e5",
+                                        "#f7bd83",
+
+                                        "#2ecc71",
+                                        "#3498db",
+                                        "#95a5a6",
+                                        "#9b59b6",
+                                        "#f1c40f",
+                                        "#e74c3c",
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: '10 Barang Paling Laku',
+                                    position: 'top',
+                                    fontSize: 20,
+                                },
+                                legendCallback: function (chart) {
+                                    
+                                    
+                                    var text = [];
+                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                                        text.push('<section>');
+                                        text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
+                                        if (chart.data.labels[i]) {
+                                            var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
+                                                return previousValue + currentValue;
+                                            });
+                                            var currentValue = chart.data.datasets[0].data[i];
+                                            var perc = parseFloat((currentValue / total * 100).toFixed(1));
+                                            text.push(chart.data.labels[i] + ' (Qty: ' + chart.data.datasets[0].data[i] + ') (' + perc + '%)');
+                                        }
+                                        text.push('</li>');
+                                        text.push('</section>');
+                                    }
+                                    text.push('</ul>');
+
+                                    return text.join('');
+                                },
+                                legend: {
+                                    display: false,
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                            var total = meta.total;
+                                            var currentValue = dataset.data[tooltipItem.index];
+                                            var percentage = parseFloat((currentValue / total * 100).toFixed(1));
+                                            return currentValue + ' (' + percentage + '%)';
+                                        },
+                                        title: function (tooltipItem, data) {
+                                            return data.labels[tooltipItem[0].index];
+                                        }
+                                    },
+                                    backgroundColor: '#FFF',
+                                    titleFontColor: '#0066ff',
+                                    bodyFontColor: '#000'
+                                }
+                            }
+                        });
+                        $("#baranglakuLegend").html(chart.generateLegend());
+                    }
+
+                    $('#loading_dashboard_baranglaku').hide();
+                    $('#table-baranglaku-partial').show();
+                    $('#chart-baranglaku-section').show();
+                    if ($tipeStyle == 1) {
+                        $('.table-mode').hide();
+                        $('.pie-mode').show();
+                        $tipeStyle = 1;
+                    }
+                    else if ($tipeStyle == 2) {
+                        $('.pie-mode').hide();
+                        $('.table-mode').show();
+                        $tipeStyle = 2;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function RefreshTableDashboardFaktur() {
+            var $Drtgl1 = "";
+            if ($('#DrTanggal1').val() != undefined) {
+                $Drtgl1 = $('#DrTanggal1').val();
+            }
+            var $Sdtgl1 = "";
+            if ($('#SdTanggal1').val() != undefined) {
+                $Sdtgl1 = $('#SdTanggal1').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardFakturPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl1);
+            link = link.replace("replaceSdtgl", $Sdtgl1);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#chart-faktur-section').hide();
+                    $('#loading_dashboard_faktur').show();
+                },
+                success: function (response) {
+                    $('#chart-faktur-section').html(response);
+                    if (listPieFaktur.length > 0) {
+                        var listdataFaktur = listPieFaktur;
+                        var akunMarketPlace = [];
+                        var jumlahFakturPerMarket = [];
+                        var nilaiFakturPerMarket = [];
+
+                        for (var i = 0; i < listPieFaktur.length; i++) {
+                            akunMarketPlace.push(listPieFaktur[i].NamaMarket);
+                            jumlahFakturPerMarket.push(listPieFaktur[i].JumlahFaktur);
+                            nilaiFakturPerMarket.push(convertToAngka(listPieFaktur[i].NilaiFaktur));
+                        }
+
+                        var ctxFaktur = document.getElementById("chart-faktur").getContext('2d');
+
+                        var chart = new Chart(ctxFaktur, {
+                            type: 'pie',
+                            data: {
+
+                                labels: akunMarketPlace,
+                                datasets: [{
+                                    label: jumlahFakturPerMarket,
+                                    data: nilaiFakturPerMarket,
+                                    backgroundColor: [
+                                        //"#f16e23",
+                                        //"#1E90FF",
+                                        //"#32CD32",
+                                        //"#f990a7",
+                                        //"#FF0000",
+                                        //"#9966FF",
+                                        //"#95a5a6",
+                                        //"#99e5e5",
+                                        //"#f1c40f",
+                                        //"#e74c3c",
+                                        //"#34495e",
+                                        "#f990a7",
+                                        "#9966FF",
+                                        "#99e5e5",
+                                        "#f7bd83",
+
+                                        "#2ecc71",
+                                        "#3498db",
+                                        "#95a5a6",
+                                        "#9b59b6",
+                                        "#f1c40f",
+                                        "#e74c3c",
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Penjualan (Faktur)',
+                                    position: 'top',
+                                    fontSize: 20
+                                },
+                                legendCallback: function (chart) {
+                                    
+                                    var text = [];
+                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                                        text.push('<section>');
+                                        text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
+                                        if (chart.data.labels[i]) {
+                                            var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
+                                                return previousValue + currentValue;
+                                            });
+                                            var currentValue = chart.data.datasets[0].data[i];
+                                            var perc = parseFloat((currentValue / total * 100).toFixed(1));
+
+                                            text.push(chart.data.labels[i] + ' : Rp. ' + convertToRupiah(chart.data.datasets[0].data[i]) + ' (' + chart.data.datasets[0].label[i] + ' Faktur) (' + perc + '%)');
+                                        }
+                                        text.push('</li>');
+                                        text.push('</section>');
+                                    }
+                                    text.push('</ul>');
+
+                                    return text.join('');
+                                },
+                                legend: { display: false },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                            var total = meta.total;
+                                            var currentValue = dataset.label[tooltipItem.index];
+                                            var nilai = dataset.data[tooltipItem.index]
+                                            var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                            return currentValue + ' Faktur (' + percentage + '%)';
+                                        },
+                                        afterLabel: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var nilai = dataset.data[tooltipItem.index]
+                                            return 'Rp. ' + convertToRupiah(nilai);
+                                        },
+                                        title: function (tooltipItem, data) {
+                                            return data.labels[tooltipItem[0].index];
+                                        }
+                                    },
+                                    backgroundColor: '#FFF',
+                                    titleFontColor: '#0066ff',
+                                    bodyFontColor: '#000'
+                                }
+                            }
+                        });
+                        $("#myChartLegend").html(chart.generateLegend());
+                    }
+
+                    $('#loading_dashboard_faktur').hide();
+                    $('#chart-faktur-section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function convertToRupiah(angka) {
+            return $.number(angka, 2, ',', '.');
+        }
+        //end add by nurul 4/7/2019
     </script>
 }

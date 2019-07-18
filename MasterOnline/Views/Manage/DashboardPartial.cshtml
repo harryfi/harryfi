@@ -5,7 +5,12 @@
 @{
     var listBarangMiniStok = new List<PenjualanBarang>();
 }
-
+@*@section styles
+    {
+        <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+        <link href="~/Content/selectize.css" rel="stylesheet" />
+        <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    }*@
 <div class="row angka-mode">
     <div class="col-lg-4 col-md-4 col-xs-12">
         <div class="x_panel">
@@ -201,58 +206,109 @@
     <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h2>10 Barang Paling Laku</h2>
+                <h2>10 Barang Paling Laku (Dari Pesanan)</h2>
                 @*<ul class="nav navbar-right panel_toolbox">
                         <li>
                             <a><span class="label label-success">3 Bulan Terakhir</span></a>
                         </li>
                     </ul>*@
-                <div class="nav navbar-right panel_toolbox">
-                    <h5><span class="label label-success" style="color:white">3 Bulan Terakhir</span></h5>
-                </div>
+                @*<div class="nav navbar-right panel_toolbox">
+                        <h5><span class="label label-success" style="color:white">3 Bulan Terakhir</span></h5>
+                    </div>*@
                 <div class="clearfix"></div>
             </div>
+            <div class="row">
+                <div class="col-md-4">
+                    @Html.Label("", "Dari Tanggal")
+                    <div class="input-group date">
+                        @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("", "S/d Tanggal")
+                    <div class="input-group date">
+                        @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-12">
+                    <div class="dropdown" style="padding-top:1.8em;">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <span id="mode_Baranglaku">Grafik</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li><a onclick="changeStyle(1)">Grafik</a></li>
+                            @*<li><a onclick="changeStyle(2)">Angka</a></li>*@
+                            <li><a onclick="changeStyle(2)">Tabel</a></li>
+                        </ul>
+                    </div>
+                    @*<div class="input-group text" style="padding-top:1.8em;">
+                            <select class="form-control" id="mode_Baranglaku" name="mode_Baranglaku" required="required">
+                                <option value="1" onclick="changeStyle(1)">Grafik</option>
+                                <option value="2" onclick="changeStyle(2)">Angka</option>
+                            </select>
+                        </div>*@
+                </div>
+            </div>
             <div class="x_content text-center">
-                @if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
-                {
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Kode Barang</th>
-                                <th class="text-center">Nama Barang</th>
-                                <th class="text-center">Qty Terjual</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model?.ListBarangLaku?.Count > 0)
-                            {
-                                foreach (var barangLaku in Model.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10))
+                <div id="loading_dashboard_baranglaku" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row" id="table-baranglaku-partial"></div>
+                @*<div class="row table-mode" id="table-baranglaku-partial">
+                    --@Html.Partial("TableDashboardBarangLakuPartial")
+                </div>
+                <div class="row container pie-mode" id="chart-baranglaku-section">
+                    <canvas id="chart-baranglaku" height="200"></canvas>
+                    <div class="legend text-left" id="baranglakuLegend" style="float:left;"></div>
+                    <div style="clear: both;" />
+                </div>*@
+                @*@if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+                    {
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Kode Barang</th>
+                                    <th class="text-center">Nama Barang</th>
+                                    <th class="text-center">Qty Terjual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model?.ListBarangLaku?.Count > 0)
                                 {
-                                    if (barangLaku.Laku)
+                                    foreach (var barangLaku in Model.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10))
                                     {
-                                        <tr>
-                                            <td>@barangLaku.KodeBrg</td>
-                                            <td>@barangLaku.NamaBrg</td>
-                                            <td>@barangLaku.Qty</td>
-                                        </tr>
+                                        if (barangLaku.Laku)
+                                        {
+                                            <tr>
+                                                <td>@barangLaku.KodeBrg</td>
+                                                <td>@barangLaku.NamaBrg</td>
+                                                <td>@barangLaku.Qty</td>
+                                            </tr>
+                                        }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td>---</td>
-                                    <td>---</td>
-                                    <td>---</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
-                }
+                                else
+                                {
+                                    <tr>
+                                        <td>---</td>
+                                        <td>---</td>
+                                        <td>---</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                    }*@
             </div>
         </div>
     </div>
@@ -314,73 +370,172 @@
         <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
-                <h2>10 Barang Di Bawah Minimum Stok</h2>
+                <h2>Penjualan (Faktur)</h2>
+                @*<ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a><span class="label label-success">3 Bulan Terakhir</span></a>
+                        </li>
+                    </ul>*@
+                @*<div class="nav navbar-right panel_toolbox">
+                        <h5><span class="label label-success" style="color:white">3 Bulan Terakhir</span></h5>
+                    </div>*@
                 <div class="clearfix"></div>
             </div>
+            <div class="row">
+                <div class="col-md-4">
+                    @Html.Label("", "Dari Tanggal")
+                    <div class="input-group date">
+                        @Html.TextBox("DrTanggal1", null, new { @class = "form-control", @ReadOnly = true })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    @Html.Label("", "S/d Tanggal")
+                    <div class="input-group date">
+                        @Html.TextBox("SdTanggal1", null, new { @class = "form-control", @ReadOnly = true })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+                @*<div class="col-md-4 col-sm-12">
+                        <div class="dropdown" style="padding-top:1.8em;">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span id="mode_Baranglaku">Angka</span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                <li><a onclick="changeStyle(0)">Angka</a></li>
+                                <li><a onclick="changeStyle(1)">Grafik</a></li>
+                            </ul>
+                        </div>
+                    </div>*@
+            </div>
             <div class="x_content text-center">
-                @if (Model?.ListBarang != null && Model?.ListBarangUntukCekQty != null)
-                {
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Kode Barang</th>
-                                <th class="text-center">Nama Barang</th>
-                                <th class="text-center">Qty</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                foreach (var barang in Model.ListBarang)
+                <div id="loading_dashboard_faktur" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                @*<div class="row table-mode" id="table-baranglaku-partial">
+                        @Html.Partial("TableDashboardBarangLakuPartial")
+                    </div>*@
+                <div class="row container" id="chart-faktur-section">
+                    @*<canvas id="chart-faktur" height="200"></canvas>*@
+                    @*<div id="chart-baranglaku" style="width: 100%; height: 300px"></div>*@
+                </div>
+                @*@if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+                    {
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Kode Barang</th>
+                                    <th class="text-center">Nama Barang</th>
+                                    <th class="text-center">Qty Terjual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model?.ListBarangLaku?.Count > 0)
                                 {
-                                    var barangUtkCek = Model.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
-
-                                    var qtyOnHand = 0d;
-
-                                    if (barangUtkCek != null)
+                                    foreach (var barangLaku in Model.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10))
                                     {
-                                        qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
-                                                    + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
-                                                    + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
-                                                    - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
-                                                    - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
-
-                                        if (qtyOnHand < barang.MINI)
+                                        if (barangLaku.Laku)
                                         {
-                                            listBarangMiniStok.Add(new PenjualanBarang
-                                            {
-                                                KodeBrg = barang.BRG,
-                                                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                                                Qty = qtyOnHand
-                                            });
+                                            <tr>
+                                                <td>@barangLaku.KodeBrg</td>
+                                                <td>@barangLaku.NamaBrg</td>
+                                                <td>@barangLaku.Qty</td>
+                                            </tr>
                                         }
                                     }
                                 }
-                            }
-
-                            @if (listBarangMiniStok.Count > 0)
-                            {
-                                foreach (var barangMinimStok in listBarangMiniStok.OrderBy(b => b.Qty).Take(10))
+                                else
                                 {
                                     <tr>
-                                        <td>@barangMinimStok.KodeBrg</td>
-                                        <td>@barangMinimStok.NamaBrg</td>
-                                        <td>@barangMinimStok.Qty</td>
+                                        <td>---</td>
+                                        <td>---</td>
+                                        <td>---</td>
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
-                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                    }*@
             </div>
         </div>
-    </div>*@
+        @*<div class="x_panel">
+                <div class="x_title">
+                    <h2>10 Barang Di Bawah Minimum Stok</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content text-center">
+                    @if (Model?.ListBarang != null && Model?.ListBarangUntukCekQty != null)
+                    {
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Kode Barang</th>
+                                    <th class="text-center">Nama Barang</th>
+                                    <th class="text-center">Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    foreach (var barang in Model.ListBarang)
+                                    {
+                                        var barangUtkCek = Model.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
+
+                                        var qtyOnHand = 0d;
+
+                                        if (barangUtkCek != null)
+                                        {
+                                            qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                                                        + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                                                        + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                                                        - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                                                        - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+
+                                            if (qtyOnHand < barang.MINI)
+                                            {
+                                                listBarangMiniStok.Add(new PenjualanBarang
+                                                {
+                                                    KodeBrg = barang.BRG,
+                                                    NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                                                    Qty = qtyOnHand
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+
+                                @if (listBarangMiniStok.Count > 0)
+                                {
+                                    foreach (var barangMinimStok in listBarangMiniStok.OrderBy(b => b.Qty).Take(10))
+                                    {
+                                        <tr>
+                                            <td>@barangMinimStok.KodeBrg</td>
+                                            <td>@barangMinimStok.NamaBrg</td>
+                                            <td>@barangMinimStok.Qty</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                    }
+                </div>
+            </div>*@
+    </div>
 </div>
 <div class="row">
-    
+
     <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="x_panel">
             <div class="x_title">
