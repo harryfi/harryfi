@@ -2148,7 +2148,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID,username);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, username);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -3703,7 +3703,7 @@ namespace MasterOnline.Controllers
                     string namaVar = brg.skus[i]._compatible_variation_;
                     namaBrg += " " + namaVar;
                 }
-                namaBrg = namaBrg.Replace('\'','`');//add by Tri 8 Juli 2019, replace petik pada nama barang
+                namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                 urlImage = "";
                 urlImage2 = "";
@@ -4463,7 +4463,10 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        sSQL_Value += ", '', '', ''";
+                        //change 11 Juli 2019 request by Calvin, isi promo start ~ promo end jika attribute 44 kosong
+                        //sSQL_Value += ", '', '', ''";
+                        sSQL_Value += ", '', '', '" + Convert.ToString(brg.skus[i].special_from_time) + ';' +Convert.ToString(brg.skus[i].special_to_time) + ';' + Convert.ToString(brg.skus[i].special_price) + "'";
+                        //end change 11 Juli 2019 request by Calvin, isi promo start ~ promo end jika attribute 44 kosong
                     }
                     if (!string.IsNullOrEmpty(attributeLzd.ANAME45))
                     {
@@ -4652,7 +4655,7 @@ namespace MasterOnline.Controllers
                         {
                             MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
                             MoDbContext.SaveChanges();
-                        }                            
+                        }
 
                         if (cat.Children != null)
                             recursiveCategory(cat.category_id.ToString(), cat.Children, catLzd);
