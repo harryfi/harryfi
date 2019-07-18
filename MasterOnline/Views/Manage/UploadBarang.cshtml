@@ -342,7 +342,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="btnDeleteAll" class="btn btn-success" onclick="deleteAllBrg();">Ya</button>
-                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1);exGetData = 0;">Ya</button>
+                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1, 0);exGetData = 0;">Ya</button>
                 @*<button type="button" id="btnSyncAll" class="btn btn-success" onclick="startSyncAll();">Ya</button>*@
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
             </div>
@@ -886,14 +886,14 @@
 
         var exGetData = 0;
 
-        function GetDataBrgWithRecord(page, recordCount, statBL) {
+        function GetDataBrgWithRecord(page, recordCount, statBL, totalData) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
             } else {
                 @*var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL;
+                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData;
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -907,19 +907,19 @@
                     success: function (response) {
                         if (response.Errors == null || response.Errors.length == 0) {
                             if (response.RecordCount != null) {
-                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount;
+                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
                             }
                             if (response.exception == 1)
                                 exGetData = 1;
                             if (response.Recursive) {
                                 if (response.BLProductActive == 1) {
-                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1);
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1, response.totalData);
                                 } else {
-                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0);
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0, response.totalData);
                                 }
                             } else {
                                 document.getElementById('txtInfo').innerText = '';
-                                var msg = "Jumlah data berhasil tersimpan :" + response.RecordCount;
+                                var msg = "Jumlah data berhasil tersimpan :" + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
                                 if (exGetData == 1) {
                                     msg += '\nAda data barang yang tidak masuk ke MO. Silahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
                                 }

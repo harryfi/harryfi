@@ -2629,11 +2629,12 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount)
+        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount, int totalData)
         {
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.totalData = totalData;//add 18 Juli 2019, show total record
             ret.exception = 0;
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -2682,9 +2683,11 @@ namespace MasterOnline.Controllers
 
                             foreach (var brg in result.data.products)
                             {
+                                ret.totalData += 1;//add 18 Juli 2019, show total record
                                 if (brg.skus.Count > 1)
                                 {
                                     varian = true;
+                                    ret.totalData += brg.skus.Count;//add 18 Juli 2019, show total record
                                 }
                                 else
                                 {

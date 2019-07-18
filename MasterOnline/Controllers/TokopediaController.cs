@@ -1243,7 +1243,7 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
-            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page="+ Convert.ToString(page) +"&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1302,7 +1302,7 @@ namespace MasterOnline.Controllers
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                     var kabKot = "3174";
                     var prov = "31";
-                    insertPembeli += "('" + order.recipient.name.Replace("'","`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                    insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                     insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full.Replace("'", "`") + "', 0, 0, 0, 0, '1', 0, 0, ";
                     insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code.Replace("'", "`") + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
@@ -1542,10 +1542,12 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)
+        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01, int totalData)
         {
             var connId = Guid.NewGuid().ToString();
             BindingBase ret = new BindingBase();
+            ret.totalData = totalData;//add 18 Juli 2019, show total record
+            ret.recordCount = recordCount;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -1623,7 +1625,8 @@ namespace MasterOnline.Controllers
                     //end add by calvin 13 juni 2019
 
                     ret.status = 1;
-                    ret.recordCount = recordCount;
+                    //ret.recordCount = recordCount;
+                    ret.totalData += result.data.Count();//add 18 Juli 2019, show total record
                     List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
                     var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
                     var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
@@ -1631,7 +1634,7 @@ namespace MasterOnline.Controllers
                     foreach (var item in result.data)
                     {
                         brgMp = Convert.ToString(item.product_id);
-                        if(item.status.ToUpper() != "DELETE")
+                        if (item.status.ToUpper() != "DELETE")
                         {
                             var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
                             //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
@@ -1643,7 +1646,7 @@ namespace MasterOnline.Controllers
                                 urlImage = "";
                                 urlImage2 = "";
                                 urlImage3 = "";
-                                namaBrg = namaBrg.Replace('\'','`');
+                                namaBrg = namaBrg.Replace('\'', '`');
                                 if (namaBrg.Length > 30)
                                 {
                                     nama = namaBrg.Substring(0, 30);
@@ -1705,7 +1708,7 @@ namespace MasterOnline.Controllers
                                 ret.recordCount = ret.recordCount + 1;
                             }
                         }
-                        
+
                     }
                     if (listNewRecord.Count() > 0)
                     {

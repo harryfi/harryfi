@@ -31,6 +31,7 @@ namespace MasterOnline.ViewModels
         public int RecordCount { get; set; }
         public int BLProductActive { get; set; }
         public int exception { get; set; }
+        public int totalData { get; set; }//add 18 Juli 2019, show total record
     }
 
     public class SimpleJsonObject

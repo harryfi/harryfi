@@ -24513,7 +24513,7 @@ namespace MasterOnline.Controllers
         }
 
         [Route("manage/ImportDataMP")]
-        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL)
+        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL, int totalData)
         {
             if (!string.IsNullOrEmpty(cust))
             {
@@ -24533,6 +24533,7 @@ namespace MasterOnline.Controllers
                                 Stf02 = new STF02(),
                                 TempBrg = new TEMP_BRG_MP(),
                                 BLProductActive = statBL,
+                                totalData = totalData//add 18 Juli 2019, show total record
                             };
                             //int recordCount = 0;
                             switch (marketplace.NamaMarket.ToUpper())
@@ -24545,8 +24546,9 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         var lzdApi = new LazadaController();
-                                        var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount);
+                                        var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount, totalData);
                                         retBarang.exception = resultLzd.exception;
+                                        retBarang.totalData = resultLzd.totalData;
                                         if (resultLzd.status == 1)
                                         {
                                             if (!string.IsNullOrEmpty(resultLzd.message))
@@ -24600,8 +24602,9 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount);
+                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData);
                                         retBarang.exception = result.exception;
+                                        retBarang.totalData = result.totalData;
                                         if (result.status == 1)
                                         {
                                             if (!string.IsNullOrEmpty(result.message))
@@ -24695,8 +24698,9 @@ namespace MasterOnline.Controllers
                                             token = arf01.TOKEN,
                                             idmarket = arf01.RecNum.Value
                                         };
-                                        var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
+                                        var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount, totalData);
                                         retBarang.exception = resultBli.exception;
+                                        retBarang.totalData = resultBli.totalData;
                                         if (resultBli.status == 1)
                                         {
                                             if (!string.IsNullOrEmpty(resultBli.message))
@@ -24761,23 +24765,24 @@ namespace MasterOnline.Controllers
                                         };
 
                                         //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-                                        var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-                                        retBarang.exception = resultShopee.exception;
-                                        if (resultShopee.status == 1)
+                                        var resultTokped = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value, totalData);
+                                        retBarang.exception = resultTokped.exception;
+                                        retBarang.totalData = resultTokped.totalData;
+                                        if (resultTokped.status == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultShopee.message))
+                                            if (!string.IsNullOrEmpty(resultTokped.message))
                                             {
-                                                retBarang.RecordCount = resultShopee.recordCount;
+                                                retBarang.RecordCount = resultTokped.recordCount;
                                                 retBarang.Recursive = true;
                                             }
                                             else
                                             {
-                                                retBarang.RecordCount = resultShopee.recordCount;
+                                                retBarang.RecordCount = resultTokped.recordCount;
                                             }
                                         }
                                         else
                                         {
-                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.RecordCount = resultTokped.recordCount;
                                         }
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
@@ -24795,8 +24800,9 @@ namespace MasterOnline.Controllers
                                             merchant_code = arf01.Sort1_Cust,
 
                                         };
-                                        var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
+                                        var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount, totalData);
                                         retBarang.exception = resultShopee.exception;
+                                        retBarang.totalData = resultShopee.totalData;
                                         if (resultShopee.status == 1)
                                         {
                                             if (!string.IsNullOrEmpty(resultShopee.message))
@@ -24829,8 +24835,9 @@ namespace MasterOnline.Controllers
                                             appKey = arf01.API_KEY,
                                             appSecret = arf01.API_CLIENT_U,
                                         };
-                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount);
+                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
                                         retBarang.exception = resultJD.exception;
+                                        retBarang.totalData = resultJD.totalData;
                                         if (resultJD.status == 1)
                                         {
                                             if (!string.IsNullOrEmpty(resultJD.message))
