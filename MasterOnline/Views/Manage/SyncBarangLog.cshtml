@@ -1,0 +1,66 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model FakturViewModel
+@{
+                /**/
+
+                var listImportLog = Model.ListImportFaktur.ToList();
+                var listPelanggan = Model.ListPelanggan.ToList();
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <label class="control-label">History Upload</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table id="table_history_upload" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">Pengupload</th>
+                    <th width="150">Tanggal Upload</th>
+                    <th width="100">Akun</th>
+                    @*<th width="100">Faktur Terakhir</th>
+                    <th width="150">Tanggal Faktur</th>*@
+                    <th width="45">Log Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var importLog in listImportLog)
+                {
+                    <tr data-log-recnum="log-@importLog.RECNUM">
+                        @{
+                            var namaCust = "";
+                            if (listPelanggan.FirstOrDefault(b => b.CUST == importLog.CUST) != null)
+                            {
+                                namaCust = listPelanggan.FirstOrDefault(b => b.CUST == importLog.CUST).PERSO;
+                            }
+
+                        }
+                        <td class="log-pengupload">
+                            @importLog.UPLOADER
+                        </td>
+                        <td class="log-tanggal">
+                            @importLog.UPLOAD_DATETIME
+                        </td>
+                        <td class="log-akun">
+                            @namaCust
+                        </td>
+                        @*<td class="log-faktur">
+                            @importLog.LAST_FAKTUR_UPLOADED
+                        </td>
+                        <td class="log-faktur-tanggal">
+                            @importLog.LAST_FAKTUR_UPLOADED_DATETIME
+                        </td>*@
+                        <td class="log-history" style="text-align:center">
+                            <button type="button" class="btn btn-primary" onclick="downloadLogUploadBarang('@importLog.LOG_FILE')">
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

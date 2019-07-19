@@ -599,7 +599,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = (page + 1).ToString(),
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
@@ -635,7 +636,8 @@ namespace MasterOnline.Controllers
                                     ret.status = 1;
                                     int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault().RecNum.Value;
                                     if (listProd.model.spuInfoVoList.Count == 10)
-                                        ret.message = (page + 1).ToString();
+                                        //ret.message = (page + 1).ToString();
+                                        ret.nextPage = 1;
 
                                     foreach (var item in listProd.model.spuInfoVoList)
                                     {
@@ -691,11 +693,14 @@ namespace MasterOnline.Controllers
                 else
                 {
                     ret.exception = 1;
+                    currentLog.REQUEST_EXCEPTION = "failed to call api";
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
 
                 }
             }
             catch (Exception ex)
             {
+                ret.nextPage = 1;
                 ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
@@ -704,7 +709,8 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust) { 
+        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust)
+        {
             var ret = new BindingBase
             {
                 status = 0,
@@ -739,6 +745,7 @@ namespace MasterOnline.Controllers
                                 if (dataProduct.model.Count > 1)
                                 {
                                     haveVarian = true;
+                                    ret.totalData += 1;//add 18 Juli 2019, show total record
                                 }
                                 ret.totalData += dataProduct.model.Count();//add 18 Juli 2019, show total record
                                 foreach (var item in dataProduct.model)
@@ -883,7 +890,7 @@ namespace MasterOnline.Controllers
                                     if (createParent)
                                     {
                                         var retSQL = CreateSQLValue(item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
-                                        if(retSQL.exception == 1)
+                                        if (retSQL.exception == 1)
                                             ret.exception = 1;
                                         if (retSQL.status == 1)
                                             sSQLVal += retSQL.message;
@@ -1524,7 +1531,7 @@ namespace MasterOnline.Controllers
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
                             CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
                             CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
-                            MARKETPLACE = "JD",
+                            MARKETPLACE = "JD.ID",
                             REQUEST_ACTION = data.REQUEST_ACTION,
                             REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
                             REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",

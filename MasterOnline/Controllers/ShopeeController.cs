@@ -113,8 +113,10 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
                 REQUEST_STATUS = "Pending",
             };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             string urll = "https://partner.shopeemobile.com/api/v1/items/get";
 
@@ -153,10 +155,11 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {
+                ret.nextPage = 1;
                 ret.exception = 1;
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
@@ -174,7 +177,8 @@ namespace MasterOnline.Controllers
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
                     if (listBrg.items.Length == 10)
-                        ret.message = (page + 1).ToString();
+                        //ret.message = (page + 1).ToString();
+                        ret.nextPage = 1;
                     ret.totalData += listBrg.items.Count();//add 18 Juli 2019, show total record
                     foreach (var item in listBrg.items)
                     {
@@ -216,6 +220,7 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex2)
                 {
+                    ret.nextPage = 1;
                     ret.exception = 1;
                     currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);

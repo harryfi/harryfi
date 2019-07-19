@@ -1059,14 +1059,18 @@ namespace MasterOnline.Controllers
                         ret.status = 1;
                         if (resListProd.products.Count == 10)
                         {
-                            ret.message = (page + 1).ToString();
+                            //ret.message = (page + 1).ToString();
+                            ret.nextPage = 1;
                             if (!display)
                                 ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                         }
                         else
                         {
                             if (display)
+                            {
                                 ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                ret.nextPage = 1;
+                            }
                         }
                         int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                         var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
@@ -2106,7 +2110,7 @@ namespace MasterOnline.Controllers
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
                             CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
                             CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
-                            MARKETPLACE = "Buka Lapak",
+                            MARKETPLACE = "Bukalapak",
                             REQUEST_ACTION = data.REQUEST_ACTION,
                             REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
                             REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",

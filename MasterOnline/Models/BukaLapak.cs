@@ -43,6 +43,7 @@ namespace MasterOnline.Models
         public int recordCount { get; set; }
         public int exception { get; set; }
         public int totalData { get; set; }
+        public int nextPage { get; set; }
     }
     public class BukaLapakResponse
     {
