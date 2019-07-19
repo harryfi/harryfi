@@ -22246,6 +22246,21 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add 10 Juni 2019, update panjang/lebar/tinggi
+                                    if (barangInDB.PANJANG == 0 && data.Stf02.PANJANG > 0)
+                                    {
+                                        barangInDB.PANJANG = data.Stf02.PANJANG;
+                                    }
+                                    if (barangInDB.LEBAR == 0 && data.Stf02.LEBAR > 0)
+                                    {
+                                        barangInDB.LEBAR = data.Stf02.LEBAR;
+                                    }
+                                    if (barangInDB.TINGGI == 0 && data.Stf02.TINGGI > 0)
+                                    {
+                                        barangInDB.TINGGI = data.Stf02.TINGGI;
+                                    }
+                                    //end add 10 Juni 2019, update panjang/lebar/tinggi
+
                                     brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
