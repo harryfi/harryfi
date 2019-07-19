@@ -439,10 +439,10 @@
                 if (rows_selected.length == 0) {
                     alert('Anda belum memilih Toko yang akan diambil data barangnya.');
                 } else {
-                    GetDataBrgWithRecord(rows_selected[0], 0, 0, 1);
+                    GetDataBrgWithRecord(rows_selected[0], 0, 0, 1, 0);
                 }
             } else {
-                GetDataBrgWithRecord(listCust[0], 0, 0, 1);
+                GetDataBrgWithRecord(listCust[0], 0, 0, 1, 0);
             }
 
         }
@@ -475,31 +475,35 @@
         }
 
         var msg2 = '';
+        var namaFileLog = '';
         //get data barang with record
-        function GetDataBrgWithRecord(cust, page, recordCount, statBL) {
+        function GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-                link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL;
+            link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData + '&namaFileLog=' + namaFileLog;
                 $.ajax({
                     type: "GET",
                     url: link,
                     beforeSend: function () {
-                        //$('#loading_barang_tab').show();
-                        document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data : 0';
+                        $('#lblPleaseWait').show();
+                        document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data berhasil tersimpan ke MO : 0';
+                        document.getElementById('lblTotalData_' + cust).innerText = 'Jumlah data yang didapat dari marketplace : 0';
                         $('#lblRecord_' + cust).show();
+                        $('#lblTotalData_' + cust).show();
                         $('#spinner_' + cust).show();
                     },
                     success: function (response) {
                         if (response.Errors == null || response.Errors.length == 0) {
                             if (response.RecordCount != null) {
-                                document.getElementById('lblRecord_'+ cust).innerText = 'Jumlah data : ' + response.RecordCount;
+                                document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data berhasil tersimpan ke MO : ' + response.RecordCount;
+                                document.getElementById('lblTotalData_' + cust).innerText = 'Jumlah data yang didapat dari marketplace : ' + response.totalData;
                             }
                             if (response.exception == 1)
                                 exGetData = 1;
                             if (response.Recursive) {
                                 if (response.BLProductActive == 1) {
-                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 1);
+                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 1, response.totalData);
                                 } else {
-                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 0);
+                                    GetDataBrgWithRecord(cust, response.Page, response.RecordCount, 0, response.totalData);
                                 }
                             } else {
                                 //document.getElementById('txtInfo').innerText = '';
@@ -518,6 +522,7 @@
                                 if (rows_selected.length > 0) {
                                     GetAllDataBrg(rows_selected);
                                 } else {
+                                    $('#lblPleaseWait').hide();
                                     if (msg2 != '') {
                                         msg2 += '\nSilahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
                                     }
@@ -538,6 +543,7 @@
                             if (rows_selected.length > 0) {
                                 GetAllDataBrg(rows_selected);
                             } else {
+                                $('#lblPleaseWait').hide();
                                 alert('Proses mengambil data barang dari marketplace telah selesai.');
                             }
                         }
@@ -550,6 +556,7 @@
                         if (rows_selected.length > 0) {
                             GetAllDataBrg(rows_selected);
                         } else {
+                            $('#lblPleaseWait').hide();
                             alert('Proses mengambil data barang dari marketplace telah selesai.');
                         }
                         //var err = JSON.parse(xhr.responseText);
@@ -726,7 +733,14 @@
             sHTML += "</table>";
             $('#div_with_pbar').append(sHTML);
         }
+        
+        function downloadLogUploadBarang(txt){
+            window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
 
+            //var link = '@Url.Action("DownloadLogUploadFaktur", "Manage")';
+            //link += '?filename=' + txt;
+
+        }
         var listErrorMessage = "";
 
         function startSyncAll() {
@@ -754,6 +768,7 @@
                     success: function (response) {
                         if (response.Errors == null) {
                             if (response.Total != null && response.Total != "") {
+                                namaFileLog = response.fileName;
                                 if (parseInt(response.Total) > 0) {
                                     //showProgressBar();
                                     if (parseInt(response.Total) <= 10) {

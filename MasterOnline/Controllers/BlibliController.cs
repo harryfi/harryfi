@@ -2143,6 +2143,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
@@ -2191,56 +2192,55 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                //ret.message = ex.Message;
-                ret.exception = 1;
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                return ret;
-            }
 
-            if (!string.IsNullOrEmpty(responseFromServer))
-            {
-                var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
-                if (listBrg != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    if (string.IsNullOrEmpty(listBrg.errorCode))
+                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
+                    if (listBrg != null)
                     {
-                        if (listBrg.content != null)
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        if (string.IsNullOrEmpty(listBrg.errorCode))
                         {
-                            if (listBrg.content.Count > 0)
+                            if (listBrg.content != null)
                             {
-                                ret.status = 1;
-                                int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                                if (listBrg.content.Count == 10)
-                                    ret.message = (page + 1).ToString();
-
-                                //add 13 Feb 2019, tuning
-                                var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
-                                var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
-                                //end add 13 Feb 2019, tuning
-
-                                foreach (var item in listBrg.content)
+                                if (listBrg.content.Count > 0)
                                 {
-                                    //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                    //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                    var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
-                                    if (tempbrginDB == null && brgInDB == null)
+                                    ret.status = 1;
+                                    int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
+                                    if (listBrg.content.Count == 10)
+                                        //ret.message = (page + 1).ToString();
+                                        ret.nextPage = 1;
+
+                                    //add 13 Feb 2019, tuning
+                                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                                    //end add 13 Feb 2019, tuning
+
+                                    foreach (var item in listBrg.content)
                                     {
-                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
-                                        if (retDet.exception == 1)
-                                            ret.exception = 1;
-                                        ret.totalData += retDet.totalData;//add 18 Juli 2019, show total record
-                                        if (retDet.status >= 1)
+                                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
                                         {
-                                            ret.recordCount += retDet.status;
+                                            var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
+                                            if (retDet.exception == 1)
+                                                ret.exception = 1;
+                                            ret.totalData += retDet.totalData;//add 18 Juli 2019, show total record
+                                            if (retDet.status >= 1)
+                                            {
+                                                ret.recordCount += retDet.status;
+                                            }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    ret.message = "Gagal mendapatkan produk";
+                                    currentLog.REQUEST_EXCEPTION = ret.message;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                                 }
                             }
                             else
@@ -2252,31 +2252,36 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            ret.message = "Gagal mendapatkan produk";
+                            ret.message = listBrg.errorMessage;
                             currentLog.REQUEST_EXCEPTION = ret.message;
                             manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                     else
                     {
-                        ret.message = listBrg.errorMessage;
+                        ret.message = "Gagal mendapatkan produk";
                         currentLog.REQUEST_EXCEPTION = ret.message;
                         manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                     }
                 }
                 else
                 {
-                    ret.message = "Gagal mendapatkan produk";
+                    ret.message = "Failed to get response from Blibli API";
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = "Failed to get response from Blibli API";
-                currentLog.REQUEST_EXCEPTION = ret.message;
+                //ret.message = ex.Message;
+                if (ex.Message != "The remote server returned an error: (401) Unauthorized.")
+                    ret.nextPage = 1;
+                ret.exception = 1;
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return ret;
             }
+
             return ret;
         }
         protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display/*, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local*/)

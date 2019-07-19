@@ -32,10 +32,15 @@
                     </div>*@
                 <div class="x_content" style="font-size:15px;">
                     <div id="div_with_list">
-                        <div>
-                            List Toko :
+                        <div class="row">
+                            <div class="col-md-3">
+                                List Toko :
+                            </div>
+                            <div class="col-md-9" id="lblPleaseWait" hidden="hidden">
+                                <b>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</b>
+                            </div>
                         </div>
-                        <div>
+                        <div class="row">
                             @if (Model != null)
                             {
                                 foreach (var customer in Model.Customers)
@@ -50,8 +55,11 @@
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             <label id="lblNama_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
                                         </div>
-                                        <div class="col-md-2" style="padding-top: 7px;">
+                                        <div class="col-md-3" style="padding-top: 7px;">
                                             <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            <label id="lblTotalData_@customer.cust" class="label_record" hidden="hidden"></label>
                                         </div>
                                         <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
                                             <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>

@@ -443,7 +443,7 @@ namespace MasterOnline.Controllers
                                                     var current_brg = listTemp.Where(m => m.BRG_MP == kd_brg_mp).SingleOrDefault();
                                                     if (current_brg != null)
                                                     {
-                                                        if (worksheet.Cells[i, 3].Value != null) //user tidak isi kode barang mo, tidak perlu update  
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value))) //user tidak isi kode barang mo, tidak perlu update  
                                                         {
                                                             if (worksheet.Cells[i, 1].Value != null)
                                                                 current_brg.NAMA = worksheet.Cells[i, 1].Value.ToString();

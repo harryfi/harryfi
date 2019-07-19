@@ -38,5 +38,7 @@ namespace MasterOnline.ViewModels
     {
         public int Total { get; set; }
         public string Errors { get; set; }
+        public string fileName { get; set; }
+        public int startRecnum { get; set; }
     }
 }
