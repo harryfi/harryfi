@@ -19,6 +19,7 @@ namespace MasterOnline
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            Utils.HangfireBootstrapper.Instance.Start();
         }
 
         protected void Application_BeginRequest()
@@ -26,6 +27,7 @@ namespace MasterOnline
             CultureInfo info = new CultureInfo(System.Threading.Thread.CurrentThread.CurrentCulture.ToString());
             info.DateTimeFormat.ShortDatePattern = "dd/MM/yyyy";
             System.Threading.Thread.CurrentThread.CurrentCulture = info;
+            Utils.HangfireBootstrapper.Instance.Stop();
         }
     }
 }
