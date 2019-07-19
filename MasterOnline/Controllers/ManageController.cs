@@ -50,8 +50,6 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         string dbPathEra = "";
         string EDBConnID = "";
-        SqlServerStorage sqlStorage;
-        BackgroundJobClient clientJobServer;
         string usernameLogin;
         public ManageController()
         {
@@ -67,8 +65,6 @@ namespace MasterOnline.Controllers
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
                 EDBConnID = EDB.GetConnectionString("ConnID");
-                sqlStorage = new SqlServerStorage(EDBConnID);
-                clientJobServer = new BackgroundJobClient(sqlStorage);
                 usernameLogin = sessionData.Account.Username;
 
             }
@@ -82,8 +78,6 @@ namespace MasterOnline.Controllers
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
                     EDBConnID = EDB.GetConnectionString("ConnID");
-                    sqlStorage = new SqlServerStorage(EDBConnID);
-                    clientJobServer = new BackgroundJobClient(sqlStorage);
                     usernameLogin = sessionData.User.Username;
                 }
             }
@@ -2464,11 +2458,17 @@ namespace MasterOnline.Controllers
             string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
             string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
             string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
-            string drtanggal = thn1 + '-' + bln1 + '-' + tgl1;
+            //change by nurul 19/7/2019
+            //string drtanggal = thn1 + '-' + bln1 + '-' + tgl1;
+            string drtanggal = thn1 + '-' + bln1 + '-' + tgl1 + " 00:00:00.000";
+            //end change by nurul 19/7/2019
             string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
             string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
             string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
-            string sdtanggal = thn2 + '-' + bln2 + '-' + tgl2;
+            //change by nurul 19/7/2019
+            //string sdtanggal = thn2 + '-' + bln2 + '-' + tgl2;
+            string sdtanggal = thn2 + '-' + bln2 + '-' + tgl2 + " 23:59:59.999";
+            //end change by nurul 19/7/2019
             //end add by nurul 
 
             //remark by calvin 28 mei 2019
@@ -2560,7 +2560,21 @@ namespace MasterOnline.Controllers
             //add by calvin 24 mei 2019
             //note by calvin 24 mei 2019 : hanya cari dari pesanan, confirm by pak dani
             var result = new List<TableMenuBarang1PartialViewModel>();
-            var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>("SELECT BRG, NAMA, QTY FROM ( SELECT B.BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2,'') AS NAMA, SUM(B.QTY) QTY FROM SOT01A (nolock) A INNER JOIN SOT01B (nolock) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN STF02 (nolock) C ON B.BRG = C.BRG WHERE A.TGL between '" + drtanggal + "' AND '" + sdtanggal + "' GROUP BY B.BRG,C.NAMA,C.NAMA2 ) A WHERE A.NAMA LIKE '%" + search + "%' OR A.BRG LIKE '%" + search + "%' ORDER BY QTY DESC").ToList();
+
+            //change by nurul 19/7/2019
+            //var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>("SELECT BRG, NAMA, QTY FROM ( SELECT B.BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2,'') AS NAMA, SUM(B.QTY) QTY FROM SOT01A (nolock) A INNER JOIN SOT01B (nolock) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN STF02 (nolock) C ON B.BRG = C.BRG WHERE A.TGL between '" + drtanggal + "' AND '" + sdtanggal + "' GROUP BY B.BRG,C.NAMA,C.NAMA2 ) A WHERE A.NAMA LIKE '%" + search + "%' OR A.BRG LIKE '%" + search + "%' ORDER BY QTY DESC").ToList();
+            string sSQL = "SELECT BRG, NAMA, QTY FROM ( SELECT B.BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2,'') AS NAMA, SUM(B.QTY) QTY ";
+            sSQL += "FROM SOT01A (nolock) A INNER JOIN SOT01B (nolock) B ON A.NO_BUKTI = B.NO_BUKTI ";
+            sSQL += "LEFT JOIN STF02 (nolock) C ON B.BRG = C.BRG ";
+            sSQL += "WHERE A.TGL between '" + drtanggal + "' AND '" + sdtanggal + "' GROUP BY B.BRG,C.NAMA,C.NAMA2 ) A ";
+            if (search != "")
+            {
+                sSQL += "WHERE A.NAMA LIKE '%" + search + "%' OR A.BRG LIKE '%" + search + "%' ";
+            }
+            sSQL += "ORDER BY QTY DESC ";
+            var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+            //end change by nurul 19/7/2019
+
             var listBarangInPesanan = ListBarangAndQtyInPesanan.Select(p => p.BRG).ToList();
             var totalCountInPesanan = listBarangInPesanan.Count();
             var totalCount0Pesanan = 0;
@@ -13296,12 +13310,17 @@ namespace MasterOnline.Controllers
                                     DatabasePathErasoft = dbPathEra,
                                     username = usernameLogin
                                 };
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
                             if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
                             {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
                                 if (sot01b.Count > 0)
                                 {
@@ -13327,6 +13346,9 @@ namespace MasterOnline.Controllers
                             dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                 {
                                     string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
@@ -13368,6 +13390,9 @@ namespace MasterOnline.Controllers
                                 //    idmarket = marketPlace.RecNum.Value
                                 //};
                                 //Task.Run(() => TokoAPI.PostAckOrder(iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI)).Wait();
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                 {
                                     merchant_code = marketPlace.Sort1_Cust, //FSID
@@ -13389,6 +13414,9 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             {
+
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //change by calvin 10 april 2019, jadi pakai backgroundjob
                                 //blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
                                 clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.KonfirmasiPengiriman(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN));
@@ -13434,6 +13462,9 @@ namespace MasterOnline.Controllers
                                     //lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
                                     if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(pesanan.NO_REFERENSI))
                                     {
+
+                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                         clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN));
                                     }
                                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -13449,6 +13480,10 @@ namespace MasterOnline.Controllers
                                 dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                                 if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                                 {
+
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+
                                     for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                     {
                                         string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
@@ -13474,6 +13509,9 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(Convert.ToString(pesanan.NO_REFERENSI)))
                                 {
+
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                                     //var bliAPI = new BlibliController();
                                     var listDetail = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                                     foreach (var item in listDetail)
@@ -13987,6 +14025,9 @@ namespace MasterOnline.Controllers
                 string[] referensi = pesananInDb.NO_REFERENSI.Split(';');
                 if (referensi.Count() > 0)
                 {
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
                     clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
@@ -14070,6 +14111,9 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo));
                     //await new ShopeeControllerJob().InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Change Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
@@ -14096,6 +14140,8 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -14115,6 +14161,9 @@ namespace MasterOnline.Controllers
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
@@ -18476,6 +18525,13 @@ namespace MasterOnline.Controllers
                 //ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
+            List<string> listBrg = new List<string>();
+            //foreach (var brg in vm.ListBarang)
+            //{
+            listBrg.Add(dataVm.BarangStok.Kobar);
+            //}
+            updateStockMarketPlace(listBrg, "[MOVE_WH][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
             return PartialView("BarangTransaksiPindahPartial", vm);
         }
 
@@ -18616,6 +18672,7 @@ namespace MasterOnline.Controllers
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
 
             //add by calvin, 25 juni 2018 validasi QOH
+            List<string> brg = new List<string>();
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
             {
@@ -18630,6 +18687,9 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa dihapus, Qty Barang ( " + item.Kobar + " ) di gudang " + Convert.ToString(item.Ke_Gd) + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+
+                brg.Add(item.Kobar);
+
                 //add by nurul 13/9/2018
                 ErasoftDbContext.STT01B.Remove(item);
                 ErasoftDbContext.SaveChanges();
@@ -18646,6 +18706,8 @@ namespace MasterOnline.Controllers
                 Errors = null
             };
 
+            updateStockMarketPlace(brg, "[DEL_MOVE_WH_A][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
             //return PartialView("TableTransaksiPindahPartial", vm);
 
             return Json(stokInDb, JsonRequestBehavior.AllowGet);
@@ -18659,6 +18721,8 @@ namespace MasterOnline.Controllers
                 var barangStokInDb = ErasoftDbContext.STT01B.Single(b => b.No == noUrut);
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
+                List<string> brg = new List<string>();
+                brg.Add(barangStokInDb.Kobar);
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
 
@@ -18685,6 +18749,8 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
                 };
+
+                updateStockMarketPlace(brg, "[DEL_MOVE_WH_B][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
 
                 return PartialView("BarangTransaksiPindahPartial", vm);
             }
@@ -19134,13 +19200,13 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult ListImportFaktur(string cust)
         {
-            var partialVm = new FakturViewModel()
-            {
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            };
-
-            return PartialView("UploadFakturView", partialVm);
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
         }
         [HttpPost]
         //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
@@ -19392,7 +19458,8 @@ namespace MasterOnline.Controllers
                                 var UniqueCode = false;
                                 while (!UniqueCode)
                                 {
-                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == lastRecnumARF01C.ToString().PadLeft(10, '0') select p.BUYER_CODE).FirstOrDefault();
+                                    var currentBuyerCode = lastRecnumARF01C.ToString().PadLeft(10, '0');
+                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == currentBuyerCode select p.BUYER_CODE).FirstOrDefault();
                                     if (cekDuplikatArf01c == null)
                                     {
                                         UniqueCode = true;
@@ -19685,13 +19752,697 @@ namespace MasterOnline.Controllers
             }
 
 
-            var partialVm = new FakturViewModel()
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+            
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
+            //return new EmptyResult();
+            //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
+        }
+        //add by Tri 3 Juli 2019, upload faktur bl
+        public ActionResult UploadFakturBukaLapak()
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string uname = sessionData.Account.Username;
+            UploadFakturResult result = new UploadFakturResult
             {
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+                success = "0",
+                resultMessage = ""
             };
+            //var data = new List<UploadFakturTokpedDataDetail>();
+            List<BukaLapakExcelFaktur> records = new List<BukaLapakExcelFaktur>();
+            string cust = Request["cust"];
+            string nama_cust = Request["nama_cust"];
+            string perso = Request["perso"];
+            for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+            {
+                var file = Request.Files[file_index];
+                TextReader tr;
+                string fileName = file.FileName;
+                var fExt = fileName.Split('.');
+                if (file != null && file.ContentLength > 0)
+                {
+                    byte[] dataByte;
+                    using (Stream inputStream = file.InputStream)
+                    {
+                        MemoryStream memoryStream = inputStream as MemoryStream;
+                        if (memoryStream == null)
+                        {
+                            memoryStream = new MemoryStream();
+                            inputStream.CopyTo(memoryStream);
+                        }
+                        dataByte = memoryStream.ToArray();
+                        tr = new StreamReader(inputStream);
+                    }
+                    if (fExt[fExt.Length - 1] == "csv")
+                    {
+                        string namaFile = dbPathEra + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
+                        System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), dataByte);
+                        using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
+                        {
+                            var reader = new CsvReader(sr);
+                            reader.Configuration.Delimiter = ";";
+                            //reader.Configuration.BadDataFound = null;
+                            //reader.Configuration.HeaderValidated = null;
+                            //reader.Configuration.MissingFieldFound = null;
+                            reader.Configuration.PrepareHeaderForMatch = (header, index) => Regex.Replace(header, @"\s", string.Empty);
+                            var records_excell = reader.GetRecords<BukaLapakExcelFaktur>();
+                            //var recCount = records_excell.Count();
+                            //if (recCount > 0)
+                            try
+                            {
+                                foreach (var dataFaktur in records_excell)
+                                {
+                                    var a = new BukaLapakExcelFaktur
+                                    {
+                                        Tanggal = dataFaktur.Tanggal,
+                                        IDTransaksi = dataFaktur.IDTransaksi,
+                                        AlamatPembeli = dataFaktur.AlamatPembeli,
+                                        BiayaAsuransi = dataFaktur.BiayaAsuransi,
+                                        BiayaPengiriman = dataFaktur.BiayaPengiriman,
+                                        DetailDropshipper = dataFaktur.DetailDropshipper,
+                                        HargaProduk = dataFaktur.HargaProduk,
+                                        HPPembeli = dataFaktur.HPPembeli,
+                                        JumlahProduk = dataFaktur.JumlahProduk,
+                                        KecamatanPembeli = dataFaktur.KecamatanPembeli,
+                                        KodePosPembeli = dataFaktur.KodePosPembeli,
+                                        KodeTracking = dataFaktur.KodeTracking,
+                                        KotaPembeli = dataFaktur.KotaPembeli,
+                                        Kurir = dataFaktur.Kurir,
+                                        NamaDropshipper = dataFaktur.NamaDropshipper,
+                                        NamaProduk = dataFaktur.NamaProduk,
+                                        Pembeli = dataFaktur.Pembeli,
+                                        Penjual = dataFaktur.Penjual,
+                                        PropinsiPembeli = dataFaktur.PropinsiPembeli,
+                                        SKU = dataFaktur.SKU,
+                                        Status = dataFaktur.Status,
+                                        TotalTerbayar = dataFaktur.TotalTerbayar,
+                                        TransaksiDropshipper = dataFaktur.TransaksiDropshipper,
+                                        UsernamePembeli = dataFaktur.UsernamePembeli,
+                                        Varian = dataFaktur.Varian
+                                    };
+                                    if (!string.IsNullOrEmpty(a.Status))
+                                    {
+                                        if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak")
+                                        {
+                                            records.Add(a);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //return JsonErrorMessage(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                return JsonErrorMessage("Format file yang anda upload salah.");
+                            }
 
-            return PartialView("UploadFakturView", partialVm);
+                        }
+                        System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
+
+                    }
+                    else if (fExt[fExt.Length - 1] == "xlsx")
+                    {
+                        using (MemoryStream stream = new MemoryStream(dataByte))
+                        {
+                            using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                            {
+                                //loop all worksheets
+                                var worksheet = excelPackage.Workbook.Worksheets[1];
+                                //string[] mapColumn = { "Count", "Invoice", "PaymentDate", "OrderStatus", "ProductID", "ProductName", "Quantity", "StockKeepingUnitSKU", "Notes", "PriceRp", "CustomerName", "CustomerPhone", "Recipient", "RecipientNumber", "RecipientAddress", "Courier", "ShippingPricefeeRp", "InsuranceRp", "TotalShippingFeeRp", "TotalAmountRp", "AWB", "JenisLayanan" };
+                                for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
+                                {
+                                    //Columns start from A5, start mapping column
+                                    //Count, Invoice, Payment Date, Order Status, Product ID, Product Name, Quantity, Stock Keeping Unit (SKU), Notes, Price (Rp.), Customer Name, Customer Phone, Recipient, Recipient Number, Recipient Address, Courier, Shipping Price + fee (Rp.), Insurance (Rp.), Total Shipping Fee (Rp.), Total Amount (Rp.), AWB, Jenis Layanan
+                                    //var newData = new UploadFakturTokpedDataDetail();
+                                    //for (int c = 0; c < mapColumn.Count(); c++)
+                                    //{
+                                    //    var ColumnName = mapColumn[c];
+                                    //    newData[ColumnName] = worksheet.Cells[i, c + 1].Value == null ? "" : Convert.ToString(worksheet.Cells[i, c + 1].Value);
+                                    //}
+                                    //data.Add(newData);
+                                    var a = new BukaLapakExcelFaktur
+                                    {
+                                        Tanggal = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
+                                        IDTransaksi = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
+                                        TransaksiDropshipper = worksheet.Cells[i, 3].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 3].Value),
+                                        NamaDropshipper = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                        DetailDropshipper = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                        Penjual = worksheet.Cells[i, 6].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 6].Value),
+                                        Pembeli = worksheet.Cells[i, 7].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 7].Value),
+                                        UsernamePembeli = worksheet.Cells[i, 8].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 8].Value),
+                                        HPPembeli = worksheet.Cells[i, 9].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 9].Value),
+                                        AlamatPembeli = worksheet.Cells[i, 10].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 10].Value),
+                                        KecamatanPembeli = worksheet.Cells[i, 11].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 11].Value),
+                                        KotaPembeli = worksheet.Cells[i, 12].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 12].Value),
+                                        PropinsiPembeli = worksheet.Cells[i, 13].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 13].Value),
+                                        KodePosPembeli = worksheet.Cells[i, 14].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 14].Value),
+                                        NamaProduk = worksheet.Cells[i, 15].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 15].Value),
+                                        HargaProduk = worksheet.Cells[i, 16].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 16].Value),
+                                        BiayaPengiriman = worksheet.Cells[i, 17].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 17].Value),
+                                        BiayaAsuransi = worksheet.Cells[i, 18].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 18].Value),
+                                        TotalTerbayar = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
+                                        JumlahProduk = worksheet.Cells[i, 20].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 20].Value),
+                                        SKU = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
+                                        Varian = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                        Kurir = worksheet.Cells[i, 23].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 23].Value),
+                                        KodeTracking = worksheet.Cells[i, 24].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 24].Value),
+                                        Status = worksheet.Cells[i, 25].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 25].Value),
+                                    };
+                                    if(records.Where(m => m.IDTransaksi == a.IDTransaksi).ToList().Count() > 0)
+                                    {
+                                        a.IDTransaksi = "";
+                                    }
+                                    if (!string.IsNullOrEmpty(a.Status))
+                                    {
+                                        if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak" || a.Status == "Driver menuju lokasi Pelapak")
+                                        {
+                                            records.Add(a);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //using (MemoryStream stream = new MemoryStream(dataByte))
+                    //{
+                    //    using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                    //    {
+                    //        //loop all worksheets
+                    //        var worksheet = excelPackage.Workbook.Worksheets[1];
+                    //        string[] mapColumn = { "Count", "Invoice", "PaymentDate", "OrderStatus", "ProductID", "ProductName", "Quantity", "StockKeepingUnitSKU", "Notes", "PriceRp", "CustomerName", "CustomerPhone", "Recipient", "RecipientNumber", "RecipientAddress", "Courier", "ShippingPricefeeRp", "InsuranceRp", "TotalShippingFeeRp", "TotalAmountRp", "AWB", "JenisLayanan" };
+                    //        for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                    //        {
+                    //            //Columns start from A5, start mapping column
+                    //            //Count, Invoice, Payment Date, Order Status, Product ID, Product Name, Quantity, Stock Keeping Unit (SKU), Notes, Price (Rp.), Customer Name, Customer Phone, Recipient, Recipient Number, Recipient Address, Courier, Shipping Price + fee (Rp.), Insurance (Rp.), Total Shipping Fee (Rp.), Total Amount (Rp.), AWB, Jenis Layanan
+                    //            var newData = new UploadFakturTokpedDataDetail();
+                    //            for (int c = 0; c < mapColumn.Count(); c++)
+                    //            {
+                    //                var ColumnName = mapColumn[c];
+                    //                newData[ColumnName] = worksheet.Cells[i, c + 1].Value == null ? "" : Convert.ToString(worksheet.Cells[i, c + 1].Value);
+                    //            }
+                    //            data.Add(newData);
+                    //        }
+                    //    }
+                    //}
+                }
+            }
+
+            #region Logging
+            string message = "";
+            string filename = "Log_Upload_Inv_Bukalapak_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+
+            LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
+            {
+                CUST = cust,
+                UPLOADER = uname,
+                UPLOAD_DATETIME = DateTime.Now,
+                LOG_FILE = filename,
+            };
+            string lastFakturInUpload = "";
+            DateTime lastFakturDateInUpload = DateTime.Now;
+            #endregion
+
+            if (records.Count() == 0)
+            {
+                return JsonErrorMessage("Tidak ada data faktur yang dapat diupload.");
+            }
+            else
+            {
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+
+                #region Proses Upload
+                var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
+                var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+
+                //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
+                var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+                var listBRGItem = listItem.Select(p => p.BRG).ToList();
+                var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
+
+                var digitAkhir = "";
+                var noOrder = "";
+                var lastRecNum = 0;
+                if (listFakturInDb.Count == 0)
+                {
+                    digitAkhir = "000001";
+                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                }
+                else
+                {
+                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                    if (lastRecNum == 0)
+                    {
+                        lastRecNum = 1;
+                    }
+                }
+                string buyercode = "";
+                string al2 = "";
+                string al3 = "";
+
+                bool adaWarning = false;
+                bool masihFakturYangSama = true;
+                bool fakturLolosValidasi = true;
+                bool barangFakturLolosValidasi = true;
+                string messageWarning = "";
+                string faktur_invoice = "";
+
+                List<ARF01C> newARF01Cs = new List<ARF01C>();
+                List<SIT01A> newFakturs = new List<SIT01A>();
+                List<SIT01B> newFaktursDetails = new List<SIT01B>();
+                //for (int i = 0; i < records.Count(); i++)
+                foreach (var faktur in records)
+                {
+                    //UploadFakturTokpedDataDetail faktur = data[i];
+
+                    #region  validasi
+                    //cek faktur sudah pernah di upload
+                    if (!string.IsNullOrWhiteSpace(faktur.IDTransaksi))
+                    {
+                        //if (i > 0)
+                        //{
+                        //    masihFakturYangSama = false;
+                        //}
+                        faktur_invoice = faktur.IDTransaksi;
+                        message = "";
+                        messageWarning = "";
+                        adaWarning = false;
+                        fakturLolosValidasi = true;
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        if (cekFakturExists != null)
+                        {
+                            fakturLolosValidasi = false;
+                            //log faktur sudah pernah di upload
+                            message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
+                            tw.WriteLine(message);
+                        }
+                    }
+                    //else
+                    //{
+                    //    masihFakturYangSama = true;
+                    //    messageWarning = "";
+                    //}
+                    if (fakturLolosValidasi)
+                    {
+                        barangFakturLolosValidasi = true;
+                        //cek barang sudah ada di master
+                        var cekItem = listSTF02H.Where(p => (p.BRG_MP ?? "").Contains((string.IsNullOrEmpty(faktur.SKU) ? "empty_sku_excel" : faktur.SKU))).FirstOrDefault();
+                        if (cekItem == null)
+                        {
+                            barangFakturLolosValidasi = false;
+                            //add by calvin 18 juni 2019
+                            //if (!string.IsNullOrWhiteSpace(faktur.SKU))
+                            //{
+                            //    var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.SKU)).FirstOrDefault();
+                            //    if (cekItemBySKU != null)
+                            //    {
+                            //        barangFakturLolosValidasi = true;
+                            //    }
+                            //}
+                            if (!string.IsNullOrWhiteSpace(faktur.SKU))
+                            {
+                                var cekItemBySKU = listSTF02H.Where(p => (p.BRG) == (faktur.SKU)).FirstOrDefault();
+                                if (cekItemBySKU != null)
+                                {
+                                    barangFakturLolosValidasi = true;
+                                }
+                                else
+                                {
+                                    if (listItem.Where(p => p.BRG == faktur.SKU).Count() > 0)
+                                    {
+                                        string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
+                                        sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
+                                        sSQL += "from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket = '" + market.RecNum + "' ";
+                                        sSQL += "where a.brg = '" + faktur.SKU + "' and isnull(b.brg, '') = ''";
+
+                                        int berhasilinsert = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+
+                                        if (berhasilinsert > 0)
+                                        {
+                                            barangFakturLolosValidasi = true;
+                                            listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
+                                            listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
+                                        }
+                                    }
+                                }
+                            }
+                            //end add by calvin 18 juni 2019
+                            if (!barangFakturLolosValidasi)
+                            {
+                                adaWarning = true;
+                                if (message == "")
+                                {
+                                    message = "Faktur Bukalapak [" + faktur_invoice + "] berhasil diupload dengan warning." + System.Environment.NewLine;
+                                    message += "Mohon perbaiki data pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
+                                    tw.WriteLine(message);
+                                }
+                                messageWarning = "- Item [" + (string.IsNullOrEmpty(faktur.SKU) ? faktur.NamaProduk : faktur.SKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                                tw.WriteLine(messageWarning);
+                            }
+                        }
+                    }
+                    #endregion
+
+                    if (fakturLolosValidasi)
+                    {
+                        buyercode = "";
+                        if (!string.IsNullOrWhiteSpace(faktur.IDTransaksi))
+                        {
+                            lastRecNum++;
+                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        }
+
+                        #region insert pembeli
+                        if (!string.IsNullOrWhiteSpace(faktur.IDTransaksi))
+                        {
+                            string kabupaten = faktur.KotaPembeli;
+                            string provinsi = faktur.PropinsiPembeli;
+                            var cekPembeli = (from p in ErasoftDbContext.ARF01C
+                                              where p.EMAIL == (faktur.Pembeli.Replace(" ", "").Length > 36 ? faktur.Pembeli.Replace(" ", "").Substring(0, 36) + "@bukalapak.com" : faktur.Pembeli.Replace(" ", "") + "@bukalapak.com")
+                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).FirstOrDefault();
+                            if (cekPembeli == null)
+                            {
+                                lastRecnumARF01C++;
+                                var UniqueCode = false;
+                                while (!UniqueCode)
+                                {
+                                    var currentBuyerCode = lastRecnumARF01C.ToString().PadLeft(10, '0');
+                                    var cekDuplikatArf01c = (from p in ErasoftDbContext.ARF01C where p.BUYER_CODE == currentBuyerCode select p.BUYER_CODE).FirstOrDefault();
+                                    if (cekDuplikatArf01c == null)
+                                    {
+                                        UniqueCode = true;
+                                    }
+                                    else
+                                    {
+                                        lastRecnumARF01C++;
+                                    }
+                                }
+                                string noTelp = "-";
+                                if (!string.IsNullOrWhiteSpace(faktur.HPPembeli.Trim()))
+                                {
+                                    noTelp = faktur.HPPembeli;
+                                }
+
+                                var temp_AL_KIRIM = faktur.AlamatPembeli;
+                                string AL_KIRIM1 = temp_AL_KIRIM;
+                                string AL_KIRIM2 = "";
+                                string AL_KIRIM3 = "";
+                                if (temp_AL_KIRIM.Length > 30)
+                                {
+                                    AL_KIRIM1 = temp_AL_KIRIM.Substring(0, 30);
+                                    temp_AL_KIRIM = temp_AL_KIRIM.Substring(30, temp_AL_KIRIM.Length - 30);
+
+                                    AL_KIRIM2 = temp_AL_KIRIM;
+                                    if (temp_AL_KIRIM.Length > 30)
+                                    {
+                                        AL_KIRIM2 = temp_AL_KIRIM.Substring(0, 30);
+                                        temp_AL_KIRIM = temp_AL_KIRIM.Substring(30, temp_AL_KIRIM.Length - 30);
+
+                                        AL_KIRIM3 = temp_AL_KIRIM;
+                                        if (temp_AL_KIRIM.Length > 30)
+                                        {
+                                            AL_KIRIM3 = temp_AL_KIRIM.Substring(0, 27) + "...";
+                                        }
+                                    }
+                                }
+
+                                ARF01C newPembeli = new ARF01C
+                                {
+                                    BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
+                                    NAMA = faktur.Pembeli.Length > 30 ? faktur.Pembeli.Substring(0, 27) + "..." : faktur.Pembeli,
+                                    AL = faktur.AlamatPembeli,
+                                    TLP = noTelp,
+                                    PERSO = perso,
+                                    TERM = 0,
+                                    LIMIT = 0,
+                                    PKP = "0",
+                                    KLINK = "01",
+                                    KODE_CABANG = 1,
+                                    VLT = "IDR",
+                                    KDHARGA = "01",
+                                    AL_KIRIM1 = AL_KIRIM1,
+                                    AL_KIRIM2 = AL_KIRIM2,
+                                    AL_KIRIM3 = AL_KIRIM3,
+                                    DISC_NOTA = 0,
+                                    NDISC_NOTA = 0,
+                                    DISC_ITEM = 0,
+                                    NDISC_ITEM = 0,
+                                    STATUS = "1",
+                                    LABA = 0,
+                                    TIDAK_HIT_UANG_R = false,
+                                    No_Seri_Pajak = "FP",
+                                    TGL_INPUT = DateTime.Now,
+                                    USERNAME = "UPLOAD_FAKTUR_BL",
+                                    KODEPOS = faktur.KodePosPembeli,
+                                    EMAIL = faktur.Pembeli.Replace(" ", "").Length > 36 ? faktur.Pembeli.Replace(" ", "").Substring(0, 36) + "@bukalapak.com" : faktur.Pembeli.Replace(" ", "") + "@bukalapak.com",
+                                    KODEKABKOT = "3174",
+                                    KODEPROV = "31",
+                                    NAMA_KABKOT = kabupaten.Length > 50 ? kabupaten.Substring(0, 47) + "..." : kabupaten,
+                                    NAMA_PROV = provinsi.Length > 50 ? provinsi.Substring(0, 47) + "..." : provinsi,
+                                };
+                                if (newARF01Cs.Where(m => m.EMAIL == newPembeli.EMAIL).ToList().Count() == 0)
+                                    newARF01Cs.Add(newPembeli);
+                                //ErasoftDbContext.ARF01C.Add(newPembeli);
+
+                                buyercode = newPembeli.BUYER_CODE;
+                                al2 = newPembeli.AL2;
+                                al3 = newPembeli.AL3;
+                            }
+                            else
+                            {
+                                buyercode = cekPembeli.BUYER_CODE;
+                                al2 = cekPembeli.AL2;
+                                al3 = cekPembeli.AL3;
+                            }
+                        }
+                        #endregion
+                        #region insert sit01a
+                        if (!string.IsNullOrWhiteSpace(faktur.IDTransaksi))
+                        {
+                            //jika blank berarti masih faktur yang sama, item ke dua
+                            SIT01A newfaktur = new SIT01A
+                            {
+                                JENIS_FORM = "2",
+                                NO_BUKTI = noOrder,
+                                NO_F_PAJAK = "-",
+                                NO_SO = "-",
+                                CUST = cust,
+                                NAMAPEMESAN = faktur.Pembeli.Length > 30 ? faktur.Pembeli.Substring(0, 27) + "..." : faktur.Pembeli,
+                                PEMESAN = buyercode,
+                                NAMA_CUST = nama_cust,
+                                AL = faktur.AlamatPembeli,
+                                TGL = Convert.ToDateTime(faktur.Tanggal),
+                                PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.Tanggal).ToString("MM")),
+                                PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.Tanggal).ToString("yyyy").Substring(2, 2)),
+                                USERNAME = "UPLOAD_FAKTUR_BL",
+                                JENIS_RETUR = "-",
+                                STATUS = "1",
+                                ST_POSTING = "T",
+                                VLT = "IDR",
+                                NO_FA_OUTLET = "-",
+                                NO_LPB = "-",
+                                GROUP_LIMIT = "-",
+                                KODE_ANGKUTAN = "-",
+                                JENIS_MOBIL = "-",
+                                JTRAN = "SI",
+                                JENIS = "1",
+                                TUKAR = 1,
+                                TUKAR_PPN = 1,
+                                SOPIR = "-",
+                                //KET = "Catatan Dari Pembeli : " + faktur.Notes,
+                                PPNBM = 0,
+                                NILAI_PPNBM = 0,
+                                KODE_SALES = "-",
+                                KODE_WIL = "-",
+                                U_MUKA = 0,
+                                U_MUKA_FA = 0,
+                                TERM = 0,
+                                TGL_JT_TEMPO = Convert.ToDateTime(faktur.Tanggal),
+                                BRUTO = Convert.ToDouble(faktur.TotalTerbayar.Replace("Rp ", "").Replace(".", "")) - Convert.ToDouble(faktur.BiayaPengiriman.Replace("Rp ", "").Replace(".", "")),
+                                PPN = 0,
+                                NILAI_PPN = 0,
+                                DISCOUNT = 0,
+                                NILAI_DISC = 0,
+                                MATERAI = Convert.ToDouble(faktur.BiayaPengiriman.Replace("Rp ", "").Replace(".", "")),
+                                NETTO = Convert.ToDouble(faktur.TotalTerbayar.Replace("Rp ", "").Replace(".", "")),
+                                TGLINPUT = DateTime.Now,
+                                NO_REF = faktur_invoice,
+                                NAMA_CUST_QQ = "-",
+                                STATUS_LOADING = "-",
+                                NO_PO_CUST = "-",
+                                PENGIRIM = "-",
+                                NAMAPENGIRIM = "-",
+                                ZONA = "-",
+                                UCAPAN = "-",
+                                N_UCAPAN = "-",
+                                SUPP = "-",
+                                KOMISI = 0,
+                                N_KOMISI = 0,
+                                
+                            };
+                            //if (newFakturs.Where(m => m.NO_REF == faktur_invoice).ToList().Count() == 0)
+                            //{
+                                newFakturs.Add(newfaktur);
+                                //ErasoftDbContext.SIT01A.Add(newfaktur);
+                                lastFakturInUpload = faktur_invoice;
+                                lastFakturDateInUpload = Convert.ToDateTime(faktur.Tanggal);
+                            //}
+                        }
+                        #endregion
+                        #region insert sit01b
+                        SIT01B newfakturdetail = new SIT01B
+                        {
+                            JENIS_FORM = "2",
+                            NO_BUKTI = noOrder,
+                            USERNAME = "UPLOAD_FAKTUR_BL",
+                            CATATAN = "-",
+                            TGLINPUT = DateTime.Now,
+                            //NILAI_DISC = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            NILAI_DISC = 0,
+                            DISCOUNT = 0,
+                            //NILAI_DISC_1 = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            NILAI_DISC_1 = 0,
+                            DISCOUNT_2 = 0,
+                            NILAI_DISC_2 = 0,
+                            DISCOUNT_3 = 0,
+                            NILAI_DISC_3 = 0,
+                            DISCOUNT_4 = 0,
+                            NILAI_DISC_4 = 0,
+                            DISCOUNT_5 = 0,
+                            NILAI_DISC_5 = 0,
+                            DISC_TITIPAN = 0,
+                            BRG = string.IsNullOrWhiteSpace(faktur.SKU) ? "no_sku_bl_" + DateTime.Now.ToString("yyyyMMddHHmmss") : faktur.SKU,
+                            SATUAN = "2",
+                            H_SATUAN = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            QTY = Convert.ToDouble(faktur.JumlahProduk),
+                            HARGA = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            QTY_KIRIM = 0,
+                            QTY_RETUR = 0,
+                            GUDANG = "001" //buat default gudang 001, untuk semua akun baru
+                        };
+                        //ErasoftDbContext.SIT01B.Add(newfakturdetail);
+                        if (!barangFakturLolosValidasi)
+                        {
+                            newfakturdetail.BRG = "NOT_FOUND";
+                        }
+                        newfakturdetail.CATATAN = "INVOICE NO : " + faktur_invoice + "_;_" + faktur.NamaProduk.Replace('\'', '`') + " " + faktur.Varian.Replace('\'', '`') + "_;_" + (faktur.SKU ?? "SKU_IS_EMPTY");
+
+                        newFaktursDetails.Add(newfakturdetail);
+                        #endregion
+                    }
+                    else
+                    {
+                        var fakturPerluDiRemove = (from p in newFakturs where p.NO_REF == faktur_invoice select p).FirstOrDefault();
+                        if (fakturPerluDiRemove != null)
+                        {
+                            newFakturs.RemoveAll(a => a.NO_REF == faktur_invoice);
+                            var detailFakturPerluDiRemove = (from p in newFaktursDetails where p.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI select p).FirstOrDefault();
+                            if (detailFakturPerluDiRemove != null)
+                            {
+                                newFaktursDetails.RemoveAll(a => a.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region commit insert
+
+                //record terakhir
+                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
+                        ErasoftDbContext.SaveChanges();
+                        if (newFakturs.Count == 0)
+                        {
+                            lastFakturInUpload = "";
+                            lastFakturDateInUpload = DateTime.Now;
+                        }
+                        ErasoftDbContext.SIT01A.AddRange(newFakturs);
+                        ErasoftDbContext.SaveChanges();
+                        ErasoftDbContext.SIT01B.AddRange(newFaktursDetails);
+                        ErasoftDbContext.SaveChanges();
+
+                        newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
+                        newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
+                        ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                        ErasoftDbContext.SaveChanges();
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        try
+                        {
+                            ErasoftDbContext.ARF01C.RemoveRange(newARF01Cs);
+                        }
+                        catch (Exception)
+                        { }
+                        try
+                        {
+                            ErasoftDbContext.SIT01A.RemoveRange(newFakturs);
+                        }
+                        catch (Exception)
+                        { }
+                        try
+                        {
+                            ErasoftDbContext.SIT01B.RemoveRange(newFaktursDetails);
+                        }
+                        catch (Exception)
+                        { }
+
+                        try
+                        {
+                            message = "Faktur Bukalapak gagal diupload, terjadi error." + System.Environment.NewLine;
+                            message += "Error : " + (ex.InnerException == null ? ex.Message : (ex.InnerException.InnerException == null ? ex.InnerException.Message : ex.InnerException.InnerException.Message));
+                            tw.WriteLine(message);
+
+                            newLogImportFaktur.LAST_FAKTUR_UPLOADED = "Error. Gagal Upload.";
+                            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
+                            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                            ErasoftDbContext.SaveChanges();
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex2)
+                        {
+                            transaction.Rollback();
+                        }
+                    }
+                }
+                #endregion
+
+                tw.Close();
+            }
+
+
+            //var partialVm = new FakturViewModel()
+            //{
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            //};
+
+            //return PartialView("UploadFakturView", partialVm);
+
+            ActionResult ret = RefreshTableUploadFaktur(1, cust);
+            return ret;
             //return new EmptyResult();
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
@@ -20376,6 +21127,49 @@ namespace MasterOnline.Controllers
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
         //add by Tri 3 Juli 2019, upload faktur bl
+
+        //add by Tri 3 Juli 2019, upload faktur bl
+
+
+        public ActionResult RefreshTableUploadFaktur(int? page, string cust = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.UPLOADER AS UPLOADER , A.LAST_FAKTUR_UPLOADED AS LAST_FAKTUR_UPLOADED, A.UPLOAD_DATETIME AS UPLOAD_DATETIME, A.LAST_FAKTUR_UPLOADED_DATETIME AS LAST_FAKTUR_UPLOADED_DATETIME, ISNULL(B.PERSO,'') AS CUST, A.LOG_FILE AS LOG_FILE ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM LOG_IMPORT_FAKTUR A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            if (cust != "")
+            {
+                sSQL2 += "WHERE (A.CUST LIKE '%" + cust + "%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.UPLOAD_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<ListImportFaktur>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<ListImportFaktur> pageOrders = new StaticPagedList<ListImportFaktur>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("UploadFakturView", pageOrders);
+        }
 
         [HttpPost]
         public ActionResult UploadFakturShopee(UploadFakturShopeeDataDetail[] data, string cust, string nama_cust, string perso)
@@ -25776,6 +26570,8 @@ namespace MasterOnline.Controllers
                 //string EDBConnID = EDB.GetConnectionString("ConnID");
                 //var sqlStorage = new Hangfire.SqlServer.SqlServerStorage(EDBConnID);
 
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var clientJobServer = new BackgroundJobClient(sqlStorage);
                 //var client = new BackgroundJobClient(sqlStorage);
                 clientJobServer.Requeue(jobid);
 
@@ -25874,6 +26670,8 @@ namespace MasterOnline.Controllers
         }
         public ActionResult MarketplaceLogRetryAllJobs()
         {
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+            var clientJobServer = new BackgroundJobClient(sqlStorage);
             var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
                                     where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
                                     && a.REQUEST_STATUS == "FAILED"
@@ -25900,6 +26698,8 @@ namespace MasterOnline.Controllers
                 string sSQL = "UPDATE B SET REQUEST_STATUS = 'RETRYING', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
                 sSQL += "FROM API_LOG_MARKETPLACE B WHERE REQUEST_ID = '" + nourut + "'";
                 EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var clientJobServer = new BackgroundJobClient(sqlStorage);
                 clientJobServer.Requeue(jobid);
 
                 return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };

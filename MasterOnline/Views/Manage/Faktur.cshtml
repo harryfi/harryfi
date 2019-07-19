@@ -678,6 +678,31 @@
         .nav-row > div > a {
             padding: 7px;
         }
+        
+    #loading_upload_faktur_tokped {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.5);
+    }
+
+    #loading_upload_faktur_tokped_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
 
     #loading_spinner {
         display: none;
@@ -1476,7 +1501,12 @@
 </div>
 <div class="modal fade" id="modalUploadFaktur" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload-faktur" role="document">
-        <div class="modal-content uploadtokpedmodal">
+        <div class="modal-content modalresponsive">
+            <div id="loading_upload_faktur_tokped" class="text-center">
+                <div id="loading_upload_faktur_tokped_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur</h4>
@@ -1491,15 +1521,15 @@
                 <div class="row">
                     <div class="col-md-11">
                         @*<h5>Proses ini hanya untuk anda yang Merchant Tokopedia, tetapi bukan Official Store, sehingga TIDAK MEMPUNYAI API KEY untuk koneksi ke Tokopedia.</h5>*@
-                        <h5>Anda bisa “UPLOAD” data penjualan (Faktur) ke MasterOnline (MO), tanpa harus input satu per satu, :</h5>
+                        <h5>Anda bisa “UPLOAD” data penjualan (Faktur) ke MasterOnline (MO), tanpa harus input satu per satu :</h5>
                         <h5>Untuk Marketplace Tokopedia dengan cara :</h5>
-                        <h5>1. Lakukan “Download” data penjualan (faktur) dari aplikasi Tokopedia (menu "Penjualan") dalam bentuk file excel.</h5>
-                        <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
+                        <h5>1. Lakukan “Download” data penjualan (faktur) dari website Tokopedia (menu "Penjualan") dalam bentuk file excel.</h5>
+                        <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline melalui menu ini.</h5>
                         <br />
-                        <h5>Untuk Marketplace Bukalapak dengan cara:</h5>
+                        <h5>Untuk Marketplace Bukalapak dengan cara :</h5>
                         <h5>1. Lakukan “Download” data penjualan (faktur) dari website Bukalapak (menu transaksi > download transaksi).</h5>
                         @*<h5>   dalam bentuk file excel.</h5>*@
-                        <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
+                        <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline melalui menu ini.</h5>
                     </div>
                     @*<div class="col-md-11">
 
@@ -1522,7 +1552,7 @@
                         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_PERSO")
                         <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2" style="text-align:right">
                         <label style="margin-top:5px;text-align:end">Format Excel :</label>
                     </div>
                     <div class="col-md-4" style="font-size:16px;">
@@ -1550,7 +1580,7 @@
                 </div>
                 <br />
                 <div id="uploadfakturviewdiv">
-                    @Html.Partial("UploadFakturView")
+                    @*@Html.Partial("UploadFakturView")*@
                 </div>
             </div>
             @*<div class="modal-footer">
@@ -1611,7 +1641,7 @@
                 </div>
                 <br />
                 <div id="uploadfakturblviewdiv">
-                    @Html.Partial("UploadFakturView")
+                    @*@Html.Partial("UploadFakturView")*@
                 </div>
             </div>
             @*<div class="modal-footer">
@@ -2168,6 +2198,8 @@
                 }
             });
             getMarketplaceTokopediaShopee();
+            $('#format_excel').selectize();
+
             //getMarketplaceBukalapak();
         });
 
@@ -3728,7 +3760,7 @@
                                 akun: item.PERSO
                             };
                         });
-
+                    
                     var custSelect = $('#CUSTOMER_UPLOAD_FAKTUR').selectize({
                         valueField: 'id',
                         searchField: 'text',
@@ -4607,7 +4639,7 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_upload_faktur').show();
+                        $('#loading_upload_faktur_tokped').show();
                     },
                     success: function(response){
                         //$('#uploadfakturviewdiv').html(response);
@@ -4617,10 +4649,9 @@
                             alert(response.Errors[0]);
                         }
                         document.getElementById("file_upload_faktur").value = "";
-                        $('#loading_upload_faktur').hide();
+                        $('#loading_upload_faktur_tokped').hide();
                     },
                     error: function(errMsg) {
-                        $('#loading_upload_faktur').hide();
                         alert(errMsg);
                         document.getElementById("file_upload_faktur").value = "";
                     },
