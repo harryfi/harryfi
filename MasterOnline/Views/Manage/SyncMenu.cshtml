@@ -367,6 +367,36 @@
             });
         });
 
+        function ViewLog() {
+            var link = '@Url.Action("ListLogSinkronisasi", "Manage")';
+            var listCust = [];
+
+            $('.logCustomers').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    //if ($(item).attr("data-log") != undefined) {
+                        listCust.push($(item).attr("data-log"));
+                    //}
+                }
+            });
+            link += '?cust=' + listCust;
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_upload_log').show();
+                    //$('#form-partial').html('');
+                },
+                success: function (response) {
+                    $('#uploadbrgviewdiv').html(response);
+                    $('#loading_upload_log').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    $('#loading_upload_log').hide();
+                }
+            });
+        }
+
         function GetDataMenu(step) {
             var link = '@Url.Action("GetDataMenu", "Manage")';
             //setMode(step);
@@ -403,6 +433,7 @@
             $('#proses_btn').hide();
             $('#download_btn').hide();
             $('#upload_btn').hide();
+            $('#log_btn').hide();
             $('#div_with_list').hide();
             $('#div_with_upload').hide();
             $('#tbl_progbar').remove();
@@ -418,7 +449,7 @@
                 document.getElementById('lblForm').innerText = "Download Data Barang ke Excel";
             }
             else if (step == 4) {
-                //$('#upload_btn').show();
+                $('#log_btn').show();
                 $('#div_with_upload').show();
                 document.getElementById('lblForm').innerText = "Upload Excel dan Sinkronisasi Data Barang ke Master Online";
             }
@@ -479,7 +510,7 @@
         //get data barang with record
         function GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-            link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData + '&namaFileLog=' + namaFileLog;
+            link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData;
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -812,7 +843,7 @@
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
 
             var link = '@Url.Action("UploadItemByCust", "Manage")';
-            link += "?cust=" + rows_selected[0] + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
+            link += "?cust=" + rows_selected[0] + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync + '&namaFileLog=' + namaFileLog;
 
             $.ajax({
                 type: "GET",

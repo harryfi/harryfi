@@ -19195,6 +19195,64 @@ namespace MasterOnline.Controllers
             ActionResult ret = RefreshTableUploadFaktur(1, cust);
             return ret;
         }
+
+        [HttpGet]
+        public ActionResult ListLogSinkronisasi(string cust)
+        {
+            var a = cust.Split(',');
+            ActionResult ret = RefreshTableLogSinkronisasi(1, a);
+            return ret;
+        }
+
+        public ActionResult RefreshTableLogSinkronisasi(int? page, string[] cust)
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.UPLOADER AS UPLOADER , A.LAST_FAKTUR_UPLOADED AS LAST_FAKTUR_UPLOADED, A.UPLOAD_DATETIME AS UPLOAD_DATETIME, A.LAST_FAKTUR_UPLOADED_DATETIME AS LAST_FAKTUR_UPLOADED_DATETIME, ISNULL(B.PERSO,'') AS CUST, A.LOG_FILE AS LOG_FILE ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM LOG_IMPORT_FAKTUR A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            if (cust.Length > 0)
+            {
+                sSQL2 += "WHERE";
+                for (int i = 0; i < cust.Length;i++)
+                {
+                    sSQL2 += " (A.CUST LIKE '%" + cust[i] + "%' ) OR";
+                }
+                sSQL2 = sSQL2.Substring(0, sSQL2.Length -3) + " AND A.LOG_FILE LIKE '%Log_SyncBrg_%'";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+                if (pagenumber < 0)
+                {
+                    pagenumber = 0;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.UPLOAD_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<ListImportBrg>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<ListImportBrg> pageOrders = new StaticPagedList<ListImportBrg>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("SyncBarangLog", pageOrders);
+        }
+
         [HttpPost]
         //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
         public ActionResult UploadFakturTokped()
@@ -24291,7 +24349,7 @@ namespace MasterOnline.Controllers
                     }
                     //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
                     //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
-
+                    tw.Close();
                     barangVm.contRecursive = "1";
                     //if (barangVm.Errors.Count == 0)
                     //if(dataBrg.Count < Convert.ToInt32(dataPerPage))
@@ -25905,6 +25963,8 @@ namespace MasterOnline.Controllers
                         //string message = "";
                         string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
                         var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+                        var asd = System.IO.File.Create(path);
+                        asd.Close();
 
                         LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
                         {
@@ -25912,6 +25972,7 @@ namespace MasterOnline.Controllers
                             UPLOADER = uname,
                             UPLOAD_DATETIME = DateTime.Now,
                             LOG_FILE = filename,
+                            LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now
                         };
                         //string lastFakturInUpload = "";
                         //DateTime lastFakturDateInUpload = DateTime.Now;
