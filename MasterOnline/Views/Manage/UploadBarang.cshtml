@@ -470,9 +470,9 @@
                 </div>
             </div>
             @*<div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>
-            </div>*@
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>
+                </div>*@
         </div>
     </div>
 </div>
@@ -520,7 +520,7 @@
         //    table.search($(this).val()).draw();
         //});
 
-        
+
         function setModalMode(value) {
             $('#btnDeleteAll').hide();
             $('#btnSyncAll').hide();
@@ -804,7 +804,7 @@
                 @*var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData + '&namaFileLog=' + namaFileLog;
+                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData;
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -989,7 +989,7 @@
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                 //if ('' != $('#promptHiddenField2').val()) {
                     var link = '@Url.Action("UploadItemByCust", "Manage")';
-                    link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
+                link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync + '&namaFileLog=' + namaFileLog;
 
                     $.ajax({
                         type: "GET",
@@ -1211,7 +1211,7 @@
                 });
             }
         }
-        
+
         function downloadLogUploadBarang(txt){
             window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
 

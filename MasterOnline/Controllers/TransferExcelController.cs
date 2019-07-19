@@ -168,7 +168,7 @@ namespace MasterOnline.Controllers
                             //sSQL += "'' SELLER_SKU,'' AS MEREK, '' AS CATEGORY";
                             sSQL += " SELLER_SKU,'' AS MEREK, '' AS CATEGORY";
                             //end change 10 Juli 2019, ambil seller sku dari temp
-                            sSQL += " FROM TEMP_BRG_MP where cust = '" + customer.CUST + "' order by nama";
+                            sSQL += " FROM TEMP_BRG_MP where cust = '" + customer.CUST + "' order by nama, nama2";
                             var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                             for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
