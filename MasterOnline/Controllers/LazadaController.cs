@@ -2629,11 +2629,26 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount)
+        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount, int totalData)
         {
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.totalData = totalData;//add 18 Juli 2019, show total record
+            ret.exception = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = accessToken,
+                REQUEST_ATTRIBUTE_2 = cust,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/products/get");
@@ -2662,7 +2677,8 @@ namespace MasterOnline.Controllers
                             int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                             if (result.data.products.Count == 10)
                             {
-                                ret.message = (page + 1).ToString();
+                                //ret.message = (page + 1).ToString();
+                                ret.nextPage = 1;
                             }
                             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
                             sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, DeliveryTempElevenia, PICKUP_POINT,";
@@ -2681,9 +2697,11 @@ namespace MasterOnline.Controllers
 
                             foreach (var brg in result.data.products)
                             {
+                                ret.totalData += 1;//add 18 Juli 2019, show total record
                                 if (brg.skus.Count > 1)
                                 {
                                     varian = true;
+                                    ret.totalData += brg.skus.Count;//add 18 Juli 2019, show total record
                                 }
                                 else
                                 {
@@ -3641,12 +3659,16 @@ namespace MasterOnline.Controllers
                                         if (!varian)
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
+                                            if (retSQL.exception == 1)
+                                                ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
                                         else
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk);
+                                            if (retSQL.exception == 1)
+                                                ret.exception = 1;
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
@@ -3661,19 +3683,31 @@ namespace MasterOnline.Controllers
                                 var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                                 ret.recordCount += a;
                             }
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
                         }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "data product is empty";
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                     }
 
                 }
                 else
                 {
                     ret.message = response.Message;
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                 }
             }
             catch (Exception ex)
             {
+                ret.nextPage = 1;
+                ret.exception = 1;
                 ret.status = 0;
                 ret.message = ex.Message;
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
             }
 
 
@@ -3704,6 +3738,7 @@ namespace MasterOnline.Controllers
                     namaBrg += " " + namaVar;
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
+
                 string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                 urlImage = "";
                 urlImage2 = "";
@@ -4577,6 +4612,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;

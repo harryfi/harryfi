@@ -19244,6 +19244,64 @@ namespace MasterOnline.Controllers
             ActionResult ret = RefreshTableUploadFaktur(1, cust);
             return ret;
         }
+
+        [HttpGet]
+        public ActionResult ListLogSinkronisasi(string cust)
+        {
+            var a = cust.Split(',');
+            ActionResult ret = RefreshTableLogSinkronisasi(1, a);
+            return ret;
+        }
+
+        public ActionResult RefreshTableLogSinkronisasi(int? page, string[] cust)
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = cust;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.UPLOADER AS UPLOADER , A.LAST_FAKTUR_UPLOADED AS LAST_FAKTUR_UPLOADED, A.UPLOAD_DATETIME AS UPLOAD_DATETIME, A.LAST_FAKTUR_UPLOADED_DATETIME AS LAST_FAKTUR_UPLOADED_DATETIME, ISNULL(B.PERSO,'') AS CUST, A.LOG_FILE AS LOG_FILE ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM LOG_IMPORT_FAKTUR A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            if (cust.Length > 0)
+            {
+                sSQL2 += "WHERE";
+                for (int i = 0; i < cust.Length;i++)
+                {
+                    sSQL2 += " (A.CUST LIKE '%" + cust[i] + "%' ) OR";
+                }
+                sSQL2 = sSQL2.Substring(0, sSQL2.Length -3) + " AND A.LOG_FILE LIKE '%Log_SyncBrg_%'";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+                if (pagenumber < 0)
+                {
+                    pagenumber = 0;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.UPLOAD_DATETIME DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 5) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<ListImportBrg>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<ListImportBrg> pageOrders = new StaticPagedList<ListImportBrg>(listPromosi, pagenumber + 1, 5, totalCount.JUMLAH);
+            return PartialView("SyncBarangLog", pageOrders);
+        }
+
         [HttpPost]
         //public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
         public ActionResult UploadFakturTokped()
@@ -22292,6 +22350,21 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add 10 Juni 2019, update panjang/lebar/tinggi
+                                    if (barangInDB.PANJANG == 0 && data.Stf02.PANJANG > 0)
+                                    {
+                                        barangInDB.PANJANG = data.Stf02.PANJANG;
+                                    }
+                                    if (barangInDB.LEBAR == 0 && data.Stf02.LEBAR > 0)
+                                    {
+                                        barangInDB.LEBAR = data.Stf02.LEBAR;
+                                    }
+                                    if (barangInDB.TINGGI == 0 && data.Stf02.TINGGI > 0)
+                                    {
+                                        barangInDB.TINGGI = data.Stf02.TINGGI;
+                                    }
+                                    //end add 10 Juni 2019, update panjang/lebar/tinggi
+
                                     brgMp.HJUAL = data.TempBrg.HJUAL_MP;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
@@ -23064,6 +23137,21 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF02.Add(stf02);
 
                 }
+                //add 10 Juni 2019, update panjang/lebar/tinggi
+                else
+                {
+                    var stf02inDB = ErasoftDbContext.STF02.Where(m => m.BRG == kdBrgMO).FirstOrDefault();
+                    if (stf02inDB != null)
+                    {
+                        if (stf02inDB.PANJANG == 0 && data.PANJANG > 0)
+                            stf02inDB.PANJANG = data.PANJANG;
+                        if (stf02inDB.LEBAR == 0 && data.LEBAR > 0)
+                            stf02inDB.LEBAR = data.LEBAR;
+                        if (stf02inDB.TINGGI == 0 && data.TINGGI > 0)
+                            stf02inDB.TINGGI = data.TINGGI;
+                    }
+                }
+                //end add 10 Juni 2019, update panjang/lebar/tinggi
                 bool insertSTF02h = false;
                 var brgMp = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrgMO && p.IDMARKET == tempBrg.IDMARKET).FirstOrDefault();
                 if (brgMp == null)
@@ -23268,7 +23356,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public ActionResult UploadItemByCust(string cust, string dataPerPage, int skipDataError)
+        public ActionResult UploadItemByCust(string cust, string dataPerPage, int skipDataError, string namaFileLog)
         {
             var barangVm = new UploadBarangViewModel()
             {
@@ -23294,30 +23382,43 @@ namespace MasterOnline.Controllers
                     username = sessionData.User.Username;
                 }
             }
+
             var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(cust.ToUpper())).FirstOrDefault();
             if (customer != null)
             {
+                //add 19 Juli 2019, error log
+                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), namaFileLog);
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+                string log_msg = "";
+                //end add 19 Juli 2019, error log
+
                 var dataBrg = new List<TEMP_BRG_MP>();
                 if (!string.IsNullOrEmpty(dataPerPage))
                 {
                     if (skipDataError > 0)
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
-                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
                     //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
-                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -23326,7 +23427,12 @@ namespace MasterOnline.Controllers
                     if (defaultCategoryCode.Count == 0)
                     //if (defaultCategoryCode == null)
                     {
-                        barangVm.Errors.Add("Kode Kategori tidak ditemukan");
+                        //change 19 Juli 2019, error log
+                        //barangVm.Errors.Add("Kode Kategori tidak ditemukan");
+                        log_msg = "Master Kategori belum diisi" + System.Environment.NewLine;
+                        tw.WriteLine(log_msg);
+                        //end change 19 Juli 2019, error log
+
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
                     //var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).FirstOrDefault();
@@ -23334,7 +23440,11 @@ namespace MasterOnline.Controllers
                     if (defaultBrand.Count == 0)
                     //if (defaultBrand == null)
                     {
-                        barangVm.Errors.Add("Kode Merek tidak ditemukan");
+                        //change 19 Juli 2019, error log
+                        //barangVm.Errors.Add("Kode Merek tidak ditemukan");
+                        log_msg = "Master Merek belum diisi" + System.Environment.NewLine;
+                        tw.WriteLine(log_msg);
+                        //end change 19 Juli 2019, error log
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
 
@@ -23382,11 +23492,21 @@ namespace MasterOnline.Controllers
                                     {
                                         var ret1 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                         if (ret1.status == 0)
-                                            barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
+                                        //change 19 Juli 2019, error log
+                                        {
+                                            //barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
+                                            log_msg = "Gagal sinkronisasi barang " + item.KODE_BRG_INDUK + " karena : " + ret1.message + System.Environment.NewLine;
+                                            tw.WriteLine(log_msg);
+                                        }
+                                        //end change 19 Juli 2019, error log
                                     }
                                     else
                                     {
-                                        barangVm.Errors.Add(item.SELLER_SKU + ";Barang Induk tidak ditemukan.");
+                                        //change 19 Juli 2019, error log
+                                        //barangVm.Errors.Add(item.SELLER_SKU + ";Barang Induk tidak ditemukan.");
+                                        log_msg = "Gagal sinkronisasi barang " + item.KODE_BRG_INDUK + ", data barang tidak ditemukan" + System.Environment.NewLine;
+                                        tw.WriteLine(log_msg);
+                                        //end change 19 Juli 2019, error log
                                         //return JsonErrorMessage("Barang Induk tidak ditemukan.");
                                     }
 
@@ -23399,7 +23519,13 @@ namespace MasterOnline.Controllers
                                 //sinkron brg induk terlebih dahulu
                                 var ret2 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                 if (ret2.status == 0)
-                                    barangVm.Errors.Add(item.SELLER_SKU + ";" + ret2.message);
+                                //change 19 Juli 2019, error log
+                                {
+                                    //barangVm.Errors.Add(item.SELLER_SKU + ";" + ret2.message);
+                                    log_msg = "Gagal sinkronisasi barang " + item.KODE_BRG_INDUK + " karena : " + ret2.message + System.Environment.NewLine;
+                                    tw.WriteLine(log_msg);
+                                }
+                                //end change 19 Juli 2019, error log                                
                                 //}
                                 //else
                                 //{
@@ -23418,10 +23544,29 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(brgMp.BRG_MP))
                                 {
-                                    barangVm.Errors.Add(brgMp.BRG + ";Barang ini sudah link dengan barang lain di marketplace");
+                                    //change 19 Juli 2019, error log
+                                    //barangVm.Errors.Add(brgMp.BRG + ";Barang ini sudah link dengan barang lain di marketplace");
+                                    log_msg = "Gagal sinkronisasi barang " + brgMp.BRG + ", Barang ini sudah link dengan barang lain di marketplace" + System.Environment.NewLine;
+                                    tw.WriteLine(log_msg);
+                                    //end change 19 Juli 2019, error log
                                 }
                                 else
                                 {
+                                    //add 10 Juni 2019, update panjang/lebar/tinggi
+                                    if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
+                                    {
+                                        barangInDB.PANJANG = item.PANJANG;
+                                    }
+                                    if (barangInDB.LEBAR == 0 && item.LEBAR > 0)
+                                    {
+                                        barangInDB.LEBAR = item.LEBAR;
+                                    }
+                                    if (barangInDB.TINGGI == 0 && item.TINGGI > 0)
+                                    {
+                                        barangInDB.TINGGI = item.TINGGI;
+                                    }
+                                    //end add 10 Juni 2019, update panjang/lebar/tinggi
+
                                     brgMp.HJUAL = item.HJUAL_MP;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.BRG_MP = item.BRG_MP;
@@ -23598,6 +23743,18 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
+                                {
+                                    barangInDB.PANJANG = item.PANJANG;
+                                }
+                                if (barangInDB.LEBAR == 0 && item.LEBAR > 0)
+                                {
+                                    barangInDB.LEBAR = item.LEBAR;
+                                }
+                                if (barangInDB.TINGGI == 0 && item.TINGGI > 0)
+                                {
+                                    barangInDB.TINGGI = item.TINGGI;
+                                }
                                 brgMp = new STF02H();
                                 //change stf02h brg = seller sku
                                 //brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
@@ -24163,7 +24320,11 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.STF02.Remove(stf02);
                                 ErasoftDbContext.STF02H.Remove(brgMp);
                                 ErasoftDbContext.SaveChanges();
-                                barangVm.Errors.Add("Kode Barang " + stf02.BRG + " gagal tersimpan. Error : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message) + "\n");
+                                //change 19 Juli 2019, error log
+                                //barangVm.Errors.Add("Kode Barang " + stf02.BRG + " gagal tersimpan. Error : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message) + "\n");
+                                log_msg = "Kode Barang " + stf02.BRG + " gagal tersimpan karena : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message) + System.Environment.NewLine;
+                                tw.WriteLine(log_msg);
+                                //end change 19 Juli 2019, error log
                             }
 
                             //end change 17 juni 2019, handle gagal save
@@ -24234,14 +24395,16 @@ namespace MasterOnline.Controllers
                     }
                     //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
                     //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
-
+                    tw.Close();
                     barangVm.contRecursive = "1";
                     //if (barangVm.Errors.Count == 0)
                     //if(dataBrg.Count < Convert.ToInt32(dataPerPage))
-                    if (barangVm.Errors.Count == 0 && string.IsNullOrEmpty(dataPerPage))
-                    {
-                        return PartialView("TableUploadBarangPartial", barangVm);
-                    }
+                    //remark 19 juli 2019
+                    //if (barangVm.Errors.Count == 0 && string.IsNullOrEmpty(dataPerPage))
+                    //{
+                    //    return PartialView("TableUploadBarangPartial", barangVm);
+                    //}
+                    //remark 19 juli 2019
                     //else
                     {
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
@@ -24517,7 +24680,7 @@ namespace MasterOnline.Controllers
         }
 
         [Route("manage/ImportDataMP")]
-        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL)
+        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL, int totalData)
         {
             if (!string.IsNullOrEmpty(cust))
             {
@@ -24537,6 +24700,7 @@ namespace MasterOnline.Controllers
                                 Stf02 = new STF02(),
                                 TempBrg = new TEMP_BRG_MP(),
                                 BLProductActive = statBL,
+                                totalData = totalData//add 18 Juli 2019, show total record
                             };
                             //int recordCount = 0;
                             switch (marketplace.NamaMarket.ToUpper())
@@ -24549,22 +24713,18 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         var lzdApi = new LazadaController();
-                                        var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount);
-                                        if (resultLzd.status == 1)
+                                        var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount, totalData);
+                                        retBarang.exception = resultLzd.exception;
+                                        retBarang.totalData = resultLzd.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultLzd.status == 1)
+                                        //{
+                                        //if (!string.IsNullOrEmpty(resultLzd.message))
+                                        if (resultLzd.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultLzd.message))
-                                            {
-                                                retBarang.RecordCount = resultLzd.recordCount;
-                                                retBarang.Recursive = true;
-                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                            }
-                                            else
-                                            {
-                                                retBarang.RecordCount = resultLzd.recordCount;
-                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                                //return PartialView("TableUploadBarangPartial", retBarang);
-                                            }
+                                            retBarang.RecordCount = resultLzd.recordCount;
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
@@ -24573,6 +24733,15 @@ namespace MasterOnline.Controllers
                                             //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
                                             //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultLzd.recordCount;
+                                        //    //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //    //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //    //return PartialView("TableUploadBarangPartial", retBarang);
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         //var nextPageLzd = true;
                                         //while (nextPageLzd)
@@ -24603,31 +24772,27 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount);
-                                        if (result.status == 1)
+                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount, totalData);
+                                        retBarang.exception = result.exception;
+                                        retBarang.totalData = result.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (result.status == 1)
+                                        //{
+                                        //if (!string.IsNullOrEmpty(result.message))
+                                        if (result.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(result.message))
+                                            if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
                                             {
-                                                if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
-                                                {
-                                                    retBarang.BLProductActive = 0;
-                                                    if (statBL == 1)
-                                                        retBarang.Page = 0;
-                                                }
-                                                //else
-                                                //{
-                                                retBarang.RecordCount = result.recordCount;
-                                                //}
-                                                retBarang.Recursive = true;
-                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                                retBarang.BLProductActive = 0;
+                                                if (statBL == 1)
+                                                    retBarang.Page = 0;
                                             }
-                                            else
-                                            {
-                                                retBarang.RecordCount = result.recordCount;
-                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                                //return PartialView("TableUploadBarangPartial", retBarang);
-                                            }
+                                            //else
+                                            //{
+                                            retBarang.RecordCount = result.recordCount;
+                                            //}
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
@@ -24636,6 +24801,15 @@ namespace MasterOnline.Controllers
                                             //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
                                             //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = result.recordCount;
+                                        //    //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //    //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //    //return PartialView("TableUploadBarangPartial", retBarang);
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         //var nextPage = true;
                                         //while (nextPage)
@@ -24697,22 +24871,18 @@ namespace MasterOnline.Controllers
                                             token = arf01.TOKEN,
                                             idmarket = arf01.RecNum.Value
                                         };
-                                        var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
-                                        if (resultBli.status == 1)
+                                        var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount, totalData);
+                                        retBarang.exception = resultBli.exception;
+                                        retBarang.totalData = resultBli.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultBli.status == 1)
+                                        //{
+                                        //if (!string.IsNullOrEmpty(resultBli.message))
+                                        if (resultBli.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultBli.message))
-                                            {
-                                                retBarang.RecordCount = resultBli.recordCount;
-                                                retBarang.Recursive = true;
-                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                            }
-                                            else
-                                            {
-                                                retBarang.RecordCount = resultBli.recordCount;
-                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                                //return PartialView("TableUploadBarangPartial", retBarang);
-                                            }
+                                            retBarang.RecordCount = resultBli.recordCount;
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
@@ -24721,6 +24891,15 @@ namespace MasterOnline.Controllers
                                             //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
                                             //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultBli.recordCount;
+                                        //    //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //    //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //    //return PartialView("TableUploadBarangPartial", retBarang);
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
 
                                         //var nextPageBli = true;
@@ -24762,24 +24941,28 @@ namespace MasterOnline.Controllers
                                         };
 
                                         //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-                                        var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-
-                                        if (resultShopee.status == 1)
+                                        var resultTokped = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value, totalData);
+                                        retBarang.exception = resultTokped.exception;
+                                        retBarang.totalData = resultTokped.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultTokped.status == 1)
+                                        //{
+                                        //    if (!string.IsNullOrEmpty(resultTokped.message))
+                                        if (resultTokped.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultShopee.message))
-                                            {
-                                                retBarang.RecordCount = resultShopee.recordCount;
-                                                retBarang.Recursive = true;
-                                            }
-                                            else
-                                            {
-                                                retBarang.RecordCount = resultShopee.recordCount;
-                                            }
+                                            retBarang.RecordCount = resultTokped.recordCount;
+                                            retBarang.Recursive = true;
                                         }
                                         else
                                         {
-                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.RecordCount = resultTokped.recordCount;
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultTokped.recordCount;
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
 
@@ -24796,23 +24979,29 @@ namespace MasterOnline.Controllers
                                             merchant_code = arf01.Sort1_Cust,
 
                                         };
-                                        var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
-                                        if (resultShopee.status == 1)
+                                        var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount, totalData);
+                                        retBarang.exception = resultShopee.exception;
+                                        retBarang.totalData = resultShopee.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultShopee.status == 1)
+                                        //{
+                                        //    if (!string.IsNullOrEmpty(resultShopee.message))
+                                        if (resultShopee.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultShopee.message))
-                                            {
-                                                retBarang.RecordCount = resultShopee.recordCount;
-                                                retBarang.Recursive = true;
-                                            }
-                                            else
-                                            {
-                                                retBarang.RecordCount = resultShopee.recordCount;
-                                            }
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.Recursive = true;
                                         }
                                         else
                                         {
                                             retBarang.RecordCount = resultShopee.recordCount;
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultShopee.recordCount;
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
+
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
                                 case "JD.ID":
@@ -24829,23 +25018,28 @@ namespace MasterOnline.Controllers
                                             appKey = arf01.API_KEY,
                                             appSecret = arf01.API_CLIENT_U,
                                         };
-                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount);
-                                        if (resultJD.status == 1)
+                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount, totalData);
+                                        retBarang.exception = resultJD.exception;
+                                        retBarang.totalData = resultJD.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultJD.status == 1)
+                                        //{
+                                        //    if (!string.IsNullOrEmpty(resultJD.message))
+                                        if (resultJD.nextPage == 1)
                                         {
-                                            if (!string.IsNullOrEmpty(resultJD.message))
-                                            {
-                                                retBarang.RecordCount = resultJD.recordCount;
-                                                retBarang.Recursive = true;
-                                            }
-                                            else
-                                            {
-                                                retBarang.RecordCount = resultJD.recordCount;
-                                            }
+                                            retBarang.RecordCount = resultJD.recordCount;
+                                            retBarang.Recursive = true;
                                         }
                                         else
                                         {
                                             retBarang.RecordCount = resultJD.recordCount;
                                         }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultJD.recordCount;
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
                                 default:
@@ -25776,31 +25970,73 @@ namespace MasterOnline.Controllers
         public ActionResult GetTotalData(string cust)
         {
             var ret = new SimpleJsonObject();
+            ret.Total = 0;
             if (!string.IsNullOrEmpty(cust))
             {
-                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
-                if (customer != null)
+                try
                 {
-                    var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
-                    if (tokped != null)
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                    if (customer != null)
                     {
-                        if (customer.NAMA == tokped.IdMarket.ToString())
+                        var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                        if (tokped != null)
                         {
-                            ret.Errors = "Silahkan edit per barang untuk sikronisasi barang dari marketplace Tokopedia.";
-                            return Json(ret, JsonRequestBehavior.AllowGet);
+                            if (customer.NAMA == tokped.IdMarket.ToString())
+                            {
+                                ret.Errors = "Silahkan edit per barang untuk sikronisasi barang dari marketplace Tokopedia.";
+                                return Json(ret, JsonRequestBehavior.AllowGet);
+                            }
                         }
                     }
+                    //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                    var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
+                    if (listTempBrg != null)
+                    {
+                        ret.Total = listTempBrg.Count();
+                        var mp = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault();
+                        if (mp != null)
+                        {
+                            var api_log = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.MARKETPLACE.ToUpper() == mp.NamaMarket.ToUpper()).OrderByDescending(m => m.RECNUM).ToList();
+                            if (api_log.Count > 0)
+                            {
+                                ret.startRecnum = api_log[0].RECNUM;
+                            }
+                        }
+                        #region Logging
+                        AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                        string uname = sessionData.Account.Username;
+
+                        //string message = "";
+                        string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                        var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+                        var asd = System.IO.File.Create(path);
+                        asd.Close();
+
+                        LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
+                        {
+                            CUST = cust,
+                            UPLOADER = uname,
+                            UPLOAD_DATETIME = DateTime.Now,
+                            LOG_FILE = filename,
+                            LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now
+                        };
+                        //string lastFakturInUpload = "";
+                        //DateTime lastFakturDateInUpload = DateTime.Now;
+                        ret.fileName = filename;
+                        ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                        ErasoftDbContext.SaveChanges();
+                        #endregion
+                    }
+                    else
+                    {
+                        ret.Errors = "Gagal mengambil data.";
+                    }
                 }
-                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
-                if (listTempBrg != null)
+                catch (Exception ex)
                 {
-                    ret.Total = listTempBrg.Count();
+                    ret.Errors = (ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                 }
-                else
-                {
-                    ret.Errors = "Gagal mengambil data.";
-                }
+                
             }
             else
             {
@@ -26061,6 +26297,83 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by calvin 17 mei 2019
+
+        //add by Tri 18 Juli 2019
+        public async Task<ActionResult> RetryGetData(string cust, int recnum)
+        {
+            var ret = new BindingBase();
+            var arf01 = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            if (arf01 != null)
+            {
+                var api_log = ErasoftDbContext.API_LOG_MARKETPLACE.Where(m => m.CUST == cust && m.RECNUM > recnum && m.REQUEST_STATUS != "Success" && m.REQUEST_ACTION.Contains("Get Item List")).ToList();
+                if (api_log.Count > 0)
+                {
+                    foreach (var apiLog in api_log)
+                    {
+                        switch (apiLog.MARKETPLACE)
+                        {
+                            case "Lazada":
+                                var lzdApi = new LazadaController();
+                                lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), 0, 0);
+                                break;
+                            case "Bukalapak":
+                                var blApi = new BukaLapakController();
+                                blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), (apiLog.REQUEST_ACTION.Contains("Not Active") ? false : true), 0, 0);
+                                break;
+                            case "Tokopedia":
+                                var TokoAPI = new TokopediaController();
+                                TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                                {
+                                    merchant_code = arf01.Sort1_Cust, //FSID
+                                    API_client_password = arf01.API_CLIENT_P, //Client ID
+                                    API_client_username = arf01.API_CLIENT_U, //Client Secret
+                                    API_secret_key = arf01.API_KEY, //Shop ID 
+                                    token = arf01.TOKEN
+                                };
+                                await TokoAPI.GetItemListSemua(data, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), 0, arf01.CUST, arf01.NAMA, arf01.RecNum.Value, 0);
+                                break;
+                            case "Blibli":
+                                var BliApi = new BlibliController();
+                                BlibliController.BlibliAPIData dataBL = new BlibliController.BlibliAPIData()
+                                {
+                                    API_client_username = arf01.API_CLIENT_U,
+                                    API_client_password = arf01.API_CLIENT_P,
+                                    API_secret_key = arf01.API_KEY,
+                                    mta_username_email_merchant = arf01.EMAIL,
+                                    mta_password_password_merchant = arf01.PASSWORD,
+                                    merchant_code = arf01.Sort1_Cust,
+                                    token = arf01.TOKEN,
+                                    idmarket = arf01.RecNum.Value
+                                };
+                                var resultBli = BliApi.getProduct(dataBL, "", Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), arf01.CUST, 0, 0);
+                                break;
+                            case "Shopee":
+                                var ShopeeApi = new ShopeeController();
+                                ShopeeController.ShopeeAPIData dataSp = new ShopeeController.ShopeeAPIData()
+                                {
+                                    merchant_code = arf01.Sort1_Cust,
+                                };
+                                var resultShopee = await ShopeeApi.GetItemsList(dataSp, arf01.RecNum.Value, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), 0, 0);
+                                break;
+                            case "JD.ID":
+                                var JDApi = new JDIDController();
+                                JDIDAPIData dataJD = new JDIDAPIData()
+                                {
+                                    accessToken = arf01.TOKEN,
+                                    appKey = arf01.API_KEY,
+                                    appSecret = arf01.API_CLIENT_U,
+                                };
+                                var resultJD = JDApi.getListProduct(dataJD, Convert.ToInt32(apiLog.REQUEST_ATTRIBUTE_3), cust, 0, 0);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        //end add by Tri 18 Juli 2019
+
     }
     public class smolSTF02
     {

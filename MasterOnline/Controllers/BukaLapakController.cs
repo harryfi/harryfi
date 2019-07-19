@@ -103,7 +103,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
 
-            } 
+            }
 
             if (!string.IsNullOrEmpty(stringRet))
             {
@@ -1015,11 +1015,13 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
+        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount, int totaldata)
         {
             var ret = new BindingBase();
             ret.status = 0;
             ret.recordCount = recordCount;
+            ret.totalData = totaldata;//add 18 Juli 2019, show total record
+            ret.exception = 0;
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1057,14 +1059,18 @@ namespace MasterOnline.Controllers
                         ret.status = 1;
                         if (resListProd.products.Count == 10)
                         {
-                            ret.message = (page + 1).ToString();
+                            //ret.message = (page + 1).ToString();
+                            ret.nextPage = 1;
                             if (!display)
                                 ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                         }
                         else
                         {
                             if (display)
+                            {
                                 ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                                ret.nextPage = 1;
+                            }
                         }
                         int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                         var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
@@ -1081,6 +1087,7 @@ namespace MasterOnline.Controllers
                         string sSQL_Value = "";
                         foreach (var brg in resListProd.products)
                         {
+                            ret.recordCount += 1;//add 18 Juli 2019, show total record
                             bool haveVarian = false;
                             string kdBrgInduk = "";
                             if (brg.product_sku.Count > 0)
@@ -1092,6 +1099,8 @@ namespace MasterOnline.Controllers
                                 if (tempbrginDBInduk == null && brgInDBInduk == null)
                                 {
                                     var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
+                                    if (insert1.exception == 1)
+                                        ret.exception = 1;
                                     if (insert1.status == 1)
                                         sSQL_Value += insert1.message;
                                 }
@@ -1170,9 +1179,12 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 if (haveVarian)
                                 {
+                                    ret.totalData += brg.product_sku.Count;//add 18 Juli 2019, show total record
                                     for (int i = 0; i < brg.product_sku.Count; i++)
                                     {
                                         var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
+                                        if (insert2.exception == 1)
+                                            ret.exception = 1;
                                         if (insert2.status == 1)
                                             sSQL_Value += insert2.message;
                                     }
@@ -1180,6 +1192,8 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     var insert2 = CreateTempQry(brg, cust, IdMarket, display, 0, "", 0);
+                                    if (insert2.exception == 1)
+                                        ret.exception = 1;
                                     if (insert2.status == 1)
                                         sSQL_Value += insert2.message;
                                 }
@@ -1203,6 +1217,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    ret.exception = 1;
                     ret.message = "failed to call Buka Lapak api";
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
@@ -1210,6 +1225,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, userId, currentLog);
@@ -1309,7 +1325,10 @@ namespace MasterOnline.Controllers
                 }
                 if (type != 2)
                 {
-                    sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                    sSQL_Value += "('" + brg.id + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
@@ -1871,6 +1890,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
@@ -2090,7 +2110,7 @@ namespace MasterOnline.Controllers
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
                             CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
                             CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
-                            MARKETPLACE = "Buka Lapak",
+                            MARKETPLACE = "Bukalapak",
                             REQUEST_ACTION = data.REQUEST_ACTION,
                             REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
                             REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
