@@ -13,4 +13,11 @@ namespace MasterOnline.Models
         public string JumlahPesananBulanIni { get; set; }
         public string NilaiPesananBulanIni { get; set; }
     }
+
+    public class FakturPerMarketplaceModel
+    {
+        public string NamaMarket { get; set; }
+        public string JumlahFaktur { get; set; }
+        public string NilaiFaktur { get; set; }
+    }
 }

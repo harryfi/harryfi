@@ -1742,7 +1742,7 @@ namespace MasterOnline.Controllers
                         if (jmlhPesananDibayar > 0)
                         {
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan terbayar dari Shopee.");
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
                         }
                     }
                 }

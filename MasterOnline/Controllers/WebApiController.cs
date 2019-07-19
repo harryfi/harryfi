@@ -96,7 +96,7 @@ namespace MasterOnline.Controllers
 
                 var message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.From = new MailAddress("support@masteronline.co.id");
                 message.Subject = "Password Akun MasterOnline";
                 message.Body = string.Format(body, randPassword);
                 message.IsBodyHtml = true;
@@ -105,8 +105,8 @@ namespace MasterOnline.Controllers
                 {
                     var credential = new NetworkCredential
                     {
-                        UserName = "csmasteronline@gmail.com",
-                        Password = "ymkglmknkacqslui"
+                        UserName = "support@masteronline.co.id",
+                        Password = "zcipeqngzvvbuuju"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";
