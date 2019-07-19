@@ -3166,17 +3166,20 @@
                                     success: function (response) {
                             //end add by nurul 27/5/2019
                                         
+                                        
+                                        
+                                        
                                         $('#form-partial').html(response);
                                         getTanggal();
+                                        $('#form-partial').show();
+                                        $('#form_subs').hide();
                                         getSupplier();
                                         getPesanan();
                                         getGudang();
                                         getDataBarang();
+                                        
                                         $('.invoice_table_section').hide();
                                         $('.invoice_editor_section').show();
-                                        $('#form-partial').show();
-                                        $('#form_subs').hide();
-
                             //add by nurul 17/10/2018
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
