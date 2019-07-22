@@ -1037,7 +1037,9 @@
     </Compile>
     <Compile Include="Services\ManageImageService.cs" />
     <Compile Include="Services\UploadImageService.cs" />
+    <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
+    <Compile Include="Utils\HangfireBootstrapper.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
