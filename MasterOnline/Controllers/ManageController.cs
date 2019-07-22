@@ -19218,12 +19218,14 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             if (cust.Length > 0)
             {
-                sSQL2 += "WHERE";
+                sSQL2 += "WHERE A.CUST in (";
                 for (int i = 0; i < cust.Length;i++)
                 {
-                    sSQL2 += " (A.CUST LIKE '%" + cust[i] + "%' ) OR";
+                    //sSQL2 += " (A.CUST LIKE '%" + cust[i] + "%' ) OR";
+                    sSQL2 += "'" + cust[i] + "' , ";
+
                 }
-                sSQL2 = sSQL2.Substring(0, sSQL2.Length -3) + " AND A.LOG_FILE LIKE '%Log_SyncBrg_%'";
+                sSQL2 = sSQL2.Substring(0, sSQL2.Length -3) + ") AND A.LOG_FILE LIKE '%Log_SyncBrg_%' ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 5) - 4;
@@ -25963,6 +25965,12 @@ namespace MasterOnline.Controllers
                         //string message = "";
                         string filename = "Log_SyncBrg_" + cust + "_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
                         var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+                        if (!System.IO.File.Exists(path))
+                        {
+                            System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                            //var asd = System.IO.File.Create(path);
+                            //asd.Close();
+                        }
                         var asd = System.IO.File.Create(path);
                         asd.Close();
 
