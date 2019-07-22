@@ -1080,7 +1080,7 @@ namespace MasterOnline.Controllers
         {
             var custVm = new CustomerViewModel()
             {
-                ListCustomer = ErasoftDbContext.ARF01.ToList(),
+                //ListCustomer = ErasoftDbContext.ARF01.ToList(),
                 ListSubs = MoDbContext.Subscription.ToList()
             };
 
@@ -1572,7 +1572,8 @@ namespace MasterOnline.Controllers
                 //add by nurul 14/1/2019 'validasi email dan marketplace sama 
                 var vmError = new CustomerViewModel() { };
 
-                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL).ToList();
+                //var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL).ToList();
+                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.NAMA != "18").ToList();
                 int nm = Convert.ToInt32(customer.Customers.NAMA);
                 var getMP = MoDbContext.Marketplaces.SingleOrDefault(a => a.IdMarket == nm).NamaMarket;
                 if (cekEmailMP.Count > 0)
@@ -1581,6 +1582,18 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //end add by nurul 14/1/2019
+                //add by nurul, tambah validasi duplikat nama akun jika offline
+                var cekNamaAkunOffline = ErasoftDbContext.ARF01.Where(a => a.PERSO == customer.Customers.PERSO && a.NAMA == customer.Customers.NAMA && a.NAMA == "18").ToList();
+                if (cekNamaAkunOffline.Count > 0)
+                {
+                    //if (cekNamaAkunOffline.Where(a => a.NAMA == customer.Customers.NAMA).Count() > 0)
+                    //{
+                        //vmError.Errors.Add("Email sudah digunakan untuk Marketplace ( " + getMP + " ) !");
+                        vmError.Errors.Add("Nama Akun ( " + customer.Customers.PERSO + " ) untuk Marketplace Offline sudah ada !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    //}
+                }
+                //add by nurul, tambah validasi duplikat nama akun jika offline
 
                 ErasoftDbContext.ARF01.Add(customer.Customers);
                 ErasoftDbContext.SaveChanges();
@@ -1614,7 +1627,8 @@ namespace MasterOnline.Controllers
                 //add by nurul 14/1/2019 'validasi email dan marketplace sama 
                 var vmError = new CustomerViewModel() { };
 
-                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum).ToList();
+                //var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum).ToList();
+                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum && a.NAMA != "18").ToList();
                 int nm = Convert.ToInt32(customer.Customers.NAMA);
                 var getMP = MoDbContext.Marketplaces.SingleOrDefault(a => a.IdMarket == nm).NamaMarket;
                 if (cekEmailMP.Count > 0)
@@ -1623,6 +1637,18 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //end add by nurul 14/1/2019
+                //add by nurul, tambah validasi duplikat nama akun jika offline
+                var cekNamaAkunOffline = ErasoftDbContext.ARF01.Where(a => a.PERSO == customer.Customers.PERSO && a.NAMA == customer.Customers.NAMA && a.NAMA == "18").ToList();
+                if (cekNamaAkunOffline.Count > 0)
+                {
+                    //if (cekNamaAkunOffline.Where(a => a.NAMA == customer.Customers.NAMA).Count() > 0)
+                    //{
+                    //vmError.Errors.Add("Email sudah digunakan untuk Marketplace ( " + getMP + " ) !");
+                    vmError.Errors.Add("Nama Akun ( " + customer.Customers.PERSO + " ) untuk Marketplace Offline sudah ada !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                    //}
+                }
+                //add by nurul, tambah validasi duplikat nama akun jika offline
 
                 custInDb.TOP = customer.Customers.TOP;
                 custInDb.AL = customer.Customers.AL;
@@ -1745,7 +1771,9 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                return PartialView("TableCustomerPartial", partialVm);
+                customer.Errors = null;
+                return Json(customer, JsonRequestBehavior.AllowGet);
+                //return PartialView("TableCustomerPartial", partialVm);
             }
         }
 
@@ -1776,12 +1804,15 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            var partialVm = new CustomerViewModel()
-            {
-                ListCustomer = ErasoftDbContext.ARF01.ToList()
-            };
+            //var partialVm = new CustomerViewModel()
+            //{
+            //    //ListCustomer = ErasoftDbContext.ARF01.ToList()
+            //    Errors = null
+            //};
 
-            return PartialView("TableCustomerPartial", partialVm);
+            //return Json(partialVm, JsonRequestBehavior.AllowGet);
+            //return PartialView("TableCustomerPartial", partialVm);
+            return null;
         }
 
         [HttpGet]
@@ -1799,6 +1830,43 @@ namespace MasterOnline.Controllers
 
             return Json(kabkot, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 16/7/2019
+        public ActionResult RefreshTableCustomer(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.PERSO AS PERSO ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM ARF01 A ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
+            if (search != "")
+            {
+                sSQL2 += "WHERE C.NamaMarket LIKE '%" + search + "%' OR A.EMAIL LIKE '%" + search + "%' ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY C.NamaMarket ASC, A.EMAIL ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlCustomer> pageOrders = new StaticPagedList<mdlCustomer>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableCustomerPartial", pageOrders);
+        }
+        //end add by nurul 16/7/2019
 
         // =============================================== Bagian Customer (END)
 
