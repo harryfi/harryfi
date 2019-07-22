@@ -27,6 +27,26 @@
     }
 }
 
+<style>
+    @@media screen and (max-width: 445px) {
+        .tblprice {
+            width: 56%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .tblprice {
+            width: 47%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .tblprice {
+            width: 41%;
+        }
+    }
+</style>
+
 <div>
     <div style="font-size: 12px;">
         <div id="divSubs">
@@ -77,196 +97,196 @@
 
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-default-noborder">
-                    <div class="panel panel-body">
-                        <table class="table_subs" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th scope="col" style="text-align:left;"></th>
-                                    @*<th scope="col" style="text-align:center;">BASIC</th>
-                                        <th scope="col" style="text-align:center;">SILVER</th>
-                                        <th scope="col" style="text-align:center;">GOLD</th>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        <th scope="col" style="text-align:center;">@subs.KETERANGAN</th>
-                                    }
-                                    <th scope="col" style="text-align:center;">PLATINUM</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th> 'change by nurul 19/2/2019*@
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th>
-                                    <td style="text-align:center;">Free Trial<br>14hari</td>
-                                    @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
-                                        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        if (subs.KODE != "01")
+                
+                        <div class="hscroll table-responsive tblprice">
+                            <table class="table_subs" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="text-align:left;"></th>
+                                        @*<th scope="col" style="text-align:center;">BASIC</th>
+                    <th scope="col" style="text-align:center;">SILVER</th>
+                    <th scope="col" style="text-align:center;">GOLD</th>*@
+                                        @foreach (var subs in Model)
                                         {
-                                            <td style="text-align:center;">Rp <label id="lbl_0_@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</label><br>per bulan</td>
+                                            <th scope="col" style="text-align:center;">@subs.KETERANGAN</th>
                                         }
-                                    }
-                                    <td style="text-align:center;">CALL</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Pembayaran</th>
-                                    @*<td style="text-align:center; "><a class='btn btn-basicfree' role="button" title="Beli" href="#">DAFTAR</a></td>*@
-                                    <td style="text-align:center; "></td>
-                                    @*<td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                                                Rp 1,200,000 <br>per 3 bulan
-                                            </a>
-                                        </td>
+                                        <th scope="col" style="text-align:center;">PLATINUM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th> 'change by nurul 19/2/2019*@
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th>
+                                        <td style="text-align:center;">Free Trial<br>14hari</td>
+                                        @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
+                    <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
+                                        @foreach (var subs in Model)
+                                        {
+                                            if (subs.KODE != "01")
+                                            {
+                                                <td style="text-align:center;">Rp <label id="lbl_0_@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</label><br>per bulan</td>
+                                            }
+                                        }
+                                        <td style="text-align:center;">CALL</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Pembayaran</th>
+                                        @*<td style="text-align:center; "><a class='btn btn-basicfree' role="button" title="Beli" href="#">DAFTAR</a></td>*@
+                                        <td style="text-align:center; "></td>
+                                        @*<td style="text-align:center;">
+                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                            Rp 1,200,000 <br>per 3 bulan
+                        </a>
+                    </td>
+                    <td style="text-align:center;">
+                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                            Rp 2,700,000 <br>per 3 bulan
+                        </a>
+                    </td>*@
+                                        @foreach (var subs in Model)
+                                        {
+                                            if (subs.KODE != "01")
+                                            {
+                                                <td style="text-align:center;">
+                                                    <a class='btn btn-basicfree' role="button" id="btnPay_3_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '3')">
+                                                        Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)) <br>per 3 bulan
+                                                    </a>
+                                                </td>
+                                            }
+                                        }
+                                        <td style="text-align:center;">CALL</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"></th>
+                                        <td style="text-align:center;"></td>
+                                        @*<td style="text-align:center;">
+                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                            Rp 4,400,000 <br>per 12 bulan
+                        </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                    </td>
+                    <td style="text-align:center;">
+                        <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                            Rp 9,900,000 <br>per 12 bulan
+                        </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                    </td>*@
+                                        @foreach (var subs in Model)
+                                        {
+                                            if (subs.KODE != "01")
+                                            {
+                                                <td style="text-align:center;">
+                                                    <a class='btn btn-basicfree' role="button" id="btnPay_12_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '12')">
+                                                        Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)) <br>per 12 bulan
+                                                    </a><br><p style="font-size:12px;color:#891539;">hemat 2 bulan</p>
+                                                </td>
+                                            }
+                                        }
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th> 'change by nurul 19/2/2019*@
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
+                                        @*<td style="text-align:center;">2</td>
+                    <td style="text-align:center;">Unlimited</td>
+                    <td style="text-align:center;">Unlimited</td>*@
+                                        @foreach (var subs in Model)
+                                        {
+                                            <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
+                                        }
+                                        <td style="text-align:center;" rowspan="11" valign="top" class="enterpriseColumn"><h3>Enterprise <br><br>Resources <br><br>Planning <br><br>(ERP) <br><br>Features</h3></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
+                                        @*<td style="text-align:center;">100</td>
+                    <td style="text-align:center;">300</td>
+                    <td style="text-align:center;">Unlimited</td>*@
+                                        @foreach (var subs in Model)
+                                        {
+                                            <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
+                                        }
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th> 'change by nurul 19/2/2019*@
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Marketplace Integration</b></th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th> 'change by nurul 19/2/2019*@
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sales Analysis</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Shipment Management</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Purchasing</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Inventory & Warehouse Management</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Receivable (AR)</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Payable (AP)</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;General Ledger (GL)</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
+                                        @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
+                                        <td style="text-align:center;">2</td>
                                         <td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                                                Rp 2,700,000 <br>per 3 bulan
-                                            </a>
-                                        </td>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        if (subs.KODE != "01")
-                                        {
-                                            <td style="text-align:center;">
-                                                <a class='btn btn-basicfree' role="button" id="btnPay_3_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '3')">
-                                                    Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)) <br>per 3 bulan
-                                                </a>
-                                            </td>
-                                        }
-                                    }
-                                    <td style="text-align:center;">CALL</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"></th>
-                                    <td style="text-align:center;"></td>
-                                    @*<td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                                                Rp 4,400,000 <br>per 12 bulan
-                                            </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                                            <button id="btnMin" style="color:red;background-color: transparent;" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
+                                            <label id="txtJmlUser">5</label>
+                                            <button id="btnPlus" style="color:green;background-color: transparent;" onclick="changeUser(1);"><span class="glyphicon glyphicon-plus"></span></button>
                                         </td>
-                                        <td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
-                                                Rp 9,900,000 <br>per 12 bulan
-                                            </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
-                                        </td>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        if (subs.KODE != "01")
-                                        {
-                                            <td style="text-align:center;">
-                                                <a class='btn btn-basicfree' role="button" id="btnPay_12_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '12')">
-                                                    Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)) <br>per 12 bulan
-                                                </a><br><p style="font-size:12px;color:#891539;">hemat 2 bulan</p>
-                                            </td>
-                                        }
-                                    }
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th> 'change by nurul 19/2/2019*@
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
-                                    @*<td style="text-align:center;">2</td>
-                                        <td style="text-align:center;">Unlimited</td>
-                                        <td style="text-align:center;">Unlimited</td>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
-                                    }
-                                    <td style="text-align:center;" rowspan="11" valign="top" class="enterpriseColumn"><h3>Enterprise <br><br>Resources <br><br>Planning <br><br>(ERP) <br><br>Features</h3></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
-                                    @*<td style="text-align:center;">100</td>
-                                        <td style="text-align:center;">300</td>
-                                        <td style="text-align:center;">Unlimited</td>*@
-                                    @foreach (var subs in Model)
-                                    {
-                                        <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
-                                    }
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th> 'change by nurul 19/2/2019*@
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Marketplace Integration</b></th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th> 'change by nurul 19/2/2019*@
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sales Analysis</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Shipment Management</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Purchasing</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Inventory & Warehouse Management</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Receivable (AR)</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Payable (AP)</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;General Ledger (GL)</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
-                                <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
-                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
-                                    @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
-                                    <td style="text-align:center;">2</td>
-                                    <td style="text-align:center;">
-                                        <button id="btnMin" style="color:red;background-color: transparent;" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
-                                        <label id="txtJmlUser">5</label>
-                                        <button id="btnPlus" style="color:green;background-color: transparent;" onclick="changeUser(1);"><span class="glyphicon glyphicon-plus"></span></button>
-                                    </td>
-                                    <td style="text-align:center;"></td>
-                                </tr>
+                                        <td style="text-align:center;"></td>
+                                    </tr>
 
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
+                        </div>
                     </div>
-                </div>
             </div>
         </div>
 
 
-    </div>
-</div>
+
 @*<div class="text-center" style="background:white;">
     <p style="color:black">
         Pembayaran dapat di transfer ke rekening :
@@ -302,7 +322,7 @@
                     <br />
                     Setelah Transfer Harap konfirmasi ke <b>Telp: 021-6349318</b> atau
                     <br />
-                    <b>email : csmasteronline@gmail.com</b> 
+                    <b>email : support@masteronline.co.id</b> 
                     <br />
                     <b>UP : Erni / Indrie</b>
                 </p>

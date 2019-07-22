@@ -1,0 +1,69 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listPieBarang = Model.ListBarangLaku.OrderByDescending(a => a.Qty).Take(10);
+    }
+    var listPieBarang = @Html.Raw(Json.Encode(listPieBarang));
+</script>
+@*@if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+    {*@
+@if (listPieBarang.Count() > 0)
+{
+    <div class="row table-mode">
+        @*--@Html.Partial("TableDashboardBarangLakuPartial")*@
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Kode Barang</th>
+                    <th class="text-center">Nama Barang</th>
+                    <th class="text-center">Qty Terjual</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.ListBarangLaku?.Count > 0)
+                {
+                    //foreach (var barangLaku in Model.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10))
+                    foreach (var barangLaku in Model.ListBarangLaku)
+                    {
+                        if (barangLaku.Laku)
+                        {
+                            <tr>
+                                <td>@barangLaku.KodeBrg</td>
+                                <td>@barangLaku.NamaBrg</td>
+                                <td>@barangLaku.Qty</td>
+                            </tr>
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>---</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @*}
+        else
+        {
+            <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+        }*@
+    <div class="row container pie-mode" id="chart-baranglaku-section">
+        <canvas id="chart-baranglaku" height="200"></canvas>
+        <div class="legend form-horizontal text-left" id="baranglakuLegend" style="float:left;"></div>
+        <div style="clear: both;" />
+    </div>
+}
+else
+{
+    <div class="center">
+        <h4>Silahkan buat barang baru !</h4>
+    </div>
+}
+
