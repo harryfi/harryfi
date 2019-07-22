@@ -2194,11 +2194,11 @@
                 $('#tambah_invoice').click();
             }
 
-            getTanggal();
-            getSupplier();
-            getPesanan();
-            getGudang();
-            getDataBarang();
+            //getTanggal();
+            //getSupplier();
+            //getPesanan();
+            //getGudang();
+            //getDataBarang();
 
             if ($('#Invoice_TGL').val() != '') {
                 $('#TGL').val($('#Invoice_TGL').val());
@@ -3165,13 +3165,21 @@
                                     },
                                     success: function (response) {
                             //end add by nurul 27/5/2019
-                                        $('.invoice_table_section').hide();
-                                        $('.invoice_editor_section').show();
+                                        
+                                        
+                                        
+                                        
                                         $('#form-partial').html(response);
-
+                                        getTanggal();
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
-
+                                        getSupplier();
+                                        getPesanan();
+                                        getGudang();
+                                        getDataBarang();
+                                        
+                                        $('.invoice_table_section').hide();
+                                        $('.invoice_editor_section').show();
                             //add by nurul 17/10/2018
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
@@ -3954,8 +3962,8 @@
                                 getTanggal();
                                 getDataBarang();
                                 getSupplier();
-                                getPesanan();
-                                getGudang();
+                                //getPesanan();
+                                //getGudang();
                                 $('#loading_spinner').hide();
                             } else {
                                 //change by nurul 15/10/2018

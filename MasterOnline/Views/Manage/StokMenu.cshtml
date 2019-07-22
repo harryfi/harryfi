@@ -818,6 +818,7 @@
 
                     $('#form-partial').html(response);
                     ////Initialize();
+                    widthBrg();
                     getDataBarang();
                     getGudang();
                     //$('#tambah_stok').click();
@@ -1094,8 +1095,8 @@
                                 $('#form-partial').html(response);
                                 widthBrg()
                                 getDataBarang();
-                                getGudang();
-                                //getTanggal();
+                                //getGudang();
+                                getTanggal();
                                 $('#loading_spinner').hide();
                             } else {
                                 alert('Ada data yang tidak valid!');
