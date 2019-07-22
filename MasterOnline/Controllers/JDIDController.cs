@@ -337,7 +337,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
-                                if(listKtg.Count > 0)
+                                if (listKtg.Count > 0)
                                 {
                                     EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
                                 }
@@ -584,12 +584,14 @@ namespace MasterOnline.Controllers
             return listOpt;
         }
 
-        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount)
+        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount, int totalData)
         {
             var ret = new BindingBase
             {
                 status = 0,
                 recordCount = recordCount,
+                exception = 0,
+                totalData = totalData//add 18 Juli 2019, show total record
             };
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -597,7 +599,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = (page + 1).ToString(),
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
@@ -633,7 +636,8 @@ namespace MasterOnline.Controllers
                                     ret.status = 1;
                                     int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault().RecNum.Value;
                                     if (listProd.model.spuInfoVoList.Count == 10)
-                                        ret.message = (page + 1).ToString();
+                                        //ret.message = (page + 1).ToString();
+                                        ret.nextPage = 1;
 
                                     foreach (var item in listProd.model.spuInfoVoList)
                                     {
@@ -641,6 +645,7 @@ namespace MasterOnline.Controllers
                                         if (item.wareStatus == 1 || item.wareStatus == 2)
                                         {
                                             var retProd = GetProduct(data, item, IdMarket, cust);
+                                            ret.totalData += retProd.totalData;//add 18 Juli 2019, show total record
                                             if (retProd.status == 1)
                                             {
                                                 ret.recordCount += retProd.recordCount;
@@ -685,9 +690,18 @@ namespace MasterOnline.Controllers
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                     }
                 }
+                else
+                {
+                    ret.exception = 1;
+                    currentLog.REQUEST_EXCEPTION = "failed to call api";
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+
+                }
             }
             catch (Exception ex)
             {
+                ret.nextPage = 1;
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
@@ -700,6 +714,8 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0,
+                totalData = 0,//add 18 Juli 2019, show total record
             };
 
             try
@@ -729,8 +745,9 @@ namespace MasterOnline.Controllers
                                 if (dataProduct.model.Count > 1)
                                 {
                                     haveVarian = true;
+                                    ret.totalData += 1;//add 18 Juli 2019, show total record
                                 }
-
+                                ret.totalData += dataProduct.model.Count();//add 18 Juli 2019, show total record
                                 foreach (var item in dataProduct.model)
                                 {
                                     var tempbrginDB = new TEMP_BRG_MP();
@@ -770,6 +787,8 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.exception == 1)
+                                                ret.exception = 1;
                                             if (retData.status == 1)
                                             {
                                                 ret.recordCount += retData.recordCount;
@@ -786,6 +805,8 @@ namespace MasterOnline.Controllers
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retData = getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.exception == 1)
+                                                ret.exception = 1;
                                             if (retData.status == 1)
                                             {
                                                 ret.recordCount += retData.recordCount;
@@ -812,9 +833,14 @@ namespace MasterOnline.Controllers
                         ret.message = retProd.openapi_msg;
                     }
                 }
+                else
+                {
+                    ret.exception = 1;
+                }
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
 
@@ -826,6 +852,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0
             };
 
             try
@@ -863,17 +890,23 @@ namespace MasterOnline.Controllers
                                     if (createParent)
                                     {
                                         var retSQL = CreateSQLValue(item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
+                                        if (retSQL.exception == 1)
+                                            ret.exception = 1;
                                         if (retSQL.status == 1)
                                             sSQLVal += retSQL.message;
                                     }
 
                                     var retSQL2 = CreateSQLValue(item, detailData.model[0], kdBrgInduk, skuId, cust, IdMarket, 2, itemFromList);
+                                    if (retSQL2.exception == 1)
+                                        ret.exception = 1;
                                     if (retSQL2.status == 1)
                                         sSQLVal += retSQL2.message;
                                 }
                                 else
                                 {
                                     var retSQL = CreateSQLValue(item, detailData.model[0], "", skuId, cust, IdMarket, 0, itemFromList);
+                                    if (retSQL.exception == 1)
+                                        ret.exception = 1;
                                     if (retSQL.status == 1)
                                         sSQLVal += retSQL.message;
                                 }
@@ -895,6 +928,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    ret.exception = 1;
                     ret.message = response;
                 }
 
@@ -909,6 +943,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
@@ -920,6 +955,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase
             {
                 status = 0,
+                exception = 0
             };
 
             string sSQL_Value = "";
@@ -945,12 +981,18 @@ namespace MasterOnline.Controllers
 
                 if (typeBrg != 1)
                 {
-                    sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                    sSQL_Value += " ( '" + skuId + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
                 else
                 {
                     namaBrg = itemFromList.spuName;
-                    sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
+                    //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                    //sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
+                    sSQL_Value += " ( '" + kdBrgInduk + "' , '' , '";
+                    //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                 }
 
                 if (typeBrg == 2)
@@ -1047,6 +1089,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
@@ -1488,7 +1531,7 @@ namespace MasterOnline.Controllers
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
                             CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
                             CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
-                            MARKETPLACE = "JD",
+                            MARKETPLACE = "JD.ID",
                             REQUEST_ACTION = data.REQUEST_ACTION,
                             REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
                             REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",

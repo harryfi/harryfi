@@ -1891,11 +1891,11 @@ namespace MasterOnline.Controllers
                                     myData += "\"items\": [ {";
                                     myData += "\"itemSku\": \"" + result.value.items[0].itemSku + "\",  ";
                                     myData += "\"skuCode\": \"" + result.value.items[0].skuCode + "\", ";
-                                    myData += "\"price\": [ {" ;
+                                    myData += "\"price\": [ {";
                                     myData += "\"discountAmount\": " + data.promoPrice + ", ";
                                     myData += "\"discountStartDate\": \"" + data.promoStart + "\", ";
-                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";     
-                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";   
+                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";
+                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";
                                     myData += "} ], \"attributes\" : null, \"images\" : null }";
                                 }
                             }
@@ -2125,12 +2125,14 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust, int recordCount)
+        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust, int recordCount, int totalData)
         {
             var ret = new BindingBase
             {
                 status = 0,
                 recordCount = recordCount,
+                totalData = totalData,
+                exception = 0
             };
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2141,6 +2143,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
@@ -2189,51 +2192,55 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                //ret.message = ex.Message;
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            }
 
-            if (responseFromServer != "")
-            {
-                var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
-                if (listBrg != null)
+                if (!string.IsNullOrEmpty(responseFromServer))
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    if (string.IsNullOrEmpty(listBrg.errorCode))
+                    var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
+                    if (listBrg != null)
                     {
-                        if (listBrg.content != null)
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        if (string.IsNullOrEmpty(listBrg.errorCode))
                         {
-                            if (listBrg.content.Count > 0)
+                            if (listBrg.content != null)
                             {
-                                ret.status = 1;
-                                int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                                if (listBrg.content.Count == 10)
-                                    ret.message = (page + 1).ToString();
-
-                                //add 13 Feb 2019, tuning
-                                var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
-                                var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
-                                //end add 13 Feb 2019, tuning
-
-                                foreach (var item in listBrg.content)
+                                if (listBrg.content.Count > 0)
                                 {
-                                    //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                    //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                    var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
-                                    if (tempbrginDB == null && brgInDB == null)
+                                    ret.status = 1;
+                                    int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
+                                    if (listBrg.content.Count == 10)
+                                        //ret.message = (page + 1).ToString();
+                                        ret.nextPage = 1;
+
+                                    //add 13 Feb 2019, tuning
+                                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                                    //end add 13 Feb 2019, tuning
+
+                                    foreach (var item in listBrg.content)
                                     {
-                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
-                                        if (retDet.status >= 1)
+                                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
                                         {
-                                            ret.recordCount += retDet.status;
+                                            var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
+                                            if (retDet.exception == 1)
+                                                ret.exception = 1;
+                                            ret.totalData += retDet.totalData;//add 18 Juli 2019, show total record
+                                            if (retDet.status >= 1)
+                                            {
+                                                ret.recordCount += retDet.status;
+                                            }
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    ret.message = "Gagal mendapatkan produk";
+                                    currentLog.REQUEST_EXCEPTION = ret.message;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                                 }
                             }
                             else
@@ -2245,31 +2252,36 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            ret.message = "Gagal mendapatkan produk";
+                            ret.message = listBrg.errorMessage;
                             currentLog.REQUEST_EXCEPTION = ret.message;
                             manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                     else
                     {
-                        ret.message = listBrg.errorMessage;
+                        ret.message = "Gagal mendapatkan produk";
                         currentLog.REQUEST_EXCEPTION = ret.message;
                         manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                     }
                 }
                 else
                 {
-                    ret.message = "Gagal mendapatkan produk";
+                    ret.message = "Failed to get response from Blibli API";
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = "Failed to get response from Blibli API";
-                currentLog.REQUEST_EXCEPTION = ret.message;
+                //ret.message = ex.Message;
+                if (ex.Message != "The remote server returned an error: (401) Unauthorized.")
+                    ret.nextPage = 1;
+                ret.exception = 1;
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return ret;
             }
+
             return ret;
         }
         protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display/*, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local*/)
@@ -2278,6 +2290,7 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             var ret = new BindingBase();
             ret.status = 0;
+            ret.exception = 0;
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
@@ -2308,10 +2321,11 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 ret.message = ex.Message;
             }
 
-            if (responseFromServer != "")
+            if (!string.IsNullOrEmpty(responseFromServer))
             {
                 //var brg = JsonConvert.DeserializeObject(responseFromServer, typeof(DetailBrgBlibli)) as DetailBrgBlibli;
 
@@ -2390,8 +2404,10 @@ namespace MasterOnline.Controllers
                                 numVarian++;
                             }
                         }
+                        ret.totalData += 1;//add 18 Juli 2019, show total record
                         if (numVarian > 1)
                         {
+                            ret.totalData = numVarian;//add 18 Juli 2019, show total record
                             //remove bussiness partner code from productsku -> max length < 20
                             string productSku = result.value.productSku;
                             var splitSku = productSku.Split('-');
@@ -2406,7 +2422,7 @@ namespace MasterOnline.Controllers
                             if (brgIndukinDB == null && tempBrgIndukinDB == null)
                             {
                                 insertParent = true;
-                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3);
+                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3, iden);
                             }
                             else if (brgIndukinDB != null)
                             {
@@ -2418,8 +2434,10 @@ namespace MasterOnline.Controllers
                         string desc = result.value.description;
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
-                        if (string.IsNullOrEmpty(merchantSku))
-                            merchantSku = result.value.items[0].skuCode;
+                        //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                        //if (string.IsNullOrEmpty(merchantSku))
+                        //    merchantSku = result.value.items[0].skuCode;
+                        //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
@@ -2428,7 +2446,9 @@ namespace MasterOnline.Controllers
                         sSQL += ", '" + kdBrgInduk + "' , '3'";
                         //end add kode brg induk dan type brg
 
-                        var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                        //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                        var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                        var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
                         #region set attribute
                         if (attributeBlibli != null)
                         {
@@ -3439,7 +3459,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust, string IdMarket, int display, string urlImage, string urlImage2, string urlImage3)
+        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust, string IdMarket, int display, string urlImage, string urlImage2, string urlImage3, BlibliAPIData iden)
         {
             string sSQL = "";
             string namaBrg = result.value.productName;
@@ -3473,7 +3493,10 @@ namespace MasterOnline.Controllers
             string desc = result.value.description;
             string categoryCode = result.value.categoryCode.ToString();
             //string merchantSku = result.value.items[0].merchantSku.ToString();
-            sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+            //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += "('" + kdBrg + "' , '' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
             sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
@@ -3481,7 +3504,10 @@ namespace MasterOnline.Controllers
             sSQL += ", '' , '4'";
             //end add kode brg induk dan type brg
 
-            var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            //var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            //var attributeBlibli = Task.Run(() => GetAttributeToList(iden, CategoryBlibli).Wait());
+            var attributeBlibli = GetAttributeToListSync(iden, CategoryBlibli).attributes.FirstOrDefault();
             #region set attribute
             if (attributeBlibli != null)
             {
@@ -5088,6 +5114,109 @@ namespace MasterOnline.Controllers
             public List<string> options { get; set; }
         }
 
+        public ATTRIBUTE_BLIBLI_AND_OPT GetAttributeToListSync(BlibliAPIData data, CATEGORY_BLIBLI category)
+        {
+            //var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+            //string ret = "";
+            ATTRIBUTE_BLIBLI_AND_OPT ret = new ATTRIBUTE_BLIBLI_AND_OPT();
+            //foreach (var item in category)
+            //{
+            string categoryCode = category.CATEGORY_CODE;
+            string categoryName = category.CATEGORY_NAME;
+            //    string categoryCode = "3 -1000001";
+            //string categoryName = "3 Kamar +";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+            //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+            //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + data.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetAttributeBlibliResult)) as GetAttributeBlibliResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    if (result.value.attributes.Count() > 0)
+                    {
+                        ATTRIBUTE_BLIBLI returnData = new ATTRIBUTE_BLIBLI();
+                        int i = 0;
+                        string a = "";
+                        foreach (var attribs in result.value.attributes)
+                        {
+                            a = Convert.ToString(i + 1);
+                            returnData.CATEGORY_CODE = category.CATEGORY_CODE;
+                            returnData.CATEGORY_NAME = category.CATEGORY_NAME;
+
+                            //sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                            //oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                            //oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                            //oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                            //oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                            returnData["ACODE_" + a] = Convert.ToString(attribs.attributeCode);
+                            returnData["ATYPE_" + a] = Convert.ToString(attribs.attributeType);
+                            returnData["ANAME_" + a] = Convert.ToString(attribs.name);
+                            returnData["AOPTIONS_" + a] = attribs.options.Count > 0 ? "1" : "0";
+
+                            if (attribs.options.Count() > 0)
+                            {
+                                var optList = attribs.options.ToList();
+                                var listOpt = optList.Select(x => new ATTRIBUTE_OPT_BLIBLI(attribs.attributeCode.ToString(), attribs.attributeType.ToString(), attribs.name.ToString(), x)).ToList();
+                                ret.attribute_opt.AddRange(listOpt);
+                            }
+                            i = i + 1;
+                        }
+                        ret.attributes.Add(returnData);
+                    }
+                }
+            }
+            //}
+
+            return ret;
+        }
 
         public async Task<ATTRIBUTE_BLIBLI_AND_OPT> GetAttributeToList(BlibliAPIData data, CATEGORY_BLIBLI category)
         {

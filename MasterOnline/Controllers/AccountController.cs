@@ -248,7 +248,8 @@ namespace MasterOnline.Controllers
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
-
+            //var api = new ManageController();
+            //api.RetryGetData("000001", 14319);
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
             var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 

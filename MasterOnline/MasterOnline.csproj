@@ -6093,6 +6093,7 @@
     <Content Include="Views\Manage\TablePromptBarangPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardBarangLakuPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardFakturPartial.cshtml" />
+    <Content Include="Views\Manage\SyncBarangLog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
