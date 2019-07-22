@@ -306,6 +306,47 @@ namespace MasterOnline.Controllers
                 ListMarket = MoDbContext.Marketplaces.ToList(),
             };
 
+            string[] minggu1 = { "01", "02", "03", "04", "05", "06", "07" };
+            string[] minggu2 = { "08", "09", "10", "11", "12", "13", "14" };
+            string[] minggu3 = { "15", "16", "17", "18", "19", "20", "21" };
+            string[] minggu4 = { "22", "23", "24", "25", "26", "27", "28" };
+            string[] minggu5 = { "29", "30", "31" };
+            var mingguKe = "";
+            for(int i = 0; i < minggu1.Count(); i++)
+            {
+                if(Convert.ToString(selectedDate.Day) == minggu1[i])
+                {
+                    mingguKe = "1";
+                }
+            }
+            for (int i = 0; i < minggu2.Count(); i++)
+            {
+                if (Convert.ToString(selectedDate.Day) == minggu2[i])
+                {
+                    mingguKe = "2";
+                }
+            }
+            for (int i = 0; i < minggu3.Count(); i++)
+            {
+                if (Convert.ToString(selectedDate.Day) == minggu3[i])
+                {
+                    mingguKe = "3";
+                }
+            }
+            for (int i = 0; i < minggu4.Count(); i++)
+            {
+                if (Convert.ToString(selectedDate.Day) == minggu4[i])
+                {
+                    mingguKe = "4";
+                }
+            }
+            for (int i = 0; i < minggu5.Count(); i++)
+            {
+                if (Convert.ToString(selectedDate.Day) == minggu5[i])
+                {
+                    mingguKe = "5";
+                }
+            }
             #region pesanan
             var pesananMingguIni = vm.ListPesanan.Where(a => a.TGL.Value.DayOfWeek == selectedDate.DayOfWeek && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Year == selectedDate.Year).ToList();
             if (pesananMingguIni.Count() > 0)
@@ -326,7 +367,8 @@ namespace MasterOnline.Controllers
                     //                   select a);
                     vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
                     {
-                        No = nmDay[i],
+                        //No = nmDay[i],
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.DayNames[i],
                         Jumlah = cekjumlahPesanan.ToString(),
                         Nilai = NilaiPesanan
                     });
