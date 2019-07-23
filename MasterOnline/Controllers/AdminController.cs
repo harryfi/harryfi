@@ -90,7 +90,7 @@ namespace MasterOnline.Controllers
 
                 result = "DashboardAdmin";
             }
-            else if (adminFromDb.Email == "support@masteronline.co.id")
+            else if (adminFromDb.Email == "csmasteronline@gmail.com")
             {
                 if (admin.Password != adminFromDb.Password)
                 {
