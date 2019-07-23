@@ -367,13 +367,14 @@ namespace MasterOnline.Controllers
                     var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
                     var jmlFaktur = vm.ListFaktur?
                         .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
-                    var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
-                    
+                    //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+                    var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
+
                     vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
                     {
                         NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
                         JumlahFaktur = jmlFaktur.ToString(),
-                        NilaiFaktur = nilaiFaktur
+                        NilaiFaktur = Convert.ToString(nilaiFaktur)
                     });
                 }
             }
