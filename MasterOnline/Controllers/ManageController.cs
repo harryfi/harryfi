@@ -318,124 +318,213 @@ namespace MasterOnline.Controllers
             var mingguKe = "";
             for(int i = 0; i < minggu1.Count(); i++)
             {
-                if(Convert.ToString(selectedDate.Day) == minggu1[i])
+                if(Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu1[i]))
                 {
                     mingguKe = "1";
                 }
             }
             for (int i = 0; i < minggu2.Count(); i++)
             {
-                if (Convert.ToString(selectedDate.Day) == minggu2[i])
+                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu2[i]))
                 {
                     mingguKe = "2";
                 }
             }
             for (int i = 0; i < minggu3.Count(); i++)
             {
-                if (Convert.ToString(selectedDate.Day) == minggu3[i])
+                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu3[i]))
                 {
                     mingguKe = "3";
                 }
             }
             for (int i = 0; i < minggu4.Count(); i++)
             {
-                if (Convert.ToString(selectedDate.Day) == minggu4[i])
+                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu4[i]))
                 {
                     mingguKe = "4";
                 }
             }
             for (int i = 0; i < minggu5.Count(); i++)
             {
-                if (Convert.ToString(selectedDate.Day) == minggu5[i])
+                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu5[i]))
                 {
                     mingguKe = "5";
                 }
             }
             #region pesanan
-            var pesananMingguIni = vm.ListPesanan.Where(a => a.TGL.Value.DayOfWeek == selectedDate.DayOfWeek && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Year == selectedDate.Year).ToList();
-            if (pesananMingguIni.Count() > 0)
+            var x = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(selectedDate, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Sunday);
+            
+            //var pesananMingguIni = vm.ListPesanan.Where(p => p.TGL.Value.DayOfWeek == selectedDate.DayOfWeek && p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year).ToList();
+            //if (pesananMingguIni.Count() > 0)
+            //{
+            if(mingguKe == "1")
             {
-                List<String> nmDay = new List<String>();
-                for (int i = 0; i < 7; i++)
+                for (int i = 0; i < minggu1.Count(); i++)
                 {
-                    nmDay.Add(CultureInfo.CurrentUICulture.DateTimeFormat.DayNames[i]);
-
-                    //string[] day = { "Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
-                    //for (int i = 0; i < nmDay.Length; i++)
-                    //{
-                    var cekjumlahPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == nmDay[i]).Count();
-                    //var cekNilaiPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]).Sum(p => p.NETTO);
-                    var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == nmDay[i]).Sum(p => p.NETTO))}";
-                    //var cekPesanan1 = (from a in pesananMingguIni
-                    //                   where Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]
-                    //                   select a);
+                    var getDate = minggu1[i] + '/' + selectedMonth + '/' + selectedDate.Year;
+                    var getdate = Convert.ToDateTime(getDate);
+                    var dayName = getdate.DayOfWeek;
+                    var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu1[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu1[i])).Count();
+                    var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu1[i])).Sum(a => a.NETTO);
                     vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
                     {
-                        //No = nmDay[i],
-                        No = CultureInfo.CurrentUICulture.DateTimeFormat.DayNames[i],
-                        Jumlah = cekjumlahPesanan.ToString(),
-                        Nilai = NilaiPesanan
+                        No = dayName.ToString(),
+                        Jumlah = cekjumlahpesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
+                    });
+                }
+            }else if(mingguKe == "2")
+            {
+                for (int i = 0; i < minggu2.Count(); i++)
+                {
+                    var getDate = minggu2[i] + '/' + selectedMonth + '/' + selectedDate.Year;
+                    var getdate = Convert.ToDateTime(getDate);
+                    var dayName = getdate.DayOfWeek;
+                    var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu2[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu2[i])).Count();
+                    var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu2[i])).Sum(a => a.NETTO);
+                    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = dayName.ToString(),
+                        Jumlah = cekjumlahpesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
                     });
                 }
             }
-            var pesananBulanIni = vm.ListPesanan.Where(a => a.TGL.Value.Month == selectedDate.Month).ToList();
+            else if (mingguKe == "3")
+            {
+                for (int i = 0; i < minggu3.Count(); i++)
+                {
+                    var getDate = minggu3[i] + '/' + selectedMonth + '/' + selectedDate.Year;
+                    var getdate = Convert.ToDateTime(getDate);
+                    var dayName = getdate.DayOfWeek;
+                    var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu3[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu3[i])).Count();
+                    var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu3[i])).Sum(a => a.NETTO);
+                    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = dayName.ToString(),
+                        Jumlah = cekjumlahpesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
+                    });
+                }
+            }
+            else if (mingguKe == "4")
+            {
+                for (int i = 0; i < minggu4.Count(); i++)
+                {
+                    var getDate = minggu4[i] + '/' + selectedMonth + '/' + selectedDate.Year;
+                    var getdate = Convert.ToDateTime(getDate);
+                    var dayName = getdate.DayOfWeek;
+                    var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu4[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu4[i])).Count();
+                    var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu4[i])).Sum(a => a.NETTO);
+                    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = dayName.ToString(),
+                        Jumlah = cekjumlahpesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
+                    });
+                }
+            }
+            else if (mingguKe == "5")
+            {
+                for (int i = 0; i < minggu5.Count(); i++)
+                {
+                    var getDate = minggu5[i] + '/' + selectedMonth + '/' + selectedDate.Year;
+                    var getdate = Convert.ToDateTime(getDate);
+                    var dayName = getdate.DayOfWeek;
+                    var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu5[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu5[i])).Count();
+                    var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu5[i])).Sum(a => a.NETTO);
+                    vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+                    {
+                        No = dayName.ToString(),
+                        Jumlah = cekjumlahpesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
+                    });
+                }
+            }
+            //    List<String> nmDay = new List<String>();
+            //    for (int i = 0; i < 7; i++)
+            //    {
+            //        nmDay.Add(CultureInfo.CurrentUICulture.DateTimeFormat.DayNames[i]);
+            //        var firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+            //        var result = vm.ListPesanan.Where(
+            //                        p => p.TGL >= p.TGL.Value.AddDays(-(p.TGL.Value.DayOfWeek - firstDayOfWeek) &&
+            //                        p.TGL <= DateTime.Today.Date);
+            //        //string[] day = { "Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            //        //for (int i = 0; i < nmDay.Length; i++)
+            //        //{
+            //        var cekjumlahPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == nmDay[i]).Count();
+            //        //var cekNilaiPesanan = pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]).Sum(p => p.NETTO);
+            //        var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananMingguIni.Where(a => Convert.ToString(a.TGL.Value.DayOfWeek) == nmDay[i]).Sum(p => p.NETTO))}";
+            //        //var cekPesanan1 = (from a in pesananMingguIni
+            //        //                   where Convert.ToString(a.TGL.Value.DayOfWeek) == day[i]
+            //        //                   select a);
+            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
+            //        {
+            //            //No = nmDay[i],
+            //            No = CultureInfo.CurrentUICulture.DateTimeFormat.DayNames[i],
+            //            Jumlah = cekjumlahPesanan.ToString(),
+            //            Nilai = NilaiPesanan
+            //        });
+            //    }
+            //}
+            var pesananBulanIni = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
             if (pesananBulanIni.Count() > 0)
             {                
                 for (int i = 1; i < 6; i++)
                 {
                     if (i == 1) 
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last()));
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = "MingguKe-" + i,
                             Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = Convert.ToString(NilaiPesanan)
+                            Nilai = NilaiPesanan.ToString()
                         });
                     }
                     else if(i == 2)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last()));
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = "MingguKe-" + i,
                             Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = Convert.ToString(NilaiPesanan)
+                            Nilai = NilaiPesanan.ToString()
                         });
                     }
                     else if(i == 3)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last()));
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = "MingguKe-" + i,
                             Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = Convert.ToString(NilaiPesanan)
+                            Nilai = NilaiPesanan.ToString()
                         });
                     }
                     else if (i == 4)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last()));
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = "MingguKe-" + i,
                             Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = Convert.ToString(NilaiPesanan)
+                            Nilai = NilaiPesanan.ToString()
                         });
                     }
                     else if(i == 5)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last()));
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedDate.Month && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = "MingguKe-" + i,
                             Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = Convert.ToString(NilaiPesanan)
+                            Nilai = NilaiPesanan.ToString()
                         });
                     }
                 }
@@ -456,11 +545,6 @@ namespace MasterOnline.Controllers
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    //var ch = new tempMonth()
-                    //{
-                    //    no = i,
-                    //    nmMonth = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i]
-                    //}
                     var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
                     var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO))}";
                     vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
@@ -468,6 +552,15 @@ namespace MasterOnline.Controllers
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
                         Jumlah = cekjumlahPesanan.ToString(),
                         Nilai = NilaiPesanan
+                    });
+                }
+            }else
+            {
+                for (int i = 1; i < 13; i++)
+                {
+                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1]
                     });
                 }
             }
@@ -518,6 +611,16 @@ namespace MasterOnline.Controllers
                     });
                 }
             }
+            else
+            {
+                for (int i = 1; i < 13; i++)
+                {
+                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1]
+                    });
+                }
+            }
             #endregion
             #region retur
             var returMingguIni = vm.ListFaktur.Where(a => a.TGL.DayOfWeek == selectedDate.DayOfWeek && a.TGL.Month == selectedMonth && a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
@@ -562,6 +665,16 @@ namespace MasterOnline.Controllers
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
                         Jumlah = cekjumlahRetur.ToString(),
                         Nilai = NilaiRetur
+                    });
+                }
+            }
+            else
+            {
+                for (int i = 1; i < 13; i++)
+                {
+                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1]
                     });
                 }
             }
