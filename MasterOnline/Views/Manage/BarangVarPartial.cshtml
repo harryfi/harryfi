@@ -53,6 +53,7 @@
         InitSettingVariantTokped();
         InitSettingVariantBlibli();
         InitSettingVariantLazada();
+        InitSettingVariantElevenia();
         InitSettingVariantJdid();
 
         $('#variant-tabs a:first').tab('show');
@@ -699,6 +700,11 @@
             $('#lazada_detail_tab_variant_button').remove();
         }
     }
+
+    function InitSettingVariantElevenia() {
+        $('#elevenia_detail_tab_variant_button').remove();
+    }
+
     function SearchOptVariantLazada(level, variant_id) {
         var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtLazadaCategoryCodeFound').val() + '__CATEGORY_CODE';
         $('#txtKodeKategoriLazada').val($(fieldCategoryCode).val());
@@ -1504,6 +1510,11 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Shopee.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_shopee').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Shopee.";
+            }
+        }
     }
     function validasiAutoloadStf02VariantTokped() {
         $(".txtVariantTokpedLv1_").each(function (i, item) {
@@ -1522,6 +1533,12 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Tokopedia.";
+
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_tokped').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Tokopedia.";
+            }
+        }
     }
 
     function validasiAutoloadStf02VariantBlibli() {
@@ -1541,6 +1558,11 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Blibli.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_blibli').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Blibli.";
+            }
+        }
     }
     function validasiAutoloadStf02VariantLazada() {
         $(".txtVariantLazadaLv1_").each(function (i, item) {
@@ -1559,6 +1581,11 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Lazada.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_lazada').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Lazada.";
+            }
+        }
     }
     function validasiAutoloadStf02VariantJdid() {
         $(".txtVariantJdidLv1_").each(function (i, item) {
@@ -1577,6 +1604,11 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Jdid.";
+        if (validasi_autoloadStf02Variant) {
+            if (!$('#save_map_var_jdid').prop('disabled')) {
+                message_validasi_autoloadStf02Variant = "Mohon simpan setting Opsi Jdid.";
+            }
+        }
     }
 
     function SaveMapVarShopee() {

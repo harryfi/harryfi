@@ -225,22 +225,22 @@
                     </div>
                 </div>
                 @*<div class="input-group">
-                    <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_barang_click" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>*@
+                        <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_barang_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>*@
             </div>
             <div class="col-lg-8 col-sm-8 col-md-8">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                     <button class="btn btn-primary" id="delete_brg" onclick="$('#konfTarikData').modal('show'); setModalMode(1);">Hapus Semua barang</button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show'); setModalMode(2);">Ambil data dari Marketplace</button>
-                    <button class="btn btn-primary" id="upload_brg" onclick="$('#konfTarikData').modal('show'); setModalMode(3);">Update data barang ke Master Online</button>
+                    @*<button class="btn btn-primary" id="upload_brg" onclick="$('#konfTarikData').modal('show'); setModalMode(3);">Update data barang ke Master Online</button>*@
                     @*<button class="btn btn-primary" id="generate_brg" onclick="$('#konfGenerateTokped').modal('show');">Generate barang Tokopedia</button>*@
                 </div>
             </div>
@@ -256,6 +256,9 @@
             </div>
         </div>
         <div class="row" style="margin-top: 5px;">
+            <div id="lblPleasewait" class="text-center">
+                <label>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</label>
+            </div>
             <div id="loading_barang_tab" class="text-center">
                 <img src="~/Content/Images/spinner.gif" width="100" />
             </div>
@@ -342,7 +345,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="btnDeleteAll" class="btn btn-success" onclick="deleteAllBrg();">Ya</button>
-                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1);">Ya</button>
+                <button type="button" id="btnGetDataBrg" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1, 0);exGetData = 0;">Ya</button>
                 <button type="button" id="btnSyncAll" class="btn btn-success" onclick="startSyncAll();">Ya</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
             </div>
@@ -448,6 +451,32 @@
         </div>
     </div>
 </div>
+@* add 18 Juli 2019, modal loading get barang *@
+<div class="modal fade" id="loadingGetBarang" tabindex="-1" role="dialog" aria-labelledby="loadingGetBarangLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
+                <h4 class="modal-title" style="text-align:center;" id="loadingGetBarangLabel">Proses sinkronisasi sedang berlangsung</h4>
+                <h4 class="modal-title" style="text-align:center;" id="loadingGetBarangLabel2">dimohon tunggu beberapa saat</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <div id="loading_barang_tab_in_modal" class="text-center">
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>
+                    <label id="lblModalDataSaved">Jumlah data berhasil tersimpan ke Master Online : 0</label>
+                    <label id="lblModalDataChecked">Jumlah data yang didapat dari marketplace : 0</label>
+                </div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+@* end add 18 Juli 2019, modal loading get barang *@
 
 <div class="row" id="progressDiv">
     <div class="col-md-12">
@@ -470,9 +499,11 @@
     <div id="statusFill">
     </div>
 </div>
-<div id="info_record">
+<div class="row" id="info_record" style="text-align:center;">
     <br />
     <label id="txtInfo" style="text-align:center"></label>
+    <br />
+    <label id="txtInfo2" style="text-align:center"></label>
 </div>
 @section scripts{
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -489,130 +520,7 @@
         //    table.search($(this).val()).draw();
         //});
 
-        
-        @*function checkfile(s) {
-            var validExts = new Array(".xlsx", ".xls");
-            var fileExt = s.value;
-            if (fileExt != null && fileExt != "") {
-                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
-                if (validExts.indexOf(fileExt) < 0) {
-                    alert("Invalid file selected, valid files are of " +
-                        validExts.toString() + " types.");
-                    document.getElementById("file_upload_brg").value = "";
 
-                    return false;
-                }
-            }
-        }
-
-        function uploadfilebrg(){
-            //if ($('#CUSTOMER_UPLOAD_FAKTUR_CUST').val() == "") {
-            //    alert('Harap pilih akun terlebih dahulu.');
-            //}
-            //else
-            if ($('#file_upload_brg')[0].files.length < 1) {
-                $('#file_upload_brg').click();
-            }
-            else {
-                var marketName = $('#txtCustomer2').val().split('(');
-                    var files = $('#file_upload_brg')[0].files;
-                var i,f;
-                for (i = 0, f = files[i]; i != files.length; ++i) {
-                    var reader = new FileReader();
-                    var name = f.name;
-                    reader.onload = function(e) {
-                        var data = e.target.result;
-                        //var cust = $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val();
-                        var workbook = XLSX.read(data, {type: 'binary'});
-
-                        var worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                        var jsondata = '';
-                        var link = '';
-                        //if ($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '15') {
-                        if (marketName[0].toUpperCase() == 'SHOPEE') {
-                            var range = XLSX.utils.decode_range(worksheet['!ref']);
-                            range.s.r = 3; // <-- zero-indexed, so setting to 4 will skip row 0,1,2,4
-                            worksheet['!ref'] = XLSX.utils.encode_range(range);
-
-                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
-                                ["KodeProduk","NoIndukSKU","NamaProduk","Berat","Stok","DiKirimDalam", "KodeVar1", "SkuVar1", "NamaVar1", "HargaVar1", "StokVar1",
-                                    "KodeVar2", "SkuVar2", "NamaVar2", "HargaVar2", "StokVar2", "KodeVar3", "SkuVar3", "NamaVar3", "HargaVar3", "StokVar3",
-                                    "KodeVar4", "SkuVar4", "NamaVar4", "HargaVar4", "StokVar4", "KodeVar5", "SkuVar5", "NamaVar5", "HargaVar5", "StokVar5",
-                                    "KodeVar6", "SkuVar6", "NamaVar6", "HargaVar6", "StokVar6", "KodeVar7", "SkuVar7", "NamaVar7", "HargaVar7", "StokVar7",
-                                    "KodeVar8", "SkuVar8", "NamaVar8", "HargaVar8", "StokVar8", "KodeVar9", "SkuVar9", "NamaVar9", "HargaVar9", "StokVar9",
-                                    "KodeVar10", "SkuVar10", "NamaVar10", "HargaVar10", "StokVar10", "KodeVar11", "SkuVar11", "NamaVar11", "HargaVar11", "StokVar11",
-                                    "KodeVar12", "SkuVar12", "NamaVar12", "HargaVar12", "StokVar12", "KodeVar13", "SkuVar13", "NamaVar13", "HargaVar13", "StokVar13",
-                                    "KodeVar14", "SkuVar14", "NamaVar14", "HargaVar14", "StokVar14", "KodeVar15", "SkuVar15", "NamaVar15", "HargaVar15", "StokVar15",
-                                    "KodeVar16", "SkuVar16", "NamaVar16", "HargaVar16", "StokVar16", "KodeVar17", "SkuVar17", "NamaVar17", "HargaVar17", "StokVar17",
-                                    "KodeVar18", "SkuVar18", "NamaVar18", "HargaVar18", "StokVar18", "KodeVar19", "SkuVar19", "NamaVar19", "HargaVar19", "StokVar19",
-                                    "KodeVar20", "SkuVar20", "NamaVar20", "HargaVar20", "StokVar20", "KodeVar21", "SkuVar21", "NamaVar21", "HargaVar21", "StokVar21",
-                                    "KodeVar22", "SkuVar22", "NamaVar22", "HargaVar22", "StokVar22", "KodeVar23", "SkuVar23", "NamaVar23", "HargaVar23", "StokVar23",
-                                    "KodeVar24", "SkuVar24", "NamaVar24", "HargaVar24", "StokVar24", "KodeVar25", "SkuVar25", "NamaVar25", "HargaVar25", "StokVar25",
-                                    "KodeVar26", "SkuVar26", "NamaVar26", "HargaVar26", "StokVar26", "KodeVar27", "SkuVar27", "NamaVar27", "HargaVar27", "StokVar27",
-                                    "KodeVar28", "SkuVar28", "NamaVar28", "HargaVar28", "StokVar28", "KodeVar29", "SkuVar29", "NamaVar29", "HargaVar29", "StokVar29",
-                                    "KodeVar30", "SkuVar30", "NamaVar30", "HargaVar30", "StokVar30", "KodeVar31", "SkuVar31", "NamaVar31", "HargaVar31", "StokVar31",
-                                    "KodeVar32", "SkuVar32", "NamaVar32", "HargaVar32", "StokVar32", "KodeVar33", "SkuVar33", "NamaVar33", "HargaVar33", "StokVar33",
-                                    "KodeVar34", "SkuVar34", "NamaVar34", "HargaVar34", "StokVar34", "KodeVar35", "SkuVar35", "NamaVar35", "HargaVar35", "StokVar35",
-                                    "KodeVar36", "SkuVar36", "NamaVar36", "HargaVar36", "StokVar36", "KodeVar37", "SkuVar37", "NamaVar37", "HargaVar37", "StokVar37",
-                                    "KodeVar38", "SkuVar38", "NamaVar38", "HargaVar38", "StokVar38", "KodeVar39", "SkuVar39", "NamaVar39", "HargaVar39", "StokVar39",
-                                    "KodeVar40", "SkuVar40", "NamaVar40", "HargaVar40", "StokVar40", "KodeVar41", "SkuVar41", "NamaVar41", "HargaVar41", "StokVar41",
-                                    "KodeVar42", "SkuVar42", "NamaVar42", "HargaVar42", "StokVar42", "KodeVar43", "SkuVar43", "NamaVar43", "HargaVar43", "StokVar43",
-                                    "KodeVar44", "SkuVar44", "NamaVar44", "HargaVar44", "StokVar44", "KodeVar45", "SkuVar45", "NamaVar45", "HargaVar45", "StokVar45",
-                                    "KodeVar46", "SkuVar46", "NamaVar46", "HargaVar46", "StokVar46", "KodeVar47", "SkuVar47", "NamaVar47", "HargaVar47", "StokVar47",
-                                    "KodeVar48", "SkuVar48", "NamaVar48", "HargaVar48", "StokVar48", "KodeVar49", "SkuVar49", "NamaVar49", "HargaVar49", "StokVar49",
-                                    "KodeVar50", "SkuVar50", "NamaVar50", "HargaVar50", "StokVar50"
-                                ],
-                                raw:true});
-
-                            link = '@Url.Action("UploadFakturTokped", "Manage")';
-                        }
-                        //else if($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '17') {
-                        if (marketName[0].toUpperCase() == 'TOKOPEDIA') {
-                            var range = XLSX.utils.decode_range(worksheet['!ref']);
-                            range.s.r = 1; // <-- zero-indexed, so setting to 3 will skip row 0,1,2
-                            worksheet['!ref'] = XLSX.utils.encode_range(range);
-
-                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
-                                ["NoPesanan","StatusPesanan","StatusPembatalanPengembalian","NoResi","OpsiPengiriman",
-                                "Antarkecounterpickup","PesananHarusDikirimkanSebelumMenghindariketerlambatan","WaktuPengirimanDiatur","WaktuPesananDibuat","WaktuPembayaranDilakukan",
-                                "SKUInduk","NamaProduk","NomorReferensiSKU","NamaVariasi","HargaSebelumDiskon",
-                                "HargaSetelahDiskon","Jumlah","TotalHargaProduk","TotalDiskon","DiskonDariPenjual",
-                                "DiskonDariShopee","BeratProduk","JumlahProdukdiPesan","TotalBerat","VoucherDitanggungPenjual",
-                                "VoucherDitanggungShopee","PaketDiskon","PaketDiskonDiskondariShopee","PaketDiskonDiskondariPenjual","PotonganKoinShopee",
-                                "DiskonKartuKredit","OngkosKirimDibayarolehPembeli","TotalPembayarandibayarpembeli","PerkiraanOngkosKirim","CatatandariPembeli",
-                                "Catatan","UsernamePembeli","NamaPenerima","NoTelepon","AlamatPengiriman",
-                                "KotaKabupaten","Provinsi","WaktuPesananSelesai"
-                                ],raw:true});
-
-                            link = '@Url.Action("UploadFakturShopee", "Manage")';
-                        }
-                        $.ajax({
-                            type: "POST",
-                            url: link,
-                            // The key needs to match your method's input parameter (case-sensitive).
-                            data: JSON.stringify({
-                                data : jsondata,
-                                cust: $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val(),
-                                nama_cust: $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val(),
-                                perso: $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val()
-                            }),
-                            contentType: "application/json; charset=UTF-8",
-                            cache: false,
-                            success: function(response){
-                                $('#uploadfakturviewdiv').html(response);
-                                document.getElementById("file_upload_faktur").value = "";
-
-                            },
-                            error: function(errMsg) {
-                                alert(errMsg);
-                                document.getElementById("file_upload_faktur").value = "";
-                            },
-                        });
-                    };
-                    reader.readAsBinaryString(f);
-                }
-            }
-        }*@
         function setModalMode(value) {
             $('#btnDeleteAll').hide();
             $('#btnSyncAll').hide();
@@ -672,6 +580,7 @@
         //var uniqueId = '<%= Guid.NewGuid().ToString() %>';
 
         $(document).ready(function () {
+            $('#lblPleasewait').hide();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -682,6 +591,7 @@
             $('#txtCustomer4').val('');
             //document.getElementById('txtInfo').innerText = '';
             document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+            document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : 0';
 
             $('#close-editor-1').off('click').on('click', function () {
                 $('#close-editor-1')[0].disabled = true;
@@ -705,7 +615,7 @@
             //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
-            //add by nurul 17/6/2019, paging 
+            //add by nurul 17/6/2019, paging
             $('#search_barang').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code
@@ -717,10 +627,10 @@
             $('#search_barang_click').click(function () {
                 searchTableBarangUpload();
             });
-            //end add by nurul 17/6/2019, paging 
+            //end add by nurul 17/6/2019, paging
         });
 
-        //change by nurul 17/6/2019, paging 
+        //change by nurul 17/6/2019, paging
         @*function refreshTableBarangUpload() {
             var link = '@Url.Action("RefreshTableUploadBarang", "Manage", new { cust = "replaceCust" })';
             link = link.replace("replaceCust", $('#promptHiddenField').val());
@@ -811,7 +721,7 @@
                 }
             });
         }
-        //end change by nurul 17/6/2019, paging 
+        //end change by nurul 17/6/2019, paging
 
         function refreshFormBarang() {
             var link = '@Url.Action("RefreshFormUploadBarang", "Manage")';
@@ -883,38 +793,55 @@
             }
 
         }
-        function GetDataBrgWithRecord(page, recordCount, statBL) {
+
+        var exGetData = 0;
+        var namaFileLog = '';
+
+        function GetDataBrgWithRecord(page, recordCount, statBL, totalData) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
             } else {
                 @*var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL;
+                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData;
                 $.ajax({
                     type: "GET",
                     url: link,
                     beforeSend: function () {
                         //$('#datatable').hide();
                         $('#table-upload-barang-partial').hide();
-
+                        $('#lblPleasewait').show();
                         $('#loading_barang_tab').show();
+                        //$('#loadingGetBarang').modal({ backdrop: 'static', keyboard: false });
                         $('#info_record').show();
                     },
                     success: function (response) {
                         if (response.Errors == null || response.Errors.length == 0) {
                             if (response.RecordCount != null) {
+                                //document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
                                 document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount;
+                                document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : ' + response.totalData;
+
                             }
+                            if (response.exception == 1)
+                                exGetData = 1;
                             if (response.Recursive) {
                                 if (response.BLProductActive == 1) {
-                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1);
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1, response.totalData);
                                 } else {
-                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0);
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0, response.totalData);
                                 }
                             } else {
-                                document.getElementById('txtInfo').innerText = '';
-                                alert('Jumlah data berhasil tersimpan :' + response.RecordCount);
+                                //document.getElementById('txtInfo').innerText = '';
+                                //$('#loadingGetBarang').modal('hide');
+                                //document.getElementById('lblModalDataSaved').innerText = '';
+                                //document.getElementById('lblModalDataSaved').innerText = '';
+                                var msg = "Jumlah data berhasil tersimpan :" + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
+                                if (exGetData == 1) {
+                                    msg += '\nAda data barang yang tidak masuk ke MO. Silahkan lakukan pengambilan data lagi. \nJika anda masih mendapat pesan error ini setelah mencoba lagi, silahkan hubungi tim support MO.';
+                                }
+                                alert(msg);
                                 //$('#table-upload-barang-partial').html(response);
                                 //var table = $('#datatable').DataTable();
                                 //$('#search_barang').keyup(function () {
@@ -922,14 +849,20 @@
                                 //});
                                 refreshTableBarangUpload();
                                 //$('#loading_barang_tab').hide();
+                                $('#lblPleasewait').hide();
                                 $('#info_record').hide();
                                 document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                document.getElementById('txtInfo2').innerText = 'Jumlah data yang didapat dari marketplace : 0';
+                                //document.getElementById('lblModalDataSaved').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                //document.getElementById('lblModalDataChecked').innerText = 'Jumlah data yang didapat dari marketplace : 0';
                                 //$('#datatable').show();
                             }
                         } else {
                             alert(response.Errors);
-                            $('#loading_barang_tab').hide();
+                            $('#lblPleasewait').hide();
+                            //$('#loading_barang_tab').hide();
                             //$('#datatable').show();
+                            $('#loadingGetBarang').modal('hide');
                             $('#table-upload-barang-partial').show();
                             $('#info_record').hide();
                         }
@@ -1056,7 +989,7 @@
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                 //if ('' != $('#promptHiddenField2').val()) {
                     var link = '@Url.Action("UploadItemByCust", "Manage")';
-                    link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
+                link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync + '&namaFileLog=' + namaFileLog;
 
                     $.ajax({
                         type: "GET",
@@ -1279,6 +1212,14 @@
             }
         }
 
+        function downloadLogUploadBarang(txt){
+            window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
+
+            //var link = '@Url.Action("DownloadLogUploadFaktur", "Manage")';
+            //link += '?filename=' + txt;
+
+        }
+
         function startSyncAll() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
                 alert('Anda belum memilih Toko');
@@ -1307,6 +1248,7 @@
                         //$('#datatable').show();
                         if (response.Errors == null) {
                             if (response.Total != null && response.Total != "") {
+                                namaFileLog = response.fileName;
                                 if (parseInt(response.Total) > 0) {
                                     if (parseInt(response.Total) <= 10) {
                                         //alert('loading image');

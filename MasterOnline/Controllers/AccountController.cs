@@ -248,7 +248,8 @@ namespace MasterOnline.Controllers
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
-
+            //var api = new ManageController();
+            //api.RetryGetData("000001", 14319);
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
             var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 
@@ -1152,7 +1153,7 @@ namespace MasterOnline.Controllers
 
             //            var message = new MailMessage();
             //            message.To.Add(email);
-            //            message.From = new MailAddress("csmasteronline@gmail.com");
+            //            message.From = new MailAddress("support@masteronline.co.id");
             //            message.Subject = "Pendaftaran Master Online berhasil!";
             //            message.Body = string.Format(body, account.Email, originPassword, nama);
             //            message.IsBodyHtml = true;
@@ -1174,8 +1175,8 @@ namespace MasterOnline.Controllers
             //            {
             //                var credential = new NetworkCredential
             //                {
-            //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "ymkglmknkacqslui"
+            //                    UserName = "support@masteronline.co.id",
+            //                    Password = "zcipeqngzvvbuuju"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1188,8 +1189,8 @@ namespace MasterOnline.Controllers
             //            {
             //                var credential = new NetworkCredential
             //                {
-            //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "ymkglmknkacqslui"
+            //                    UserName = "support@masteronline.co.id",
+            //                    Password = "zcipeqngzvvbuuju"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1288,7 +1289,7 @@ namespace MasterOnline.Controllers
 
             var message = new MailMessage();
             message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.From = new MailAddress("support@masteronline.co.id");
             message.Subject = "Pendaftaran Master Online berhasil!";
             message.Body = string.Format(body, account_Email, originPassword, nama);
             message.IsBodyHtml = true;
@@ -1297,8 +1298,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    UserName = "support@masteronline.co.id",
+                    Password = "zcipeqngzvvbuuju"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1587,7 +1588,7 @@ namespace MasterOnline.Controllers
                 var email = new MailAddress(partnerInDb.Email);
                 var message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.From = new MailAddress("support@masteronline.co.id");
                 message.Subject = "SELAMAT! Anda telah menjadi partner dari MasterOnline!";
                 message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PartnerApproval.html"))
                     .Replace("LINKREF", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("Index", "Home", new { @ref = partnerInDb.KodeRefPilihan }))
@@ -1612,8 +1613,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    UserName = "support@masteronline.co.id",
+                    Password = "zcipeqngzvvbuuju"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1626,8 +1627,8 @@ namespace MasterOnline.Controllers
                 {
                     var credential = new NetworkCredential
                     {
-                        UserName = "csmasteronline@gmail.com",
-                        Password = "ymkglmknkacqslui"
+                        UserName = "support@masteronline.co.id",
+                        Password = "zcipeqngzvvbuuju"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";
