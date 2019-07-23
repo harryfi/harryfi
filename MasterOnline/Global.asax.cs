@@ -19,7 +19,11 @@ namespace MasterOnline
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+#if (DEBUG || Debug_AWS)
+
+#else
             Utils.HangfireBootstrapper.Instance.Start();
+#endif
         }
 
         protected void Application_BeginRequest()
@@ -27,7 +31,12 @@ namespace MasterOnline
             CultureInfo info = new CultureInfo(System.Threading.Thread.CurrentThread.CurrentCulture.ToString());
             info.DateTimeFormat.ShortDatePattern = "dd/MM/yyyy";
             System.Threading.Thread.CurrentThread.CurrentCulture = info;
+
+#if (DEBUG || Debug_AWS)
+
+#else
             Utils.HangfireBootstrapper.Instance.Stop();
+#endif
         }
     }
 }
