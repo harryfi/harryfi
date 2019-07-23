@@ -976,8 +976,8 @@
         <br />*@
     <div class="row chart-mode" style="margin-bottom: 20px;">
         @*//add by nurul 12/7/2019*@
-        <div id="dashboard_line">
-            <h4>Grafik Garis</h4>
+        <div class="x_panel" id="dashboard_line">
+            @*<h4>Grafik Garis</h4>*@
             <div class="row">
                 <div class="col-md-4">
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1106,10 +1106,15 @@
         var $href = "";
 
         $(document).ready(function () {
-            getTanggal();
-
+            getTanggal();            
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
+
+            //add by nurul 22/7/2019
+            $('#ctk_pesanan').prop('checked', true);
+            $('#ctk_faktur').prop('checked', true);
+            $('#ctk_retur').prop('checked', true);
+            //end add by nurul 22/7/2019
 
             $('#close-editor-1').on('click',
                 function () {
@@ -1938,11 +1943,6 @@
                                 label: "Pesanan",
                                 data: jumlahpesananMingguan,
                                 data1: nilaireturMingguan,
-                                //backgroundColor: "red",
-                                //borderColor: "lightred",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -1959,11 +1959,6 @@
                                 label: "Faktur",
                                 data: jumlahfakturMingguan,
                                 data1: nilaifakturMingguan,
-                                //backgroundColor: "blue",
-                                //borderColor: "lightblue",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#1d7af3",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#1d7af3",
@@ -1980,11 +1975,6 @@
                                 label: "Retur",
                                 data: jumlahreturMingguan,
                                 data1: nilaireturMingguan,
-                                //backgroundColor: "green",
-                                //borderColor: "lightgreen",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#59d05d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#59d05d",
@@ -2119,11 +2109,6 @@
                                 label: "Pesanan",
                                 data: jumlahpesanan,
                                 data1: nilairetur,
-                                //backgroundColor: "red",
-                                //borderColor: "lightred",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -2140,11 +2125,6 @@
                                 label: "Faktur",
                                 data: jumlahfaktur,
                                 data1: nilaifaktur,
-                                //backgroundColor: "blue",
-                                //borderColor: "lightblue",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#1d7af3",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#1d7af3",
@@ -2161,11 +2141,6 @@
                                 label: "Retur",
                                 data: jumlahretur,
                                 data1: nilairetur,
-                                //backgroundColor: "green",
-                                //borderColor: "lightgreen",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
                                 borderColor: "#59d05d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#59d05d",
@@ -2251,91 +2226,337 @@
                     $("#TahunanLegend").html(chartTahunan.generateLegend());
 
                     //#end region allTahunan
+                    //#region PesananTahunan
 
-                    //var chart = new Chart(ctxMingguan, {
-                    //        type: 'line',
-                    //        data: {
+                    var labelpesananTahunan = [];
+                    var labelfakturTahunan = [];
+                    var labelreturTahunan = [];
+                    var jumlahpesananTahunan = [];
+                    var jumlahfakturTahunan = [];
+                    var jumlahreturTahunan = [];
+                    var nilaipesananTahunan = [];
+                    var nilaifakturTahunan = [];
+                    var nilaireturTahunan = [];
 
-                    //            labels: akunMarketPlace,
-                    //            datasets: [{
-                    //                label: jumlahFakturPerMarket,
-                    //                data: nilaiFakturPerMarket,
-                    //                backgroundColor: [
-                    //                    "#f990a7",
-                    //                    "#9966FF",
-                    //                    "#99e5e5",
-                    //                    "#f7bd83",
+                    for (var i = 0; i < listDataPesananT.length; i++) {
+                        labelpesananTahunan.push(listDataPesananT[i].No);
+                        jumlahpesananTahunan.push(listDataPesananT[i].Jumlah);
+                        nilaipesananTahunan.push(listDataPesananT[i].Nilai);
+                    }
+                                        
+                    var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
+                    var dataMaxJumlahPesananTahunan = [dataMaxJumlahPesananTahunan];
+                    var maxJumlahPesananTahunan = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
+                    var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPesananTahunan / 10) * 10;
+                    var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPesananTahunan / 10) * 10) / 5;
+                    
+                    var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
-                    //                    "#2ecc71",
-                    //                    "#3498db",
-                    //                    "#95a5a6",
-                    //                    "#9b59b6",
-                    //                    "#f1c40f",
-                    //                    "#e74c3c",
-                    //                ],
-                    //                borderWidth: 0
-                    //            }]
-                    //        },
-                    //        options: {
-                    //            title: {
-                    //                display: true,
-                    //                text: 'Penjualan (Faktur)',
-                    //                position: 'top',
-                    //                fontSize: 20
-                    //            },
-                    //            legendCallback: function (chart) {
+                    var dataPesananTahunan = {
+                        labels: labelpesananTahunan,
+                        datasets: [
+                            {
+                                label: "Pesanan",
+                                data: jumlahpesananTahunan,
+                                data1: nilaipesananTahunan,
+                                borderColor: "#f3545d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#f3545d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            }
+                        ]
+                    };
 
-                    //                var text = [];
-                    //                text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                    //                for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
-                    //                    text.push('<section>');
-                    //                    text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
-                    //                    if (chart.data.labels[i]) {
-                    //                        var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
-                    //                            return previousValue + currentValue;
-                    //                        });
-                    //                        var currentValue = chart.data.datasets[0].data[i];
-                    //                        var perc = parseFloat((currentValue / total * 100).toFixed(1));
+                    //options
+                    var optionsPesananTahunan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Pesanan Tahunan",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasicPesananTahunan,
+                                    min: -5,
+                                    stepSize: steppingBasicPesananTahunan
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.join(' ');
+                                }
+                            }
+                            text.push('</ul>');
 
-                    //                        text.push(chart.data.labels[i] + ' : Rp. ' + convertToRupiah(chart.data.datasets[0].data[i]) + ' (' + chart.data.datasets[0].label[i] + ' Faktur) (' + perc + '%)');
-                    //                    }
-                    //                    text.push('</li>');
-                    //                    text.push('</section>');
-                    //                }
-                    //                text.push('</ul>');
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
+                        }
+                    };
 
-                    //                return text.join('');
-                    //            },
-                    //            legend: { display: false },
-                    //            tooltips: {
-                    //                callbacks: {
-                    //                    label: function (tooltipItem, data) {
-                    //                        var dataset = data.datasets[tooltipItem.datasetIndex];
-                    //                        var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                    //                        var total = meta.total;
-                    //                        var currentValue = dataset.label[tooltipItem.index];
-                    //                        var nilai = dataset.data[tooltipItem.index]
-                    //                        var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                    //                        return currentValue + ' Faktur (' + percentage + '%)';
-                    //                    },
-                    //                    afterLabel: function (tooltipItem, data) {
-                    //                        var dataset = data.datasets[tooltipItem.datasetIndex];
-                    //                        var nilai = dataset.data[tooltipItem.index]
-                    //                        return 'Rp. ' + convertToRupiah(nilai);
-                    //                    },
-                    //                    title: function (tooltipItem, data) {
-                    //                        return data.labels[tooltipItem[0].index];
-                    //                    }
-                    //                },
-                    //                backgroundColor: '#FFF',
-                    //                titleFontColor: '#0066ff',
-                    //                bodyFontColor: '#000'
-                    //            }
-                    //        }
-                    //});
+                    //create Chart class object
+                    var chartPesananTahunan = new Chart(ctxPesananTahunan, {
+                        type: "line",
+                        data: dataPesananTahunan,
+                        options: optionsPesananTahunan
+                    });
 
-                        //$("#myChartLegend").html(chart.generateLegend());
-                    //}
+                    $("#PesananTahunanLegend").html(chartPesananTahunan.generateLegend());
+
+                    //#end region PesananTahunan
+
+                    //#region FakturTahunan
+                    for (var i = 0; i < listDataFakturT.length; i++) {
+                        labelfakturTahunan.push(listDataFakturT[i].No);
+                        jumlahfakturTahunan.push(listDataFakturT[i].Jumlah);
+                        nilaifakturTahunan.push(listDataFakturT[i].Nilai);
+                    }
+                    var maxJumlahFakturTahunan = Math.max.apply(Math, jumlahfakturTahunan);
+                    var dataMaxJumlahFakturTahunan = [maxJumlahFakturTahunan];
+                    var maxJumlahFakturTahunan = Math.max.apply(Math, dataMaxJumlahFakturTahunan);
+                    var maxTicksBasicFakturTahunan = Math.ceil(maxJumlahFakturTahunan / 10) * 10;
+                    var steppingBasicFakturTahunan = (Math.ceil(maxJumlahFakturTahunan / 10) * 10) / 5;
+
+                    var ctxFakturTahunan = document.getElementById("chartFakturTahunan").getContext('2d');
+
+                    var dataFakturTahunan = {
+                        labels: labelfakturTahunan,
+                        datasets: [
+                            {
+                                label: "Faktur",
+                                data: jumlahfakturTahunan,
+                                data1: nilaifakturTahunan,
+                                borderColor: "#1d7af3",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#1d7af3",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            }
+                        ]
+                    };
+                    //options
+                    var optionsFakturTahunan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Faktur Tahunan",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasicFakturTahunan,
+                                    min: -5,
+                                    stepSize: steppingBasicFakturTahunan
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.join(' ');
+                                }
+                            }
+                            text.push('</ul>');
+
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
+                        }
+                    };
+
+                    //create Chart class object
+                    var chartFakturTahunan = new Chart(ctxFakturTahunan, {
+                        type: "line",
+                        data: dataFakturTahunan,
+                        options: optionsFakturTahunan
+                    });
+
+                    $("#FakturTahunanLegend").html(chartFakturTahunan.generateLegend());
+                    //#end Region FakturTahunan
+                    //#region ReturTahunan
+                    for (var i = 0; i < listDataReturT.length; i++) {
+                        labelreturTahunan.push(listDataReturT[i].No);
+                        jumlahreturTahunan.push(listDataReturT[i].Jumlah);
+                        nilaireturTahunan.push(listDataReturT[i].Nilai);
+                    }
+                    var maxJumlahReturTahunan = Math.max.apply(Math, jumlahreturTahunan);
+                    var dataMaxJumlahReturTahunan = [maxJumlahReturTahunan];
+                    var maxJumlahReturTahunan = Math.max.apply(Math, dataMaxJumlahReturTahunan);
+                    var maxTicksBasicReturTahunan = Math.ceil(maxJumlahReturTahunan / 10) * 10;
+                    var steppingBasicReturTahunan = (Math.ceil(maxJumlahReturTahunan / 10) * 10) / 5;
+
+                    var ctxReturTahunan = document.getElementById("chartReturTahunan").getContext('2d');
+
+                    var dataReturTahunan = {
+                        labels: labelreturTahunan,
+                        datasets: [
+                            {
+                                label: "Retur",
+                                data: jumlahreturTahunan,
+                                data1: nilaireturTahunan,
+                                borderColor: "#59d05d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#59d05d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 4,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            }
+                        ]
+                    };
+
+                    //options
+                    var optionsReturTahunan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Retur Tahunan",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasicReturTahunan,
+                                    min: -5,
+                                    stepSize: steppingBasicReturTahunan
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.join(' ');
+                                }
+                            }
+                            text.push('</ul>');
+
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
+                        }
+                    };
+
+                    //create Chart class object
+                    var chartReturTahunan = new Chart(ctxReturTahunan, {
+                        type: "line",
+                        data: dataReturTahunan,
+                        options: optionsReturTahunan
+                    });
+
+                    $("#ReturTahunanLegend").html(chartReturTahunan.generateLegend());
+                    //#end Region ReturTahunan
+                    
 
                     $('#loading_dashboard_faktur').hide();
                     $('#grafik-line-section').show();
