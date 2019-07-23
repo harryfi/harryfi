@@ -75,7 +75,7 @@
 
         @@media screen and (max-width: 767px) {
             .table-responsive {
-                width: 42%;
+                width: 100%;
             }
 
             .addpixel {
@@ -91,7 +91,15 @@
             }
 
             .modalresponsive {
-                width: 400px;
+                width: 100%;
+            }
+
+            .modalresponsivepdhgdg {
+                width: 78%;
+            }
+
+            .modalresponsivepdhgdg2 {
+                width: 49%;
             }
         }
     </style>
@@ -120,7 +128,7 @@
             <div id="myTabContent" class="tab-content"style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="stok-tab">
                     <div class="row stok_table_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
                             <div class="input-group">
                                 <input id="search_stok" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -145,7 +153,7 @@
                         </div>
                     </div>
                     <div class="row stok_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Transaksi Pindah</h2>
                                 <span class="title-accent"></span>
@@ -360,7 +368,7 @@
 
 <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivepdhgdg">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -380,7 +388,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivepdhgdg2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -400,7 +408,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivepdhgdg2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
