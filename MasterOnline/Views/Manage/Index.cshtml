@@ -2061,6 +2061,246 @@
 
                     //#end region allMingguan
 
+                    //#region PesananMingguan
+                    var listDataPM = listPesananMingguan;
+                    var labelpesananM = [];
+                    var labelfakturM = [];
+                    var labelreturM = [];
+                    var jumlahpesananM = [];
+                    var jumlahfakturM = [];
+                    var jumlahreturM = [];
+                    var nilaipesananM = [];
+                    var nilaifakturM = [];
+                    var nilaireturM = [];
+
+                    for (var i = 0; i < listDataPM.length; i++) {
+                        labelpesananM.push(listDataPM[i].No);
+                        jumlahpesananM.push(listDataPM[i].Jumlah);
+                        nilaipesananM.push(listDataPM[i].Nilai);
+                    }
+
+                    var maxJumlahPesananM = Math.max.apply(Math, jumlahpesananM);
+                    var dataMaxJumlahPesananM = [maxJumlahPesananM];
+                    var maxJumlahPM = Math.max.apply(Math, dataMaxJumlahPesananM);
+                    var maxTicksBasicPesananM = Math.ceil(maxJumlahPM / 10) * 10;
+                    var steppingBasicPesananM = (Math.ceil(maxJumlahPM / 10) * 10) / 5;
+
+                    var ctxPesananMingguan = document.getElementById("chartPesananMingguan").getContext('2d');
+
+                    var dataPesananMingguan = {
+                        labels: labelpesananM,
+                        datasets: [
+                            {
+                                label: "Pesanan",
+                                data: jumlahpesananM,
+                                data1: nilaipesananM,
+                                borderColor: "#f3545d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#f3545d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            }
+                        ]
+                    };
+
+                    //options
+                    var optionsPesananMingguan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Pesanan Mingguan",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasicPesananM,
+                                    min: -5,
+                                    stepSize: steppingBasicPesananM
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.join(' ');
+                                }
+                            }
+                            text.push('</ul>');
+
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
+                        }
+                    };
+
+                    //create Chart class object
+                    var chartPesananMingguan = new Chart(ctxPesananMingguan, {
+                        type: "line",
+                        data: dataPesananMingguan,
+                        options: optionsPesananMingguan
+                    });
+
+                    $("#PesananMingguanLegend").html(chartPesananMingguan.generateLegend());
+
+                    //#end region PesananMingguan
+
+                    //#region PesananBulanan
+                    var listDataPB = listPesananBulanan;
+                    var labelpesananB = [];
+                    var labelfakturB = [];
+                    var labelreturB = [];
+                    var jumlahpesananB = [];
+                    var jumlahfakturB = [];
+                    var jumlahreturB = [];
+                    var nilaipesananB = [];
+                    var nilaifakturB = [];
+                    var nilaireturB = [];
+
+                    for (var i = 0; i < listDataPB.length; i++) {
+                        labelpesananB.push(listDataPB[i].No);
+                        jumlahpesananB.push(listDataPB[i].Jumlah);
+                        nilaipesananB.push(listDataPB[i].Nilai);
+                    }
+
+                    var maxJumlahPesananB = Math.max.apply(Math, jumlahpesananB);
+                    var dataMaxJumlahPesananB = [maxJumlahPesananB];
+                    var maxJumlahPB = Math.max.apply(Math, dataMaxJumlahPesananB);
+                    var maxTicksBasicPesananB = Math.ceil(maxJumlahPB / 10) * 10;
+                    var steppingBasicPesananB = (Math.ceil(maxJumlahPB / 10) * 10) / 5;
+
+                    var ctxPesananBulanan = document.getElementById("chartPesananBulanan").getContext('2d');
+
+                    var dataPesananBulanan = {
+                        labels: labelpesananB,
+                        datasets: [
+                            {
+                                label: "Pesanan",
+                                data: jumlahpesananB,
+                                data1: nilaipesananB,
+                                borderColor: "#f3545d",
+                                pointBorderColor: "#FFF",
+                                pointBackgroundColor: "#f3545d",
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 4,
+                                pointHoverBorderWidth: 1,
+                                pointRadius: 5,
+                                radius: 5,
+                                backgroundColor: 'transparent',
+                                fill: true,
+                                borderWidth: 2
+                            }
+                        ]
+                    };
+
+                    //options
+                    var optionsPesananBulanan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Pesanan Bulanan",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasicPesananB,
+                                    min: -5,
+                                    stepSize: steppingBasicPesananB
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                    text.join(' ');
+                                }
+                            }
+                            text.push('</ul>');
+
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
+                        }
+                    };
+
+                    //create Chart class object
+                    var chartPesananBulanan = new Chart(ctxPesananBulanan, {
+                        type: "line",
+                        data: dataPesananBulanan,
+                        options: optionsPesananBulanan
+                    });
+
+                    $("#PesananBulananLegend").html(chartPesananBulanan.generateLegend());
+
+                    //#end region PesananBulanan
+
                     //#region allTahunan
                     var listDataPesananT = listPesananTahunan;
                     var listDataFakturT = listFakturTahunan;
@@ -2245,10 +2485,10 @@
                     }
                                         
                     var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
-                    var dataMaxJumlahPesananTahunan = [dataMaxJumlahPesananTahunan];
-                    var maxJumlahPesananTahunan = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
-                    var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPesananTahunan / 10) * 10;
-                    var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPesananTahunan / 10) * 10) / 5;
+                    var dataMaxJumlahPesananTahunan = [maxJumlahPesananTahunan];
+                    var maxJumlahPT = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
+                    var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPT / 10) * 10;
+                    var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPT / 10) * 10) / 5;
                     
                     var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
@@ -2354,9 +2594,9 @@
                     }
                     var maxJumlahFakturTahunan = Math.max.apply(Math, jumlahfakturTahunan);
                     var dataMaxJumlahFakturTahunan = [maxJumlahFakturTahunan];
-                    var maxJumlahFakturTahunan = Math.max.apply(Math, dataMaxJumlahFakturTahunan);
-                    var maxTicksBasicFakturTahunan = Math.ceil(maxJumlahFakturTahunan / 10) * 10;
-                    var steppingBasicFakturTahunan = (Math.ceil(maxJumlahFakturTahunan / 10) * 10) / 5;
+                    var maxJumlahFT = Math.max.apply(Math, dataMaxJumlahFakturTahunan);
+                    var maxTicksBasicFakturTahunan = Math.ceil(maxJumlahFT / 10) * 10;
+                    var steppingBasicFakturTahunan = (Math.ceil(maxJumlahFT / 10) * 10) / 5;
 
                     var ctxFakturTahunan = document.getElementById("chartFakturTahunan").getContext('2d');
 
@@ -2459,9 +2699,9 @@
                     }
                     var maxJumlahReturTahunan = Math.max.apply(Math, jumlahreturTahunan);
                     var dataMaxJumlahReturTahunan = [maxJumlahReturTahunan];
-                    var maxJumlahReturTahunan = Math.max.apply(Math, dataMaxJumlahReturTahunan);
-                    var maxTicksBasicReturTahunan = Math.ceil(maxJumlahReturTahunan / 10) * 10;
-                    var steppingBasicReturTahunan = (Math.ceil(maxJumlahReturTahunan / 10) * 10) / 5;
+                    var maxJumlahRT = Math.max.apply(Math, dataMaxJumlahReturTahunan);
+                    var maxTicksBasicReturTahunan = Math.ceil(maxJumlahRT / 10) * 10;
+                    var steppingBasicReturTahunan = (Math.ceil(maxJumlahRT / 10) * 10) / 5;
 
                     var ctxReturTahunan = document.getElementById("chartReturTahunan").getContext('2d');
 
