@@ -11972,8 +11972,9 @@ namespace MasterOnline.Controllers
             }
 
             var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
-
-            var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
+            //remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
+            //var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
+            //end remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
 
             var valSubs = new ValidasiSubs()
             {
@@ -11983,7 +11984,10 @@ namespace MasterOnline.Controllers
                 //SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date && accInDb.KODE_SUBSCRIPTION != "01")
                 SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date),
                 //en change by nurul 8/2/2019
-                adaTokped = (cekTokped > 0),
+                //change by Tri 23 juli 2019, selalu tampilkan button upload faktur
+                //adaTokped = (cekTokped > 0),
+                adaTokped = true,
+                //end change by Tri 23 juli 2019, selalu tampilkan button upload faktur
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
