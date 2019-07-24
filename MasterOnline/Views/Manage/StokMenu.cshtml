@@ -91,8 +91,9 @@
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+            <span>Refresh</span>
+        </button>*@
+                    <button class="btn btn-primary " onclick="$('#excelSaldoAwal').modal('show');" id="excel_stok">Excel Saldo Awal</button>
                     <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
                 </div>
             </div>
@@ -190,6 +191,64 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="excelSaldoAwal" tabindex="-1" role="dialog" aria-labelledby="labelExcelSaldoAwal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelExcelSaldoAwal">Excel Saldo Awal</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Anda dapat menggunakan fitur ini untuk membantu pengisian saldo awal stok.<br />Dengan cara :
+                            @*<br />1. Download file excel saldo awal stok
+                <br />2. Isi stok barang pada excel
+                <br />3. Upload kembali file excel yang sudah anda isi*@
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label>1. Download Excel Saldo Awal Stok. </label>
+                        <button type="button" class="btn btn-primary" onclick="DownloadExcelSAS()">Download</button>
+                    </div>
+                    <div class="col-md-12">
+                        <label>2. Isi stok barang pada excel. </label>
+                    </div>
+                    <div class="col-md-12">
+                        <div>
+                            <label>3. Upload file excel Saldo Awal Stok yang sudah anda edit.</label>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-6 file_upload_section">
+                                <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                       accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary" onclick="uploadExcelSAS();" data-style="expand-right">
+                                    <span>Upload</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row">*@
+                        <div class="col-md-12">
+                            <div id="loading_upload" class="text-center" hidden="hidden">
+                                <div id="loading_upload_image">
+                                    <img src="~/Content/Images/spinner.gif" />
+                                </div>
+                            </div>
+                        </div>
+                    @*</div>*@
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
@@ -268,7 +327,7 @@
                 }
             });
 
-            
+
 
             $('#search_stok').keypress(function (e) {
                 var key = e.which;
@@ -282,6 +341,118 @@
                 searchTableStok();
             });
         });
+
+        //add 24 Juli 2019, untuk excel stok awal
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+                //updateList();
+            }
+        }
+        function DownloadExcelSAS() {
+            var link = '@Html.Raw(Url.Action("ListBarangtoExcel", "TransferExcel"))';
+            //link += "?cust=" + cust;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    //$('#loading_spinner_btn').show();
+                    //$('#lblRecord_' + cust).show();
+                    //$('#spinner_' + cust).show();
+                },
+                success: function (response) {
+                    //$('#loading_spinner_btn').hide();
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                        //document.getElementById('lblRecord_' + cust).innerText = 'sukses download';
+                    } else {
+                        alert(response.Errors[0]);
+                        //document.getElementById('lblRecord_' + cust).innerText = 'gagal download : ' + response.Errors[0];
+                    }
+                    
+                },
+                error: function (xhr) {
+                    //$('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                    
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+   
+        function uploadExcelSAS() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+            }
+            else
+            {
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")',
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_upload').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors.length == 0) {
+                            $('#loading_upload').hide();
+                            //rows_selected = response.cust;
+                            //listCustomerUploaded = response.namaCust;
+                            alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                            document.getElementById("file_upload_excel").value = "";
+                        } else {
+                            var err = "";
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                            alert(err);
+                            document.getElementById("file_upload_excel").value = "";
+                            //document.getElementById('lblListError').innerText = err;
+                            $('#loading_upload').hide();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_upload').hide();
+                    }
+                });
+            }
+        }
+        //end add 24 Juli 2019, untuk excel stok awal
 
         function closeEditor() {
             //$('#close-editor')[0].disabled = true;
@@ -320,7 +491,7 @@
             //$('#search_stok').keyup(function () {
             //    table.search($(this).val()).draw();
             //});
-            
+
             //end change by nurul 14/5/2019
 
             $('#search_promosi').keyup(function () {
