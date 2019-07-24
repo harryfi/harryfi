@@ -10934,7 +10934,10 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetListPesanan()
         {
-            var listPesanan = ErasoftDbContext.SOT01A.ToList();
+            //change by nurul 23/7/2019
+            //var listPesanan = ErasoftDbContext.SOT01A.ToList();
+            var listPesanan = ErasoftDbContext.SOT01A.Where(a => a.STATUS_TRANSAKSI == "01").ToList();
+            //end change by nurul 23/7/2019
 
             return Json(listPesanan, JsonRequestBehavior.AllowGet);
         }
@@ -11514,7 +11517,7 @@ namespace MasterOnline.Controllers
 
                 var vm = new InvoiceViewModel()
                 {
-                    //Invoice = invoiceInDb,
+                    Invoice = invoiceInDb,
                     ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => 0 == 1).ToList(),
                 };
 
@@ -11750,6 +11753,9 @@ namespace MasterOnline.Controllers
             //CHANGE BY NURUL 7/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
             invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
             //END CHANGE 
+            //add by nurul 24/7/2019
+            invoiceInDb.DROPSHIPPER = dataUpdate.Dropship;
+            //end add by nurul 24/7/2019
 
             ErasoftDbContext.SaveChanges();
 
