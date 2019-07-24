@@ -30,7 +30,7 @@ namespace MasterOnline.Models
         public short TermInvoice { get; set; }
         public string KodeRefPesanan { get; set; }
         //add by nurul 24/7/2019
-        public bool Dropship { get; set; }
+        public bool Dropship { get; set; } = false;
         //end add by nurul 24/7/2019
 
         //Jurnal

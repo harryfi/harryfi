@@ -2353,7 +2353,7 @@
                     $('#Invoice_DROPSHIPPER').val(true);
                 } else {
                     $('#Invoice_DROPSHIPPER').val(false);
-                    $('#Invoice_KODE_REF_PESANAN').val('');
+                    $("#Invoice_KODE_REF_PESANAN").val(null);
                     $('#KODE_PESANAN_SECTION').hide();
                 }
                 $('#btn-simpan-perubahan-row').show();
@@ -2505,7 +2505,7 @@
                         Bruto: convertToAngka($('#Invoice_BRUTO').val()),
                         KodeRefPesanan: $('#Invoice_KODE_REF_PESANAN').val(),
                         //add by nurul 24/7/2019
-                        Dropship: $('#Invoice_DROPSHIPPER').val()
+                        Dropship: $('#Invoice_DROPSHIPPER').val(),
                         //end add by nurul 24/7/2019
                     }),
                     contentType: 'application/json; charset=UTF-8',
@@ -3459,7 +3459,7 @@
                         $('#Invoice_DROPSHIPPER').val(true);
                     } else {
                         $('#Invoice_DROPSHIPPER').val(false);
-                        $('#Invoice_KODE_REF_PESANAN').val('');
+                        $("#Invoice_KODE_REF_PESANAN").val(null);
                         $('#KODE_PESANAN_SECTION').hide();
                     }
                     getTanggal();
@@ -3532,7 +3532,7 @@
                         $('#Invoice_DROPSHIPPER').val(true);
                     } else {
                         $('#Invoice_DROPSHIPPER').val(false);
-                        $('#Invoice_KODE_REF_PESANAN').val('');
+                        $("#Invoice_KODE_REF_PESANAN").val(null);
                         $('#KODE_PESANAN_SECTION').hide();
                     }
                     getTanggal();
@@ -3645,7 +3645,7 @@
                             $('#Invoice_DROPSHIPPER').val(true);
                         } else {
                             $('#Invoice_DROPSHIPPER').val(false);
-                            $('#Invoice_KODE_REF_PESANAN').val('');
+                            $("#Invoice_KODE_REF_PESANAN").val(null);
                             $('#KODE_PESANAN_SECTION').hide();
                         }
                     } else {
@@ -4015,7 +4015,7 @@
                                     $('#Invoice_DROPSHIPPER').val(true);
                                 } else {
                                     $('#Invoice_DROPSHIPPER').val(false);
-                                    $('#Invoice_KODE_REF_PESANAN').val('');
+                                    $("#Invoice_KODE_REF_PESANAN").val(null);
                                     $('#KODE_PESANAN_SECTION').hide();
                                 }
                                 $('#loading_spinner').hide();
