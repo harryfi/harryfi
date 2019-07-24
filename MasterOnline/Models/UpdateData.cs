@@ -29,6 +29,9 @@ namespace MasterOnline.Models
         public string Supp { get; set; }
         public short TermInvoice { get; set; }
         public string KodeRefPesanan { get; set; }
+        //add by nurul 24/7/2019
+        public bool Dropship { get; set; }
+        //end add by nurul 24/7/2019
 
         //Jurnal
         public double Debet { get; set; }

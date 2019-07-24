@@ -2347,13 +2347,19 @@
             $('#KODE_PESANAN_SECTION').hide();
 
             $('#cbxDropshipper').change(function () {
-                if ($('#Invoice_DROPSHIPPER').val() == 'False' || $('#Invoice_DROPSHIPPER').val() == 'false') {
+                //if ($('#Invoice_DROPSHIPPER').val() == 'False' || $('#Invoice_DROPSHIPPER').val() == 'false') {
+                if ($("#cbxDropshipper").is(":checked") == true) {
                     $('#KODE_PESANAN_SECTION').show();
                     $('#Invoice_DROPSHIPPER').val(true);
                 } else {
                     $('#Invoice_DROPSHIPPER').val(false);
+                    $('#Invoice_KODE_REF_PESANAN').val('');
                     $('#KODE_PESANAN_SECTION').hide();
                 }
+                $('#btn-simpan-perubahan-row').show();
+            });
+            $('#Invoice_KODE_REF_PESANAN').change(function () {
+                $('#btn-simpan-perubahan-row').show();
             });
 
             if ($('#Invoice_TGL').val() != '') {
@@ -2497,7 +2503,10 @@
                         OngkosKirim: convertToAngka($('#Invoice_BIAYA_LAIN').val()),
                         //END ADD
                         Bruto: convertToAngka($('#Invoice_BRUTO').val()),
-                        KodeRefPesanan: $('#Invoice_KODE_REF_PESANAN').val()
+                        KodeRefPesanan: $('#Invoice_KODE_REF_PESANAN').val(),
+                        //add by nurul 24/7/2019
+                        Dropship: $('#Invoice_DROPSHIPPER').val()
+                        //end add by nurul 24/7/2019
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -2711,6 +2720,10 @@
                                 //end add
                             } else if ($class === 'harga-barang editable') {
                                 $this.html(convertToRupiah($hargaBarangAwal) + '<input data-val="true" data-val-number="The field HBELI must be a number." data-val-required="The HBELI field is required." id="InvoiceDetail_HBELI" name="InvoiceDetail.HBELI" type="hidden" value="">');
+                                //add by nurul 23/7/2019
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                //end add by nurul 23/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT_1 must be a number." data-val-required="The DISCOUNT_1 field is required." id="InvoiceDetail_DISCOUNT_1" name="InvoiceDetail.DISCOUNT_1" type="hidden" value="">');
 
@@ -2762,6 +2775,10 @@
                                 //end add
                             } else if ($class === 'harga-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field HBELI must be a number." data-val-required="The HBELI field is required." id="InvoiceDetail_HBELI" name="InvoiceDetail.HBELI" type="hidden" value="">');
+                                //add by nurul 23/7/2019
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                //end add by nurul 23/7/2019
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT_1 must be a number." data-val-required="The DISCOUNT_1 field is required." id="InvoiceDetail_DISCOUNT_1" name="InvoiceDetail.DISCOUNT_1" type="hidden" value="">');
 
@@ -3016,7 +3033,8 @@
             });
         }
 
-        function getPesanan() {
+        //remark by nurul 23/7/2019, ganti combobox jadi textbox
+        @*function getPesanan() {
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("GetListPesanan", "Manage")',
@@ -3057,7 +3075,8 @@
                     console.log(xhr);
                 }
             });
-        }
+        }*@
+        //end remark by nurul 23/7/2019
 
         function offTab() {
             $(document).keydown(function (objEvent) {
@@ -3174,9 +3193,10 @@
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
                                         getSupplier();
-                                        getPesanan();
-                                        getGudang();
+                                        //getPesanan();
+                                        
                                         getDataBarang();
+                                        getGudang();
                                         
                                         $('.invoice_table_section').hide();
                                         $('.invoice_editor_section').show();
@@ -3433,10 +3453,19 @@
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();
+                    
+                    if ($("#cbxDropshipper").is(":checked") == true) {
+                        $('#KODE_PESANAN_SECTION').show();
+                        $('#Invoice_DROPSHIPPER').val(true);
+                    } else {
+                        $('#Invoice_DROPSHIPPER').val(false);
+                        $('#Invoice_KODE_REF_PESANAN').val('');
+                        $('#KODE_PESANAN_SECTION').hide();
+                    }
                     getTanggal();
                     getDataBarang();
                     getSupplier();
-                    getPesanan();
+                    //getPesanan();
                     getGudang();
                     refreshNetto();
                     //$('#tambah_invoice').click();
@@ -3498,10 +3527,18 @@
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();
+                    if ($("#cbxDropshipper").is(":checked") == true) {
+                        $('#KODE_PESANAN_SECTION').show();
+                        $('#Invoice_DROPSHIPPER').val(true);
+                    } else {
+                        $('#Invoice_DROPSHIPPER').val(false);
+                        $('#Invoice_KODE_REF_PESANAN').val('');
+                        $('#KODE_PESANAN_SECTION').hide();
+                    }
                     getTanggal();
                     getDataBarang();
                     getSupplier();
-                    getPesanan();
+                    //getPesanan();
                     getGudang();
                     //$('#tambah_invoice').click();
                     $('.invoice_table_section').hide();
@@ -3600,9 +3637,17 @@
                         $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                         getTanggal();
                         getSupplier();
-                        getPesanan();
+                        //getPesanan();
                         getDataBarang();
                         getGudang();
+                        if ($("#cbxDropshipper").is(":checked") == true) {
+                            $('#KODE_PESANAN_SECTION').show();
+                            $('#Invoice_DROPSHIPPER').val(true);
+                        } else {
+                            $('#Invoice_DROPSHIPPER').val(false);
+                            $('#Invoice_KODE_REF_PESANAN').val('');
+                            $('#KODE_PESANAN_SECTION').hide();
+                        }
                     } else {
                         if (response.Errors[0] != null) {
                             alert(response.Errors[0]);
@@ -3865,7 +3910,7 @@
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
-                    getPesanan();
+                    //getPesanan();
                     getSupplier();
                     getDataBarang();
                     getGudang();
@@ -3961,9 +4006,18 @@
                                 refreshNetto();
                                 getTanggal();
                                 getDataBarang();
+                                getGudang();
                                 getSupplier();
                                 //getPesanan();
                                 //getGudang();
+                                if ($("#cbxDropshipper").is(":checked") == true) {
+                                    $('#KODE_PESANAN_SECTION').show();
+                                    $('#Invoice_DROPSHIPPER').val(true);
+                                } else {
+                                    $('#Invoice_DROPSHIPPER').val(false);
+                                    $('#Invoice_KODE_REF_PESANAN').val('');
+                                    $('#KODE_PESANAN_SECTION').hide();
+                                }
                                 $('#loading_spinner').hide();
                             } else {
                                 //change by nurul 15/10/2018
