@@ -2017,6 +2017,18 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                //create barang
+                DataSet dsRequestIdCreateBarang = new DataSet();
+                dsRequestIdCreateBarang = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT BRG, BRG_MP,ACODE_40,ANAME_40 FROM [STF02H] WHERE BRG_MP = 'PENDING' AND [IDMARKET] = '" + data.idmarket + "'");
+                if (dsRequestIdCreateBarang.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsRequestIdCreateBarang.Tables[0].Rows.Count; i++)
+                    {
+                        await prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ACODE_40"]), Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ANAME_40"]));
+                    }
+                }
+
+                //lain-lain
                 DataSet dsRequestIdList = new DataSet();
                 dsRequestIdList = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT * FROM [QUEUE_FEED_BLIBLI] WHERE MERCHANT_CODE='" + data.merchant_code + "' AND [STATUS] = '1'");
                 if (dsRequestIdList.Tables[0].Rows.Count > 0)
@@ -6212,8 +6224,10 @@ namespace MasterOnline.Controllers
 
                     var client = new BackgroundJobClient(sqlStorage);
 
-                    //INSERT QUEUE FEED
-                    client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+                    //change by calvin 3 juli 2019, tidak insert queue_feed_detail
+                    //client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+                    client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+                    //end change by calvin 3 juli 2019
                 }
                 else
                 {
@@ -6298,7 +6312,7 @@ namespace MasterOnline.Controllers
                     //oCommand.ExecuteNonQuery();
                     //oCommand.Transaction = oTransaction;
                     oCommand.CommandType = CommandType.Text;
-                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING',ACODE_40='"+ result_value_queueFeedId + "', ANAME_40='"+ milis + "' FROM STF02H H WHERE H.IDMARKET = '" + iden.idmarket + "' AND H.BRG=@MERCHANTSKU";
                     //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
@@ -6445,10 +6459,16 @@ namespace MasterOnline.Controllers
                                                 //var getKodeItem = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == log_request_id).FirstOrDefault();
                                                 //if (getKodeItem != null)
                                                 //{
+                                                //oCommand.CommandType = CommandType.Text;
+                                                //oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H WHERE H.IDMARKET = '"+ data.idmarket +"' AND H.BRG=@MERCHANTSKU AND ISNULL(H.BRG_MP,'') = 'PENDING;"+ feed.request_id +"'";
+                                                //oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                                //oCommand.Parameters[1].Value = Convert.ToString(kodeProduk);
+                                                //oCommand.ExecuteNonQuery();
+
                                                 oCommand.CommandType = CommandType.Text;
-                                                oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                                                oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                oCommand.Parameters[1].Value = Convert.ToString(kodeProduk);
+                                                oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H WHERE ISNULL(H.BRG_MP,'') = 'PENDING;" + feed.request_id + "' AND IDMARKET='" + data.idmarket + "'";
+                                                oCommand.ExecuteNonQuery();
+                                                oCommand.CommandText = "UPDATE API_LOG_MARKETPLACE SET REQUEST_STATUS='Failed',REQUEST_EXCEPTION = '" + Convert.ToString(item.errorMessage).Replace(",", ".").Replace("'", "`") + "' WHERE REQUEST_ID = '" + feed.log_request_id + "' AND MARKETPLACE='Blibli'";
                                                 oCommand.ExecuteNonQuery();
                                                 //}
                                             }
