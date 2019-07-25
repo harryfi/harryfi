@@ -367,13 +367,14 @@ namespace MasterOnline.Controllers
                     var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
                     var jmlFaktur = vm.ListFaktur?
                         .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
-                    var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+                    //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+                    var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
 
                     vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
                     {
                         NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
                         JumlahFaktur = jmlFaktur.ToString(),
-                        NilaiFaktur = nilaiFaktur
+                        NilaiFaktur = Convert.ToString(nilaiFaktur)
                     });
                 }
             }
@@ -4194,7 +4195,7 @@ namespace MasterOnline.Controllers
                     {
                         foreach (ARF01 tblCustomer in listLazadaShop)
                         {
-                            createBarangLazada(dataBarang, imgPath, tblCustomer);
+                            createBarangLazada(dataBarang, imgPath, tblCustomer, 1);
 
                             //        var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
                             //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
@@ -4388,20 +4389,23 @@ namespace MasterOnline.Controllers
                                 var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
                                 if (tokoLazada.DISPLAY && string.IsNullOrEmpty(tokoLazada.BRG_MP))//display = true and brg_mp = null -> create product
                                 {
-                                    createBarangLazada(dataBarang, imgPath, tblCustomer);
+                                    createBarangLazada(dataBarang, imgPath, tblCustomer, 1);
                                 }
                                 else
                                 {
                                     if (!string.IsNullOrEmpty(tokoLazada.BRG_MP))
                                     {
-                                        if (updateDisplay)
-                                        {
-                                            var resultLazada = lzdApi.setDisplay(tokoLazada.BRG_MP, tokoLazada.DISPLAY, tblCustomer.TOKEN);
-                                        }
-                                        if (updateHarga)
-                                        {
-                                            var resultLazada = lzdApi.UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
-                                        }
+                                        //if (updateDisplay)
+                                        //{
+                                        //    var resultLazada = lzdApi.setDisplay(tokoLazada.BRG_MP, tokoLazada.DISPLAY, tblCustomer.TOKEN);
+                                        //}
+                                        //if (updateHarga)
+                                        //{
+                                        //    var resultLazada = lzdApi.UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
+                                        //}
+                                        //update brg
+                                        createBarangLazada(dataBarang, imgPath, tblCustomer, 2);
+
                                     }
                                 }
                             }
@@ -4479,7 +4483,7 @@ namespace MasterOnline.Controllers
                 //end change by calvin 23 april 2019
                 //add by nurul 21/6/2019, validasi berat,p,l,t
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("Error");
             }
@@ -5287,7 +5291,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        protected void createBarangLazada(BarangViewModel dataBarang, string[] imgPath, ARF01 tblCustomer)
+        protected void createBarangLazada(BarangViewModel dataBarang, string[] imgPath, ARF01 tblCustomer, int mode)
         {
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             //var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
@@ -5357,11 +5361,21 @@ namespace MasterOnline.Controllers
                 //{
                 //    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
                 //}
-                
-                //var result = lzdApi.CreateProduct(dataLazada);
-                var sqlStorage = new SqlServerStorage(EDBConnID);
-                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+
+                //change by calvin 9 juni 2019
+                if(mode == 1)
+                {
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    //var result = lzdApi.CreateProduct(dataLazada);
+                    clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+                }
+                else if (mode == 2)
+                {
+                    var result = lzdApi.UpdateProduct(dataLazada);
+                }
+                //clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+                //end change by calvin 9 juni 2019
             }
             //    }
             //}
@@ -12557,6 +12571,8 @@ namespace MasterOnline.Controllers
                 {
                     AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                     string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    
+                    Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
                     var accControl = new AccountController();
                     Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
@@ -12564,12 +12580,12 @@ namespace MasterOnline.Controllers
 
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                    DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    //DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
                 };
 
                 return PartialView("Pesanan", vm);
@@ -19823,7 +19839,6 @@ namespace MasterOnline.Controllers
             //return new EmptyResult();
             //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
         }
-        //add by Tri 3 Juli 2019, upload faktur bl
         public ActionResult UploadFakturBukaLapak()
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -20493,13 +20508,11 @@ namespace MasterOnline.Controllers
             }
 
 
-            //var partialVm = new FakturViewModel()
-            //{
-            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            //};
-
-            //return PartialView("UploadFakturView", partialVm);
+            var partialVm = new FakturViewModel()
+            {
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            };
 
             ActionResult ret = RefreshTableUploadFaktur(1, cust);
             return ret;
@@ -21637,17 +21650,17 @@ namespace MasterOnline.Controllers
             hJualInDb.HJUAL = hargaJualBaru;
             ErasoftDbContext.SaveChanges();
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
-            {
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
                 if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
                 {
                     var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
@@ -21774,7 +21787,7 @@ namespace MasterOnline.Controllers
                     }
                     //end add by calvin 18 desember 2018
                 }
-            }
+            //}
 
             //change by nurul 13/6/2019
             //var vm = new HargaJualViewModel()
