@@ -136,9 +136,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Get Token",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_ATTRIBUTE_2 = accessToken,
                 REQUEST_STATUS = "Pending",
@@ -205,9 +205,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Refresh Token",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_ATTRIBUTE_2 = refreshToken,
                 REQUEST_STATUS = "Pending",
@@ -561,9 +561,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Create Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
             };
@@ -670,9 +670,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
             };
@@ -1034,9 +1034,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Show Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_STATUS = "Pending",
             };
@@ -1088,9 +1088,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Set Promo",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
             };
@@ -1143,9 +1143,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Price/Stok Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_ATTRIBUTE_2 = harga,
                 REQUEST_ATTRIBUTE_3 = qty,
@@ -1207,9 +1207,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Promo Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_ATTRIBUTE_2 = SalePrice.ToString(),
                 REQUEST_ATTRIBUTE_3 = SaleStartDate + ":" + SaleEndDate,
@@ -1273,9 +1273,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Promo Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_ATTRIBUTE_2 = SalePrice.ToString(),
                 REQUEST_ATTRIBUTE_3 = SaleStartDate + ":" + SaleEndDate,
@@ -1341,9 +1341,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Get Shipment Provider",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_STATUS = "Pending",
             };
@@ -1420,9 +1420,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Set Status Order to Packed",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = ordItems,
                 REQUEST_STATUS = "Pending",
             };
@@ -1625,9 +1625,9 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Upload Image Product",
-                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
                 REQUEST_ATTRIBUTE_1 = imagePath,
                 REQUEST_STATUS = "Pending",
             };

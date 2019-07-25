@@ -114,7 +114,7 @@ namespace MasterOnline.Controllers
                 {
                     string dbPathEra = Convert.ToString(context.BackgroundJob.Job.Args[0]);// mengambil dbPathEra 
                     string subjectDescription = Convert.ToString(context.BackgroundJob.Job.Args[1]); //mengambil Subject
-
+                    subjectDescription = subjectDescription.Replace("'", "`");
                     var jobId = context.BackgroundJob.Id;
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(dbPathEra).moFailedJobs(this._deskripsi, subjectDescription, jobId);
