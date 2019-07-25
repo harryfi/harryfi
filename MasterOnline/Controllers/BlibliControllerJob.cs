@@ -33,6 +33,7 @@ namespace MasterOnline.Controllers
         private ErasoftContext ErasoftDbContext { get; set; }
         private DatabaseSQL EDB;
         private string username;
+        private string DatabasePathErasoft;
         public BlibliControllerJob()
         {
             //Catatan by calvin :
@@ -76,6 +77,7 @@ namespace MasterOnline.Controllers
             ErasoftDbContext = new ErasoftContext(data.DatabasePathErasoft);
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
             username = data.username;
+            DatabasePathErasoft = data.DatabasePathErasoft;
 
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
@@ -4440,20 +4442,42 @@ namespace MasterOnline.Controllers
                             {
                                 if (Convert.ToBoolean(item.isSuccess))
                                 {
-                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
-                                    {
-                                        if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
-                                        {
-                                            string ProductCode = "";
-                                            string gdnSku = "";
-                                            if (result.value.queueHistory.Count() > 0)
-                                            {
-                                                gdnSku = result.value.queueHistory[0].gdnSku;
-                                                ProductCode = result.value.queueHistory[0].value;
-                                            }
+                                    //if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
+                                    //{
+                                    //    string ProductCode = "";
+                                    //    string gdnSku = "";
+                                    //    if (result.value.queueHistory.Count() > 0)
+                                    //    {
+                                    //        gdnSku = result.value.queueHistory[0].gdnSku;
+                                    //        ProductCode = result.value.queueHistory[0].value;
+                                    //    }
 
-                                            await GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
+                                    //    await GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
+                                    //}
+
+                                    if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
+                                    {
+                                        string ProductCode = "";
+                                        string gdnSku = "";
+                                        if (result.value.queueHistory.Count() > 0)
+                                        {
+                                            gdnSku = result.value.queueHistory[0].gdnSku;
+                                            ProductCode = result.value.queueHistory[0].value;
                                         }
+
+                                        //await GetProdukInReviewList(data, feed.request_id, ProductCode, gdnSku, feed.log_request_id);
+                                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == currentLog.REQUEST_ID).SingleOrDefault();
+                                        if (apiLogInDb != null)
+                                        {
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var client = new BackgroundJobClient(sqlStorage);
+                                            client.Enqueue<BlibliControllerJob>(x => x.CreateProductGetProdukInReviewList(DatabasePathErasoft, apiLogInDb.REQUEST_ATTRIBUTE_1, apiLogInDb.CUST, "Barang", "Link Produk (Tahap 1 / 2)", data, requestId, ProductCode, gdnSku, currentLog.REQUEST_ID));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
                                     }
                                 }
                                 else
@@ -4480,24 +4504,25 @@ namespace MasterOnline.Controllers
 
                                             }
 
-                                            try
+                                            if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                             {
-                                                if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
+                                                try
                                                 {
-                                                    //var getKodeItem = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == log_request_id).FirstOrDefault();
-                                                    //if (getKodeItem != null)
-                                                    //{
-                                                    oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H WHERE ISNULL(H.BRG_MP,'') = 'PENDING' AND ACODE_40='" + requestId + "' AND AVALUE_40='"+ log_request_id +"' AND IDMARKET='" + data.idmarket + "'";
-                                                    oCommand.ExecuteNonQuery();
-                                                    oCommand.CommandText = "UPDATE API_LOG_MARKETPLACE SET REQUEST_STATUS='Failed',REQUEST_EXCEPTION = '" + Convert.ToString(item.errorMessage).Replace(",", ".").Replace("'", "`") + "' WHERE REQUEST_ID = '" + log_request_id + "' AND MARKETPLACE='Blibli'";
-                                                    oCommand.ExecuteNonQuery();
+                                                    var getKodeItem = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == log_request_id).FirstOrDefault();
+                                                    if (getKodeItem != null)
+                                                    {
+                                                        oCommand.CommandType = CommandType.Text;
+                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                                        oCommand.Parameters[1].Value = Convert.ToString(getKodeItem.REQUEST_ATTRIBUTE_1);
+                                                        oCommand.ExecuteNonQuery();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
 
-                                                    //}
                                                 }
                                             }
-                                            catch (Exception ex)
-                                            { }
                                         }
                                     }
                                 }
@@ -6255,6 +6280,10 @@ namespace MasterOnline.Controllers
                         //INSERT QUEUE FEED
                         client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, namaPemesan, log_CUST, "Barang", "Buat Produk (Tahap 3 / 3)", iden, (data_kode), (result_value_queueFeedId), milis));
                     }
+                    else
+                    {
+                        throw new Exception("Create Product store queue feed.");
+                    }
                     //oTransaction.Commit();
                     //}
                     //catch (Exception ex)
@@ -6297,18 +6326,22 @@ namespace MasterOnline.Controllers
 
                     if (oCommand.ExecuteNonQuery() == 1)
                     {
-                        BlibliQueueFeedData queueData = new BlibliQueueFeedData
-                        {
-                            request_id = result_value_queueFeedId,
-                            log_request_id = milis
-                        };
+                        //BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                        //{
+                        //    request_id = result_value_queueFeedId,
+                        //    log_request_id = milis
+                        //};
 
-                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //string EDBConnID = EDB.GetConnectionString("ConnId");
+                        //var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                        var client = new BackgroundJobClient(sqlStorage);
+                        //var client = new BackgroundJobClient(sqlStorage);
 
-                        client.Enqueue<BlibliControllerJob>(x => x.CreateProductGetQueueFeedDetail(dbPathEra, kodeProduk, log_CUST, "Barang", "Link Produk (Tahap 1 / 2)", iden, queueData));
+                        //client.Enqueue<BlibliControllerJob>(x => x.CreateProductGetQueueFeedDetail(dbPathEra, kodeProduk, log_CUST, "Barang", "Link Produk (Tahap 1 / 2)", iden, queueData));
+                    }
+                    else
+                    {
+                        throw new Exception("Create Product set status pending failure.");
                     }
                 }
             }
@@ -6404,20 +6437,22 @@ namespace MasterOnline.Controllers
                                         oConnection.Open();
                                         using (SqlCommand oCommand = oConnection.CreateCommand())
                                         {
-                                            //remark by calvin 3 juli 2019
-                                            ////try
-                                            ////{
-                                            //oCommand.CommandType = CommandType.Text;
-                                            //oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + feed.request_id + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                            //oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-                                            //oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                            //oCommand.ExecuteNonQuery();
-                                            ////}
-                                            ////catch (Exception ex)
-                                            ////{
+                                            //try
+                                            //{
+                                            oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + feed.request_id + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+                                            oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                            oCommand.ExecuteNonQuery();
 
-                                            ////}
-                                            //end remark by calvin 3 juli 2019
+                                            //currentLog.REQUEST_RESULT = Convert.ToString(item.errorMessage);
+                                            //currentLog.REQUEST_EXCEPTION = "";
+                                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                                            //}
+                                            //catch (Exception ex)
+                                            //{
+
+                                            //}
 
                                             if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                             {
@@ -6499,7 +6534,6 @@ namespace MasterOnline.Controllers
                         {
                             if (item.productItems.Count() > 0)
                             {
-                                bool successPerItem = false;
                                 foreach (var item_var in item.productItems)
                                 {
                                     if (item_var.upcCode != "-" && !string.IsNullOrWhiteSpace(item_var.upcCode))
@@ -6509,81 +6543,68 @@ namespace MasterOnline.Controllers
                                             oConnection.Open();
                                             using (SqlCommand oCommand = oConnection.CreateCommand())
                                             {
-                                                try
-                                                {
-                                                    oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
-                                                    //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                                                    oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
-                                                    oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
-                                                    oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
+                                                oCommand.CommandType = CommandType.Text;
+                                                oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                                oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
+                                                oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
+                                                oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
 
-                                                    oCommand.Parameters[0].Value = item_var.upcCode;
-                                                    oCommand.Parameters[1].Value = iden.idmarket;
-                                                    oCommand.Parameters[2].Value = item_var.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
+                                                oCommand.Parameters[0].Value = item_var.upcCode;
+                                                oCommand.Parameters[1].Value = iden.idmarket;
+                                                oCommand.Parameters[2].Value = item_var.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
 
-                                                    if (oCommand.ExecuteNonQuery() == 1)
-                                                    {
-                                                        successPerItem = true;
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    successPerItem = false;
-                                                }
+                                                oCommand.ExecuteNonQuery();
                                             }
                                         }
                                     }
                                 }
-                                if (successPerItem)
+                                string STF02_BRG = kodeProduk;
+
+                                var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
+                                if (apiLogInDb != null)
                                 {
-                                    string STF02_BRG = kodeProduk;
-                                    //var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
-                                    //if (apiLogInDb != null)
-                                    //{
-                                    //    apiLogInDb.REQUEST_STATUS = "Success";
-                                    //    apiLogInDb.REQUEST_RESULT = "";
-                                    //    apiLogInDb.REQUEST_EXCEPTION = "";
-                                    //    STF02_BRG = apiLogInDb.REQUEST_ATTRIBUTE_1;
-                                    //    ErasoftDbContext.SaveChanges();
-                                    //}
+                                    apiLogInDb.REQUEST_STATUS = "Success";
+                                    apiLogInDb.REQUEST_RESULT = "";
+                                    apiLogInDb.REQUEST_EXCEPTION = "";
+                                    ErasoftDbContext.SaveChanges();
+                                }
 
-                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
                                     {
-                                        oConnection.Open();
-                                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                                        {
-                                            //try
-                                            //{
-                                            oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = 0 WHERE REQUESTID = @REQUESTID ";
-                                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
-                                            oCommand.Parameters[0].Value = requestID; // BRG MO
-                                            oCommand.ExecuteNonQuery();
-                                            //}
-                                            //catch (Exception ex)
-                                            //{
+                                        //try
+                                        //{
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = 0 WHERE REQUESTID = @REQUESTID ";
+                                        oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters[0].Value = requestID; // BRG MO
+                                        oCommand.ExecuteNonQuery();
+                                        //}
+                                        //catch (Exception ex)
+                                        //{
 
-                                            //}
-                                        }
+                                        //}
                                     }
+                                }
 
-                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
                                     {
-                                        oConnection.Open();
-                                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                                        {
-                                            oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
-                                            oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
-                                            oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
-                                            oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                        oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
+                                        oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
 
-                                            oCommand.Parameters[0].Value = STF02_BRG; // BRG MO
-                                            oCommand.Parameters[1].Value = iden.idmarket;
-                                            oCommand.Parameters[2].Value = ProductCode; // STF02H.BRG_MP, seharusnya gdnSku + ProductCode, tidak ketemu darimana gdnSku nya
-                                            oCommand.ExecuteNonQuery();
-                                        }
+                                        oCommand.Parameters[0].Value = STF02_BRG; // BRG MO
+                                        oCommand.Parameters[1].Value = iden.idmarket;
+                                        oCommand.Parameters[2].Value = ProductCode; // STF02H.BRG_MP, seharusnya gdnSku + ProductCode, tidak ketemu darimana gdnSku nya
+                                        oCommand.ExecuteNonQuery();
                                     }
                                 }
                             }

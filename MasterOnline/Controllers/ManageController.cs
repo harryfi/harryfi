@@ -5278,9 +5278,9 @@ namespace MasterOnline.Controllers
                     }
                     if (string.IsNullOrWhiteSpace(productMarketPlace.BRG_MP))
                     {
+                        //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        //var result = lzdApi.CreateProduct(dataLazada);
                         clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
                     }
                     else
@@ -5531,10 +5531,10 @@ namespace MasterOnline.Controllers
                                                     {
                                                         foreach (var item in cekPendingCreate)
                                                         {
-                                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                             //change by calvin 9 juni 2019
                                                             //Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                             clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]));
                                                             //end change by calvin 9 juni 2019
                                                         }
@@ -5544,19 +5544,19 @@ namespace MasterOnline.Controllers
                                                 {
                                                     if (stf02h.BRG_MP.Contains("PEDITENDING"))
                                                     {
-                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         //change by calvin 9 juni 2019
                                                         //Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]));
                                                         //end change by calvin 9 juni 2019
                                                     }
                                                     else
                                                     {
-                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         //change by calvin 9 juni 2019
                                                         //Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
                                                         //end change by calvin 9 juni 2019
                                                     }
@@ -5631,13 +5631,13 @@ namespace MasterOnline.Controllers
                                         var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         if (display)
                                         {
-                                            //change by calvin 9 juni 2019
                                             //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                             //{
                                             //    merchant_code = tblCustomer.Sort1_Cust,
                                             //};
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -5647,7 +5647,6 @@ namespace MasterOnline.Controllers
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
-                                            //end change by calvin 9 juni 2019
                                         }
                                     }
                                 }
@@ -5695,14 +5694,12 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (stf02h.DISPLAY)
                                                 {
-                                                    //change by calvin 9 juni 2019
                                                     //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                                     //{
                                                     //    merchant_code = tblCustomer.Sort1_Cust,
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
-
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -5712,7 +5709,6 @@ namespace MasterOnline.Controllers
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
-                                                    //end change by calvin 9 juni 2019
                                                 }
                                             }
                                         }
@@ -5747,14 +5743,12 @@ namespace MasterOnline.Controllers
                                         var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         if (display)
                                         {
-                                            //change by calvin 9 juni 2019
                                             //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                             //{
                                             //    merchant_code = tblCustomer.Sort1_Cust,
                                             //};
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
-
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -5764,7 +5758,6 @@ namespace MasterOnline.Controllers
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
-                                            //end change by calvin 9 juni 2019
                                         }
                                     }
                                 }
@@ -5782,21 +5775,12 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
-                                                {
-                                                    merchant_code = tblCustomer.Sort1_Cust,
-                                                };
-                                                ShopeeController shoAPI = new ShopeeController();
-
-                                                //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
-                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
-                                                //end remark by calvin 26 februari 2019
-
-                                                //Task.Run(() => shoAPI.GetVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
-
-                                                //change by calvin 9 juni 2019
+                                                //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                //{
+                                                //    merchant_code = tblCustomer.Sort1_Cust,
+                                                //};
+                                                //ShopeeController shoAPI = new ShopeeController();
                                                 //Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
-
                                                 ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                 {
                                                     merchant_code = tblCustomer.Sort1_Cust,
@@ -5805,40 +5789,18 @@ namespace MasterOnline.Controllers
                                                 };
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer));
-                                                //end change by calvin 9 juni 2019
-
-                                                //remark by calvin 12 april 2019, untuk tes
-                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
-                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
-                                                //if (updateHarga)
-                                                //{
-                                                //    if (brg_mp.Count() == 2)
-                                                //    {
-                                                //        if (brg_mp[1] == "0")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //        else if (brg_mp[1] != "")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //    }
-                                                //}
-                                                //end remark by calvin 12 april 2019, untuk tes
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer,null));
                                             }
                                             else
                                             {
                                                 if (stf02h.DISPLAY)
                                                 {
-                                                    //change by calvin 9 juni 2019
                                                     //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
                                                     //{
                                                     //    merchant_code = tblCustomer.Sort1_Cust,
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
-
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -5848,7 +5810,6 @@ namespace MasterOnline.Controllers
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
-                                                    //end change by calvin 9 juni 2019
                                                 }
                                             }
                                         }
@@ -5939,9 +5900,9 @@ namespace MasterOnline.Controllers
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
+                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                             clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -6059,9 +6020,9 @@ namespace MasterOnline.Controllers
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
+                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -6159,7 +6120,10 @@ namespace MasterOnline.Controllers
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
-                                            Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
+                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -6275,11 +6239,16 @@ namespace MasterOnline.Controllers
                                                     data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-
+#if (DEBUG || Debug_AWS)
+                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                     clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
-
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+#endif
                                                     #endregion
                                                 }
                                             }
@@ -10982,7 +10951,10 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetListPesanan()
         {
-            var listPesanan = ErasoftDbContext.SOT01A.ToList();
+            //change by nurul 23/7/2019
+            //var listPesanan = ErasoftDbContext.SOT01A.ToList();
+            var listPesanan = ErasoftDbContext.SOT01A.Where(a => a.STATUS_TRANSAKSI == "01").ToList();
+            //end change by nurul 23/7/2019
 
             return Json(listPesanan, JsonRequestBehavior.AllowGet);
         }
@@ -11562,7 +11534,7 @@ namespace MasterOnline.Controllers
 
                 var vm = new InvoiceViewModel()
                 {
-                    //Invoice = invoiceInDb,
+                    Invoice = invoiceInDb,
                     ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => 0 == 1).ToList(),
                 };
 
@@ -11798,6 +11770,9 @@ namespace MasterOnline.Controllers
             //CHANGE BY NURUL 7/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
             invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
             //END CHANGE 
+            //add by nurul 24/7/2019
+            invoiceInDb.DROPSHIPPER = dataUpdate.Dropship;
+            //end add by nurul 24/7/2019
 
             ErasoftDbContext.SaveChanges();
 
@@ -12020,8 +11995,9 @@ namespace MasterOnline.Controllers
             }
 
             var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
-
-            var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
+            //remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
+            //var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
+            //end remark by Tri 23 juli 2019, selalu tampilkan button upload faktur
 
             var valSubs = new ValidasiSubs()
             {
@@ -12031,7 +12007,10 @@ namespace MasterOnline.Controllers
                 //SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date && accInDb.KODE_SUBSCRIPTION != "01")
                 SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date),
                 //en change by nurul 8/2/2019
-                adaTokped = (cekTokped > 0),
+                //change by Tri 23 juli 2019, selalu tampilkan button upload faktur
+                //adaTokped = (cekTokped > 0),
+                adaTokped = true,
+                //end change by Tri 23 juli 2019, selalu tampilkan button upload faktur
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);

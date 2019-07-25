@@ -162,7 +162,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
             }
