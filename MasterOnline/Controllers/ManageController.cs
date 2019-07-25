@@ -6117,8 +6117,8 @@ namespace MasterOnline.Controllers
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
                                             data.display = display ? "true" : "false";
-                                            BlibliController bliAPI = new BlibliController();
-                                            Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                            //BlibliController bliAPI = new BlibliController();
+                                            //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
