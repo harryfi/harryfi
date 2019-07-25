@@ -3242,7 +3242,6 @@ namespace MasterOnline.Controllers
                     string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
                     if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
-
                         HttpBody.attributes.Add(new ShopeeAttributeClass
                         {
                             attributes_id = Convert.ToInt64(attribute_id),
@@ -3322,7 +3321,10 @@ namespace MasterOnline.Controllers
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var client = new BackgroundJobClient(sqlStorage);
-                                client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
+                                
+                                //delay 1 menit, karena API shopee ada delay saat create barang.
+                                //client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
+                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);

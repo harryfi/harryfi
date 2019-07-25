@@ -22,6 +22,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using Hangfire;
 using Hangfire.SqlServer;
+using Hangfire.Server;
 
 namespace MasterOnline.Controllers
 {
@@ -4475,40 +4476,64 @@ namespace MasterOnline.Controllers
                                         oConnection.Open();
                                         using (SqlCommand oCommand = oConnection.CreateCommand())
                                         {
-                                            try
-                                            {
-                                                oCommand.CommandType = CommandType.Text;
-                                                oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-                                                oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                                oCommand.ExecuteNonQuery();
+                                            oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+                                            oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                            oCommand.ExecuteNonQuery();
 
-                                                currentLog.REQUEST_RESULT = Convert.ToString(item.errorMessage);
-                                                currentLog.REQUEST_EXCEPTION = "";
-                                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-                                            }
-                                            catch (Exception ex)
-                                            {
-
-                                            }
+                                            currentLog.REQUEST_RESULT = Convert.ToString(item.errorMessage);
+                                            currentLog.REQUEST_EXCEPTION = "";
+                                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
 
                                             if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                             {
-                                                try
+                                                var getLogMarketplace = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == log_request_id).FirstOrDefault();
+                                                if (getLogMarketplace != null)
                                                 {
-                                                    var getKodeItem = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == log_request_id).FirstOrDefault();
-                                                    if (getKodeItem != null)
-                                                    {
-                                                        oCommand.CommandType = CommandType.Text;
-                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                        oCommand.Parameters[1].Value = Convert.ToString(getKodeItem.REQUEST_ATTRIBUTE_1);
-                                                        oCommand.ExecuteNonQuery();
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
+                                                    oCommand.CommandType = CommandType.Text;
+                                                    oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                                    oCommand.Parameters[1].Value = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1);
+                                                    oCommand.ExecuteNonQuery();
 
+                                                    #region Create Log Error khusus create barang
+                                                    string subjectDescription = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1).Replace("'", "`");
+                                                    string CUST = Convert.ToString(getLogMarketplace.CUST); //mengambil Cust
+                                                    string ActionCategory = Convert.ToString("Barang"); //mengambil Kategori
+                                                    string ActionName = Convert.ToString("Buat Produk"); //mengambil Action
+                                                    string exceptionMessage = "From Blibli API : " + Convert.ToString(item.errorMessage);
+                                                    string jobId = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_3); // Hangfire Job Id saat Create Produk
+
+                                                    string sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                                                    sSQL += "REQUEST_ACTION,REQUEST_DATETIME,";
+                                                    sSQL += "REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5,";
+                                                    sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) ";
+                                                    sSQL += "SELECT 'FAILED',A.CUST_ATTRIBUTE_1, '1', A.CUST,A.MARKETPLACE,A.REQUEST_ID,A.REQUEST_ACTION,A.REQUEST_DATETIME,A.REQUEST_ATTRIBUTE_3,A.REQUEST_ATTRIBUTE_4,A.REQUEST_ATTRIBUTE_5,A.REQUEST_RESULT,A.REQUEST_EXCEPTION ";
+                                                    sSQL += "FROM ( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
+                                                    sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + getLogMarketplace.REQUEST_DATETIME.ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                                                    sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                                                    sSQL += "'Create Product " + subjectDescription + " ke Blibli Gagal.' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                                                    sSQL += "LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0 ";
+                                                    int adaInsert = EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                    if (adaInsert == 0) //JIKA 
+                                                    {
+                                                        //update REQUEST_STATUS = 'FAILED', DATE, FAIL COUNT
+                                                        sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                                                        sSQL += "FROM API_LOG_MARKETPLACE B WHERE B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND B.REQUEST_STATUS = 'RETRYING' AND B.REQUEST_ID = '" + jobId + "'";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+                                                        //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
+                                                        sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + jobId + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                                                        sSQL += "FROM API_LOG_MARKETPLACE B INNER JOIN ";
+                                                        sSQL += "( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
+                                                        sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + getLogMarketplace.REQUEST_DATETIME.ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                                                        sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                                                        sSQL += "'Create Product "+ subjectDescription + " ke Blibli Gagal.' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                                                        sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                    }
+                                                    #endregion
                                                 }
                                             }
                                         }
@@ -5626,7 +5651,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
-        public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data)
+        public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
@@ -5737,8 +5762,8 @@ namespace MasterOnline.Controllers
             Dictionary<string, string> images = new Dictionary<string, string>();
             List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
-
-            if (data.type == "3") // bukan barang variasi
+            #region bukan barang variasi
+            if (data.type == "3") 
             {
                 List<string> images_pervar = new List<string>();
                 string idGambar = "";
@@ -5963,9 +5988,12 @@ namespace MasterOnline.Controllers
                 productItems.Add(newVarItem);
                 newData.productDefiningAttributes = DefiningAttributes;
             }
+            #endregion
+            #region Barang Variasi
             else
             {
-                string ValueVariasiWarna = "";
+                Dictionary<string, string> DefiningDariStf02H = new Dictionary<string, string>();
+
                 var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
                 var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
                 var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
@@ -6027,11 +6055,12 @@ namespace MasterOnline.Controllers
                             //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
                             if (var_stf02i_distinct.Count() == 0)
                             {
-                                if (attribute_id == "WA-0000002") // Warna
-                                {
-                                    ValueVariasiWarna = value;
+                                DefiningDariStf02H.Add(attribute_id, value);
+                                //if (attribute_id == "WA-0000002") // Warna
+                                //{
+                                //    ValueVariasiWarna = value;
                                     dsVariasiValues.Add(value);
-                                }
+                                //}
                             }
                             //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
 
@@ -6125,9 +6154,19 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
-                        if (!attributeMap.ContainsKey("WA-0000002"))
+                        //if (!attributeMap.ContainsKey("WA-0000002"))
+                        //{
+                        //    attributeMap.Add("WA-0000002", ValueVariasiWarna);
+                        //}
+                        if (DefiningDariStf02H.Count() > 0)
                         {
-                            attributeMap.Add("WA-0000002", ValueVariasiWarna);
+                            foreach (var item in DefiningDariStf02H)
+                            {
+                                if (!attributeMap.ContainsKey(item.Key))
+                                {
+                                    attributeMap.Add(item.Key, item.Value);
+                                }
+                            }
                         }
                         //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
                     }
@@ -6149,6 +6188,8 @@ namespace MasterOnline.Controllers
                     productItems.Add(newVarItem);
                 }
             }
+            #endregion
+
             newData.productItems = (productItems);
             newData.imageMap = images;
 
@@ -6158,6 +6199,8 @@ namespace MasterOnline.Controllers
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/createProduct", iden.API_secret_key);
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/createProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
 
+            string jobId = context.BackgroundJob.Id;
+
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = milis.ToString(),
@@ -6165,6 +6208,8 @@ namespace MasterOnline.Controllers
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = data.kode,
                 REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_ATTRIBUTE_3 = jobId, //hangfire job id ( create product )
+                
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
@@ -6211,9 +6256,9 @@ namespace MasterOnline.Controllers
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
-
                     //INSERT QUEUE FEED
                     client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+                    //client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
                 }
                 else
                 {
@@ -6298,7 +6343,7 @@ namespace MasterOnline.Controllers
                     //oCommand.ExecuteNonQuery();
                     //oCommand.Transaction = oTransaction;
                     oCommand.CommandType = CommandType.Text;
-                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING'  FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
                     //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
