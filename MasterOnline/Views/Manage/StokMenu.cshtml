@@ -209,7 +209,7 @@
                         </label>
                     </div>
                     <div class="col-md-12">
-                        <label>1. Download Excel Saldo Awal Stok. </label>
+                        <label>1. Download excel saldo awal stok. </label>
                         <button type="button" class="btn btn-primary" onclick="DownloadExcelSAS()">Download</button>
                     </div>
                     <div class="col-md-12">
@@ -217,7 +217,7 @@
                     </div>
                     <div class="col-md-12">
                         <div>
-                            <label>3. Upload file excel Saldo Awal Stok yang sudah anda edit.</label>
+                            <label>3. Upload file excel saldo awal stok yang sudah Anda edit.</label>
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-md-6 file_upload_section">
@@ -263,6 +263,11 @@
         //add by nurul 12/2/2019
         var $page = window.text;
         //end add by nurul 12/2/2019
+
+        $("#excelSaldoAwal").on("hidden.bs.modal", function () {
+            // refresh saat tutup modal excel
+            refreshTableStok();
+        });
 
         $(document).ready(function () {
             refreshTableStok();
