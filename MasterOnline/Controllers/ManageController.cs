@@ -5823,18 +5823,7 @@ namespace MasterOnline.Controllers
                                         if (display)
                                         {
                                             //change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                            {
-                                                merchant_code = tblCustomer.Sort1_Cust,
-                                                API_client_password = tblCustomer.API_CLIENT_P,
-                                                API_client_username = tblCustomer.API_CLIENT_U,
-                                                API_secret_key = tblCustomer.API_KEY,
-                                                token = tblCustomer.TOKEN,
-                                                mta_username_email_merchant = tblCustomer.EMAIL,
-                                                mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                idmarket = tblCustomer.RecNum.Value
-                                            };
-                                            //BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                            //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                             //{
                                             //    merchant_code = tblCustomer.Sort1_Cust,
                                             //    API_client_password = tblCustomer.API_CLIENT_P,
@@ -5843,14 +5832,25 @@ namespace MasterOnline.Controllers
                                             //    token = tblCustomer.TOKEN,
                                             //    mta_username_email_merchant = tblCustomer.EMAIL,
                                             //    mta_password_password_merchant = tblCustomer.PASSWORD,
-                                            //    idmarket = tblCustomer.RecNum.Value,
-                                            //    DatabasePathErasoft = dbPathEra,
-                                            //    username = usernameLogin
+                                            //    idmarket = tblCustomer.RecNum.Value
                                             //};
+                                            BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust,
+                                                API_client_password = tblCustomer.API_CLIENT_P,
+                                                API_client_username = tblCustomer.API_CLIENT_U,
+                                                API_secret_key = tblCustomer.API_KEY,
+                                                token = tblCustomer.TOKEN,
+                                                mta_username_email_merchant = tblCustomer.EMAIL,
+                                                mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                idmarket = tblCustomer.RecNum.Value,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
 
-                                            BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
                                             {
                                                 kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                                 nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
@@ -5873,12 +5873,17 @@ namespace MasterOnline.Controllers
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
                                             data.display = display ? "true" : "false";
-                                            BlibliController bliAPI = new BlibliController();
-                                            Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                            //BlibliController bliAPI = new BlibliController();
+                                            //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
-                                            //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #endif
                                         }
                                         //new BlibliController().GetQueueFeedDetail(iden, null);
@@ -5941,18 +5946,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     #region insert
                                                     //change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                                    {
-                                                        merchant_code = tblCustomer.Sort1_Cust,
-                                                        API_client_password = tblCustomer.API_CLIENT_P,
-                                                        API_client_username = tblCustomer.API_CLIENT_U,
-                                                        API_secret_key = tblCustomer.API_KEY,
-                                                        token = tblCustomer.TOKEN,
-                                                        mta_username_email_merchant = tblCustomer.EMAIL,
-                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                        idmarket = tblCustomer.RecNum.Value
-                                                    };
-                                                    //BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                                    //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                                     //{
                                                     //    merchant_code = tblCustomer.Sort1_Cust,
                                                     //    API_client_password = tblCustomer.API_CLIENT_P,
@@ -5961,12 +5955,23 @@ namespace MasterOnline.Controllers
                                                     //    token = tblCustomer.TOKEN,
                                                     //    mta_username_email_merchant = tblCustomer.EMAIL,
                                                     //    mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                    //    idmarket = tblCustomer.RecNum.Value,
-                                                    //    DatabasePathErasoft = dbPathEra,
-                                                    //    username = usernameLogin
+                                                    //    idmarket = tblCustomer.RecNum.Value
                                                     //};
+                                                    BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
+                                                        username = usernameLogin
+                                                    };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
                                                     {
                                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                                         nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
@@ -5988,12 +5993,17 @@ namespace MasterOnline.Controllers
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
                                                     data.display = display ? "true" : "false";
-                                                    BlibliController bliAPI = new BlibliController();
-                                                    Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                                    //BlibliController bliAPI = new BlibliController();
+                                                    //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
                                                     //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
-                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #endif
                                                     #endregion
                                                 }
@@ -6037,18 +6047,7 @@ namespace MasterOnline.Controllers
                                         if (display)
                                         {
                                             //change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                            {
-                                                merchant_code = tblCustomer.Sort1_Cust,
-                                                API_client_password = tblCustomer.API_CLIENT_P,
-                                                API_client_username = tblCustomer.API_CLIENT_U,
-                                                API_secret_key = tblCustomer.API_KEY,
-                                                token = tblCustomer.TOKEN,
-                                                mta_username_email_merchant = tblCustomer.EMAIL,
-                                                mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                idmarket = tblCustomer.RecNum.Value
-                                            };
-                                            //BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                            //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                             //{
                                             //    merchant_code = tblCustomer.Sort1_Cust,
                                             //    API_client_password = tblCustomer.API_CLIENT_P,
@@ -6057,12 +6056,23 @@ namespace MasterOnline.Controllers
                                             //    token = tblCustomer.TOKEN,
                                             //    mta_username_email_merchant = tblCustomer.EMAIL,
                                             //    mta_password_password_merchant = tblCustomer.PASSWORD,
-                                            //    idmarket = tblCustomer.RecNum.Value,
-                                            //    DatabasePathErasoft = dbPathEra,
-                                            //    username = usernameLogin
+                                            //    idmarket = tblCustomer.RecNum.Value
                                             //};
+                                            BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust,
+                                                API_client_password = tblCustomer.API_CLIENT_P,
+                                                API_client_username = tblCustomer.API_CLIENT_U,
+                                                API_secret_key = tblCustomer.API_KEY,
+                                                token = tblCustomer.TOKEN,
+                                                mta_username_email_merchant = tblCustomer.EMAIL,
+                                                mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                idmarket = tblCustomer.RecNum.Value,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                            BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
                                             {
                                                 kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
                                                 nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
@@ -6083,12 +6093,17 @@ namespace MasterOnline.Controllers
                                             data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
                                             data.display = display ? "true" : "false";
-                                            BlibliController bliAPI = new BlibliController();
-                                            Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                            //BlibliController bliAPI = new BlibliController();
+                                            //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #else
-                                            //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
 #endif
                                         }
                                         //new BlibliController().GetQueueFeedDetail(iden, null);
@@ -6151,18 +6166,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     #region insert
                                                     //change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                                    {
-                                                        merchant_code = tblCustomer.Sort1_Cust,
-                                                        API_client_password = tblCustomer.API_CLIENT_P,
-                                                        API_client_username = tblCustomer.API_CLIENT_U,
-                                                        API_secret_key = tblCustomer.API_KEY,
-                                                        token = tblCustomer.TOKEN,
-                                                        mta_username_email_merchant = tblCustomer.EMAIL,
-                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                        idmarket = tblCustomer.RecNum.Value
-                                                    };
-                                                    //BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                                    //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                                     //{
                                                     //    merchant_code = tblCustomer.Sort1_Cust,
                                                     //    API_client_password = tblCustomer.API_CLIENT_P,
@@ -6171,13 +6175,24 @@ namespace MasterOnline.Controllers
                                                     //    token = tblCustomer.TOKEN,
                                                     //    mta_username_email_merchant = tblCustomer.EMAIL,
                                                     //    mta_password_password_merchant = tblCustomer.PASSWORD,
-                                                    //    idmarket = tblCustomer.RecNum.Value,
-                                                    //    DatabasePathErasoft = dbPathEra,
-                                                    //    username = usernameLogin
+                                                    //    idmarket = tblCustomer.RecNum.Value
                                                     //};
+                                                    BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        API_client_password = tblCustomer.API_CLIENT_P,
+                                                        API_client_username = tblCustomer.API_CLIENT_U,
+                                                        API_secret_key = tblCustomer.API_KEY,
+                                                        token = tblCustomer.TOKEN,
+                                                        mta_username_email_merchant = tblCustomer.EMAIL,
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value,
+                                                        DatabasePathErasoft = dbPathEra,
+                                                        username = usernameLogin
+                                                    };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
-                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
                                                     {
                                                         kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
                                                         nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
@@ -6198,11 +6213,18 @@ namespace MasterOnline.Controllers
                                                     data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
                                                     data.display = display ? "true" : "false";
-                                                    BlibliController bliAPI = new BlibliController();
-                                                    Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-
-                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
-
+                                                    //BlibliController bliAPI = new BlibliController();
+                                                    //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+#if (DEBUG || Debug_AWS)
+                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data));
+#endif
                                                     #endregion
                                                 }
                                             }
