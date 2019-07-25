@@ -84,10 +84,108 @@ namespace MasterOnline.Controllers
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = log_request_id
+            };
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
             //{
-            //    REQUEST_ID = log_request_id
-            //};
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
+                if (result.header.error_code == 0)
+                {
+                    if (result.data.upload_data.Count() > 0)
+                    {
+                        foreach (var item in result.data.upload_data)
+                        {
+                            if (item.unprocessed_rows > 0)
+                            {
+                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                if (success == 1)
+                                {
+                                    manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                            else if (item.success_rows > 0)
+                            {
+                                //change by calvin 9 juni 2019
+                                //await GetActiveItemListBySKU(iden, 0, 50, iden.idmarket, brg);
+                                string EDBConnID = EDB.GetConnectionString("ConnId");
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                var Jobclient = new BackgroundJobClient(sqlStorage);
+                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID));
+                                //end change by calvin 9 juni 2019
+                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else if (item.failed_rows > 0)
+                            {
+                                foreach (var item_failed in item.failed_rows_data)
+                                {
+                                    currentLog.REQUEST_RESULT = item_failed.error;
+                                    currentLog.REQUEST_EXCEPTION = item_failed.error;
+                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_RESULT = result.header.reason;
+                    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(result.header.messages + ";" + result.header.reason);
+                }
+            }
+
+            return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
+        public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            long milis = CurrentTimeMillis();
+
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = log_request_id
+            };
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -124,108 +222,10 @@ namespace MasterOnline.Controllers
                         {
                             if (item.unprocessed_rows > 0)
                             {
-                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
-                                if (success == 1)
-                                {
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-                                }
-                            }
-                            else if (item.success_rows > 0)
-                            {
-                                //change by calvin 9 juni 2019
-                                //await GetActiveItemListBySKU(iden, 0, 50, iden.idmarket, brg);
-                                string EDBConnID = EDB.GetConnectionString("ConnId");
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                var Jobclient = new BackgroundJobClient(sqlStorage);
-                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg));
-                                //end change by calvin 9 juni 2019
-                                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            }
-                            else if (item.failed_rows > 0)
-                            {
-                                foreach (var item_failed in item.failed_rows_data)
-                                {
-                                    //currentLog.REQUEST_RESULT = item_failed.error;
-                                    //currentLog.REQUEST_EXCEPTION = item_failed.error;
-                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
-                                }
-                                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //currentLog.REQUEST_RESULT = result.header.reason;
-                    //currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception(result.header.messages + ";" + result.header.reason);
-                }
-            }
-
-            return ret;
-        }
-
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("1_create_product")]
-        [NotifyOnFailed("Edit Product {obj} ke Tokopedia Gagal.")]
-        public async Task<string> EditProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
-        {
-            //if merchant code diisi. barulah GetOrderList
-            string ret = "";
-            long milis = CurrentTimeMillis();
-
-            var token = SetupContext(iden);
-            iden.token = token;
-
-            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
-
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = log_request_id
-            //};
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            myReq.Accept = "application/x-www-form-urlencoded";
-            myReq.ContentType = "application/json";
-            string responseFromServer = "";
-            //try
-            //{
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-            //}
-            //catch (Exception ex)
-            //{
-            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
-
-            if (responseFromServer != "")
-            {
-
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
-                if (result.header.error_code == 0)
-                {
-                    if (result.data.upload_data.Count() > 0)
-                    {
-                        foreach (var item in result.data.upload_data)
-                        {
-                            if (item.unprocessed_rows > 0)
-                            {
                                 var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 if (success == 1)
                                 {
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                                    manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
                                 }
                             }
                             else if (item.success_rows > 0)
@@ -236,7 +236,7 @@ namespace MasterOnline.Controllers
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                 var Jobclient = new BackgroundJobClient(sqlStorage);
-                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Variasi Produk", iden, brg, iden.idmarket, Convert.ToString(product_id)));
+                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID));
                                 //end change by calvin 9 juni 2019
 
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -245,19 +245,22 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var item_failed in item.failed_rows_data)
                                 {
-                                    //currentLog.REQUEST_RESULT = item_failed.error;
-                                    //currentLog.REQUEST_EXCEPTION = item_failed.error;
+                                    currentLog.REQUEST_RESULT = item_failed.error;
+                                    currentLog.REQUEST_EXCEPTION = item_failed.error;
+                                    //var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 }
-                                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION);
+
                             }
                         }
                     }
                 }
                 else
                 {
-                    //currentLog.REQUEST_RESULT = result.header.reason;
-                    //currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    currentLog.REQUEST_RESULT = result.header.reason;
+                    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                     throw new Exception(result.header.messages + ";" + result.header.reason);
                 }
             }
@@ -599,28 +602,40 @@ namespace MasterOnline.Controllers
 
                 //try
                 //{
-                    var client = new HttpClient();
 
-                    var request = new HttpRequestMessage(new HttpMethod("PATCH"), urll);
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", iden.token);
-                    request.Content = new StringContent(myData, System.Text.Encoding.UTF8, "application/json");
-                    HttpResponseMessage response;
-                    response = await client.SendAsync(request);
-                    responseFromServer = await response.Content.ReadAsStringAsync();
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                {
+                    REQUEST_ID = milis.ToString(),
+                    REQUEST_ACTION = "Create Product",
+                    REQUEST_DATETIME = milisBack,
+                    REQUEST_ATTRIBUTE_1 = brg,
+                    REQUEST_ATTRIBUTE_2 = "fs : " + iden.merchant_code,
+                    REQUEST_STATUS = "Pending",
+                };
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-                    //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                    //var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                    //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                    //HttpResponseMessage clientResponse = await client.PutAsync(
-                    //    urll, content);
+                var client = new HttpClient();
 
-                    //using (HttpContent responseContent = clientResponse.Content)
-                    //{
-                    //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    //    {
-                    //        responseFromServer = await reader.ReadToEndAsync();
-                    //    }
-                    //};
+                var request = new HttpRequestMessage(new HttpMethod("PATCH"), urll);
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", iden.token);
+                request.Content = new StringContent(myData, System.Text.Encoding.UTF8, "application/json");
+                HttpResponseMessage response;
+                response = await client.SendAsync(request);
+                responseFromServer = await response.Content.ReadAsStringAsync();
+
+                //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                //var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                //HttpResponseMessage clientResponse = await client.PutAsync(
+                //    urll, content);
+
+                //using (HttpContent responseContent = clientResponse.Content)
+                //{
+                //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                //    {
+                //        responseFromServer = await reader.ReadToEndAsync();
+                //    }
+                //};
                 //}
                 //catch (Exception ex)
                 //{
@@ -632,21 +647,20 @@ namespace MasterOnline.Controllers
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
                     if (result.header.error_code == 0)
                     {
-                        //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
                         string EDBConnID = EDB.GetConnectionString("ConnId");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, "", product_id));
+                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id));
                         //end change by calvin 9 juni 2019
                     }
                     else
                     {
-                        //currentLog.REQUEST_RESULT = result.header.reason;
-                        //currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        currentLog.REQUEST_RESULT = result.header.reason;
+                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(result.header.messages + ";" + result.header.reason);
                     }
                 }
@@ -700,15 +714,6 @@ namespace MasterOnline.Controllers
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-                //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                //{
-                //    REQUEST_ID = milis.ToString(),
-                //    REQUEST_ACTION = "Create Product",
-                //    REQUEST_DATETIME = milisBack,
-                //    REQUEST_ATTRIBUTE_1 = brg,
-                //    REQUEST_ATTRIBUTE_2 = "fs : " + iden.merchant_code,
-                //    REQUEST_STATUS = "Pending",
-                //};
                 CreateProductTokpedData newData = new CreateProductTokpedData()
                 {
                     products = new List<CreateProduct_Product>()
@@ -974,6 +979,17 @@ namespace MasterOnline.Controllers
 
                 //try
                 //{
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                {
+                    REQUEST_ID = milis.ToString(),
+                    REQUEST_ACTION = "Create Product",
+                    REQUEST_DATETIME = milisBack,
+                    REQUEST_ATTRIBUTE_1 = brg,
+                    REQUEST_ATTRIBUTE_2 = "fs : " + iden.merchant_code,
+                    REQUEST_STATUS = "Pending",
+                };
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
                 var content = new StringContent(myData, Encoding.UTF8, "application/json");
@@ -1006,14 +1022,14 @@ namespace MasterOnline.Controllers
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, ""));
+                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
                         //end change by calvin 9 juni 2019
                     }
                     else
                     {
-                        //currentLog.REQUEST_RESULT = result.header.reason;
-                        //currentLog.REQUEST_EXCEPTION = result.header.messages;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        currentLog.REQUEST_RESULT = result.header.reason;
+                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                         throw new Exception(result.header.messages + ";" + result.header.reason);
                     }
                 }
@@ -1049,6 +1065,49 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 1)]
+        [Queue("3_general")]
+        public async Task<string> CheckPendings(TokopediaAPIData data)
+        {
+            SetupContext(data);
+            var arf01inDB = ErasoftDbContext.ARF01.Where(p => (p.RecNum ?? 0) == data.idmarket).SingleOrDefault();
+
+            string ret = "";
+            if (arf01inDB.STATUS_API == "1")
+            {
+                var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PENDING;")).ToList();
+                if (cekPendingCreate.Count > 0)
+                {
+                    foreach (var item in cekPendingCreate)
+                    {
+                        //change by calvin 9 juni 2019
+                        //Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), Convert.ToString(Convert.ToInt32(item.BRG_MP.Split(';')[2]))));
+                        //end change by calvin 9 juni 2019
+                    }
+                }
+                var cekPendingEdit = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PEDITENDING;")).ToList();
+                if (cekPendingEdit.Count > 0)
+                {
+                    foreach (var item in cekPendingEdit)
+                    {
+                        //change by calvin 9 juni 2019
+                        //Task.Run(() => EditProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]).Wait());
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Edit Produk Get Status", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]));
+                        //end change by calvin 9 juni 2019
+                    }
+                }
+            }
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
@@ -2069,7 +2128,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Berhasil. Link Produk Gagal.")]
-        public async Task<BindingBase> GetActiveItemListBySKU(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int page, int recordCount, int recnumArf01, string SKU)
+        public async Task<BindingBase> GetActiveItemListBySKU(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int page, int recordCount, int recnumArf01, string SKU, string log_request_id)
         {
             var connId = Guid.NewGuid().ToString();
 
@@ -2159,17 +2218,27 @@ namespace MasterOnline.Controllers
                                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                         var Jobclient = new BackgroundJobClient(sqlStorage);
-                                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id)));
+                                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id));
                                         //end change by calvin 9 juni 2019
                                     }
                                     else
                                     {
                                         var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                        {
+                                            REQUEST_ID = log_request_id
+                                        };
+                                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                     }
                                 }
                                 else
                                 {
                                     var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = log_request_id
+                                    };
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                                 }
                             }
                         }
@@ -2341,7 +2410,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Berhasil. Link Produk Gagal.")]
-        public async Task<string> GetActiveItemVariantByProductID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int recnumArf01, string product_id)
+        public async Task<string> GetActiveItemVariantByProductID(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int recnumArf01, string product_id, string log_request_id)
         {
             string ret = "";
             var token = SetupContext(iden);
@@ -2392,6 +2461,12 @@ namespace MasterOnline.Controllers
                     {
                         var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                     }
+
+                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    {
+                        REQUEST_ID = log_request_id
+                    };
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
             }
             return ret;
@@ -2595,37 +2670,6 @@ namespace MasterOnline.Controllers
                         arf01inDB.STATUS_API = "1";
                         data.token = ret.access_token;
                         ErasoftDbContext.SaveChanges();
-
-                        var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PENDING;")).ToList();
-                        if (cekPendingCreate.Count > 0)
-                        {
-                            foreach (var item in cekPendingCreate)
-                            {
-                                //change by calvin 9 juni 2019
-                                //Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
-                                string EDBConnID = EDB.GetConnectionString("ConnId");
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                var Jobclient = new BackgroundJobClient(sqlStorage);
-                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), ""));
-                                //end change by calvin 9 juni 2019
-                            }
-                        }
-                        var cekPendingEdit = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PEDITENDING;")).ToList();
-                        if (cekPendingEdit.Count > 0)
-                        {
-                            foreach (var item in cekPendingEdit)
-                            {
-                                //change by calvin 9 juni 2019
-                                //Task.Run(() => EditProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]).Wait());
-                                string EDBConnID = EDB.GetConnectionString("ConnId");
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                                var Jobclient = new BackgroundJobClient(sqlStorage);
-                                Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Edit Produk Get Status", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]));
-                                //end change by calvin 9 juni 2019
-                            }
-                        }
                     }
                     else
                     {
@@ -3134,7 +3178,8 @@ namespace MasterOnline.Controllers
             Pending = 1,
             Success = 2,
             Failed = 3,
-            Exception = 4
+            Exception = 4,
+            RePending = 5,
         }
 
         private string CreateToken(string urlBlili, string secretMTA)
@@ -3183,6 +3228,16 @@ namespace MasterOnline.Controllers
                             };
                             ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
                             ErasoftDbContext.SaveChanges();
+                        }
+                        break;
+                    case api_status.RePending:
+                        {
+                            var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                            if (apiLogInDb != null)
+                            {
+                                apiLogInDb.REQUEST_STATUS = "Pending";
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
                         break;
                     case api_status.Success:

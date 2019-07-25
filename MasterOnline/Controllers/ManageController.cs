@@ -5444,29 +5444,31 @@ namespace MasterOnline.Controllers
                                         if (display)
                                         {
                                             //change by calvin 9 juni 2019
-                                            TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
-                                            {
-                                                merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                                API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-                                                API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-                                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                                token = tblCustomer.TOKEN,
-                                                idmarket = tblCustomer.RecNum.Value
-                                            };
-                                            TokopediaController tokoAPI = new TokopediaController();
-                                            Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
-                                            //TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
                                             //{
                                             //    merchant_code = tblCustomer.Sort1_Cust, //FSID
                                             //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                                             //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                                             //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
                                             //    token = tblCustomer.TOKEN,
-                                            //    idmarket = tblCustomer.RecNum.Value,
-                                            //    DatabasePathErasoft = dbPathEra,
-                                            //    username = usernameLogin
+                                            //    idmarket = tblCustomer.RecNum.Value
                                             //};
-                                            //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)));
+                                            //TokopediaController tokoAPI = new TokopediaController();
+                                            //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+                                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                                API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                                                API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                                token = tblCustomer.TOKEN,
+                                                idmarket = tblCustomer.RecNum.Value,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)));
                                             //end change by calvin 9 juni 2019
                                         }
                                     }
@@ -5485,27 +5487,27 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
                                                 //change by calvin 9 juni 2019
-                                                TokopediaController tokoAPI = new TokopediaController();
-                                                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
-                                                {
-                                                    merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-                                                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-                                                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                                    token = tblCustomer.TOKEN,
-                                                    idmarket = tblCustomer.RecNum.Value
-                                                };
-                                                //TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                                //TokopediaController tokoAPI = new TokopediaController();
+                                                //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
                                                 //{
                                                 //    merchant_code = tblCustomer.Sort1_Cust, //FSID
                                                 //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                                                 //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                                                 //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
                                                 //    token = tblCustomer.TOKEN,
-                                                //    idmarket = tblCustomer.RecNum.Value,
-                                                //    DatabasePathErasoft = dbPathEra,
-                                                //    username = usernameLogin
+                                                //    idmarket = tblCustomer.RecNum.Value
                                                 //};
+                                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                                                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                                                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                                    token = tblCustomer.TOKEN,
+                                                    idmarket = tblCustomer.RecNum.Value,
+                                                    DatabasePathErasoft = dbPathEra,
+                                                    username = usernameLogin
+                                                };
                                                 //end change by calvin 9 juni 2019
 
                                                 if (stf02h.BRG_MP.Contains("PENDING"))
@@ -5516,8 +5518,10 @@ namespace MasterOnline.Controllers
                                                         foreach (var item in cekPendingCreate)
                                                         {
                                                             //change by calvin 9 juni 2019
-                                                            Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
-                                                            //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]));
+                                                            //Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                            clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]));
                                                             //end change by calvin 9 juni 2019
                                                         }
                                                     }
@@ -5527,15 +5531,19 @@ namespace MasterOnline.Controllers
                                                     if (stf02h.BRG_MP.Contains("PEDITENDING"))
                                                     {
                                                         //change by calvin 9 juni 2019
-                                                        Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
-                                                        //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]));
+                                                        //Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]));
                                                         //end change by calvin 9 juni 2019
                                                     }
                                                     else
                                                     {
                                                         //change by calvin 9 juni 2019
-                                                        Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
-                                                        //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
+                                                        //Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
                                                         //end change by calvin 9 juni 2019
                                                     }
                                                 }
@@ -5548,29 +5556,31 @@ namespace MasterOnline.Controllers
                                                     if (display)
                                                     {
                                                         //change by calvin 9 juni 2019
-                                                        TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
-                                                        {
-                                                            merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                                            API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-                                                            API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-                                                            API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                                            token = tblCustomer.TOKEN,
-                                                            idmarket = tblCustomer.RecNum.Value
-                                                        };
-                                                        TokopediaController tokoAPI = new TokopediaController();
-                                                        Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
-                                                        //TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                                        //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
                                                         //{
                                                         //    merchant_code = tblCustomer.Sort1_Cust, //FSID
                                                         //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                                                         //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                                                         //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
                                                         //    token = tblCustomer.TOKEN,
-                                                        //    idmarket = tblCustomer.RecNum.Value,
-                                                        //    DatabasePathErasoft = dbPathEra,
-                                                        //    username = usernameLogin
+                                                        //    idmarket = tblCustomer.RecNum.Value
                                                         //};
-                                                        //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)));
+                                                        //TokopediaController tokoAPI = new TokopediaController();
+                                                        //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+                                                        TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                                        {
+                                                            merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                                            API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                                                            API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                                                            API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                                            token = tblCustomer.TOKEN,
+                                                            idmarket = tblCustomer.RecNum.Value,
+                                                            DatabasePathErasoft = dbPathEra,
+                                                            username = usernameLogin
+                                                        };
+                                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                        clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)));
                                                         //end change by calvin 9 juni 2019
                                                     }
                                                 }
