@@ -527,7 +527,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "StatusResiPesanan",
                 //    Queues = new[] { "1_manage_pesanan" },
-                //    WorkerCount = 2,
+                //    WorkerCount = 1,
 
                 //};
                 //var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
@@ -544,7 +544,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "Stok",
                 //    Queues = new[] { "1_update_stok" },
-                //    WorkerCount = 3,
+                //    WorkerCount = 2,
                 //};
                 //var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
 
@@ -552,7 +552,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "Product",
                 //    Queues = new[] { "1_create_product" },
-                //    WorkerCount = 2,
+                //    WorkerCount = 1,
                 //};
                 //var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 
@@ -562,7 +562,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "StatusResiPesanan",
                     Queues = new[] { "1_manage_pesanan" },
-                    WorkerCount = 2,
+                    WorkerCount = 1,
                     
                 };
                 var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
@@ -579,7 +579,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "Stok",
                     Queues = new[] { "1_update_stok" },
-                    WorkerCount = 3,
+                    WorkerCount = 2,
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
 
@@ -587,7 +587,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "Product",
                     Queues = new[] { "1_create_product" },
-                    WorkerCount = 2,
+                    WorkerCount = 1,
                 };
                 var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 #endif
