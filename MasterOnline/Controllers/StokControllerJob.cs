@@ -512,7 +512,7 @@ namespace MasterOnline.Controllers
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
-                                var BliApi = new BlibliController();
+                                //var BliApi = new BlibliController();
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null).Wait());
 #else
@@ -747,7 +747,7 @@ namespace MasterOnline.Controllers
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
-                                var BliApi = new BlibliController();
+                                //var BliApi = new BlibliController();
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null).Wait());
 #else
@@ -1055,7 +1055,7 @@ namespace MasterOnline.Controllers
             string auth = data.api_key;
 
             Utils.HttpRequest req = new Utils.HttpRequest();
-            long milis = BlibliController.CurrentTimeMillis();
+            long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             // Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
