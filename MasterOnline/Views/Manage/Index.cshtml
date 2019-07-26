@@ -302,15 +302,12 @@
         [class$="-legend"] {
             list-style: none;
             cursor: pointer;
-            padding-left: 5px;
-            padding-top: 10px;
-            font-size: large;
+            padding-left: 0;
         }
 
             [class$="-legend"] li {
                 display: inline-block;
                 padding: 0 5px;
-                padding-right: 5px;
             }
 
                 [class$="-legend"] li.hidden {
@@ -1021,14 +1018,14 @@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
-                    @Html.Label("", "Interval :")
+                    @Html.Label("", "Periode :")
                 </div>
                 <div class="col-md-3">
                     <div class="input-group text">
                         <select class="form-control" id="periode" name="periode" required="required">
-                            <option value="3">Bulanan</option>
-                            <option value="2">Mingguan</option>
-                            <option value="1">Harian</option>
+                            <option value="1">Mingguan</option>
+                            <option value="2">Bulanan</option>
+                            <option value="3">Tahunan</option>
                         </select>
                     </div>
                 </div>
@@ -1716,7 +1713,6 @@
                 }).change(function () {
                     getDashboard($(this).val());
                     getChart();
-                    ubahLineEvent();
                     $(this).datepicker('hide');
                 });
             }
@@ -1899,7 +1895,6 @@
                 success: function (response) {
                     $('#grafik-line-section').html(response);
                     //if (listPieFaktur.length > 0) {
-                    //=========================================================================================//
                     //#region allMingguan
                     var listDataPesananM = listPesananMingguan;
                     var listDataFakturM = listFakturMingguan;
@@ -1947,7 +1942,7 @@
                             {
                                 label: "Pesanan",
                                 data: jumlahpesananMingguan,
-                                dataAM: nilaipesananMingguan,
+                                data1: nilaireturMingguan,
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -1963,7 +1958,7 @@
                             {
                                 label: "Faktur",
                                 data: jumlahfakturMingguan,
-                                dataAM: nilaifakturMingguan,
+                                data1: nilaifakturMingguan,
                                 borderColor: "#1d7af3",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#1d7af3",
@@ -1979,7 +1974,7 @@
                             {
                                 label: "Retur",
                                 data: jumlahreturMingguan,
-                                dataAM: nilaireturMingguan,
+                                data1: nilaireturMingguan,
                                 borderColor: "#59d05d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#59d05d",
@@ -2000,7 +1995,7 @@
                 title: {
                     display: true,
                     position: "top",
-                    text: "Pesanan, Faktur, dan Retur Harian",
+                    text: "Pesanan, Faktur, dan Retur Mingguan",
                     fontSize: 18,
                     fontColor: "#111"
                 },
@@ -2018,8 +2013,9 @@
                                     text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                                     for (var i = 0; i < chart.data.datasets.length; i++) {
                                         if (chart.data.datasets[i].label) {
-                                            text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                            text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                             text.push(chart.data.datasets[i].label);
+                                            text.join(' ');
                                         }
                                     }
                                     text.push('</ul>');
@@ -2035,15 +2031,15 @@
                                             var total = meta.total;
                                             var currentValue = dataset.label;
                                             var label = dataset.data[tooltipItem.index]
-                                            var nilai = dataset.dataAM[tooltipItem.index]
+                                            var nilai = dataset.data1[tooltipItem.index]
                                             var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                             return currentValue + ': ' + label;
                                         },
-                                        afterLabel: function (tooltipItem, data) {
-                                            var dataset = data.datasets[tooltipItem.datasetIndex];
-                                            var nilai = dataset.dataAM[tooltipItem.index]
-                                            return 'Rp. ' + convertToRupiah(nilai);
-                                        },
+                                        //afterLabel: function (tooltipItem, data) {
+                                        //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                        //    var nilai = dataset.data[tooltipItem.index]
+                                        //    return 'Rp. ' + convertToRupiah(nilai);
+                                        //},
                                         title: function (tooltipItem, data) {
                                             return data.labels[tooltipItem[0].index];
                                         }
@@ -2064,10 +2060,9 @@
                     $("#MingguanLegend").html(chartAllMingguan.generateLegend());
 
                     //#end region allMingguan
+
                     //#region PesananMingguan
                     var listDataPM = listPesananMingguan;
-                    var listDataFM = listFakturMingguan;
-                    var listDataRM = listReturMingguan
                     var labelpesananM = [];
                     var labelfakturM = [];
                     var labelreturM = [];
@@ -2084,11 +2079,11 @@
                         nilaipesananM.push(listDataPM[i].Nilai);
                     }
 
-                    var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananM);
-                    var dataMaxJumlahPesananMingguan = [maxJumlahPesananMingguan];
-                    var maxJumlahPesananMingguan = Math.max.apply(Math, dataMaxJumlahPesananMingguan);
-                    var maxTicksBasicPesananMingguan = Math.ceil(maxJumlahPesananMingguan / 10) * 10;
-                    var steppingBasicPesananMingguan = (Math.ceil(maxJumlahPesananMingguan / 10) * 10) / 5;
+                    var maxJumlahPesananM = Math.max.apply(Math, jumlahpesananM);
+                    var dataMaxJumlahPesananM = [maxJumlahPesananM];
+                    var maxJumlahPM = Math.max.apply(Math, dataMaxJumlahPesananM);
+                    var maxTicksBasicPesananM = Math.ceil(maxJumlahPM / 10) * 10;
+                    var steppingBasicPesananM = (Math.ceil(maxJumlahPM / 10) * 10) / 5;
 
                     var ctxPesananMingguan = document.getElementById("chartPesananMingguan").getContext('2d');
 
@@ -2098,7 +2093,7 @@
                             {
                                 label: "Pesanan",
                                 data: jumlahpesananM,
-                                dataPM: nilaipesananM,
+                                data1: nilaipesananM,
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -2120,16 +2115,16 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Pesanan Harian",
+                            text: "Pesanan Mingguan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
                         scales: {
                             yAxes: [{
                                 ticks: {
-                                    max: maxTicksBasicPesananMingguan,
+                                    max: maxTicksBasicPesananM,
                                     min: -5,
-                                    stepSize: steppingBasicPesananMingguan
+                                    stepSize: steppingBasicPesananM
                                 }
                             }]
                         },
@@ -2138,7 +2133,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -2156,15 +2151,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPM[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -2185,804 +2180,9 @@
                     $("#PesananMingguanLegend").html(chartPesananMingguan.generateLegend());
 
                     //#end region PesananMingguan
-                    //#region FakturMingguan
-                    //var listDataFM = listFakturMingguan;
-                    //var labelpesananM = [];
-                    //var labelfakturM = [];
-                    //var labelreturM = [];
-                    //var jumlahpesananM = [];
-                    //var jumlahfakturM = [];
-                    //var jumlahreturM = [];
-                    //var nilaipesananM = [];
-                    //var nilaifakturM = [];
-                    //var nilaireturM = [];
 
-                    for (var i = 0; i < listDataFM.length; i++) {
-                        labelfakturM.push(listDataFM[i].No);
-                        jumlahfakturM.push(listDataFM[i].Jumlah);
-                        nilaifakturM.push(listDataFM[i].Nilai);
-                    }
-
-                    var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturM);
-                    var dataMaxJumlahFakturMingguan = [maxJumlahFakturMingguan];
-                    var maxJumlahFakturMingguan = Math.max.apply(Math, dataMaxJumlahFakturMingguan);
-                    var maxTicksBasicFakturMingguan = Math.ceil(maxJumlahFakturMingguan / 10) * 10;
-                    var steppingBasicFakturMingguan = (Math.ceil(maxJumlahFakturMingguan / 10) * 10) / 5;
-
-                    var ctxFakturMingguan = document.getElementById("chartFakturMingguan").getContext('2d');
-
-                    var dataFakturMingguan = {
-                        labels: labelfakturM,
-                        datasets: [
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturM,
-                                dataFM: nilaifakturM,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsFakturMingguan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Faktur Harian",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicFakturMingguan,
-                                    min: -5,
-                                    stepSize: steppingBasicFakturMingguan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFM[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartFakturMingguan = new Chart(ctxFakturMingguan, {
-                        type: "line",
-                        data: dataFakturMingguan,
-                        options: optionsFakturMingguan
-                    });
-
-                    $("#FakturMingguanLegend").html(chartFakturMingguan.generateLegend());
-
-                    //#end region FakturMingguan
-                    //#region ReturMingguan
-                    //var listDataFM = listFakturMingguan;
-                    //var labelpesananM = [];
-                    //var labelfakturM = [];
-                    //var labelreturM = [];
-                    //var jumlahpesananM = [];
-                    //var jumlahfakturM = [];
-                    //var jumlahreturM = [];
-                    //var nilaipesananM = [];
-                    //var nilaifakturM = [];
-                    //var nilaireturM = [];
-
-                    for (var i = 0; i < listDataRM.length; i++) {
-                        labelreturM.push(listDataRM[i].No);
-                        jumlahreturM.push(listDataRM[i].Jumlah);
-                        nilaireturM.push(listDataRM[i].Nilai);
-                    }
-
-                    var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturM);
-                    var dataMaxJumlahReturMingguan = [maxJumlahReturMingguan];
-                    var maxJumlahReturMingguan = Math.max.apply(Math, dataMaxJumlahReturMingguan);
-                    var maxTicksBasicReturMingguan = Math.ceil(maxJumlahReturMingguan / 10) * 10;
-                    var steppingBasicReturMingguan = (Math.ceil(maxJumlahReturMingguan / 10) * 10) / 5;
-
-                    var ctxReturMingguan = document.getElementById("chartReturMingguan").getContext('2d');
-
-                    var dataReturMingguan = {
-                        labels: labelreturM,
-                        datasets: [
-                            {
-                                label: "Retur",
-                                data: jumlahreturM,
-                                dataRM: nilaireturM,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsReturMingguan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Retur Harian",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicReturMingguan,
-                                    min: -5,
-                                    stepSize: steppingBasicReturMingguan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataRM[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataRM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartReturMingguan = new Chart(ctxReturMingguan, {
-                        type: "line",
-                        data: dataReturMingguan,
-                        options: optionsReturMingguan
-                    });
-
-                    $("#ReturMingguanLegend").html(chartReturMingguan.generateLegend());
-
-                    //#end region ReturMingguan
-                    //#region PesananFakturMingguan
-                    var listDataPesananMinggu = listPesananMingguan;
-                    var listDataFakturMinggu = listFakturMingguan;
-                    var listDataReturMinggu = listReturMingguan;
-
-                    var labelpesananMinggu = [];
-                    var labelfakturMinggu = [];
-                    var labelreturMinggu = [];
-                    var jumlahpesananMinggu = [];
-                    var jumlahfakturMinggu = [];
-                    var jumlahreturMinggu = [];
-                    var nilaipesananMinggu = [];
-                    var nilaifakturMinggu = [];
-                    var nilaireturMinggu = [];
-
-                    for (var i = 0; i < listDataPesananMinggu.length; i++) {
-                        labelpesananMinggu.push(listDataPesananMinggu[i].No);
-                        jumlahpesananMinggu.push(listDataPesananMinggu[i].Jumlah);
-                        nilaipesananMinggu.push(listDataPesananMinggu[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataFakturMinggu.length; i++) {
-                        jumlahfakturMinggu.push(listDataFakturMinggu[i].Jumlah);
-                        nilaifakturMinggu.push(listDataFakturMinggu[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataReturMinggu.length; i++) {
-                        jumlahreturMinggu.push(listDataReturMinggu[i].Jumlah);
-                        nilaireturMinggu.push(listDataReturMinggu[i].Nilai);
-                    }
-
-                    var maxJumlahPesananMinggu = Math.max.apply(Math, jumlahpesananMinggu);
-                    var maxJumlahFakturMinggu = Math.max.apply(Math, jumlahfakturMinggu);
-                    var dataMaxJumlahPFMinggu = [maxJumlahPesananMinggu, maxJumlahFakturMinggu];
-                    var maxJumlahPFMinggu = Math.max.apply(Math, dataMaxJumlahPFMinggu);
-
-                    var maxTicksBasicPFMinggu = Math.ceil(maxJumlahPFMinggu / 10) * 10;
-
-                    var steppingBasicPFMinggu = (Math.ceil(maxJumlahPFMinggu / 10) * 10) / 5;
-
-                    var ctxPFMinggu = document.getElementById("chartPesananFakturMingguan").getContext('2d');
-
-                    var dataPFMinggu = {
-                        labels: labelpesananMinggu,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananMinggu,
-                                dataPFM: nilaipesananMinggu,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturMinggu,
-                                dataPFM: nilaifakturMinggu,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPFMinggu = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Faktur Harian",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPFMinggu,
-                                    min: -5,
-                                    stepSize: steppingBasicPFMinggu
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPFM[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPFM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPFMinggu = new Chart(ctxPFMinggu, {
-                        type: "line",
-                        data: dataPFMinggu,
-                        options: optionsPFMinggu
-                    });
-
-                    $("#PesananFakturMingguanLegend").html(chartPFMinggu.generateLegend());
-                    //#end region PesananFakturMingguan
-
-                    //#region PesananReturMingguan
-
-                    var maxJumlahPesananMinggu = Math.max.apply(Math, jumlahpesananMinggu);
-                    var maxJumlahReturMinggu = Math.max.apply(Math, jumlahreturMinggu);
-                    var dataMaxJumlahPRMinggu = [maxJumlahPesananMinggu, maxJumlahReturMinggu];
-                    var maxJumlahPRMinggu = Math.max.apply(Math, dataMaxJumlahPRMinggu);
-
-                    var maxTicksBasicPRMinggu = Math.ceil(maxJumlahPRMinggu / 10) * 10;
-
-                    var steppingBasicPRMinggu = (Math.ceil(maxJumlahPRMinggu / 10) * 10) / 5;
-
-                    var ctxPRMinggu = document.getElementById("chartPesananReturMingguan").getContext('2d');
-
-                    var dataPRMinggu = {
-                        labels: labelpesananMinggu,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananMinggu,
-                                dataPRM: nilaipesananMinggu,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturMinggu,
-                                dataPRM: nilaireturMinggu,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPRMinggu = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Retur Harian",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPRMinggu,
-                                    min: -5,
-                                    stepSize: steppingBasicPRMinggu
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPRM[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPRM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPRMinggu = new Chart(ctxPRMinggu, {
-                        type: "line",
-                        data: dataPRMinggu,
-                        options: optionsPRMinggu
-                    });
-
-                    $("#PesananReturMingguanLegend").html(chartPRMinggu.generateLegend());
-                    //#end region PesananReturMingguan
-                    //#region FakturReturMingguan
-
-                    var maxJumlahReturMinggu = Math.max.apply(Math, jumlahreturMinggu);
-                    var maxJumlahFakturMinggu = Math.max.apply(Math, jumlahfakturMinggu);
-                    var dataMaxJumlahFRMinggu = [maxJumlahReturMinggu, maxJumlahFakturMinggu];
-                    var maxJumlahFRMinggu = Math.max.apply(Math, dataMaxJumlahFRMinggu);
-
-                    var maxTicksBasicFRMinggu = Math.ceil(maxJumlahFRMinggu / 10) * 10;
-
-                    var steppingBasicFRMinggu = (Math.ceil(maxJumlahFRMinggu / 10) * 10) / 5;
-
-                    var ctxFRMinggu = document.getElementById("chartFakturReturMingguan").getContext('2d');
-
-                    var dataFRMinggu = {
-                        labels: labelpesananMinggu,
-                        datasets: [
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturMinggu,
-                                dataFRM: nilaifakturMinggu,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturMinggu,
-                                dataFRM: nilaireturMinggu,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsFRMinggu = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Faktur dan Retur Harian",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicFRMinggu,
-                                    min: -5,
-                                    stepSize: steppingBasicFRMinggu
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFRM[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFRM[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartFRMinggu = new Chart(ctxFRMinggu, {
-                        type: "line",
-                        data: dataFRMinggu,
-                        options: optionsFRMinggu
-                    });
-
-                    $("#FakturReturMingguanLegend").html(chartFRMinggu.generateLegend());
-                    //#end region FakturReturMingguan
-                    //=========================================================================================//
-                    //#region allBulanan
-                    var listDataPesananB = listPesananBulanan;
-                    var listDataFakturB = listFakturBulanan;
-                    var listDataReturB = listReturBulanan;
-
-                    var labelpesananBulanan = [];
-                    var labelfakturBulanan = [];
-                    var labelreturBulanan = [];
-                    var jumlahpesananBulanan = [];
-                    var jumlahfakturBulanan = [];
-                    var jumlahreturBulanan = [];
-                    var nilaipesananBulanan = [];
-                    var nilaifakturBulanan = [];
-                    var nilaireturBulanan = [];
-
-                    for (var i = 0; i < listDataPesananB.length; i++) {
-                        labelpesananBulanan.push(listDataPesananB[i].No);
-                        jumlahpesananBulanan.push(listDataPesananB[i].Jumlah);
-                        nilaipesananBulanan.push(listDataPesananB[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataFakturB.length; i++) {
-                        jumlahfakturBulanan.push(listDataFakturB[i].Jumlah);
-                        nilaifakturBulanan.push(listDataFakturB[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataReturB.length; i++) {
-                        jumlahreturBulanan.push(listDataReturB[i].Jumlah);
-                        nilaireturBulanan.push(listDataReturB[i].Nilai);
-                    }
-
-                    var maxJumlahPesananBulanan = Math.max.apply(Math, jumlahpesananBulanan);
-                    var maxJumlahFakturBulanan = Math.max.apply(Math, jumlahfakturBulanan);
-                    var maxJumlahReturBulanan = Math.max.apply(Math, jumlahreturBulanan);
-                    var dataMaxJumlahBulanan = [maxJumlahPesananBulanan, maxJumlahFakturBulanan, maxJumlahReturBulanan];
-                    var maxJumlahBulanan = Math.max.apply(Math, dataMaxJumlahBulanan);
-
-                    var maxTicksBasicBulanan = Math.ceil(maxJumlahBulanan / 10) * 10;
-
-                    var steppingBasicBulanan = (Math.ceil(maxJumlahBulanan / 10) * 10) / 5;
-
-                    var ctxBulanan = document.getElementById("chartBulanan").getContext('2d');
-
-                    var dataBulanan = {
-                        labels: labelpesananBulanan,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananBulanan,
-                                dataAB: nilaipesananBulanan,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturBulanan,
-                                dataAB: nilaifakturBulanan,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturBulanan,
-                                dataAB: nilaireturBulanan,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsBulanan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan, Faktur, dan Retur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicBulanan,
-                                    min: -5,
-                                    stepSize: steppingBasicBulanan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataAB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataAB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartBulanan = new Chart(ctxBulanan, {
-                        type: "line",
-                        data: dataBulanan,
-                        options: optionsBulanan
-                    });
-
-                    $("#BulananLegend").html(chartBulanan.generateLegend());
-
-                    //#end region allBulanan
                     //#region PesananBulanan
                     var listDataPB = listPesananBulanan;
-                    var listDataFB = listFakturBulanan;
-                    var listDataRB = listReturBulanan;
-
                     var labelpesananB = [];
                     var labelfakturB = [];
                     var labelreturB = [];
@@ -2993,22 +2193,17 @@
                     var nilaifakturB = [];
                     var nilaireturB = [];
 
-                    //for (var i = 0; i < listDataPB.length; i++) {
-                    //    labelpesananB.push(listDataPB[i].No);
-                    //    jumlahpesananB.push(listDataPB[i].Jumlah);
-                    //    nilaipesananB.push(listDataPB[i].Nilai);
-                    //}
                     for (var i = 0; i < listDataPB.length; i++) {
                         labelpesananB.push(listDataPB[i].No);
                         jumlahpesananB.push(listDataPB[i].Jumlah);
                         nilaipesananB.push(listDataPB[i].Nilai);
                     }
 
-                    var maxJumlahPesananBulanan = Math.max.apply(Math, jumlahpesananB);
-                    var dataMaxJumlahPesananBulanan = [maxJumlahPesananBulanan];
-                    var maxJumlahPesananBulanan = Math.max.apply(Math, dataMaxJumlahPesananBulanan);
-                    var maxTicksBasicPesananBulanan = Math.ceil(maxJumlahPesananBulanan / 10) * 10;
-                    var steppingBasicPesananBulanan = (Math.ceil(maxJumlahPesananBulanan / 10) * 10) / 5;
+                    var maxJumlahPesananB = Math.max.apply(Math, jumlahpesananB);
+                    var dataMaxJumlahPesananB = [maxJumlahPesananB];
+                    var maxJumlahPB = Math.max.apply(Math, dataMaxJumlahPesananB);
+                    var maxTicksBasicPesananB = Math.ceil(maxJumlahPB / 10) * 10;
+                    var steppingBasicPesananB = (Math.ceil(maxJumlahPB / 10) * 10) / 5;
 
                     var ctxPesananBulanan = document.getElementById("chartPesananBulanan").getContext('2d');
 
@@ -3018,7 +2213,7 @@
                             {
                                 label: "Pesanan",
                                 data: jumlahpesananB,
-                                dataPB: nilaipesananB,
+                                data1: nilaipesananB,
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -3040,16 +2235,16 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Pesanan Mingguan",
+                            text: "Pesanan Bulanan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
                         scales: {
                             yAxes: [{
                                 ticks: {
-                                    max: maxTicksBasicPesananBulanan,
+                                    max: maxTicksBasicPesananB,
                                     min: -5,
-                                    stepSize: steppingBasicPesananBulanan
+                                    stepSize: steppingBasicPesananB
                                 }
                             }]
                         },
@@ -3058,7 +2253,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -3076,15 +2271,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPB[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -3105,624 +2300,7 @@
                     $("#PesananBulananLegend").html(chartPesananBulanan.generateLegend());
 
                     //#end region PesananBulanan
-                    //#region FakturBulanan
-                    //var listDataPB = listPesananBulanan;
-                    //var labelpesananB = [];
-                    //var labelfakturB = [];
-                    //var labelreturB = [];
-                    //var jumlahpesananB = [];
-                    //var jumlahfakturB = [];
-                    //var jumlahreturB = [];
-                    //var nilaipesananB = [];
-                    //var nilaifakturB = [];
-                    //var nilaireturB = [];
 
-                    for (var i = 0; i < listDataFB.length; i++) {
-                        labelfakturB.push(listDataFB[i].No)
-                        jumlahfakturB.push(listDataFB[i].Jumlah);
-                        nilaifakturB.push(listDataFB[i].Nilai);
-                    }
-
-                    var maxJumlahFakturBulanan = Math.max.apply(Math, jumlahfakturB);
-                    var dataMaxJumlahFakturBulanan = [maxJumlahFakturBulanan];
-                    var maxJumlahFakturBulanan = Math.max.apply(Math, dataMaxJumlahFakturBulanan);
-                    var maxTicksBasicFakturBulanan = Math.ceil(maxJumlahFakturBulanan / 10) * 10;
-                    var steppingBasicFakturBulanan = (Math.ceil(maxJumlahFakturBulanan / 10) * 10) / 5;
-
-                    var ctxFakturBulanan = document.getElementById("chartFakturBulanan").getContext('2d');
-
-                    var dataFakturBulanan = {
-                        labels: labelfakturB,
-                        datasets: [
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturB,
-                                dataFB: nilaifakturB,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsFakturBulanan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Faktur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicFakturBulanan,
-                                    min: -5,
-                                    stepSize: steppingBasicFakturBulanan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartFakturBulanan = new Chart(ctxFakturBulanan, {
-                        type: "line",
-                        data: dataFakturBulanan,
-                        options: optionsFakturBulanan
-                    });
-
-                    $("#FakturBulananLegend").html(chartFakturBulanan.generateLegend());
-
-                    //#end region FakturBulanan
-                    //#region ReturBulanan
-
-                    for (var i = 0; i < listDataRB.length; i++) {
-                        labelreturB.push(listDataRB[i].No)
-                        jumlahreturB.push(listDataRB[i].Jumlah);
-                        nilaireturB.push(listDataRB[i].Nilai);
-                    }
-
-                    var maxJumlahReturBulanan = Math.max.apply(Math, jumlahreturB);
-                    var dataMaxJumlahReturBulanan = [maxJumlahReturBulanan];
-                    var maxJumlahReturBulanan = Math.max.apply(Math, dataMaxJumlahReturBulanan);
-                    var maxTicksBasicReturBulanan = Math.ceil(maxJumlahReturBulanan / 10) * 10;
-                    var steppingBasicReturBulanan = (Math.ceil(maxJumlahReturBulanan / 10) * 10) / 5;
-
-                    var ctxReturBulanan = document.getElementById("chartReturBulanan").getContext('2d');
-
-                    var dataReturBulanan = {
-                        labels: labelreturB,
-                        datasets: [
-                            {
-                                label: "Retur",
-                                data: jumlahreturB,
-                                dataRB: nilaireturB,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsReturBulanan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Retur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicReturBulanan,
-                                    min: -5,
-                                    stepSize: steppingBasicReturBulanan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataRB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataRB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartReturBulanan = new Chart(ctxReturBulanan, {
-                        type: "line",
-                        data: dataReturBulanan,
-                        options: optionsReturBulanan
-                    });
-
-                    $("#ReturBulananLegend").html(chartReturBulanan.generateLegend());
-
-                    //#end region Retur Bulanan
-                    //#region PesananFakturBulanan
-                    var listDataPesananBulan = listPesananBulanan;
-                    var listDataFakturBulan = listFakturBulanan;
-                    var listDataReturBulan = listReturBulanan;
-
-                    var labelpesananBulan = [];
-                    var labelfakturBulan = [];
-                    var labelreturBulan = [];
-                    var jumlahpesananBulan = [];
-                    var jumlahfakturBulan = [];
-                    var jumlahreturBulan = [];
-                    var nilaipesananBulan = [];
-                    var nilaifakturBulan = [];
-                    var nilaireturBulan = [];
-
-                    for (var i = 0; i < listDataPesananBulan.length; i++) {
-                        labelpesananBulan.push(listDataPesananBulan[i].No);
-                        jumlahpesananBulan.push(listDataPesananBulan[i].Jumlah);
-                        nilaipesananBulan.push(listDataPesananBulan[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataFakturBulan.length; i++) {
-                        jumlahfakturBulan.push(listDataFakturBulan[i].Jumlah);
-                        nilaifakturBulan.push(listDataFakturBulan[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataReturBulan.length; i++) {
-                        jumlahreturBulan.push(listDataReturBulan[i].Jumlah);
-                        nilaireturBulan.push(listDataReturBulan[i].Nilai);
-                    }
-
-                    var maxJumlahPesananBulan = Math.max.apply(Math, jumlahpesananBulan);
-                    var maxJumlahFakturBulan = Math.max.apply(Math, jumlahfakturBulan);
-                    var dataMaxJumlahPFBulan = [maxJumlahPesananBulan, maxJumlahFakturBulan];
-                    var maxJumlahPFBulan = Math.max.apply(Math, dataMaxJumlahPFBulan);
-
-                    var maxTicksBasicPFBulan = Math.ceil(maxJumlahPFBulan / 10) * 10;
-
-                    var steppingBasicPFBulan = (Math.ceil(maxJumlahPFBulan / 10) * 10) / 5;
-
-                    var ctxPFBulan = document.getElementById("chartPesananFakturBulanan").getContext('2d');
-
-                    var dataPFBulan = {
-                        labels: labelpesananBulan,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananBulan,
-                                dataPFB: nilaipesananBulan,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturBulan,
-                                dataPFB: nilaifakturBulan,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPFBulan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Faktur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPFBulan,
-                                    min: -5,
-                                    stepSize: steppingBasicPFBulan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPFB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPFB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPFBulan = new Chart(ctxPFBulan, {
-                        type: "line",
-                        data: dataPFBulan,
-                        options: optionsPFBulan
-                    });
-
-                    $("#PesananFakturBulananLegend").html(chartPFBulan.generateLegend());
-                    //#end region PesananFakturBulanan
-
-                    //#region PesananReturBulanan
-
-                    var maxJumlahPesananBulan = Math.max.apply(Math, jumlahpesananBulan);
-                    var maxJumlahReturBulan = Math.max.apply(Math, jumlahreturBulan);
-                    var dataMaxJumlahPRBulan = [maxJumlahPesananBulan, maxJumlahReturBulan];
-                    var maxJumlahPRBulan = Math.max.apply(Math, dataMaxJumlahPRBulan);
-
-                    var maxTicksBasicPRBulan = Math.ceil(maxJumlahPRBulan / 10) * 10;
-
-                    var steppingBasicPRBulan = (Math.ceil(maxJumlahPRBulan / 10) * 10) / 5;
-
-                    var ctxPRBulan = document.getElementById("chartPesananReturBulanan").getContext('2d');
-
-                    var dataPRBulan = {
-                        labels: labelpesananBulan,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananBulan,
-                                dataPRB: nilaipesananBulan,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturBulan,
-                                dataPRB: nilaireturBulan,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPRBulan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Retur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPRBulan,
-                                    min: -5,
-                                    stepSize: steppingBasicPRBulan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPRB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPRB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPRBulan = new Chart(ctxPRBulan, {
-                        type: "line",
-                        data: dataPRBulan,
-                        options: optionsPRBulan
-                    });
-
-                    $("#PesananReturBulananLegend").html(chartPRBulan.generateLegend());
-                    //#end region PesananReturBulanan
-                    //#region FakturReturBulanan
-
-                    var maxJumlahReturBulan = Math.max.apply(Math, jumlahreturBulan);
-                    var maxJumlahFakturBulan = Math.max.apply(Math, jumlahfakturBulan);
-                    var dataMaxJumlahFRBulan = [maxJumlahReturBulan, maxJumlahFakturBulan];
-                    var maxJumlahFRBulan = Math.max.apply(Math, dataMaxJumlahFRBulan);
-
-                    var maxTicksBasicFRBulan = Math.ceil(maxJumlahFRBulan / 10) * 10;
-
-                    var steppingBasicFRBulan = (Math.ceil(maxJumlahFRBulan / 10) * 10) / 5;
-
-                    var ctxFRBulan = document.getElementById("chartFakturReturBulanan").getContext('2d');
-
-                    var dataFRBulan = {
-                        labels: labelpesananBulan,
-                        datasets: [
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturBulan,
-                                dataFRB: nilaifakturBulan,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturBulan,
-                                dataFRB: nilaireturBulan,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsFRBulan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Faktur dan Retur Mingguan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicFRBulan,
-                                    min: -5,
-                                    stepSize: steppingBasicFRBulan
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFRB[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFRB[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartFRBulan = new Chart(ctxFRBulan, {
-                        type: "line",
-                        data: dataFRBulan,
-                        options: optionsFRBulan
-                    });
-
-                    $("#FakturReturBulananLegend").html(chartFRBulan.generateLegend());
-                    //#end region FakturReturBulanan
-                    //=========================================================================================//
                     //#region allTahunan
                     var listDataPesananT = listPesananTahunan;
                     var listDataFakturT = listFakturTahunan;
@@ -3770,7 +2348,7 @@
                             {
                                 label: "Pesanan",
                                 data: jumlahpesanan,
-                                dataAT: nilaipesanan,
+                                data1: nilairetur,
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -3786,7 +2364,7 @@
                             {
                                 label: "Faktur",
                                 data: jumlahfaktur,
-                                dataAT: nilaifaktur,
+                                data1: nilaifaktur,
                                 borderColor: "#1d7af3",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#1d7af3",
@@ -3802,7 +2380,7 @@
                             {
                                 label: "Retur",
                                 data: jumlahretur,
-                                dataAT: nilairetur,
+                                data1: nilairetur,
                                 borderColor: "#59d05d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#59d05d",
@@ -3823,7 +2401,7 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Pesanan, Faktur, dan Retur Bulanan",
+                            text: "Pesanan, Faktur, dan Retur Tahunan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
@@ -3841,7 +2419,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -3859,16 +2437,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataAT[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataAT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                    //return nilai;
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -3889,7 +2466,6 @@
                     $("#TahunanLegend").html(chartTahunan.generateLegend());
 
                     //#end region allTahunan
-
                     //#region PesananTahunan
 
                     var labelpesananTahunan = [];
@@ -3922,7 +2498,7 @@
                             {
                                 label: "Pesanan",
                                 data: jumlahpesananTahunan,
-                                dataPT: nilaipesananTahunan,
+                                data1: nilaipesananTahunan,
                                 borderColor: "#f3545d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#f3545d",
@@ -3944,7 +2520,7 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Pesanan Bulanan",
+                            text: "Pesanan Tahunan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
@@ -3962,7 +2538,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -3980,16 +2556,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPT[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    //var nilai = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPT[tooltipItem.index];
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -4031,7 +2606,7 @@
                             {
                                 label: "Faktur",
                                 data: jumlahfakturTahunan,
-                                dataFT: nilaifakturTahunan,
+                                data1: nilaifakturTahunan,
                                 borderColor: "#1d7af3",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#1d7af3",
@@ -4052,7 +2627,7 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Faktur Bulanan",
+                            text: "Faktur Tahunan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
@@ -4070,7 +2645,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -4088,15 +2663,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFT[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -4116,7 +2691,6 @@
 
                     $("#FakturTahunanLegend").html(chartFakturTahunan.generateLegend());
                     //#end Region FakturTahunan
-
                     //#region ReturTahunan
                     for (var i = 0; i < listDataReturT.length; i++) {
                         labelreturTahunan.push(listDataReturT[i].No);
@@ -4137,7 +2711,7 @@
                             {
                                 label: "Retur",
                                 data: jumlahreturTahunan,
-                                dataRT: nilaireturTahunan,
+                                data1: nilaireturTahunan,
                                 borderColor: "#59d05d",
                                 pointBorderColor: "#FFF",
                                 pointBackgroundColor: "#59d05d",
@@ -4158,7 +2732,7 @@
                         title: {
                             display: true,
                             position: "top",
-                            text: "Retur Bulanan",
+                            text: "Retur Tahunan",
                             fontSize: 18,
                             fontColor: "#111"
                         },
@@ -4176,7 +2750,7 @@
                             text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                             for (var i = 0; i < chart.data.datasets.length; i++) {
                                 if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
                                     text.push(chart.data.datasets[i].label);
                                     text.join(' ');
                                 }
@@ -4194,15 +2768,15 @@
                                     var total = meta.total;
                                     var currentValue = dataset.label;
                                     var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataRT[tooltipItem.index]
+                                    var nilai = dataset.data1[tooltipItem.index]
                                     var percentage = parseFloat((nilai / total * 100).toFixed(1));
                                     return currentValue + ': ' + label;
                                 },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataRT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
+                                //afterLabel: function (tooltipItem, data) {
+                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                //    var nilai = dataset.data[tooltipItem.index]
+                                //    return 'Rp. ' + convertToRupiah(nilai);
+                                //},
                                 title: function (tooltipItem, data) {
                                     return data.labels[tooltipItem[0].index];
                                 }
@@ -4222,889 +2796,8 @@
 
                     $("#ReturTahunanLegend").html(chartReturTahunan.generateLegend());
                     //#end Region ReturTahunan
-                    //#region PesananFakturTahunan
-                    var listDataPesananTahun = listPesananTahunan;
-                    var listDataFakturTahun = listFakturTahunan;
-                    var listDataReturTahun = listReturTahunan;
+                    
 
-                    var labelpesananTahun = [];
-                    var labelfakturTahun = [];
-                    var labelreturTahun = [];
-                    var jumlahpesananTahun = [];
-                    var jumlahfakturTahun = [];
-                    var jumlahreturTahun = [];
-                    var nilaipesananTahun = [];
-                    var nilaifakturTahun = [];
-                    var nilaireturTahun = [];
-
-                    for (var i = 0; i < listDataPesananTahun.length; i++) {
-                        labelpesananTahun.push(listDataPesananTahun[i].No);
-                        jumlahpesananTahun.push(listDataPesananTahun[i].Jumlah);
-                        nilaipesananTahun.push(listDataPesananTahun[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataFakturTahun.length; i++) {
-                        jumlahfakturTahun.push(listDataFakturTahun[i].Jumlah);
-                        nilaifakturTahun.push(listDataFakturTahun[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataReturTahun.length; i++) {
-                        jumlahreturTahun.push(listDataReturTahun[i].Jumlah);
-                        nilaireturTahun.push(listDataReturTahun[i].Nilai);
-                    }
-
-                    var maxJumlahPesananTahun = Math.max.apply(Math, jumlahpesananTahun);
-                    var maxJumlahFakturTahun = Math.max.apply(Math, jumlahfakturTahun);
-                    var dataMaxJumlahPFTahun = [maxJumlahPesananTahun, maxJumlahFakturTahun];
-                    var maxJumlahPFTahun = Math.max.apply(Math, dataMaxJumlahPFTahun);
-
-                    var maxTicksBasicPFTahun = Math.ceil(maxJumlahPFTahun / 10) * 10;
-
-                    var steppingBasicPFTahun = (Math.ceil(maxJumlahPFTahun / 10) * 10) / 5;
-
-                    var ctxPFTahun = document.getElementById("chartPesananFakturTahunan").getContext('2d');
-
-                    var dataPFTahun = {
-                        labels: labelpesananTahun,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananTahun,
-                                dataPFT: nilaipesananTahun,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturTahun,
-                                dataPFT: nilaifakturTahun,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPFTahun = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Faktur Bulanan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPFTahun,
-                                    min: -5,
-                                    stepSize: steppingBasicPFTahun
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPFT[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPFT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPFTahun = new Chart(ctxPFTahun, {
-                        type: "line",
-                        data: dataPFTahun,
-                        options: optionsPFTahun
-                    });
-
-                    $("#PesananFakturTahunanLegend").html(chartPFTahun.generateLegend());
-                    //#end region PesananFakturTahunan
-
-                    //#region PesananReturTahunan
-
-                    var maxJumlahPesananTahun = Math.max.apply(Math, jumlahpesananTahun);
-                    var maxJumlahReturTahun = Math.max.apply(Math, jumlahreturTahun);
-                    var dataMaxJumlahPRTahun = [maxJumlahPesananTahun, maxJumlahReturTahun];
-                    var maxJumlahPRTahun = Math.max.apply(Math, dataMaxJumlahPRTahun);
-
-                    var maxTicksBasicPRTahun = Math.ceil(maxJumlahPRTahun / 10) * 10;
-
-                    var steppingBasicPRTahun = (Math.ceil(maxJumlahPRTahun / 10) * 10) / 5;
-
-                    var ctxPRTahun = document.getElementById("chartPesananReturTahunan").getContext('2d');
-
-                    var dataPRTahun = {
-                        labels: labelpesananTahun,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesananTahun,
-                                dataPRT: nilaipesananTahun,
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturTahun,
-                                dataPRT: nilaireturTahun,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsPRTahun = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan dan Retur Bulanan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicPRTahun,
-                                    min: -5,
-                                    stepSize: steppingBasicPRTahun
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataPRT[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataPRT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartPRTahun = new Chart(ctxPRTahun, {
-                        type: "line",
-                        data: dataPRTahun,
-                        options: optionsPRTahun
-                    });
-
-                    $("#PesananReturTahunanLegend").html(chartPRTahun.generateLegend());
-                    //#end region PesananReturTahunan
-                    //#region FakturReturTahunan
-
-                    var maxJumlahReturTahun = Math.max.apply(Math, jumlahreturTahun);
-                    var maxJumlahFakturTahun = Math.max.apply(Math, jumlahfakturTahun);
-                    var dataMaxJumlahFRTahun = [maxJumlahReturTahun, maxJumlahFakturTahun];
-                    var maxJumlahFRTahun = Math.max.apply(Math, dataMaxJumlahFRTahun);
-
-                    var maxTicksBasicFRTahun = Math.ceil(maxJumlahFRTahun / 10) * 10;
-
-                    var steppingBasicFRTahun = (Math.ceil(maxJumlahFRTahun / 10) * 10) / 5;
-
-                    var ctxFRTahun = document.getElementById("chartFakturReturTahunan").getContext('2d');
-
-                    var dataFRTahun = {
-                        labels: labelpesananTahun,
-                        datasets: [
-                            {
-                                label: "Faktur",
-                                data: jumlahfakturTahun,
-                                dataFRT: nilaifakturTahun,
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahreturTahun,
-                                dataFRT: nilaireturTahun,
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsFRTahun = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Faktur dan Retur Bulanan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasicFRTahun,
-                                    min: -5,
-                                    stepSize: steppingBasicFRTahun
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.dataFRT[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                afterLabel: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var nilai = dataset.dataFRT[tooltipItem.index]
-                                    return 'Rp. ' + convertToRupiah(nilai);
-                                },
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartFRTahun = new Chart(ctxFRTahun, {
-                        type: "line",
-                        data: dataFRTahun,
-                        options: optionsFRTahun
-                    });
-
-                    $("#FakturReturTahunanLegend").html(chartFRTahun.generateLegend());
-                    //#end region FakturReturTahunan
-
-                    ////---------------all--------------------------
-                    //if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                    //    $('#allMingguan').show();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').show();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').show();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //}
-                    ////-------------------mingguan---------------
-                    //else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').show();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').show();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').show();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //}else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').show();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //}else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').show();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').show();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //}
-                    ////---------------------bulanan-------------------
-                    //else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').show();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').show();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').show();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').show();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').show();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').show();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //}
-                    ////---------------------tahunan-------------------
-                    //else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').show();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').show();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').show();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').show();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').show();
-                    //    $('#FakturReturTahunan').hide();
-                    //} else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                    //    $('#allMingguan').hide();
-                    //    $('#PesananMingguan').hide();
-                    //    $('#FakturMingguan').hide();
-                    //    $('#ReturMingguan').hide();
-                    //    $('#allBulanan').hide();
-                    //    $('#PesananBulanan').hide();
-                    //    $('#FakturBulanan').hide();
-                    //    $('#ReturBulanan').hide();
-                    //    $('#allTahunan').hide();
-                    //    $('#PesananTahunan').hide();
-                    //    $('#FakturTahunan').hide();
-                    //    $('#ReturTahunan').hide();
-
-                    //    $('#PesananFakturMingguan').hide();
-                    //    $('#PesananReturMingguan').hide();
-                    //    $('#FakturReturMingguan').hide();
-                    //    $('#PesananFakturBulanan').hide();
-                    //    $('#PesananReturBulanan').hide();
-                    //    $('#FakturReturBulanan').hide();
-                    //    $('#PesananFakturTahunan').hide();
-                    //    $('#PesananReturTahunan').hide();
-                    //    $('#FakturReturTahunan').show();
-                    //}
-
-                    ubahLineChart();
                     $('#loading_dashboard_faktur').hide();
                     $('#grafik-line-section').show();
                 },
@@ -5112,538 +2805,6 @@
                     console.log(error);
                 }
             });
-        }
-        function ubahLineEvent() {
-            $('#periode').change(function () {
-                ubahLineChart();
-            });
-            $("#ctk_pesanan").click(function () {
-                ubahLineChart();
-            });
-            $("#ctk_faktur").click(function () {
-                ubahLineChart();
-            });
-            $("#ctk_retur").click(function () {
-                ubahLineChart();
-            });
-        }
-        function ubahLineChart() {
-                    //---------------all--------------------------
-            if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                $('#allMingguan').show();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').show();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').show();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            }
-            //-------------------mingguan---------------
-            else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').show();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').show();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').show();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').show();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').show();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').show();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            }
-            //---------------------bulanan-------------------
-            else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').show();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').show();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').show();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').show();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').show();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "2") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').show();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            }
-            //---------------------tahunan-------------------
-            else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').show();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').show();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').show();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').show();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').show();
-                $('#FakturReturTahunan').hide();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "3") {
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').show();
-            } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1" || $('#periode').val() == "2" || $('#periode').val() == "3") {
-                
-                $('#allMingguan').hide();
-                $('#PesananMingguan').hide();
-                $('#FakturMingguan').hide();
-                $('#ReturMingguan').hide();
-                $('#allBulanan').hide();
-                $('#PesananBulanan').hide();
-                $('#FakturBulanan').hide();
-                $('#ReturBulanan').hide();
-                $('#allTahunan').hide();
-                $('#PesananTahunan').hide();
-                $('#FakturTahunan').hide();
-                $('#ReturTahunan').hide();
-
-                $('#PesananFakturMingguan').hide();
-                $('#PesananReturMingguan').hide();
-                $('#FakturReturMingguan').hide();
-                $('#PesananFakturBulanan').hide();
-                $('#PesananReturBulanan').hide();
-                $('#FakturReturBulanan').hide();
-                $('#PesananFakturTahunan').hide();
-                $('#PesananReturTahunan').hide();
-                $('#FakturReturTahunan').hide();
-                alert('Harap ceklis minimal satu pilihan (Pesanan atau Faktur atau Retur).');
-            }
         }
         //end add by nurul 12/7/2019
     </script>
