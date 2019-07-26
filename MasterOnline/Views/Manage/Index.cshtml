@@ -318,6 +318,7 @@
                 }
 
         /*//end add by nurul 5/7/2019*/
+
         .bar {
             font-size: 30px;
             color: #ed1338;
@@ -885,38 +886,36 @@
             </div>
         </div>
     </div>
-    @*<div class="row chart-mode">
-            <div class="col-md-6" id="chart-jumlah-section">
-                <h4>Grafik Berdasarkan Jumlah</h4>
-                <canvas id="chart-jumlah" height="200"></canvas>
-            </div>
-            <div class="col-md-6" id="chart-nilai-section">
-                <h4>Grafik Berdasarkan Nilai</h4>
-                <canvas id="chart-nilai" height="200"></canvas>
-            </div>
+    <div class="row chart-mode">
+        @*<div class="col-md-6" id="chart-jumlah-section">
+            <h4>Grafik Berdasarkan Jumlah</h4>
+            <canvas id="chart-jumlah" height="200"></canvas>
         </div>
-        <br />*@
+        <div class="col-md-6" id="chart-nilai-section">
+            <h4>Grafik Berdasarkan Nilai</h4>
+            <canvas id="chart-nilai" height="200"></canvas>
+        </div>*@
+    </div>
+    <br />
     <div class="row chart-mode" style="margin-bottom: 20px;">
-        @*//add by nurul 12/7/2019*@
-        <div id="dashboard_line">
-            <h4>Grafik Pesanan, Faktur dan Retur</h4>
-            <div class="col-md-12" id="grafik-line-section">
-                @*<canvas id="chart-mingguan" height="200"></canvas>*@
-                @*@Html.Partial("TableDashboardLinePartial")*@
-            </div>
-        </div>
-        @*//end add by nurul 12/7/2019*@
         @*<div class="col-md-6" id="chart-jumlah-per-market-section">
-                <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
-                <canvas id="chart-jumlah-per-market" height="200"></canvas>
-            </div>
-            <div class="col-md-6" id="chart-nilai-per-market-section">
-                <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
-                <canvas id="chart-nilai-per-market" height="200"></canvas>
-            </div>*@
+            <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
+            <canvas id="chart-jumlah-per-market" height="200"></canvas>
+        </div>
+        <div class="col-md-6" id="chart-nilai-per-market-section">
+            <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
+            <canvas id="chart-nilai-per-market" height="200"></canvas>
+        </div>*@
     </div>
 </div>
-
+@*//add by nurul 12/7/2019*@
+<div>
+    <div class="col-md-6" id="chart-mingguan-section">
+        <h4>Grafik Pesanan, Faktur dan Retur</h4>
+        <canvas id="chart-mingguan" height="200"></canvas>
+    </div>
+</div>
+@*//end add by nurul 12/7/2019*@
 <div id="dashboard_partial">
     <div id="dashboard_page"></div>
     <div class="row pricing_page" style="display: none;">
@@ -946,7 +945,6 @@
 
 @section scripts
 {
-    <script src="~/Scripts/jquery-1.7.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js" type="text/javascript"></script>
     <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
@@ -1731,16 +1729,21 @@
 
         //add by nurul 12/7/2019
         function getChart() {
-            var $tgl = "";
-            if ($('#TGL').val() != undefined) {
-                $tgl = $('#TGL').val();
-            }
-            var link = '@Html.Raw(Url.Action("RefreshDashboardLine", "Manage", new { tgl = "replaceTgl" }))';
-            link = link.replace("replaceTgl", $tgl);
-            //$('#chart-mingguan').remove();
-            //$('#chart-mingguan-section').append('<canvas id="chart-mingguan" height="200"></canvas>');
+            //var $Drtgl1 = "";
+            //if ($('#DrTanggal1').val() != undefined) {
+            //    $Drtgl1 = $('#DrTanggal1').val();
+            //}
+            //var $Sdtgl1 = "";
+            //if ($('#SdTanggal1').val() != undefined) {
+            //    $Sdtgl1 = $('#SdTanggal1').val();
+            //}
+            @*var link = '@Html.Raw(Url.Action("RefreshDashboardFakturPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl1);
+            link = link.replace("replaceSdtgl", $Sdtgl1);*@
+            $('#chart-mingguan').remove();
+            $('#chart-mingguan-section').append('<canvas id="chart-mingguan" height="200"></canvas>');
             $.ajax({
-                @*type: "POST",
+                type: "POST",
                 url: '/api/chart',
                 headers: {
                     'X-API-KEY':'M@STERONLINE4P1K3Y',
@@ -1751,15 +1754,15 @@
                     SelDate: $('#TGL').val()
                 }),
                 contentType: "application/json; charset=UTF-8",
-                cache: false,*@
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#grafik-line-section').hide();
-                    //$('#loading_dashboard_faktur').show();
-                },
+                cache: false,
+                //type: "GET",
+                //url: link,
+                //beforeSend: function () {
+                //    $('#chart-faktur-section').hide();
+                //    $('#loading_dashboard_faktur').show();
+                //},
                 success: function (response) {
-                    $('#grafik-line-section').html(response);
+                    //$('#chart-faktur-section').html(response);
                     //if (listPieFaktur.length > 0) {
                     //#region Mingguan
                     //var arrayData = [
@@ -1771,59 +1774,57 @@
                     //var maxTicksBasic = Math.ceil(max / 10) * 10;
 
                     //var steppingBasic = (Math.ceil(max / 10) * 10) / 5;
-                    //var listDataPesananM = listPesananMingguan;
-                    //var listDataPesananB = listPesananBulanan;
-                    //var listDataPesananT = listPesananTahunan;
-                    //var listDataFakturM = listFakturMingguan;
-                    //var listDataFakturB = listFakturBulanan;
-                    //var listDataFakturT = listFakturTahunan;
-                    //var listDataReturM = listReturMingguan;
-                    //var listDataReturB = listReturBulanan;
-                    //var listDataReturT = listReturTahunan;
 
-                    //var labelpesananMingguan = [];
-                    //var labelfakturMingguan = [];
-                    //var labelreturMingguan = [];
-                    //var jumlahpesananMingguan = [];
-                    //var jumlahfakturMingguan = [];
-                    //var jumlahreturMingguan = [];
-                    //var nilaipesananMingguan = [];
-                    //var nilaifakturMingguan = [];
-                    //var nilaireturMingguan = [];
+                    var labelpesananMingguan = [];
+                    var labelfakturMingguan = [];
+                    var labelreturMingguan = [];
+                    var jumlahpesananMingguan = [];
+                    var jumlahfakturMingguan = [];
+                    var jumlahreturMingguan = [];
+                    var nilaipesananMingguan = [];
+                    var nilaifakturMingguan = [];
+                    var nilaireturMingguan = [];
 
-                    //labelpesananMingguan.push(listDataPesananM.No);
-                    //labelfakturMingguan.push(listDataFakturM.No);
-                    //labelreturMingguan.push(listDataReturM.No);
-                    //jumlahpesananMingguan.push(listDataPesananM.Jumlah);
-                    //jumlahfakturMingguan.push(listDataFakturM.Jumlah);
-                    //jumlahreturMingguan.push(listDataReturM.Jumlah);
-                    //nilaipesananMingguan.push(listDataPesananM.Nilai);
-                    //nilaifakturMingguan.push(listDataFakturM.Nilai);
-                    //nilaireturMingguan.push(listDataReturM.Nilai);
+                    labelpesananMingguan.push(response.data.ListdashboardPesananMingguan.No);
+                    labelfakturMingguan.push(response.data.ListdashboardFakturMingguan.No);
+                    labelreturMingguan.push(response.data.ListdashboardReturMingguan.No);
+                    jumlahpesananMingguan.push(response.data.ListdashboardPesananMingguan.Jumlah);
+                    jumlahfakturMingguan.push(response.data.ListdashboardFakturMingguan.Jumlah);
+                    jumlahreturMingguan.push(response.data.ListdashboardReturMingguan.Jumlah);
+                    nilaipesananMingguan.push(response.data.ListdashboardPesananMingguan.Nilai);
+                    nilaifakturMingguan.push(response.data.ListdashboardFakturMingguan.Nilai);
+                    nilaireturMingguan.push(response.data.ListdashboardReturMingguan.Nilai);
 
-                    //var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
-                    //var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
-                    //var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
-                    //var dataMaxJumlah = [maxJumlahPesananMingguan, maxJumlahFakturMingguan, maxJumlahReturMingguan];
-                    //var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
+                    var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
+                    var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
+                    var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
+                    var dataMaxJumlah = [maxJumlahPesananMingguan, maxJumlahFakturMingguan, maxJumlahReturMingguan];
+                    var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
 
-                    //var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
+                    var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
 
-                    //var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
+                    var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
+                        //var listdataFaktur = listPieFaktur;
+                        //var akunMarketPlace = [];
+                        //var jumlahFakturPerMarket = [];
+                        //var nilaiFakturPerMarket = [];
 
-                    var ctxMingguan = document.getElementById("chartMingguan").getContext('2d');
-                    Chart.defaults.global.defaultFontFamily = "Lato";
-                    Chart.defaults.global.defaultFontSize = 18;
+                        //for (var i = 0; i < listPieFaktur.length; i++) {
+                        //    akunMarketPlace.push(listPieFaktur[i].NamaMarket);
+                        //    jumlahFakturPerMarket.push(listPieFaktur[i].JumlahFaktur);
+                        //    nilaiFakturPerMarket.push(convertToAngka(listPieFaktur[i].NilaiFaktur));
+                        //}
 
-                    var dataFirst = {
-                        label: "Car A - Speed (mph)",
-                        data: [0, 59, 75, 20, 20, 55, 40],
+                    var ctxMingguan = document.getElementById("chart-mingguan").getContext('2d');
+                    var dataPesanan = {
+                        label: "Rp. " + nilaipesananMingguan,
+                        data: jumlahpesananMingguan + " Pesanan",
                         lineTension: 0.3,
                         fill: false,
                         borderColor: 'red',
                         backgroundColor: 'transparent',
                         pointBorderColor: 'red',
-                        pointBackgroundColor: 'lightgreen',
+                        pointBackgroundColor: 'lightyellow',
                         pointRadius: 5,
                         pointHoverRadius: 15,
                         pointHitRadius: 30,
@@ -1831,24 +1832,39 @@
                         pointStyle: 'rect'
                     };
 
-                    var dataSecond = {
-                        label: "Car B - Speed (mph)",
-                        data: [20, 15, 60, 60, 65, 30, 70],
+                    var dataFaktur = {
+                        label: "Rp. " + nilaifakturMingguan,
+                        data: jumlahfakturMingguan + " Faktur",
                         lineTension: 0.3,
                         fill: false,
-                        borderColor: 'purple',
+                        borderColor: 'blue',
                         backgroundColor: 'transparent',
-                        pointBorderColor: 'purple',
-                        pointBackgroundColor: 'lightgreen',
+                        pointBorderColor: 'blue',
+                        pointBackgroundColor: 'lightyellow',
                         pointRadius: 5,
                         pointHoverRadius: 15,
                         pointHitRadius: 30,
                         pointBorderWidth: 2
                     };
 
-                    var speedData = {
-                        labels: ["0s", "10s", "20s", "30s", "40s", "50s", "60s"],
-                        datasets: [dataFirst, dataSecond]
+                    var dataRetur = {
+                        label: "Rp. " + nilaireturMingguan,
+                        data: jumlahreturMingguan + " Retur",
+                        lineTension: 0.3,
+                        fill: false,
+                        borderColor: 'green',
+                        backgroundColor: 'transparent',
+                        pointBorderColor: 'green',
+                        pointBackgroundColor: 'lightyellow',
+                        pointRadius: 5,
+                        pointHoverRadius: 15,
+                        pointHitRadius: 30,
+                        pointBorderWidth: 2
+                    };
+
+                    var mingguanData = {
+                        labels: labelpesananMingguan,
+                        datasets: [dataPesanan, dataFaktur, dataRetur]
                     };
 
                     var chartOptions = {
@@ -1859,159 +1875,26 @@
                                 boxWidth: 80,
                                 fontColor: 'black'
                             }
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    stepSize: steppingBasic,
+                                    max: maxTicksBasic
+                                }
+                            }],
+
                         }
                     };
 
                     var lineChart = new Chart(ctxMingguan, {
                         type: 'line',
-                        data: speedData,
+                        data: mingguanData,
                         options: chartOptions
                     });
-                    //var myChart = new Chart(ctxMingguan, {
-                    //    type: 'line',
-                    //    data: {
-                    //        labels: labelpesananMingguan,
-                    //        datasets: [{
-                    //            label: "Rp. " + nilaipesananMingguan,
-                    //            borderColor: "#1d7af3",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#1d7af3",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahpesananMingguan + " Pesanan"
-                    //        }, {
-                    //            label: "Rp. " + nilaifakturMingguan,
-                    //            borderColor: "#59d05d",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#59d05d",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahfakturMingguan + " Faktur"
-                    //        }, {
-                    //            label: "Rp. " + nilaireturMingguan,
-                    //            borderColor: "#f3545d",
-                    //            pointBorderColor: "#FFF",
-                    //            pointBackgroundColor: "#f3545d",
-                    //            pointBorderWidth: 2,
-                    //            pointHoverRadius: 4,
-                    //            pointHoverBorderWidth: 1,
-                    //            pointRadius: 4,
-                    //            backgroundColor: 'transparent',
-                    //            fill: true,
-                    //            borderWidth: 2,
-                    //            data: jumlahreturMingguan + " Retur"
-                    //        }]
-                    //    },
-                    //    options: {
-                    //        responsive: true,
-                    //        maintainAspectRatio: false,
-                    //        legend: {
-                    //            position: 'top',
-                    //        },
-                    //        tooltips: {
-                    //            bodySpacing: 4,
-                    //            mode: "nearest",
-                    //            intersect: 0,
-                    //            position: "nearest",
-                    //            xPadding: 10,
-                    //            yPadding: 10,
-                    //            caretPadding: 10
-                    //        },
-                    //        layout: {
-                    //            padding: { left: 15, right: 15, top: 15, bottom: 15 }
-                    //        }
-                    //    }
-                    //});
-                    //-------------------------------------------------
-                    //var dataPesanan = {
-                    //    label: "Rp. " + nilaipesananMingguan,
-                    //    data: jumlahpesananMingguan + " Pesanan",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'red',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'red',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2,
-                    //    pointStyle: 'rect'
-                    //};
-
-                    //var dataFaktur = {
-                    //    label: "Rp. " + nilaifakturMingguan,
-                    //    data: jumlahfakturMingguan + " Faktur",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'blue',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'blue',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2
-                    //};
-
-                    //var dataRetur = {
-                    //    label: "Rp. " + nilaireturMingguan,
-                    //    data: jumlahreturMingguan + " Retur",
-                    //    lineTension: 0.3,
-                    //    fill: false,
-                    //    borderColor: 'green',
-                    //    backgroundColor: 'transparent',
-                    //    pointBorderColor: 'green',
-                    //    pointBackgroundColor: 'lightyellow',
-                    //    pointRadius: 5,
-                    //    pointHoverRadius: 15,
-                    //    pointHitRadius: 30,
-                    //    pointBorderWidth: 2
-                    //};
-
-                    //var mingguanData = {
-                    //    labels: labelpesananMingguan,
-                    //    datasets: [dataPesanan, dataFaktur, dataRetur]
-                    //};
-
-                    //var chartOptions = {
-                    //    legend: {
-                    //        display: true,
-                    //        position: 'top',
-                    //        labels: {
-                    //            boxWidth: 80,
-                    //            fontColor: 'black'
-                    //        }
-                    //    },
-                    //    scales: {
-                    //        yAxes: [{
-                    //            ticks: {
-                    //                beginAtZero: true,
-                    //                stepSize: steppingBasic,
-                    //                max: maxTicksBasic
-                    //            }
-                    //        }],
-
-                    //    }
-                    //};
-
-                    //var lineChart = new Chart(ctxMingguan, {
-                    //    type: 'line',
-                    //    data: mingguanData,
-                    //    options: chartOptions
-                    //});
-                    //Chart.defaults.global.defaultFontFamily = "Lato";
-                    //Chart.defaults.global.defaultFontSize = 18;
+                    Chart.defaults.global.defaultFontFamily = "Lato";
+                    Chart.defaults.global.defaultFontSize = 18;
                     //#end region Mingguan
                     //#region Tahunan
                     //#end region Tahunan
@@ -2096,12 +1979,12 @@
                     //            }
                     //        }
                     //});
-
+                    
                         //$("#myChartLegend").html(chart.generateLegend());
                     //}
 
-                    //$('#loading_dashboard_faktur').hide();
-                    $('#grafik-line-section').show();
+                    $('#loading_dashboard_faktur').hide();
+                    $('#chart-faktur-section').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
