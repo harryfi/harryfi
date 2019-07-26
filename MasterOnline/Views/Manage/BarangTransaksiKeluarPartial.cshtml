@@ -43,6 +43,27 @@
 @Html.HiddenFor(m => m.Stok.Terima_Penuh, new { Value = false })
 @Html.HiddenFor(m => m.Stok.TERIMA_PENUH_PO_QC, new { Value = false })
 @Html.HiddenFor(m => m.Stok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+
+<style>
+    @@media screen and (max-width: 445px) {
+        .brgtbltrklrfrm {
+            width: 59%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .brgtbltrklrfrm {
+            width: 49%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .brgtbltrklrfrm {
+            width: 40%;
+        }
+    }
+</style>
+
 <script type="text/javascript">
     $(document).ready(function () {
         Initialize();
@@ -151,145 +172,146 @@
 @Html.HiddenFor(m => m.BarangStok.BUKTI_REFF, new { Value = "" })
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
-        <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
-        <table id="table_tambah_stok" class="table table-bordered" role="grid">
-            <thead>
-                <tr>
-                    <th width="75">Kode Brg</th>
-                    <th width="170">Nama Brg</th>
-                    <th width="80">Stn</th>
-                    @*<th width="120">Harga</th>*@
-                    <th width="80">Dari Gd</th>
-                    <th width="45">Qty</th>
-                    @*<th width="120">Total</th>*@
-                    <th width="45">Simpan</th>
-                    <th width="45">Hapus</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    var listBarang = Model.ListBarang.ToList();
-                    var iPd = 0;
-                }
-                @foreach (var stok in Model.ListBarangStok.Where(pb => pb.Nobuk == Model?.Stok?.Nobuk).ToList())
-                {
-                    <tr data-barang-id="brg-@stok.No">
-                        <td>
-                            @stok.Kobar
-                        </td>
-                        <td class="nama-barang">
-                            @{
-                                //change by nurul 26/7/2018
-                                //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
-                                var nm = "";
-                                var nm2 = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
-                                {
-                                    nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
-                                    nm2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)?.NAMA2;
-                                }
-                                //end change
-                            }
-                            @nm @nm2
-                        </td>
-                        <td class="stn-barang">
-                            @{
-                                //change by nurul 26/7/2018
-                                @*@if (stok.Satuan == "1")
+        <div class="hscroll table-responsive brgtbltrklrfrm">
+            <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
+            <table id="table_tambah_stok" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="75">Kode Brg</th>
+                        <th width="170">Nama Brg</th>
+                        <th width="80">Stn</th>
+                        @*<th width="120">Harga</th>*@
+                        <th width="80">Dari Gd</th>
+                        <th width="45">Qty</th>
+                        @*<th width="120">Total</th>*@
+                        <th width="45">Simpan</th>
+                        <th width="45">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var listBarang = Model.ListBarang.ToList();
+                        var iPd = 0;
+                    }
+                    @foreach (var stok in Model.ListBarangStok.Where(pb => pb.Nobuk == Model?.Stok?.Nobuk).ToList())
+                    {
+                        <tr data-barang-id="brg-@stok.No">
+                            <td>
+                                @stok.Kobar
+                            </td>
+                            <td class="nama-barang">
+                                @{
+                                    //change by nurul 26/7/2018
+                                    //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                                    var nm = "";
+                                    var nm2 = "";
+                                    if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                     {
-                                        @("BESAR")
+                                        nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
+                                        nm2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)?.NAMA2;
                                     }
-                                    else
+                                    //end change
+                                }
+                                @nm @nm2
+                            </td>
+                            <td class="stn-barang">
+                                @{
+                                    //change by nurul 26/7/2018
+                                    @*@if (stok.Satuan == "1")
+                                        {
+                                            @("BESAR")
+                                        }
+                                        else
+                                        {
+                                            @("KECIL")
+                                        }*@
+                                    var sstn = "";
+                                    if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                     {
-                                        @("KECIL")
-                                    }*@
-                                var sstn = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
-                                {
-                                    sstn = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN;
-                                }
+                                        sstn = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN;
+                                    }
 
-                                var sstn2 = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
-                                {
-                                    sstn2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
+                                    var sstn2 = "";
+                                    if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
+                                    {
+                                        sstn2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
+                                    }
+                                    //end change
                                 }
-                                //end change
-                            }
-                            @(stok.Satuan == "1" ? sstn : sstn2)
+                                @(stok.Satuan == "1" ? sstn : sstn2)
 
+                            </td>
+                            @*<td class="harga-barang">
+                                    @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
+                                </td>*@
+                            <td class="gd-barang">
+                                @stok.Dr_Gd
+                            </td>
+                            <td class="qty-barang">
+                                @stok.Qty
+                            </td>
+                            @*<td class="netto-barang">
+                                    @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
+                                </td>*@
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stok.No')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        iPd = iPd + 1;
+                    }
+                    <tr data-stok-id="0">
+                        @Html.HiddenFor(m => m.BarangStok.No)
+                        @Html.HiddenFor(m => m.BarangStok.Nobuk, new { Value = "-" })
+                        @Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                        <td style="width: 150px; max-width: 150px;">
+                            <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.BarangStok.Kobar)
+                        </td>
+                        <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
+                        <td class="stn-barang" style="width: 50px; max-width: 50px;">
+                            -
+                            @Html.HiddenFor(m => m.BarangStok.Satuan)
                         </td>
                         @*<td class="harga-barang">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
+                                0,00
+                                @Html.HiddenFor(m => m.BarangStok.Harsat)
                             </td>*@
-                        <td class="gd-barang">
-                            @stok.Dr_Gd
+                        <td class="gd-barang" style="width: 100px; max-width: 100px;">
+                            <span id="gudang-kode">-</span>
+                            <div id="gudang-select" style="display: none;">
+                                <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+                            </div>
+                            @Html.HiddenFor(m => m.BarangStok.Dr_Gd)
                         </td>
                         <td class="qty-barang">
-                            @stok.Qty
+                            0
+                            @Html.HiddenFor(m => m.BarangStok.Qty)
                         </td>
                         @*<td class="netto-barang">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
+                                0,00
+                                @Html.HiddenFor(m => m.BarangStok.Harga)
                             </td>*@
                         <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary" disabled="disabled">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                             </button>
                         </td>
                         <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stok.No')">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
                     </tr>
-                    iPd = iPd + 1;
-                }
-                <tr data-stok-id="0">
-                    @Html.HiddenFor(m => m.BarangStok.No)
-                    @Html.HiddenFor(m => m.BarangStok.Nobuk, new { Value = "-" })
-                    @Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                    <td style="width: 150px; max-width: 150px;">
-                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
-                        @Html.HiddenFor(m => m.BarangStok.Kobar)
-                    </td>
-                    <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
-                    <td class="stn-barang" style="width: 50px; max-width: 50px;">
-                        -
-                        @Html.HiddenFor(m => m.BarangStok.Satuan)
-                    </td>
-                    @*<td class="harga-barang">
-                            0,00
-                            @Html.HiddenFor(m => m.BarangStok.Harsat)
-                        </td>*@
-                    <td class="gd-barang" style="width: 100px; max-width: 100px;">
-                        <span id="gudang-kode">-</span>
-                        <div id="gudang-select" style="display: none;">
-                            <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
-                        </div>
-                        @Html.HiddenFor(m => m.BarangStok.Dr_Gd)
-                    </td>
-                    <td class="qty-barang">
-                        0
-                        @Html.HiddenFor(m => m.BarangStok.Qty)
-                    </td>
-                    @*<td class="netto-barang">
-                            0,00
-                            @Html.HiddenFor(m => m.BarangStok.Harga)
-                        </td>*@
-                    <td class="edit-hapus-col">
-                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
-                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-
 

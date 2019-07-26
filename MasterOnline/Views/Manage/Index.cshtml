@@ -879,7 +879,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    @*<li><a onclick="changeMode(0)">Grafik</a></li>*@
+                    <li><a onclick="changeMode(0)">Grafik</a></li>
                     @*<li><a onclick="changeMode(1)">Angka</a></li>*@
                     <li><a onclick="changeMode(1)">Tabel</a></li>
                 </ul>
@@ -1456,7 +1456,7 @@
                     if ($selectedMonth !== '' && $selectedMonth !== monthVal) {
                         $('.month_label').text('Bulan ' + monthName);
                     }
-
+                  
                     if ($tipeTampilan == 0) {
                         $('.chart-mode').show();
                         $('.angka-mode').hide();
@@ -1465,6 +1465,21 @@
                         $('.chart-mode').hide();
                         $('.angka-mode').show();
                     }
+                    //if ($tipeTampilan == 0)
+                    //{
+                    //    $('#mode').text('Grafik');
+                    //    $('.chart-mode').show();
+                    //    $('.angka-mode').hide();
+                    //    $tipeTampilan = 0;
+                    //}
+                    //else
+                    //{
+                    //    $('#mode').text('Angka');
+                    //    $('.chart-mode').hide();
+                    //    $('.angka-mode').show();
+                    //    $tipeTampilan = 1;
+                    //}
+                  
                     //add by nurul 4/7/2019
                     //region 10 barang laku
                     var d = new Date();
