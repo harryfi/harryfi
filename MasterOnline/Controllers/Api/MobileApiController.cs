@@ -2648,8 +2648,8 @@ namespace MasterOnline.Controllers.Api
 
                 var vm = new DashboardViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year).ToList(),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                     ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
                     ListMarket = MoDbContext.Marketplaces.ToList(),
                 };
