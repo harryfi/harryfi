@@ -1109,43 +1109,6 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-            string ret = "";
-            if (arf01inDB.STATUS_API == "1")
-            {
-                var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PENDING;")).ToList();
-                if (cekPendingCreate.Count > 0)
-                {
-                    foreach (var item in cekPendingCreate)
-                    {
-                        //change by calvin 9 juni 2019
-                        //Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
-                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), Convert.ToString(Convert.ToInt32(item.BRG_MP.Split(';')[2]))));
-                        //end change by calvin 9 juni 2019
-                    }
-                }
-                var cekPendingEdit = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PEDITENDING;")).ToList();
-                if (cekPendingEdit.Count > 0)
-                {
-                    foreach (var item in cekPendingEdit)
-                    {
-                        //change by calvin 9 juni 2019
-                        //Task.Run(() => EditProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]).Wait());
-                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(data.DatabasePathErasoft, item.BRG, arf01inDB.CUST, "Barang", "Edit Produk Get Status", data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]));
-                        //end change by calvin 9 juni 2019
-                    }
-                }
-            }
-            return ret;
-        }
-
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Request Pickup Pesanan {obj} ke Tokopedia Gagal.")]
