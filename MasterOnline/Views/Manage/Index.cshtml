@@ -894,7 +894,7 @@
             /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
             height: 25px;
             width: 25px;
-            background-color: #FFFFFF;
+            background-color: #eee;
             border: solid 1px #ccc;
         }
 
@@ -977,59 +977,49 @@
     <div class="row chart-mode" style="margin-bottom: 20px;">
         @*//add by nurul 12/7/2019*@
         <div id="dashboard_line">
-            <h4>Grafik Garis</h4>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="col-md-4" style="padding-bottom:10px">
-                        <label class="col-md-4 checkbox-container">
-                            <input id="ctk_pesanan" type="checkbox" class="cbx" name="cbx-pesanan-only" />
-                            <span id="ctk_pesanan" class="checkmark"></span>
-                        </label>
-                        <div class="col-md-8" style="padding-top: 7px;">
-                            @Html.Label("", "Pesanan")
-                        </div>
-                    </div>
-
-                    <div class="col-md-4" style="padding-bottom:10px">
-                        <label class="col-md-4 checkbox-container">
-                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-faktur-only" />
-                            <span id="ctk_faktur" class="checkmark"></span>
-                        </label>
-                        <div class="col-md-8" style="padding-top: 7px;">
-                            @Html.Label("", "Faktur")
-                        </div>
-                        @*<div class="col-md-1" style="padding-top: 7px;">
-                Faktur
-            </div>*@
-                    </div>
-
-                    <div class="col-md-4" style="padding-bottom:10px">
-                        <label class="col-md-4 checkbox-container">
-                            <input id="ctk_retur" type="checkbox" class="cbx" name="cbx-retur-only" />
-                            <span id="ctk_retur" class="checkmark"></span>
-                        </label>
-                        <div class="col-md-8" style="padding-top: 7px;">
-                            @Html.Label("", "Retur")
-                        </div>
-                    </div>
-                    @*<div class="col-md-1" style="padding-top: 7px;">
-            Retur
-        </div>*@
+            <h4>Grafik Pesanan, Faktur dan Retur</h4>
+            <div>
+                <div class="col-md-1" style="padding-bottom:10px">
+                    <label class="checkbox-container">
+                        <input id="ctk_pesanan" type="checkbox" class="cbx" name="cbx-pesanan-only" />
+                        <span id="ctk_pesanan" class="checkmark"></span>
+                    </label>
                 </div>
-                @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
-                    @Html.Label("", "Periode :")
+                    Pesanan
+                </div>
+                <div class="col-md-1" style="padding-bottom:10px">
+                    <label class="checkbox-container">
+                        <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-faktur-only" />
+                        <span id="ctk_faktur" class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="col-md-1" style="padding-top: 7px;">
+                    Faktur
+                </div>
+                <div class="col-md-1" style="padding-bottom:10px">
+                    <label class="checkbox-container">
+                        <input id="ctk_retur" type="checkbox" class="cbx" name="cbx-retur-only" />
+                        <span id="ctk_retur" class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="col-md-1" style="padding-top: 7px;">
+                    Retur
                 </div>
                 <div class="col-md-3">
+                    @Html.Label("", "Berdasarkan")
                     <div class="input-group text">
-                        <select class="form-control" id="periode" name="periode" required="required">
-                            <option value="1">Mingguan</option>
-                            <option value="2">Bulanan</option>
-                            <option value="3">Tahunan</option>
+                        <select class="form-control" id="Order" name="Order" required="required">
+                            <option>--Pilih--</option>
+                            <option value="1">Cust</option>
+                            <option value="2">Barang</option>
+                            <option value="3">Cust/Barang</option>
+                            <option value="4">Barang/Cust</option>
+                            @*<option value="5">Pembeli</option>*@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4"></div>
+                <div class="col-md-6"></div>
             </div>
             <div class="col-md-12" id="grafik-line-section">
                 @*<canvas id="chartMingguan" height="400"></canvas>*@
@@ -1879,7 +1869,21 @@
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardLine", "Manage", new { tgl = "replaceTgl" }))';
             link = link.replace("replaceTgl", $tgl);
+            //$('#chart-mingguan').remove();
+            //$('#chart-mingguan-section').append('<canvas id="chart-mingguan" height="200"></canvas>');
             $.ajax({
+                @*type: "POST",
+                url: '/api/chart',
+                headers: {
+                    'X-API-KEY':'M@STERONLINE4P1K3Y',
+                    'Content-Type':'application/json'
+                },
+                data: JSON.stringify({
+                    AccId: @accId,
+                    SelDate: $('#TGL').val()
+                }),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,*@
                 type: "POST",
                 url: link,
                 contentType: "application/json; charset=UTF-8",
@@ -1890,10 +1894,25 @@
                 success: function (response) {
                     $('#grafik-line-section').html(response);
                     //if (listPieFaktur.length > 0) {
-                    //#region allMingguan
-                    var listDataPesananM = listPesananMingguan;
-                    var listDataFakturM = listFakturMingguan;
-                    var listDataReturM = listReturMingguan;
+                    //#region Mingguan
+                    //var arrayData = [
+                    //    response.data.ListdashboardPesananMingguan, response.data.ListdashboardFakturMingguan,
+                    //    response.data.ListdashboardReturMingguan
+                    //];
+
+                    //var max = Math.max.apply(Math, arrayData);
+                    //var maxTicksBasic = Math.ceil(max / 10) * 10;
+
+                    //var steppingBasic = (Math.ceil(max / 10) * 10) / 5;
+                    var listDataPesananM = listPesananTahunan;
+                    //var listDataPesananB = listPesananBulanan;
+                    //var listDataPesananT = listPesananTahunan;
+                    var listDataFakturM = listFakturTahunan;
+                    //var listDataFakturB = listFakturBulanan;
+                    //var listDataFakturT = listFakturTahunan;
+                    var listDataReturM = listReturTahunan;
+                    //var listDataReturB = listReturBulanan;
+                    //var listDataReturT = listReturTahunan;
 
                     var labelpesananMingguan = [];
                     var labelfakturMingguan = [];
@@ -1911,14 +1930,26 @@
                         nilaipesananMingguan.push(listDataPesananM[i].Nilai);
                     }
                     for (var i = 0; i < listDataFakturM.length; i++) {
+                        //labelpesananMingguan.push(listDataPesananM[i].No);
                         jumlahfakturMingguan.push(listDataFakturM[i].Jumlah);
                         nilaifakturMingguan.push(listDataFakturM[i].Nilai);
                     }
                     for (var i = 0; i < listDataReturM.length; i++) {
+                        //labelpesananMingguan.push(listDataPesananM[i].No);
                         jumlahreturMingguan.push(listDataReturM[i].Jumlah);
                         nilaireturMingguan.push(listDataReturM[i].Nilai);
                     }
-                    
+
+                    //labelpesananMingguan.push(listDataPesananM.No);
+                    //labelfakturMingguan.push(listDataFakturM.No);
+                    //labelreturMingguan.push(listDataReturM.No);
+                    //jumlahpesananMingguan.push(listDataPesananM.Jumlah);
+                    //jumlahfakturMingguan.push(listDataFakturM.Jumlah);
+                    //jumlahreturMingguan.push(listDataReturM.Jumlah);
+                    //nilaipesananMingguan.push(listDataPesananM.Nilai);
+                    //nilaifakturMingguan.push(listDataFakturM.Nilai);
+                    //nilaireturMingguan.push(listDataReturM.Nilai);
+
                     var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
                     var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
                     var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
@@ -1929,9 +1960,9 @@
 
                     var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
 
-                    var ctxAllMingguan = document.getElementById("chartMingguan").getContext('2d');
+                    var ctxMingguan = document.getElementById("chartMingguan").getContext('2d');
 
-                    var dataAllMingguan = {
+                    var data = {
                         labels: labelpesananMingguan,
                         datasets: [
                             {
@@ -2000,7 +2031,7 @@
                         };
 
             //options
-            var optionsAllMingguan = {
+            var options = {
                 responsive: true,
                 title: {
                     display: true,
@@ -2009,6 +2040,14 @@
                     fontSize: 18,
                     fontColor: "#111"
                 },
+                //legend: {
+                //    display: true,
+                //    position: "bottom",
+                //    labels: {
+                //        fontColor: "#333",
+                //        fontSize: 16
+                //    }
+                //},
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -2061,197 +2100,17 @@
             };
 
             //create Chart class object
-            var chartAllMingguan = new Chart(ctxAllMingguan, {
+            var chart = new Chart(ctxMingguan, {
                 type: "line",
-                data: dataAllMingguan,
-                options: optionsAllMingguan
+                data: data,
+                options: options
             });
 
-                    $("#MingguanLegend").html(chartAllMingguan.generateLegend());
+                    $("#MingguanLegend").html(chart.generateLegend());
 
-                    //#end region allMingguan
-
-                    //#region allTahunan
-                    var listDataPesananT = listPesananTahunan;
-                    var listDataFakturT = listFakturTahunan;
-                    var listDataReturT = listReturTahunan;
-
-                    var labelpesanan = [];
-                    var labelfaktur = [];
-                    var labelretur = [];
-                    var jumlahpesanan = [];
-                    var jumlahfaktur = [];
-                    var jumlahretur = [];
-                    var nilaipesanan = [];
-                    var nilaifaktur = [];
-                    var nilairetur = [];
-
-                    for (var i = 0; i < listDataPesananT.length; i++) {
-                        labelpesanan.push(listDataPesananT[i].No);
-                        jumlahpesanan.push(listDataPesananT[i].Jumlah);
-                        nilaipesanan.push(listDataPesananT[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataFakturT.length; i++) {
-                        jumlahfaktur.push(listDataFakturT[i].Jumlah);
-                        nilaifaktur.push(listDataFakturT[i].Nilai);
-                    }
-                    for (var i = 0; i < listDataReturT.length; i++) {
-                        jumlahretur.push(listDataReturT[i].Jumlah);
-                        nilairetur.push(listDataReturT[i].Nilai);
-                    }
-
-                    var maxJumlahPesanan = Math.max.apply(Math, jumlahpesanan);
-                    var maxJumlahFaktur = Math.max.apply(Math, jumlahfaktur);
-                    var maxJumlahRetur = Math.max.apply(Math, jumlahretur);
-                    var dataMaxJumlah = [maxJumlahPesanan, maxJumlahFaktur, maxJumlahRetur];
-                    var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
-
-                    var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
-
-                    var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
-
-                    var ctxTahunan = document.getElementById("chartTahunan").getContext('2d');
-
-                    var dataTahunan = {
-                        labels: labelpesanan,
-                        datasets: [
-                            {
-                                label: "Pesanan",
-                                data: jumlahpesanan,
-                                data1: nilairetur,
-                                //backgroundColor: "red",
-                                //borderColor: "lightred",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
-                                borderColor: "#f3545d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#f3545d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Faktur",
-                                data: jumlahfaktur,
-                                data1: nilaifaktur,
-                                //backgroundColor: "blue",
-                                //borderColor: "lightblue",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
-                                borderColor: "#1d7af3",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#1d7af3",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 5,
-                                radius: 5,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            },
-                            {
-                                label: "Retur",
-                                data: jumlahretur,
-                                data1: nilairetur,
-                                //backgroundColor: "green",
-                                //borderColor: "lightgreen",
-                                //fill: false,
-                                //lineTension: 0,
-                                //radius: 5
-                                borderColor: "#59d05d",
-                                pointBorderColor: "#FFF",
-                                pointBackgroundColor: "#59d05d",
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 4,
-                                pointHoverBorderWidth: 1,
-                                pointRadius: 4,
-                                backgroundColor: 'transparent',
-                                fill: true,
-                                borderWidth: 2
-                            }
-                        ]
-                    };
-
-                    //options
-                    var optionsTahunan = {
-                        responsive: true,
-                        title: {
-                            display: true,
-                            position: "top",
-                            text: "Pesanan, Faktur, dan Retur Tahunan",
-                            fontSize: 18,
-                            fontColor: "#111"
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    max: maxTicksBasic,
-                                    min: -5,
-                                    stepSize: steppingBasic
-                                }
-                            }]
-                        },
-                        legendCallback: function (chart) {
-                            var text = [];
-                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                            for (var i = 0; i < chart.data.datasets.length; i++) {
-                                if (chart.data.datasets[i].label) {
-                                    text.push(' <div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                    text.push(chart.data.datasets[i].label);
-                                    text.join(' ');
-                                }
-                            }
-                            text.push('</ul>');
-
-                            return text.join('');
-                        },
-                        legend: { display: false },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                    var total = meta.total;
-                                    var currentValue = dataset.label;
-                                    var label = dataset.data[tooltipItem.index]
-                                    var nilai = dataset.data1[tooltipItem.index]
-                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                    return currentValue + ': ' + label;
-                                },
-                                //afterLabel: function (tooltipItem, data) {
-                                //    var dataset = data.datasets[tooltipItem.datasetIndex];
-                                //    var nilai = dataset.data[tooltipItem.index]
-                                //    return 'Rp. ' + convertToRupiah(nilai);
-                                //},
-                                title: function (tooltipItem, data) {
-                                    return data.labels[tooltipItem[0].index];
-                                }
-                            },
-                            backgroundColor: '#FFF',
-                            titleFontColor: '#0066ff',
-                            bodyFontColor: '#000'
-                        }
-                    };
-
-                    //create Chart class object
-                    var chartTahunan = new Chart(ctxTahunan, {
-                        type: "line",
-                        data: dataTahunan,
-                        options: optionsTahunan
-                    });
-
-                    $("#TahunanLegend").html(chartTahunan.generateLegend());
-
-                    //#end region allTahunan
-
+                    //#end region Mingguan
+                    //#region Tahunan
+                    //#end region Tahunan
                     //var chart = new Chart(ctxMingguan, {
                     //        type: 'line',
                     //        data: {

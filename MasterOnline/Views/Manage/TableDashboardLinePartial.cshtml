@@ -28,79 +28,18 @@
     var listReturTahunan = @Html.Raw(Json.Encode(listReturTahunan));
 </script>
 @*@if (listPieFaktur.Count() > 0)
-    {*@
+{*@
 @*<div class="col-md-12" id="chart-mingguan-section">*@
-<div class="row" id="allMingguan">
-    <canvas id="chartMingguan" height="80"></canvas>
-    <div class="legend text-center" id="MingguanLegend"></div>
+<canvas id="chartMingguan" height="80"></canvas>
+    @*<canvas id="chartMingguan" height="400"></canvas>*@
+    <div class="legend text-center" id="MingguanLegend" @*style="float:left;"*@></div>
     <div style="clear: both;" />
-</div>
-@*<div class="row" id="allBulanan">
-    <canvas id="chartBulanan" height="80"></canvas>
-    <div class="legend text-center" id="BulananLegend"></div>
-    <div style="clear: both;" />
-</div>*@
-<div class="row" id="allTahunan">
-    <canvas id="chartTahunan" height="80"></canvas>
-    <div class="legend text-center" id="TahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
-@*<div class="row" id="PesananMingguan">
-    <canvas id="chartPesananMingguan" height="80"></canvas>
-    <div class="legend text-center" id="PesananMingguanLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="PesananBulanan">
-    <canvas id="chartPesananBulanan" height="80"></canvas>
-    <div class="legend text-center" id="PesananBulananLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="PesananTahunan">
-    <canvas id="chartPesananTahunan" height="80"></canvas>
-    <div class="legend text-center" id="PesananTahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
-<div class="row" id="FakturMingguan">
-    <canvas id="chartFakturMingguan" height="80"></canvas>
-    <div class="legend text-center" id="FakturMingguanLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="FakturBulanan">
-    <canvas id="chartFakturBulanan" height="80"></canvas>
-    <div class="legend text-center" id="FakturBulananLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="FakturTahunan">
-    <canvas id="chartFakturTahunan" height="80"></canvas>
-    <div class="legend text-center" id="FakturTahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
-<div class="row" id="ReturMingguan">
-    <canvas id="chartReturMingguan" height="80"></canvas>
-    <div class="legend text-center" id="ReturMingguanLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="ReturBulanan">
-    <canvas id="chartReturBulanan" height="80"></canvas>
-    <div class="legend text-center" id="ReturBulananLegend"></div>
-    <div style="clear: both;" />
-</div>
-<div class="row" id="ReturTahunan">
-    <canvas id="chartReturTahunan" height="80"></canvas>
-    <div class="legend text-center" id="ReturTahunanLegend"></div>
-    <div style="clear: both;" />
-</div>*@
-
-
 @*</div>*@
-
+    
 @*}
-    else
-    {
-        <div class="center">
-            <h4>Silahkan proses faktur penjualan Anda !</h4>
-        </div>
-    }*@
+else
+{
+    <div class="center">
+        <h4>Silahkan proses faktur penjualan Anda !</h4>
+    </div>
+}*@
