@@ -954,12 +954,13 @@
         </div>
         <div class="col-md-2 col-sm-12">
             <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    <span id="mode">Grafik</span>
+                <button class="btn btn-default dropdown-toggle" disabled="disabled" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span id="mode">Tabel</span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                     <li><a onclick="changeMode(0)">Grafik</a></li>
+                    @*<li><a onclick="changeMode(1)">Angka</a></li>*@
                     <li><a onclick="changeMode(1)">Tabel</a></li>
                 </ul>
             </div>
@@ -1101,7 +1102,8 @@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     @*//end add by nurul 22/2/2019*@
     <script type="text/javascript">
-        var $tipeTampilan = 0;
+        //var $tipeTampilan = 0;
+        var $tipeTampilan = 1;
         var $tipeStyle = 1;
 
         var $href = "";
