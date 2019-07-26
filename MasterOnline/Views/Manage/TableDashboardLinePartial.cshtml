@@ -30,25 +30,48 @@
 @*@if (listPieFaktur.Count() > 0)
     {*@
 @*<div class="col-md-12" id="chart-mingguan-section">*@
+@*//--------------------------------------mingguan-----------------------------------------------*@
 <div class="row" id="allMingguan">
     <canvas id="chartMingguan" height="80"></canvas>
     <div class="legend text-center" id="MingguanLegend"></div>
     <div style="clear: both;" />
 </div>
-@*<div class="row" id="allBulanan">
-    <canvas id="chartBulanan" height="80"></canvas>
-    <div class="legend text-center" id="BulananLegend"></div>
-    <div style="clear: both;" />
-</div>*@
-<div class="row" id="allTahunan">
-    <canvas id="chartTahunan" height="80"></canvas>
-    <div class="legend text-center" id="TahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
 <div class="row" id="PesananMingguan">
     <canvas id="chartPesananMingguan" height="80"></canvas>
     <div class="legend text-center" id="PesananMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturMingguan">
+    <canvas id="chartFakturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="FakturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="ReturMingguan">
+    <canvas id="chartReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="ReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+<div class="row" id="PesananFakturMingguan">
+    <canvas id="chartPesananFakturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturMingguan">
+    <canvas id="chartPesananReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturMingguan">
+    <canvas id="chartFakturReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+@*//--------------------------------------bulanan-----------------------------------------------*@
+<div class="row" id="allBulanan">
+    <canvas id="chartBulanan" height="80"></canvas>
+    <div class="legend text-center" id="BulananLegend"></div>
     <div style="clear: both;" />
 </div>
 <div class="row" id="PesananBulanan">
@@ -56,45 +79,70 @@
     <div class="legend text-center" id="PesananBulananLegend"></div>
     <div style="clear: both;" />
 </div>
-<div class="row" id="PesananTahunan">
-    <canvas id="chartPesananTahunan" height="80"></canvas>
-    <div class="legend text-center" id="PesananTahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
-@*<div class="row" id="FakturMingguan">
-    <canvas id="chartFakturMingguan" height="80"></canvas>
-    <div class="legend text-center" id="FakturMingguanLegend"></div>
-    <div style="clear: both;" />
-</div>
 <div class="row" id="FakturBulanan">
     <canvas id="chartFakturBulanan" height="80"></canvas>
     <div class="legend text-center" id="FakturBulananLegend"></div>
-    <div style="clear: both;" />
-</div>*@
-<div class="row" id="FakturTahunan">
-    <canvas id="chartFakturTahunan" height="80"></canvas>
-    <div class="legend text-center" id="FakturTahunanLegend"></div>
-    <div style="clear: both;" />
-</div>
-
-@*<div class="row" id="ReturMingguan">
-    <canvas id="chartReturMingguan" height="80"></canvas>
-    <div class="legend text-center" id="ReturMingguanLegend"></div>
     <div style="clear: both;" />
 </div>
 <div class="row" id="ReturBulanan">
     <canvas id="chartReturBulanan" height="80"></canvas>
     <div class="legend text-center" id="ReturBulananLegend"></div>
     <div style="clear: both;" />
-</div>*@
+</div>
+
+<div class="row" id="PesananFakturBulanan">
+    <canvas id="chartPesananFakturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturBulanan">
+    <canvas id="chartPesananReturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturBulanan">
+    <canvas id="chartFakturReturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+@*//--------------------------------------tahunan-----------------------------------------------*@
+<div class="row" id="allTahunan">
+    <canvas id="chartTahunan" height="80"></canvas>
+    <div class="legend text-center" id="TahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananTahunan">
+    <canvas id="chartPesananTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturTahunan">
+    <canvas id="chartFakturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="FakturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
 <div class="row" id="ReturTahunan">
     <canvas id="chartReturTahunan" height="80"></canvas>
     <div class="legend text-center" id="ReturTahunanLegend"></div>
     <div style="clear: both;" />
 </div>
 
-
+<div class="row" id="PesananFakturTahunan">
+    <canvas id="chartPesananFakturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturTahunan">
+    <canvas id="chartPesananReturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturTahunan">
+    <canvas id="chartFakturReturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
 @*</div>*@
 
 @*}
