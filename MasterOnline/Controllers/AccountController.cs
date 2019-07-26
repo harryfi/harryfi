@@ -912,6 +912,9 @@ namespace MasterOnline.Controllers
                             string connId_JobId = "";
                             if (sync_pesanan_stok == "1")
                             {
+                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
@@ -922,6 +925,9 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
 
