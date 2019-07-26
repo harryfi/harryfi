@@ -22072,7 +22072,8 @@ namespace MasterOnline.Controllers
                                                     BRG_MP = stf02h_induk.BRG_MP,
                                                     CATEGORY_CODE = stf02h_induk.CATEGORY_CODE,
                                                     CATEGORY_NAME = stf02h_induk.CATEGORY_NAME,
-                                                    HJUAL = data.TempBrg.HJUAL_MP,
+                                                    //HJUAL = data.TempBrg.HJUAL_MP,
+                                                    HJUAL = data.Stf02.HJUAL,
                                                     IDMARKET = stf02h_induk.IDMARKET,
                                                     AKUNMARKET = stf02h_induk.AKUNMARKET,
                                                     USERNAME = stf02h_induk.USERNAME,
@@ -22331,7 +22332,8 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add 10 Juni 2019, update panjang/lebar/tinggi
 
-                                    brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                                    //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                                    brgMp.HJUAL = data.Stf02.HJUAL;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                     brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
@@ -22498,7 +22500,8 @@ namespace MasterOnline.Controllers
                                 brgMp = new STF02H();
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                                brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                                //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                                brgMp.HJUAL = data.Stf02.HJUAL;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -22762,7 +22765,8 @@ namespace MasterOnline.Controllers
                             var brgMp = new STF02H();
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                            brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                            //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
+                            brgMp.HJUAL = data.Stf02.HJUAL;
                             brgMp.DISPLAY = data.TempBrg.DISPLAY;
                             brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -23073,7 +23077,8 @@ namespace MasterOnline.Controllers
                         stf02.NAMA = tempBrg.NAMA;
                         stf02.NAMA2 = tempBrg.NAMA2;
                         stf02.NAMA3 = tempBrg.NAMA3;
-                        stf02.HJUAL = tempBrg.HJUAL;
+                        //stf02.HJUAL = tempBrg.HJUAL;
+                        stf02.HJUAL = tempBrg.HJUAL_MP;
                         stf02.STN = "pcs";
                         stf02.STN2 = "pcs";
                         //change 20-03-2019, gunakan data yg sudah diinput user
@@ -23195,7 +23200,6 @@ namespace MasterOnline.Controllers
 
                     //brgMp.BRG = tempBrg.BRG_MP;
                     brgMp.BRG = kdBrgMO;
-                    brgMp.BRG_MP = tempBrg.BRG_MP;
                     brgMp.HJUAL = tempBrg.HJUAL;
                     brgMp.DISPLAY = tempBrg.DISPLAY;
                     brgMp.CATEGORY_CODE = tempBrg.CATEGORY_CODE;
@@ -23622,7 +23626,8 @@ namespace MasterOnline.Controllers
                                             }
                                             //end add 10 Juni 2019, update panjang/lebar/tinggi
 
-                                            brgMp.HJUAL = item.HJUAL_MP;
+                                            //brgMp.HJUAL = item.HJUAL_MP;
+                                            brgMp.HJUAL = item.HJUAL;
                                             brgMp.DISPLAY = item.DISPLAY;
                                             brgMp.BRG_MP = item.BRG_MP;
                                             //change 14 juni 2019, ambil kategori dari temp table
@@ -23816,7 +23821,8 @@ namespace MasterOnline.Controllers
                                         brgMp.BRG = item.SELLER_SKU;
                                         //end change stf02h brg = seller sku
                                         brgMp.BRG_MP = item.BRG_MP;
-                                        brgMp.HJUAL = item.HJUAL_MP;
+                                        //brgMp.HJUAL = item.HJUAL_MP;
+                                        brgMp.HJUAL = item.HJUAL;
                                         brgMp.DISPLAY = item.DISPLAY;
                                         brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                                         brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
@@ -24095,7 +24101,8 @@ namespace MasterOnline.Controllers
                                     stf02.NAMA = item.NAMA;
                                     stf02.NAMA2 = item.NAMA2;
                                     stf02.NAMA3 = item.NAMA3;
-                                    stf02.HJUAL = item.HJUAL;
+                                    //stf02.HJUAL = item.HJUAL;
+                                    stf02.HJUAL = item.HJUAL_MP;
                                     stf02.STN = "pcs";
                                     stf02.STN2 = "pcs";
                                     stf02.BERAT = item.BERAT;
@@ -24182,7 +24189,8 @@ namespace MasterOnline.Controllers
                                     //brgMp.BRG = item.BRG_MP;
                                     brgMp.BRG = stf02.BRG;
                                     brgMp.BRG_MP = item.BRG_MP;
-                                    brgMp.HJUAL = item.HJUAL_MP;
+                                    //brgMp.HJUAL = item.HJUAL_MP;
+                                    brgMp.HJUAL = item.HJUAL;
                                     brgMp.DISPLAY = item.DISPLAY;
                                     brgMp.CATEGORY_CODE = item.CATEGORY_CODE;
                                     brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
