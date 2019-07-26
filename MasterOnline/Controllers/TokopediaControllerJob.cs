@@ -2621,60 +2621,73 @@ namespace MasterOnline.Controllers
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => (p.RecNum ?? 0) == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
             {
-                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
-                //string apiId = "36bc3d7bcc13404c9e670a84f0c61676:8a76adc52d144a9fa1ef4f96b59b7419";
-                //apiId = "mta-api-sandbox:sandbox-secret-key";
-                //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
-
-                string urll = "https://accounts.tokopedia.com/token";
-                //string urll = "https://accounts-staging.tokopedia.com";
-
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
-                myReq.ContentType = "application/x-www-form-urlencoded";
-                myReq.Accept = "application/json";
-                string myData = "grant_type=client_credentials";
-                //Stream dataStream = myReq.GetRequestStream();
-                //WebResponse response = myReq.GetResponse();
-                //dataStream = response.GetResponseStream();
-                //StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = "";
-                try
+                if (!string.IsNullOrWhiteSpace(arf01inDB.API_KEY))
                 {
-                    myReq.ContentLength = myData.Length;
-                    using (var dataStream = myReq.GetRequestStream())
+                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                                                                                             //string apiId = "36bc3d7bcc13404c9e670a84f0c61676:8a76adc52d144a9fa1ef4f96b59b7419";
+                                                                                             //apiId = "mta-api-sandbox:sandbox-secret-key";
+                                                                                             //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+
+                    string urll = "https://accounts.tokopedia.com/token";
+                    //string urll = "https://accounts-staging.tokopedia.com";
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                    myReq.ContentType = "application/x-www-form-urlencoded";
+                    myReq.Accept = "application/json";
+                    string myData = "grant_type=client_credentials";
+                    //Stream dataStream = myReq.GetRequestStream();
+                    //WebResponse response = myReq.GetResponse();
+                    //dataStream = response.GetResponseStream();
+                    //StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = "";
+                    try
                     {
-                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                    }
-                    using (WebResponse response = myReq.GetResponse())
-                    {
-                        using (Stream stream = response.GetResponseStream())
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        }
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                    if (responseFromServer != "")
+                    {
+                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaToken)) as TokopediaToken;
+                        if (ret.error == null)
+                        {
+                            arf01inDB.TOKEN = ret.access_token;
+                            arf01inDB.STATUS_API = "1";
+                            data.token = ret.access_token;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        else
+                        {
+                            arf01inDB.TOKEN = "";
+                            arf01inDB.STATUS_API = "0";
+                            ErasoftDbContext.SaveChanges();
+                            data.token = "";
                         }
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-
-                }
-                // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
-                if (responseFromServer != "")
-                {
-                    ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaToken)) as TokopediaToken;
-                    if (ret.error == null)
-                    {
-                        arf01inDB.TOKEN = ret.access_token;
-                        arf01inDB.STATUS_API = "1";
-                        data.token = ret.access_token;
-                        ErasoftDbContext.SaveChanges();
-                    }
-                    else
-                    {
-
-                    }
+                    arf01inDB.TOKEN = "";
+                    arf01inDB.STATUS_API = "0";
+                    ErasoftDbContext.SaveChanges();
+                    data.token = "";
                 }
             }
             //}
