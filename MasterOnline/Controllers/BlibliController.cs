@@ -2111,6 +2111,17 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                //create barang
+                DataSet dsRequestIdCreateBarang = new DataSet();
+                dsRequestIdCreateBarang = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT BRG, BRG_MP,ACODE_40,ANAME_40 FROM [STF02H] WHERE BRG_MP = 'PENDING' AND [IDMARKET] = '" + data.idmarket + "'");
+                if (dsRequestIdCreateBarang.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsRequestIdCreateBarang.Tables[0].Rows.Count; i++)
+                    {
+                        await prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ACODE_40"]), Convert.ToString(dsRequestIdCreateBarang.Tables[0].Rows[i]["ANAME_40"]));
+                    }
+                }
+
                 DataSet dsRequestIdList = new DataSet();
                 dsRequestIdList = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT * FROM [QUEUE_FEED_BLIBLI] WHERE MERCHANT_CODE='" + data.merchant_code + "' AND [STATUS] = '1'");
                 if (dsRequestIdList.Tables[0].Rows.Count > 0)
@@ -2440,7 +2451,10 @@ namespace MasterOnline.Controllers
                         //end remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+                        //change 25 juli 2019, tukar harga jual dgn harga promo
+                        //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
+                        //end change 25 juli 2019, tukar harga jual dgn harga promo
                         sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
                         //add kode brg induk dan type brg
                         sSQL += ", '" + kdBrgInduk + "' , '3'";
@@ -4616,9 +4630,9 @@ namespace MasterOnline.Controllers
                                                     if (getKodeItem != null)
                                                     {
                                                         oCommand.CommandType = CommandType.Text;
-                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                        oCommand.Parameters[1].Value = Convert.ToString(getKodeItem.REQUEST_ATTRIBUTE_1);
+                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H WHERE ISNULL(H.BRG_MP,'') = 'PENDING' AND ACODE_40='" + requestId + "' AND AVALUE_40='" + log_request_id + "' AND IDMARKET='" + data.idmarket + "'";
+                                                        oCommand.ExecuteNonQuery();
+                                                        oCommand.CommandText = "UPDATE API_LOG_MARKETPLACE SET REQUEST_STATUS='Failed',REQUEST_EXCEPTION = '" + Convert.ToString(item.errorMessage).Replace(",", ".").Replace("'", "`") + "' WHERE REQUEST_ID = '" + log_request_id + "' AND MARKETPLACE='Blibli'";
                                                         oCommand.ExecuteNonQuery();
                                                     }
                                                 }
