@@ -6,6 +6,7 @@ using System.Web.Hosting;
 using Erasoft.Function;
 using Hangfire;
 using Hangfire.SqlServer;
+using Hangfire.Storage;
 
 namespace MasterOnline.Utils
 {
@@ -147,6 +148,20 @@ namespace MasterOnline.Utils
                 WorkerCount = 1,
             };
             var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
+
+            RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+            RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+            {
+                QueueName = "3_general"
+            };
+            using (var connection = sqlStorage.GetConnection())
+            {
+                //update semua recurring job dengan interval sesuai setting timer
+                foreach (var recurringJob in connection.GetRecurringJobs())
+                {
+                    recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                }
+            }
         }
         public void Stop()
         {
