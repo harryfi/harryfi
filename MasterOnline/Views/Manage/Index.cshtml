@@ -887,35 +887,27 @@
         </div>
     </div>
     <div class="row chart-mode">
-        @*<div class="col-md-6" id="chart-jumlah-section">
+        <div class="col-md-6" id="chart-jumlah-section">
             <h4>Grafik Berdasarkan Jumlah</h4>
             <canvas id="chart-jumlah" height="200"></canvas>
         </div>
         <div class="col-md-6" id="chart-nilai-section">
             <h4>Grafik Berdasarkan Nilai</h4>
             <canvas id="chart-nilai" height="200"></canvas>
-        </div>*@
+        </div>
     </div>
     <br />
     <div class="row chart-mode" style="margin-bottom: 20px;">
-        @*<div class="col-md-6" id="chart-jumlah-per-market-section">
+        <div class="col-md-6" id="chart-jumlah-per-market-section">
             <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
             <canvas id="chart-jumlah-per-market" height="200"></canvas>
         </div>
         <div class="col-md-6" id="chart-nilai-per-market-section">
             <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
             <canvas id="chart-nilai-per-market" height="200"></canvas>
-        </div>*@
+        </div>
     </div>
 </div>
-@*//add by nurul 12/7/2019*@
-<div>
-    <div class="col-md-6" id="chart-mingguan-section">
-        <h4>Grafik Pesanan, Faktur dan Retur</h4>
-        <canvas id="chart-mingguan" height="200"></canvas>
-    </div>
-</div>
-@*//end add by nurul 12/7/2019*@
 <div id="dashboard_partial">
     <div id="dashboard_page"></div>
     <div class="row pricing_page" style="display: none;">
@@ -1070,7 +1062,7 @@
             }
         }
 
-        function getChart1() {
+        function getChart() {
             $('#chart-jumlah').remove();
             $('#chart-nilai').remove();
             $('#chart-jumlah-per-market').remove();
@@ -1719,269 +1711,298 @@
                         //window.open(response, "_self");
                         //window.location.href(response);
 
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        $('#modalTransfer').modal('hide');
-                    }
-                });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#modalTransfer').modal('hide');
+                }
+            });
         }
 
-        //add by nurul 12/7/2019
-        function getChart() {
-            //var $Drtgl1 = "";
-            //if ($('#DrTanggal1').val() != undefined) {
-            //    $Drtgl1 = $('#DrTanggal1').val();
-            //}
-            //var $Sdtgl1 = "";
-            //if ($('#SdTanggal1').val() != undefined) {
-            //    $Sdtgl1 = $('#SdTanggal1').val();
-            //}
-            @*var link = '@Html.Raw(Url.Action("RefreshDashboardFakturPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
-            link = link.replace("replaceDrtgl", $Drtgl1);
-            link = link.replace("replaceSdtgl", $Sdtgl1);*@
-            $('#chart-mingguan').remove();
-            $('#chart-mingguan-section').append('<canvas id="chart-mingguan" height="200"></canvas>');
+        //add by nurul 4/7/2019
+        function changeStyle(tipe) {
+            if (tipe === 1 ) {
+                $('#mode_Baranglaku').text('Grafik');
+                $('.table-mode').hide();
+                $('.pie-mode').show();
+                $tipeStyle = 1;
+            } else {
+                //$('#mode_Baranglaku').text('Angka');
+                $('#mode_Baranglaku').text('Tabel');
+                $('.pie-mode').hide();
+                $('.table-mode').show();
+                $tipeStyle = 2;
+            }
+        }
+
+        function RefreshTableDashboardBaranglakuPartial() {
+            var $Drtgl = "";
+            if ($('#DrTanggal').val() != undefined) {
+                $Drtgl = $('#DrTanggal').val();
+            }
+            var $Sdtgl = "";
+            if ($('#SdTanggal').val() != undefined) {
+                $Sdtgl = $('#SdTanggal').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardBaranglakuPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl);
+            link = link.replace("replaceSdtgl", $Sdtgl);
+
             $.ajax({
-                type: "POST",
-                url: '/api/chart',
-                headers: {
-                    'X-API-KEY':'M@STERONLINE4P1K3Y',
-                    'Content-Type':'application/json'
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-baranglaku-partial').hide();
+                    $('#chart-baranglaku-section').hide();
+                    $('#loading_dashboard_baranglaku').show();
                 },
-                data: JSON.stringify({
-                    AccId: @accId,
-                    SelDate: $('#TGL').val()
-                }),
-                contentType: "application/json; charset=UTF-8",
-                cache: false,
-                //type: "GET",
-                //url: link,
-                //beforeSend: function () {
-                //    $('#chart-faktur-section').hide();
-                //    $('#loading_dashboard_faktur').show();
-                //},
                 success: function (response) {
-                    //$('#chart-faktur-section').html(response);
-                    //if (listPieFaktur.length > 0) {
-                    //#region Mingguan
-                    //var arrayData = [
-                    //    response.data.ListdashboardPesananMingguan, response.data.ListdashboardFakturMingguan,
-                    //    response.data.ListdashboardReturMingguan
-                    //];
+                    $('#table-baranglaku-partial').html(response);
+                    if (listPieBarang.length > 0) {
 
-                    //var max = Math.max.apply(Math, arrayData);
-                    //var maxTicksBasic = Math.ceil(max / 10) * 10;
+                        //var dataBrgLaku = response.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10);
+                        var dataBrgLaku = listPieBarang;
+                        var kdBarang = [];
+                        var nmBarang = [];
+                        var qty = [];
 
-                    //var steppingBasic = (Math.ceil(max / 10) * 10) / 5;
-
-                    var labelpesananMingguan = [];
-                    var labelfakturMingguan = [];
-                    var labelreturMingguan = [];
-                    var jumlahpesananMingguan = [];
-                    var jumlahfakturMingguan = [];
-                    var jumlahreturMingguan = [];
-                    var nilaipesananMingguan = [];
-                    var nilaifakturMingguan = [];
-                    var nilaireturMingguan = [];
-
-                    labelpesananMingguan.push(response.data.ListdashboardPesananMingguan.No);
-                    labelfakturMingguan.push(response.data.ListdashboardFakturMingguan.No);
-                    labelreturMingguan.push(response.data.ListdashboardReturMingguan.No);
-                    jumlahpesananMingguan.push(response.data.ListdashboardPesananMingguan.Jumlah);
-                    jumlahfakturMingguan.push(response.data.ListdashboardFakturMingguan.Jumlah);
-                    jumlahreturMingguan.push(response.data.ListdashboardReturMingguan.Jumlah);
-                    nilaipesananMingguan.push(response.data.ListdashboardPesananMingguan.Nilai);
-                    nilaifakturMingguan.push(response.data.ListdashboardFakturMingguan.Nilai);
-                    nilaireturMingguan.push(response.data.ListdashboardReturMingguan.Nilai);
-
-                    var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
-                    var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
-                    var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
-                    var dataMaxJumlah = [maxJumlahPesananMingguan, maxJumlahFakturMingguan, maxJumlahReturMingguan];
-                    var maxJumlah = Math.max.apply(Math, dataMaxJumlah);
-
-                    var maxTicksBasic = Math.ceil(maxJumlah / 10) * 10;
-
-                    var steppingBasic = (Math.ceil(maxJumlah / 10) * 10) / 5;
-                        //var listdataFaktur = listPieFaktur;
-                        //var akunMarketPlace = [];
-                        //var jumlahFakturPerMarket = [];
-                        //var nilaiFakturPerMarket = [];
-
-                        //for (var i = 0; i < listPieFaktur.length; i++) {
-                        //    akunMarketPlace.push(listPieFaktur[i].NamaMarket);
-                        //    jumlahFakturPerMarket.push(listPieFaktur[i].JumlahFaktur);
-                        //    nilaiFakturPerMarket.push(convertToAngka(listPieFaktur[i].NilaiFaktur));
-                        //}
-
-                    var ctxMingguan = document.getElementById("chart-mingguan").getContext('2d');
-                    var dataPesanan = {
-                        label: "Rp. " + nilaipesananMingguan,
-                        data: jumlahpesananMingguan + " Pesanan",
-                        lineTension: 0.3,
-                        fill: false,
-                        borderColor: 'red',
-                        backgroundColor: 'transparent',
-                        pointBorderColor: 'red',
-                        pointBackgroundColor: 'lightyellow',
-                        pointRadius: 5,
-                        pointHoverRadius: 15,
-                        pointHitRadius: 30,
-                        pointBorderWidth: 2,
-                        pointStyle: 'rect'
-                    };
-
-                    var dataFaktur = {
-                        label: "Rp. " + nilaifakturMingguan,
-                        data: jumlahfakturMingguan + " Faktur",
-                        lineTension: 0.3,
-                        fill: false,
-                        borderColor: 'blue',
-                        backgroundColor: 'transparent',
-                        pointBorderColor: 'blue',
-                        pointBackgroundColor: 'lightyellow',
-                        pointRadius: 5,
-                        pointHoverRadius: 15,
-                        pointHitRadius: 30,
-                        pointBorderWidth: 2
-                    };
-
-                    var dataRetur = {
-                        label: "Rp. " + nilaireturMingguan,
-                        data: jumlahreturMingguan + " Retur",
-                        lineTension: 0.3,
-                        fill: false,
-                        borderColor: 'green',
-                        backgroundColor: 'transparent',
-                        pointBorderColor: 'green',
-                        pointBackgroundColor: 'lightyellow',
-                        pointRadius: 5,
-                        pointHoverRadius: 15,
-                        pointHitRadius: 30,
-                        pointBorderWidth: 2
-                    };
-
-                    var mingguanData = {
-                        labels: labelpesananMingguan,
-                        datasets: [dataPesanan, dataFaktur, dataRetur]
-                    };
-
-                    var chartOptions = {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                boxWidth: 80,
-                                fontColor: 'black'
-                            }
-                        },
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    stepSize: steppingBasic,
-                                    max: maxTicksBasic
-                                }
-                            }],
-
+                        for (var i = 0; i < dataBrgLaku.length; i++) {
+                            kdBarang.push(dataBrgLaku[i].KodeBrg);
+                            nmBarang.push(dataBrgLaku[i].NamaBrg);
+                            qty.push(dataBrgLaku[i].Qty);
                         }
-                    };
 
-                    var lineChart = new Chart(ctxMingguan, {
-                        type: 'line',
-                        data: mingguanData,
-                        options: chartOptions
-                    });
-                    Chart.defaults.global.defaultFontFamily = "Lato";
-                    Chart.defaults.global.defaultFontSize = 18;
-                    //#end region Mingguan
-                    //#region Tahunan
-                    //#end region Tahunan
-                    //var chart = new Chart(ctxMingguan, {
-                    //        type: 'line',
-                    //        data: {
+                        var ctxBarangLaku = document.getElementById("chart-baranglaku").getContext('2d');
+                        var chart = new Chart(ctxBarangLaku, {
+                            type: 'pie',
+                            data: {
 
-                    //            labels: akunMarketPlace,
-                    //            datasets: [{
-                    //                label: jumlahFakturPerMarket,
-                    //                data: nilaiFakturPerMarket,
-                    //                backgroundColor: [
-                    //                    "#f990a7",
-                    //                    "#9966FF",
-                    //                    "#99e5e5",
-                    //                    "#f7bd83",
+                                //labels: kdBarang,
+                                labels: nmBarang,
+                                datasets: [{
+                                    data: qty,
+                                    backgroundColor: [
+                                        "#f990a7",
+                                        "#9966FF",
+                                        "#99e5e5",
+                                        "#f7bd83",
 
-                    //                    "#2ecc71",
-                    //                    "#3498db",
-                    //                    "#95a5a6",
-                    //                    "#9b59b6",
-                    //                    "#f1c40f",
-                    //                    "#e74c3c",
-                    //                ],
-                    //                borderWidth: 0
-                    //            }]
-                    //        },
-                    //        options: {
-                    //            title: {
-                    //                display: true,
-                    //                text: 'Penjualan (Faktur)',
-                    //                position: 'top',
-                    //                fontSize: 20
-                    //            },
-                    //            legendCallback: function (chart) {
+                                        "#2ecc71",
+                                        "#3498db",
+                                        "#95a5a6",
+                                        "#9b59b6",
+                                        "#f1c40f",
+                                        "#e74c3c",
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: '10 Barang Paling Laku',
+                                    position: 'top',
+                                    fontSize: 20,
+                                },
+                                legendCallback: function (chart) {
+                                    
+                                    
+                                    var text = [];
+                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                                        text.push('<section>');
+                                        text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
+                                        if (chart.data.labels[i]) {
+                                            var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
+                                                return previousValue + currentValue;
+                                            });
+                                            var currentValue = chart.data.datasets[0].data[i];
+                                            var perc = parseFloat((currentValue / total * 100).toFixed(1));
+                                            text.push(chart.data.labels[i] + ' (Qty: ' + chart.data.datasets[0].data[i] + ') (' + perc + '%)');
+                                        }
+                                        text.push('</li>');
+                                        text.push('</section>');
+                                    }
+                                    text.push('</ul>');
 
-                    //                var text = [];
-                    //                text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                    //                for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
-                    //                    text.push('<section>');
-                    //                    text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
-                    //                    if (chart.data.labels[i]) {
-                    //                        var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
-                    //                            return previousValue + currentValue;
-                    //                        });
-                    //                        var currentValue = chart.data.datasets[0].data[i];
-                    //                        var perc = parseFloat((currentValue / total * 100).toFixed(1));
+                                    return text.join('');
+                                },
+                                legend: {
+                                    display: false,
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                            var total = meta.total;
+                                            var currentValue = dataset.data[tooltipItem.index];
+                                            var percentage = parseFloat((currentValue / total * 100).toFixed(1));
+                                            return currentValue + ' (' + percentage + '%)';
+                                        },
+                                        title: function (tooltipItem, data) {
+                                            return data.labels[tooltipItem[0].index];
+                                        }
+                                    },
+                                    backgroundColor: '#FFF',
+                                    titleFontColor: '#0066ff',
+                                    bodyFontColor: '#000'
+                                }
+                            }
+                        });
+                        $("#baranglakuLegend").html(chart.generateLegend());
+                    }
 
-                    //                        text.push(chart.data.labels[i] + ' : Rp. ' + convertToRupiah(chart.data.datasets[0].data[i]) + ' (' + chart.data.datasets[0].label[i] + ' Faktur) (' + perc + '%)');
-                    //                    }
-                    //                    text.push('</li>');
-                    //                    text.push('</section>');
-                    //                }
-                    //                text.push('</ul>');
+                    $('#loading_dashboard_baranglaku').hide();
+                    $('#table-baranglaku-partial').show();
+                    $('#chart-baranglaku-section').show();
+                    if ($tipeStyle == 1) {
+                        $('.table-mode').hide();
+                        $('.pie-mode').show();
+                        $tipeStyle = 1;
+                    }
+                    else if ($tipeStyle == 2) {
+                        $('.pie-mode').hide();
+                        $('.table-mode').show();
+                        $tipeStyle = 2;
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
 
-                    //                return text.join('');
-                    //            },
-                    //            legend: { display: false },
-                    //            tooltips: {
-                    //                callbacks: {
-                    //                    label: function (tooltipItem, data) {
-                    //                        var dataset = data.datasets[tooltipItem.datasetIndex];
-                    //                        var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                    //                        var total = meta.total;
-                    //                        var currentValue = dataset.label[tooltipItem.index];
-                    //                        var nilai = dataset.data[tooltipItem.index]
-                    //                        var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                    //                        return currentValue + ' Faktur (' + percentage + '%)';
-                    //                    },
-                    //                    afterLabel: function (tooltipItem, data) {
-                    //                        var dataset = data.datasets[tooltipItem.datasetIndex];
-                    //                        var nilai = dataset.data[tooltipItem.index]
-                    //                        return 'Rp. ' + convertToRupiah(nilai);
-                    //                    },
-                    //                    title: function (tooltipItem, data) {
-                    //                        return data.labels[tooltipItem[0].index];
-                    //                    }
-                    //                },
-                    //                backgroundColor: '#FFF',
-                    //                titleFontColor: '#0066ff',
-                    //                bodyFontColor: '#000'
-                    //            }
-                    //        }
-                    //});
-                    
-                        //$("#myChartLegend").html(chart.generateLegend());
-                    //}
+        function RefreshTableDashboardFaktur() {
+            var $Drtgl1 = "";
+            if ($('#DrTanggal1').val() != undefined) {
+                $Drtgl1 = $('#DrTanggal1').val();
+            }
+            var $Sdtgl1 = "";
+            if ($('#SdTanggal1').val() != undefined) {
+                $Sdtgl1 = $('#SdTanggal1').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardFakturPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl1);
+            link = link.replace("replaceSdtgl", $Sdtgl1);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#chart-faktur-section').hide();
+                    $('#loading_dashboard_faktur').show();
+                },
+                success: function (response) {
+                    $('#chart-faktur-section').html(response);
+                    if (listPieFaktur.length > 0) {
+                        var listdataFaktur = listPieFaktur;
+                        var akunMarketPlace = [];
+                        var jumlahFakturPerMarket = [];
+                        var nilaiFakturPerMarket = [];
+
+                        for (var i = 0; i < listPieFaktur.length; i++) {
+                            akunMarketPlace.push(listPieFaktur[i].NamaMarket);
+                            jumlahFakturPerMarket.push(listPieFaktur[i].JumlahFaktur);
+                            nilaiFakturPerMarket.push(convertToAngka(listPieFaktur[i].NilaiFaktur));
+                        }
+
+                        var ctxFaktur = document.getElementById("chart-faktur").getContext('2d');
+
+                        var chart = new Chart(ctxFaktur, {
+                            type: 'pie',
+                            data: {
+
+                                labels: akunMarketPlace,
+                                datasets: [{
+                                    label: jumlahFakturPerMarket,
+                                    data: nilaiFakturPerMarket,
+                                    backgroundColor: [
+                                        //"#f16e23",
+                                        //"#1E90FF",
+                                        //"#32CD32",
+                                        //"#f990a7",
+                                        //"#FF0000",
+                                        //"#9966FF",
+                                        //"#95a5a6",
+                                        //"#99e5e5",
+                                        //"#f1c40f",
+                                        //"#e74c3c",
+                                        //"#34495e",
+                                        "#f990a7",
+                                        "#9966FF",
+                                        "#99e5e5",
+                                        "#f7bd83",
+
+                                        "#2ecc71",
+                                        "#3498db",
+                                        "#95a5a6",
+                                        "#9b59b6",
+                                        "#f1c40f",
+                                        "#e74c3c",
+                                    ],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Penjualan (Faktur)',
+                                    position: 'top',
+                                    fontSize: 20
+                                },
+                                legendCallback: function (chart) {
+                                    
+                                    var text = [];
+                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
+                                        text.push('<section>');
+                                        text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
+                                        if (chart.data.labels[i]) {
+                                            var total = chart.data.datasets[0].data.reduce(function (previousValue, currentValue, currentIndex, array) {
+                                                return previousValue + currentValue;
+                                            });
+                                            var currentValue = chart.data.datasets[0].data[i];
+                                            var perc = parseFloat((currentValue / total * 100).toFixed(1));
+
+                                            text.push(chart.data.labels[i] + ' : Rp. ' + convertToRupiah(chart.data.datasets[0].data[i]) + ' (' + chart.data.datasets[0].label[i] + ' Faktur) (' + perc + '%)');
+                                        }
+                                        text.push('</li>');
+                                        text.push('</section>');
+                                    }
+                                    text.push('</ul>');
+
+                                    return text.join('');
+                                },
+                                legend: { display: false },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                            var total = meta.total;
+                                            var currentValue = dataset.label[tooltipItem.index];
+                                            var nilai = dataset.data[tooltipItem.index]
+                                            var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                            return currentValue + ' Faktur (' + percentage + '%)';
+                                        },
+                                        afterLabel: function (tooltipItem, data) {
+                                            var dataset = data.datasets[tooltipItem.datasetIndex];
+                                            var nilai = dataset.data[tooltipItem.index]
+                                            return 'Rp. ' + convertToRupiah(nilai);
+                                        },
+                                        title: function (tooltipItem, data) {
+                                            return data.labels[tooltipItem[0].index];
+                                        }
+                                    },
+                                    backgroundColor: '#FFF',
+                                    titleFontColor: '#0066ff',
+                                    bodyFontColor: '#000'
+                                }
+                            }
+                        });
+                        $("#myChartLegend").html(chart.generateLegend());
+                    }
 
                     $('#loading_dashboard_faktur').hide();
                     $('#chart-faktur-section').show();
@@ -1991,6 +2012,9 @@
                 }
             });
         }
-        //end add by nurul 12/7/2019
+        function convertToRupiah(angka) {
+            return $.number(angka, 2, ',', '.');
+        }
+        //end add by nurul 4/7/2019
     </script>
 }
