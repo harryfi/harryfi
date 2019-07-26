@@ -1001,8 +1001,8 @@
                             @Html.Label("", "Faktur")
                         </div>
                         @*<div class="col-md-1" style="padding-top: 7px;">
-                Faktur
-            </div>*@
+                                Faktur
+                            </div>*@
                     </div>
 
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1015,8 +1015,8 @@
                         </div>
                     </div>
                     @*<div class="col-md-1" style="padding-top: 7px;">
-            Retur
-        </div>*@
+                            Retur
+                        </div>*@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
@@ -1107,7 +1107,7 @@
         var $href = "";
 
         $(document).ready(function () {
-            getTanggal();            
+            getTanggal();
             $('#TGL').datepicker('setDate', '0');
             //getDashboard();
 
@@ -1123,7 +1123,7 @@
                     $('#dashboard_page').show();
                     $('.pricing_page').hide();
                 });
-            
+
             //add by nurul 22/2/2019
             $href = window.location.href.split('home')[1];
             if ($href != "") {
@@ -1614,7 +1614,7 @@
                     if ($selectedMonth !== '' && $selectedMonth !== monthVal) {
                         $('.month_label').text('Bulan ' + monthName);
                     }
-                  
+
                     if ($tipeTampilan == 0) {
                         $('.chart-mode').show();
                         $('.angka-mode').hide();
@@ -1637,7 +1637,7 @@
                     //    $('.angka-mode').show();
                     //    $tipeTampilan = 1;
                     //}
-                  
+
                     //add by nurul 4/7/2019
                     //region 10 barang laku
                     var d = new Date();
@@ -1694,7 +1694,7 @@
                         $('#SdTanggal1').val($('#SdTanggal1').val());
                         $('#SdTanggal1').datepicker('hide');
                         RefreshTableDashboardFaktur();
-                        });
+                    });
                     RefreshTableDashboardFaktur();
                     //end region faktur
                     //end add by nurul 4/7/2019
@@ -1707,62 +1707,62 @@
             });
         }
 
-            function getTanggal() {
-                $('#TGL').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).change(function () {
-                    getDashboard($(this).val());
-                    getChart();
-                    ubahLineEvent();
-                    $(this).datepicker('hide');
-                });
+        function getTanggal() {
+            $('#TGL').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                getDashboard($(this).val());
+                getChart();
+                ubahLineEvent();
+                $(this).datepicker('hide');
+            });
+        }
+
+        //add by nurul 22/2/2019
+
+        function changeUser(val) {
+            if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
+                return;
             }
+            var currentUser = parseInt($('#txtJmlUser')[0].innerText);
+            var cost = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCost = cost + (100000 * val);
+            $('#txtJmlUser')[0].innerText = currentUser + val;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
 
-            //add by nurul 22/2/2019
+        }
 
-            function changeUser(val) {
-                if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
-                    return;
-                }
-                var currentUser = parseInt($('#txtJmlUser')[0].innerText);
-                var cost = convertToAngka($('#lbl_0_03')[0].innerText);
-                var newCost = cost + (100000 * val);
-                $('#txtJmlUser')[0].innerText = currentUser + val;
-                $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
-                $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
-                $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
-
+        //add by Tri, call midtrans api get token
+        function setBln(kode, bln) {
+            switch (kode){
+                case "01":
+                    break;
+                case "02":
+                    txtBln_02.value = bln;
+                    break;
+                case "03":
+                    txtBln_03.value = bln;
+                    break;
             }
+        }
 
-            //add by Tri, call midtrans api get token
-            function setBln(kode, bln) {
-                switch (kode){
-                    case "01":
-                        break;
-                    case "02":
-                        txtBln_02.value = bln;
-                        break;
-                    case "03":
-                        txtBln_03.value = bln;
-                        break;
-                }
-            }
-
-            function clickSub(kode, bln) {
-                if ($('#ckBox')[0].checked) {
-                    //var bln = 0;
-                    //switch (kode) {
-                    //    case "01":
-                    //        break;
-                    //    case "02":
-                    //        bln = txtBln_02.value;
-                    //        break;
-                    //    case "03":
-                    //        bln = txtBln_03.value;
-                    //        break;
-                    //}
-                    @{
+        function clickSub(kode, bln) {
+            if ($('#ckBox')[0].checked) {
+                //var bln = 0;
+                //switch (kode) {
+                //    case "01":
+                //        break;
+                //    case "02":
+                //        bln = txtBln_02.value;
+                //        break;
+                //    case "03":
+                //        bln = txtBln_03.value;
+                //        break;
+                //}
+                @{
                 //var accountId = dataSession?.Account?.AccountId; 'change by nurul 4/2/2019
                 var accountId = new long();
                 if (dataSession?.Account != null)
@@ -1776,25 +1776,25 @@
                 //end change by nurul 4/2/2019
                 var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
             }
-                    //moment.locale('id');
-                    var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-                    var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
-                    var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-                    var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
-                    //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
-                    $('#txtCode').val(kode);
-                    $('#txtBulan').val(bln);
+                //moment.locale('id');
+                var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
+                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+                var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
+                //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
+                $('#txtCode').val(kode);
+                $('#txtBulan').val(bln);
 
-                    if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
+                if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
-                        //tglSub.setMonth(tglSub.getMonth() + bln);
-                        var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
-                        if (confirm(msg)) {
-                            //alert('kode:' + kode + '\nbln:' + bln);
-                            @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //tglSub.setMonth(tglSub.getMonth() + bln);
+                    var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
+                    if (confirm(msg)) {
+                        //alert('kode:' + kode + '\nbln:' + bln);
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                            @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                         link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                         $.ajax({
@@ -1817,11 +1817,11 @@
                                 console.log(error);
                             }
                         });*@
-                            $('#modalTransfer').modal('show');
-                        }
+                        $('#modalTransfer').modal('show');
                     }
-                    else {
-                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                }
+                else {
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -1841,34 +1841,34 @@
                             console.log(error);
                         }
                     });*@
-                        $('#modalTransfer').modal('show');
-                    }
-                } else {
-                    alert('Anda harus menyetujui Syarat & Ketentuan');
+                    $('#modalTransfer').modal('show');
                 }
+            } else {
+                alert('Anda harus menyetujui Syarat & Ketentuan');
             }
-            //end add by Tri, call midtrans api get token
-            //end add by nurul 22/2/2019
-            function snapMidtrans(kode, bln) {
-                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+        }
+        //end add by Tri, call midtrans api get token
+        //end add by nurul 22/2/2019
+        function snapMidtrans(kode, bln) {
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
 
-                $.ajax({
-                    type: "GET",
-                    url: link,
-                    success: function (response) {
-                        if (response != null) {
-                            //window.location = response.urlView;
-                            if (response.error == null) {
-                                snap.pay(response.token, { skipOrderSummary: true });
-                                $('#modalTransfer').modal('hide');
-                            } else {
-                                alert(response.error);
-                                $('#modalTransfer').modal('hide');
-                            }
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        if (response.error == null) {
+                            snap.pay(response.token, { skipOrderSummary: true });
+                            $('#modalTransfer').modal('hide');
+                        } else {
+                            alert(response.error);
+                            $('#modalTransfer').modal('hide');
                         }
-                        //window.open(response, "_self");
-                        //window.location.href(response);
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
 
                 },
                 error: function (xhr, status, error) {
@@ -1964,8 +1964,8 @@
                                     fontSize: 20,
                                 },
                                 legendCallback: function (chart) {
-                                    
-                                    
+
+
                                     var text = [];
                                     text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                                     for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
@@ -2111,7 +2111,7 @@
                                     fontSize: 20
                                 },
                                 legendCallback: function (chart) {
-                                    
+
                                     var text = [];
                                     text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
                                     for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
@@ -2224,7 +2224,7 @@
                         jumlahreturMingguan.push(listDataReturM[i].Jumlah);
                         nilaireturMingguan.push(listDataReturM[i].Nilai);
                     }
-                    
+
                     var maxJumlahPesananMingguan = Math.max.apply(Math, jumlahpesananMingguan);
                     var maxJumlahFakturMingguan = Math.max.apply(Math, jumlahfakturMingguan);
                     var maxJumlahReturMingguan = Math.max.apply(Math, jumlahreturMingguan);
@@ -2288,74 +2288,74 @@
                                 borderWidth: 2
                             }
                         ]
-                        };
+                    };
 
-            //options
-            var optionsAllMingguan = {
-                responsive: true,
-                title: {
-                    display: true,
-                    position: "top",
-                    text: "Pesanan, Faktur, dan Retur Harian",
-                    fontSize: 18,
-                    fontColor: "#111"
-                },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            max: maxTicksBasic,
-                            min: -5,
-                            stepSize: steppingBasic
+                    //options
+                    var optionsAllMingguan = {
+                        responsive: true,
+                        title: {
+                            display: true,
+                            position: "top",
+                            text: "Pesanan, Faktur, dan Retur Harian",
+                            fontSize: 18,
+                            fontColor: "#111"
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    max: maxTicksBasic,
+                                    min: -5,
+                                    stepSize: steppingBasic
+                                }
+                            }]
+                        },
+                        legendCallback: function (chart) {
+                            var text = [];
+                            text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                            for (var i = 0; i < chart.data.datasets.length; i++) {
+                                if (chart.data.datasets[i].label) {
+                                    text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
+                                    text.push(chart.data.datasets[i].label);
+                                }
+                            }
+                            text.push('</ul>');
+
+                            return text.join('');
+                        },
+                        legend: { display: false },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                                    var total = meta.total;
+                                    var currentValue = dataset.label;
+                                    var label = dataset.data[tooltipItem.index]
+                                    var nilai = dataset.dataAM[tooltipItem.index]
+                                    var percentage = parseFloat((nilai / total * 100).toFixed(1));
+                                    return currentValue + ': ' + label;
+                                },
+                                afterLabel: function (tooltipItem, data) {
+                                    var dataset = data.datasets[tooltipItem.datasetIndex];
+                                    var nilai = dataset.dataAM[tooltipItem.index]
+                                    return 'Rp. ' + convertToRupiah(nilai);
+                                },
+                                title: function (tooltipItem, data) {
+                                    return data.labels[tooltipItem[0].index];
+                                }
+                            },
+                            backgroundColor: '#FFF',
+                            titleFontColor: '#0066ff',
+                            bodyFontColor: '#000'
                         }
-                    }]
-                },
-                legendCallback: function (chart) {
-                                    var text = [];
-                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
-                                    for (var i = 0; i < chart.data.datasets.length; i++) {
-                                        if (chart.data.datasets[i].label) {
-                                            text.push(' <div style="width:13px;height:13px;display:inline-block;background:' + chart.data.datasets[i].borderColor + '" />&nbsp;');
-                                            text.push(chart.data.datasets[i].label);
-                                        }
-                                    }
-                                    text.push('</ul>');
+                    };
 
-                                    return text.join('');
-                },
-                legend: { display: false },
-                tooltips: {
-                                    callbacks: {
-                                        label: function (tooltipItem, data) {
-                                            var dataset = data.datasets[tooltipItem.datasetIndex];
-                                            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-                                            var total = meta.total;
-                                            var currentValue = dataset.label;
-                                            var label = dataset.data[tooltipItem.index]
-                                            var nilai = dataset.dataAM[tooltipItem.index]
-                                            var percentage = parseFloat((nilai / total * 100).toFixed(1));
-                                            return currentValue + ': ' + label;
-                                        },
-                                        afterLabel: function (tooltipItem, data) {
-                                            var dataset = data.datasets[tooltipItem.datasetIndex];
-                                            var nilai = dataset.dataAM[tooltipItem.index]
-                                            return 'Rp. ' + convertToRupiah(nilai);
-                                        },
-                                        title: function (tooltipItem, data) {
-                                            return data.labels[tooltipItem[0].index];
-                                        }
-                                    },
-                                    backgroundColor: '#FFF',
-                                    titleFontColor: '#0066ff',
-                                    bodyFontColor: '#000'
-                }
-            };
-
-            //create Chart class object
-            var chartAllMingguan = new Chart(ctxAllMingguan, {
-                type: "line",
-                data: dataAllMingguan,
-                options: optionsAllMingguan
-            });
+                    //create Chart class object
+                    var chartAllMingguan = new Chart(ctxAllMingguan, {
+                        type: "line",
+                        data: dataAllMingguan,
+                        options: optionsAllMingguan
+                    });
 
                     $("#MingguanLegend").html(chartAllMingguan.generateLegend());
 
@@ -4203,13 +4203,13 @@
                         jumlahpesananTahunan.push(listDataPesananT[i].Jumlah);
                         nilaipesananTahunan.push(listDataPesananT[i].Nilai);
                     }
-                                        
+
                     var maxJumlahPesananTahunan = Math.max.apply(Math, jumlahpesananTahunan);
                     var dataMaxJumlahPesananTahunan = [maxJumlahPesananTahunan];
                     var maxJumlahPT = Math.max.apply(Math, dataMaxJumlahPesananTahunan);
                     var maxTicksBasicPesananTahunan = Math.ceil(maxJumlahPT / 10) * 10;
                     var steppingBasicPesananTahunan = (Math.ceil(maxJumlahPT / 10) * 10) / 5;
-                    
+
                     var ctxPesananTahunan = document.getElementById("chartPesananTahunan").getContext('2d');
 
                     var dataPesananTahunan = {
@@ -5424,7 +5424,7 @@
             });
         }
         function ubahLineChart() {
-                    //---------------all--------------------------
+            //---------------all--------------------------
             if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == true && $("#ctk_retur").is(":checked") == true && $('#periode').val() == "1") {
                 $('#allMingguan').show();
                 $('#PesananMingguan').hide();
@@ -5495,7 +5495,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').hide();
             }
-            //-------------------mingguan---------------
+                //-------------------mingguan---------------
             else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1") {
                 $('#allMingguan').hide();
                 $('#PesananMingguan').show();
@@ -5635,7 +5635,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').hide();
             }
-            //---------------------bulanan-------------------
+                //---------------------bulanan-------------------
             else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "2") {
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
@@ -5775,7 +5775,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').hide();
             }
-            //---------------------tahunan-------------------
+                //---------------------tahunan-------------------
             else if ($("#ctk_pesanan").is(":checked") == true && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "3") {
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
@@ -5915,7 +5915,7 @@
                 $('#PesananReturTahunan').hide();
                 $('#FakturReturTahunan').show();
             } else if ($("#ctk_pesanan").is(":checked") == false && $("#ctk_faktur").is(":checked") == false && $("#ctk_retur").is(":checked") == false && $('#periode').val() == "1" || $('#periode').val() == "2" || $('#periode').val() == "3") {
-                
+
                 $('#allMingguan').hide();
                 $('#PesananMingguan').hide();
                 $('#FakturMingguan').hide();
