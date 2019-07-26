@@ -386,6 +386,235 @@ namespace MasterOnline.Controllers
             return qtyOnHand;
         }
 
+        public void updateStockMarketPlace_ForItemInSTF08A(string connId, string DatabasePathErasoft, string uname)
+        {
+            SetupContext(DatabasePathErasoft, uname);
+
+            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            bool doAPI = false;
+            if (DataUsaha != null)
+            {
+                if (DataUsaha.JTRAN_RETUR == "1")
+                {
+                    doAPI = true;
+                }
+            }
+            if (doAPI)
+            {
+                var Marketplaces = MoDbContext.Marketplaces;
+                var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
+                var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
+                var kdBli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
+                var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
+                var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
+                var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
+                var kdJD = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket;
+
+                string EDBConnID = EDB.GetConnectionString("ConnId");
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                var client = new BackgroundJobClient(sqlStorage);
+
+                var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
+
+                List<string> listBrg = new List<string>();
+                foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+                {
+                    listBrg.Add(item.BRG);
+                }
+
+                var ListARF01 = ErasoftDbContext.ARF01.ToList();
+                foreach (string kdBrg in listBrg)
+                {
+                    //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
+                    var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
+                    var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+
+                    foreach (var stf02h in brgMarketplace)
+                    {
+                        var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
+                        if (marketPlace.NAMA.Equals(kdBL.ToString()))
+                        {
+#if (DEBUG || Debug_AWS)
+                            Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
+#else
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+#endif
+                        }
+                        else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+                        {
+#if (DEBUG || Debug_AWS)
+                            Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
+#else
+                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
+#endif
+                        }
+                        else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                        {
+                            string[] imgID = new string[3];
+                            for (int i = 0; i < 3; i++)
+                            {
+                                switch (i)
+                                {
+                                    case 0:
+                                        imgID[0] = barangInDb.LINK_GAMBAR_1;
+                                        break;
+                                    case 1:
+                                        imgID[1] = barangInDb.LINK_GAMBAR_2;
+                                        break;
+                                    case 2:
+                                        imgID[2] = barangInDb.LINK_GAMBAR_3;
+                                        break;
+                                }
+                            }
+
+                            EleveniaProductData data = new EleveniaProductData
+                            {
+                                api_key = marketPlace.API_KEY,
+                                kode = barangInDb.BRG,
+                                nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
+                                berat = (barangInDb.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                imgUrl = imgID,
+                                Keterangan = barangInDb.Deskripsi,
+                                Qty = "",
+                                DeliveryTempNo = stf02h.DeliveryTempElevenia,
+                                IDMarket = marketPlace.RecNum.ToString(),
+                            };
+                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
+                            data.Price = stf02h.HJUAL.ToString();
+                            data.kode_mp = stf02h.BRG_MP;
+                            //eleApi.UpdateProductQOH_Price(data);
+                            client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null));
+                        }
+                        else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Kode))
+                            {
+                                BlibliAPIData iden = new BlibliAPIData
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust,
+                                    API_client_password = marketPlace.API_CLIENT_P,
+                                    API_client_username = marketPlace.API_CLIENT_U,
+                                    API_secret_key = marketPlace.API_KEY,
+                                    token = marketPlace.TOKEN,
+                                    mta_username_email_merchant = marketPlace.EMAIL,
+                                    mta_password_password_merchant = marketPlace.PASSWORD,
+                                    idmarket = marketPlace.RecNum.Value
+                                };
+                                BlibliProductData data = new BlibliProductData
+                                {
+                                    kode = kdBrg,
+                                    kode_mp = stf02h.BRG_MP,
+                                    Qty = "",
+                                    MinQty = "0"
+                                };
+                                data.Price = barangInDb.HJUAL.ToString();
+                                data.MarketPrice = stf02h.HJUAL.ToString();
+                                var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                data.display = display ? "true" : "false";
+                                //var BliApi = new BlibliController();
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null).Wait());
+#else
+                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null));
+#endif
+                            }
+                        }
+                        //add by calvin 18 desember 2018
+                        else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    TokopediaAPIData iden = new TokopediaAPIData()
+                                    {
+                                        merchant_code = marketPlace.Sort1_Cust, //FSID
+                                        API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                        API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                        API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                        token = marketPlace.TOKEN,
+                                        idmarket = marketPlace.RecNum.Value
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING"))
+                                    {
+                                        //dibuat recurrent nanti
+                                        //var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == marketPlace.RecNum && p.BRG_MP == stf02h.BRG_MP).ToList();
+                                        //if (cekPendingCreate.Count > 0)
+                                        //{
+                                        //    foreach (var item in cekPendingCreate)
+                                        //    {
+                                        //        Task.Run(() => TokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                                        //    }
+                                        //}
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                        else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                        {
+                            ShopeeAPIData data = new ShopeeAPIData()
+                            {
+                                merchant_code = marketPlace.Sort1_Cust,
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                if (brg_mp.Count() == 2)
+                                {
+                                    if (brg_mp[1] == "0" || brg_mp[1] == "")
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    }
+                                    else if (brg_mp[1] != "")
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                        //end add by calvin 18 desember 2018
+                        //add by Tri 11 April 2019
+                        else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                        {
+                            JDIDAPIData data = new JDIDAPIData()
+                            {
+                                accessToken = marketPlace.TOKEN,
+                                appKey = marketPlace.API_KEY,
+                                appSecret = marketPlace.API_CLIENT_U,
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+#else
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, stf02h.BRG_MP, 0, uname, null));
+#endif
+                            }
+                        }
+                        //end add by Tri 11 April 2019
+
+                    }
+                }
+            }
+        }
+
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
@@ -518,7 +747,7 @@ namespace MasterOnline.Controllers
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
-                                var BliApi = new BlibliController();
+                                //var BliApi = new BlibliController();
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", iden, data, uname, null).Wait());
 #else
@@ -826,7 +1055,7 @@ namespace MasterOnline.Controllers
             string auth = data.api_key;
 
             Utils.HttpRequest req = new Utils.HttpRequest();
-            long milis = BlibliController.CurrentTimeMillis();
+            long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             // Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
