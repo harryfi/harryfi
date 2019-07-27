@@ -1295,7 +1295,7 @@ namespace MasterOnline.Controllers
 
             var message = new MailMessage();
             message.To.Add(email);
-            message.From = new MailAddress("support@masteronline.co.id");
+            message.From = new MailAddress("csmasteronline@gmail.com");
             message.Subject = "Pendaftaran Master Online berhasil!";
             message.Body = string.Format(body, account_Email, originPassword, nama);
             message.IsBodyHtml = true;
@@ -1304,8 +1304,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "zcipeqngzvvbuuju"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1594,7 +1594,7 @@ namespace MasterOnline.Controllers
                 var email = new MailAddress(partnerInDb.Email);
                 var message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("support@masteronline.co.id");
+                message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "SELAMAT! Anda telah menjadi partner dari MasterOnline!";
                 message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PartnerApproval.html"))
                     .Replace("LINKREF", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("Index", "Home", new { @ref = partnerInDb.KodeRefPilihan }))
@@ -1619,8 +1619,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "zcipeqngzvvbuuju"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1633,8 +1633,8 @@ namespace MasterOnline.Controllers
                 {
                     var credential = new NetworkCredential
                     {
-                        UserName = "support@masteronline.co.id",
-                        Password = "zcipeqngzvvbuuju"
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "kmblwexkeretrwxv"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";

@@ -272,7 +272,7 @@ namespace MasterOnline.Controllers.Api
 
             var message = new MailMessage();
             message.To.Add(email);
-            message.From = new MailAddress("support@masteronline.co.id");
+            message.From = new MailAddress("csmasteronline@gmail.com");
             message.Subject = "Pendaftaran MasterOnline berhasil!";
             message.Body = string.Format(body, account.Email, originPassword);
             message.IsBodyHtml = true;
@@ -295,8 +295,8 @@ namespace MasterOnline.Controllers.Api
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "erasoft123"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -309,8 +309,8 @@ namespace MasterOnline.Controllers.Api
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "erasoft123"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
