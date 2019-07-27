@@ -465,7 +465,7 @@ namespace MasterOnline.Controllers
 
             var message = new MailMessage();
             message.To.Add(email);
-            message.From = new MailAddress("support@masteronline.co.id");
+            message.From = new MailAddress("csmasteronline@gmail.com");
             message.Subject = "Akun Master Online Anda sudah aktif!";
             message.Body = string.Format(body, email, originPassword, nama);
             message.IsBodyHtml = true;
@@ -487,8 +487,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "zcipeqngzvvbuuju"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -501,8 +501,8 @@ namespace MasterOnline.Controllers
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "support@masteronline.co.id",
-                    Password = "zcipeqngzvvbuuju"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
