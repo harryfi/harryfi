@@ -1,4 +1,5 @@
-﻿@using MasterOnline.Models
+﻿@using System.Globalization;
+@using MasterOnline.Models
 @using MasterOnline.ViewModels
 @{
     MoDbContext context = new MoDbContext();
@@ -8,11 +9,27 @@
 
     var namaPerAccount = "";//add by calvin 1 april 2019
 
+    //add by nurul 26/7/2019
+    DateTime? drTgl = null;
+    DateTime? sdTgl = null;
+    string member = "";
+    //end add by nurul 26/7/2019
+
     if (dataSession?.Account != null)
     {
         nama = dataSession.Account.Username;
         erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
         namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
+        
+        //add by nurul 26/7/2019
+        sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
+        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
+        if (cekHistoryPembayaran.Count() > 0)
+        {
+            drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+        }
+        member = dataSession.Account.KODE_SUBSCRIPTION;
+        //end add by nurul 26/7/2019
     }
     else
     {
@@ -20,6 +37,16 @@
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
+        
+        //add by nurul 26/7/2019
+        sdTgl = accFromUser.TGL_SUBSCRIPTION;
+        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == accFromUser.Email).ToList();
+        if (cekHistoryPembayaran.Count() > 0)
+        {
+            drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+        }
+        member = accFromUser.KODE_SUBSCRIPTION;
+        //end add by nurul 26/7/2019
     }
 
     var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
@@ -69,7 +96,6 @@
     <!--add by calvin 1 april 2019-->
     <script src="~/Content/jquery.notify.js"></script>
     <!--end add by calvin 1 april 2019-->
-
     @*//add by nurul 22/2/2019*@
     <link href="~/Content/hover-min.css" rel="stylesheet" />
     @*//end add by nurul 22/2/2019*@
@@ -77,29 +103,29 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
+                window.dataLayer = window.dataLayer || [];
+                function gtag() { dataLayer.push(arguments); }
+                gtag('js', new Date());
 
-        gtag('config', 'UA-130203101-1');
-        gtag('config', 'AW-778375246');
+                gtag('config', 'UA-130203101-1');
+                gtag('config', 'AW-778375246');
     </script>
     <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
     <script>
-        function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
+                function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
     <!-- Facebook Pixel Code -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window,document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-         fbq('init', '2320855488162974');
-        fbq('track', 'PageView');
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window,document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                 fbq('init', '2320855488162974');
+                fbq('track', 'PageView');
     </script>
     <noscript>
         <img height="1" width="1" src="https://www.facebook.com/tr?id=2320855488162974&ev=PageView&noscript=1" />
@@ -107,6 +133,17 @@
     <!-- End Facebook Pixel Code -->
     @RenderSection("styles", required: false)
     <style>
+        .member-profile {
+            color: #5E6974 !important;
+            border-radius: 50%;
+            background: none !important;
+        }
+        .member-label-gold {
+            color:gold;
+        }
+        .member-label-silver {
+            color: silver;
+        }
         .page-editor {
             overflow: inherit !important;
         }
@@ -264,7 +301,7 @@
                                     //change by Tri, sort by scrid
                                     //var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
                                     var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
-                                    //end change by Tri, sort by scrid                                
+                                    //end change by Tri, sort by scrid
                                     var listChild = listAnak.ToList();
                                     var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
 
@@ -495,9 +532,35 @@
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
                         </div>
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="">
-                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <ul class="nav navbar-nav pull-right">
+                            @*//add by nurul 26/7/2019*@
+                            <li class="center">
+                                <a class="member-profile center">
+                                    @if (drTgl != null)
+                                    {
+                                        if (member == "01")
+                                        {
+                                            <label>Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                        }
+                                        else if (member == "02")
+                                        {
+                                            <label class="member-label-silver">Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                        }
+                                        else if (member == "03")
+                                        {
+                                            <label class="member-label-gold">Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <label>Masa berlaku Anda sampai @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                    }
+                                </a>
+                            </li>
+                            @*//end add by nurul 26/7/2019*@
+                            <li class="pull-right">
+
+                                <a href="javascript:;" class="user-profile dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">
                                     <img src="~/Content/Images/temp-ava.png" alt="">@nama
                                     <span class=" fa fa-angle-down"></span>
                                 </a>
@@ -571,41 +634,41 @@
     <script type="text/javascript" src="~/Content/timeout-dialog.js"></script>
     <script type="text/javascript">
         //remark by calvin 18 februari 2019, req by pak dani
-        @*//add by nurul 17/1/2019
-        var SessionTimeout = false;
-        //end add
-        var inactivityTime = function () {
-            var t;
-            window.onload = resetTimer;
-            // DOM Events
-            document.onmousemove = resetTimer;
-            document.onkeypress = resetTimer;
+                        @*//add by nurul 17/1/2019
+    var SessionTimeout = false;
+    //end add
+    var inactivityTime = function () {
+        var t;
+        window.onload = resetTimer;
+        // DOM Events
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
 
-            function reloginSession() {
+        function reloginSession() {
 
-                    $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
+                $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
 
-            }
+        }
 
-            function logout() {
-                reloginSession();
-            }
+        function logout() {
+            reloginSession();
+        }
 
-        function resetTimer() {
-            //change by nurul 17/1/2019
-            //if (SessionTimeout == false) {
-                clearTimeout(t);
-                t = setTimeout(logout, 600000);
-            //}
-            //end change
-            }
-        };
+    function resetTimer() {
+        //change by nurul 17/1/2019
+        //if (SessionTimeout == false) {
+            clearTimeout(t);
+            t = setTimeout(logout, 600000);
+        //}
+        //end change
+        }
+    };
 
-        inactivityTime();*@
-        //end remark by calvin 18 februari 2019
-    </script>
-    @* ReSharper disable once Mvc.ActionNotResolved *@
-    <script type="text/javascript">
+    inactivityTime();*@
+                        //end remark by calvin 18 februari 2019
+                        </script>
+                        @* ReSharper disable once Mvc.ActionNotResolved *@
+                                <script type="text/javascript">
         $(".alert").fadeTo(4000, 500).slideUp(500, function () {
             $(".alert").slideUp(500);
         });
