@@ -294,7 +294,7 @@
     </style>
     <style type="text/css">
         /*//add by nurul 5/7/2019*/
-        [class$="-legend"] {
+        /*[class$="-legend"] {
             list-style: none;
             cursor: pointer;
             padding-left: 0;
@@ -310,6 +310,28 @@
                 }
 
                 [class$="-legend"] li span {
+                    border-radius: 5px;
+                    display: inline-block;
+                    height: 10px;
+                    margin-right: 10px;
+                    width: 10px;
+                }*/
+        [class$="-legendPie"] {
+            list-style: none;
+            cursor: pointer;
+            padding-left: 0;
+        }
+
+            [class$="-legendPie"] li {
+                display: inline-block;
+                padding: 0 5px;
+            }
+
+                [class$="-legendPie"] li.hidden {
+                    text-decoration: line-through;
+                }
+
+                [class$="-legendPie"] li span {
                     border-radius: 5px;
                     display: inline-block;
                     height: 10px;
@@ -1793,7 +1815,7 @@
                                     
                                     
                                     var text = [];
-                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    text.push('<ul class="' + chart.id + '-legendPie" style="list-style:none">');
                                     for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
                                         text.push('<section>');
                                         text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
@@ -1939,7 +1961,7 @@
                                 legendCallback: function (chart) {
                                     
                                     var text = [];
-                                    text.push('<ul class="' + chart.id + '-legend" style="list-style:none">');
+                                    text.push('<ul class="' + chart.id + '-legendPie" style="list-style:none">');
                                     for (var i = 0; i < chart.data.datasets[0].data.length; i++) {
                                         text.push('<section>');
                                         text.push('<li><div style="width:10px;height:10px;display:inline-block;background:' + chart.data.datasets[0].backgroundColor[i] + '" />&nbsp;');
