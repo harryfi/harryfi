@@ -247,11 +247,10 @@ namespace MasterOnline.Controllers
                                 {
                                     currentLog.REQUEST_RESULT = item_failed.error;
                                     currentLog.REQUEST_EXCEPTION = item_failed.error;
-                                    //var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITFAILED;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 }
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                                 throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION);
-
                             }
                         }
                     }
@@ -762,7 +761,8 @@ namespace MasterOnline.Controllers
                         product_variant = new List<CreateProduct_Product_Variant1>(),
                         variant = new List<CreateProduct_Variant>()
                     };
-                    var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
+                    //var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
+                    var AttributeOptTokped = (await GetAttributeToList(iden, brg_stf02h.CATEGORY_CODE)).attribute_opt;
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
                     var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList().OrderBy(p => p.RECNUM);
                     var var_stf02_brg_list = var_stf02.Select(p => p.BRG).ToList();
@@ -2081,6 +2081,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
         public async Task<string> UpdateStock(TokopediaAPIData iden, int product_id, int stok)
         {
             long milis = CurrentTimeMillis();
@@ -2125,6 +2126,55 @@ namespace MasterOnline.Controllers
             }
             return "";
         }
+
+        public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, float price)
+        {
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/price/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+
+            string responseFromServer = "";
+            List<UpdatePriceData> HttpBodies = new List<UpdatePriceData>();
+            UpdatePriceData HttpBody = new UpdatePriceData()
+            {
+                sku = "",
+                product_id = product_id,
+                new_price = price
+            };
+            HttpBodies.Add(HttpBody);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string myData = JsonConvert.SerializeObject(HttpBodies);
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return "";
+        }
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Product {obj} ke Tokopedia Berhasil. Link Produk Gagal.")]
@@ -2995,19 +3045,27 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetAttributeToList(TokopediaAPIData data, string category_CATEGORY_CODE)
+        public async Task<ManageController.GetAttributeTokpedReturn> GetAttributeToList(TokopediaAPIData iden, string category_CATEGORY_CODE)
         {
-            string ret = "";
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            ManageController.GetAttributeTokpedReturn ret = new ManageController.GetAttributeTokpedReturn() {
+                attribute = new List<ATTRIBUTE_TOKPED>(),
+                attribute_opt = new List<ATTRIBUTE_OPT_TOKPED>(),
+                attribute_unit = new List<ATTRIBUTE_UNIT_TOKPED>()
+            };
+            
             //List<CATEGORY_TOKPED> categories = MoDbContext.Database.SqlQuery<CATEGORY_TOKPED>("SELECT * FROM CATEGORY_TOKPED WHERE IS_LAST_NODE = '1'").ToList();
             //foreach (var category in categories)
             //{
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(category_CATEGORY_CODE);
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(category_CATEGORY_CODE);
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
@@ -3034,118 +3092,48 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
-#if AWS
-                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#elif Debug_AWS
-                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#else
-                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-#endif
-                        using (SqlConnection oConnection = new SqlConnection(con))
+                        string a = "";
+                        int i = 0;
+                        foreach (var attribs in result.data)
                         {
-                            oConnection.Open();
-                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                            //{
-                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            a = Convert.ToString(i + 1);
+
+                            ATTRIBUTE_TOKPED newRecord = new ATTRIBUTE_TOKPED();
+
+                            newRecord["VARIANT_ID_" + a] = attribs.variant_id;
+                            newRecord["HAS_UNIT_" + a] = attribs.has_unit;
+                            newRecord["ANAME_" + a] = attribs.name;
+                            newRecord["STATUS_" + a] = Convert.ToString(attribs.status);
+                            ret.attribute.Add(newRecord);
+
+                            if (attribs.units.Count() > 0)
                             {
-                                var AttributeInDb = MoDbContext.AttributeTokped.ToList();
-                                //cek jika belum ada di database, insert
-                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category_CATEGORY_CODE));
-                                if (cari.Count() == 0)
+                                foreach (var unit in attribs.units)
                                 {
-                                    oCommand.CommandType = CommandType.Text;
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                    ATTRIBUTE_UNIT_TOKPED newRecordUnit = new ATTRIBUTE_UNIT_TOKPED();
+                                    newRecordUnit["VARIANT_ID"] = attribs.variant_id;
+                                    newRecordUnit["UNIT_ID"] = unit.unit_id;
+                                    newRecordUnit["UNIT_NAME"] = unit.name;
+                                    newRecordUnit["UNIT_SHORT_NAME"] = unit.short_name;
+                                    ret.attribute_unit.Add(newRecordUnit);
+                                }
 
-                                    string sSQL = "INSERT INTO [ATTRIBUTE_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME],";
-                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-                                    string a = "";
-                                    int i = 0;
-                                    foreach (var attribs in result.data)
+                                foreach (var unit in attribs.units)
+                                {
+                                    foreach (var opt in unit.values)
                                     {
-                                        a = Convert.ToString(i + 1);
-                                        sSQL += "[VARIANT_ID_" + a + "],[HAS_UNIT_" + a + "],[ANAME_" + a + "],[STATUS_" + a + "],";
-                                        sSQLValue += "@VARIANT_ID_" + a + ",@HAS_UNIT_" + a + ",@ANAME_" + a + ",@STATUS_" + a + ",";
-                                        oCommand.Parameters.Add(new SqlParameter("@VARIANT_ID_" + a, SqlDbType.Int));
-                                        oCommand.Parameters.Add(new SqlParameter("@HAS_UNIT_" + a, SqlDbType.Int));
-                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-                                        oCommand.Parameters.Add(new SqlParameter("@STATUS_" + a, SqlDbType.NVarChar, 1));
-
-                                        a = Convert.ToString(i * 4 + 2);
-                                        oCommand.Parameters[(i * 4) + 2].Value = "";
-                                        oCommand.Parameters[(i * 4) + 3].Value = "";
-                                        oCommand.Parameters[(i * 4) + 4].Value = "";
-                                        oCommand.Parameters[(i * 4) + 5].Value = "";
-
-                                        oCommand.Parameters[(i * 4) + 2].Value = attribs.variant_id;
-                                        oCommand.Parameters[(i * 4) + 3].Value = attribs.has_unit;
-                                        oCommand.Parameters[(i * 4) + 4].Value = attribs.name;
-                                        oCommand.Parameters[(i * 4) + 5].Value = attribs.status;
-
-                                        if (attribs.units.Count() > 0)
-                                        {
-                                            var AttributeUnitInDb = MoDbContext.AttributeUnitTokped.AsNoTracking().ToList();
-                                            foreach (var unit in attribs.units)
-                                            {
-                                                var cariUnit = AttributeUnitInDb.Where(p => p.UNIT_ID == unit.unit_id);
-                                                if (cariUnit.Count() == 0)
-                                                {
-                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
-                                                    {
-                                                        oCommand2.CommandType = CommandType.Text;
-                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_UNIT_TOKPED ([VARIANT_ID], [UNIT_ID], [UNIT_NAME], [UNIT_SHORT_NAME]) VALUES (@VARIANT_ID, @UNIT_ID, @UNIT_NAME, @UNIT_SHORT_NAME)";
-                                                        oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
-                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
-                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_NAME", SqlDbType.NVarChar, 100));
-                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_SHORT_NAME", SqlDbType.NVarChar, 75));
-                                                        oCommand2.Parameters[0].Value = attribs.variant_id;
-                                                        oCommand2.Parameters[1].Value = unit.unit_id;
-                                                        oCommand2.Parameters[2].Value = unit.name;
-                                                        oCommand2.Parameters[3].Value = unit.short_name;
-                                                        oCommand2.ExecuteNonQuery();
-                                                    }
-                                                }
-                                            }
-
-                                            var AttributeOptInDb = MoDbContext.AttributeOptTokped.AsNoTracking().ToList();
-                                            foreach (var unit in attribs.units)
-                                            {
-                                                foreach (var opt in unit.values)
-                                                {
-                                                    var cariOpt = AttributeOptInDb.Where(p => p.VARIANT_ID == attribs.variant_id && p.UNIT_ID == unit.unit_id && p.VALUE_ID == opt.value_id);
-                                                    if (cariOpt.Count() == 0)
-                                                    {
-                                                        using (SqlCommand oCommand2 = oConnection.CreateCommand())
-                                                        {
-                                                            oCommand2.CommandType = CommandType.Text;
-                                                            oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_TOKPED ([VALUE_ID], [UNIT_ID], [VALUE], [HEX_CODE], [ICON], [VARIANT_ID]) VALUES (@VALUE_ID, @UNIT_ID, @VALUE, @HEX_CODE, @ICON, @VARIANT_ID)";
-                                                            oCommand2.Parameters.Add(new SqlParameter("@VALUE_ID", SqlDbType.Int));
-                                                            oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
-                                                            oCommand2.Parameters.Add(new SqlParameter("@VALUE", SqlDbType.NVarChar, 50));
-                                                            oCommand2.Parameters.Add(new SqlParameter("@HEX_CODE", SqlDbType.NVarChar, 50));
-                                                            oCommand2.Parameters.Add(new SqlParameter("@ICON", SqlDbType.NVarChar, 200));
-                                                            oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
-                                                            oCommand2.Parameters[0].Value = opt.value_id;
-                                                            oCommand2.Parameters[1].Value = unit.unit_id;
-                                                            oCommand2.Parameters[2].Value = opt.value;
-                                                            oCommand2.Parameters[3].Value = opt.hex_code;
-                                                            oCommand2.Parameters[4].Value = opt.icon;
-                                                            oCommand2.Parameters[5].Value = attribs.variant_id;
-                                                            oCommand2.ExecuteNonQuery();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        i = i + 1;
+                                        ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
+                                        newRecordOpt["VALUE_ID"] = opt.value_id;
+                                        newRecordOpt["UNIT_ID"] = unit.unit_id;
+                                        newRecordOpt["VALUE"] = opt.value;
+                                        newRecordOpt["HEX_CODE"] = opt.hex_code;
+                                        newRecordOpt["ICON"] = opt.icon;
+                                        newRecordOpt["VARIANT_ID"] = attribs.variant_id;
+                                        ret.attribute_opt.Add(newRecordOpt);
                                     }
-                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-                                    oCommand.CommandText = sSQL;
-                                    oCommand.Parameters[0].Value = category_CATEGORY_CODE;
-                                    oCommand.Parameters[1].Value = "";
-                                    oCommand.ExecuteNonQuery();
                                 }
                             }
+                            i = i + 1;
                         }
                     }
                     catch (Exception ex2)
@@ -3707,6 +3695,13 @@ namespace MasterOnline.Controllers
             public string sku { get; set; }
             public int product_id { get; set; }
             public int new_stock { get; set; }
+
+        }
+        public class UpdatePriceData
+        {
+            public string sku { get; set; }
+            public int product_id { get; set; }
+            public float new_price { get; set; }
 
         }
 
