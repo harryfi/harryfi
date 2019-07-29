@@ -139,10 +139,10 @@
             background: none !important;
         }
         .member-label-gold {
-            color:gold;
+            color:goldenrod;
         }
         .member-label-silver {
-            color: silver;
+            color: darkgrey;
         }
         .page-editor {
             overflow: inherit !important;
@@ -540,20 +540,24 @@
                                     {
                                         if (member == "01")
                                         {
-                                            <label>Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            <label>BASIC </label>
+                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "02")
                                         {
-                                            <label class="member-label-silver">Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            <label class="member-label-silver">SILVER </label>
+                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "03")
                                         {
-                                            <label class="member-label-gold">Masa berlaku Anda dari @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                            <label class="member-label-gold">GOLD </label>
+                                            <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                     }
                                     else
                                     {
-                                        <label>Masa berlaku Anda sampai @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                        <label>BASIC </label>
+                                        <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                     }
                                 </a>
                             </li>
