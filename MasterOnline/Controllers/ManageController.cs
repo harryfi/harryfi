@@ -21153,7 +21153,8 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                 {
-                                    var promoPrice = brgInDB.HJUAL;
+                                    //var promoPrice = brgInDB.HJUAL;
+                                    var promoPrice = promo.HARGA_PROMOSI;
                                     //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
                                     PromoLazadaObj data = new PromoLazadaObj
                                     {
