@@ -11959,6 +11959,70 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public ActionResult GetDataBarangPromosi2(int? promoId, string cust)
+        {
+            //var listBarang = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019 
+            //var listBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+            //var listBarang = (from a in ErasoftDbContext.STF02
+            //                  where a.TYPE == "3"
+            //                  select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL });
+            var listBrg = new List<smolSTF02>();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            if (customer != null)
+            {
+                var dsBarang = EDB.GetDataSet("CString", "tblBrg", "SELECT A.BRG, A.NAMA, ISNULL(A.NAMA2, '') NAMA2, A.STN2, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE TYPE = 3 AND IDMARKET = " + customer.RecNum);
+                var listBarangSesuaiPromo = new List<DetailPromosi>();
+                if (promoId != null)
+                {
+                    listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
+                }
+                if (dsBarang.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                    {
+                        var barang = new smolSTF02
+                        {
+                            BRG = dsBarang.Tables[0].Rows[i]["BRG"].ToString(),
+                            NAMA = dsBarang.Tables[0].Rows[i]["NAMA"].ToString(),
+                            NAMA2 = dsBarang.Tables[0].Rows[i]["NAMA2"].ToString(),
+                            STN2 = dsBarang.Tables[0].Rows[i]["STN2"].ToString(),
+                            HJUAL = Convert.ToDouble(dsBarang.Tables[0].Rows[i]["HJUAL"].ToString()),
+                        };
+                        if(promoId != null)
+                        {
+                            if(!listBarangSesuaiPromo.Select(m => m.KODE_BRG).Contains(barang.BRG))
+                                listBrg.Add(barang);
+                        }
+                        else
+                        {
+                            listBrg.Add(barang);
+                        }
+                    }
+                }
+
+            }
+            //if (promoId == null)
+            //{
+            //    return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+            //}
+
+            //var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
+            ////List<STF02> listBarangUntukPromo = null;
+
+            //if (listBarangSesuaiPromo != null && listBarangSesuaiPromo.Count > 0)
+            //{
+            //    var listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
+            //    return Json(listBarangUntukPromo.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+            //}
+            //else
+            //{
+            //    return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
+            //}
+
+            return Json(listBrg, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public ActionResult GetEkspedisi()
         {
             var listEkspedisi = MoDbContext.Ekspedisi.ToList();
@@ -21047,16 +21111,18 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.PROMOSI.Remove(promosiInDb);
             ErasoftDbContext.SaveChanges();
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
+            //remark 25 juli 2019, create promo tidak termasuk flag
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //end remark 25 juli 2019, create promo tidak termasuk flag
             {
                 //add by calvin 26 desember 2018
                 //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
@@ -21092,7 +21158,8 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                 {
-                                    var promoPrice = brgInDB.HJUAL;
+                                    //var promoPrice = brgInDB.HJUAL;
+                                    var promoPrice = promo.HARGA_PROMOSI;
                                     //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
                                     PromoLazadaObj data = new PromoLazadaObj
                                     {
@@ -21137,16 +21204,18 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.DETAILPROMOSI.Remove(barangPromosiInDb);
                 ErasoftDbContext.SaveChanges();
 
-                var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-                bool doAPI = false;
-                if (DataUsaha != null)
-                {
-                    if (DataUsaha.JTRAN_RETUR == "1")
-                    {
-                        doAPI = true;
-                    }
-                }
-                if (doAPI)
+                //remark 25 juli 2019, create promo tidak termasuk flag
+                //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                //bool doAPI = false;
+                //if (DataUsaha != null)
+                //{
+                //    if (DataUsaha.JTRAN_RETUR == "1")
+                //    {
+                //        doAPI = true;
+                //    }
+                //}
+                //if (doAPI)
+                //end remark 25 juli 2019, create promo tidak termasuk flag
                 {
                     //add by calvin 26 desember 2018
                     //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
@@ -21272,16 +21341,18 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
 
-                var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-                bool doAPI = false;
-                if (DataUsaha != null)
-                {
-                    if (DataUsaha.JTRAN_RETUR == "1")
-                    {
-                        doAPI = true;
-                    }
-                }
-                if (doAPI)
+                //remark 25 juli 2019, create promo tidak termasuk flag
+                //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                //bool doAPI = false;
+                //if (DataUsaha != null)
+                //{
+                //    if (DataUsaha.JTRAN_RETUR == "1")
+                //    {
+                //        doAPI = true;
+                //    }
+                //}
+                //if (doAPI)
+                //end remark 25 juli 2019, create promo tidak termasuk flag
                 {
                     //add by calvin 26 desember 2018
                     //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
@@ -21393,16 +21464,18 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
                     ErasoftDbContext.SaveChanges();
 
-                    var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-                    bool doAPI = false;
-                    if (DataUsaha != null)
-                    {
-                        if (DataUsaha.JTRAN_RETUR == "1")
-                        {
-                            doAPI = true;
-                        }
-                    }
-                    if (doAPI)
+                    //remark 25 juli 2019, create promo tidak termasuk flag
+                    //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                    //bool doAPI = false;
+                    //if (DataUsaha != null)
+                    //{
+                    //    if (DataUsaha.JTRAN_RETUR == "1")
+                    //    {
+                    //        doAPI = true;
+                    //    }
+                    //}
+                    //if (doAPI)
+                    //end remark 25 juli 2019, create promo tidak termasuk flag
                     {
                         //add by calvin 26 desember 2018
                         //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
@@ -21415,7 +21488,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
                             {
-                                if (!string.IsNullOrWhiteSpace(dataVm.Promosi.MP_PROMO_ID))
+                                if (!string.IsNullOrWhiteSpace(promosiInDb.MP_PROMO_ID))
                                 {
                                     var ShopeeApi = new ShopeeController();
 
@@ -21423,7 +21496,7 @@ namespace MasterOnline.Controllers
                                     {
                                         merchant_code = customer.Sort1_Cust,
                                     };
-                                    Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(dataVm.Promosi.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
+                                    Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
                                 }
                             }
                         }
@@ -21442,7 +21515,16 @@ namespace MasterOnline.Controllers
                                         {
                                             promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
                                         }
-                                        lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                                        //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                                        PromoLazadaObj data = new PromoLazadaObj
+                                        {
+                                            fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                            toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                            kdBrg = brgInDB.BRG_MP,
+                                            promoPrice = promoPrice,
+                                            token = customer.TOKEN
+                                        };
+                                        lazadaApi.setPromo(data);
                                     }
                                 }
 
