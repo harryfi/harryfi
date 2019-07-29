@@ -1,4 +1,6 @@
-﻿@{
+﻿@using PagedList
+@using System.Globalization
+@{
     ViewBag.Title = "Prompt Barang";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 }
@@ -14,40 +16,117 @@
         }
     </style>
 }
+<div class="col-lg-4 col-sm-6" id="div_search">
+    <div class="input-group">
+        <input id="search_promptbarang" type="text" class="form-control" placeholder="Pencarian">
+        <span class="input-group-btn">
+            <button type="button" id="search_promptbarang_click" class="btn btn-primary">
+                <i class="fa fa-search"></i>
+            </button>
+        </span>
+    </div>
+</div>
+<div class="row" style="padding-left:10px; padding-right:10px;">
+    <div id="table-prompt-barang-partial">
 
-<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
-    <thead>
-        <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var brg in Model)
-        {
-            <tr>
-                <td>@brg.BRG</td>
-                <td>@brg.NAMA @brg.NAMA2</td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="pilihPrompt('@brg.BRG')">
-                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                    </button>
-                </td>
+    </div>
+</div>
+@*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+        <thead>
+            <tr role="row">
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Barang</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama Barang</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var brg in Model)
+            {
+                <tr>
+                    <td>@brg.BRG</td>
+                    <td>@brg.NAMA @brg.NAMA2</td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-primary" onclick="pilihPrompt('@brg.BRG')">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>*@
 
 @section scripts
 {
-    <script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            refreshTablePromptBarang();
+            $('#search_promptbarang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromptBarang();
+                    return false;
+                }
+            });
+            $('#search_promptbarang_click').click(function () {
+                searchTablePromptBarang();
+            });
+        });
+
         function pilihPrompt($value) {
             self.window.close();
             window.onunload = refreshTextBox;
             function refreshTextBox() {
                 window.opener.afterPromptBarang($value);
             }
+        }
+
+        function refreshTablePromptBarang() {
+                var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Report", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", $('#search_promptbarang').val());
+                $link = $link.replace("replaceLastPage", $('#txt_last_page_1').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-prompt-barang-partial').hide();
+                    $('#loading_promptbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-barang-partial').html(response);
+
+                    $('#table-prompt-barang-partial').show();
+
+                    $('#loading_promptbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePromptBarang() {
+                var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Report", new { search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", $('#search_promptbarang').val());
+
+            $.ajax({
+                    url: $link,
+                    type: "GET",
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_promptbarang_tab').show();
+                    },
+                    success: function (response) {
+
+                        $('#table-prompt-barang-partial').html(response);
+                        $('#table-prompt-barang-partial').show();
+                        $('#loading_promptbarang_tab').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+            });
         }
     </script>
 }
