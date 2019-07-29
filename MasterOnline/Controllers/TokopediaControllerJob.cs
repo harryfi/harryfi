@@ -384,7 +384,8 @@ namespace MasterOnline.Controllers
                         product_variant = new List<CreateProduct_Product_Variant1>(),
                         variant = new List<CreateProduct_Variant>()
                     };
-                    var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
+                    //var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
+                    var AttributeOptTokped = (await GetAttributeToList(iden, brg_stf02h.CATEGORY_CODE)).attribute_opt;
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
                     var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList().OrderBy(p => p.RECNUM);
                     var var_stf02_brg_list = var_stf02.Select(p => p.BRG).ToList();
