@@ -3740,49 +3740,64 @@ namespace MasterOnline.Controllers
                             foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
                             {
                                 //add validasi harga per marketplace
-                                var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
-                                //add by nurul 31/1/2019
-                                //var getpromosi1 = ErasoftDbContext.Database.SqlQuery<>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
-                                var getpromo1 = (from a in ErasoftDbContext.PROMOSI
-                                                 join b in ErasoftDbContext.DETAILPROMOSI on a.RecNum equals b.RecNumPromosi
-                                                 join c in ErasoftDbContext.ARF01 on a.NAMA_MARKET equals c.CUST
-                                                 select new { brg = b.KODE_BRG, mulai = a.TGL_MULAI, akhir = a.TGL_AKHIR, nama = c.NAMA }).ToList();
-                                var getpromo2 = (from d in MoDbContext.Marketplaces
-                                                 select new { market = d.IdMarket }).ToList();
-                                var getpromosi = (from a in getpromo1
-                                                  join d in getpromo2 on a.nama equals Convert.ToString(d.market)
-                                                  where a.brg == barangInDb.BRG && Convert.ToString(d.market) == kdMarket
-                                                  select new BarangViewModel { BRG = a.brg, MULAI = Convert.ToString(a.mulai), AKHIR = Convert.ToString(a.akhir), MARKET = Convert.ToInt32(d.market) }).ToList();
-                                var drtanggal = "";
-                                var sdtanggal = "";
-                                if (getpromosi.Count() > 0)
+                                //var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
+                                var akunMP = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault();
+
+                                ////add by nurul 31/1/2019
+                                ////var getpromosi1 = ErasoftDbContext.Database.SqlQuery<>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
+                                //var getpromo1 = (from a in ErasoftDbContext.PROMOSI
+                                //                 join b in ErasoftDbContext.DETAILPROMOSI on a.RecNum equals b.RecNumPromosi
+                                //                 join c in ErasoftDbContext.ARF01 on a.NAMA_MARKET equals c.CUST
+                                //                 select new { brg = b.KODE_BRG, mulai = a.TGL_MULAI, akhir = a.TGL_AKHIR, nama = c.NAMA }).ToList();
+                                //var getpromo2 = (from d in MoDbContext.Marketplaces
+                                //                 select new { market = d.IdMarket }).ToList();
+                                //var getpromosi = (from a in getpromo1
+                                //                  join d in getpromo2 on a.nama equals Convert.ToString(d.market)
+                                //                  where a.brg == barangInDb.BRG && Convert.ToString(d.market) == kdMarket
+                                //                  select new BarangViewModel { BRG = a.brg, MULAI = Convert.ToString(a.mulai), AKHIR = Convert.ToString(a.akhir), MARKET = Convert.ToInt32(d.market) }).ToList();
+                                //var drtanggal = "";
+                                //var sdtanggal = "";
+                                //if (getpromosi.Count() > 0)
+                                //{
+                                //    string tgl1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 3]);
+                                //    string bln1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 2]);
+                                //    string thn10 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 1]);
+                                //    string thn1 = (thn10.Split(' ')[thn10.Split(' ').Length - 3]);
+                                //    drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+                                //}
+                                //else
+                                //{
+                                //    drtanggal = "01/01/1000";
+                                //}
+                                //if (getpromosi.Count() > 0)
+                                //{
+                                //    string tgl2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 3]);
+                                //    string bln2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 2]);
+                                //    string thn20 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 1]);
+                                //    string thn2 = (thn20.Split(' ')[thn20.Split(' ').Length - 3]);
+                                //    sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+                                //}
+                                //else
+                                //{
+                                //    sdtanggal = "01/01/1000";
+                                //}
+                                //var tglmulai = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                //var tglakhir = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                ////end add by nurul 31/1/2019
+                                var dsPromo = EDB.GetDataSet("CString", "PROMOSIS", "select * from promosis a inner join detailpromosis b on a.recnum = b.RecNumPromosi where tgl_mulai < dateadd(hour,7,getutcdate()) and tgl_akhir > dateadd(hour,7,getutcdate()) and kode_brg = '" + barangInDb.BRG + "' and nama_market = '" + akunMP.CUST + "'");
+                                if (dsPromo.Tables[0].Rows.Count > 0)
                                 {
-                                    string tgl1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 3]);
-                                    string bln1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 2]);
-                                    string thn10 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 1]);
-                                    string thn1 = (thn10.Split(' ')[thn10.Split(' ').Length - 3]);
-                                    drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+                                    var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == dataBaru.IDMARKET).FirstOrDefault();
+                                    if(stf02hInDB != null)
+                                    {
+                                        if(stf02hInDB.HJUAL != dataBaru.HJUAL)
+                                        {
+                                            validPrice = false;
+                                            listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    drtanggal = "01/01/1000";
-                                }
-                                if (getpromosi.Count() > 0)
-                                {
-                                    string tgl2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 3]);
-                                    string bln2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 2]);
-                                    string thn20 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 1]);
-                                    string thn2 = (thn20.Split(' ')[thn20.Split(' ').Length - 3]);
-                                    sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
-                                }
-                                else
-                                {
-                                    sdtanggal = "01/01/1000";
-                                }
-                                var tglmulai = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                                var tglakhir = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                                //end add by nurul 31/1/2019
-                                if (kdMarket == kdLazada.IdMarket.ToString())
+                                if (akunMP.NAMA == kdLazada.IdMarket.ToString())
                                 {
                                     if (dataBaru.HJUAL < 3000)
                                     {
@@ -3795,30 +3810,30 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
                                     }
-                                    //add by nurul 31/1/2019
-                                    if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    }
-                                    //end add by nurul 31/1/2019
+                                    ////add by nurul 31/1/2019
+                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                    //}
+                                    ////end add by nurul 31/1/2019
                                 }
-                                else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                else if (akunMP.NAMA == kdBlibli.IdMarket.ToString())
                                 {
                                     if (dataBaru.HJUAL < 1100)
                                     {
                                         validPrice = false;
                                         listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
                                     }
-                                    //add by nurul 31/1/2019
-                                    if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    }
-                                    //end add by nurul 31/1/2019
+                                    ////add by nurul 31/1/2019
+                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                    //}
+                                    ////end add by nurul 31/1/2019
                                 }
-                                else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                                else if (akunMP.NAMA == kdBL.IdMarket.ToString() || akunMP.NAMA == kdElevenia.IdMarket.ToString())
                                 {
                                     if (dataBaru.HJUAL < 100)
                                     {
@@ -3831,13 +3846,13 @@ namespace MasterOnline.Controllers
                                         listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
                                     }
-                                    //add by nurul 31/1/2019
-                                    if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    }
-                                    //end add by nurul 31/1/2019
+                                    ////add by nurul 31/1/2019
+                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                    //}
+                                    ////end add by nurul 31/1/2019
                                 }
                                 i++;
                                 //end add validasi harga per marketplace
@@ -4516,7 +4531,7 @@ namespace MasterOnline.Controllers
                 //end change by calvin 23 april 2019
                 //add by nurul 21/6/2019, validasi berat,p,l,t
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("Error");
             }

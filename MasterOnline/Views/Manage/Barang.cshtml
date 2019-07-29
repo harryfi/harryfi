@@ -3935,6 +3935,13 @@
             //    }
             //});
 
+            //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
+            $.each($(".removeHTMLTag"),
+                function () {
+                    var newText = removeTag($(this).val());
+                    $(this).val(newText);
+                });
+            //end add by calvin 20 juni 2019
 
             var input = $("#Stf02_HJUAL").val();
             var angka = convertToAngka(input);
