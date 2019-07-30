@@ -1798,11 +1798,35 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteCustomer(int recNum)
         {
             var custInDb = ErasoftDbContext.ARF01.Single(c => c.RecNum == recNum);
+            if (custInDb != null)
+            {
+                var pesanan = ErasoftDbContext.SOT01A.Where(m => m.CUST == custInDb.CUST).ToList();
+                if (pesanan.Count > 0)
+                {
+                    //sudah ada pesanan, tidak boleh delete
+                    return JsonErrorMessage("Akun ini sudah memiliki transaksi, tidak bisa dihapus");
+                }
+                else
+                {
+                    var faktur = ErasoftDbContext.SIT01A.Where(m => m.CUST == custInDb.CUST).ToList();
+                    if (faktur.Count > 0)
+                    {
+                        //sudah ada faktur, tidak boleh delete
+                        return JsonErrorMessage("Akun ini sudah memiliki transaksi, tidak bisa dihapus");
+                    }
+                    else
+                    {
+                        ErasoftDbContext.ARF01.Remove(custInDb);
+                        ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.IDMARKET == recNum));
 
-            ErasoftDbContext.ARF01.Remove(custInDb);
-            ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.IDMARKET == recNum));
+                        ErasoftDbContext.SaveChanges();
+                    }
+                }
+            }
+            //ErasoftDbContext.ARF01.Remove(custInDb);
+            //ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.IDMARKET == recNum));
 
-            ErasoftDbContext.SaveChanges();
+            //ErasoftDbContext.SaveChanges();
 
             //var partialVm = new CustomerViewModel()
             //{
@@ -12025,9 +12049,9 @@ namespace MasterOnline.Controllers
                             STN2 = dsBarang.Tables[0].Rows[i]["STN2"].ToString(),
                             HJUAL = Convert.ToDouble(dsBarang.Tables[0].Rows[i]["HJUAL"].ToString()),
                         };
-                        if(promoId != null)
+                        if (promoId != null)
                         {
-                            if(!listBarangSesuaiPromo.Select(m => m.KODE_BRG).Contains(barang.BRG))
+                            if (!listBarangSesuaiPromo.Select(m => m.KODE_BRG).Contains(barang.BRG))
                                 listBrg.Add(barang);
                         }
                         else
