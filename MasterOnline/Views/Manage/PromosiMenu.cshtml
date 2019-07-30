@@ -785,6 +785,10 @@
                                 $("#Promosi_NAMA_MARKET").val(null);
                             } else {
                                 $("#Promosi_NAMA_MARKET").val(value);
+                                if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
+                                    $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
+                                }
+                                getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         },
@@ -797,7 +801,6 @@
                     }
                     custSelect[0].selectize.setValue($('#Promosi_NAMA_MARKET').val(),true);
                     //end change by calvin 7 juni 2018
-
 
                     $('#btn-simpan-perubahan-row').hide();
                     //add 15 mei 2019 by Tri, validasi jika promo lazada dan tgl mulai sudah lewat tidak bisa tambah barang baru
@@ -844,9 +847,9 @@
         }
 
         function getDataBarang() {
-            var link = '@Url.Action("GetDataBarangPromosi", "Manage", new { promoId = "replaceId" })';
+            var link = '@Url.Action("GetDataBarangPromosi2", "Manage", new { promoId = "replaceId"})';
             link = link.replace("replaceId", $('#Promosi_RecNum').val());
-
+            link += "&cust=" + $('#Promosi_NAMA_MARKET').val();
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1164,7 +1167,7 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getDataBarang();
+                    //getDataBarang();
                     $('#loading_spinner').hide();
                     
                 },
