@@ -145,7 +145,7 @@
 
             if ($('#selectJudulVariantTokpedLv1').length > 0 || $('#selectJudulVariantTokpedLv2').length > 0 || $('#selectJudulVariantTokpedLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeTokped", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $(fieldCategoryCode).val());
+                link = link.replace("replaceCode", $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val());
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -294,8 +294,10 @@
         }
     }
     function SearchOptVariantTokped(level, variant_id, unit_id) {
+        var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
+
         var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
-        link = link.replace("replaceCode", variant_id + ';' + unit_id);
+        link = link.replace("replaceCode", variant_id + ';' + unit_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val());
         $.ajax({
             type: "GET",
             url: link,
@@ -2133,6 +2135,7 @@
                                             //end add by calvin 24 april 2019
                                             tokpedCategoryCodeFound = i;
                                             @Html.TextBox("txtTokpedCategoryCodeFound", @tokpedCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txtTokpedMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                         }
                                     }
                                 }
