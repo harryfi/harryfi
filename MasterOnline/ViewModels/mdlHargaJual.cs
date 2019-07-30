@@ -22,6 +22,6 @@ namespace MasterOnline
         public string AKUNMARKET { get; set; }
         public double HJUAL { get; set; }
         public double HPOKOK { get; set; }
-
+        public double STF02_HJUAL { get; set; }
     }
 }
