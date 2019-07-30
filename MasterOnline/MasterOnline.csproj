@@ -6097,6 +6097,12 @@
     <Content Include="Views\Manage\TableDashboardBarangLakuPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardFakturPartial.cshtml" />
     <Content Include="Views\Manage\SyncBarangLog.cshtml" />
+    <Content Include="Views\Report\TablePromptBarangPartial.cshtml" />
+    <Content Include="Views\Report\TablePromptCustomerPartial.cshtml" />
+    <Content Include="Views\Report\TablePromptBuyerPartial.cshtml" />
+    <Content Include="Views\Report\TablePromptGudangPartial.cshtml" />
+    <Content Include="Views\Report\TablePromptSupplierPartial.cshtml" />
+    <Content Include="Views\Report\TablePromptKodeRekPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
   </ItemGroup>
   <ItemGroup>

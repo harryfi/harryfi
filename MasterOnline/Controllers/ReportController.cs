@@ -7,6 +7,9 @@ using System.Web.Mvc;
 using MasterOnline.Models;
 using MasterOnline.Services;
 using MasterOnline.ViewModels;
+//add by nurul 29/7/2019
+using PagedList;
+//end add by nurul 29/7/2019
 
 namespace MasterOnline.Controllers
 {
@@ -537,45 +540,47 @@ namespace MasterOnline.Controllers
 
         public ActionResult PromptCustomer()
         {
-            //var listCust = ErasoftDbContext.ARF01.ToList();
-            //var listCust = ErasoftDbContext.ARF01.
-            //                            Join(
-            //                                MoDbContext.Marketplaces,
-            //                                kode => kode.NAMA,
-            //                                nama => Convert.ToString(nama.IdMarket),
-            //                                (kode, nama) => new { Nama = nama.NamaMarket, Kode = kode.PERSO, Id = kode.CUST }
-            //                            ).ToList();
+            //CHANGE BY NURUL 29/7/2019
+            ////var listCust = ErasoftDbContext.ARF01.ToList();
+            ////var listCust = ErasoftDbContext.ARF01.
+            ////                            Join(
+            ////                                MoDbContext.Marketplaces,
+            ////                                kode => kode.NAMA,
+            ////                                nama => Convert.ToString(nama.IdMarket),
+            ////                                (kode, nama) => new { Nama = nama.NamaMarket, Kode = kode.PERSO, Id = kode.CUST }
+            ////                            ).ToList();
 
-            //var IDs = (from a in db1.Table1
-            //            join b in db1.Table2 on a.Id equals b.Id
-            //            orderby a.Status
-            //            where b.Id == 1 && a.Status == "new"
-            //            select new a.Id).ToArray();
+            ////var IDs = (from a in db1.Table1
+            ////            join b in db1.Table2 on a.Id equals b.Id
+            ////            orderby a.Status
+            ////            where b.Id == 1 && a.Status == "new"
+            ////            select new a.Id).ToArray();
 
-            // var query = from c in db2.Company
-            //             join a in IDs on c.Id equals a.Id
-            //             select new { Id = a.Id, CompanyId = c.CompanyId };
+            //// var query = from c in db2.Company
+            ////             join a in IDs on c.Id equals a.Id
+            ////             select new { Id = a.Id, CompanyId = c.CompanyId };
 
-            var ListMarketplaces = (from c in MoDbContext.Marketplaces
-                                    select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
+            //var ListMarketplaces = (from c in MoDbContext.Marketplaces
+            //                        select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
 
-            var ListARF01 = (from a in ErasoftDbContext.ARF01
-                             select new { Cust = a.CUST, Id_market = a.NAMA, Perso = a.PERSO }).ToList();
+            //var ListARF01 = (from a in ErasoftDbContext.ARF01
+            //                 select new { Cust = a.CUST, Id_market = a.NAMA, Perso = a.PERSO }).ToList();
 
-            var listCust = (from a in ListARF01
-                            join c in ListMarketplaces on a.Id_market equals c.Id.ToString()
-                            select new mdlPromptCust { CUST = a.Cust, NAMA = c.Nama, PERSO = a.Perso }).ToList();
+            //var listCust = (from a in ListARF01
+            //                join c in ListMarketplaces on a.Id_market equals c.Id.ToString()
+            //                select new mdlPromptCust { CUST = a.Cust, NAMA = c.Nama, PERSO = a.Perso }).ToList();
 
-            var listCust2 = ErasoftDbContext.ARF01.ToList();
+            //var listCust2 = ErasoftDbContext.ARF01.ToList();
 
-            //listCust.ForEach(
-            //    delegate (String CUST)
-            //    {
-            //        Console.WriteLine(CUST);
-            //        Console.WriteLine(NAMA);
-            //    });
+            ////listCust.ForEach(
+            ////    delegate (String CUST)
+            ////    {
+            ////        Console.WriteLine(CUST);
+            ////        Console.WriteLine(NAMA);
+            ////    });
 
-            return View("PromptCustomer", listCust);
+            //return View("PromptCustomer", listCust);
+            return View();
         }
         public class mdlPromptCust
         {
@@ -586,22 +591,257 @@ namespace MasterOnline.Controllers
         }
         public ActionResult PromptSupplier()
         {
-            var listSupp = ErasoftDbContext.APF01.ToList();
+            //ADD BY NURUL 29/7/2019
+            //var listSupp = ErasoftDbContext.APF01.ToList();
 
-            return View("PromptSupplier", listSupp);
+            //return View("PromptSupplier", listSupp);
+            return View();
+            //END ADD BY NURUL 29/7/2019
         }
         public ActionResult PromptBarang()
         {
+            //CHANGE BY NURUL 29/7/2019, PAGING 
             //change by nurul 18/1/2019var listBrg = ErasoftDbContext.STF02.ToList();
-            var listBrg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+            //var listBrg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
 
-            return View("PromptBarang", listBrg);
+            //return View("PromptBarang", listBrg);
+            return View();
+            //END CHANGE BY NURUL 29/7/2019, PAGING 
         }
+        //add by nurul 29/7/2019
+        public class getTotalCount
+        {
+            public int JUMLAH { get; set; }
+        }
+        protected JsonResult JsonErrorMessage(string message)
+        {
+            var vmError = new InvoiceViewModel()
+            {
+            };
+            vmError.Errors.Add(message);
+            return Json(vmError, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult TablePromptBarangPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT BRG AS KODE, ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM STF02 ";
+                sSQL2 += "WHERE TYPE = '3'";
+                if (search != "")
+                {
+                    sSQL2 += "AND (BRG LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ' ' + ISNULL(NAMA2, '')) LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY NAMA ASC, BRG ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listBarang = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(listBarang, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptBarangPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public ActionResult TablePromptBuyerPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT BUYER_CODE AS KODE, ISNULL(NAMA,'') AS NAMA  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM ARF01C ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE (BUYER_CODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY NAMA ASC, BUYER_CODE ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listData = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(listData, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptBuyerPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public ActionResult TablePromptCustomerPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, ISNULL(A.PERSO,'') AS PERSO ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM ARF01 A ";
+                sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE (A.CUST LIKE '%" + search + "%' OR ISNULL(C.NamaMarket, '') LIKE '%" + search + "%' OR ISNULL(A.PERSO, '') LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.CUST ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listData = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<mdlCustomer> pageOrders = new StaticPagedList<mdlCustomer>(listData, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptCustomerPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public ActionResult TablePromptGudangPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT KODE_GUDANG AS KODE, ISNULL(NAMA_GUDANG,'') AS NAMA  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM STF18 ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE (KODE_GUDANG LIKE '%" + search + "%' OR ISNULL(NAMA_GUDANG, '') LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY KODE_GUDANG ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listData = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(listData, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptGudangPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public ActionResult TablePromptKodeRekPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT KODE AS KODE, ISNULL(NAMA,'') AS NAMA  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM GLFREK ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE (KODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY KODE ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listData = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(listData, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptKodeRekPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public ActionResult TablePromptSupplierPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT SUPP AS KODE, ISNULL(NAMA,'') AS NAMA  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM APF01 ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE (SUPP LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY NAMA ASC, SUPP ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listData = ErasoftDbContext.Database.SqlQuery<PromptBarangViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+                IPagedList<PromptBarangViewModel> pageOrders = new StaticPagedList<PromptBarangViewModel>(listData, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptSupplierPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        //end add by nurul 29/7/2019
         public ActionResult PromptGudang()
         {
-            var listGudang = ErasoftDbContext.STF18.ToList();
+            //CHANGE BY NURUL 29/7/2019
+            //var listGudang = ErasoftDbContext.STF18.ToList();
 
-            return View("PromptGudang", listGudang);
+            //return View("PromptGudang", listGudang);
+            return View();
+            //END ADD BY NURUL 29/7/2019
         }
         public ActionResult PromptKodeLR()
         {
@@ -617,17 +857,23 @@ namespace MasterOnline.Controllers
         }
         public ActionResult PromptKodeRekening()
         {
-            var listKodeRek = ErasoftDbContext.GLFREKs.Where(a => a.type.ToUpper() != "L").ToList();
+            //ADD BY NURUL 29/7/2019
+            //var listKodeRek = ErasoftDbContext.GLFREKs.Where(a => a.type.ToUpper() != "L").ToList();
 
-            return View("PromptKodeRek", listKodeRek);
+            //return View("PromptKodeRek", listKodeRek);
+            return View("PromptKodeRek");
+            //END ADD BY NURUL 29/7/2019
         }
 
         //add by nurul 31/1/2019
         public ActionResult PromptBuyer()
         {
-            var listBuyer = ErasoftDbContext.ARF01C.ToList();
+            //change by nurul 29/7/2019
+            //var listBuyer = ErasoftDbContext.ARF01C.ToList();
 
-            return View("PromptBuyer", listBuyer);
+            //return View("PromptBuyer", listBuyer);
+            return View();
+            //end change by nurul 29/7/2019
         }
 
     }
