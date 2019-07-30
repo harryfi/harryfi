@@ -709,7 +709,7 @@ namespace MasterOnline.Controllers
                 sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (A.CUST LIKE '%" + search + "%' OR ISNULL(C.NamaMarket, '') LIKE '%" + search + "%', OR ISNULL(A.PERSO, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " WHERE (A.CUST LIKE '%" + search + "%' OR ISNULL(C.NamaMarket, '') LIKE '%" + search + "%' OR ISNULL(A.PERSO, '') LIKE '%" + search + "%' ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.CUST ASC ";
