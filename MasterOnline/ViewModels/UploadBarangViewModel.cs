@@ -30,11 +30,32 @@ namespace MasterOnline.ViewModels
         public int Page { get; set; }
         public int RecordCount { get; set; }
         public int BLProductActive { get; set; }
+        public int exception { get; set; }
+        public int totalData { get; set; }//add 18 Juli 2019, show total record
     }
 
     public class SimpleJsonObject
     {
         public int Total { get; set; }
         public string Errors { get; set; }
+        public string fileName { get; set; }
+        public int startRecnum { get; set; }
+    }
+
+    public class ListImportBrg
+    {
+        public string UPLOADER { get; set; }
+        
+        public string LAST_FAKTUR_UPLOADED { get; set; }
+
+        public DateTime UPLOAD_DATETIME { get; set; }
+
+        public DateTime LAST_FAKTUR_UPLOADED_DATETIME { get; set; }
+
+        public string CUST { get; set; }
+
+        public string LOG_FILE { get; set; }
+
+        public int RECNUM { get; set; }
     }
 }

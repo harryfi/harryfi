@@ -457,7 +457,7 @@ namespace MasterOnline.Controllers
                 "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
                 "<p>3. Analisa penjualan di semua marketplace.</p>" +
                 "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
-                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email csmasteronline@gmail.com atau chat melalui website kami www.masteronline.co.id.</p>" +
+                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email support@masteronline.co.id atau chat melalui website kami www.masteronline.co.id.</p>" +
                 "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
                 "<p>&nbsp;</p>" +
                 "<p>Best regards,</p>" +
@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -502,7 +502,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";

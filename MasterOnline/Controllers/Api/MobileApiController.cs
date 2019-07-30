@@ -296,7 +296,7 @@ namespace MasterOnline.Controllers.Api
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -310,7 +310,7 @@ namespace MasterOnline.Controllers.Api
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";

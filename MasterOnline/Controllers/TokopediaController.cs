@@ -1243,7 +1243,7 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
-            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page="+ Convert.ToString(page) +"&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1302,7 +1302,7 @@ namespace MasterOnline.Controllers
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                     var kabKot = "3174";
                     var prov = "31";
-                    insertPembeli += "('" + order.recipient.name.Replace("'","`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                    insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                     insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full.Replace("'", "`") + "', 0, 0, 0, 0, '1', 0, 0, ";
                     insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code.Replace("'", "`") + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
@@ -1542,10 +1542,14 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)
+        public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01, int totalData)
         {
             var connId = Guid.NewGuid().ToString();
             BindingBase ret = new BindingBase();
+            ret.status = 0;
+            ret.exception = 0;
+            ret.totalData = totalData;//add 18 Juli 2019, show total record
+            ret.recordCount = recordCount;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -1554,15 +1558,16 @@ namespace MasterOnline.Controllers
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
             string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = milis.ToString(),
-            //    REQUEST_ACTION = "Get Item List",
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
-            //    REQUEST_STATUS = "Pending",
-            //};
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = CUST,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -1583,8 +1588,10 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                ret.nextPage = 1;
+                ret.exception = 1;
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
@@ -1603,112 +1610,139 @@ namespace MasterOnline.Controllers
 
                 //    }
                 //}
-                if (result.error_message != null)
+                try
                 {
-                    if (result.error_message.Count() > 0)
+                    if (result.error_message != null)
                     {
-                        adaError = true;
-                    }
-                }
-                if (!adaError)
-                {
-                    ret.message = (page + 1).ToString();
-                    if (result.data.Count() < 100)
-                    {
-                        ret.message = "";
-                    }
-
-                    //add by calvin 13 juni 2019, ternyata tokoped return semua item dengan FSID (Fulfillment Service ID) yang sama, maka perlu difilter sebelum insert data
-                    result.data = result.data.Where(p => p.shop_id == shopid).ToList().ToArray();
-                    //end add by calvin 13 juni 2019
-
-                    ret.status = 1;
-                    ret.recordCount = recordCount;
-                    List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
-                    var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
-                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
-                    string brgMp = "";
-                    foreach (var item in result.data)
-                    {
-                        brgMp = Convert.ToString(item.product_id);
-                        if(item.status.ToUpper() != "DELETE")
+                        if (result.error_message.Count() > 0)
                         {
-                            var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
-                            //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
-                            var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
-                            if (CektempbrginDB == null && CekbrgInDB == null)
+                            adaError = true;
+                            foreach (var err in result.error_message)
                             {
-                                string namaBrg = item.name;
-                                string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                                urlImage = "";
-                                urlImage2 = "";
-                                urlImage3 = "";
-                                if (namaBrg.Length > 30)
+                                ret.message += err.ToString() + "_;_";
+                            }
+                            currentLog.REQUEST_EXCEPTION = ret.message;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
+                    if (!adaError)
+                    {
+                        ret.message = (page + 1).ToString();
+                        //if (result.data.Count() < 100)
+                        //{
+                        //    ret.message = "";
+                        //}
+                        if (result.data.Count() == 100)
+                        {
+                            ret.nextPage = 1;
+                        }
+                        //add by calvin 13 juni 2019, ternyata tokoped return semua item dengan FSID (Fulfillment Service ID) yang sama, maka perlu difilter sebelum insert data
+                        result.data = result.data.Where(p => p.shop_id == shopid).ToList().ToArray();
+                        //end add by calvin 13 juni 2019
+
+                        ret.status = 1;
+                        //ret.recordCount = recordCount;
+                        ret.totalData += result.data.Count();//add 18 Juli 2019, show total record
+                        List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
+                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
+                        string brgMp = "";
+                        foreach (var item in result.data)
+                        {
+                            brgMp = Convert.ToString(item.product_id);
+                            if (item.status.ToUpper() != "DELETE")
+                            {
+                                var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                                //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
+                                var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
+                                if (CektempbrginDB == null && CekbrgInDB == null)
                                 {
-                                    nama = namaBrg.Substring(0, 30);
-                                    //change by calvin 15 januari 2019
-                                    //if (namaBrg.Length > 60)
-                                    //{
-                                    //    nama2 = namaBrg.Substring(30, 30);
-                                    //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                    //}
-                                    if (namaBrg.Length > 285)
+                                    string namaBrg = item.name;
+                                    string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                    urlImage = "";
+                                    urlImage2 = "";
+                                    urlImage3 = "";
+                                    namaBrg = namaBrg.Replace('\'', '`');
+                                    if (namaBrg.Length > 30)
                                     {
-                                        nama2 = namaBrg.Substring(30, 255);
-                                        nama3 = "";
+                                        nama = namaBrg.Substring(0, 30);
+                                        //change by calvin 15 januari 2019
+                                        //if (namaBrg.Length > 60)
+                                        //{
+                                        //    nama2 = namaBrg.Substring(30, 30);
+                                        //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                        //}
+                                        if (namaBrg.Length > 285)
+                                        {
+                                            nama2 = namaBrg.Substring(30, 255);
+                                            nama3 = "";
+                                        }
+                                        //end change by calvin 15 januari 2019
+                                        else
+                                        {
+                                            nama2 = namaBrg.Substring(30);
+                                            nama3 = "";
+                                        }
                                     }
-                                    //end change by calvin 15 januari 2019
                                     else
                                     {
-                                        nama2 = namaBrg.Substring(30);
+                                        nama = namaBrg;
+                                        nama2 = "";
                                         nama3 = "";
                                     }
-                                }
-                                else
-                                {
-                                    nama = namaBrg;
-                                    nama2 = "";
-                                    nama3 = "";
-                                }
 
-                                Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                                {
-                                    SELLER_SKU = Convert.ToString(item.product_id),
-                                    BRG_MP = Convert.ToString(item.product_id),
-                                    NAMA = nama,
-                                    NAMA2 = nama2,
-                                    NAMA3 = nama3,
-                                    CATEGORY_CODE = Convert.ToString(item.category_id),
-                                    CATEGORY_NAME = "",
-                                    IDMARKET = recnumArf01,
-                                    IMAGE = "",
-                                    DISPLAY = true,
-                                    HJUAL = item.price,
-                                    HJUAL_MP = item.price,
-                                    Deskripsi = item.desc,
-                                    MEREK = "OEM",
-                                    CUST = CUST,
-                                };
-                                newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
-                                //add by Tri, 26 Feb 2019
-                                var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
-                                if (kategory != null)
-                                {
-                                    newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                                    Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                                    {
+                                        //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                        //SELLER_SKU = Convert.ToString(item.product_id),
+                                        SELLER_SKU = "",
+                                        //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                        BRG_MP = Convert.ToString(item.product_id),
+                                        NAMA = nama,
+                                        NAMA2 = nama2,
+                                        NAMA3 = nama3,
+                                        CATEGORY_CODE = Convert.ToString(item.category_id),
+                                        CATEGORY_NAME = "",
+                                        IDMARKET = recnumArf01,
+                                        IMAGE = "",
+                                        DISPLAY = true,
+                                        HJUAL = item.price,
+                                        HJUAL_MP = item.price,
+                                        Deskripsi = item.desc,
+                                        MEREK = "OEM",
+                                        CUST = CUST,
+                                    };
+                                    newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                                                                                                      //add by Tri, 26 Feb 2019
+                                    var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
+                                    if (kategory != null)
+                                    {
+                                        newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                                    }
+                                    //end add by Tri, 26 Feb 2019
+                                    listNewRecord.Add(newrecord);
+                                    ret.recordCount = ret.recordCount + 1;
                                 }
-                                //end add by Tri, 26 Feb 2019
-                                listNewRecord.Add(newrecord);
-                                ret.recordCount = ret.recordCount + 1;
                             }
+
                         }
-                        
-                    }
-                    if (listNewRecord.Count() > 0)
-                    {
-                        ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
-                        ErasoftDbContext.SaveChanges();
+                        if (listNewRecord.Count() > 0)
+                        {
+                            ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
+                            ErasoftDbContext.SaveChanges();
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    ret.nextPage = 1;
+                    ret.exception = 1;
+                    ret.status = 0;
+                    ret.message = ex.Message;
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+
             }
 
             return ret;
@@ -2019,6 +2053,7 @@ namespace MasterOnline.Controllers
 
             BindingBase ret = new BindingBase();
             ret.message = "";// jika perlu lanjut recursive, isi
+            ret.exception = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -2073,6 +2108,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.exception = 1;
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
@@ -2370,77 +2406,73 @@ namespace MasterOnline.Controllers
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => (p.RecNum ?? 0) == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
             {
-                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
-                //string apiId = "36bc3d7bcc13404c9e670a84f0c61676:8a76adc52d144a9fa1ef4f96b59b7419";
-                //apiId = "mta-api-sandbox:sandbox-secret-key";
-                //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
-
-                string urll = "https://accounts.tokopedia.com/token";
-                //string urll = "https://accounts-staging.tokopedia.com";
-
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
-                myReq.ContentType = "application/x-www-form-urlencoded";
-                myReq.Accept = "application/json";
-                string myData = "grant_type=client_credentials";
-                //Stream dataStream = myReq.GetRequestStream();
-                //WebResponse response = myReq.GetResponse();
-                //dataStream = response.GetResponseStream();
-                //StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = "";
-                try
+                if (!string.IsNullOrWhiteSpace(arf01inDB.API_KEY))
                 {
-                    myReq.ContentLength = myData.Length;
-                    using (var dataStream = myReq.GetRequestStream())
+                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                    //string apiId = "36bc3d7bcc13404c9e670a84f0c61676:8a76adc52d144a9fa1ef4f96b59b7419";
+                    //apiId = "mta-api-sandbox:sandbox-secret-key";
+                    //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+
+                    string urll = "https://accounts.tokopedia.com/token";
+                    //string urll = "https://accounts-staging.tokopedia.com";
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                    myReq.ContentType = "application/x-www-form-urlencoded";
+                    myReq.Accept = "application/json";
+                    string myData = "grant_type=client_credentials";
+                    //Stream dataStream = myReq.GetRequestStream();
+                    //WebResponse response = myReq.GetResponse();
+                    //dataStream = response.GetResponseStream();
+                    //StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = "";
+                    try
                     {
-                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                    }
-                    using (WebResponse response = myReq.GetResponse())
-                    {
-                        using (Stream stream = response.GetResponseStream())
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-
-                }
-                // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
-                if (responseFromServer != "")
-                {
-                    ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaToken)) as TokopediaToken;
-                    if (ret.error == null)
-                    {
-                        arf01inDB.TOKEN = ret.access_token;
-                        arf01inDB.STATUS_API = "1";
-                        data.token = ret.access_token;
-                        ErasoftDbContext.SaveChanges();
-
-                        var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PENDING;")).ToList();
-                        if (cekPendingCreate.Count > 0)
+                        using (WebResponse response = myReq.GetResponse())
                         {
-                            foreach (var item in cekPendingCreate)
+                            using (Stream stream = response.GetResponseStream())
                             {
-                                Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
-                            }
-                        }
-                        var cekPendingEdit = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PEDITENDING;")).ToList();
-                        if (cekPendingEdit.Count > 0)
-                        {
-                            foreach (var item in cekPendingEdit)
-                            {
-                                Task.Run(() => EditProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]).Wait());
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
                             }
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
 
                     }
+                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                    if (responseFromServer != "")
+                    {
+                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaToken)) as TokopediaToken;
+                        if (ret.error == null)
+                        {
+                            arf01inDB.TOKEN = ret.access_token;
+                            arf01inDB.STATUS_API = "1";
+                            data.token = ret.access_token;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        else
+                        {
+                            arf01inDB.TOKEN = "";
+                            arf01inDB.STATUS_API = "0";
+                            ErasoftDbContext.SaveChanges();
+                            data.token = "";
+                        }
+                    }
+                }
+                else
+                {
+                    arf01inDB.TOKEN = "";
+                    arf01inDB.STATUS_API = "0";
+                    ErasoftDbContext.SaveChanges();
+                    data.token = "";
                 }
             }
             //}

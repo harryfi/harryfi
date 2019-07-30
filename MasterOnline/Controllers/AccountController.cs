@@ -248,7 +248,8 @@ namespace MasterOnline.Controllers
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
-
+            //var api = new ManageController();
+            //api.RetryGetData("000001", 14319);
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
             var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 
@@ -526,7 +527,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "StatusResiPesanan",
                 //    Queues = new[] { "1_manage_pesanan" },
-                //    WorkerCount = 2,
+                //    WorkerCount = 1,
 
                 //};
                 //var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
@@ -543,7 +544,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "Stok",
                 //    Queues = new[] { "1_update_stok" },
-                //    WorkerCount = 3,
+                //    WorkerCount = 2,
                 //};
                 //var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
 
@@ -551,7 +552,7 @@ namespace MasterOnline.Controllers
                 //{
                 //    ServerName = "Product",
                 //    Queues = new[] { "1_create_product" },
-                //    WorkerCount = 2,
+                //    WorkerCount = 1,
                 //};
                 //var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 
@@ -561,7 +562,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "StatusResiPesanan",
                     Queues = new[] { "1_manage_pesanan" },
-                    WorkerCount = 2,
+                    WorkerCount = 1,
                     
                 };
                 var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
@@ -578,7 +579,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "Stok",
                     Queues = new[] { "1_update_stok" },
-                    WorkerCount = 3,
+                    WorkerCount = 2,
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
 
@@ -586,7 +587,7 @@ namespace MasterOnline.Controllers
                 {
                     ServerName = "Product",
                     Queues = new[] { "1_create_product" },
-                    WorkerCount = 2,
+                    WorkerCount = 1,
                 };
                 var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 #endif
@@ -911,6 +912,9 @@ namespace MasterOnline.Controllers
                             string connId_JobId = "";
                             if (sync_pesanan_stok == "1")
                             {
+                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
@@ -921,6 +925,9 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
+                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
 
@@ -1152,7 +1159,7 @@ namespace MasterOnline.Controllers
 
             //            var message = new MailMessage();
             //            message.To.Add(email);
-            //            message.From = new MailAddress("csmasteronline@gmail.com");
+            //            message.From = new MailAddress("support@masteronline.co.id");
             //            message.Subject = "Pendaftaran Master Online berhasil!";
             //            message.Body = string.Format(body, account.Email, originPassword, nama);
             //            message.IsBodyHtml = true;
@@ -1174,8 +1181,8 @@ namespace MasterOnline.Controllers
             //            {
             //                var credential = new NetworkCredential
             //                {
-            //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "ymkglmknkacqslui"
+            //                    UserName = "support@masteronline.co.id",
+            //                    Password = "zcipeqngzvvbuuju"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1188,8 +1195,8 @@ namespace MasterOnline.Controllers
             //            {
             //                var credential = new NetworkCredential
             //                {
-            //                    UserName = "csmasteronline@gmail.com",
-            //                    Password = "ymkglmknkacqslui"
+            //                    UserName = "support@masteronline.co.id",
+            //                    Password = "zcipeqngzvvbuuju"
             //                };
             //                smtp.Credentials = credential;
             //                smtp.Host = "smtp.gmail.com";
@@ -1298,7 +1305,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1613,7 +1620,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "ymkglmknkacqslui"
+                    Password = "kmblwexkeretrwxv"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1627,7 +1634,7 @@ namespace MasterOnline.Controllers
                     var credential = new NetworkCredential
                     {
                         UserName = "csmasteronline@gmail.com",
-                        Password = "ymkglmknkacqslui"
+                        Password = "kmblwexkeretrwxv"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";

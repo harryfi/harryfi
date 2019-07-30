@@ -32,10 +32,15 @@
                     </div>*@
                 <div class="x_content" style="font-size:15px;">
                     <div id="div_with_list">
-                        <div>
-                            List Toko :
+                        <div class="row">
+                            <div class="col-md-3">
+                                List Toko :
+                            </div>
+                            <div class="col-md-9" id="lblPleaseWait" hidden="hidden">
+                                <b>Proses sinkronisasi sedang berlangsung, Dimohon tunggu beberapa saat.</b>
+                            </div>
                         </div>
-                        <div>
+                        <div class="row">
                             @if (Model != null)
                             {
                                 foreach (var customer in Model.Customers)
@@ -50,8 +55,11 @@
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             <label id="lblNama_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
                                         </div>
-                                        <div class="col-md-2" style="padding-top: 7px;">
+                                        <div class="col-md-3" style="padding-top: 7px;">
                                             <label id="lblRecord_@customer.cust" class="label_record" hidden="hidden"></label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            <label id="lblTotalData_@customer.cust" class="label_record" hidden="hidden"></label>
                                         </div>
                                         <div class="col-md-1 div-spinner" style="padding-top: 7px;" hidden="hidden" id="spinner_@customer.cust">
                                             <i class='fa fa-spinner fa-spin pull-right' style="color:red"></i>
@@ -90,6 +98,7 @@
                     <div>
                         <input type="button" class="btn btn-primary pull-right" id="proses_btn" value="Ambil Data" onclick="GetAllDataBrg()" />
                         <input type="button" class="btn btn-primary pull-right" id="download_btn" value="Download ke Excel" onclick="ApproveDl()" />
+                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="$('#modalLog').modal('show'); $('#uploadbrgviewdiv').html('');" />
                         <div id="upload_btn">
                             <hr />
                             <table align="right">
@@ -116,6 +125,55 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalLog" tabindex="-1" role="dialog" aria-labelledby="modalLogLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width:650px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">Log Sinkronisasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                    @if (Model != null)
+                    {
+                        foreach (var customer in Model.Customers)
+                        {
+                            <div class="row" style="margin-bottom:5px;">
+                                <div class="col-md-1" style="padding-bottom:10px">
+                                    <label class="checkbox-container">
+                                        <input id="cb2_@customer.cust" type="checkbox" data-log="@customer.cust" class="cbx logCustomers" name="cb2_@customer.cust" />
+                                        <span id="cbsp2_@customer.cust" class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6" style="padding-top: 7px;">
+                                    <label id="lblNama2_@customer.cust">@customer.namaMarket (@customer.namaCust)</label>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="loading_upload_log" class="text-center" hidden="hidden">
+                            <div id="loading_upload_log_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                        <div id="uploadbrgviewdiv" class="row">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success" onclick="ViewLog()">Lihat List Log</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $(document).ready(function () {
 
@@ -133,5 +191,6 @@
                 $(item).prop('checked', true);
             });
         }
+
     });
 </script>

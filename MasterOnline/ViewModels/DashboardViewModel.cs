@@ -35,6 +35,10 @@ namespace MasterOnline.ViewModels
         public List<DashboardTahunanModel> ListdashboardReturTahunan { get; set; } = new List<DashboardTahunanModel>();
         //end add by nurul 11/7/2019
 
+        //add by nurul 5/7/2019
+        public List<FakturPerMarketplaceModel> ListFakturPerMarketplace { get; set; } = new List<FakturPerMarketplaceModel>();
+        //end add by nurul 5/7/2019
+
         public int? JumlahPesananHariIni { get; set; }
         public double? NilaiPesananHariIni { get; set; }
         public int? JumlahPesananBulanIni { get; set; }
