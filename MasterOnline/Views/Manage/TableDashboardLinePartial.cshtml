@@ -1,0 +1,154 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listPesananMingguan = Model.ListdashboardPesananMingguan.ToList();
+        var listPesananBulanan = Model.ListdashboardPesananBulanan.ToList();
+        var listPesananTahunan = Model.ListdashboardPesananTahunan.ToList();
+
+        var listFakturMingguan = Model.ListdashboardFakturMingguan.ToList();
+        var listFakturBulanan = Model.ListdashboardFakturBulanan.ToList();
+        var listFakturTahunan = Model.ListdashboardFakturTahunan.ToList();
+
+        var listReturMingguan = Model.ListdashboardReturMingguan.ToList();
+        var listReturBulanan = Model.ListdashboardReturBulanan.ToList();
+        var listReturTahunan = Model.ListdashboardReturTahunan.ToList();
+    }
+    var listPesananMingguan = @Html.Raw(Json.Encode(listPesananMingguan));
+    var listPesananBulanan = @Html.Raw(Json.Encode(listPesananBulanan));
+    var listPesananTahunan = @Html.Raw(Json.Encode(listPesananTahunan));
+
+    var listFakturMingguan = @Html.Raw(Json.Encode(listFakturMingguan));
+    var listFakturBulanan = @Html.Raw(Json.Encode(listFakturBulanan));
+    var listFakturTahunan = @Html.Raw(Json.Encode(listFakturTahunan));
+
+    var listReturMingguan = @Html.Raw(Json.Encode(listReturMingguan));
+    var listReturBulanan = @Html.Raw(Json.Encode(listReturBulanan));
+    var listReturTahunan = @Html.Raw(Json.Encode(listReturTahunan));
+</script>
+@*@if (listPieFaktur.Count() > 0)
+    {*@
+@*<div class="col-md-12" id="chart-mingguan-section">*@
+@*//--------------------------------------mingguan-----------------------------------------------*@
+<div class="row" id="allMingguan">
+    <canvas id="chartMingguan" height="80"></canvas>
+    <div class="legend text-center" id="MingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananMingguan">
+    <canvas id="chartPesananMingguan" height="80"></canvas>
+    <div class="legend text-center" id="PesananMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturMingguan">
+    <canvas id="chartFakturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="FakturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="ReturMingguan">
+    <canvas id="chartReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="ReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+<div class="row" id="PesananFakturMingguan">
+    <canvas id="chartPesananFakturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturMingguan">
+    <canvas id="chartPesananReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturMingguan">
+    <canvas id="chartFakturReturMingguan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturMingguanLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+@*//--------------------------------------bulanan-----------------------------------------------*@
+<div class="row" id="allBulanan">
+    <canvas id="chartBulanan" height="80"></canvas>
+    <div class="legend text-center" id="BulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananBulanan">
+    <canvas id="chartPesananBulanan" height="80"></canvas>
+    <div class="legend text-center" id="PesananBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturBulanan">
+    <canvas id="chartFakturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="FakturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="ReturBulanan">
+    <canvas id="chartReturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="ReturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+<div class="row" id="PesananFakturBulanan">
+    <canvas id="chartPesananFakturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturBulanan">
+    <canvas id="chartPesananReturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturBulanan">
+    <canvas id="chartFakturReturBulanan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturBulananLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+@*//--------------------------------------tahunan-----------------------------------------------*@
+<div class="row" id="allTahunan">
+    <canvas id="chartTahunan" height="80"></canvas>
+    <div class="legend text-center" id="TahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananTahunan">
+    <canvas id="chartPesananTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturTahunan">
+    <canvas id="chartFakturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="FakturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="ReturTahunan">
+    <canvas id="chartReturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="ReturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+
+<div class="row" id="PesananFakturTahunan">
+    <canvas id="chartPesananFakturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananFakturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="PesananReturTahunan">
+    <canvas id="chartPesananReturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="PesananReturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+<div class="row" id="FakturReturTahunan">
+    <canvas id="chartFakturReturTahunan" height="80"></canvas>
+    <div class="legend text-center" id="FakturReturTahunanLegend"></div>
+    <div style="clear: both;" />
+</div>
+@*</div>*@
+
+@*}
+    else
+    {
+        <div class="center">
+            <h4>Silahkan proses faktur penjualan Anda !</h4>
+        </div>
+    }*@
