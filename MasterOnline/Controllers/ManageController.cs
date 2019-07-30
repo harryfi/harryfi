@@ -21670,7 +21670,7 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK, D.HJUAL AS STF02_HJUAL ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -21930,6 +21930,101 @@ namespace MasterOnline.Controllers
             //end change by nurul 13/6/2019
         }
 
+        [HttpGet]
+        public ActionResult UbahHargaJualBlibli(int? recNum, double hargaJualPromosiBaru, double hargaJualIndukBaru)
+        {
+            var ret = new ReturnJson();
+            var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
+            //change by nurul 18/1/2019 -- var brg = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            if (hJualInDb == null)
+            {
+                ret.message = "No Data Found!";
+                return Json(ret, JsonRequestBehavior.AllowGet);
+            }
+            
+            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
+            var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
+            if (customer.NAMA.Equals(kdBlibli))
+            {
+                if (hargaJualIndukBaru < 1100)
+                {
+                    ret.message = "Harga Jual minimal 1100.";
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+                if (hargaJualPromosiBaru < 1100)
+                {
+                    ret.message = "Harga Jual minimal 1100.";
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+            }
+            brg.HJUAL = hargaJualIndukBaru;
+            hJualInDb.HJUAL = hargaJualPromosiBaru;
+            ErasoftDbContext.SaveChanges();
+
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
+                if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
+                {
+                    var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
+                
+                    if (customer.NAMA.Equals(kdBlibli))
+                    {
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = customer.Sort1_Cust,
+                            API_client_password = customer.API_CLIENT_P,
+                            API_client_username = customer.API_CLIENT_U,
+                            API_secret_key = customer.API_KEY,
+                            token = customer.TOKEN,
+                            mta_username_email_merchant = customer.EMAIL,
+                            mta_password_password_merchant = customer.PASSWORD,
+                            idmarket = customer.RecNum.Value
+                        };
+                        BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                        {
+                            kode = brg.BRG,
+                            kode_mp = hJualInDb.BRG_MP,
+                            Qty = Convert.ToString(qtyOnHand),
+                            MinQty = "0",
+                            nama = brg.NAMA
+                        };
+                        data.Price = brg.HJUAL.ToString();
+                        data.MarketPrice = hJualInDb.HJUAL.ToString();
+                        var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                        data.display = display ? "true" : "false";
+                        var BliApi = new BlibliController();
+                        Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                    }
+                }
+            //}
+
+            //change by nurul 13/6/2019
+            //var vm = new HargaJualViewModel()
+            //{
+            //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
+            //    ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //};
+
+            //return PartialView("TableHargaJualPartial", vm);
+            return new EmptyResult();
+            //hJualInDb.Errors = null;
+            //return Json(hJualInDb, JsonRequestBehavior.AllowGet);
+            //end change by nurul 13/6/2019
+        }
+        
         public class ReturnJson
         {
             public string message { get; set; }
