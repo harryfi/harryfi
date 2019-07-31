@@ -1024,8 +1024,8 @@
                             @Html.Label("", "Faktur")
                         </div>
                         @*<div class="col-md-1" style="padding-top: 7px;">
-                Faktur
-            </div>*@
+                        Faktur
+                    </div>*@
                     </div>
 
                     <div class="col-md-4" style="padding-bottom:10px">
@@ -1038,8 +1038,8 @@
                         </div>
                     </div>
                     @*<div class="col-md-1" style="padding-top: 7px;">
-            Retur
-        </div>*@
+                    Retur
+                </div>*@
                 </div>
                 @*<div class="col-md-1"></div>*@
                 <div class="col-md-1" style="padding-top: 7px;">
@@ -1056,7 +1056,10 @@
                 </div>
                 <div class="col-md-4"></div>
             </div>
-            <div class="col-md-12" id="grafik-line-section">
+            @*<div id="loading_dashboard_line" class="row col-md-12 text-center">
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
+            <div class="row col-md-12" id="grafik-line-section">
                 @*<canvas id="chartMingguan" height="400"></canvas>*@
                 @*<canvas id="chart-mingguan" height="200"></canvas>*@
                 @*@Html.Partial("TableDashboardLinePartial")*@
@@ -1706,68 +1709,7 @@
                     RefreshTableDashboardFaktur();
                     //end region faktur
                     //end add by nurul 4/7/2019
-
-                    //add by nurul 4/7/2019
-                    //region 10 barang laku
-                    var d = new Date();
-                    d.setMonth(d.getMonth() - 3);
-                    $('#DrTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', d);
-                    $('#DrTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).change(function () {
-                        $('#DrTanggal').val($('#DrTanggal').val());
-                        $('#DrTanggal').datepicker('hide');
-                        RefreshTableDashboardBaranglakuPartial();
-                    });
-                    $('#SdTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', '0');
-                    $('#SdTanggal').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).change(function () {
-                        $('#SdTanggal').val($('#SdTanggal').val());
-                        $('#SdTanggal').datepicker('hide');
-                        RefreshTableDashboardBaranglakuPartial();
-                    });
-                    RefreshTableDashboardBaranglakuPartial();
-                    //end region 10 barang laku
-                    //region faktur
-                    var c = new Date();
-                    c.setMonth(c.getMonth() - 1);
-                    $('#DrTanggal1').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', c);
-                    $('#DrTanggal1').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).change(function () {
-                        $('#DrTanggal1').val($('#DrTanggal1').val());
-                        $('#DrTanggal1').datepicker('hide');
-                        RefreshTableDashboardFaktur();
-                    });
-                    $('#SdTanggal1').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).datepicker('setDate', '0');
-                    $('#SdTanggal1').datepicker({
-                        format: 'dd/mm/yyyy',
-                        language: 'id'
-                    }).change(function () {
-                        $('#SdTanggal1').val($('#SdTanggal1').val());
-                        $('#SdTanggal1').datepicker('hide');
-                        RefreshTableDashboardFaktur();
-                        });
-                    RefreshTableDashboardFaktur();
-                    //end region faktur
-                    //end add by nurul 4/7/2019
-
+                                        
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1961,7 +1903,7 @@
                 contentType: "application/json; charset=UTF-8",
                 beforeSend: function () {
                     $('#grafik-line-section').hide();
-                    //$('#loading_dashboard_faktur').show();
+                    //$('#loading_dashboard_line').show();
                 },
                 success: function (response) {
                     $('#grafik-line-section').html(response);
@@ -5172,7 +5114,7 @@
                     //}
 
                     ubahLineChart();
-                    $('#loading_dashboard_faktur').hide();
+                    //$('#loading_dashboard_line').hide();
                     $('#grafik-line-section').show();
                 },
                 error: function (xhr, status, error) {
@@ -6005,9 +5947,6 @@
                     console.log(error);
                 }
             });
-        }
-        function convertToRupiah(angka) {
-            return $.number(angka, 2, ',', '.');
         }
         //end add by nurul 4/7/2019
     </script>
