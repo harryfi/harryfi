@@ -3,20 +3,20 @@
 @model MasterOnline.ViewModels.DashboardViewModel
 <script type="text/javascript">
     @{
-        var listPieFaktur = Model.ListFakturPerMarketplace.Where(a => Convert.ToDouble(a.JumlahFaktur) > 0).OrderByDescending(a => a.NilaiFaktur);
+        var listPieFaktur = Model.ListFakturPerMarketplace.Where(a => Convert.ToDouble(a.JumlahFaktur) > 0).OrderByDescending(a => Convert.ToDouble(a.NilaiFaktur));
     }
-    var listPieFaktur = @Html.Raw(Json.Encode(listPieFaktur));
+    var listPieFaktur = @Html.Raw(Json.Encode(listPieFaktur.OrderByDescending(a => Convert.ToDouble(a.NilaiFaktur))));
 </script>
 @if (listPieFaktur.Count() > 0)
 {
     <canvas id="chart-faktur" height="200"></canvas>
-    <div class="legend text-left" id="myChartLegend" style="float:left;"></div>
+    <div class="legendPie text-left" id="myChartLegend" style="float:left;"></div>
     <div style="clear: both;" />
 }
 else
 {
     <div class="center">
-        <h4>Silahkan proses faktur penjualan Anda !</h4>
+        <h4>Silahkan proses Pesanan Anda menjadi Faktur</h4><p style="font-size:20px">&#128522;</p>
     </div>
 }
 
