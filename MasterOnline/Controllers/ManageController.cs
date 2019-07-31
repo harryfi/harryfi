@@ -22058,47 +22058,49 @@ namespace MasterOnline.Controllers
                 var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
                 var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
                 var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
-
-                if (customer.NAMA.Equals(kdShopee))
+                if (customer != null)//handle customer sudah dihapus
                 {
-                    if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                    if (customer.NAMA.Equals(kdShopee))
                     {
-                        if (!string.IsNullOrWhiteSpace(promosiInDb.MP_PROMO_ID))
+                        if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
                         {
-                            var ShopeeApi = new ShopeeController();
-
-                            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                            if (!string.IsNullOrWhiteSpace(promosiInDb.MP_PROMO_ID))
                             {
-                                merchant_code = customer.Sort1_Cust,
-                            };
-                            Task.Run(() => ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID))).Wait();
+                                var ShopeeApi = new ShopeeController();
+
+                                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                {
+                                    merchant_code = customer.Sort1_Cust,
+                                };
+                                Task.Run(() => ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID))).Wait();
+                            }
                         }
                     }
-                }
-                else if (customer.NAMA.Equals(kdLazada))
-                {
-                    if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                    else if (customer.NAMA.Equals(kdLazada))
                     {
-                        var lazadaApi = new LazadaController();
-                        foreach (var promo in detailPromosiInDb)
+                        if (!string.IsNullOrWhiteSpace(customer.TOKEN))
                         {
-                            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == promo.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
-                            if (brgInDB != null)
+                            var lazadaApi = new LazadaController();
+                            foreach (var promo in detailPromosiInDb)
                             {
-                                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                                var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == promo.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                                if (brgInDB != null)
                                 {
-                                    //var promoPrice = brgInDB.HJUAL;
-                                    var promoPrice = promo.HARGA_PROMOSI;
-                                    //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
-                                    PromoLazadaObj data = new PromoLazadaObj
+                                    if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                     {
-                                        fromDt = DateTime.Today.AddDays(-2).ToString("yyyy-MM-dd"),
-                                        toDt = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
-                                        kdBrg = brgInDB.BRG_MP,
-                                        promoPrice = promoPrice,
-                                        token = customer.TOKEN
-                                    };
-                                    lazadaApi.setPromo(data);
+                                        //var promoPrice = brgInDB.HJUAL;
+                                        var promoPrice = promo.HARGA_PROMOSI;
+                                        //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
+                                        PromoLazadaObj data = new PromoLazadaObj
+                                        {
+                                            fromDt = DateTime.Today.AddDays(-2).ToString("yyyy-MM-dd"),
+                                            toDt = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+                                            kdBrg = brgInDB.BRG_MP,
+                                            promoPrice = promoPrice,
+                                            token = customer.TOKEN
+                                        };
+                                        lazadaApi.setPromo(data);
+                                    }
                                 }
                             }
                         }

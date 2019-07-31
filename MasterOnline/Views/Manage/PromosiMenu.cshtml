@@ -764,7 +764,6 @@
                 cache: false,
                 success: function (data) {
                     var customerList = [];
-
                     $.each(data,
                         function (i, item) {
                             var $namaMarket = $marketCollection[item.NAMA];
@@ -788,6 +787,12 @@
                                 if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
                                     $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
                                 }
+                                
+                                if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
+                                    $("#div_text").show();
+                                } else {
+                                    $("#div_text").hide();
+                                }
                                 getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
@@ -795,11 +800,16 @@
                     });
                     //change by calvin 7 juni 2018, set silent jadi true, agar event onchange tidak jalan saat set Promosi_NAMA_MARKET saat buka form promosi
                     if ($modeEdit == 1) {
-                            $('#CUSTOMER')[0].selectize.disable();
+                        $('#CUSTOMER')[0].selectize.disable();
                     } else {
                         $('#CUSTOMER')[0].selectize.enable();
                     }
-                    custSelect[0].selectize.setValue($('#Promosi_NAMA_MARKET').val(),true);
+                    custSelect[0].selectize.setValue($('#Promosi_NAMA_MARKET').val(), true);
+                    if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
+                        $("#div_text").show();
+                    } else {
+                        $("#div_text").hide();
+                    }
                     //end change by calvin 7 juni 2018
 
                     $('#btn-simpan-perubahan-row').hide();
