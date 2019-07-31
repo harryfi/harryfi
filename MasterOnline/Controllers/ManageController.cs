@@ -4714,12 +4714,12 @@ namespace MasterOnline.Controllers
                                 if (dsPromo.Tables[0].Rows.Count > 0)
                                 {
                                     var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == dataBaru.IDMARKET).FirstOrDefault();
-                                    if(stf02hInDB != null)
+                                    if (stf02hInDB != null)
                                     {
-                                        if(stf02hInDB.HJUAL != dataBaru.HJUAL)
+                                        if (stf02hInDB.HJUAL != dataBaru.HJUAL)
                                         {
                                             validPrice = false;
-                                            listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                            listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi");
                                         }
                                     }
                                 }
@@ -6340,7 +6340,7 @@ namespace MasterOnline.Controllers
                 //}
 
                 //change by calvin 9 juni 2019
-                if(mode == 1)
+                if (mode == 1)
                 {
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -8160,12 +8160,34 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateHjualVariantBarang(string brg, List<UpdateBatchHjualVariant> newhjual)
         {
             List<int> ids = new List<int>();
+            var partialVm = new BarangViewModel()
+            {
+
+            };
             foreach (var item in newhjual)
             {
                 ids.Add(item.recnum);
             }
             foreach (var record in ErasoftDbContext.STF02H.Where(x => ids.Contains(x.RecNum.HasValue ? x.RecNum.Value : 0)).ToList())
             {
+                //add 31 juli 2019, cek barang sedang dalam promo
+                var akunMP = ErasoftDbContext.ARF01.Where(m => m.RecNum == record.IDMARKET).SingleOrDefault();
+                var dsPromo = EDB.GetDataSet("CString", "PROMOSIS", "select * from promosis a inner join detailpromosis b on a.recnum = b.RecNumPromosi where tgl_mulai < dateadd(hour,7,getutcdate()) and tgl_akhir > dateadd(hour,7,getutcdate()) and kode_brg = '" + record.BRG + "' and nama_market = '" + akunMP.CUST + "'");
+                if (dsPromo.Tables[0].Rows.Count > 0)
+                {
+                    //var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == dataBaru.IDMARKET).FirstOrDefault();
+                    //if (stf02hInDB != null)
+                    if (record.HJUAL > 0)
+                    {
+                        if (record.HJUAL != newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual)
+                        {
+                            partialVm.Errors = new List<string>();
+                            partialVm.Errors.Add("Harga barang " + record.BRG + " tidak dapat di update, karena sedang dalam masa promosi di akun : " + akunMP.PERSO);
+                            return Json(partialVm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
+                //end add 31 juli 2019, cek barang sedang dalam promo
                 record.HJUAL = newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual;
             }
             ErasoftDbContext.SaveChanges();
@@ -8198,10 +8220,10 @@ namespace MasterOnline.Controllers
             //    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
             //};
             //return PartialView("TableBarang1Partial", partialVm);
-            var partialVm = new BarangViewModel()
-            {
+            //var partialVm = new BarangViewModel()
+            //{
 
-            };
+            //};
             partialVm.Errors = null;
             return Json(partialVm, JsonRequestBehavior.AllowGet);
             //end change by calvin 26 april 2019
@@ -23171,39 +23193,57 @@ namespace MasterOnline.Controllers
             var kdElevenia = "9";
             var kdShopee = "17";
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
-            if (customer.NAMA.Equals(kdLazada))
+            if (customer != null)
             {
-                if (hargaJualBaru < 3000)
+                //add 31 juli 2019, cek barang sedang dalam promo
+                var dsPromo = EDB.GetDataSet("CString", "PROMOSIS", "select * from promosis a inner join detailpromosis b on a.recnum = b.RecNumPromosi where tgl_mulai < dateadd(hour,7,getutcdate()) and tgl_akhir > dateadd(hour,7,getutcdate()) and kode_brg = '" + hJualInDb.BRG + "' and nama_market = '" + customer.CUST + "'");
+                if (dsPromo.Tables[0].Rows.Count > 0)
                 {
-                    ret.message = "Harga Jual harus lebih dari 3000.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    //var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == dataBaru.IDMARKET).FirstOrDefault();
+                    //if (stf02hInDB != null)
+                    //{
+                    if (hJualInDb.HJUAL != hargaJualBaru)
+                    {
+                        ret.message = "Harga barang tidak dapat di update, karena sedang dalam masa promosi";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+                    //}
                 }
-                else if (hargaJualBaru % 100 != 0)
+                //end add 31 juli 2019, cek barang sedang dalam promo
+                if (customer.NAMA.Equals(kdLazada))
                 {
-                    ret.message = "Harga Jual harus kelipatan 100.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    if (hargaJualBaru < 3000)
+                    {
+                        ret.message = "Harga Jual harus lebih dari 3000.";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (hargaJualBaru % 100 != 0)
+                    {
+                        ret.message = "Harga Jual harus kelipatan 100.";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
 
+                    }
                 }
-            }
-            else if (customer.NAMA.Equals(kdBlibli))
-            {
-                if (hargaJualBaru < 1100)
+                else if (customer.NAMA.Equals(kdBlibli))
                 {
-                    ret.message = "Harga Jual minimal 1100.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    if (hargaJualBaru < 1100)
+                    {
+                        ret.message = "Harga Jual minimal 1100.";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
                 }
-            }
-            else if (customer.NAMA.Equals(kdBL) || customer.NAMA.Equals(kdElevenia))
-            {
-                if (hargaJualBaru < 100)
+                else if (customer.NAMA.Equals(kdBL) || customer.NAMA.Equals(kdElevenia))
                 {
-                    ret.message = "Harga Jual harus lebih dari 100.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
-                }
-                else if (hargaJualBaru % 100 != 0)
-                {
-                    ret.message = "Harga Jual harus kelipatan 100.";
-                    return Json(ret, JsonRequestBehavior.AllowGet);
+                    if (hargaJualBaru < 100)
+                    {
+                        ret.message = "Harga Jual harus lebih dari 100.";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (hargaJualBaru % 100 != 0)
+                    {
+                        ret.message = "Harga Jual harus kelipatan 100.";
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
                 }
             }
             //end add by Tri, validasi harga per marketplace
