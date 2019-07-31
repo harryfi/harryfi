@@ -292,6 +292,11 @@ namespace MasterOnline.Controllers
         {
             public int week { get; set; }
         }
+        public class listDataLine
+        {
+            public string NOBUK { get; set; }
+            public double NETTO { get; set; }
+        }
         public ActionResult RefreshDashboardLine(string tgl)
         {
             var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
@@ -304,10 +309,10 @@ namespace MasterOnline.Controllers
             {
                 //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year).ToList(),
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
-                ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
-                ListMarket = MoDbContext.Marketplaces.ToList(),
+                //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                //ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                //ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
+                //ListMarket = MoDbContext.Marketplaces.ToList(),
             };
 
             string[] minggu1 = { "01", "02", "03", "04", "05", "06", "07" };
@@ -317,9 +322,6 @@ namespace MasterOnline.Controllers
             List<string> minggu5 = new List<string>();
             //var firstDayOfMonth = new DateTime(selectedDate.Year, selectedDate.Month, 1);
             var lastday = new DateTime(selectedDate.Year, selectedDate.Month, 1).AddMonths(1).AddDays(-1);
-            //var tglcek = selectedDate.ToString("yyyy-MM-dd");
-            //var sSql = "SELECT dateadd(month,1+datediff(month,0,'" + tglcek + "'),-1) as TGL ";
-            //var lastDateInMonth = ErasoftDbContext.Database.SqlQuery<getLastDate>(sSql).Single();
             if(Convert.ToInt32(lastday.Day) > 28)
             {
                 for (int y = 29; y <= Convert.ToInt32(lastday.Day); y++)
@@ -328,81 +330,102 @@ namespace MasterOnline.Controllers
                 }
             }
             
-            var mingguKe = "";
-            for(int i = 0; i < minggu1.Count(); i++)
-            {
-                if(Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu1[i]))
-                {
-                    mingguKe = "1";
-                }
-            }
-            for (int i = 0; i < minggu2.Count(); i++)
-            {
-                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu2[i]))
-                {
-                    mingguKe = "2";
-                }
-            }
-            for (int i = 0; i < minggu3.Count(); i++)
-            {
-                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu3[i]))
-                {
-                    mingguKe = "3";
-                }
-            }
-            for (int i = 0; i < minggu4.Count(); i++)
-            {
-                if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu4[i]))
-                {
-                    mingguKe = "4";
-                }
-            }
-            if (minggu5.Count > 0)
-            {
-                for (int i = 0; i < minggu5.Count(); i++)
-                {
-                    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu5[i]))
-                    {
-                        mingguKe = "5";
-                    }
-                }
-            }
+            //var mingguKe = "";
+            //for(int i = 0; i < minggu1.Count(); i++)
+            //{
+            //    if(Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu1[i]))
+            //    {
+            //        mingguKe = "1";
+            //    }
+            //}
+            //for (int i = 0; i < minggu2.Count(); i++)
+            //{
+            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu2[i]))
+            //    {
+            //        mingguKe = "2";
+            //    }
+            //}
+            //for (int i = 0; i < minggu3.Count(); i++)
+            //{
+            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu3[i]))
+            //    {
+            //        mingguKe = "3";
+            //    }
+            //}
+            //for (int i = 0; i < minggu4.Count(); i++)
+            //{
+            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu4[i]))
+            //    {
+            //        mingguKe = "4";
+            //    }
+            //}
+            //if (minggu5.Count > 0)
+            //{
+            //    for (int i = 0; i < minggu5.Count(); i++)
+            //    {
+            //        if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu5[i]))
+            //        {
+            //            mingguKe = "5";
+            //        }
+            //    }
+            //}
 
             //remark by nurul 24/7/2019, jika 1 minggu nya dimulai dr minggu sampai sabtu, ga tergantung tgl 1
-            var sSql2 = "SELECT DATEADD(ww, DATEDIFF(ww, 5, '2019-07-31'), 5)--end week";
-            var sSql3 = "SELECT DATEPART(WEEK, DAY('2019-07-31')) --get minggu keberapa bulan ini";
-            var sSql4 = "select DATEADD(month,datediff(month,0,'2019-07-31'),0) --FIRST DATE ON MONTH YYYY-MM-DD TIME ";
-            var sSql5 = "SELECT dateadd(month,1+datediff(month,0,'2019-07-12'),-1) --LAST DATE ON MONTH YYYY-MM-DD TIME ";
-            //DayOfWeek fdow = System.Threading.Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-            //DayOfWeek startweek = DayOfWeek.Monday;
-            //DayOfWeek now = selectedDate.DayOfWeek;
-            //DateTime startday = selectedDate.AddDays(-(now - startweek)).Date;
-            //DateTime startOfWeek = selectedDate.AddDays(((int)(selectedDate.DayOfWeek) * -1) + 1);
+            //var sSql2 = "SELECT DATEADD(ww, DATEDIFF(ww, 5, '2019-07-31'), 5)--end week";
+            //var sSql3 = "SELECT DATEPART(WEEK, DAY('2019-07-31')) --get minggu keberapa bulan ini";
+            //var sSql4 = "select DATEADD(month,datediff(month,0,'2019-07-31'),0) --FIRST DATE ON MONTH YYYY-MM-DD TIME ";
+            //var sSql5 = "SELECT dateadd(month,1+datediff(month,0,'2019-07-12'),-1) --LAST DATE ON MONTH YYYY-MM-DD TIME ";
             bool isSunday = selectedDate.DayOfWeek == 0;
             var dayOfweek = isSunday == false ? (int)selectedDate.DayOfWeek : 7;
             DateTime startWk = selectedDate.AddDays(((int)(dayOfweek) * -1) + 1);
-            //DateTime endday = startday.AddDays(6).Date;
             List<DateTime> endday = new List<DateTime>();
             for (int i = 0; i <= 6; i++)
             {
                 endday.Add(startWk.AddDays(i).Date);
             }
-            var weekofyear = ErasoftDbContext.Database.SqlQuery<getLastDate>("select datepart(week, '" + selectedDate.ToString("yyyy-MM-dd") + "') as TGL").Single();
-
-            
-            //end remark by nurul 24/7/2019
-            //var StartWeekDate = selectedDate.DayOfWeek != DayOfWeek.Monday ? d.Date.PreviousOfWeek(DayOfWeek.Monday) : d.Date; 
-            //var EndWeekDate = d.NextDayOfWeek(DayOfWeek.Sunday);
             #region pesanan
-            var x = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(selectedDate, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Sunday);
-            for(int i = 0; i < endday.Count(); i++)
+            //var x = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(selectedDate, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Sunday);
+            var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
+            if (pesananTahunIni.Count() > 0)
+            {
+                for (int i = 1; i < 13; i++)
+                {
+                    var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
+                    //var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO))}";
+                    var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
+                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                        Jumlah = cekjumlahPesanan.ToString(),
+                        Nilai = NilaiPesanan.ToString()
+                    });
+                }
+            }
+            else
+            {
+                for (int i = 1; i < 13; i++)
+                {
+                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    {
+                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
+                        Jumlah = "0",
+                        Nilai = "0"
+                    });
+                }
+            }
+            for (int i = 0; i < endday.Count(); i++)
             {
                 //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
                 //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(endday[i].Day) && b.TGL.Value.Day >= Convert.ToInt32(endday[i].Day)).Count();
-                var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(endday[i].Day) && a.TGL.Value.Day <= Convert.ToInt32(endday[i].Day)).Sum(a => a.NETTO);
+                //var sSQLPesanan = "SELECT A.NO_BUKTI,A.RECNUM, A.NETTO FROM (SELECT NO_BUKTI, RECNUM, NETTO FROM SOT01A WHERE YEAR(TGL) = '2019' AND MONTH(TGL) = '7' AND DAY(TGL) = '1' )A";
+                var sSQLPesanan = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' )A";
+                var ListPesananMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLPesanan).ToList();
+                var cekjumlahpesanan = ListPesananMingguini.Count();
+                var NilaiPesanan = ListPesananMingguini.Sum(a => a.NETTO);
+                //var cekjumlahpesanan1 = pesananTahunIni.Where(b => b.TGL.Value.Year == endday[i].Year && b.TGL.Value.Month == endday[i].Month && b.TGL.Value.Day <= endday[i].Day && b.TGL.Value.Day >= endday[i].Day).Count();
+                //var NilaiPesanan1 = pesananTahunIni.Where(a => a.TGL.Value.Year == endday[i].Year && a.TGL.Value.Month == endday[i].Month && a.TGL.Value.Day >= endday[i].Day && a.TGL.Value.Day <= endday[i].Day).Sum(a => a.NETTO);
                 vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
@@ -494,7 +517,7 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            var pesananBulanIni = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
+            var pesananBulanIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
             if (pesananBulanIni.Count() > 0)
             {                
                 for (int i = 1; i < 6; i++)
@@ -614,26 +637,30 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var pesananTahunIni = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
-            if (pesananTahunIni.Count() > 0)
+
+            #endregion
+            #region faktur
+            var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
+            if (fakturTahunIni.Count() > 0)
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
-                    //var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
-                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //var NilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
+                    var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahPesanan.ToString(),
-                        Nilai = NilaiPesanan.ToString()
+                        Jumlah = cekjumlahFaktur.ToString(),
+                        Nilai = NilaiFaktur.ToString()
                     });
                 }
-            }else
+            }
+            else
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
+                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
                         Jumlah = "0",
@@ -641,16 +668,18 @@ namespace MasterOnline.Controllers
                     });
                 }
             }
-            #endregion
-            #region faktur
             for (int i = 0; i < endday.Count(); i++)
             {
                 //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
                 //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(endday[i].Day) && b.TGL.Day >= Convert.ToInt32(endday[i].Day) && b.JENIS_FORM == "2").Count();
-                var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(endday[i].Day) && a.TGL.Day <= Convert.ToInt32(endday[i].Day) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
+                var sSQLFaktur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2' )A";
+                var ListFakturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLFaktur).ToList();
+                var cekjumlahFaktur = ListFakturMingguini.Count();
+                var NilaiFaktur = ListFakturMingguini.Sum(a => a.NETTO);
+                //var cekjumlahFaktur1 = fakturTahunIni.Where(b => b.TGL.Year == endday[i].Year && b.TGL.Month == endday[i].Month && b.TGL.Day <= endday[i].Day && b.TGL.Day >= endday[i].Day && b.JENIS_FORM == "2").Count();
+                //var NilaiFaktur1 = fakturTahunIni.Where(a => a.TGL.Year == endday[i].Year && a.TGL.Month == endday[i].Month && a.TGL.Day >= endday[i].Day && a.TGL.Day <= endday[i].Day && a.JENIS_FORM == "2").Sum(a => a.NETTO);
                 vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
@@ -743,7 +772,7 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            var fakturBulanIni = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
+            var fakturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
             if (fakturBulanIni.Count() > 0)
             {
                 for (int i = 1; i < 6; i++)
@@ -863,19 +892,22 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var fakturTahunIni = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
-            if (fakturTahunIni.Count() > 0)
+
+            #endregion
+            #region retur
+            var returTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
+            if (returTahunIni.Count() > 0)
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
-                    //var NilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
-                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //var NilaiRetur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
+                    var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahFaktur.ToString(),
-                        Nilai = NilaiFaktur.ToString()
+                        Jumlah = cekjumlahRetur.ToString(),
+                        Nilai = NilaiRetur.ToString()
                     });
                 }
             }
@@ -883,7 +915,7 @@ namespace MasterOnline.Controllers
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
+                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
                         Jumlah = "0",
@@ -891,16 +923,18 @@ namespace MasterOnline.Controllers
                     });
                 }
             }
-            #endregion
-            #region retur
             for (int i = 0; i < endday.Count(); i++)
             {
                 //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
                 //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(endday[i].Day) && b.TGL.Day >= Convert.ToInt32(endday[i].Day) && b.JENIS_FORM == "3").Count();
-                var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(endday[i].Day) && a.TGL.Day <= Convert.ToInt32(endday[i].Day) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
+                var sSQLRetur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3' )A";
+                var ListReturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLRetur).ToList();
+                var cekjumlahRetur = ListReturMingguini.Count();
+                var NilaiRetur = ListReturMingguini.Sum(a => a.NETTO);
+                //var cekjumlahRetur1 = returTahunIni.Where(b => b.TGL.Year == endday[i].Year && b.TGL.Month == endday[i].Month && b.TGL.Day <= endday[i].Day && b.TGL.Day >= endday[i].Day && b.JENIS_FORM == "3").Count();
+                //var NilaiRetur1 = returTahunIni.Where(a => a.TGL.Year == endday[i].Year && a.TGL.Month == endday[i].Month && a.TGL.Day >= endday[i].Day && a.TGL.Day <= endday[i].Day && a.JENIS_FORM == "3").Sum(a => a.NETTO);
                 vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
@@ -993,7 +1027,7 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            var ReturBulanIni = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
+            var ReturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
             if (ReturBulanIni.Count() > 0)
             {
                 for (int i = 1; i < 6; i++)
@@ -1113,34 +1147,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var returTahunIni = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
-            if (returTahunIni.Count() > 0)
-            {
-                for (int i = 1; i < 13; i++)
-                {
-                    var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
-                    //var NilaiRetur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
-                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
-                    {
-                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahRetur.ToString(),
-                        Nilai = NilaiRetur.ToString()
-                    });
-                }
-            }
-            else
-            {
-                for (int i = 1; i < 13; i++)
-                {
-                    vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
-                    {
-                        No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = "0",
-                        Nilai = "0"
-                    });
-                }
-            }
+            
             #endregion
 
             return PartialView("TableDashboardLinePartial", vm);
@@ -1215,7 +1222,7 @@ namespace MasterOnline.Controllers
 
             var vm = new DashboardViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL >= Drtgl && p.TGL <= Sdtgl).ToList(),
                 ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
                 ListMarket = MoDbContext.Marketplaces.ToList(),
             };
