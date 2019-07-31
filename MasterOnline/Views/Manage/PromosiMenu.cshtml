@@ -764,7 +764,6 @@
                 cache: false,
                 success: function (data) {
                     var customerList = [];
-
                     $.each(data,
                         function (i, item) {
                             var $namaMarket = $marketCollection[item.NAMA];
@@ -787,6 +786,12 @@
                                 $("#Promosi_NAMA_MARKET").val(value);
                                 if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
                                     $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
+                                }
+                                
+                                if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
+                                    $("#div_text").show();
+                                } else {
+                                    $("#div_text").hide();
                                 }
                                 getDataBarang();
                             }

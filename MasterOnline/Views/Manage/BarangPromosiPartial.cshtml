@@ -75,6 +75,9 @@
             </div>
         </div>
     }
+    <div class="row text-center" id="div_text" hidden="hidden">
+        <label>Promosi ini akan mengupdate promosi yang sedang berjalan di marketplace</label>
+    </div>
     <hr />
 </div>
 @Html.HiddenFor(m => m.PromosiDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
