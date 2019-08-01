@@ -1671,6 +1671,8 @@ namespace MasterOnline.Controllers
                 //add by nurul 10/4/2019
                 DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
                 //end add by nurul 10/4/2019
+                //add by nurul 1/8/2019
+                ListPesanan = ErasoftDbContext.SOT01A.Take(1).ToList()
             };
 
             return View(vm);
@@ -13565,6 +13567,7 @@ namespace MasterOnline.Controllers
                     //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     //ListMarketplace = MoDbContext.Marketplaces.ToList(),
                     //DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                    //ListSubs = MoDbContext.Subscription.ToList()
                 };
 
                 return PartialView("Pesanan", vm);
