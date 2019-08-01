@@ -745,11 +745,15 @@ namespace MasterOnline.Controllers
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             if (Convert.ToString(stf02.TYPE) == "3")
             {
-                xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
+                //xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
+                xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
                 xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
-                xmlString += "<price>" + data.harga + "</price>";
+                //change 1/8/2019, gunakan hjual stf02h
+                //xmlString += "<price>" + data.harga + "</price>";
+                xmlString += "<price>" + stf02h.HJUAL + "</price>";
+                //end change 1/8/2019, gunakan hjual stf02h
                 //xmlString += "<size>Int: One size</size>";
                 xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                 xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
@@ -829,7 +833,10 @@ namespace MasterOnline.Controllers
                     var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
                     if (input && (GetStf02h != null))
                     {
-                        xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
+                        //change 1/8/2019, gunakan brg_mp stf02h
+                        //xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
+                        xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
+                        //end change 1/8/2019, gunakan brg_mp stf02h
                         xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                         foreach (var attribute in KombinasiAttribute)
@@ -864,7 +871,10 @@ namespace MasterOnline.Controllers
                         }
                         //end change 16 Mei 2019, get attr from api
 
-                        xmlString += "<price>" + data.harga + "</price>";
+                        //change 1/8/2019, gunakan hjual stf02h
+                        //xmlString += "<price>" + data.harga + "</price>";
+                        xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
+                        //change 1/8/2019, gunakan hjual stf02h
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                         xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
                         xmlString += "<Images>";

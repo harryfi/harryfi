@@ -6207,7 +6207,7 @@ namespace MasterOnline.Controllers
                 }
                 string[] imageUrl = new string[imgPath.Length];
                 var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
-                if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
+                if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
                 {
                     for (int i = 0; i < imgPath.Length; i++)
                     {
@@ -6253,7 +6253,7 @@ namespace MasterOnline.Controllers
                     {
                         dataLazada.imageUrl = imageUrl[0];
                     }
-                    if (string.IsNullOrWhiteSpace(productMarketPlace.BRG_MP))
+                    if (string.IsNullOrWhiteSpace(productMarketPlace.BRG_MP) && productMarketPlace.DISPLAY)
                     {
                         //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
