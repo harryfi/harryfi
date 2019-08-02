@@ -27471,6 +27471,17 @@ namespace MasterOnline.Controllers
                                     && a.REQUEST_STATUS == "FAILED"
                                     orderby a.REQUEST_DATETIME descending
                                     select a.REQUEST_ID).ToList();
+            string listJobID = "";
+            foreach (var item in QueryHangfireLog)
+            {
+                listJobID += "'"+ item +"',";
+            }
+            listJobID = listJobID.Substring(0, listJobID.Length - 1);
+
+            string sSQL = "UPDATE B SET REQUEST_STATUS = 'RETRYING', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' ";
+            sSQL += "FROM API_LOG_MARKETPLACE B WHERE REQUEST_ID IN (" + listJobID + ")";
+            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
             foreach (var item in QueryHangfireLog)
             {
                 clientJobServer.Requeue(item);
