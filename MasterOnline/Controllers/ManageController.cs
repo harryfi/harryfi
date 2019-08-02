@@ -13443,6 +13443,7 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
         //end add by nurul 18/3/2019
+        
 
         public ActionResult RefreshTablePesanan(int? page, string search = "")
         {
@@ -13783,7 +13784,7 @@ namespace MasterOnline.Controllers
             return PartialView("GudangQtyPartial", vm);
         }
 
-        public ActionResult RefreshTablePesananSudahDibayar(int? page, string search = "")
+        public ActionResult RefreshTablePesananSudahDibayar(string take, int? page, string search = "")
         {
             //change by nurul 8/5/2019, paging 
             //var vm = new PesananViewModel()
@@ -13801,6 +13802,8 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
+            //Int32 takeRecord = Convert.ToInt32(take);
             //var ListMarketplaces = (from c in MoDbContext.Marketplaces
             //                        select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
 
@@ -13838,13 +13841,14 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
             return PartialView("TablePesananSudahDibayarPartial", pageOrders);
 
@@ -13862,6 +13866,7 @@ namespace MasterOnline.Controllers
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             var listorder = new List<SOT01A>();
+            var listBuyer = new List<ARF01C>();
             string[] IRecnum = new string[rows_selected.Length];
             for (int i = 0; i < rows_selected.Length; i++)
             {
@@ -13871,6 +13876,9 @@ namespace MasterOnline.Controllers
                     //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
                     var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
                     listorder.AddRange(xx);
+                    var buyer = xx.Select(a => a.PEMESAN).ToList();
+                    var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+                    listBuyer.AddRange(xxBuyer);
                 }
             }
 
@@ -13879,8 +13887,9 @@ namespace MasterOnline.Controllers
                 //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
                 ListPesanan = listorder,
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPembeli = listBuyer,
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
@@ -13897,6 +13906,7 @@ namespace MasterOnline.Controllers
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             var listorder = new List<SOT01A>();
+            var listBuyer = new List<ARF01C>();
             string[] IRecnum = new string[rows_selected.Length];
             for (int i = 0; i < rows_selected.Length; i++)
             {
@@ -13906,6 +13916,9 @@ namespace MasterOnline.Controllers
                     //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
                     var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "02").ToList();
                     listorder.AddRange(xx);
+                    var buyer = xx.Select(a => a.PEMESAN).ToList();
+                    var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+                    listBuyer.AddRange(xxBuyer);
                 }
             }
 
@@ -13914,8 +13927,9 @@ namespace MasterOnline.Controllers
                 //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
                 ListPesanan = listorder,
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPembeli = listBuyer,
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
@@ -13924,7 +13938,59 @@ namespace MasterOnline.Controllers
 
         //end add by nurul 24/03/2019
 
-        public ActionResult RefreshTablePesananSiapKirim(int? page, string search = "")
+        //add by nurul 2/8/2019
+        public ActionResult RefreshGenerateFaktur(string[] rows_selected)
+        {
+            if (rows_selected == null)
+            {
+                var vmError = new PesananViewModel() { };
+
+                vmError.Errors.Add("Silahkan pilih pesanan yang akan dibuat fakturnya !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            var listorder = new List<SOT01A>();
+            //var listItem = new List<STF02>();
+            var listBuyer = new List<ARF01C>();
+            string[] IRecnum = new string[rows_selected.Length];
+            for (int i = 0; i < rows_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(rows_selected[i]))
+                {
+                    Int32 row = Convert.ToInt32(rows_selected[i]);
+                    //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
+                    //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03" && a.NO_BUKTI == ErasoftDbContext.SIT01A.Where(b => b.NO_SO != null).Single().NO_SO).ToList();
+                    var cekfaktur = ErasoftDbContext.SIT01A.Where(b => b.NO_SO != null || b.NO_SO != "").Select(b => b.NO_SO).ToList();
+                    var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03" && !cekfaktur.Contains(a.NO_BUKTI)).ToList();
+                    listorder.AddRange(xxPesanan);
+                    //var nobuk = xxPesanan.Select(a => a.NO_BUKTI).ToList();
+                    var buyer = xxPesanan.Select(a => a.PEMESAN).ToList();
+                    //var xxPesananDetail = ErasoftDbContext.SOT01B.Where(pd => nobuk.Contains(pd.NO_BUKTI)).ToList();
+                    //var barang = xxPesananDetail.Select(a => a.BRG).ToList();
+                    //var xxBarang = ErasoftDbContext.STF02.Where(a => barang.Contains(a.BRG) && a.TYPE == "3").ToList();
+                    //listItem.AddRange(xxBarang);
+                    var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+                    listBuyer.AddRange(xxBuyer);
+                }
+            }
+
+            
+            var vm = new PesananViewModel()
+            {
+                //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                ListPesanan = listorder,
+                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListBarang = listItem,
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPembeli = listBuyer,
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList()
+            };
+            return PartialView("KonfirmasiGenerateFaktur", vm);
+        }
+        //end add by nurul 2/8/2019
+
+        public ActionResult RefreshTablePesananSiapKirim(string take, int? page, string search = "")
         {
             // change by nurul 8/5/2019, paging 
             //var vm = new PesananViewModel()
@@ -13941,6 +14007,7 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
             //var ListMarketplaces = (from c in MoDbContext.Marketplaces
             //                        select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
 
@@ -13979,20 +14046,21 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
             return PartialView("TablePesananSiapKirimPartial", pageOrders);
 
             //end change by nurul 8/5/2019, paging 
         }
 
-        public ActionResult RefreshTablePesananSudahKirim(int? page, string search = "")
+        public ActionResult RefreshTablePesananSudahKirim(string take, int? page, string search = "")
         {
             // change by nurul 8/5/2019, paging 
             //var vm = new PesananViewModel()
@@ -14010,6 +14078,7 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
+            ViewData["takeRecord"] = take;
             //var ListMarketplaces = (from c in MoDbContext.Marketplaces
             //                        select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
 
@@ -14052,13 +14121,15 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
+            //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
             return PartialView("TablePesananSudahKirimPartial", pageOrders);
 
@@ -15224,6 +15295,74 @@ namespace MasterOnline.Controllers
             var result = await shoAPI.GetTimeSlot(data, address_id, pesananInDb.NO_REFERENSI);
             return Json(result.pickup_time, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 2/8/2019
+        public ActionResult GenerateFakturMulti(string[] get_selected, string uname)
+        {
+            try
+            {
+                List<String> listError = new List<String>();
+
+            for (int i = 0; i < get_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(get_selected[i]))
+                {
+                    Int32 rec = Convert.ToInt32(get_selected[i]);
+                    var pesananInDb = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec);
+                    var getnobuk = pesananInDb.NO_BUKTI;
+                    var pesananDetailInDb = ErasoftDbContext.SOT01B.FirstOrDefault(p => p.NO_BUKTI == getnobuk && p.BRG == "NOT_FOUND");
+                    if (pesananDetailInDb == null)
+                    {
+                        if (pesananInDb.STATUS_TRANSAKSI == "01")
+                        {
+                            pesananInDb.STATUS_TRANSAKSI = "02";
+                            ErasoftDbContext.SaveChanges();
+                            //add by Tri, call marketplace api to update order status
+                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false);
+                            //end add by Tri, call marketplace api to update order status
+                        }
+                    }
+                    else
+                    {
+                        var nobuk = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec).NO_BUKTI;
+                        listError.Add(nobuk);
+                    }
+                }
+            }
+
+            if (listError.Count() > 0)
+            {
+                var vmError = new PesananViewModel() { };
+
+                for (int i = 0; i < listError.Count; i++)
+                {
+                    if (!string.IsNullOrEmpty(listError[i]))
+                    {
+                        var Error = listError[i];
+                        vmError.Errors.Add(Error);
+                    }
+                }
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+
+            return new EmptyResult();
+            }
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    System.Diagnostics.Debug.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw;
+            }
+        }
+        //end add by nurul 2/8/2019
         [HttpGet]
         public ActionResult GenerateFaktur(int? recNumPesanan, string uname)
         {

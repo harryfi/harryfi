@@ -6106,6 +6106,7 @@
     <Content Include="Views\Report\TablePromptKodeRekPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
