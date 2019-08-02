@@ -7756,7 +7756,7 @@
                 });
             }
 
-            var link = '@Url.Action("GenerateFaktur", "Manage", new { uname = "replaceUname" })';
+            var link = '@Url.Action("GenerateFakturMulti", "Manage", new { uname = "replaceUname" })';
             link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
 
 
@@ -7766,6 +7766,9 @@
                 data: JSON.stringify(get_selected),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function(response) {
                     if (response.Errors == null) {
                         alert('Semua kode pesanan telah berhasil dibuat fakturnya');
@@ -7779,9 +7782,8 @@
                         //refreshTableSudahDibayar();
                         alert('Gagal buat faktur pada Pesanan (' + response.Errors + ') !');
                     }
-                    $('#modal-status-multi-packing-body').modal('hide');
-                    $('#modalUbahStatusMultiPacking').modal('hide');
-                    $('#konfUbahStatusSiapkirim').modal('hide');
+                    $('#modal-generate-faktur-body').modal('hide');
+                    $('#modalGenerateFaktur').modal('hide');
                     get_selected.length = 0;
                 },
                 error: function(xhr, status, error) {
