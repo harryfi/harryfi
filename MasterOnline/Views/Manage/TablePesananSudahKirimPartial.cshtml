@@ -54,7 +54,8 @@
                 @*end add by nurul 6/3/2019*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; text-align: center">Cek Faktur</th>*@
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; text-align: center">Buat Faktur</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; text-align: center; max-width:50px">Buat Faktur</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="checkbox_all_generateFaktur" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 70px;">Isi Resi</th>
                 @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px; text-align: center">Diterima</th>*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px; text-align: center">Ubah Status</th>
@@ -97,108 +98,118 @@
 
 
 
-                <tr>
-                    <td>@pesanan.NOSO</td>
-                    <td>@(String.IsNullOrWhiteSpace(pesanan?.NO_FAKTUR) ? "---" : pesanan?.NO_FAKTUR)</td>
-                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
-                    @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-                    <td>
-                        @if (pesanan.PERSO != "")
-                        {
-                            @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
-                        }
-                        else
-                        {
-                            @pesanan.MARKET
-                        }
-                    </td>
-                    <td>
-                        @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                        @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                        @*@(buyer == null ? "" : buyer.NAMA)*@
-                        @pesanan.PEMBELI
-                    </td>
-                    @*add by nurul 6/3/2019*@
-                    <td>@noresi</td>
-                    @*add by nurul 6/3/2019*@
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                    <td class="edit-hapus-col">
-                        @*@if (generatedFaktur == null)*@
-                        @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
-                        {
-                            <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RECNUM)">
-                                <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            @*<button class="btn btn-primary lihat_faktur" onclick="lihatFaktur('@(pesanan.NO_BUKTI)', '@generatedFaktur.NO_BUKTI', '@generatedFaktur.TGL.ToString("dd/MM/yyyy")')">*@
-                            <button class="btn btn-primary lihat_faktur" onclick="lihatFaktur('@(pesanan.NOSO)', '@pesanan.NO_FAKTUR', '@(pesanan.TGL_FAKTUR?.ToString("dd/MM/yyyy"))')">
-                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                            </button>
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        @if (pesanan.MARKET.ToUpper() == "SHOPEE")
-                        {
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResiShopee" onclick="passRecResiShopee(@pesanan.RECNUM);">
-                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else if (pesanan.MARKET.ToUpper() == "TOKOPEDIA")
-                        {
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResiTokped" onclick="passRecResiTokped(@pesanan.RECNUM);">
-                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            @*<button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResi" onclick="passRecResi(@pesanan.RecNum); showShipment('@NamaMarket.ToString()', '@pesanan.CUST.ToString()'); ">*@
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResi" onclick="passRecResi(@pesanan.RECNUM); showShipment('@pesanan.MARKET.ToString()', '@pesanan.CUST.ToString()'); ">
-                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                            </button>
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        @*@if (generatedFaktur == null)*@
-                        @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
-                        {
-                            <button class="btn btn-success" onclick="unacceptablePesanan()">
-                                @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                                @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatusSudahkirim" onclick="passRecStatus(@pesanan.RECNUM, '04', '@pesanan.NOSO')">
-                                @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                                @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                            </button>
-                        }
-                    </td>
-                    <td class="edit-hapus-col">
-                        @*@if (generatedFaktur == null)*@
-                        @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
-                        {
-                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSudahkirim" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
-                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-warning" onclick="unundoablePesanan()">
-                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                            </button>
-                        }
-                    </td>
-                    <!--<td class="edit-hapus-col">
-                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RECNUM)">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            <tr>
+                <td>@pesanan.NOSO</td>
+                <td>@(String.IsNullOrWhiteSpace(pesanan?.NO_FAKTUR) ? "---" : pesanan?.NO_FAKTUR)</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                <td>
+                    @if (pesanan.PERSO != "")
+                    {
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                    }
+                    else
+                    {
+                        @pesanan.MARKET
+                    }
+                </td>
+                <td>
+                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA)*@
+                    @pesanan.PEMBELI
+                </td>
+                @*add by nurul 6/3/2019*@
+                <td>@noresi</td>
+                @*add by nurul 6/3/2019*@
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td class="edit-hapus-col" style=" width: 50px; max-width: 50px;">
+                    @*@if (generatedFaktur == null)*@
+                    @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
+                    {
+                        <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RECNUM)">
+                            <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                         </button>
-                    </td>-->
-                </tr>
+                    }
+                    else
+                    {
+                        @*<button class="btn btn-primary lihat_faktur" onclick="lihatFaktur('@(pesanan.NO_BUKTI)', '@generatedFaktur.NO_BUKTI', '@generatedFaktur.TGL.ToString("dd/MM/yyyy")')">*@
+                        <button class="btn btn-primary lihat_faktur" onclick="lihatFaktur('@(pesanan.NOSO)', '@pesanan.NO_FAKTUR', '@(pesanan.TGL_FAKTUR?.ToString("dd/MM/yyyy"))')">
+                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                        </button>
+                    }
+                </td>
+                <td style="width: 40px; max-width: 40px; align-self:flex-start; ">
+                    @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
+                    {
+                        <input type="checkbox" class="dt-checkboxes center checkbox_generateFaktur" data-recnum="@pesanan.RECNUM" style="align-self:flex-start; width:30px; height:28px;" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="dt-checkboxes center" data-recnum="@pesanan.RECNUM" style="align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    @if (pesanan.MARKET.ToUpper() == "SHOPEE")
+                    {
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResiShopee" onclick="passRecResiShopee(@pesanan.RECNUM);">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else if (pesanan.MARKET.ToUpper() == "TOKOPEDIA")
+                    {
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResiTokped" onclick="passRecResiTokped(@pesanan.RECNUM);">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        @*<button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResi" onclick="passRecResi(@pesanan.RecNum); showShipment('@NamaMarket.ToString()', '@pesanan.CUST.ToString()'); ">*@
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalIsiResi" onclick="passRecResi(@pesanan.RECNUM); showShipment('@pesanan.MARKET.ToString()', '@pesanan.CUST.ToString()'); ">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    @*@if (generatedFaktur == null)*@
+                    @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
+                    {
+                        <button class="btn btn-success" onclick="unacceptablePesanan()">
+                            @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatusSudahkirim" onclick="passRecStatus(@pesanan.RECNUM, '04', '@pesanan.NOSO')">
+                            @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </button>
+                    }
+                </td>
+                <td class="edit-hapus-col">
+                    @*@if (generatedFaktur == null)*@
+                    @if (pesanan.FAKTUR == null || pesanan.FAKTUR == "")
+                    {
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSudahkirim" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-warning" onclick="unundoablePesanan()">
+                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                        </button>
+                    }
+                </td>
+                <!--<td class="edit-hapus-col">
+        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RECNUM)">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+        </button>
+    </td>-->
+            </tr>
             }
         </tbody>
     </table>
@@ -209,7 +220,8 @@
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananSudahKirim", new
        {
            page,
-           search = ViewData["searchParam"]
+           search = ViewData["searchParam"],
+           take = ViewData["takeRecord"],
        }),
         new PagedListRenderOptions
         {
