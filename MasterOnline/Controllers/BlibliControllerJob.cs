@@ -84,6 +84,93 @@ namespace MasterOnline.Controllers
             if (arf01inDB != null)
             {
                 ret = arf01inDB.TOKEN;
+
+                bool TokenExpired = true;
+                var currentTimeRequest = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                if (!string.IsNullOrWhiteSpace(arf01inDB.REFRESH_TOKEN))
+                {
+                    var splitRefreshToken = arf01inDB.REFRESH_TOKEN.Split(';');
+                    if (splitRefreshToken.Count() == 3)
+                    {
+                        if ((Convert.ToInt64(splitRefreshToken[2]) + Convert.ToInt64(splitRefreshToken[1]) - 10000) >= currentTimeRequest)
+                        {
+                            TokenExpired = false;
+                        }
+                    }
+                }
+                if (TokenExpired)
+                {
+                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                    string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                    string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+                                                                         //apiId = "mta-api-sandbox:sandbox-secret-key";
+                                                                         //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+                    string urll = "https://api.blibli.com/v2/oauth/token?channelId=MasterOnline";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                    myReq.ContentType = "application/x-www-form-urlencoded";
+                    myReq.Accept = "application/json";
+                    string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
+                    //Stream dataStream = myReq.GetRequestStream();
+                    //WebResponse response = myReq.GetResponse();
+                    //dataStream = response.GetResponseStream();
+                    //StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = "";
+                    try
+                    {
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
+                        {
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        }
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    //dataStream.Close();
+                    //response.Close();
+                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                    //cek refreshToken
+                    if (responseFromServer != "")
+                    {
+                        var retAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
+                        if (retAPI.error == null)
+                        {
+                            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+                            //if (arf01inDB != null)
+                            //{
+                            arf01inDB.TOKEN = retAPI.access_token;
+                            arf01inDB.REFRESH_TOKEN = retAPI.refresh_token + ";" + Convert.ToString(retAPI.expires_in) + ";" + Convert.ToString(currentTimeRequest);
+
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "1";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+
+                            ret = retAPI.access_token;
+                        }
+                        else
+                        {
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "0";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                }
+
             }
             return ret;
         }
