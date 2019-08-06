@@ -1209,13 +1209,16 @@
                 }
                 if ($('#CUSTOMER').text().toUpperCase().includes('LAZADA (')) {
                     var dtMonth = new Date().getMonth() + 1;
-                    var bln = "";
-                    if (dtMonth < 10) {
-                        bln = '0' + dtMonth;
-                    } else {
-                        bln += dtMonth; 
-                    }
-                    if ($('#TGL_MULAI').val() != (new Date().getDate() + '/' + bln + '/' + new Date().getFullYear())) {
+                    var bln = getTwoDigitDateFormat(dtMonth);
+                    var dtDay = new Date().getDate();
+                    var day = getTwoDigitDateFormat(dtDay);
+                    //var bln = "";
+                    //if (dtMonth < 10) {
+                    //    bln = '0' + dtMonth;
+                    //} else {
+                    //    bln += dtMonth; 
+                    //}
+                    if ($('#TGL_MULAI').val() != (day + '/' + bln + '/' + new Date().getFullYear())) {
                         alert('Tanggal Mulai untuk promo marketplace Lazada harus di set hari ini.');
                         return false;
                     }
@@ -1226,6 +1229,11 @@
             }
             return true;
         }
+
+        function getTwoDigitDateFormat(monthOrDate) {
+            return (monthOrDate < 10) ? '0' + monthOrDate : '' + monthOrDate;
+        }
+
         function simpanbrg($id) {
             if (!validateForm() || !DataIsValid()) return false;
             if ($id == 'brg-0') {

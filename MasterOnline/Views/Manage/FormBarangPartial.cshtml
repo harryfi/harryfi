@@ -774,7 +774,7 @@
                                                                                         <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                             @Html.Label("Pickup Point *", new { @class = "control-label" })
                                                                                         </div>
-                                                                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                                                                        <div class="col-md-3 col-sm-3 col-xs-12 form-group">
                                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
                                                                                             <div class="input-group text">
                                                                                                 <table>
@@ -845,7 +845,7 @@
                                                                             <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                 @Html.Label("Template Delivery *", new { @class = "control-label" })
                                                                             </div>
-                                                                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                                                            <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.DeliveryTempElevenia })
                                                                                 <div class="input-group text">
                                                                                     <table>
@@ -1017,7 +1017,7 @@
                                                                                 <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                     @Html.Label("Etalase *", new { @class = "control-label" })
                                                                                 </div>
-                                                                                <div class="col-md-4 col-sm-4 col-xs-12">
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.PICKUP_POINT })
                                                                                     <div class="input-group text">
                                                                                         <table>
