@@ -166,7 +166,8 @@
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananSudahDibayar", new
        {
            page,
-           search = ViewData["searchParam"]
+           search = ViewData["searchParam"],
+           take = ViewData["takeRecord"],
        }),
         new PagedListRenderOptions
         {
