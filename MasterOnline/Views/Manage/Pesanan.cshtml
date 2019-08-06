@@ -1348,344 +1348,332 @@
 <!-- /top tiles -->
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        @*//add by nurul 31/7/2019, dialog sebelum masuk tab Pesanan jika update marketplace Blm Aktif*@
-        @if (Model?.DataUsaha != null)
-        {
-            if (Model.DataUsaha.JTRAN_RETUR != "1" && Model.ListPesanan.Count() == 0) //tidak aktif
-            {
-                <div id="notifUpdate">
-                    @Html.Partial("AktivasiPesananStokKeMarketplace")
-                </div>
-            }
-            else
-            {
-                @*//add by nurul 31/7/2019, dialog sebelum masuk tab Pesanan jika update marketplace Blm Aktif*@
-                <div class="" role="tabpanel" data-example-id="togglable-tabs" id="pesananTampil">
-                    <ul id="myTab" class="nav nav-tabs" role="tablist">
-                        <li role="presentation" class="active">
-                            <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
-                        </li>
-                        <li role="presentation" class="">
-                            <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Dibayar</a>
-                        </li>
-                        <li role="presentation" class="">
-                            @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
-                            <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing</a>
-                        </li>
-                        <li role="presentation" class="">
-                            @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
-                            <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur</a>
-                        </li>
-                        <li role="presentation" class="">
-                            <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
-                        </li>
-                        <li role="presentation" class="">
-                            <a href="#tab_content8" role="tab" id="cancel-tab" data-toggle="tab" aria-expanded="false">Batal</a>
-                        </li>
-                    </ul>
-                    <div id="myTabContent" class="tab-content">
-                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
-                            <div class="row pesanan_table_section form-group">
-                                @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
-                                <div class="col-md-2 col-sm-2 col-xs-12">
-                                    @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                                    <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                                        @if (Model?.DataUsaha != null)
-                                        {
-                                            if (Model.DataUsaha.JTRAN_RETUR == "1")
-                                            {
-                                                <option value="1" selected>Aktif</option>
-                                                <option value="0">Tidak Aktif</option>
-                                            }
-                                            else
-                                            {
-                                                <option value="1">Aktif</option>
-                                                <option value="0" selected>Tidak Aktif</option>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <option value="1">Aktif</option>
-                                            <option value="0" selected>Tidak Aktif</option>
-                                        }
-                                    </select>
-                                </div>
-                                @*remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Dibayar</a>
+                </li>
+                <li role="presentation" class="">
+                    @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
+                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing</a>
+                </li>
+                <li role="presentation" class="">
+                    @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
+                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content8" role="tab" id="cancel-tab" data-toggle="tab" aria-expanded="false">Batal</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
+                    <div class="row pesanan_table_section form-group">
+                        @*@Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })*@
+                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                            <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                @*<option value="default">Harap pilih</option>*@
+                                @if (Model?.DataUsaha != null)
+                                {
+                                    if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                    {
+                                        <option value="1" selected>Aktif</option>
+                                        <option value="0">Tidak Aktif</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="1">Aktif</option>
+                                        <option value="0" selected>Tidak Aktif</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="1">Aktif</option>
+                                    <option value="0" selected>Tidak Aktif</option>
+                                }
+                            </select>
+                        </div>
+                        @* remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
+                    </div>
+                    <div class="row pesanan_table_section" style="margin-top:5px;">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_pesanan_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
                             </div>
-                            <div class="row pesanan_table_section" style="margin-top:5px;">
-                                <div class="col-lg-4 col-sm-6">
-                                    <div class="input-group">
-                                        <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_pesanan_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right" id="tambah_baru_tombol_section">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row pesanan_table_section">
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+                        </div>*@
+                    <div class="row pesanan_table_section" style="margin-top: 5px;">
+                        @*<div id="loading_pesanan_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-partial">
+                            @*@Html.Partial("TablePesananPartial")*@
+                        </div>
+                    </div>
+                    <div class="row pesanan_editor_section" style="display: none;">
+                        <div class="col-lg-12 modalresponsive">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Pesanan</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-1" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
                                             </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6">
-                                    <div class="pull-right" id="tambah_baru_tombol_section">
-                                        <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                            <span>Refresh</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            @*<div class="row pesanan_table_section">
-                                    @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-                                </div>*@
-                            <div class="row pesanan_table_section" style="margin-top: 5px;">
-                                @*<div id="loading_pesanan_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-partial">
-                                    @*@Html.Partial("TablePesananPartial")*@
-                                </div>
-                            </div>
-                            <div class="row pesanan_editor_section" style="display: none;">
-                                <div class="col-lg-12 modalresponsive">
-                                    <div class="page-editor">
-                                        <h2 class="editor-title">Pesanan</h2>
-                                        <span class="title-accent"></span>
-                                        <button id="close-editor-1" type="button" class="pull-right page-close">
-                                            <span class="close-btn thick"></span>
-                                        </button>
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
-                                        @using (Html.BeginForm("SavePesanan", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-pesanan" }))
-                                        {
-                                            <div id="form-partial">
-                                                @*@Html.Partial("BarangPesananPartial")*@
-                                            </div>
-                                        }
-                                        <div class="form-horizontal" id="form_subs">
-                                            @Html.Partial("PricingNewPartialView", Model?.ListSubs)
                                         </div>
+                                    }
+                                }
+                                @using (Html.BeginForm("SavePesanan", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-pesanan" }))
+                                {
+                                    <div id="form-partial">
+                                        @*@Html.Partial("BarangPesananPartial")*@
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
-                            <div class="row pesanan_sudah_dibayar_section">
-                                <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                    <div class="input-group">
-                                        <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_nunggu_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
-                                    <div class="pull-right">
-                                        <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-                                        </button>
-                                        <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
-                                            <span>Refresh</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
-                                @*<div id="loading_sudah_dibayar_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
-                                    @*@Html.Partial("TablePesananSudahDibayarPartial")*@
-                                </div>
-                            </div>
-                            <div class="row pesanan_editor_sudah_dibayar_section" style="display: none;">
-                                <div class="col-lg-12 modalresponsive">
-                                    <div class="page-editor">
-                                        <h2 class="editor-title">Pesanan</h2>
-                                        <span class="title-accent"></span>
-                                        <button id="close-editor-3" type="button" class="pull-right page-close">
-                                            <span class="close-btn thick"></span>
-                                        </button>
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
-                                        <div id="form-partial-sudah-dibayar">
-                                            @*@Html.Partial("BarangPesananSudahDibayarPartial")*@
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="sedangproses-tab">
-                            <div class="row">
-                                <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                    <div class="input-group">
-                                        <input id="search_sedangproses" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_packing_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
-                                    <div class="pull-right">
-                                        <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-                                        </button>
-                                        @*//remark by nurul 17/6/2019*@
-                                        @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                                <span>Refresh</span>
-                                            </button>*@
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 5px;">
-                                @*<div id="loading_siap_kirim_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
-                                    @*@Html.Partial("TablePesananSiapKirimPartial")*@
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
-                            <div class="row">
-                                <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                    <div class="input-group">
-                                        <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_invoicing_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
-                                    <div class="pull-right">
-                                        @*//remark by nurul 17/6/2019*@
-                                        @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                                <span>Refresh</span>
-                                            </button>*@
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 5px;">
-                                @*<div id="loading_sudah_kirim_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-sudah-kirim-partial">
-                                    @*@Html.Partial("TablePesananSudahKirimPartial")*@
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="selesai-tab">
-                            <div class="row pesanan_selesai_section">
-                                <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                    <div class="input-group">
-                                        <input id="search_selesai" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_selesai_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
-                                    <div class="pull-right">
-                                        @*//remark by nurul 17/6/2019*@
-                                        @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                                <span>Refresh</span>
-                                            </button>*@
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row pesanan_selesai_section" style="margin-top: 5px;">
-                                @*<div id="loading_selesai_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-selesai-partial">
-                                    @*@Html.Partial("TablePesananSelesaiPartial")*@
-                                </div>
-                            </div>
-                            <div class="row pesanan_editor_selesai_section" style="display: none;">
-                                <div class="col-lg-12 modalresponsive">
-                                    <div class="page-editor">
-                                        <h2 class="editor-title">Pesanan</h2>
-                                        <span class="title-accent"></span>
-                                        <button id="close-editor-2" type="button" class="pull-right page-close">
-                                            <span class="close-btn thick"></span>
-                                        </button>
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
-                                        <div id="form-partial-selesai">
-                                            @*@Html.Partial("BarangPesananSelesaiPartial")*@
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tab_content8" aria-labelledby="cancel-tab">
-                            <div class="row">
-                                <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                                    <div class="input-group">
-                                        <input id="search_cancel" type="text" class="form-control" placeholder="Pencarian">
-                                        <span class="input-group-btn">
-                                            <button type="button" id="search_cancel_click" class="btn btn-primary">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
-                                    <div class="pull-right">
-                                        @*//remark by nurul 17/6/2019*@
-                                        @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                                <span>Refresh</span>
-                                            </button>*@
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 5px;">
-                                @*<div id="loading_cancel_tab" class="text-center">
-                                        <img src="~/Content/Images/spinner.gif" width="100" />
-                                    </div>*@
-                                <div class="col-sm-12" id="table-pesanan-cancel-partial">
-                                    @*@Html.Partial("TablePesananCancelPartial")*@
+                                }
+                                <div class="form-horizontal" id="form_subs">
+                                    @Html.Partial("PricingNewPartialView", Model?.ListSubs)
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            }
-        }
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
+                    <div class="row pesanan_sudah_dibayar_section">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_nunggu_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                </button>
+                                <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
+                        @*<div id="loading_sudah_dibayar_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
+                            @*@Html.Partial("TablePesananSudahDibayarPartial")*@
+                        </div>
+                    </div>
+                    <div class="row pesanan_editor_sudah_dibayar_section" style="display: none;">
+                        <div class="col-lg-12 modalresponsive">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Pesanan</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-3" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                <div id="form-partial-sudah-dibayar">
+                                    @*@Html.Partial("BarangPesananSudahDibayarPartial")*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="sedangproses-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_sedangproses" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_packing_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                </button>
+                                @*//remark by nurul 17/6/2019*@
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @*<div id="loading_siap_kirim_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
+                            @*@Html.Partial("TablePesananSiapKirimPartial")*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_invoicing_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                @*//remark by nurul 17/6/2019*@
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @*<div id="loading_sudah_kirim_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-sudah-kirim-partial">
+                            @*@Html.Partial("TablePesananSudahKirimPartial")*@
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="selesai-tab">
+                    <div class="row pesanan_selesai_section">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_selesai" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_selesai_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                @*//remark by nurul 17/6/2019*@
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pesanan_selesai_section" style="margin-top: 5px;">
+                        @*<div id="loading_selesai_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-selesai-partial">
+                            @*@Html.Partial("TablePesananSelesaiPartial")*@
+                        </div>
+                    </div>
+                    <div class="row pesanan_editor_selesai_section" style="display: none;">
+                        <div class="col-lg-12 modalresponsive">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Pesanan</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-2" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                <div id="form-partial-selesai">
+                                    @*@Html.Partial("BarangPesananSelesaiPartial")*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content8" aria-labelledby="cancel-tab">
+                    <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_cancel" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_cancel_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                            <div class="pull-right">
+                                @*//remark by nurul 17/6/2019*@
+                                @*<button type="button" class="btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @*<div id="loading_cancel_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-cancel-partial">
+                            @*@Html.Partial("TablePesananCancelPartial")*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="konfHapusPesanan" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
@@ -8007,37 +7995,13 @@
         }
         //end add
         //add by nurul 10/4/2019
-        function BukaTabPesanan($notif) {
-            if ($("#cbx_sync").is(":checked") == true && $("#cbx_stok").is(":checked") == true) {
-                //if (confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")) {
-                if (confirm("Anda akan mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
-                    
-                    simpanUpdate($notif);
-                    //$('#notifUpdate').hide();
-                    //$('#pesananTampil').show();
-                }
-            } else if ($("#cbx_sync").is(":checked") == false && $("#cbx_stok").is(":checked") == false) {
-                alert('Mohon lakukan sinkronisasi dan lengkapi saldo awal stok');
-            } else if ($("#cbx_sync").is(":checked") == true && $("#cbx_stok").is(":checked") == false) {
-                alert('Mohon lengkapi saldo awal stok');
-            } else if ($("#cbx_sync").is(":checked") == false && $("#cbx_stok").is(":checked") == true) {
-                alert('Mohon lakukan sinkronisasi');
-            }
-        }
-        function simpanUpdate($notifUpdate) {
+        function simpanUpdate() {
             //if (!validateForm()) return false;
 
             //var $form = $(btnClicked).parents('form');
             //var $formData = new FormData($('form')[0]);
-            var $update = "";
-            if ($notifUpdate != undefined) {
-                $update = $notifUpdate;
-            } else {
-                $update = $('#DataUsaha_JtranRetur').val();
-            }
             var link = '@Url.Action("SaveStatusUpdate", "Manage", new { status = "replaceSt"})';
-            //link = link.replace("replaceSt", $('#DataUsaha_JtranRetur').val());
-            link = link.replace("replaceSt", $update);
+            link = link.replace("replaceSt", $('#DataUsaha_JtranRetur').val());
 
             $.ajax({
                 type: "POST",
@@ -8056,14 +8020,11 @@
                         //change by nurul 1/8/2019, reload pesanan u/ get ulang jtran_retur
                         //$('#pesanan-tab').click();
                         var cekpesanan = @Model.ListPesanan.Count();
-                        if ($notifUpdate != undefined) {
-                            window.location.reload(true);
-                        } else if (cekpesanan == 0) {
+                        if (cekpesanan == 0) {
                             window.location.reload(true);
                         } else {
                             $('#pesanan-tab').click();
                         }
-                        //end change by nurul 1/8/2019, reload pesanan u/ get ulang jtran_retur
 
                         //$('#loading_spinner').hide();
                     } else {
