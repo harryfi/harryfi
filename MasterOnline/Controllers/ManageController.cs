@@ -1656,25 +1656,53 @@ namespace MasterOnline.Controllers
             //}
             //end remark by calvin 2 april 2019
 
-            var vm = new PesananViewModel()
-            {
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                //remark by nurul 3/7/2019
-                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                //ListPelanggan = List_ARF01,
-                //ListMarketplace = Marketplaces,
-                //end remark by nurul 3/7/2019
-                ListSubs = MoDbContext.Subscription.ToList(),
-                //add by nurul 26/9/2018
-                //ListBarangMarket = ErasoftDbContext.STF02H.ToList()
-                //end add 
-                //add by nurul 10/4/2019
-                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
-                //end add by nurul 10/4/2019
-            };
+            //change by nurul 6/8/2019
+            //var vm = new PesananViewModel()
+            //{
+            //    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+            //    //remark by nurul 3/7/2019
+            //    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    //ListPelanggan = List_ARF01,
+            //    //ListMarketplace = Marketplaces,
+            //    //end remark by nurul 3/7/2019
+            //    ListSubs = MoDbContext.Subscription.ToList(),
+            //    //add by nurul 26/9/2018
+            //    //ListBarangMarket = ErasoftDbContext.STF02H.ToList()
+            //    //end add 
+            //    //add by nurul 10/4/2019
+            //    DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+            //    //end add by nurul 10/4/2019
+            //    //add by nurul 1/8/2019
+            //    ListPesanan = ErasoftDbContext.SOT01A.Take(1).ToList()
+            //};
 
-            return View(vm);
+            //return View(vm);
+            var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
+            var ceklistPesanan = ErasoftDbContext.SOT01A.Take(1).ToList();
+            if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
+            {
+                var vm = new PesananViewModel()
+                {
+                    //ListSubs = MoDbContext.Subscription.ToList(),
+                    //DataUsaha = dataUsaha,
+                    //ListPesanan = ceklistPesanan
+                };
+                return PartialView("AktivasiPesananStokKeMarketplace", vm);
+            }
+            else
+            {
+                var vm = new PesananViewModel
+                {
+                    ListSubs = MoDbContext.Subscription.ToList(),
+                    DataUsaha = dataUsaha,
+                    ListPesanan = ceklistPesanan
+                };
+                return View(vm);
+            }
+            //end change by nurul 6/8/2019
+
+
         }
 
         [Route("manage/penjualan/faktur")]
@@ -13611,17 +13639,42 @@ namespace MasterOnline.Controllers
                     Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
                 }
 
-                var vm = new PesananViewModel()
-                {
-                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    //ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                    //DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
-                };
+                //change by nurul 6/8/2019
+                //var vm = new PesananViewModel()
+                //{
+                //    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                //    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //    //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //    //DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                //    //ListSubs = MoDbContext.Subscription.ToList()
+                //};
 
-                return PartialView("Pesanan", vm);
+                //return PartialView("Pesanan", vm);
+
+                var ceklistPesanan = ErasoftDbContext.SOT01A.Take(1).ToList();
+                if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
+                {
+                    var vm = new PesananViewModel()
+                    {
+                        //ListSubs = MoDbContext.Subscription.ToList(),
+                        //DataUsaha = dataUsaha,
+                        //ListPesanan = ceklistPesanan
+                    };
+                    return PartialView("AktivasiPesananStokKeMarketplace", vm);
+                }
+                else
+                {
+                    var vm = new PesananViewModel
+                    {
+                        ListSubs = MoDbContext.Subscription.ToList(),
+                        DataUsaha = dataUsaha,
+                        ListPesanan = ceklistPesanan
+                    };
+                    return PartialView("Pesanan", vm);
+                }
+                //end change by nurul 6/8/2019
             }
             catch (Exception ex)
             {
