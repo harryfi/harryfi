@@ -353,6 +353,49 @@ namespace MasterOnline.Controllers
             return View("DatabaseMenu", listAcc);
         }
 
+        public ActionResult TambahHapusAcc(int? accId)
+        {
+            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
+            
+            if (accInDb != null)
+            {
+                try
+                {
+                    var uname = accInDb.Username;
+                    MoDbContext.Account.Remove(accInDb);
+                    MoDbContext.SaveChanges();
+
+                    //#if AWS
+                    //                    System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //                                                       "user id=masteronline;password=M@ster123;");
+                    //#elif Debug_AWS
+                    //                    System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //                                                       "user id=masteronline;password=M@ster123;");
+                    //#else
+                    //                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    //                                                       "user id=masteronline;password=M@ster123;");
+                    //#endif
+
+                    //accInDb.DatabasePathErasoft = null;
+                    if (accInDb == null)
+                    {
+                        //ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus.";
+                        ViewData["SuccessMessage"] = $"Akun {uname} berhasil dihapus.";
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Content(e.Message);
+                }
+            }
+
+            MoDbContext.SaveChanges();
+
+            var listAcc = MoDbContext.Account.ToList();
+
+            return View("DatabaseMenu", listAcc);
+        }
+
         // =============================================== Bagian User & Account (END)
 
         // =============================================== Bagian Promo (START)
