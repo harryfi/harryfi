@@ -227,7 +227,150 @@ namespace MasterOnline.Controllers
             dbPathEra = DatabasePathErasoft;
             username = uname;
         }
+        public class BliBliToken
+        {
+            public string access_token { get; set; }
+            public string token_type { get; set; }
+            public string refresh_token { get; set; }
+            public int expires_in { get; set; }
+            public string scope { get; set; }
+            public string error { get; set; }
+            public string error_description { get; set; }
+        }
+        protected string SetupContextBlibli(string DatabasePathErasoft, string uname, BlibliAPIData data)
+        {
+            string ret = "";
+            MoDbContext = new MoDbContext();
+            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            EDB = new DatabaseSQL(DatabasePathErasoft);
+            dbPathEra = DatabasePathErasoft;
+            username = uname;
 
+            var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
+            if (arf01inDB != null)
+            {
+                ret = arf01inDB.TOKEN;
+
+
+                bool TokenExpired = true;
+                var currentTimeRequest = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                if (!string.IsNullOrWhiteSpace(arf01inDB.REFRESH_TOKEN))
+                {
+                    var splitRefreshToken = arf01inDB.REFRESH_TOKEN.Split(';');
+                    if (splitRefreshToken.Count() == 3)
+                    {
+                        if ((Convert.ToInt64(splitRefreshToken[2]) + Convert.ToInt64(splitRefreshToken[1]) - 10000) >= currentTimeRequest)
+                        {
+                            TokenExpired = false;
+                        }
+                    }
+                }
+                if (TokenExpired)
+                {
+                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                    string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                    string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+                                                                         //apiId = "mta-api-sandbox:sandbox-secret-key";
+                                                                         //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+                    string urll = "https://api.blibli.com/v2/oauth/token?channelId=MasterOnline";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                    myReq.ContentType = "application/x-www-form-urlencoded";
+                    myReq.Accept = "application/json";
+                    string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
+                    //Stream dataStream = myReq.GetRequestStream();
+                    //WebResponse response = myReq.GetResponse();
+                    //dataStream = response.GetResponseStream();
+                    //StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = "";
+                    try
+                    {
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
+                        {
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        }
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    //dataStream.Close();
+                    //response.Close();
+                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                    //cek refreshToken
+                    if (responseFromServer != "")
+                    {
+                        var retAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
+                        if (retAPI.error == null)
+                        {
+                            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+                            //if (arf01inDB != null)
+                            //{
+                            arf01inDB.TOKEN = retAPI.access_token;
+                            arf01inDB.REFRESH_TOKEN = retAPI.refresh_token + ";" + Convert.ToString(retAPI.expires_in) + ";" + Convert.ToString(currentTimeRequest);
+
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "1";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+
+                            ret = retAPI.access_token;
+                        }
+                        else
+                        {
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "0";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
+        protected string SetupContextTokopedia(string DatabasePathErasoft, string uname, TokopediaAPIData data) {
+
+            string ret = "";
+            MoDbContext = new MoDbContext();
+            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            EDB = new DatabaseSQL(DatabasePathErasoft);
+            dbPathEra = DatabasePathErasoft;
+            username = uname;
+
+            var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
+            if (arf01inDB != null)
+            {
+                ret = arf01inDB.TOKEN;
+
+                TokopediaControllerJob.TokopediaAPIData dataJob = new TokopediaControllerJob.TokopediaAPIData
+                {
+                    merchant_code = data.merchant_code, //FSID
+                    API_client_password = data.API_client_password, //Client Secret
+                    API_client_username = data.API_client_username, //Client ID
+                    API_secret_key = data.API_secret_key, //Shop ID 
+                    idmarket = data.idmarket,
+                    DatabasePathErasoft = data.DatabasePathErasoft,
+                    username = data.username
+                };
+                var tokenRet = new TokopediaControllerJob().GetToken(dataJob);
+
+                ret = tokenRet.access_token;
+            }
+            return ret;
+        }
         protected enum api_status
         {
             Pending = 1,
@@ -1170,7 +1313,8 @@ namespace MasterOnline.Controllers
         public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
         {
             string ret = "";
-            SetupContext(DatabasePathErasoft, uname);
+            string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
+            iden.token = newToken;
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
             
@@ -1405,7 +1549,8 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Stok {obj} ke Tokopedia gagal.")]
         public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
         {
-            SetupContext(DatabasePathErasoft, uname);
+            var token = SetupContextTokopedia(DatabasePathErasoft, uname, iden);
+            iden.token = token;
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
             //add by calvin 17 juni 2019

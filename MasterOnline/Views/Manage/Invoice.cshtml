@@ -1614,6 +1614,10 @@
             ongkir: 0
         };
 
+        //add by calvin 2 agustus 2019
+        var $total_bruto_barang = 0;
+        //end add by calvin 2 agustus 2019
+
         //var table = $('#datatable').DataTable({ "order": [[0,1, "desc"]], "columnDefs": [{ "targets": 1, "type": "date-eu" }], });
 
         function showSubsMenu(type) {
@@ -2609,6 +2613,16 @@
                     //end add by nurul 12/2/2019
         }
 
+        //add by calvin 2 agustus 2019
+        function hitungUlangBruto(){
+            $total_bruto_barang = 0;
+            $('.netto-barang').each(function () {
+                $total_bruto_barang += convertToAngka($(this).text());
+            });
+            $('#Invoice_BRUTO').val(convertToRupiah($total_bruto_barang));
+        }
+        //end add by calvin 2 agustus 2019
+
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-invoice-id="' + $trId + '"]';
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -2621,7 +2635,10 @@
             //console.log($total);
             //console.log($totalAwal);
             //console.log($nettoSebelumnya);
-            $('#Invoice_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+
+            //remark by calvin 2 agustus 2019
+            //$('#Invoice_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+            //end remark by calvin 2 agustus 2019
 
             refreshNetto();
         }
@@ -2629,8 +2646,13 @@
         function refreshNetto() {
             //$bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
             //$bakalNetto = parseFloat(convertToAngka($('#Invoice_BRUTO').val()));
-            $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
+            
+            //add by calvin 2 agustus 2019
+            hitungUlangBruto();
+            //end add by calvin 2 agustus 2019
 
+            $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
+            
             //CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * parseInt($('#Invoice_PPN').val()) / 100);
             //var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
             //$('#Invoice_NPPN').val(convertToRupiah($nPpn));
@@ -3527,6 +3549,7 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    debugger;
                     $modeEdit = 1;
 
                     $('#form-partial').html(response);
