@@ -824,7 +824,9 @@
                                 } else {
                                     bln += dtMonth;
                                 }
-                                if ($('#TGL_MULAI').val() != (new Date().getDate() + '/' + bln + '/' + new Date().getFullYear())) {
+                                var dtDay = new Date().getDate();
+                                var day = getTwoDigitDateFormat(dtDay);
+                                if ($('#TGL_MULAI').val() != (day + '/' + bln + '/' + new Date().getFullYear())) {
                                     $('#trNewData').css('display', 'none');
                                 } else {
                                     $('#trNewData').css('display', 'contents');
