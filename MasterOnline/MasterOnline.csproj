@@ -1446,6 +1446,7 @@
     <Content Include="Content\Images\macbook.png" />
     <Content Include="Content\Images\mastercard.png" />
     <Content Include="Content\Images\masterdata.png" />
+    <Content Include="Content\Images\MasterOnline_WEBThanku-02.jpg" />
     <Content Include="Content\Images\media.jpg" />
     <Content Include="Content\Images\MO_new_logo.png" />
     <Content Include="Content\Images\MO_new_logo_bottom.png" />
@@ -6104,6 +6105,7 @@
     <Content Include="Views\Report\TablePromptSupplierPartial.cshtml" />
     <Content Include="Views\Report\TablePromptKodeRekPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
+    <Content Include="Views\Account\RegisterThankYou.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
