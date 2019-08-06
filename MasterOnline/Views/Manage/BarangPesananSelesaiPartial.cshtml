@@ -49,6 +49,46 @@
 @Html.HiddenFor(m => m.Pesanan.N_KOMISI1, new { Value = 0 })
 @Html.HiddenFor(m => m.Pesanan.STATUS, new { Value = "0" })
 @Html.HiddenFor(m => m.Pesanan.USER_NAME, new { Value = username })
+
+<style>
+    @@media screen and (max-width: 767px) {
+        .table-responsive {
+            width: 44%;
+        }
+
+        .dataTables_paginate a {
+            padding: 3px !important;
+        }
+    }
+
+    @@media screen and (max-width: 425px) {
+        .table-responsive {
+            width: 40%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .table-responsive {
+            width: 36%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .table-responsive {
+            width: 33%;
+        }
+    }
+
+    .hscroll {
+        overflow-x: auto; /* Horizontal */
+    }
+
+    .headcol {
+        position: absolute;
+        left: 0;
+    }
+</style>
+
 @*//add by nurul 14/5/2019*@
 <script type="text/javascript">
 
@@ -268,89 +308,91 @@
 @Html.HiddenFor(m => m.PesananDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
-        <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
-            <thead>
-                <tr>
-                    <th width="100">Kode Brg</th>
-                    <th width="150">Nama Brg</th>
-                    <th>Stn</th>
-                    <th>Harga</th>
-                    <th width="45">Qty</th>
-                    <th width="55">Disc%</th>
-                    <th>NDisc</th>
-                    <th width="55">Disc2%</th>
-                    <th>NDisc2</th>
-                    <th width="100">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    var listBarang = Model.ListBarang.ToList();
-                    var iPd = 0;
-                }
-                @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
-                {
-                    <tr data-barang-id="brg-@pesanan.NO_URUT">
-                        @{
-                            var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
-                            var stnBarang = barang == null ? "" : barang.STN2;
-
-                            var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
-                            var namaDiCatatan = "";
-                            if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
-                            {
-                                namaDiCatatan = catatan_split[1];
-                            }
-                            var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
-                        }
-                        <td>
-                            <table>
-                                <tr>
-                                    <td>@pesanan.BRG</td>
-                                </tr>
-                                @if (barang == null)
-                                {
-                                    <tr>
-                                        <td>
-                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT);">
-                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                }
-                            </table>
-                        </td>
-                        <td class="nama-barang">
-                            @namaBarang
-                        </td>
-                        <td class="stn-barang">
-                            @stnBarang
-                        </td>
-                        <td class="harga-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
-                        </td>
-                        <td class="qty-barang">
-                            @pesanan.QTY
-                        </td>
-                        <td class="disc1-barang">
-                            @pesanan.DISCOUNT
-                        </td>
-                        <td class="ndisc1-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
-                        </td>
-                        <td class="disc2-barang">
-                            @pesanan.DISCOUNT_2
-                        </td>
-                        <td class="ndisc2-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
-                        </td>
-                        <td class="netto-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
-                        </td>
+        <div class="hscroll table-responsive">
+            <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="100">Kode Brg</th>
+                        <th width="150">Nama Brg</th>
+                        <th>Stn</th>
+                        <th>Harga</th>
+                        <th width="45">Qty</th>
+                        <th width="55">Disc%</th>
+                        <th>NDisc</th>
+                        <th width="55">Disc2%</th>
+                        <th>NDisc2</th>
+                        <th width="100">Total</th>
                     </tr>
-                    iPd = iPd + 1;
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @{
+                        var listBarang = Model.ListBarang.ToList();
+                        var iPd = 0;
+                    }
+                    @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                    {
+                        <tr data-barang-id="brg-@pesanan.NO_URUT">
+                            @{
+                                var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
+                                var stnBarang = barang == null ? "" : barang.STN2;
+
+                                var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                                var namaDiCatatan = "";
+                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                                {
+                                    namaDiCatatan = catatan_split[1];
+                                }
+                                var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
+                            }
+                            <td>
+                                <table>
+                                    <tr>
+                                        <td>@pesanan.BRG</td>
+                                    </tr>
+                                    @if (barang == null)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#modalFixNotFound" onclick="fixDataBarangNotFound(@pesanan.NO_URUT);">
+                                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </td>
+                            <td class="nama-barang">
+                                @namaBarang
+                            </td>
+                            <td class="stn-barang">
+                                @stnBarang
+                            </td>
+                            <td class="harga-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
+                            </td>
+                            <td class="qty-barang">
+                                @pesanan.QTY
+                            </td>
+                            <td class="disc1-barang">
+                                @pesanan.DISCOUNT
+                            </td>
+                            <td class="ndisc1-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                            </td>
+                            <td class="disc2-barang">
+                                @pesanan.DISCOUNT_2
+                            </td>
+                            <td class="ndisc2-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                            </td>
+                            <td class="netto-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                            </td>
+                        </tr>
+                        iPd = iPd + 1;
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

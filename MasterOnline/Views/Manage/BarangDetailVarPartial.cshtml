@@ -391,11 +391,13 @@
                     refreshTableBarang();
                 } else {
                     if (response.errorHargaPerMP == null) {
-                        console.log(response.Errors);
+                        //console.log(response.Errors);
+                        alert(response.Errors[0]);
                     } else {
-                        response.Errors.forEach(setErrorfield);
+                        //response.Errors.forEach(setErrorfield);
+                        alert(response.errorHargaPerMP);
                     }
-                    alert('Ada data yang tidak valid!');
+                    //alert('Ada data yang tidak valid!');
                 }
                 $('#loading_spinner').hide();
             },
