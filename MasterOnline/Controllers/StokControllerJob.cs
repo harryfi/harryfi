@@ -362,7 +362,7 @@ namespace MasterOnline.Controllers
                     API_client_username = data.API_client_username, //Client ID
                     API_secret_key = data.API_secret_key, //Shop ID 
                     idmarket = data.idmarket,
-                    DatabasePathErasoft = data.DatabasePathErasoft,
+                    DatabasePathErasoft = DatabasePathErasoft,
                     username = data.username
                 };
                 var tokenRet = new TokopediaControllerJob().GetToken(dataJob);
