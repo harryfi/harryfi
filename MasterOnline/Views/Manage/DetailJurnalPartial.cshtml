@@ -33,6 +33,27 @@
 @{
     var listRekeningJurnal = Model.ListJurnalDetail.Where(b => b.bukti == Model?.Jurnal?.bukti).ToList();
 }
+
+<style>
+    @@media screen and (max-width: 375px) {
+        .tbljurnalfrm {
+            width: 63%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .tbljurnalfrm {
+            width: 54%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .tbljurnalfrm {
+            width: 42%;
+        }
+    }
+</style>
+
 <script type="text/javascript">
     $(document).ready(function () {
         Initialize();
@@ -174,103 +195,105 @@
 @Html.HiddenFor(m => m.JurnalDetail.UserId, new { Value = accId.ToString() })
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
-        <table id="table_tambah_jurnal" class="table table-bordered" role="grid">
-            <thead>
-                <tr>
-                    @*<th style="width: 80px; max-width: 80px;">Kode Rekening</th>*@
-                    <th style="width: 50px; max-width: 50px;">Kode Rekening</th>
-                    <th width="200">Nama Rekening</th>
-                    <th width="150">D/K</th>
-                    <th width="150">Nilai</th>
-                    <th width="40">Simpan</th>
-                    <th width="40">Hapus</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    var listRekening = Model.ListRekening.ToList();
-                    var iPd = 0;
-                    
-                }
-                @foreach (var jurnal in Model.ListJurnalDetail.Where(pb => pb.bukti == Model?.Jurnal?.bukti).ToList())
-                {
-                    
-                    <tr data-rekening-id="rek-@jurnal.no">
-                        <td>
-                            @jurnal.rek
+        <div class="hscroll table-responsive tbljurnalfrm">
+            <table id="table_tambah_jurnal" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        @*<th style="width: 80px; max-width: 80px;">Kode Rekening</th>*@
+                        <th style="width: 50px; max-width: 50px;">Kode Rekening</th>
+                        <th width="200">Nama Rekening</th>
+                        <th width="150">D/K</th>
+                        <th width="150">Nilai</th>
+                        <th width="40">Simpan</th>
+                        <th width="40">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var listRekening = Model.ListRekening.ToList();
+                        var iPd = 0;
+
+                    }
+                    @foreach (var jurnal in Model.ListJurnalDetail.Where(pb => pb.bukti == Model?.Jurnal?.bukti).ToList())
+                    {
+
+                        <tr data-rekening-id="rek-@jurnal.no">
+                            <td>
+                                @jurnal.rek
+                            </td>
+                            <td class="nama-rekening">
+                                @*change by nurul 4/1/2019 -- @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA*@
+                                @if (listRekening.SingleOrDefault(b => b.KODE == jurnal.rek) == null)
+                                {
+                                    @(jurnal.rek)
+                                }
+                                else
+                                {
+                                    @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA
+                                }
+                                @*end change*@
+                            </td>
+                            <td class="dk-rekening">
+                                @if (jurnal.dk == "D")
+                                {
+                                    @("Debet (D)")
+                                }
+                                else
+                                {
+                                    @("Kredit (K)")
+                                }
+                            </td>
+                            <td class="nilai-rekening" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jurnal.nilai)
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusDetail" onclick="passRekeningInDb('@jurnal.no')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        iPd = iPd + 1;
+                    }
+                    <tr data-jurnal-id="0">
+                        @Html.HiddenFor(m => m.JurnalDetail.no)
+                        <td style="width: 125px; max-width: 125px;">
+                            <div id="REK" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.JurnalDetail.rek)
                         </td>
                         <td class="nama-rekening">
-                            @*change by nurul 4/1/2019 -- @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA*@
-                            @if (listRekening.SingleOrDefault(b => b.KODE == jurnal.rek) == null)
-                            {
-                                @(jurnal.rek)
-                            }
-                            else
-                            {
-                                @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA
-                            }
-                            @*end change*@
+                            -
                         </td>
                         <td class="dk-rekening">
-                            @if (jurnal.dk == "D")
-                            {
-                                @("Debet (D)")
-                            }
-                            else
-                            {
-                                @("Kredit (K)")
-                            }
+                            <span class="span-dk-rekening">-</span>
+                            @Html.HiddenFor(m => m.JurnalDetail.dk)
+                            <select class="form-control tipe-dk-rekening" style="display: none; width: 80px;">
+                                <option default>Tipe</option>
+                                <option value="D">D</option>
+                                <option value="K">K</option>
+                            </select>
                         </td>
                         <td class="nilai-rekening" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jurnal.nilai)
+                            <span class="span-nilai-rekening">0,00</span>
+                            @Html.TextBoxFor(m => m.JurnalDetail.nilai, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
                         </td>
                         <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary" disabled="disabled">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('rek-0')">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                             </button>
                         </td>
                         <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusDetail" onclick="passRekeningInDb('@jurnal.no')">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusDetail">
                                 <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                             </button>
                         </td>
                     </tr>
-                    iPd = iPd + 1;
-                }
-                <tr data-jurnal-id="0">
-                    @Html.HiddenFor(m => m.JurnalDetail.no)
-                    <td style="width: 125px; max-width: 125px;">
-                        <div id="REK" class="selectivity-input" tabindex="0"></div>
-                        @Html.HiddenFor(m => m.JurnalDetail.rek)
-                    </td>
-                    <td class="nama-rekening">
-                        -
-                    </td>
-                    <td class="dk-rekening">
-                        <span class="span-dk-rekening">-</span>
-                        @Html.HiddenFor(m => m.JurnalDetail.dk)
-                        <select class="form-control tipe-dk-rekening" style="display: none; width: 80px;">
-                            <option default>Tipe</option>
-                            <option value="D">D</option>
-                            <option value="K">K</option>
-                        </select>
-                    </td>
-                    <td class="nilai-rekening" style="text-align:right">
-                        <span class="span-nilai-rekening">0,00</span>
-                        @Html.TextBoxFor(m => m.JurnalDetail.nilai, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('rek-0')">
-                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                    <td class="edit-hapus-col">
-                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusDetail">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
