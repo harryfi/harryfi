@@ -2460,7 +2460,7 @@ namespace MasterOnline.Controllers
                         {
                             if (dTrackNo == "")
                             {
-                                dTrackNo = ((result.tracking_no == null ? "" : result.tracking_no) == "") ? (result.tracking_number) : result.tracking_no;
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
                             }
                             string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
                             if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
