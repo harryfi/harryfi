@@ -7,6 +7,14 @@
     var listPelanggan = Model.ListPelanggan.ToList();
 }*@
 
+<style>
+    @@media screen and (max-width: 767px) {
+        .fakturtoped {
+            width: 50%;
+        }
+    }
+</style>
+
 @model PagedList.IPagedList<ListImportFaktur>
 @{
     string currentFilter = ViewBag.CurrentFilter;

@@ -13,6 +13,7 @@
     DateTime? drTgl = null;
     DateTime? sdTgl = null;
     string member = "";
+    string nmMember = "";
     //end add by nurul 26/7/2019
 
     if (dataSession?.Account != null)
@@ -20,7 +21,7 @@
         nama = dataSession.Account.Username;
         erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
         namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
-        
+
         //add by nurul 26/7/2019
         sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
         var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
@@ -29,6 +30,7 @@
             drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
         }
         member = dataSession.Account.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
     }
     else
@@ -37,7 +39,7 @@
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
-        
+
         //add by nurul 26/7/2019
         sdTgl = accFromUser.TGL_SUBSCRIPTION;
         var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == accFromUser.Email).ToList();
@@ -46,6 +48,7 @@
             drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
         }
         member = accFromUser.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
     }
 
@@ -541,27 +544,39 @@
                             @*//add by nurul 26/7/2019*@
                             <li class="center">
                                 <a class="member-profile center">
+                                    @if (member == "01")
+                                    {
+                                        <label>@nmMember </label>
+                                    }
+                                    else if (member == "02")
+                                    {
+                                        <label class="member-label-silver">@nmMember </label>
+                                    }
+                                    else if (member == "03")
+                                    {
+                                        <label class="member-label-gold">@nmMember </label>
+                                    }
                                     @if (drTgl != null)
                                     {
-                                        if (member == "01")
+                                        @*if (member == "01")
                                         {
-                                            <label>BASIC </label>
+                                            <label>@nmMember </label>
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "02")
                                         {
-                                            <label class="member-label-silver">SILVER </label>
+                                            <label class="member-label-silver">@nmMember </label>
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "03")
                                         {
-                                            <label class="member-label-gold">GOLD </label>
+                                            <label class="member-label-gold">@nmMember </label>*@
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                        }
+                                        //}
                                     }
                                     else
                                     {
-                                        <label>BASIC </label>
+                                        
                                         <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                     }
                                 </a>

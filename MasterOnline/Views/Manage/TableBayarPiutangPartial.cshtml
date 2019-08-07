@@ -32,6 +32,28 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    .hscroll {
+        overflow-x: auto; /* Horizontal */
+    }
+
+    @@media screen and (max-width: 445px) {
+        .fakturtblpiutang {
+            width: 45%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .fakturtblpiutang {
+            width: 39%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .fakturtblpiutang {
+            width: 33%;
+        }
+    }
 </style>
 <div id="loading_bayarpiutang_tab">
     <div id="loading_bayarpiutang_tab_image">
@@ -39,117 +61,119 @@
     </div>
 </div>
 <input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-<table class="table table-striped table-bordered table-hover">
-    @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
-    <thead>
-        <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Piutang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Potongan</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Bayar</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Pelunasan</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
-        </tr>
-    </thead>
-    <tbody>
-        @*@foreach (var piutang in Model.ListPiutang)*@
-        @foreach (var piutang in Model)
-        {
-            <tr>
-                <td>@piutang.BUKTI</td>
-                <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
-                @*change by nurul 10/10/2018   <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>*@
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR + piutang.TPOT)</td>
-                @if (Convert.ToString(piutang.POSTING) == "Y")
-                {
-                    <td>
-                        Sudah
-                    </td>
-                }
-                else
-                {
-                    <td>
-                        Belum
-                    </td>
-                }
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(piutang.POSTING) == "Y")
-                    {
-                        <button class="btn btn-primary" onclick="lihatPiutang(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" onclick="editPiutang1(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(piutang.POSTING) == "Y")
-                    {
-                        <button class="btn btn-danger" onclick="undeleteable()">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPiutang" onclick="pass(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
+<div class="hscroll table-responsive fakturtblpiutang">
+    <table class="table table-striped table-bordered table-hover">
+        @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
+        <thead>
+            <tr role="row">
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Piutang</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Potongan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Bayar</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Pelunasan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
-        }
-    </tbody>
-</table>
-
-@* add by nurul 11/6/2019, paging *@
-@if (Model.PageCount > 1)
-{
-    <div id="tabelbayarpiutangpartialpager" class="pager">
-        @Html.PagedListPager(Model, page => Url.Action("RefreshTableBayarPiutang1", new
-   {
-       page,
-       search = ViewData["searchParam"]
-   }),
-        new PagedListRenderOptions
-        {
-            LinkToFirstPageFormat = "<<",
-            LinkToPreviousPageFormat = "prev",
-            LinkToNextPageFormat = "next",
-            LinkToLastPageFormat = ">>",
-            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-        })
-        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
-    </div>
-}
-<script type="text/javascript">
-    $(function () {
-        $('#tabelbayarpiutangpartialpager').on('click', 'a', function () {
-            if (this.href != "") {
-                $.ajax({
-                    url: this.href,
-                    type: 'GET',
-                    cache: false,
-                    beforeSend: function () {
-                        $('#loading_bayarpiutang_tab').show();
-                    },
-                    success: function (response) {
-                        $('#table-piutang-partial').html(response);
-                        $('#loading_bayarpiutang_tab').hide();
+        </thead>
+        <tbody>
+            @*@foreach (var piutang in Model.ListPiutang)*@
+            @foreach (var piutang in Model)
+            {
+                <tr>
+                    <td>@piutang.BUKTI</td>
+                    <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
+                    @*change by nurul 10/10/2018   <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>*@
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR + piutang.TPOT)</td>
+                    @if (Convert.ToString(piutang.POSTING) == "Y")
+                    {
+                        <td>
+                            Sudah
+                        </td>
                     }
-                });
+                    else
+                    {
+                        <td>
+                            Belum
+                        </td>
+                    }
+                    <td class="edit-hapus-col">
+                        @if (Convert.ToString(piutang.POSTING) == "Y")
+                        {
+                            <button class="btn btn-primary" onclick="lihatPiutang(@piutang.RecNum)">
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" onclick="editPiutang1(@piutang.RecNum)">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </td>
+                    <td class="edit-hapus-col">
+                        @if (Convert.ToString(piutang.POSTING) == "Y")
+                        {
+                            <button class="btn btn-danger" onclick="undeleteable()">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPiutang" onclick="pass(@piutang.RecNum)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </td>
+                </tr>
             }
-            return false;
+        </tbody>
+    </table>
 
+    @* add by nurul 11/6/2019, paging *@
+    @if (Model.PageCount > 1)
+    {
+        <div id="tabelbayarpiutangpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTableBayarPiutang1", new
+       {
+           page,
+           search = ViewData["searchParam"]
+       }),
+            new PagedListRenderOptions
+            {
+                LinkToFirstPageFormat = "<<",
+                LinkToPreviousPageFormat = "prev",
+                LinkToNextPageFormat = "next",
+                LinkToLastPageFormat = ">>",
+                DisplayEllipsesWhenNotShowingAllPageNumbers = false
+            })
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+        </div>
+    }
+</div>
+    <script type="text/javascript">
+        $(function () {
+            $('#tabelbayarpiutangpartialpager').on('click', 'a', function () {
+                if (this.href != "") {
+                    $.ajax({
+                        url: this.href,
+                        type: 'GET',
+                        cache: false,
+                        beforeSend: function () {
+                            $('#loading_bayarpiutang_tab').show();
+                        },
+                        success: function (response) {
+                            $('#table-piutang-partial').html(response);
+                            $('#loading_bayarpiutang_tab').hide();
+                        }
+                    });
+                }
+                return false;
+
+            });
         });
-    });
-</script>
-@* end add by nurul 11/6/2019, paging *@
+    </script>
+    @* end add by nurul 11/6/2019, paging *@

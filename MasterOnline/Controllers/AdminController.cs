@@ -161,99 +161,96 @@ namespace MasterOnline.Controllers
         {
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
             accInDb.Status = !accInDb.Status;
-            string sql = "";
-            var userId = Convert.ToString(accInDb.AccountId);
+            
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            {
+                string sql = "";
+                var userId = Convert.ToString(accInDb.AccountId);
 
-            accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+                accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
 
-            var path = Server.MapPath("~/Content/admin/");
-            sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                  $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                  $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+                var path = Server.MapPath("~/Content/admin/");
+                sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
             SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                  "user id=masteronline;password=M@ster123;");
+                            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                                  "user id=masteronline;password=M@ster123;");
 #else
-            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                  "user id=masteronline;password=M@ster123;");
+                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #endif
-            SqlCommand command = new SqlCommand(sql, con);
+                SqlCommand command = new SqlCommand(sql, con);
 
-            con.Open();
-            command.ExecuteNonQuery();
-            con.Close();
-            con.Dispose();
+                con.Open();
+                command.ExecuteNonQuery();
+                con.Close();
+                con.Dispose();
 
 
-            //add by Tri 20-09-2018, save nama toko ke SIFSYS
-            //change by calvin 3 oktober 2018
-            //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-            ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
-            //end change by calvin 3 oktober 2018
-            var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
-            {
-                dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
-                ErasoftDbContext.SaveChanges();
-            }
-            //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-            if (accInDb.Status == false)
-            {
-                var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
-                foreach (var user in listUserPerAcc)
+                //add by Tri 20-09-2018, save nama toko ke SIFSYS
+                //change by calvin 3 oktober 2018
+                //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                //end change by calvin 3 oktober 2018
+                var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {
-                    user.Status = false;
+                    dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                    ErasoftDbContext.SaveChanges();
                 }
-            }
-            //add by Tri, set free trials 14 hari
-            if (accInDb.Status)
-            {
-                if (accInDb.KODE_SUBSCRIPTION == "01")
+                //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
+                
+                //add by Tri, set free trials 14 hari
+                if (accInDb.Status)
                 {
-                    accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                    if (accInDb.KODE_SUBSCRIPTION == "01")
+                    {
+                        accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                    }
+                    //add by nurul 12/3/2019
+                    accInDb.tgl_approve = DateTime.Today;
+                    //end add 
                 }
-                //add by nurul 12/3/2019
-                accInDb.tgl_approve = DateTime.Today;
-                //end add 
-            }
-            //end add by Tri, set free trials 14 hari
+                //end add by Tri, set free trials 14 hari
 
-            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
-            MoDbContext.SaveChanges();
+                ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
+                MoDbContext.SaveChanges();
 
-            //add by nurul 5/3/2019
-            var email = new MailAddress(accInDb.Email);
-            var originPassword = accInDb.Password;
-            var nama = accInDb.Username;
-            //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
-            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
-                "<p>Hi {2},</p>" +
-                "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
-                "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
-                "<p>Email akun anda ialah sebagai berikut :</p>" +
-                "<p>Email: {0}</p>" +
-                "<p>Fitur utama kami:</p>" +
-                "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
-                "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
-                "<p>3. Analisa penjualan di semua marketplace.</p>" +
-                "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
-                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email support@masteronline.co.id atau chat melalui website kami www.masteronline.co.id.</p>" +
-                "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
-                "<p>&nbsp;</p>" +
-                "<p>Best regards,</p>" +
-                "<p>CS Master Online.</p>";
-            //end change by nurul 5/3/2019
+                //add by nurul 5/3/2019
+                var email = new MailAddress(accInDb.Email);
+                var originPassword = accInDb.Password;
+                var nama = accInDb.Username;
+                //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
+                var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                    "<p>Hi {2},</p>" +
+                    "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
+                    "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
+                    "<p>Email akun anda ialah sebagai berikut :</p>" +
+                    "<p>Email: {0}</p>" +
+                    "<p>Fitur utama kami:</p>" +
+                    "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
+                    "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
+                    "<p>3. Analisa penjualan di semua marketplace.</p>" +
+                    "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+                    "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email support@masteronline.co.id atau chat melalui website kami www.masteronline.co.id.</p>" +
+                    "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Best regards,</p>" +
+                    "<p>CS Master Online.</p>";
+                //end change by nurul 5/3/2019
 
-            var message = new MailMessage();
-            message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Akun Master Online Anda sudah aktif!";
-            message.Body = string.Format(body, accInDb.Email, originPassword, nama);
-            message.IsBodyHtml = true;
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Akun Master Online Anda sudah aktif!";
+                message.Body = string.Format(body, accInDb.Email, originPassword, nama);
+                message.IsBodyHtml = true;
 #if AWS
             //using (var smtp = new SmtpClient())
             //{
@@ -282,20 +279,34 @@ namespace MasterOnline.Controllers
                 await smtp.SendMailAsync(message);
             }
 #else
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
+                using (var smtp = new SmtpClient())
                 {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "kmblwexkeretrwxv"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "kmblwexkeretrwxv"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
 #endif
+            }
+            else
+            {
+                if (accInDb.Status == false)
+                {
+                    var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
+                    foreach (var user in listUserPerAcc)
+                    {
+                        user.Status = false;
+                    }
+                }
+                ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dinonaktifkan.";
+                MoDbContext.SaveChanges();
+            }
             //end add by nurul 5/3/2019
 
             //change by nurul 5/3/2019
@@ -347,6 +358,48 @@ namespace MasterOnline.Controllers
             }
 
             MoDbContext.SaveChanges();
+
+            var listAcc = MoDbContext.Account.ToList();
+
+            return View("DatabaseMenu", listAcc);
+        }
+
+        public ActionResult TambahHapusAcc(int? accId)
+        {
+            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
+            
+            if (accInDb != null)
+            {
+                try
+                {
+#if AWS
+                                        System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                                           "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+                                        System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                                           "user id=masteronline;password=M@ster123;");
+#else
+                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                       "user id=masteronline;password=M@ster123;");
+#endif
+
+                    var uname = accInDb.Username;
+                    MoDbContext.Account.Remove(accInDb);
+                    MoDbContext.SaveChanges();
+                    var cekUlangAcc = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
+                    //accInDb.DatabasePathErasoft = null;
+                    if (cekUlangAcc == null)
+                    {
+                        ViewData["SuccessMessage"] = $"Database dan Akun dari {uname} berhasil dihapus.";
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Content(e.Message);
+                }
+            }
+
+            //MoDbContext.SaveChanges();
 
             var listAcc = MoDbContext.Account.ToList();
 
@@ -1618,15 +1671,18 @@ namespace MasterOnline.Controllers
         {
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
             accInDb.Status = !accInDb.Status;
-            string sql = "";
-            var userId = Convert.ToString(accInDb.AccountId);
 
-            accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            {
+                string sql = "";
+                var userId = Convert.ToString(accInDb.AccountId);
 
-            var path = Server.MapPath("~/Content/admin/");
-            sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                  $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                  $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+                accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+
+                var path = Server.MapPath("~/Content/admin/");
+                sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
             SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
@@ -1634,73 +1690,66 @@ namespace MasterOnline.Controllers
             SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                   "user id=masteronline;password=M@ster123;");
 #else
-            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                  "user id=masteronline;password=M@ster123;");
+                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #endif
-            SqlCommand command = new SqlCommand(sql, con);
+                SqlCommand command = new SqlCommand(sql, con);
 
-            con.Open();
-            command.ExecuteNonQuery();
-            con.Close();
-            con.Dispose();
+                con.Open();
+                command.ExecuteNonQuery();
+                con.Close();
+                con.Dispose();
 
-            ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
-            var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
-            {
-                dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
-                ErasoftDbContext.SaveChanges();
-            }
-            //end add by Tri 20-09-2018, save nama toko ke SIFSYS
-
-            if (accInDb.Status == false)
-            {
-                var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
-                foreach (var user in listUserPerAcc)
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {
-                    user.Status = false;
+                    dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                    ErasoftDbContext.SaveChanges();
                 }
-            }
-            //add by Tri, set free trials 14 hari
-            if (accInDb.Status)
-            {
-                if (accInDb.KODE_SUBSCRIPTION == "01")
+                //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
+                
+                //add by Tri, set free trials 14 hari
+                if (accInDb.Status)
                 {
-                    accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                    if (accInDb.KODE_SUBSCRIPTION == "01")
+                    {
+                        accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                    }
+                    accInDb.tgl_approve = DateTime.Today;
                 }
-                accInDb.tgl_approve = DateTime.Today;
-            }
-            //end add by Tri, set free trials 14 hari
+                //end add by Tri, set free trials 14 hari
 
-            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
-            MoDbContext.SaveChanges();
+                ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
+                MoDbContext.SaveChanges();
 
-            var email = new MailAddress(accInDb.Email);
-            var originPassword = accInDb.Password;
-            var nama = accInDb.Username;
-            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
-                "<p>Hi {2},</p>" +
-                "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
-                "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
-                "<p>Email akun anda ialah sebagai berikut :</p>" +
-                "<p>Email: {0}</p>" +
-                "<p>Fitur utama kami:</p>" +
-                "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
-                "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
-                "<p>3. Analisa penjualan di semua marketplace.</p>" +
-                "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
-                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email support@masteronline.co.id atau chat melalui website kami www.masteronline.co.id.</p>" +
-                "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
-                "<p>&nbsp;</p>" +
-                "<p>Best regards,</p>" +
-                "<p>CS Master Online.</p>";
+                var email = new MailAddress(accInDb.Email);
+                var originPassword = accInDb.Password;
+                var nama = accInDb.Username;
+                var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                    "<p>Hi {2},</p>" +
+                    "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
+                    "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
+                    "<p>Email akun anda ialah sebagai berikut :</p>" +
+                    "<p>Email: {0}</p>" +
+                    "<p>Fitur utama kami:</p>" +
+                    "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
+                    "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
+                    "<p>3. Analisa penjualan di semua marketplace.</p>" +
+                    "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+                    "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email support@masteronline.co.id atau chat melalui website kami www.masteronline.co.id.</p>" +
+                    "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Best regards,</p>" +
+                    "<p>CS Master Online.</p>";
 
-            var message = new MailMessage();
-            message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Akun Master Online Anda sudah aktif!";
-            message.Body = string.Format(body, accInDb.Email, originPassword, nama);
-            message.IsBodyHtml = true;
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Akun Master Online Anda sudah aktif!";
+                message.Body = string.Format(body, accInDb.Email, originPassword, nama);
+                message.IsBodyHtml = true;
 #if AWS
             //using (var smtp = new SmtpClient())
             //{
@@ -1729,20 +1778,34 @@ namespace MasterOnline.Controllers
                 await smtp.SendMailAsync(message);
             }
 #else
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
+                using (var smtp = new SmtpClient())
                 {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "kmblwexkeretrwxv"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "kmblwexkeretrwxv"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
 #endif
+            }
+            else
+            {
+                if (accInDb.Status == false)
+                {
+                    var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
+                    foreach (var user in listUserPerAcc)
+                    {
+                        user.Status = false;
+                    }
+                }
+                ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dinonaktifkan.";
+                MoDbContext.SaveChanges();
+            }
             var vm = new MenuAccount()
             {
                 Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId),
