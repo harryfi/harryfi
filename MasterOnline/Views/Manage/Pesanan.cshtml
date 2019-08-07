@@ -2713,6 +2713,7 @@
         //end add by nurul 19/2/2019
         //add by nurul 1/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
+        var $modeEditDetail = 0;
         var promptPembeli = "";
         var $jumlahPesanan = true;
         //end add
@@ -3198,6 +3199,7 @@
                     });
                     refreshForm1();
                     $modeEdit = 0;
+                    $modeEditDetail = 0;
                     $bakalNetto = 0;
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
@@ -3494,6 +3496,7 @@
             //end add by nurul 23/1/2019
             //add by nurul 1/11/2018
             $modeEdit = 0;
+            $modeEditDetail = 0;
             //end add
             $bakalNetto = 0;
             $totalAwal = 0;
@@ -3666,8 +3669,8 @@
             //getGudang();
             //getDataBarang();
 
-            //refreshInputan();
-            //refreshNetto();
+            refreshInputan();
+            refreshNetto();
 
             if ($('#Pesanan_TGL').val() != '') {
                 $('#TGL').val($('#Pesanan_TGL').val());
@@ -3916,8 +3919,8 @@
                                         getGudang();
                                         getDataBarang();
 
-                                        refreshInputan();
-                                        refreshNetto();
+                                        //refreshInputan();
+                                        //refreshNetto();
 
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
@@ -4142,19 +4145,34 @@
                 refreshNetto();
             });
 
-            $('#Pesanan_ONGKOS_KIRIM').focus(function() {
-                $(this).val(convertToAngka($(this).val()));
-            });
+            //change by nurul 7/8/2019
+            //$('#Pesanan_ONGKOS_KIRIM').focus(function() {
+            //    $(this).val(convertToAngka($(this).val()));
+            //});
 
-            $('#Pesanan_ONGKOS_KIRIM').blur(function() {
-                if ($(this).val() === '') $(this).val(0);
+            //$('#Pesanan_ONGKOS_KIRIM').blur(function() {
+            //    if ($(this).val() === '') $(this).val(0);
+            //    $(this).val(convertToRupiah($(this).val()));
+            //    refreshNetto();
+            //});
+
+            //$('#Pesanan_ONGKOS_KIRIM').change(function() {
+            //    if ($(this).val() < 0 || $(this).val() === '') $(this).val(convertToRupiah(0));
+            //    refreshNetto();
+            //});
+            //end change
+            
+            $('#Pesanan_ONGKOS_KIRIM').blur(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                $(this).val(convertToAngka($(this).val()));
                 $(this).val(convertToRupiah($(this).val()));
                 refreshNetto();
             });
 
-            $('#Pesanan_ONGKOS_KIRIM').change(function() {
-                if ($(this).val() < 0 || $(this).val() === '') $(this).val(convertToRupiah(0));
-                refreshNetto();
+            $('#Pesanan_ONGKOS_KIRIM').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
             });
 
             $("input.num-only").off('keydown').on('keydown',
@@ -4320,6 +4338,24 @@
             ////});
         }
 
+        //add by nurul 7 agustus 2019
+        function hitungUlangBrutoEdit() {
+            $total_bruto_barang = 0;
+            //$('.netto-barang').each(function () {
+            $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+                $total_bruto_barang += convertToAngka($(this).text());
+            });
+            $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
+        }
+        function hitungUlangBrutoNew() {
+            $total_bruto_barang = 0;
+            //$('.netto-barang').each(function () {
+            $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+                $total_bruto_barang += convertToAngka($(this).text());
+            });
+            $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
+        }
+        //end add by nurul 7 agustus 2019
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -4331,9 +4367,12 @@
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) +
                 '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="" style="text-align:right">');
-            $('#Pesanan_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
 
-            refreshNetto();
+            //remark by nurul 7/8/2019
+            //$('#Pesanan_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+
+            //refreshNetto();
+            //end remark by nurul 7/8/2019
 
             /*
             var $nettoIndex = $nettoBarang.findIndex((obj => obj.id === $trId));
@@ -4350,6 +4389,14 @@
         }
 
         function refreshNetto() {
+            //add by nurul 7 agustus 2019
+            if ($modeEditDetail == 0) {
+                hitungUlangBrutoNew();
+            } else {
+                hitungUlangBrutoEdit();
+            }
+            //hitungUlangBruto();
+            //end add by nurul 7 agustus 2019
             $bakalNetto = convertToAngka($('#Pesanan_BRUTO').val());
 
             //change by nurul 25/10/2018   var $nPpn = Math.ceil($bakalNetto * $('#Pesanan_PPN').val() / 100);
@@ -5209,6 +5256,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
+                    $modeEditDetail = 1;
                     //end add
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
@@ -5267,6 +5315,7 @@
                     //$('#close-editor-1')[0].disabled = false;
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
+                    $modeEditDetail = 1;
                     //end add
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
@@ -6455,6 +6504,7 @@
                         //samakan dengan function lihatPesananSudahDibayar onSuccess
                         //add by nurul 1/11/2018
                         $modeEdit = 1;
+                        $modeEditDetail = 1;
                         //end add
                         $('#form-partial-sudah-dibayar').html(response);
                         $('#see_tgl_pesanan').removeAttr('style');
@@ -7730,6 +7780,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
+                    $modeEditDetail = 1;
                     //end add
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -7781,6 +7832,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
+                    $modeEditDetail = 1;
                     //end add
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -7911,7 +7963,7 @@
         function simpanbrg($id) {
             if (!validateForm()) return false;
             if (!validasiTambahan()) return false;
-
+            
             if ($id == 'brg-0') {
                 if ($('#Pesanan_TGL').val() != '' &&
                     $('#Pesanan_CUST').val() != '' &&
@@ -7919,6 +7971,7 @@
                     $('#Pesanan_EXPEDISI').val() != '' &&
                     $('#Pesanan_NAMAPEMESAN').val() != ''
                 ) {
+                    refreshNetto();
                     var tgl = $('#Pesanan_TGL').val();
                     $('#PesananDetail_TGL_INPUT').val(tgl);
                     $('#PesananDetail_BRG').val($('#BRG').selectivity('val'));
@@ -7949,11 +8002,12 @@
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
-
+                            $modeEditDetail = 1;
                             //console.log(response);
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
                             refreshInputan();
+                            refreshNetto();
                             getTanggal();
                             getMarketplaceSOT01A();
                             getExpedisi();

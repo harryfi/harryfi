@@ -2592,8 +2592,8 @@
                                     getMarketplace();
                                     getBuyer();
 
-                                    refreshInputan();
-                                    refreshNetto();
+                                    //refreshInputan();
+                                    //refreshNetto();
                                     //add by nurul 17/10/2018
                                     $('#myTab li a').each(function () {
                                         $(this).removeAttr('data-toggle');
@@ -2787,8 +2787,8 @@
             //getMarketplace();
             //getBuyer();
 
-            //refreshInputan();
-            //refreshNetto();
+            refreshInputan();
+            refreshNetto();
             //getDataBarang();
             //getGudang();
             //getGudangForBarang();
@@ -3260,6 +3260,17 @@
             //end add by nurul 12/2/2019
         }
 
+        //add by nurul 7 agustus 2019
+        function hitungUlangBruto() {
+            $total_bruto_barang = 0;
+            //$('.netto-barang').each(function () {
+            $('tr[data-faktur-id!="0"] .netto-barang').each(function () {
+                $total_bruto_barang += convertToAngka($(this).text());
+            });
+            $('#Faktur_BRUTO').val(convertToRupiah($total_bruto_barang));
+        }
+        //end add by nurul 7 agustus 2019
+
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -3269,12 +3280,18 @@
             var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang) - $totDisc;
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
-            $('#Faktur_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
 
-            refreshNetto();
+            //remark by nurul 7/8/2019
+            //$('#Faktur_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+
+            //refreshNetto();
+            //end remark by nurul 7/8/2019
         }
 
         function refreshNetto() {
+            //add by nurul 7 agustus 2019
+            hitungUlangBruto();
+            //end add by nurul 7 agustus 2019
             $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
 
             // CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
@@ -4452,13 +4469,14 @@
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;
             //end add
-            refreshNetto();
+            
             if ($id == 'brg-0') {
                 if ($('#Faktur_TGL').val() != '' &&
                     $('#Faktur_CUST').val() != '' &&
                     $('#Faktur_TERM').val() != '' &&
                     $('#Faktur_PEMESAN').val() != ''
                 ) {
+                    refreshNetto();
                     var tgl = $('#Faktur_TGL').val();
                     $('#FakturDetail_TGL_INPUT').val(tgl);
                     $('#FakturDetail_BRG').val($('#BRG').selectivity('val'));
@@ -4490,6 +4508,7 @@
                                 $('#form-partial').html(response);
                                 $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
                                 refreshInputan();
+                                refreshNetto();
                                 getTanggal();
                                 getBuyer();
                                 getDataBarang();
