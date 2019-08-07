@@ -1053,7 +1053,73 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+        public async Task<ATTRIBUTE_ELEVENIA> GetAttributeByCategory(string auth, string code)
+        {
+            var ret = new ATTRIBUTE_ELEVENIA();
+            var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
 
+            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + code, content, typeof(string), auth) as string;
+            //var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + item.CATEGORY_CODE, "", typeof(string), auth) as string;
+            if (result != null)
+            {
+                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                doc.LoadXml(result.Substring(55));
+                string json = JsonConvert.SerializeXmlNode(doc);
+
+                json = json.Replace("ns2:productCtgrAttributes", "Ns2Productctgrattributes").Replace("ns2:productCtgrAttribute", "Ns2Productctgrattribute").Replace("xmlns:ns2", "xmlnsns2");
+                if (json.Contains("}]}"))
+                {
+                    AttributesRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributesRootobject>(json);
+                    if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                    {
+                        int i = 1;
+                        ret.CATEGORY_CODE = code;
+                        foreach (var attr in res.ns2productCtgrAttributes.ns2productCtgrAttribute)
+                        {
+                            ret["ACODE_" + i] = attr.prdAttrCd;
+                            ret["ATYPE_" + i] = attr.prdAttrNo;
+                            ret["ANAME_" + i] = attr.prdAttrNm;
+                            ret["AOPTIONS_" + i] = "0";
+                            i++;
+                        }
+                        for (int j = i; j <= 30; j++)
+                        {
+                            ret["ACODE_" + j] = "";
+                            ret["ATYPE_" + j] = "";
+                            ret["ANAME_" + j] = "";
+                            ret["AOPTIONS_" + j] = "0";
+
+                        }
+                    }
+                }
+                else
+                {
+                    AttributeRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributeRootobject>(json);
+
+                    if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                    {
+                        ret.CATEGORY_CODE = code;
+                            ret["ACODE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrCd;
+                            ret["ATYPE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNo;
+                            ret["ANAME_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNm;
+                            ret["AOPTIONS_1"] = "0";
+                           
+                        for (int j = 2; j <= 30; j++)
+                        {
+                            ret["ACODE_" + j] = "";
+                            ret["ATYPE_" + j] = "";
+                            ret["ANAME_" + j] = "";
+                            ret["AOPTIONS_" + j] = "0";
+
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
         public async Task<BindingBase> GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             var connIdARF01C = Guid.NewGuid().ToString();

@@ -3648,10 +3648,19 @@ namespace MasterOnline.Controllers
             return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeElevenia(string code)
+        public async Task<ActionResult> GetAttributeElevenia(string code)
         {
             string[] codelist = code.Split(';');
-            var listAttributeEle = MoDbContext.AttributeElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var listAttributeEle = MoDbContext.AttributeElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            var listAttributeEle = new List<ATTRIBUTE_ELEVENIA>();
+            var custEle = ErasoftDbContext.ARF01.Where(m => m.NAMA == "9" && !string.IsNullOrEmpty(m.API_KEY)).ToList();
+            if(custEle.Count > 0)
+            {
+                var eleApi = new EleveniaController();
+                var attrEle = await eleApi.GetAttributeByCategory(custEle[0].API_KEY, code);
+                listAttributeEle.Add(attrEle);
+            }
+
             return Json(listAttributeEle, JsonRequestBehavior.AllowGet);
         }
         #endregion
