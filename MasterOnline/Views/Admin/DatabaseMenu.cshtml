@@ -77,7 +77,7 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 160px;">Database Akun</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th> 'change by nurul 20/2/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Hapus Database</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus Akun</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Hapus Database & Akun</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,13 +131,13 @@
                                 }
                                 @if (user.UserId == "admin_manage")
                                 {
-                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
+                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status, '@user.Username')">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                     </button>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status, '@user.Username')">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                     </button>
                                 }
@@ -153,13 +153,13 @@
                                 }
                                 @if (user.UserId == "admin_manage")
                                 {
-                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status)">
+                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status, '@user.Username')">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                     </button>
                                 }
                                 else
                                 {
-                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status, @user.Username)">
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status, '@user.Username')">
                                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                     </button>
                                 }
@@ -183,7 +183,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin <span id="action-to"></span> database dari user ini?</h4>
+                    <h4>Apakah Anda yakin ingin menghapus database dari user <span id="action-to"></span> ?</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -202,7 +202,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin <span id="action-to-rec"></span> akun dari user ini?</h4>
+                    <h4>Apakah Anda yakin ingin menghapus akun dari user <span id="action-to-rec"></span> ?</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -218,6 +218,7 @@
     <script type="text/javascript">
         var $accId = 0;
         var $status = 0;
+        var $username = "";
 
         $(document).on('ready',
             function () {
@@ -228,19 +229,23 @@
                 });
             });
 
-        function passAcc(accId, status) {
+        function passAcc(accId, status, uName) {
             this.$accId = accId;
             this.$status = status;
+            this.$username = uName;
+            $username = uName;
 
             //$('#action-to').text("melakukan perubahan");
-            $('#action-to').text("menghapus");
+            $('#action-to').text(uName);
         }
 
-        function passAccRec(accIdRec, statusRec) {
+        function passAccRec(accIdRec, statusRec, uNameRec) {
             this.$accId = accIdRec;
             this.$status = statusRec;
+            this.$username = uNameRec;
+            $username = uNameRec;
 
-            $('#action-to-rec').text("menghapus");
+            $('#action-to-rec').text(uNameRec);
         }
 
         function ubahStatusAcc() {
