@@ -1291,8 +1291,8 @@ namespace MasterOnline.Controllers
                 return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
-            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
-            return View("Register");
+            //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
+            return View("RegisterThankYou");
 
         }
 
