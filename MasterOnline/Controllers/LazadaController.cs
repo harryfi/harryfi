@@ -411,7 +411,7 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrWhiteSpace(item.Sort8))
                     {
                         var getMPJudul_and_ValueVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item.Sort8).FirstOrDefault();
-                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR;
+                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR + "[;]" + item.BRG;
                         if (!KombinasiAttribute.ContainsKey(attributeUnique))
                         {
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
@@ -420,7 +420,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrWhiteSpace(item.Sort9))
                         {
                             var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR;
+                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
                             if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                             {
                                 KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
@@ -801,7 +801,7 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrWhiteSpace(item.Sort8))
                     {
                         var getMPJudul_and_ValueVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item.Sort8).FirstOrDefault();
-                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR;
+                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR + "[;]" + item.BRG;
                         if (!KombinasiAttribute.ContainsKey(attributeUnique))
                         {
                             KombinasiAttribute.Add(attributeUnique, item.BRG);
@@ -810,7 +810,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrWhiteSpace(item.Sort9))
                         {
                             var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR;
+                            string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR + "[;]" + item.BRG;
                             if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
                             {
                                 KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
