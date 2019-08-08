@@ -142,8 +142,15 @@
                     </button>
                 </td>
                 <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
-                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-                    @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
+                    @if (pesanan.MARKET != "")
+                    {
+                        <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                        @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="dt-checkboxes center" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                    }
                 </td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RECNUM))">
