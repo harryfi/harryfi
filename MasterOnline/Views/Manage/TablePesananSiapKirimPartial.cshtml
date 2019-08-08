@@ -96,16 +96,34 @@
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalGudangDanQty" onclick="getBarangForGudangQty('@pesanan.NOSO', '@pesanan.RECNUM')">
-                            <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-                        </button>
+                        @if (pesanan.MARKET != "")
+                        {
+                            <button class="btn btn-primary" data-toggle="modal" data-target="#modalGudangDanQty" onclick="getBarangForGudangQty('@pesanan.NOSO', '@pesanan.RECNUM')">
+                                <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-th-large" aria-hidden="false"></span>
+                            </button>
+                        }
                     </td>
                     <td class="edit-hapus-col" style="width: 50px; max-width: 50px;">
-                        <button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '03', '@pesanan.NOSO')">
-                            @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                        </button>
+                        @if (pesanan.MARKET != "")
+                        {
+                            <button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '03', '@pesanan.NOSO')">
+                                @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                                @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
+                            </button>
+                        }
                     </td>
                     <td style="border-left:hidden; width: 40px; max-width: 40px; align-self:flex-start">
                         @if (pesanan.MARKET != "")
@@ -118,9 +136,17 @@
                         }
                     </td>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                        </button>
+                        @if (pesanan.MARKET != "")
+                        {
+                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else {
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                            </button>
+                        }
                     </td>
                     @*<td class="edit-hapus-col">
                             <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RecNum)">

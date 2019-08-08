@@ -110,9 +110,18 @@
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                        </button>
+                        @if (pesanan.MARKET != "")
+                        {
+                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                            </button>
+                        }
                     </td>
                 </tr>
             }
