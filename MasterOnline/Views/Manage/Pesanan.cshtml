@@ -3218,7 +3218,15 @@
                     $(this).removeClass('disabled-tab');
                 });
 
+                refreshForm1();
+                $modeEdit = 0;
+                $modeEditDetail = 0;
+                $bakalNetto = 0;
+                $totalAwal = 0;
+                $nettoSebelumnya = 0;
+
                 refreshTableSelesai();
+                
             });
 
             $('#close-editor-3').off('click').on('click', function () {
@@ -3231,8 +3239,15 @@
                     $(this).removeClass('disabled-tab');
                 });
 
-                refreshTableSudahDibayar();
+                refreshForm1();
+                $modeEdit = 0;
+                $modeEditDetail = 0;
+                $bakalNetto = 0;
+                $totalAwal = 0;
+                $nettoSebelumnya = 0;
 
+                refreshTableSudahDibayar();
+                
             });
 
             //});
@@ -4343,7 +4358,9 @@
             $total_bruto_barang = 0;
             //$('.netto-barang').each(function () {
             $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-                $total_bruto_barang += convertToAngka($(this).text());
+                if ($(this).attr("data-issaved") == "1") {
+                    $total_bruto_barang += convertToAngka($(this).text());
+                }
             });
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
@@ -4351,7 +4368,9 @@
             $total_bruto_barang = 0;
             //$('.netto-barang').each(function () {
             $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-                $total_bruto_barang += convertToAngka($(this).text());
+                if ($(this).attr("data-issaved") == "0") {
+                    $total_bruto_barang += convertToAngka($(this).text());
+                }
             });
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
