@@ -2616,7 +2616,8 @@
         //add by calvin 2 agustus 2019
         function hitungUlangBruto(){
             $total_bruto_barang = 0;
-            $('.netto-barang').each(function () {
+            //$('.netto-barang').each(function () {
+            $('tr[data-invoice-id!="0"] .netto-barang').each(function () {
                 $total_bruto_barang += convertToAngka($(this).text());
             });
             $('#Invoice_BRUTO').val(convertToRupiah($total_bruto_barang));
@@ -2640,7 +2641,9 @@
             //$('#Invoice_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
             //end remark by calvin 2 agustus 2019
 
-            refreshNetto();
+            //remark by nurul 7/8/2019
+            //refreshNetto();
+            //end remark by nurul 7/8/2019
         }
 
         function refreshNetto() {
@@ -2792,7 +2795,7 @@
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="InvoiceDetail_DISCOUNT_2" name="InvoiceDetail.DISCOUNT_2" type="hidden" value="">');
                             }
-
+                            
                             refreshNettoBarang($trId);
                         } else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -3000,12 +3003,16 @@
                             } else {
                                 $('#gudang-kode').text('-');
                             }
-                            $('#btn-simpan-perubahan-row').show();
+                            //remark by nurul 7/8/2019
+                            //$('#btn-simpan-perubahan-row').show();
+                            //end remark by nurul 7/8/2019
                         }
                     });
 
                     gudangSelect[0].selectize.setValue($('#InvoiceDetail_GD').val());
-                    $('#btn-simpan-perubahan-row').hide();
+                    //remark by nurul 7/8/2019
+                    //$('#btn-simpan-perubahan-row').hide();
+                    //end remark by nurul 7/8/2019
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -4001,6 +4008,7 @@
                     $('#Invoice_TERM').val() != '' &&
                     $('#Invoice_NAMA').val() != ''
                 ) {
+                    refreshNetto();
                     var tgl = $('#Invoice_TGL').val();
                     $('#InvoiceDetail_TGL_INPUT').val(tgl);
                     $('#InvoiceDetail_BRG').val($('#BRG').selectivity('val'));
