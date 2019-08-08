@@ -135,15 +135,31 @@
                 </td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                 <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;">
-                    <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
-                        @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                        @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                    </button>
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
+                            @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                            @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-edit" aria-hidden="false"></span>
+                        </button>
+                    }
                 </td>
                 <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
-                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-                    @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
+                    @if (pesanan.MARKET != "")
+                    {
+                        <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                        @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
+                    }
+                    else
+                    {
+                        <input type="checkbox" class="dt-checkboxes center" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" disabled="disabled" />
+                    }
                 </td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RECNUM))">
@@ -151,9 +167,18 @@
                     </button>
                 </td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RECNUM, '11', '@pesanan.NOSO')">
-                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-                    </button>
+                    @if (pesanan.MARKET != "")
+                    {
+                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RECNUM, '11', '@pesanan.NOSO')">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button style="background-color:darkgray; cursor:not-allowed">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="false"></span>
+                        </button>
+                    }
                 </td>
             </tr>
             }
