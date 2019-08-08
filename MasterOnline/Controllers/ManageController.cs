@@ -2353,7 +2353,12 @@ namespace MasterOnline.Controllers
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet]
+        public string GetCategoryLazada() {
+            var lzd = new LazadaController();
+            lzd.GetCategoryLzd();
+            return "";
+        }
         [HttpGet]
         public async System.Threading.Tasks.Task<string> GetCategoryBlibli()
         {

@@ -4701,7 +4701,7 @@ namespace MasterOnline.Controllers
                     {
                         var tblCategory = new CATEGORY_LAZADA();
                         tblCategory.CATEGORY_ID = cat.category_id.ToString();
-                        tblCategory.NAME = cat.Name.Replace('\'', '_');
+                        tblCategory.NAME = cat.Name.Replace('\'', '`');
                         tblCategory.LEAF = cat.leaf;
                         tblCategory.PARENT_ID = "";
                         if (!catLzd.Contains(cat.category_id.ToString()))
@@ -4723,7 +4723,7 @@ namespace MasterOnline.Controllers
             {
                 var tblCategory = new CATEGORY_LAZADA();
                 tblCategory.CATEGORY_ID = cat.category_id.ToString();
-                tblCategory.NAME = cat.Name.Replace('\'', '_');
+                tblCategory.NAME = cat.Name.Replace('\'', '`');
                 tblCategory.LEAF = cat.leaf;
                 tblCategory.PARENT_ID = parentId;
                 try
