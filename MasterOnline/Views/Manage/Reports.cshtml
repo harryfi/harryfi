@@ -391,7 +391,20 @@
 <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
 <script type="text/javascript">
+    function GetCategoryLazada() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetCategoryLazada", "Manage")',
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
 
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
     function GetKategoriBlibli() {
         $.ajax({
             type: "GET",
