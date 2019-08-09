@@ -2460,9 +2460,13 @@ namespace MasterOnline.Controllers
                         {
                             if (dTrackNo == "")
                             {
-                                dTrackNo = ((result.tracking_no == null ? "" : result.tracking_no) == "") ? (result.tracking_number) : result.tracking_no;
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
                             }
                             string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                            {
+                                nilaiTRACKING_SHIPMENT = "";
+                            }
                             pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2484,6 +2488,10 @@ namespace MasterOnline.Controllers
                                 dTrackNo = trackno;
                             }
                             string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                            {
+                                nilaiTRACKING_SHIPMENT = "";
+                            }
                             pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();

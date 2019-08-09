@@ -1,0 +1,130 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model PesananViewModel
+@{
+    ViewBag.Title = "Pesanan";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+    <table class="table  table-striped">
+        <thead>
+            <tr role="row">
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;"><u>Proses Pesanan Dari Master Online</u></th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;"><u>Keterangan</u></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Pesanan</td>
+                <td>: Tab ini merupakan overview dari seluruh pesanan Anda, baik pesanan dari marketplace maupun offline</td>
+            </tr>
+            <tr>
+                <td>Pesanan Sudah Dibayar</td>
+                <td>: Setiap pesanan dari masing-masing marketplace dengan status sudah dibayar, akan otomatis masuk ke dalam tab sudah dibayar</td>
+            </tr>
+            <tr>
+                <td>Ubah Status</td>
+                <td>: Proses ubah status akan mengubah status pesanan di masing-masing marketplace</td>
+            </tr>
+            <tr>
+                <td>Packing</td>
+                <td>: Proses pengambilan barang di gudang</td>
+            </tr>
+            <tr>
+                <td>Faktur</td>
+                <td>: Proses buat faktur penjualan, isi resi dan print label pengiriman</td>
+            </tr>
+            <tr>
+                <td>Selesai</td>
+                <td>: Setiap pesanan yang sudah diterima oleh pembeli akan otomatis masuk ke tab selesai</td>
+            </tr>
+            <tr>
+                <td>Batal</td>
+                <td>: Setiap pesanan dengan status batal/cancel akan otomatis masuk ke tab batal</td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <table style="border:none">
+        <tbody>
+            <tr>
+                <td>1. Apakah Anda sudah melakukan sinkronisasi untuk akun marketplace Anda?</td>
+                <td>
+                    <input id="cbx_sync" type="checkbox" class="dt-checkboxes center" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                </td>
+            </tr>
+            <tr>
+                <td>2. Apakah Anda sudah melengkapi saldo awal stok?</td>
+                <td>
+                    <input id="cbx_stok" type="checkbox" class="dt-checkboxes center" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                </td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <br />
+    <br />
+    <br />
+    <table style="border:none">
+        <tr>
+            <td rowspan="1" colspan="1">
+                <h5><b>Apakah Anda sudah siap untuk melakukan update Pesanan dan Stok dari Master Online</b></h5>
+            </td>
+            <td>
+                <button class="btn btn-primary" onclick="BukaTabPesanan('1');">
+                    <b>Ya</b>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+    <script type="text/javascript">
+    function BukaTabPesanan($notif) {
+            if ($("#cbx_sync").is(":checked") == true && $("#cbx_stok").is(":checked") == true) {
+                //if (confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")) {
+                if (confirm("Anda akan mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+
+                    simpanUpdate($notif);
+                }
+            } else if ($("#cbx_sync").is(":checked") == false && $("#cbx_stok").is(":checked") == false) {
+                alert('Mohon lakukan sinkronisasi dan lengkapi saldo awal stok');
+            } else if ($("#cbx_sync").is(":checked") == true && $("#cbx_stok").is(":checked") == false) {
+                alert('Mohon lengkapi saldo awal stok');
+            } else if ($("#cbx_sync").is(":checked") == false && $("#cbx_stok").is(":checked") == true) {
+                alert('Mohon lakukan sinkronisasi');
+            }
+        }
+        function simpanUpdate($notifUpdate) {
+            var $update = "";
+            if ($notifUpdate != undefined) {
+                $update = $notifUpdate;
+            }
+            var link = '@Url.Action("SaveStatusUpdate", "Manage", new { status = "replaceSt"})';
+            link = link.replace("replaceSt", $update);
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
+
+                        window.location.reload(true);
+                    } else {
+                        alert(response.Errors);
+                        //console.log(response.Errors);
+                        //alert('Ada data yang tidak valid!');
+                        //$('#loading_spinner').hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+    </script>

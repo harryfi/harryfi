@@ -478,11 +478,28 @@
 
         @@media only screen and (min-width: 768px) {
             .checkmark {
-                left: 53px;
+                left: -11px;
             }
         }
 
         @@media only screen and (max-width: 767px) {
+            .modalresponsive3 {
+                width: 40%;
+            }
+
+            .modalresponsive2 {
+                width: 44%;
+            }
+
+            .fakturctkfaktur {
+                width: 45%;
+                margin-left: 89px;
+            }
+
+            .uploadtokpedmodal {
+                width: 32%;
+            }
+
             .checkmark {
                 left: -9px;
             }
@@ -510,7 +527,7 @@
             }
 
             .addmarginleftfaktur2 {
-                margin-left: -91px;
+                margin-left: -115px;
             }
 
             .snip1404 .plan {
@@ -606,7 +623,7 @@
     .checkmark {
         position: absolute;
         top: 0;
-        left: 18px;
+        /*left: 18px;*/
         height: 25px;
         width: 25px;
         background-color: #eee;
@@ -1176,6 +1193,30 @@
         border: 2px solid #891539 !important;
         color: #891539;
     }
+    #loading_upload_faktur {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_upload_faktur_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
 </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -1206,7 +1247,7 @@
             <div id="myTabContent" class="tab-content" style="padding-top:10px;">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="faktur-tab">
                     <div class="row faktur_table_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom: 7px;">
                             <div class="input-group">
                                 <input id="search_faktur" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1407,7 +1448,7 @@
 </div>
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive addmarginleftfaktur2">
+        <div class="modal-content modalresponsive2 addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1426,7 +1467,7 @@
 </div>
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive addmarginleftfaktur2">
+        <div class="modal-content modalresponsive3 addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1471,6 +1512,11 @@
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur</h4>
             </div>
             <div class="modal-body" id="modal-upload-faktur-body">
+                <div id="loading_upload_faktur">
+                    <div id="loading_upload_faktur_image">
+                        <img src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>
                 @*add by nurul 19/10/2018*@
                 <div class="row">
                     <div class="col-md-11">
@@ -1642,7 +1688,7 @@
     <div class="modal-dialog" id="modal-print-option" role="document">
         @*//change by nurul 25/6/2019*@
         @*<div class="modal-content modalresponsive" style="margin:auto">*@
-        <div class="modal-content" style="margin:auto; width:600px;">
+        <div class="modal-content fakturctkfaktur">
             @*//end change by nurul 25/6/2019*@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -1828,6 +1874,7 @@
         //end add by nurul 12/2/2019
         var $TabAktif = 0;// 0 Faktur, 1 Faktur Sudah Lunas, 2 Faktur Jatuh Tempo
         var $modeEdit = 0; // 0 new, 1 edit
+        var $modeEditDetail = 0;
         var $bakalNetto = 0;
         var $totalAwal = 0;
         var $nettoSebelumnya = 0;
@@ -2132,10 +2179,20 @@
                     $('input, select, .btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
+                    $modeEdit = 0;
+                    $modeEditDetail = 0;
+                    $beforeState = {
+                        brutto: 0,
+                        netto: 0,
+                        ndisc: 0,
+                        ppn: 0,
+                        nppn: 0,
+                        ongkir: 0
+                    };
                     refreshTableFaktur1();
                     //refreshForm1();
 
-                    $modeEdit = 0;
+                    
                     $statusAPI = "";
                     $bakalNetto = 0;
                     $totalAwal = 0;
@@ -2592,8 +2649,8 @@
                                     getMarketplace();
                                     getBuyer();
 
-                                    refreshInputan();
-                                    refreshNetto();
+                                    //refreshInputan();
+                                    //refreshNetto();
                                     //add by nurul 17/10/2018
                                     $('#myTab li a').each(function () {
                                         $(this).removeAttr('data-toggle');
@@ -2654,6 +2711,16 @@
             $('input, select, .btn-danger').each(function() {
                 $(this).removeAttr('disabled');
             });
+            $modeEdit = 0;
+            $modeEditDetail = 0;
+            $beforeState = {
+                brutto: 0,
+                netto: 0,
+                ndisc: 0,
+                ppn: 0,
+                nppn: 0,
+                ongkir: 0
+            };
             refreshTableFaktur1();
             //refreshForm1();
             $statusAPI = "";
@@ -2665,8 +2732,8 @@
 
             //end add by nurul 6/11/2018
 
-            $modeEdit = 0;
-
+            //$modeEdit = 0;
+            //$modeEditDetail = 0;
             $bakalNetto = 0;
             $totalAwal = 0;
             $nettoSebelumnya = 0;
@@ -2787,8 +2854,8 @@
             //getMarketplace();
             //getBuyer();
 
-            //refreshInputan();
-            //refreshNetto();
+            refreshInputan();
+            refreshNetto();
             //getDataBarang();
             //getGudang();
             //getGudangForBarang();
@@ -2892,7 +2959,7 @@
                 },
                 success: function (response) {
                     $modeEdit = 1;
-
+                    $modeEditDetail = 0;
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
                     $('#form-partial').show();
@@ -3006,6 +3073,7 @@
                     alert('Diskon tidak boleh melebihi total bruto sebesar ' + convertToRupiah($tot) + '!');
                 } else {
                     if ($(this).val() < 0 || $(this).val() === '') { $(this).val(convertToRupiah(0)); }
+                    $modeEditDetail = 1;
                     refreshNetto();
                 }
             });
@@ -3017,6 +3085,7 @@
                 if ($(this).val() <= convertToAngka($('#Faktur_BRUTO').val())) {
                     $(this).val(convertToAngka($(this).val()));
                     $(this).val(convertToRupiah($(this).val()));
+                    $modeEditDetail = 1;
                     refreshNetto();
                 }
             });
@@ -3027,6 +3096,7 @@
 
             $('#Faktur_PPN').blur(function () {
                 if ($(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -3036,6 +3106,7 @@
                 }
                 if ($(this).val() > 100) $(this).val(100);
                 if ($(this).val() < 0 || $(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -3098,14 +3169,20 @@
 
             // ==== Update Data ====
             $('#Faktur_NILAI_DISC').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
             $('#Faktur_PPN').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
             $('#Faktur_MATERAI').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
@@ -3115,6 +3192,7 @@
                 }
                 $(this).val(convertToAngka($(this).val()));
                 $(this).val(convertToRupiah($(this).val()));
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -3150,6 +3228,7 @@
                         $('#loading_spinner').show();
                     },
                     success: function () {
+                        $modeEditDetail = 0;
                         alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
                         //change by calvin 7 juni 2018
@@ -3260,7 +3339,30 @@
             //end add by nurul 12/2/2019
         }
 
+        //add by nurul 7 agustus 2019
+        function hitungUlangBruto() {
+            debugger;
+            //$total_bruto_barang = 0;
+            //$('tr[data-faktur-id!="0"] .netto-barang').each(function () {
+            //    $total_bruto_barang += convertToAngka($(this).text());
+            //});
+            //$('#Faktur_BRUTO').val(convertToRupiah($total_bruto_barang));
+            $total_bruto_barang = 0;
+            if ($modeEditDetail == 1) {
+                $('tr[data-faktur-id!="0"] .netto-barang').each(function () {
+                    $total_bruto_barang += convertToAngka($(this).text());
+                });
+            } else if ($modeEditDetail == 0) {
+                $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+                    $total_bruto_barang += convertToAngka($(this).text());
+                });
+            }
+            $('#Faktur_BRUTO').val(convertToRupiah($total_bruto_barang));
+        }
+        //end add by nurul 7 agustus 2019
+
         function refreshNettoBarang($trId) {
+            debugger;
             var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
             var $ndisc1 = convertToAngka($($trElement + ' .ndisc1-barang').text());
@@ -3269,12 +3371,18 @@
             var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang) - $totDisc;
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
-            $('#Faktur_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
 
-            refreshNetto();
+            //remark by nurul 7/8/2019
+            //$('#Faktur_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+
+            //refreshNetto();
+            //end remark by nurul 7/8/2019
         }
 
         function refreshNetto() {
+            //add by nurul 7 agustus 2019
+            hitungUlangBruto();
+            //end add by nurul 7 agustus 2019
             $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
 
             // CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
@@ -4161,22 +4269,31 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    debugger;
                     $modeEdit = 1;
-
+                    $modeEditDetail = 0;
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
                     $('#form-partial').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
-
+                    $beforeState = {
+                        brutto: $('#Faktur_BRUTO').val(),
+                        netto: $('#Faktur_NETTO').val(),
+                        ndisc: $('#Faktur_NILAI_DISC').val(),
+                        ppn: $('#Faktur_PPN').val(),
+                        nppn: $('#Faktur_NILAI_PPN').val(),
+                        ongkir: $('#Faktur_MATERAI').val()
+                    };
                     refreshInputan();
                     getTanggal();
                     getBuyer();
+                    getMarketplace();
                     getDataBarang();
                     //getGudang();
                     getGudangForBarang();
-                    getMarketplace();
+                    
 
                     //change by nurul 20/02/2019
                     //$('#tambah_faktur').click();
@@ -4452,13 +4569,15 @@
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;
             //end add
-            refreshNetto();
+            
             if ($id == 'brg-0') {
                 if ($('#Faktur_TGL').val() != '' &&
                     $('#Faktur_CUST').val() != '' &&
                     $('#Faktur_TERM').val() != '' &&
                     $('#Faktur_PEMESAN').val() != ''
                 ) {
+                    $modeEditDetail = 0;
+                    refreshNetto();
                     var tgl = $('#Faktur_TGL').val();
                     $('#FakturDetail_TGL_INPUT').val(tgl);
                     $('#FakturDetail_BRG').val($('#BRG').selectivity('val'));
@@ -4487,9 +4606,11 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEditDetail = 0;
                                 $('#form-partial').html(response);
                                 $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
                                 refreshInputan();
+                                refreshNetto();
                                 getTanggal();
                                 getBuyer();
                                 getDataBarang();
