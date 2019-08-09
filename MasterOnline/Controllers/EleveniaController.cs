@@ -161,7 +161,7 @@ namespace MasterOnline.Controllers
                     break;
             }
         }
-        public ClientMessage CreateProduct(EleveniaProductData data, bool display)
+        public async Task<ClientMessage> CreateProduct(EleveniaProductData data, bool display)
         {
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
@@ -188,26 +188,71 @@ namespace MasterOnline.Controllers
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
 
-            string sSQL = "SELECT * FROM (";
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+            //DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kode && p.IDMARKET.ToString() == data.IDMarket).FirstOrDefault();
+
+            List<string> dsNormal = new List<string>();
+            Dictionary<string, string> listAttr = new Dictionary<string, string>();
+
+            var attributeEl = await GetAttributeByCategory(auth, stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 30; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
-                if (i < 30)
+                string attribute_code = Convert.ToString(attributeEl["ACODE_" + i.ToString()]);
+                string attribute_id = Convert.ToString(attributeEl["ATYPE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attributeEl["ANAME_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_code))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    listAttr.Add(attribute_code, attribute_id + "[;]" + attribute_name);
                 }
             }
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+
+            Dictionary<string, string> elAttrWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 30; i++)
+            {
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (listAttr.ContainsKey(attribute_id))
+                    {
+                        if (!elAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            //var sVar = listAttr[attribute_id].Split(new string[] { "[;]" }, StringSplitOptions.None);
+                            elAttrWithVal.Add(attribute_id + "[;]" + listAttr[attribute_id], value.Trim());
+                        }
+                    }
+                }
+            }
             int data_idmarket = Convert.ToInt32(data.IDMarket);
             var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
             xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            //for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+            //    xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            //    xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+            //    xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            //}
+            foreach (var elSkuAttr in elAttrWithVal)
             {
-                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
-                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
-                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+                //xmlString += "<" + lzdSkuAttr.Key + ">";
+                //xmlString += lzdSkuAttr.Value.ToString();
+                //xmlString += "</" + lzdSkuAttr.Key + ">";
+                var sKey = elSkuAttr.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + sKey[0] + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + sKey[2] + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + sKey[1] + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + elSkuAttr.Value + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
             }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
@@ -1102,11 +1147,11 @@ namespace MasterOnline.Controllers
                     if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
                     {
                         ret.CATEGORY_CODE = code;
-                            ret["ACODE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrCd;
-                            ret["ATYPE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNo;
-                            ret["ANAME_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNm;
-                            ret["AOPTIONS_1"] = "0";
-                           
+                        ret["ACODE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrCd;
+                        ret["ATYPE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNo;
+                        ret["ANAME_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNm;
+                        ret["AOPTIONS_1"] = "0";
+
                         for (int j = 2; j <= 30; j++)
                         {
                             ret["ACODE_" + j] = "";
