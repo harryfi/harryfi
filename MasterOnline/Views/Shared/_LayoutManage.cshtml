@@ -13,6 +13,7 @@
     DateTime? drTgl = null;
     DateTime? sdTgl = null;
     string member = "";
+    string nmMember = "";
     //end add by nurul 26/7/2019
 
     if (dataSession?.Account != null)
@@ -20,7 +21,7 @@
         nama = dataSession.Account.Username;
         erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
         namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
-        
+
         //add by nurul 26/7/2019
         sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
         var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
@@ -29,6 +30,7 @@
             drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
         }
         member = dataSession.Account.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
     }
     else
@@ -37,7 +39,7 @@
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
-        
+
         //add by nurul 26/7/2019
         sdTgl = accFromUser.TGL_SUBSCRIPTION;
         var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == accFromUser.Email).ToList();
@@ -46,6 +48,7 @@
             drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
         }
         member = accFromUser.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
         //end add by nurul 26/7/2019
     }
 
@@ -64,18 +67,19 @@
     <!--tambahan SEO mulai disini-->
     <!--meta seo tag-->
     <meta name="title" content="Master Online - Solusi Bisnis Online">
-    <meta name="description" content="Kontrol Bisnis Anda di Berbagai Marketplace Dari Satu Tempat">
+    <meta name="description" content="Kontrol Bisnis Anda di Berbagai Marketplace Dari 1 Platform. Jualan Online Lebih Mudah. Kelola Pesanan, Stok, dan Pengiriman Barang dari Master Online. Dilengkapi dengan Fitur Akuntansi Lengkap.">
     <meta name="keywords" content="master online, jualan online, ecommerce, commerce, online shop, integrasi marketplace, inventory, bisnis, erp, akunting, accounting, akuntansi, omnichannel, multichannel">
 
     <!--sosmed meta tags (opengraph, tidak termasuk twitter)-->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://masteronline.co.id/">
     <meta property="og:title" content="Master Online - Solusi Bisnis Online">
-    <meta property="og:description" content="Kontrol Bisnis Anda di Berbagai Marketplace Dari Satu Tempat">
+    <meta property="og:description" content="Kontrol Bisnis Anda di Berbagai Marketplace Dari 1 Platform. Jualan Online Lebih Mudah. Kelola Pesanan, Stok, dan Pengiriman Barang dari Master Online. Dilengkapi dengan Fitur Akuntansi Lengkap.">
     <meta property="og:image" content="https://masteronline.co.id/Content/Images/MO_simple_logo.png">
+    <meta property="og:image:secure_url" content="https://masteronline.co.id/Content/Images/MO_simple_logo.png">
     <!--tambahan SEO selesai disini-->
 
-    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <title>@ViewBag.Title - Solusi Bisnis Online</title>
     <link href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="~/Content/vendors/nprogress/nprogress.css" rel="stylesheet">
@@ -330,6 +334,10 @@
                                                         {
                                                             <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
                                                         }
+                                                        if (parent.ScrId == 1056) //Log Error
+                                                        {
+                                                            <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                        }
                                                     }
                                                 </a>
                                                 <ul class="nav child_menu">
@@ -536,27 +544,39 @@
                             @*//add by nurul 26/7/2019*@
                             <li class="center">
                                 <a class="member-profile center">
+                                    @if (member == "01")
+                                    {
+                                        <label>@nmMember </label>
+                                    }
+                                    else if (member == "02")
+                                    {
+                                        <label class="member-label-silver">@nmMember </label>
+                                    }
+                                    else if (member == "03")
+                                    {
+                                        <label class="member-label-gold">@nmMember </label>
+                                    }
                                     @if (drTgl != null)
                                     {
-                                        if (member == "01")
+                                        @*if (member == "01")
                                         {
-                                            <label>BASIC </label>
+                                            <label>@nmMember </label>
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "02")
                                         {
-                                            <label class="member-label-silver">SILVER </label>
+                                            <label class="member-label-silver">@nmMember </label>
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                         }
                                         else if (member == "03")
                                         {
-                                            <label class="member-label-gold">GOLD </label>
+                                            <label class="member-label-gold">@nmMember </label>*@
                                             <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
-                                        }
+                                        //}
                                     }
                                     else
                                     {
-                                        <label>BASIC </label>
+                                        
                                         <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
                                     }
                                 </a>
@@ -727,6 +747,8 @@
             };
 
             masterOnlineR.client.moFailedJobs = function (mo_desc, mo_subjectDesc, mo_jobid) {
+                $('#new_log_error_icon').show();
+
                 var description = mo_desc.replace("{obj}", mo_subjectDesc);
                 var button = '<button id="btnRetryJob' + mo_jobid + '" class="btn btn-default" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Retry" onclick="failedJobRetryOnClick(\'' +
                         mo_jobid +
