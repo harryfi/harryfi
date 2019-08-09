@@ -16376,7 +16376,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //add by nurul 16/4/2019
-                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.CUST);
+                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN);
 
                     if (buyer != null)
                     {
@@ -16632,7 +16632,7 @@ namespace MasterOnline.Controllers
                         }
                     }
 
-                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.CUST);
+                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.PEMESAN);
 
                     if (buyer != null)
                     {
