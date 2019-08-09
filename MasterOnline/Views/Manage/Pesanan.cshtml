@@ -3200,6 +3200,14 @@
                     refreshForm1();
                     $modeEdit = 0;
                     $modeEditDetail = 0;
+                    $beforeState = {
+                        brutto: 0,
+                        netto: 0,
+                        ndisc: 0,
+                        ppn: 0,
+                        nppn: 0,
+                        ongkir: 0
+                    };
                     $bakalNetto = 0;
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
@@ -3221,6 +3229,14 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $beforeState = {
+                    brutto: 0,
+                    netto: 0,
+                    ndisc: 0,
+                    ppn: 0,
+                    nppn: 0,
+                    ongkir: 0
+                };
                 $bakalNetto = 0;
                 $totalAwal = 0;
                 $nettoSebelumnya = 0;
@@ -3242,6 +3258,14 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $beforeState = {
+                    brutto: 0,
+                    netto: 0,
+                    ndisc: 0,
+                    ppn: 0,
+                    nppn: 0,
+                    ongkir: 0
+                };
                 $bakalNetto = 0;
                 $totalAwal = 0;
                 $nettoSebelumnya = 0;
@@ -3512,6 +3536,14 @@
             //add by nurul 1/11/2018
             $modeEdit = 0;
             $modeEditDetail = 0;
+            $beforeState = {
+                brutto: 0,
+                netto: 0,
+                ndisc: 0,
+                ppn: 0,
+                nppn: 0,
+                ongkir: 0
+            };
             //end add
             $bakalNetto = 0;
             $totalAwal = 0;
@@ -4256,7 +4288,8 @@
                     beforeSend: function() {
                         $('#loading_spinner').show();
                     },
-                    success: function() {
+                    success: function () {
+                        $modeEditDetail = 1;
                         alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
                         $('#btn-simpan-perubahan-row').hide();
@@ -4354,26 +4387,44 @@
         }
 
         //add by nurul 7 agustus 2019
-        function hitungUlangBrutoEdit() {
+        function hitungUlangBruto() {
             $total_bruto_barang = 0;
             //$('.netto-barang').each(function () {
-            $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-                if ($(this).attr("data-issaved") == "1") {
-                    $total_bruto_barang += convertToAngka($(this).text());
-                }
-            });
-            $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
-        }
-        function hitungUlangBrutoNew() {
-            $total_bruto_barang = 0;
-            //$('.netto-barang').each(function () {
-            $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+            if ($modeEditDetail == 1) {
+                $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+                    if ($(this).attr("data-issaved") == "1") {
+                        $total_bruto_barang += convertToAngka($(this).text());
+                    }
+                });
+            } else if ($modeEditDetail == 0) {
+                $('tr[data-barang-id!="0"] .netto-barang').each(function () {
                 if ($(this).attr("data-issaved") == "0") {
                     $total_bruto_barang += convertToAngka($(this).text());
                 }
-            });
+                });
+            }
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
+        //function hitungUlangBrutoEdit() {
+        //    $total_bruto_barang = 0;
+        //    //$('.netto-barang').each(function () {
+        //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+        //        if ($(this).attr("data-issaved") == "1") {
+        //            $total_bruto_barang += convertToAngka($(this).text());
+        //        }
+        //    });
+        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
+        //}
+        //function hitungUlangBrutoNew() {
+        //    $total_bruto_barang = 0;
+        //    //$('.netto-barang').each(function () {
+        //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+        //        if ($(this).attr("data-issaved") == "0") {
+        //            $total_bruto_barang += convertToAngka($(this).text());
+        //        }
+        //    });
+        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
+        //}
         //end add by nurul 7 agustus 2019
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
@@ -4409,12 +4460,12 @@
 
         function refreshNetto() {
             //add by nurul 7 agustus 2019
-            if ($modeEditDetail == 0) {
-                hitungUlangBrutoNew();
-            } else {
-                hitungUlangBrutoEdit();
-            }
-            //hitungUlangBruto();
+            //if ($modeEditDetail == 0) {
+            //    hitungUlangBrutoNew();
+            //} else {
+            //    hitungUlangBrutoEdit();
+            //}
+            hitungUlangBruto();
             //end add by nurul 7 agustus 2019
             $bakalNetto = convertToAngka($('#Pesanan_BRUTO').val());
 
@@ -5283,6 +5334,14 @@
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
+                    $beforeState = {
+                        brutto: $('#Pesanan_BRUTO').val(),
+                        netto: $('#Pesanan_NETTO').val(),
+                        ndisc: $('#Pesanan_NILAI_DISC').val(),
+                        ppn: $('#Pesanan_PPN').val(),
+                        nppn: $('#Pesanan_NILAI_PPN').val(),
+                        ongkir: $('#Pesanan_MATERAI').val()
+                    };
                     refreshInputan();
                     //add by nurul 11/2/2019
                     $('#myTab li a').each(function (index) {
