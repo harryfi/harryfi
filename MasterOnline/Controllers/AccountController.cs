@@ -408,6 +408,14 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
 
+                //add by nurul 9/8/2019
+                if(accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
+
                 _viewModel.User = userFromDb;
                 //var accByUser = MoDbContext.Account.Single(a => a.AccountId == userFromDb.AccountId);
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accByUser.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
@@ -429,6 +437,14 @@ namespace MasterOnline.Controllers
                     ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
                     return View("Login", account);
                 }
+
+                //add by nurul 9/8/2019
+                if (accFromDb.DatabasePathErasoft == null || accFromDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
 
                 _viewModel.Account = accFromDb;
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accFromDb.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";

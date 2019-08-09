@@ -13,6 +13,6 @@ namespace MasterOnline.Models
         public List<Account> ListAccount { get; set; } = new List<Account>();
         public List<Partner> ListPartner { get; set; } = new List<Partner>();
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
-
+        public List<String> Errors { get; set; } = new List<String>();
     }
 }
