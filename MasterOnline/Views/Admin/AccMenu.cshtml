@@ -988,13 +988,13 @@
 
         function simpanAccount($id) {
 
-            var link = '@Url.Action("ChangeStatusAccount", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", $id);
+            @*var link = '@Url.Action("ChangeStatusAccount", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", $id);*@
             
             $.ajax({
                         type: "POST",
-                        @*url: '@Url.Action("SaveAccountNew", "Admin")',*@
-                        url: link,
+                        url: '@Url.Action("ChangeStatusAccount", "Admin")',
+                        //url: link,
                         data: $('#form-account').serialize(),
                 success: function (response) {
                     alert('Data berhasil tersimpan');

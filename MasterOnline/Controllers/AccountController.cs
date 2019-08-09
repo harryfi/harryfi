@@ -408,6 +408,14 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
 
+                //add by nurul 9/8/2019
+                if(accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
+
                 //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
                 DateTime AccUserExp14 = accInDb.TGL_SUBSCRIPTION.Value.AddDays(14);
                 if (accInDb.KODE_SUBSCRIPTION == "01" && AccUserExp14 < DateTime.Today)
@@ -438,6 +446,14 @@ namespace MasterOnline.Controllers
                     ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
                     return View("Login", account);
                 }
+
+                //add by nurul 9/8/2019
+                if (accFromDb.DatabasePathErasoft == null || accFromDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
 
                 //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
                 DateTime exp14 = accFromDb.TGL_SUBSCRIPTION.Value.AddDays(14);
