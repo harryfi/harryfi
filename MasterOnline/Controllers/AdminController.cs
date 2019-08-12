@@ -596,6 +596,107 @@ namespace MasterOnline.Controllers
             return Json(account, JsonRequestBehavior.AllowGet);
         }
 
+        //add by nurul 12/8/2019, kirim invoice lewat email 
+        public async Task<ActionResult> SendInvoice(string aktSubID)
+        {
+            var aktSubId = Convert.ToInt64(aktSubID);
+            var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+            var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
+            //if (partnerInDb.Status && !partnerInDb.StatusSetuju)
+            //    partnerInDb.StatusSetuju = true;
+            //else
+            //    partnerInDb.StatusSetuju = false;
+
+            //partnerInDb.Status = !partnerInDb.Status;
+
+            //MoDbContext.SaveChanges();
+
+            //if (partnerInDb.Status)
+            //{
+            var email = new MailAddress(aktSub.Email);
+            //add
+            var today = DateTime.Today.ToString("dd/MM/yyyy");
+            var nama = aktSub.Account;
+            var tglBayar = aktSub.TanggalBayar?.ToString("dd/MM/yyyy");
+            var subs = sub;
+            var nilai = Convert.ToString(aktSub.Nilai);
+            var jmlUser = aktSub.jumlahUser.ToString();
+            var drTgl = aktSub.DrTGL?.ToString("dd/MM/yyyy");
+            var sdTgl = aktSub.SdTGL?.ToString("dd/MM/yyyy");
+            //end add
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Email Payment Subscription";
+            //message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+            //    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
+            message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                .Replace("TODAY", today)
+                .Replace("NAMA", nama)
+                .Replace("TGLBAYAR", tglBayar)
+                .Replace("SUBS", subs)
+                .Replace("NILAI", nilai)
+                .Replace("JMLUSER", jmlUser)
+                .Replace("DRTGL", drTgl)
+                .Replace("SDTGL", sdTgl);
+            message.IsBodyHtml = true;
+
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "kmblwexkeretrwxv"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+                using (var smtp = new SmtpClient())
+                {
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "kmblwexkeretrwxv"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+#endif
+            //}
+
+            //ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
+            //var vm = new PartnerViewModel()
+            //{
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
+
+            //return View("PartnerMenu", vm);
+            return new EmptyResult();
+        }
+        //end add by nurul 12/8/2019
+
         // =============================================== Bagian History Pembayaran (END)
 
         // =============================================== Bagian Marketplace (START)
