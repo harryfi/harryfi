@@ -1349,9 +1349,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -1414,7 +1418,11 @@
                                         else {
                                             //textbox
                                             if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                if (ANAME == 'short_description') {
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
+                                                } else {
+                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                }
                                             } else {
                                                 fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             }
@@ -1457,6 +1465,11 @@
                     console.log(xhr);
                 }
             });
+        }
+        function removeTag(html) {
+            var tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
         }
         function getAttributeOptionLazada(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE, categoryCode){
             var link = '@Url.Action("GetAttributeOptLazada", "Manage", new { code = "replaceCode" })';
@@ -1720,9 +1733,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2103,9 +2120,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2473,9 +2494,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2828,9 +2853,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -3125,9 +3154,13 @@
                 cache: false,
                 beforeSend: function () {
                     $('#loading_attribute_' + listMarketRecNum).show();
+                    $('#next_btn').attr("disabled", true);
+                    $('#simpan_btn').attr("disabled", true);
                 },
                 success: function (data) {
                     $('#loading_attribute_' + listMarketRecNum).hide();
+                    $('#next_btn').attr("disabled", false);
+                    $('#simpan_btn').attr("disabled", false);
                     //debugger;
                     var loop = 0;
                     var fieldAVALUE = "";
@@ -3950,6 +3983,13 @@
             //    }
             //});
 
+            //add by calvin 20 juni 2019, kasus barang dari sync lazada, ada html tag nya
+            $.each($(".removeHTMLTag"),
+                function () {
+                    var newText = removeTag($(this).val());
+                    $(this).val(newText);
+                });
+            //end add by calvin 20 juni 2019
 
             var input = $("#Stf02_HJUAL").val();
             var angka = convertToAngka(input);
@@ -4022,6 +4062,7 @@
         }
 
         function simpanBarangInduk(btnClicked) {
+            $(btnClicked).attr("disabled", true);
             toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
