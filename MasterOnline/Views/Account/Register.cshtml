@@ -106,7 +106,8 @@
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
-                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
+                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" max="" accept=".jpg" />
+                            <span style="color: #b94a48" id="imageError"></span>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
@@ -344,10 +345,18 @@
             var validImage = ["image/jpeg"];
 
             $('#ImageFile').change(function () {
+                $('#imageError').html('');
+
                 var file = this.files[0];
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
+                    $('#imageError').html('Hanya boleh file berformat .jpg !');
+                    $(this).val('');
+                    return;
+                }
+
+                if (((file.size / 1024) / 1024).toFixed(4) > 4) {
+                    $('#imageError').html('Ukuran file tidak bisa lebih besar dari 4 mb !');
                     $(this).val('');
                     return;
                 }

@@ -497,35 +497,37 @@ namespace MasterOnline.Controllers
             qtyOnHand = qtyOnHand - qtySO;
 
             #region Hitung Qty Reserved Blibli
-            {
-                var list_brg_mp = ErasoftDbContext.Database.SqlQuery<mp_and_item_data>("SELECT SORT1_CUST,API_CLIENT_P,API_CLIENT_U,API_KEY,TOKEN,EMAIL,PASSWORD,A.RECNUM,ISNULL(B.BRG_MP,'') KODE_BRG_MP FROM ARF01 (NOLOCK) A INNER JOIN STF02H (NOLOCK) B ON A.RECNUM = B.IDMARKET WHERE B.BRG = '" + Barang + "' AND B.DISPLAY = '1' AND A.NAMA='16' AND A.STATUS_API='1'").ToList();
+            //remark by calvin 7 agustus 2019, req dan confirm by pak dani
+            //karena reserved stock blibli sudah terisi saat pembeli belum memilih metode pembayaran, sehingga besar kemungkinan dapat membatalkan pesanan.
+            //{
+            //    var list_brg_mp = ErasoftDbContext.Database.SqlQuery<mp_and_item_data>("SELECT SORT1_CUST,API_CLIENT_P,API_CLIENT_U,API_KEY,TOKEN,EMAIL,PASSWORD,A.RECNUM,ISNULL(B.BRG_MP,'') KODE_BRG_MP FROM ARF01 (NOLOCK) A INNER JOIN STF02H (NOLOCK) B ON A.RECNUM = B.IDMARKET WHERE B.BRG = '" + Barang +"' AND B.DISPLAY = '1' AND A.NAMA='16' AND A.STATUS_API='1'").ToList();
+            //    foreach (var item in list_brg_mp)
+            //    {
+            //        BlibliAPIData iden = new BlibliAPIData
+            //        {
+            //            merchant_code = item.SORT1_CUST,
+            //            API_client_password = item.API_CLIENT_P,
+            //            API_client_username = item.API_CLIENT_U,
+            //            API_secret_key = item.API_KEY,
+            //            token = item.TOKEN,
+            //            mta_username_email_merchant = item.EMAIL,
+            //            mta_password_password_merchant = item.PASSWORD,
+            //            idmarket = item.RECNUM,
+            //            DatabasePathErasoft = dbPathEra
+            //        };
+            //        double qtyBlibliReserved = 0;
+            //        try
+            //        {
+            //            qtyBlibliReserved = Blibli_getReservedStockLv2(iden, item.KODE_BRG_MP);
+            //        }
+            //        catch (Exception ex)
+            //        {
 
-                foreach (var item in list_brg_mp)
-                {
-                    BlibliAPIData iden = new BlibliAPIData
-                    {
-                        merchant_code = item.SORT1_CUST,
-                        API_client_password = item.API_CLIENT_P,
-                        API_client_username = item.API_CLIENT_U,
-                        API_secret_key = item.API_KEY,
-                        token = item.TOKEN,
-                        mta_username_email_merchant = item.EMAIL,
-                        mta_password_password_merchant = item.PASSWORD,
-                        idmarket = item.RECNUM,
-                        DatabasePathErasoft = dbPathEra
-                    };
-                    double qtyBlibliReserved = 0;
-                    try
-                    {
-                        qtyBlibliReserved = Blibli_getReservedStockLv2(iden, item.KODE_BRG_MP);
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    qtyOnHand -= qtyBlibliReserved;
-                }
-            }
+            //        }
+            //        qtyOnHand -= qtyBlibliReserved;
+            //    }
+            //}
+            //end remark by calvin 7 agustus 2019
             #endregion
             return qtyOnHand;
         }

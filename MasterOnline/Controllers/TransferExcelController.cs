@@ -613,7 +613,7 @@ namespace MasterOnline.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
-                    string sSQL = "select brg, nama + isnull(nama2, '') as nama from stf02 where type = 3 order by nama";
+                    string sSQL = "select brg, nama + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     if (dsBarang.Tables[0].Rows.Count > 0)
@@ -631,8 +631,8 @@ namespace MasterOnline.Controllers
 
                             for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
                             {
-                                worksheet.Cells[4 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
-                                worksheet.Cells[4 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                                worksheet.Cells[5 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
+                                worksheet.Cells[5 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
                             }
                             ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 4];
                             string tableName0 = "TableBarang";

@@ -76,7 +76,8 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tgl. Berakhir Subs</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 160px;">Database Akun</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th> 'change by nurul 20/2/2019*@
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus Akun</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Hapus Database</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Hapus Database & Akun</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -84,64 +85,86 @@
                         {
                             foreach (var user in Model)
                             {
-                                <tr>
-                                    <td>
-                                        <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
-                                            @user.Username
-                                        </a>
-                                    </td>
-                                    <td>@user.Email</td>
-                                    <td class="text-center">@user.NoHp</td>
-                                    <td>@user.NamaTokoOnline</td>
-                                    <td class="text-center">
-                                        @if (user.Status)
-                                        {
-                                            @("Aktif")
-                                        }
-                                        else
-                                        {
-                                            @("Tidak Aktif")
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        @if (user.KODE_SUBSCRIPTION == "01")
-                                        {
-                                            @("FREE")
-                                        }
-                                        else if (user.KODE_SUBSCRIPTION == "02")
-                                        {
-                                            @("BASIC")
-                                        }
-                                        else if (user.KODE_SUBSCRIPTION == "03")
-                                        {
-                                            @("PREMIUM")
-                                        }
-                                    </td>
-                                    <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@user.DatabasePathErasoft</td>
-                                    <td class="edit-hapus-col">
-                                        @{
-                                            var status = 0;
+                        <tr>
+                            <td>
+                                <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
+                                    @user.Username
+                                </a>
+                            </td>
+                            <td>@user.Email</td>
+                            <td class="text-center">@user.NoHp</td>
+                            <td>@user.NamaTokoOnline</td>
+                            <td class="text-center">
+                                @if (user.Status)
+                                {
+                                    @("Aktif")
+                                }
+                                else
+                                {
+                                    @("Tidak Aktif")
+                                }
+                            </td>
+                            <td class="text-center">
+                                @if (user.KODE_SUBSCRIPTION == "01")
+                                {
+                                    @("FREE")
+                                }
+                                else if (user.KODE_SUBSCRIPTION == "02")
+                                {
+                                    @("BASIC")
+                                }
+                                else if (user.KODE_SUBSCRIPTION == "03")
+                                {
+                                    @("PREMIUM")
+                                }
+                            </td>
+                            <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
+                            <td class="text-center">@user.DatabasePathErasoft</td>
+                            <td class="edit-hapus-col">
+                                @{
+                                    var status = 0;
 
-                                            if (user.Status)
-                                            {
-                                                status = 1;
-                                            }
-                                        }
-                                        @if (user.UserId == "admin_manage")
-                                        {
-                                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
-                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
-                                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                            </button>
-                                        }
-                                    </td>
-                                </tr>
+                                    if (user.Status)
+                                    {
+                                        status = 1;
+                                    }
+                                }
+                                @if (user.UserId == "admin_manage")
+                                {
+                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status, '@user.Username')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status, '@user.Username')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                            </td>
+                            <td class="edit-hapus-col">
+                                @{
+                                    status = 0;
+
+                                    if (user.Status)
+                                    {
+                                        status = 1;
+                                    }
+                                }
+                                @if (user.UserId == "admin_manage")
+                                {
+                                    <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status, '@user.Username')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusAkun" onclick="passAccRec(@user.AccountId, @status, '@user.Username')">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
                             }
                         }
                     </tbody>
@@ -160,12 +183,31 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin <span id="action-to"></span> database dari user ini?</h4>
+                    <h4>Apakah Anda yakin ingin menghapus database dari user <span id="action-to"></span> ?</h4>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="ubahStatusAcc()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfHapusAkun" tabindex="-1" role="dialog" aria-labelledby="konfHapusAkunLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfHapusAkunLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus akun dari user <span id="action-to-rec"></span> ?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusAccRec()">Ya</button>
             </div>
         </div>
     </div>
@@ -176,6 +218,7 @@
     <script type="text/javascript">
         var $accId = 0;
         var $status = 0;
+        var $username = "";
 
         $(document).on('ready',
             function () {
@@ -186,15 +229,34 @@
                 });
             });
 
-        function passAcc(accId, status) {
+        function passAcc(accId, status, uName) {
             this.$accId = accId;
             this.$status = status;
+            this.$username = uName;
+            $username = uName;
 
-            $('#action-to').text("melakukan perubahan");
+            //$('#action-to').text("melakukan perubahan");
+            $('#action-to').text(uName);
+        }
+
+        function passAccRec(accIdRec, statusRec, uNameRec) {
+            this.$accId = accIdRec;
+            this.$status = statusRec;
+            this.$username = uNameRec;
+            $username = uNameRec;
+
+            $('#action-to-rec').text(uNameRec);
         }
 
         function ubahStatusAcc() {
             var link = '@Url.Action("TambahHapusDatabaseAcc", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", this.$accId);
+
+            location.href = link;
+        }
+
+        function ubahStatusAccRec() {
+            var link = '@Url.Action("TambahHapusAcc", "Admin", new { accId = "replaceId" })';
             link = link.replace("replaceId", this.$accId);
 
             location.href = link;

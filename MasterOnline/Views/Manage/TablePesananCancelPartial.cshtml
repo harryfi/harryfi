@@ -32,6 +32,25 @@
         border-width: 30px;
         border-radius: 50%;
     }
+
+    @@media screen and (max-width: 445px) {
+        .pesanantbatal {
+            width: 55%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .pesanantbatal {
+            width: 46%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .pesanantbatal {
+            width: 37%;
+        }
+    }
+
 </style>
 <div id="loading_pesanan_cancel_tab">
     <div id="loading_pesanan_cancel_tab_image">
@@ -39,7 +58,7 @@
     </div>
 </div>
 <input id="txt_last_page_6" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-<div class="hscroll table-responsive">
+<div class="hscroll table-responsive pesanantbatal">
     <table class="table table-striped table-bordered table-hover">
         @*<table id="datatable_cancel" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
         <thead>
@@ -49,7 +68,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Undo Status</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>
             </tr>
         </thead>
         <tbody>
@@ -91,9 +110,18 @@
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
-                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                        </button>
+                        @if (pesanan.MARKET != "")
+                        {
+                            <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button style="background-color:darkgray; cursor:not-allowed">
+                                <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
+                            </button>
+                        }
                     </td>
                 </tr>
             }

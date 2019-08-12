@@ -408,6 +408,23 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
 
+                //add by nurul 9/8/2019
+                if(accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
+                
+                //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
+                DateTime AccUserExp14 = accInDb.TGL_SUBSCRIPTION.Value.AddDays(14);
+                if (accInDb.KODE_SUBSCRIPTION == "01" && AccUserExp14 < DateTime.Today)
+                {
+                    ModelState.AddModelError(string.Empty, @"Masa free trial Anda sudah expired. Untuk dapat login kembali, silahkan hubungi no telp. 021-634-9318 atau email ke support@masteronline.co.id");
+                    return View("Login", account);
+                }
+                //end add by nurul 30/7/2019 basic + 14 hari expired tidak bisa login
+
                 _viewModel.User = userFromDb;
                 //var accByUser = MoDbContext.Account.Single(a => a.AccountId == userFromDb.AccountId);
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accByUser.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
@@ -429,6 +446,23 @@ namespace MasterOnline.Controllers
                     ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
                     return View("Login", account);
                 }
+
+                //add by nurul 9/8/2019
+                if (accFromDb.DatabasePathErasoft == null || accFromDb.DatabasePathErasoft == "")
+                {
+                    ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
+                    return View("Login", account);
+                }
+                //end add by nurul 9/8/2019
+                
+                //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
+                DateTime exp14 = accFromDb.TGL_SUBSCRIPTION.Value.AddDays(14);
+                if (accFromDb.KODE_SUBSCRIPTION == "01" && exp14 < DateTime.Today)
+                {
+                    ModelState.AddModelError(string.Empty, @"Masa free trial Anda sudah expired. Untuk dapat login kembali, silahkan hubungi no telp. 021-634-9318 atau email ke support@masteronline.co.id");
+                    return View("Login", account);
+                }
+                //end add by nurul 30/7/2019 basic + 14 hari expired tidak bisa login
 
                 _viewModel.Account = accFromDb;
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accFromDb.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
@@ -1273,8 +1307,8 @@ namespace MasterOnline.Controllers
                 return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
-            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
-            return View("Register");
+            //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
+            return View("RegisterThankYou");
 
         }
 

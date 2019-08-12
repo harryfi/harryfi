@@ -4,7 +4,7 @@
 @{
     var context_ = new MoDbContext();
 }
-<table id="datatable_nonaktif" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+<table id="datatable_nonaktif" class="table table-striped table-bordered dataTable" style="display:block;overflow-x:auto;white-space:nowrap" role="grid" aria-describedby="datatable_info">
     <thead>
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Account/Email</th>
@@ -14,6 +14,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Nama Partner</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Tgl. Daftar</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Tgl. Approve</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Tgl. Terakhir Login</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tgl. Berakhir Subs</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Jumlah User</th>
@@ -45,6 +46,7 @@
             </td>
             <td class="text-center">@(user.TGL_DAFTAR?.ToString("dd/MM/yyyy"))</td>
             <td class="text-center">@(user.tgl_approve?.ToString("dd/MM/yyyy"))</td>
+            <td class="text-center">@(user.LAST_LOGIN_DATE?.ToString("dd/MM/yyyy"))</td>
             <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
             <td class="text-center">
                 @context_.Subscription.Where(p => p.KODE == user.KODE_SUBSCRIPTION).FirstOrDefault().KETERANGAN
@@ -52,13 +54,13 @@
             <td class="text-center">@(user?.jumlahUser == null ? 0 : user.jumlahUser)</td>
             <td class="text-center">
                 @if (user.Status)
-                {
-                    @("Aktif")
-                }
-                else
-                {
-                    @("Tidak Aktif")
-                }
+        {
+            @("Aktif")
+}
+else
+{
+        @("Tidak Aktif")
+}
             </td>
         </tr>
             }

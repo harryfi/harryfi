@@ -470,6 +470,7 @@
         var $page = 0;
         var $accId = 0;
         var $status = 0;
+        var $getstatus = "";
         var table = $('#datatable').DataTable({
             "order": [[5, "desc"], [1, "asc"]], //or asc
             "columnDefs": [{ "targets": 5, "type": "date-eu" }],
@@ -987,22 +988,21 @@
         }
 
         function simpanAccount($id) {
-
-            var link = '@Url.Action("ChangeStatusAcc", "Admin", new { accId = "replaceId" })';
-            link = link.replace("replaceId", $id);
+            @*var link = '@Url.Action("ChangeStatusAcc", "Admin", new { accId = "replaceId" })';*@
+            @*var link = '@Url.Action("ChangeStatusAcc", "Admin")';*@
             
             $.ajax({
                         type: "POST",
-                        @*url: '@Url.Action("SaveAccountNew", "Admin")',*@
-                        url: link,
+                        url: '@Url.Action("ChangeStatusAcc", "Admin")',
+                        //url: link,
                         data: $('#form-account').serialize(),
                 success: function (response) {
-                    alert('Data berhasil tersimpan');
-                    $('#form-partial').html(response);
-                    $('#photo_base').hide()
-                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
-                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
-                    }
+                        alert('Data berhasil tersimpan');
+                        $('#form-partial').html(response);
+                        $('#photo_base').hide()
+                        if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                            $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                        }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
