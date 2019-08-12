@@ -195,16 +195,16 @@ namespace MasterOnline.Controllers
 
             long milis = BlibliController.CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = milis.ToString(),
-            //    REQUEST_ACTION = "Create Product",
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = data.kode,
-            //    REQUEST_ATTRIBUTE_2 = data.nama,
-            //    REQUEST_STATUS = "Pending",
-            //};
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Create Product",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
 
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
@@ -322,7 +322,7 @@ namespace MasterOnline.Controllers
             {
                 if (Convert.ToString(result.resultCode).Equals("200"))
                 {
-                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
                     EDB.ExecuteSQL("", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(result.productNo) + "' WHERE BRG = '" + data.kode + "' AND IDMARKET = '" + data.IDMarket + "'");
                     #region Hide Item
                     if (!display)
@@ -342,15 +342,15 @@ namespace MasterOnline.Controllers
                     {
                         if (result.resultCode.Split(';').Count() > 1)
                         {
-                            //currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
                         }
-                        //currentLog.REQUEST_EXCEPTION = result.Message;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
                     }
                     else
                     {
-                        //currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
-                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
                 ret = result;
