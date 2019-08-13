@@ -3601,7 +3601,6 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    debugger;
                     $modeEdit = 1;
                     $modeEditDetail = 0;
                     $('#form-partial').html(response);
@@ -3616,7 +3615,7 @@
                         ndisc: $('#Invoice_NILAI_DISC').val(),
                         ppn: $('#Invoice_PPN').val(),
                         nppn: $('#Invoice_NILAI_PPN').val(),
-                        ongkir: $('#Invoice_MATERAI').val()
+                        ongkir: $('#Invoice_BIAYA_LAIN').val()
                     };
                     refreshInputan();
                     if ($("#cbxDropshipper").is(":checked") == true) {
@@ -3722,6 +3721,14 @@
                         $nettoSebelumnya = 0;
                         $bakalNetto = 0;
                         $('#form-partial').html(response);
+                        $beforeState = {
+                            brutto: $('#Invoice_BRUTO').val(),
+                            netto: $('#Invoice_NETTO').val(),
+                            ndisc: $('#Invoice_NILAI_DISC').val(),
+                            ppn: $('#Invoice_PPN').val(),
+                            nppn: $('#Invoice_NILAI_PPN').val(),
+                            ongkir: $('#Invoice_BIAYA_LAIN').val()
+                        };
                         //add by nurul 5/10/2018
                         refreshInputan();
                         //end add
@@ -4097,6 +4104,14 @@
                                 $modeEditDetail = 0;
                                 $('#form-partial').html(response);
                                 $nettoSebelumnya = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
+                                $beforeState = {
+                                    brutto: $('#Invoice_BRUTO').val(),
+                                    netto: $('#Invoice_NETTO').val(),
+                                    ndisc: $('#Invoice_NILAI_DISC').val(),
+                                    ppn: $('#Invoice_PPN').val(),
+                                    nppn: $('#Invoice_NILAI_PPN').val(),
+                                    ongkir: $('#Invoice_BIAYA_LAIN').val()
+                                };
                                 refreshInputan();
                                 refreshNetto();
                                 getTanggal();
