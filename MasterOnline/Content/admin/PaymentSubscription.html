@@ -369,47 +369,79 @@
     </p>-->
                                         <!--<h1 class="display-3">SELAMAT!</h1>-->
                                         <!--<p class="lead">-->
-                                        Jakarta, TODAY 
-                                        <!--</p>-->
-                                        <br />
-                                        <!--<p>-->
-                                        Dear <strong>NAMA</strong>
-                                        <!--</p>-->
-                                        <br />
-                                        <br />
-                                        <br />
-                                        <!--<p>-->
+                                        <h1 class="display-3"><u>SELAMAT!</u></h1>
+                                        <h5 class="display-3 center">No. NOINV</h5>
+                                        <!--<p style=text-align:left;color:#382F2E;font-size:14px;font-weight:normal;line-height:19px;>-->
+                                        <p style="color:#382F2E">
+                                            Jakarta, TODAY
+                                            <!--</p>-->
+                                            <br />
+                                            <!--<p>-->
+                                            Dear <strong>NAMA</strong>
+                                            <!--</p>-->
+                                            <br />
+                                            <br />
+                                            <br />
+                                            <!--<p>-->
                                             Kami telah menerima pembayaran Subscription <span style=color:#cc0000;> Master Online </span>
                                             anda.
-                                        <!--</p>-->
-                                        <br />
-                                        <p>
-                                        Jika ada pertanyaan hubungi customer service kami di 021-6349318 pada jam kerja.</p>
-                                        <br />
-                                        <br />
-                                        Tanggal&nbsp;&nbsp;		'+ (CONVERT(VARCHAR(20), @TanggalBayar, 103)) +'
-                                        <br />
-                                        Tagihan&nbsp;&nbsp;		'+ @Account +'('+ @Email +')
+                                            <!--</p>-->
+                                            <br />
+                                            <!--<p>-->
+                                            Jika ada pertanyaan hubungi customer service kami di 021-6349318 pada jam kerja.
+                                            <!--</p>-->
+                                            <br />
+                                            <br />
+                                            <!--Tanggal&nbsp;&nbsp;		'TGLBAYAR'
+    <br />
+    Tagihan&nbsp;&nbsp;		'NAMA'('EMAIL')
 
-                                        <br />
-                                        Plan MO&nbsp;&nbsp; 	'+ @Subscription +'
-                                        <br />
-                                        Total&nbsp;&nbsp;		Rp. '+ (CONVERT(VARCHAR, @Nilai))  +'
-                                        <br />
-                                        User&nbsp;&nbsp;		'+ (CONVERT(VARCHAR, @jumlahUser))  +'
-                                        <br />
-                                        Periode&nbsp;&nbsp; '+ (CONVERT(VARCHAR(20), @DrTGL, 103)) +' s/d '+ (CONVERT(VARCHAR(20), @SdTGL, 103)) +'
-                                        <br />
-                                        <br />
-                                        <br />
-                                        <br />
-                                        Terima Kasih
-                                        <br />
-                                        <br />
-                                        <br />
-                                        Admin Master Online
-                                        <br />
-                                        021-6349318
+    <br />
+    Plan MO&nbsp;&nbsp; 	'SUBS'
+    <br />
+    Total&nbsp;&nbsp;		Rp. 'NILAI'
+    <br />
+    User&nbsp;&nbsp;		'JMLUSER'
+    <br />
+    Periode&nbsp;&nbsp; 'DRTGL' s/d 'SDTGL'-->
+                                            <table style="border:none">
+                                                <tr>
+                                                    <td>Tanggal</td>
+                                                    <td>: TGLBAYAR</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Tagihan</td>
+                                                    <td>: NAMA(EMAIL)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Plan MO</td>
+                                                    <td>: SUBS</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td>: Rp. NILAI</td>
+                                                    <!--<td>: Rp. <span id="nilai_string"></span></td>-->
+                                                </tr>
+                                                <tr>
+                                                    <td>User</td>
+                                                    <td>: JMLUSER</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Periode</td>
+                                                    <td>: DRTGL s/d SDTGL</td>
+                                                </tr>
+                                            </table>
+                                            <br />
+                                            <br />
+                                            <br />
+                                            <br />
+                                            Terima Kasih
+                                            <br />
+                                            <br />
+                                            <br />
+                                            Admin Master Online
+                                            <br />
+                                            021-6349318
                                         </p>
                                         <!--<p>Anda sudah bisa mempromosikan Master Online dengan alamat URL <a href="LINKREF">LINKREF</a> dan mulai mendapatkan penghasilan, Terima kasih. </p>
     <hr>
@@ -441,5 +473,35 @@
             </tr>
         </tbody>
     </table>
+
+    <script type="text/javascript">
+        $('#nilai_string').text(convertToRupiah(convertToAngka(NILAI)));
+        function convertToRupiah(angka) {
+            //change by calvin 26 september 2018
+            //var rupiah = '';
+            //var angkarev = angka.toString().split('').reverse().join('');
+            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            return $.number(angka, 2, ',', '.');
+            //end change by calvin 26 september 2018
+        }
+
+        function convertToAngka(rupiah) {
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+            //end change by calvin 26 september 2018
+        }
+    </script>
 </body>
 </html>
+

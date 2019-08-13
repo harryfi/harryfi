@@ -579,6 +579,7 @@ namespace MasterOnline.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SavePayment(SubsViewModel vm)
         {
+            var newPayment = false;
             if (!ModelState.IsValid)
             {
                 //return View("FormHistoryPembayaranPartial", vm);
@@ -596,6 +597,7 @@ namespace MasterOnline.Controllers
                 //}
 
                 MoDbContext.AktivitasSubscription.Add(vm.Payment);
+                newPayment = true;
             }
             else
             {
@@ -610,6 +612,8 @@ namespace MasterOnline.Controllers
                 subsInDb.SdTGL = vm.Payment.SdTGL;
                 subsInDb.jumlahUser = vm.Payment.jumlahUser;
 
+                //vm.newPayment = false;
+
             }
 
             var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
@@ -618,6 +622,35 @@ namespace MasterOnline.Controllers
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
             ModelState.Clear();
+            if (newPayment == true)
+            {
+                var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
+                if (cekPayment != null)
+                {
+                    Task.Run(() => SendInvoice(cekPayment.Single().RecNum));
+                    //return RedirectToAction("SendInvoice", "Admin", cekPayment.Single().RecNum);
+
+                    //var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+                    //var digitAkhir = "";
+                    //var noUrut = "";
+
+                    //if (listAktSubInDb.Count == 0)
+                    //{
+                    //    digitAkhir = "0001";
+                    //    noUrut = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    //    MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
+                    //}
+                    //else
+                    //{
+                    //    var lastRecNum = listAktSubInDb.Last().RecNum;
+                    //    lastRecNum++;
+
+                    //    digitAkhir = lastRecNum.ToString().PadLeft(4, '0');
+                    //    noUrut = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    //}
+                    return PartialView("FormHistoryPembayaranPartial", vm);
+                }
+            }
 
             return PartialView("FormHistoryPembayaranPartial", vm);
         }
@@ -630,103 +663,138 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 12/8/2019, kirim invoice lewat email 
-        public async Task<ActionResult> SendInvoice(string aktSubID)
+        protected async Task<ActionResult> SendInvoice(int? aktSubID)
         {
-            var aktSubId = Convert.ToInt64(aktSubID);
-            var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
-            var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
-            //if (partnerInDb.Status && !partnerInDb.StatusSetuju)
-            //    partnerInDb.StatusSetuju = true;
-            //else
-            //    partnerInDb.StatusSetuju = false;
-
-            //partnerInDb.Status = !partnerInDb.Status;
-
-            //MoDbContext.SaveChanges();
-
-            //if (partnerInDb.Status)
-            //{
-            var email = new MailAddress(aktSub.Email);
-            //add
-            var today = DateTime.Today.ToString("dd/MM/yyyy");
-            var nama = aktSub.Account;
-            var tglBayar = aktSub.TanggalBayar?.ToString("dd/MM/yyyy");
-            var subs = sub;
-            var nilai = Convert.ToString(aktSub.Nilai);
-            var jmlUser = aktSub.jumlahUser.ToString();
-            var drTgl = aktSub.DrTGL?.ToString("dd/MM/yyyy");
-            var sdTgl = aktSub.SdTGL?.ToString("dd/MM/yyyy");
-            //end add
-
-            var message = new MailMessage();
-            message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Email Payment Subscription";
-            //message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
-            //    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
-            message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
-                .Replace("TODAY", today)
-                .Replace("NAMA", nama)
-                .Replace("TGLBAYAR", tglBayar)
-                .Replace("SUBS", subs)
-                .Replace("NILAI", nilai)
-                .Replace("JMLUSER", jmlUser)
-                .Replace("DRTGL", drTgl)
-                .Replace("SDTGL", sdTgl);
-            message.IsBodyHtml = true;
-
-#if AWS
-            //using (var smtp = new SmtpClient())
-            //{
-            //    var credential = new NetworkCredential
-            //    {
-            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
-            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
-            //    };
-            //    smtp.Credentials = credential;
-            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
-            //    smtp.Port = 587;
-            //    smtp.EnableSsl = true;
-            //    await smtp.SendMailAsync(message);
-            //}
-            using (var smtp = new SmtpClient())
+            try
             {
-                var credential = new NetworkCredential
+                var aktSubId = Convert.ToInt64(aktSubID);
+                var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
+
+                var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+                var digitAkhir = "";
+                var noInv = "";
+
+                if (listAktSubInDb.Count == 0)
                 {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "kmblwexkeretrwxv"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
-#else
-                using (var smtp = new SmtpClient())
-                {
-                    var credential = new NetworkCredential
-                    {
-                        UserName = "csmasteronline@gmail.com",
-                        Password = "kmblwexkeretrwxv"
-                    };
-                    smtp.Credentials = credential;
-                    smtp.Host = "smtp.gmail.com";
-                    smtp.Port = 587;
-                    smtp.EnableSsl = true;
-                    await smtp.SendMailAsync(message);
+                    digitAkhir = "0001";
+                    noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
                 }
-#endif
-            //}
+                else
+                {
+                    //var lastRecNum = listAktSubInDb.Last().RecNum;
+                    //lastRecNum++;
+                    var NoUrut = listAktSubInDb.Count();
+                    NoUrut++;
 
-            //ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
-            //var vm = new PartnerViewModel()
-            //{
-            //    ListPartner = MoDbContext.Partner.ToList()
-            //};
+                    digitAkhir = NoUrut.ToString().PadLeft(4, '0');
+                    noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                }
 
-            //return View("PartnerMenu", vm);
-            return new EmptyResult();
+                if (digitAkhir != "" && noInv != "")
+                {
+                    aktSub.Invoice_No = noInv;
+                    aktSub.tgl_email = DateTime.Today;
+                    MoDbContext.SaveChanges();
+                    ModelState.Clear();
+                }
+                var ambilUlangAktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (ambilUlangAktSub.Invoice_No != "" || ambilUlangAktSub.Invoice_No != null)
+                {
+                    var email = new MailAddress(ambilUlangAktSub.Email);
+                    //add
+                    var today = DateTime.Today.ToString("dd/MM/yyyy");
+                    var nama = ambilUlangAktSub.Account;
+                    var tglBayar = ambilUlangAktSub.TanggalBayar?.ToString("dd/MM/yyyy");
+                    var subs = sub;
+                    var nilai = Convert.ToString(ambilUlangAktSub.Nilai);
+                    var jmlUser = ambilUlangAktSub.jumlahUser.ToString();
+                    var drTgl = ambilUlangAktSub.DrTGL?.ToString("dd/MM/yyyy");
+                    var sdTgl = ambilUlangAktSub.SdTGL?.ToString("dd/MM/yyyy");
+                    var inv = ambilUlangAktSub.Invoice_No;
+                    //end add
+
+                    var message = new MailMessage();
+                    message.To.Add(email);
+                    message.From = new MailAddress("csmasteronline@gmail.com");
+                    message.Subject = "Email Payment Subscription";
+                    //message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+                    //    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
+                    message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                        .Replace("EMAIL", Convert.ToString(email))
+                        .Replace("TODAY", today)
+                        .Replace("NAMA", nama)
+                        .Replace("TGLBAYAR", tglBayar)
+                        .Replace("SUBS", subs)
+                        .Replace("NILAI", nilai)
+                        .Replace("JMLUSER", jmlUser)
+                        .Replace("DRTGL", drTgl)
+                        .Replace("SDTGL", sdTgl)
+                        .Replace("NOINV", inv);
+                    message.IsBodyHtml = true;
+
+                    //#if AWS
+                    //using (var smtp = new SmtpClient())
+                    //{
+                    //    var credential = new NetworkCredential
+                    //    {
+                    //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+                    //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+                    //    };
+                    //    smtp.Credentials = credential;
+                    //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+                    //    smtp.Port = 587;
+                    //    smtp.EnableSsl = true;
+                    //    await smtp.SendMailAsync(message);
+                    //}
+                    using (var smtp = new SmtpClient())
+                    {
+                        var credential = new NetworkCredential
+                        {
+                            UserName = "csmasteronline@gmail.com",
+                            Password = "kmblwexkeretrwxv"
+                        };
+                        smtp.Credentials = credential;
+                        smtp.Host = "smtp.gmail.com";
+                        smtp.Port = 587;
+                        smtp.EnableSsl = true;
+                        await smtp.SendMailAsync(message);
+                    }
+                    //#else
+                    //                using (var smtp = new SmtpClient())
+                    //                {
+                    //                    var credential = new NetworkCredential
+                    //                    {
+                    //                        UserName = "csmasteronline@gmail.com",
+                    //                        Password = "kmblwexkeretrwxv"
+                    //                    };
+                    //                    smtp.Credentials = credential;
+                    //                    smtp.Host = "smtp.gmail.com";
+                    //                    smtp.Port = 587;
+                    //                    smtp.EnableSsl = true;
+                    //                    await smtp.SendMailAsync(message);
+                    //                }
+                    //#endif
+                }
+
+                //}
+
+                //ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
+                //var vm = new PartnerViewModel()
+                //{
+                //    ListPartner = MoDbContext.Partner.ToList()
+                //};
+
+                //return View("PartnerMenu", vm);
+                //return new EmptyResult();
+                //return PartialView("FormHistoryPembayaranPartial", aktSub);
+                return new EmptyResult();
+            }
+            catch (Exception e)
+            {
+                return Content(e.Message);
+            }
         }
         //end add by nurul 12/8/2019
 
