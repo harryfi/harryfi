@@ -5847,7 +5847,7 @@ namespace MasterOnline.Controllers
                                         dataHarga.ACODE_37 = dataBaru.ACODE_37;
                                         dataHarga.ACODE_38 = dataBaru.ACODE_38;
                                         dataHarga.ACODE_39 = dataBaru.ACODE_39;
-                                        dataHarga.ACODE_30 = dataBaru.ACODE_40;
+                                        dataHarga.ACODE_40 = dataBaru.ACODE_40;
                                         dataHarga.ACODE_41 = dataBaru.ACODE_41;
                                         dataHarga.ACODE_42 = dataBaru.ACODE_42;
                                         dataHarga.ACODE_43 = dataBaru.ACODE_43;
