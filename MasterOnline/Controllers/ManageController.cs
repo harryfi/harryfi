@@ -4443,47 +4443,53 @@ namespace MasterOnline.Controllers
                     {
                         List<string> listError = new List<string>();
                         int i = 0;
+                        List<int> processedIdMarket = new List<int>();
                         foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                         {
-                            var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
-
-                            if (kdMarket == kdLazada.IdMarket.ToString())
+                            if (!processedIdMarket.Contains(hargaPerMarket.IDMARKET))
                             {
-                                if (hargaPerMarket.HJUAL < 3000)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
-                                }
-                                else if (hargaPerMarket.HJUAL % 100 != 0)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                processedIdMarket.Add(hargaPerMarket.IDMARKET);
 
-                                }
-                            }
-                            else if (kdMarket == kdBlibli.IdMarket.ToString())
-                            {
-                                if (hargaPerMarket.HJUAL < 1100)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
-                                }
-                            }
-                            else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
-                            {
-                                if (hargaPerMarket.HJUAL < 100)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
-                                }
-                                else if (hargaPerMarket.HJUAL % 100 != 0)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
 
+                                if (kdMarket == kdLazada.IdMarket.ToString())
+                                {
+                                    if (hargaPerMarket.HJUAL < 3000)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                    }
+                                    else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                                    }
                                 }
+                                else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                {
+                                    if (hargaPerMarket.HJUAL < 1100)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                    }
+                                }
+                                else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                                {
+                                    if (hargaPerMarket.HJUAL < 100)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                    }
+                                    else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                                    }
+                                }
+                                i++;
                             }
-                            i++;
                         }
                         if (validPrice)
                         {
@@ -4521,42 +4527,47 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             //end add by calvin 1 maret 2019
-
+                            List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                hargaPerMarket.BRG = dataBarang.Stf02.BRG;
-
-                                //add by calvin 1 maret 2019
-                                if (extra_image_uploaded.Count() > 0)
+                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
                                 {
-                                    foreach (var extra_image in extra_image_uploaded)
+                                    protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
+                                    hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+
+                                    //add by calvin 1 maret 2019
+                                    if (extra_image_uploaded.Count() > 0)
                                     {
-                                        string[] key_split = extra_image.Key.Split(';');
-                                        int urutan = Convert.ToInt32(key_split[0]);
-                                        int idmarket = Convert.ToInt32(key_split[1]);
-                                        string idGambar = Convert.ToString(key_split[2]);
-                                        if (idmarket == hargaPerMarket.IDMARKET)
+                                        foreach (var extra_image in extra_image_uploaded)
                                         {
-                                            switch (urutan)
+                                            string[] key_split = extra_image.Key.Split(';');
+                                            int urutan = Convert.ToInt32(key_split[0]);
+                                            int idmarket = Convert.ToInt32(key_split[1]);
+                                            string idGambar = Convert.ToString(key_split[2]);
+                                            if (idmarket == hargaPerMarket.IDMARKET)
                                             {
-                                                case 1:
-                                                    hargaPerMarket.ACODE_50 = idGambar;
-                                                    hargaPerMarket.AVALUE_50 = extra_image.Value;
-                                                    break;
-                                                case 2:
-                                                    hargaPerMarket.ACODE_49 = idGambar;
-                                                    hargaPerMarket.AVALUE_49 = extra_image.Value;
-                                                    break;
-                                                case 3:
-                                                    hargaPerMarket.ACODE_48 = idGambar;
-                                                    hargaPerMarket.AVALUE_48 = extra_image.Value;
-                                                    break;
+                                                switch (urutan)
+                                                {
+                                                    case 1:
+                                                        hargaPerMarket.ACODE_50 = idGambar;
+                                                        hargaPerMarket.AVALUE_50 = extra_image.Value;
+                                                        break;
+                                                    case 2:
+                                                        hargaPerMarket.ACODE_49 = idGambar;
+                                                        hargaPerMarket.AVALUE_49 = extra_image.Value;
+                                                        break;
+                                                    case 3:
+                                                        hargaPerMarket.ACODE_48 = idGambar;
+                                                        hargaPerMarket.AVALUE_48 = extra_image.Value;
+                                                        break;
+                                                }
                                             }
                                         }
                                     }
+                                    //end add by calvin 1 maret 2019
+                                    ErasoftDbContext.STF02H.Add(hargaPerMarket);
                                 }
-                                //end add by calvin 1 maret 2019
-                                ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                
                             }
                         }
                         else
@@ -5548,53 +5559,64 @@ namespace MasterOnline.Controllers
                     {
                         List<string> listError = new List<string>();
                         int i = 0;
+                        List<int> processedIdMarket = new List<int>();
                         foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                         {
-                            var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
-                            if (kdMarket == kdLazada.IdMarket.ToString())
+                            if (!processedIdMarket.Contains(hargaPerMarket.IDMARKET))
                             {
-                                if (hargaPerMarket.HJUAL < 3000)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
-                                }
-                                else if (hargaPerMarket.HJUAL % 100 != 0)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                processedIdMarket.Add(hargaPerMarket.IDMARKET);
 
-                                }
-                            }
-                            else if (kdMarket == kdBlibli.IdMarket.ToString())
-                            {
-                                if (hargaPerMarket.HJUAL < 1100)
+                                var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
+                                if (kdMarket == kdLazada.IdMarket.ToString())
                                 {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
-                                }
-                            }
-                            else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
-                            {
-                                if (hargaPerMarket.HJUAL < 100)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
-                                }
-                                else if (hargaPerMarket.HJUAL % 100 != 0)
-                                {
-                                    validPrice = false;
-                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    if (hargaPerMarket.HJUAL < 3000)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                    }
+                                    else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
+                                    }
                                 }
+                                else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                {
+                                    if (hargaPerMarket.HJUAL < 1100)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                    }
+                                }
+                                else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                                {
+                                    if (hargaPerMarket.HJUAL < 100)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                    }
+                                    else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                                    }
+                                }
+                                i++;
                             }
-                            i++;
                         }
                         if (validPrice)
                         {
+                            List<int> protectDuplicateIdMarket = new List<int>();
                             foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                             {
-                                hargaPerMarket.BRG = dataBarang.Stf02.BRG;
-                                ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                if (!protectDuplicateIdMarket.Contains(hargaPerMarket.IDMARKET))
+                                {
+                                    protectDuplicateIdMarket.Add(hargaPerMarket.IDMARKET);
+                                    hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                                    ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                                }
                             }
                         }
                         else
@@ -14085,7 +14107,7 @@ namespace MasterOnline.Controllers
                     Int32 row = Convert.ToInt32(rows_selected[i]);
                     //var cekfaktur = ErasoftDbContext.SIT01A.Where(b => b.NO_SO != null || b.NO_SO != "").Select(b => b.NO_SO).ToList();
                     //var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03" && !cekfaktur.Contains(a.NO_BUKTI)).ToList();
-                    var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03" ).ToList();
+                    var xxPesanan = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").ToList();
                     listorder.AddRange(xxPesanan);
                     var buyer = xxPesanan.Select(a => a.PEMESAN).ToList();
                     var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();

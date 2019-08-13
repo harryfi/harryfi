@@ -6109,6 +6109,8 @@
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
+    <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
