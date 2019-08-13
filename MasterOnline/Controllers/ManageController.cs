@@ -18001,6 +18001,17 @@ namespace MasterOnline.Controllers
             //iden.DatabasePathErasoft = dbPathEra;
             //iden.username = "Calvin";
             //Task.Run(() => new ShopeeControllerJob().GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, "000022", "Hazam Shop", 0, 0)).Wait();
+            //TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+            //{
+            //    merchant_code = "13072", //FSID
+            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //    API_secret_key = "2619296", //Shop ID 
+            //    idmarket = 3,
+            //    DatabasePathErasoft = dbPathEra,
+            //    username = "Calvintes"
+            //};
+            //await new TokopediaControllerJob().CheckPendings(data);
 
             return View();
         }
