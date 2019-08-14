@@ -3757,7 +3757,15 @@ namespace MasterOnline.Controllers
 
             var listAttributeBlibli = await BliAPI.GetAttributeToList(data, CategoryBlibli);
 
-            return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptBlibli(string code)
