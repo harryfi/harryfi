@@ -1420,7 +1420,7 @@
                                             if (AMANDATORY == "1") {
                                                 if (ANAME == 'short_description') {
                                                     //fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '" rows="2" style="resize: none; width:100%;"></textarea></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + removeTag(adaValue) + '</textarea></div>';
                                                 } else {
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
@@ -4028,6 +4028,8 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
+
                     if (response.Errors == null) {
                         //$('#table-barang-1-partial').html(response);
                         //Initialize(); //remark by calvin 23 april 2019
@@ -4048,6 +4050,8 @@
                     }
                 },
                 error: function (xhr, status, error) {
+                    if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
+
                     console.log(error);
                     $('#loading_spinner').hide();
                 }
@@ -4069,6 +4073,7 @@
             var valid = validateForm();
             var valid2 = cekValidasi();
 
+            if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
 
@@ -4105,6 +4110,8 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $(btnClicked).attr("disabled", false);
+
                     if (response.Errors == null) {
                         //change by calvin 23 april 2019
                         //$('#var-structure-partial').html('');
@@ -4140,6 +4147,8 @@
                     }
                 },
                 error: function (xhr, status, error) {
+                    $(btnClicked).attr("disabled", false);
+
                     console.log(error);
                     $('#loading_spinner').hide();
                 }
