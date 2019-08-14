@@ -6229,8 +6229,8 @@ namespace MasterOnline.Controllers
                     imgPath[2] = barangInDb.LINK_GAMBAR_3;
                 }
                 string[] imageUrl = new string[imgPath.Length];
-                //var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
-                var productMarketPlace = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum).ToList();
+                var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
+                //var productMarketPlace = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum).ToList();
 
                 if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
                 {
@@ -6263,8 +6263,8 @@ namespace MasterOnline.Controllers
                     };
 
                     dataLazada.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                    dataLazada.harga = productMarketPlace[0].HJUAL.ToString();
-                    dataLazada.activeProd = productMarketPlace[0].DISPLAY;
+                    dataLazada.harga = productMarketPlace.HJUAL.ToString();
+                    dataLazada.activeProd = productMarketPlace.DISPLAY;
 
                     if (!string.IsNullOrEmpty(imageUrl[2]))
                     {
@@ -6278,23 +6278,23 @@ namespace MasterOnline.Controllers
                     {
                         dataLazada.imageUrl = imageUrl[0];
                     }
-                    var brg_notInLzd = productMarketPlace.Where(p => string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                    var brg_notInLzd = EDB.GetDataSet("CString", "STF02", "SELECT B.BRG, B.BRG_MP FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE (A.BRG = '"+ barangInDb.BRG + "' OR A.PART = '" + barangInDb.BRG + "') AND ISNULL(B.BRG_MP, '') = '' AND IDMARKET = " + tblCustomer.RecNum);
+                    var brg_inLzd = EDB.GetDataSet("CString", "STF02", "SELECT B.BRG, B.BRG_MP FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE (A.BRG = '" + barangInDb.BRG + "' OR A.PART = '" + barangInDb.BRG + "') AND ISNULL(B.BRG_MP, '') <> '' AND IDMARKET = " + tblCustomer.RecNum);
                     //if (string.IsNullOrWhiteSpace(productMarketPlace[0].BRG_MP) && productMarketPlace[0].DISPLAY)
-                    if (brg_notInLzd.Count > 0 && productMarketPlace[0].DISPLAY)
+                    if (brg_notInLzd.Tables[0].Rows.Count > 0 && productMarketPlace.DISPLAY)
                     {
                         //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
-                        //var test = new LazadaControllerJob();
-                        //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
+                        //clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+                        var test = new LazadaControllerJob();
+                        test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
                     }
                     //else
                     //{
                     //    var result = lzdApi.UpdateProduct(dataLazada);
                     //}
-                    var brg_inLzd = productMarketPlace.Where(p => !string.IsNullOrEmpty(p.BRG_MP)).ToList();
-                    if (brg_inLzd.Count > 0)
+                    if (brg_inLzd.Tables[0].Rows.Count > 0)
                     {
                         var result = lzdApi.UpdateProduct(dataLazada);
                     }
