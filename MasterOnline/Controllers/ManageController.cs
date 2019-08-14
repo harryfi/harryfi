@@ -2354,7 +2354,8 @@ namespace MasterOnline.Controllers
             return Json(valSubs, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public string GetCategoryLazada() {
+        public string GetCategoryLazada()
+        {
             var lzd = new LazadaController();
             lzd.GetCategoryLzd();
             return "";
@@ -4558,7 +4559,7 @@ namespace MasterOnline.Controllers
                                     //end add by calvin 1 maret 2019
                                     ErasoftDbContext.STF02H.Add(hargaPerMarket);
                                 }
-                                
+
                             }
                         }
                         else
@@ -6228,7 +6229,9 @@ namespace MasterOnline.Controllers
                     imgPath[2] = barangInDb.LINK_GAMBAR_3;
                 }
                 string[] imageUrl = new string[imgPath.Length];
-                var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
+                //var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
+                var productMarketPlace = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum).ToList();
+
                 if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
                 {
                     for (int i = 0; i < imgPath.Length; i++)
@@ -6260,8 +6263,8 @@ namespace MasterOnline.Controllers
                     };
 
                     dataLazada.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                    dataLazada.harga = productMarketPlace.HJUAL.ToString();
-                    dataLazada.activeProd = productMarketPlace.DISPLAY;
+                    dataLazada.harga = productMarketPlace[0].HJUAL.ToString();
+                    dataLazada.activeProd = productMarketPlace[0].DISPLAY;
 
                     if (!string.IsNullOrEmpty(imageUrl[2]))
                     {
@@ -6275,7 +6278,9 @@ namespace MasterOnline.Controllers
                     {
                         dataLazada.imageUrl = imageUrl[0];
                     }
-                    if (string.IsNullOrWhiteSpace(productMarketPlace.BRG_MP) && productMarketPlace.DISPLAY)
+                    var brg_notInLzd = productMarketPlace.Where(p => string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                    //if (string.IsNullOrWhiteSpace(productMarketPlace[0].BRG_MP) && productMarketPlace[0].DISPLAY)
+                    if (brg_notInLzd.Count > 0 && productMarketPlace[0].DISPLAY)
                     {
                         //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -6284,7 +6289,12 @@ namespace MasterOnline.Controllers
                         //var test = new LazadaControllerJob();
                         //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
                     }
-                    else
+                    //else
+                    //{
+                    //    var result = lzdApi.UpdateProduct(dataLazada);
+                    //}
+                    var brg_inLzd = productMarketPlace.Where(p => !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                    if (brg_inLzd.Count > 0)
                     {
                         var result = lzdApi.UpdateProduct(dataLazada);
                     }
@@ -13745,12 +13755,12 @@ namespace MasterOnline.Controllers
 
                 //if (string.IsNullOrWhiteSpace(dataStf02h.BRG_MP))
                 //{
-                    var catatan_split = PesananDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                var catatan_split = PesananDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
 
-                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
-                    {
-                        dataStf02h.BRG_MP = catatan_split[2];
-                    }
+                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                {
+                    dataStf02h.BRG_MP = catatan_split[2];
+                }
                 //}
                 ErasoftDbContext.SaveChanges();
 
@@ -13823,12 +13833,12 @@ namespace MasterOnline.Controllers
 
                 //if (string.IsNullOrWhiteSpace(dataStf02h.BRG_MP))
                 //{
-                    var catatan_split = FakturDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                var catatan_split = FakturDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
 
-                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
-                    {
-                        dataStf02h.BRG_MP = catatan_split[2];
-                    }
+                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                {
+                    dataStf02h.BRG_MP = catatan_split[2];
+                }
                 //}
                 ErasoftDbContext.SaveChanges();
 
@@ -13849,7 +13859,7 @@ namespace MasterOnline.Controllers
                     //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList()
                 };
-                
+
                 return PartialView("BarangFakturPartial", vm);
             }
             catch (Exception ex)
@@ -28109,7 +28119,7 @@ namespace MasterOnline.Controllers
             string listJobID = "";
             foreach (var item in QueryHangfireLog)
             {
-                listJobID += "'"+ item +"',";
+                listJobID += "'" + item + "',";
             }
             listJobID = listJobID.Substring(0, listJobID.Length - 1);
 
