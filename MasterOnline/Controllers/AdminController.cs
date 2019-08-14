@@ -20,6 +20,8 @@ using System.Collections;
 using System.Reflection;
 using PagedList;
 
+using System.Globalization;
+
 namespace MasterOnline.Controllers
 {
     public class AdminController : Controller
@@ -675,7 +677,8 @@ namespace MasterOnline.Controllers
                     var nama = ambilUlangAktSub.Account;
                     var tglBayar = ambilUlangAktSub.TanggalBayar?.ToString("dd/MM/yyyy");
                     var subs = sub;
-                    var nilai = Convert.ToString(ambilUlangAktSub.Nilai);
+                    //var nilai = Convert.ToString(ambilUlangAktSub.Nilai);
+                    var nilai = $"Rp. {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ambilUlangAktSub.Nilai)}";
                     var jmlUser = ambilUlangAktSub.jumlahUser.ToString();
                     var drTgl = ambilUlangAktSub.DrTGL?.ToString("dd/MM/yyyy");
                     var sdTgl = ambilUlangAktSub.SdTGL?.ToString("dd/MM/yyyy");
