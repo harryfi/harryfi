@@ -1308,9 +1308,18 @@ namespace MasterOnline.Controllers
             }
 
             //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
-            return View("RegisterThankYou");
+            //return View("RegisterThankYou");
+            return new EmptyResult();
 
         }
+
+        //add by nurul 14/8/2019
+        [System.Web.Mvc.Route("register/ThankYou")]
+        public ActionResult RegisterThankYou()
+        {
+            return View();
+        }
+        //end add by nurul 14/8/2019
 
         //[AutomaticRetry(Attempts = 2)]
         //[Queue("2_general")]
