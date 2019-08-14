@@ -2888,10 +2888,12 @@
                                             if (ListHargaJualPermarketView.length > 0) {
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
-                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                keyName = keyName.replace('ACODE_','AVALUE_');
-                                                keyName = keyName.replace('ANAME_','AVALUE_');
-                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0], ANAME);
+                                                if (keyName != undefined) {
+                                                    keyName = keyName.replace('ACODE_', 'AVALUE_');
+                                                    keyName = keyName.replace('ANAME_', 'AVALUE_');
+                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                                }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }

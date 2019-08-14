@@ -157,9 +157,23 @@ namespace MasterOnline.Controllers
 
         // Mengubah status akun utama
         //public ActionResult ChangeStatusAcc(int? accId)
-        public async Task<ActionResult> ChangeStatusAcc(int? accId)
+        //[HttpGet]
+        //public async Task<ActionResult> ChangeStatusAcc(int? accId, string stat)
+        public async Task<ActionResult> ChangeStatusAcc(MenuAccount dataVm)
         {
+            bool statusAcc = dataVm.Account.Status;
+            var accId = dataVm.Account.AccountId;
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+            if (accInDb.Status == statusAcc)
+            {
+                var Tempvm = new MenuAccount()
+                {
+                    Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId),
+                    ListPartner = MoDbContext.Partner.ToList()
+                };
+
+                return PartialView("FormAccountPartialNew", Tempvm);
+            }
             accInDb.Status = !accInDb.Status;
             
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
@@ -1667,9 +1681,22 @@ namespace MasterOnline.Controllers
         }
 
         // Mengubah status akun utama
-        public async Task<ActionResult> ChangeStatusAccount(int? accId)
+        //public async Task<ActionResult> ChangeStatusAccount(int? accId, string stat)
+        public async Task<ActionResult> ChangeStatusAccount(MenuAccount dataVm)
         {
+            bool statusAcc = dataVm.Account.Status;
+            var accId = dataVm.Account.AccountId;
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+            if (accInDb.Status == statusAcc)
+            {
+                var Tempvm = new MenuAccount()
+                {
+                    Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId),
+                    ListPartner = MoDbContext.Partner.ToList()
+                };
+
+                return PartialView("FormAccountPartialNew", Tempvm);
+            }
             accInDb.Status = !accInDb.Status;
 
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
