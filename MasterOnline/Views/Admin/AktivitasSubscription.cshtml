@@ -275,7 +275,7 @@
         var $paymentId = 0;
         var $modeEdit = 0;
         var table = $('#datatable').DataTable({
-            "order": [[0, "desc"]], //or asc
+            "order": [[0, "desc"], [9, "desc"]], //or asc
             "columnDefs": [{ "targets": 0, "type": "date-eu" }],
         });
         $(document).on('ready',

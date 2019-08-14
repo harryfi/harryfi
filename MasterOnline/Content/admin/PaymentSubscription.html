@@ -116,19 +116,33 @@
             font-weight: 400;
             line-height: 1.4;
             margin: 0;
-            margin-bottom: 30px;
+            /*margin-bottom: 30px;*/
         }
 
         h1 {
             font-size: 35px;
-            font-weight: 300;
+            /*font-weight: 100;*/
             text-align: center;
             text-transform: capitalize;
         }
 
+        h5 {
+            font-size: 14px;
+            font-weight: 300;
+            text-align: center;
+            text-transform: capitalize;
+            margin:0;
+            margin-bottom:30px;
+        }
+
+        /*p {
+            color: #000000 !important;
+        }*/
+        
         p,
         ul,
         ol {
+            color: black !important;
             font-family: sans-serif;
             font-size: 14px;
             font-weight: normal;
@@ -260,6 +274,12 @@
         @media only screen and (max-width: 620px) {
             table[class=body] h1 {
                 font-size: 28px !important;
+                /*margin-bottom: 1px !important;*/
+            }
+
+            table[class=body] h5 {
+                font-size: 14px !important;
+                margin: 0;
                 margin-bottom: 10px !important;
             }
 
@@ -357,53 +377,25 @@
                             <tbody>
                                 <tr>
                                     <td class="wrapper">
-                                        <!--<h1 class="display-3">SELAMAT!</h1>
-    <p class="lead">Anda telah menjadi <strong>TIPEPARTNER</strong> dari Master Online</p>
-    <p>Anda sudah bisa mempromosikan Master Online dengan alamat URL <a href="LINKREF">LINKREF</a> dan mulai mendapatkan penghasilan, Terima kasih. </p>
-    <hr>
-    <p>
-        Punya pertanyaan? <a href="mailto:support@masteronline.co.id?Subject=Pertanyaan%20Tentang%20Partner">Kontak Kami</a>
-    </p>
-    <p class="lead">
-        <a class="btn btn-primary btn-sm" href="https://masteronline.co.id/" role="button">Ke Halaman Utama</a>
-    </p>-->
-                                        <!--<h1 class="display-3">SELAMAT!</h1>-->
-                                        <!--<p class="lead">-->
-                                        <h1 class="display-3"><u>SELAMAT!</u></h1>
-                                        <h5 class="display-3 center">No. NOINV</h5>
+                                        <div class="display-3">
+                                            <h1><u>Thank You!</u></h1>
+                                            <h5>No. NOINV</h5>
+                                        </div>
                                         <!--<p style=text-align:left;color:#382F2E;font-size:14px;font-weight:normal;line-height:19px;>-->
-                                        <p style="color:#382F2E">
+                                        <!--<p style="color:black;font-size:14px;font-weight:normal;line-height:19px;">-->
+                                        <!--<p style="color:#000000 !important">-->
                                             Jakarta, TODAY
-                                            <!--</p>-->
                                             <br />
-                                            <!--<p>-->
                                             Dear <strong>NAMA</strong>
-                                            <!--</p>-->
                                             <br />
                                             <br />
                                             <br />
-                                            <!--<p>-->
                                             Kami telah menerima pembayaran Subscription <span style=color:#cc0000;> Master Online </span>
                                             anda.
-                                            <!--</p>-->
                                             <br />
-                                            <!--<p>-->
                                             Jika ada pertanyaan hubungi customer service kami di 021-6349318 pada jam kerja.
-                                            <!--</p>-->
                                             <br />
                                             <br />
-                                            <!--Tanggal&nbsp;&nbsp;		'TGLBAYAR'
-    <br />
-    Tagihan&nbsp;&nbsp;		'NAMA'('EMAIL')
-
-    <br />
-    Plan MO&nbsp;&nbsp; 	'SUBS'
-    <br />
-    Total&nbsp;&nbsp;		Rp. 'NILAI'
-    <br />
-    User&nbsp;&nbsp;		'JMLUSER'
-    <br />
-    Periode&nbsp;&nbsp; 'DRTGL' s/d 'SDTGL'-->
                                             <table style="border:none">
                                                 <tr>
                                                     <td>Tanggal</td>
@@ -419,7 +411,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td>Total</td>
-                                                    <td>: Rp. NILAI</td>
+                                                    <td>: NILAI</td>
                                                     <!--<td>: Rp. <span id="nilai_string"></span></td>-->
                                                 </tr>
                                                 <tr>
@@ -439,18 +431,10 @@
                                             <br />
                                             <br />
                                             <br />
-                                            Admin Master Online
+                                            Master Online
                                             <br />
-                                            021-6349318
-                                        </p>
-                                        <!--<p>Anda sudah bisa mempromosikan Master Online dengan alamat URL <a href="LINKREF">LINKREF</a> dan mulai mendapatkan penghasilan, Terima kasih. </p>
-    <hr>
-    <p>
-        Punya pertanyaan? <a href="mailto:support@masteronline.co.id?Subject=Pertanyaan%20Tentang%20Partner">Kontak Kami</a>
-    </p>
-    <p class="lead">
-        <a class="btn btn-primary btn-sm" href="https://masteronline.co.id/" role="button">Ke Halaman Utama</a>
-    </p>-->
+                                            <a href="https://masteronline.co.id/">www.masteronline.co.id</a>
+                                        <!--</p>-->
                                     </td>
                                 </tr>
                                 <!-- END MAIN CONTENT AREA -->
@@ -473,35 +457,6 @@
             </tr>
         </tbody>
     </table>
-
-    <script type="text/javascript">
-        $('#nilai_string').text(convertToRupiah(convertToAngka(NILAI)));
-        function convertToRupiah(angka) {
-            //change by calvin 26 september 2018
-            //var rupiah = '';
-            //var angkarev = angka.toString().split('').reverse().join('');
-            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
-            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
-            return $.number(angka, 2, ',', '.');
-            //end change by calvin 26 september 2018
-        }
-
-        function convertToAngka(rupiah) {
-            if (rupiah == '') {
-                rupiah = '0';
-            }
-            //change by calvin 26 september 2018
-            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            if (rupiah.includes(",")) {
-                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
-            }
-            else {
-                //jika bisa desimal
-                return parseFloat(rupiah.replaceAll(',', '.'));
-            }
-            //end change by calvin 26 september 2018
-        }
-    </script>
 </body>
 </html>
 
