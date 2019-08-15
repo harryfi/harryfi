@@ -1320,15 +1320,7 @@ namespace MasterOnline.Controllers
             return View();
         }
         //end add by nurul 14/8/2019
-
-        //add by nurul 14/8/2019
-        [System.Web.Mvc.Route("register/ThankYou")]
-        public ActionResult RegisterThankYou()
-        {
-            return View();
-        }
-        //end add by nurul 14/8/2019
-
+        
         //[AutomaticRetry(Attempts = 2)]
         //[Queue("2_general")]
         protected async Task<string> TesSendEmail(MailAddress email, string account_Email, string originPassword, string nama)
