@@ -6073,6 +6073,15 @@ namespace MasterOnline.Controllers
                     images = images_pervar.ToArray(),
                     attributesMap = attributeMap
                 };
+
+                //add by calvin 15 agustus 2019
+                var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(data.dataBarangInDb.BRG, "ALL");
+                if (qty_stock > 0)
+                {
+                    newVarItem.stock = Convert.ToInt32(qty_stock);
+                }
+                //end add by calvin 15 agustus 2019
+
                 productItems.Add(newVarItem);
                 newData.productDefiningAttributes = DefiningAttributes;
             }
@@ -6273,6 +6282,14 @@ namespace MasterOnline.Controllers
                         images = images_pervar.ToArray(),
                         attributesMap = attributeMap
                     };
+
+                    //add by calvin 15 agustus 2019
+                    var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(var_item.BRG, "ALL");
+                    if (qty_stock > 0)
+                    {
+                        newVarItem.stock = Convert.ToInt32(qty_stock);
+                    }
+                    //end add by calvin 15 agustus 2019
                     productItems.Add(newVarItem);
                 }
             }
