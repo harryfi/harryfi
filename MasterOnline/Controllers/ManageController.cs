@@ -4458,12 +4458,12 @@ namespace MasterOnline.Controllers
                                         validPrice = false;
                                         listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
                                     }
-                                    else if (hargaPerMarket.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    //else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
-                                    }
+                                    //}
                                 }
                                 else if (kdMarket == kdBlibli.IdMarket.ToString())
                                 {
@@ -4749,12 +4749,12 @@ namespace MasterOnline.Controllers
                                         validPrice = false;
                                         listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
                                     }
-                                    else if (dataBaru.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    //else if (dataBaru.HJUAL % 100 != 0)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
-                                    }
+                                    //}
                                     ////add by nurul 31/1/2019
                                     //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
                                     //{
@@ -5573,12 +5573,12 @@ namespace MasterOnline.Controllers
                                         validPrice = false;
                                         listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
                                     }
-                                    else if (hargaPerMarket.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    //else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    //{
+                                    //    validPrice = false;
+                                    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
-                                    }
+                                    //}
                                 }
                                 else if (kdMarket == kdBlibli.IdMarket.ToString())
                                 {
@@ -6378,6 +6378,8 @@ namespace MasterOnline.Controllers
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //var result = lzdApi.CreateProduct(dataLazada);
                     clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+                    //var test = new LazadaControllerJob();
+                    //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
                 }
                 else if (mode == 2)
                 {
@@ -23261,12 +23263,12 @@ namespace MasterOnline.Controllers
                         ret.message = "Harga Jual harus lebih dari 3000.";
                         return Json(ret, JsonRequestBehavior.AllowGet);
                     }
-                    else if (hargaJualBaru % 100 != 0)
-                    {
-                        ret.message = "Harga Jual harus kelipatan 100.";
-                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    //else if (hargaJualBaru % 100 != 0)
+                    //{
+                    //    ret.message = "Harga Jual harus kelipatan 100.";
+                    //    return Json(ret, JsonRequestBehavior.AllowGet);
 
-                    }
+                    //}
                 }
                 else if (customer.NAMA.Equals(kdBlibli))
                 {

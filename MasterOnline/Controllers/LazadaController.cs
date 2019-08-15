@@ -750,7 +750,7 @@ namespace MasterOnline.Controllers
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 //change 1/8/2019, gunakan hjual stf02h
@@ -842,7 +842,7 @@ namespace MasterOnline.Controllers
                             //xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
                             //end change 1/8/2019, gunakan brg_mp stf02h
-                            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
