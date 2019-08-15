@@ -5776,7 +5776,8 @@ namespace MasterOnline.Controllers
                 height = Convert.ToInt32(data.Height),
                 weight = Convert.ToInt32(data.berat),
                 description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
-                uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                //uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                //diisi dengan AVALUE_39
                 productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
             };
 
@@ -6279,6 +6280,7 @@ namespace MasterOnline.Controllers
 
             newData.productItems = (productItems);
             newData.imageMap = images;
+            newData.uniqueSellingPoint = Convert.ToString(stf02h["AVALUE_39"]);
 
             string myData = JsonConvert.SerializeObject(newData);
 

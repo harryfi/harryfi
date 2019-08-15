@@ -381,7 +381,7 @@
                             <td class="ndisc2-barang" style="text-align:right">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
                             </td>
-                            <td class="netto-barang" style="text-align:right">
+                            <td class="netto-barang" data-issaved="1" style="text-align:right">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
                             </td>
                             <td class="edit-hapus-col">
@@ -432,7 +432,7 @@
                             0,00
                             @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_2)
                         </td>
-                        <td class="netto-barang" style="text-align:right">
+                        <td class="netto-barang" data-issaved="0" style="text-align:right">
                             0,00
                             @Html.HiddenFor(m => m.PesananDetail.HARGA)
                         </td>
