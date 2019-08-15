@@ -348,7 +348,8 @@ namespace MasterOnline.Controllers
             foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += XmlEscape(lzdAttr.Value.ToString());
+                //xmlString += XmlEscape(lzdAttr.Value.ToString());
+                xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
@@ -401,7 +402,8 @@ namespace MasterOnline.Controllers
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
                     xmlString += "<" + lzdSkuAttr.Key + ">";
-                    xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
+                    //xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
+                    xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
                     xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
                 //end change 8 Apriil 2019, get attr from api

@@ -774,7 +774,7 @@
                                                                                         <div class="col-md-2 col-sm-2 col-xs-12">
                                                                                             @Html.Label("Pickup Point *", new { @class = "control-label" })
                                                                                         </div>
-                                                                                        <div class="col-md-3 col-sm-3 col-xs-12 form-group">
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
                                                                                             <div class="input-group text">
                                                                                                 <table>
@@ -792,6 +792,23 @@
                                                                                                     </tr>
                                                                                                 </table>
                                                                                             </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                            @Html.Label("Unique Selling Point *", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_39, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })
+                                                                                            @*<div class="input-group text">*@
+                                                                                                @*@Html.TextBox("UniqueSellingPoint" + i + "Blibli", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })*@
+                                                                                                @*@Html.TextArea("UniqueSellingPoint" + i + "Blibli", "", new { @style = "resize: none; width:max;", @class = "form-control form-group", data_valid_toggle_required = "1", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })*@
+                                                                                                @{ 
+                                                                                                    string idUniqueSellingPoint = "UniqueSellingPoint" + i + "Blibli";
+                                                                                                    string ValueUniqueSellingPoint = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39;
+                                                                                                }
+                                                                                                <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="@idUniqueSellingPoint" value="@ValueUniqueSellingPoint" rows="2" style="resize: none; width:100%;"></textarea>
+                                                                                            @*</div>*@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
