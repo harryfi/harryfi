@@ -361,7 +361,7 @@ namespace MasterOnline.Controllers
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -461,7 +461,7 @@ namespace MasterOnline.Controllers
                     if (input && (GetStf02h != null))
                     {
                         xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                         foreach (var attribute in KombinasiAttribute)
                         {
@@ -782,7 +782,7 @@ namespace MasterOnline.Controllers
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + stf02h.BRG_MP + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
@@ -870,7 +870,7 @@ namespace MasterOnline.Controllers
                         {
                             //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + GetStf02h.BRG_MP + "</SellerSku>";
-                            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
