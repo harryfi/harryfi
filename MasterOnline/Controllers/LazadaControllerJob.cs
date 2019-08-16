@@ -360,7 +360,7 @@ namespace MasterOnline.Controllers
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -453,6 +453,10 @@ namespace MasterOnline.Controllers
                 }
                 //end untuk pastikan tidak ada duplikat kombinasi attribute variasi
                 List<string> attributesAdded;
+                if (!string.IsNullOrEmpty(list_BRGMP_created))
+                {
+                    xmlString += list_BRGMP_created;
+                }
                 xmlString += "<Skus>";
                 foreach (var item in ListStf02Var)
                 {
@@ -472,11 +476,11 @@ namespace MasterOnline.Controllers
                         if (string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
                             xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                            if (!string.IsNullOrEmpty(list_BRGMP_created))
-                            {
-                                xmlString += list_BRGMP_created;
-                            }
-                            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            //if (!string.IsNullOrEmpty(list_BRGMP_created))
+                            //{
+                            //    xmlString += list_BRGMP_created;
+                            //}
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
@@ -799,7 +803,7 @@ namespace MasterOnline.Controllers
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + stf02h.BRG_MP + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
@@ -887,7 +891,7 @@ namespace MasterOnline.Controllers
                         {
                             //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + GetStf02h.BRG_MP + "</SellerSku>";
-                            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
