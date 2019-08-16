@@ -45,7 +45,7 @@
 @Html.HiddenFor(m => m.Stok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 
 <style>
-    /*@@media screen and (max-width: 375px) {
+    @@media screen and (max-width: 375px) {
         .brgtblpdhgdgfrm {
             width: 56%;
         }
@@ -61,7 +61,7 @@
         .brgtblpdhgdgfrm {
             width: 39%;
         }
-    }*/
+    }
 </style>
 
 <script type="text/javascript">
@@ -275,14 +275,16 @@
                         <td class="dr-gd-barang" style="width: 100px; max-width: 100px;">
                             <span id="dr-gudang-kode">-</span>
                             <div id="dr-gudang-select" style="display: none;">
-                                <select id="DARIGUDANG" placeholder="Harap pilih" required="required"></select>
+                                @*<select id="DARIGUDANG" placeholder="Harap pilih" required="required"></select>*@
+                                <select id="DARIGUDANG" placeholder="Pilih" required="required"></select>
                             </div>
                             @Html.HiddenFor(m => m.BarangStok.Dr_Gd)
                         </td>
                         <td class="ke-gd-barang" style="width: 100px; max-width: 100px;">
                             <span id="ke-gudang-kode">-</span>
                             <div id="ke-gudang-select" style="display: none;">
-                                <select id="KEGUDANG" placeholder="Harap pilih" required="required"></select>
+                                @*<select id="KEGUDANG" placeholder="Harap pilih" required="required"></select>*@
+                                <select id="KEGUDANG" placeholder="Pilih" required="required"></select>
                             </div>
                             @Html.HiddenFor(m => m.BarangStok.Ke_Gd)
                         </td>

@@ -322,7 +322,7 @@
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
             @*<div class="hscroll table-responsive fakturtform"> --change by nurul 15/8/2019*@
-            <div class="hscroll fakturtform">
+            <div class="fakturtform">
                 <table id="table_tambah_faktur" class="table table-bordered" role="grid">
                     <thead>
                         <tr>
@@ -449,7 +449,8 @@
                             <td class="gd-barang">
                                 <span id="gudang-kode">-</span>
                                 <div id="gudang-select" style="display: none;">
-                                    <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+                                    @*<select id="GUDANG" placeholder="Harap pilih" required="required"></select>*@
+                                    <select id="GUDANG" placeholder="Pilih" required="required"></select>
                                 </div>
                                 @Html.HiddenFor(m => m.FakturDetail.GUDANG)
                             </td>
