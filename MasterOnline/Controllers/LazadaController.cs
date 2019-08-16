@@ -3737,15 +3737,19 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             string sSQL_Value = "";
+            string sellerSku = "";
             try
             {
                 if (typeBrg != 1)
                 {
-                    sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '" + brg.skus[i].SellerSku + "' , '";
+                    sellerSku = brg.skus[i].SellerSku;
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
                 }
                 else
                 {
-                    sSQL_Value += " ( '" + brg.item_id + "' , '" + brg.item_id + "' , '";
+                    sellerSku = brg.item_id;
+                    //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '' , '";
                 }
                 string namaBrg = brg.attributes.name;
                 if (typeBrg == 2)
