@@ -31,6 +31,18 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
+        /*//change by nurul 16/8/2019*/
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input,
+        #table_tambah_invoice > tbody > tr > .gd-barang {
+            width: 70px !important;
+        }
+
+        #table_tambah_invoice > tbody > tr > .gd-barang .selectize-dropdown {
+            width: 250px !important;
+        }
+        /*//end change by nurul 16/8/2019*/
+
         .input-group {
             margin-bottom: 0;
         }
@@ -1595,6 +1607,7 @@
         var $TabAktif = 0;// 0 Faktur, 1 Invoice Sudah Lunas, 2 Invoice Jatuh Tempo
         //add by nurul 6/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
+        var $modeEditDetail = 0;
         var $jumlahPesanan = true;
         //end add
         //add by nurul 12/2/2019
@@ -1796,13 +1809,23 @@
 
                     $('.invoice_table_section').show();
                     $('.invoice_editor_section').hide();
+                    $modeEdit = 0;
+                    $modeEditDetail = 0;
+                    $beforeState = {
+                        brutto: 0,
+                        netto: 0,
+                        ndisc: 0,
+                        ppn: 0,
+                        nppn: 0,
+                        ongkir: 0
+                    };
                     refreshTableInvoice1();
                     //add by nurul 17/10/2018
                     $('#myTab li a').each(function (index) {
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    $modeEdit = 0;
+                    
                     //end add
 
                     //refreshForm1();
@@ -2011,13 +2034,23 @@
             $('.invoice_table_section').show();
             $('.invoice_editor_section').hide();
             //refreshForm1();
+            $modeEdit = 0;
+            $modeEditDetail = 0;
+            $beforeState = {
+                brutto: 0,
+                netto: 0,
+                ndisc: 0,
+                ppn: 0,
+                nppn: 0,
+                ongkir: 0
+            };
             refreshTableInvoice1();
             //add by nurul 6/11/2018
             $('#myTab li a').each(function (index) {
                 $(this).attr('data-toggle', 'tab');
                 $(this).removeClass('disabled-tab');
             });
-            $modeEdit = 0;
+            
             //end add by nurul 6/11/2018
             $bakalNetto = 0;
             $totalAwal = 0;
@@ -2385,6 +2418,7 @@
                     alert('Diskon tidak boleh melebihi total brutto sebesar ' + convertToRupiah($tot) + '!');
                 } else {
                     if ($(this).val() < 0 || $(this).val() === '') $(this).val(convertToRupiah(0));
+                    $modeEditDetail = 1;
                     refreshNetto();
                 }
             });
@@ -2392,6 +2426,7 @@
             $('#Invoice_NDISC1').change(function () {
                 if ($(this).val() <= convertToAngka($('#Invoice_BRUTO').val())) {
                     $(this).val(convertToRupiah($(this).val()));
+                    $modeEditDetail = 1;
                     refreshNetto();
                     $('#btn-simpan-perubahan-row').show();
                 }
@@ -2399,12 +2434,14 @@
 
             $('#Invoice_PPN').blur(function () {
                 if ($(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
             $('#Invoice_PPN').change(function () {
                 if ($(this).val() > 100) $(this).val(100);
                 if ($(this).val() < 0 || $(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
@@ -2479,6 +2516,8 @@
 
             });
             $('#Invoice_BIAYA_LAIN').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
@@ -2488,6 +2527,7 @@
                 }
                 $(this).val(convertToAngka($(this).val()));
                 $(this).val(convertToRupiah($(this).val()));
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -2528,6 +2568,7 @@
                     },
                     success: function () {
                         alert('Data invoice berhasil di-update');
+                        $modeEditDetail = 0;
                         //change by calvin 21 juni 2018
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
@@ -2615,10 +2656,27 @@
 
         //add by calvin 2 agustus 2019
         function hitungUlangBruto(){
+            //$total_bruto_barang = 0;
+            ////$('.netto-barang').each(function () {
+            //$('tr[data-invoice-id!="0"] .netto-barang').each(function () {
+            //    $total_bruto_barang += convertToAngka($(this).text());
+            //});
+            //$('#Invoice_BRUTO').val(convertToRupiah($total_bruto_barang));
             $total_bruto_barang = 0;
-            $('.netto-barang').each(function () {
-                $total_bruto_barang += convertToAngka($(this).text());
-            });
+            //$('.netto-barang').each(function () {
+            if ($modeEditDetail == 1) {
+                $('tr[data-invoice-id!="0"] .netto-barang').each(function () {
+                    //if ($(this).attr("data-issaved") == "1") {
+                        $total_bruto_barang += convertToAngka($(this).text());
+                    //}
+                });
+            } else if($modeEditDetail == 0) {
+                $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+                    //if ($(this).attr("data-issaved") == "0") {
+                        $total_bruto_barang += convertToAngka($(this).text());
+                    //}
+                });
+            }
             $('#Invoice_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
         //end add by calvin 2 agustus 2019
@@ -2640,7 +2698,9 @@
             //$('#Invoice_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
             //end remark by calvin 2 agustus 2019
 
-            refreshNetto();
+            //remark by nurul 7/8/2019
+            //refreshNetto();
+            //end remark by nurul 7/8/2019
         }
 
         function refreshNetto() {
@@ -2792,7 +2852,7 @@
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="InvoiceDetail_DISCOUNT_2" name="InvoiceDetail.DISCOUNT_2" type="hidden" value="">');
                             }
-
+                            
                             refreshNettoBarang($trId);
                         } else {
                             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
@@ -3000,12 +3060,16 @@
                             } else {
                                 $('#gudang-kode').text('-');
                             }
-                            $('#btn-simpan-perubahan-row').show();
+                            //remark by nurul 7/8/2019
+                            //$('#btn-simpan-perubahan-row').show();
+                            //end remark by nurul 7/8/2019
                         }
                     });
 
                     gudangSelect[0].selectize.setValue($('#InvoiceDetail_GD').val());
-                    $('#btn-simpan-perubahan-row').hide();
+                    //remark by nurul 7/8/2019
+                    //$('#btn-simpan-perubahan-row').hide();
+                    //end remark by nurul 7/8/2019
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -3476,7 +3540,7 @@
                 },
                 success: function (response) {
                     $modeEdit = 1;
-
+                    $modeEditDetail = 0;
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
                     $('#form-partial').show();
@@ -3549,15 +3613,22 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    debugger;
                     $modeEdit = 1;
-
+                    $modeEditDetail = 0;
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
                     $('#form-partial').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
+                    $beforeState = {
+                        brutto: $('#Invoice_BRUTO').val(),
+                        netto: $('#Invoice_NETTO').val(),
+                        ndisc: $('#Invoice_NILAI_DISC').val(),
+                        ppn: $('#Invoice_PPN').val(),
+                        nppn: $('#Invoice_NILAI_PPN').val(),
+                        ongkir: $('#Invoice_BIAYA_LAIN').val()
+                    };
                     refreshInputan();
                     if ($("#cbxDropshipper").is(":checked") == true) {
                         $('#KODE_PESANAN_SECTION').show();
@@ -3662,6 +3733,14 @@
                         $nettoSebelumnya = 0;
                         $bakalNetto = 0;
                         $('#form-partial').html(response);
+                        $beforeState = {
+                            brutto: $('#Invoice_BRUTO').val(),
+                            netto: $('#Invoice_NETTO').val(),
+                            ndisc: $('#Invoice_NILAI_DISC').val(),
+                            ppn: $('#Invoice_PPN').val(),
+                            nppn: $('#Invoice_NILAI_PPN').val(),
+                            ongkir: $('#Invoice_BIAYA_LAIN').val()
+                        };
                         //add by nurul 5/10/2018
                         refreshInputan();
                         //end add
@@ -4001,6 +4080,8 @@
                     $('#Invoice_TERM').val() != '' &&
                     $('#Invoice_NAMA').val() != ''
                 ) {
+                    $modeEditDetail = 0;
+                    refreshNetto();
                     var tgl = $('#Invoice_TGL').val();
                     $('#InvoiceDetail_TGL_INPUT').val(tgl);
                     $('#InvoiceDetail_BRG').val($('#BRG').selectivity('val'));
@@ -4032,8 +4113,17 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEditDetail = 0;
                                 $('#form-partial').html(response);
                                 $nettoSebelumnya = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
+                                $beforeState = {
+                                    brutto: $('#Invoice_BRUTO').val(),
+                                    netto: $('#Invoice_NETTO').val(),
+                                    ndisc: $('#Invoice_NILAI_DISC').val(),
+                                    ppn: $('#Invoice_PPN').val(),
+                                    nppn: $('#Invoice_NILAI_PPN').val(),
+                                    ongkir: $('#Invoice_BIAYA_LAIN').val()
+                                };
                                 refreshInputan();
                                 refreshNetto();
                                 getTanggal();

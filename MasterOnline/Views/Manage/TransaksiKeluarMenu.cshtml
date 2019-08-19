@@ -67,10 +67,22 @@
             width: 200px !important;
         }*/
 
+        /*//change by nurul 16/8/2019*/
+        /*#GUDANG,
+        #GUDANG .selectivity-single-select-input,{
+            width: 100px !important;
+        }*/
+
         #GUDANG,
-        #GUDANG .selectivity-single-select-input {
-            width: 200px !important;
+        #GUDANG .selectivity-single-select-input,
+        #table_tambah_stok > tbody > tr > .gd-barang {
+            width: 70px !important;
         }
+
+            #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*//end change by nurul 16/8/2019*/
         @@media screen and (max-width: 767px) {
             
             .table-responsive {
@@ -927,7 +939,7 @@
                         //change by nurul 11/3/2019 set default gudang dr sifsys
                         //gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
                         if (link == false || listGd.length == 0) {
-                            $(".selectize-input input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input input[placeholder]").attr('placeholder', 'Pilih');
                             $(".selectize-input input[placeholder]").attr('style', 'width: 66px !important');
                             gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
                         } else if (link == true && listGd.length > 0) {
