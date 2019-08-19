@@ -119,14 +119,15 @@
                         </div>
                     }
                 }
-                <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                <table id="datatable" class="table table-striped table-bordered dataTable" style="display:block;overflow-x:auto;white-space:nowrap" role="grid" aria-describedby="datatable_info">
+                    @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
                     <thead>
                         <tr role="row">
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Pembayaran</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
@@ -143,9 +144,9 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Invoice_No</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">tgl_email</th>
                             @*end add by iman 29/4/2019*@
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Kirim Email</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Kirim Email</th>
                             @*end add by nurul 2/4/2019*@
                         </tr>
                     </thead>
@@ -198,18 +199,6 @@
                                                 <span class="glyphicon glyphicon-envelope" aria-hidden="false"></span>
                                             </button>
                                         }
-                                        @*@if ((sub.TipePembayaran == "Manual_Transfer" && sub.Invoice_No != null && sub.tgl_email != null || sub.Invoice_No?.Substring(3, 4) != "2019"))
-                                        {
-                                            <button style="background-color:darkgray; cursor:not-allowed">
-                                                <span class="glyphicon glyphicon-envelope" aria-hidden="false"></span>
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-success" data-toggle="modal" data-target="#konfSendEmail" onclick="passEmail(@sub.RecNum)">
-                                                <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-                                            </button>
-                                        }*@
                                     </td>
                                     @*//end add by nurul 16/8/2019*@
                                     @*end add by nurul 2/4/2019*@
