@@ -163,7 +163,7 @@ namespace MasterOnline.Controllers
         {
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
             accInDb.Status = !accInDb.Status;
-            
+
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
@@ -207,7 +207,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {
@@ -369,7 +369,7 @@ namespace MasterOnline.Controllers
         public ActionResult TambahHapusAcc(int? accId)
         {
             var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
-            
+
             if (accInDb != null)
             {
                 try
@@ -501,7 +501,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Subs (END)
 
         // =============================================== Bagian History Pembayaran (START)
-
+        [Route("admin/manage/AktivitasSubscription")]
         [SessionAdminCheck]
         public ActionResult AktivitasSubscription()
         {
@@ -546,7 +546,7 @@ namespace MasterOnline.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SavePayment(SubsViewModel vm)
+        public async Task<ActionResult> SavePayment(SubsViewModel vm)
         {
             var newPayment = false;
             if (!ModelState.IsValid)
@@ -564,7 +564,10 @@ namespace MasterOnline.Controllers
                 //    ModelState.AddModelError("", @"Kode history pembayaran sudah terdaftar!");
                 //    return View("AktivitasSubscription", vm);
                 //}
-
+                if (vm.Payment.TipePembayaran == null)
+                {
+                    vm.Payment.TipePembayaran = "Manual_Transfer";
+                }
                 MoDbContext.AktivitasSubscription.Add(vm.Payment);
                 newPayment = true;
             }
@@ -596,28 +599,7 @@ namespace MasterOnline.Controllers
                 var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
                 if (cekPayment != null)
                 {
-                    Task.Run(() => SendInvoice(cekPayment.Single().RecNum));
-                    //return RedirectToAction("SendInvoice", "Admin", cekPayment.Single().RecNum);
-
-                    //var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
-                    //var digitAkhir = "";
-                    //var noUrut = "";
-
-                    //if (listAktSubInDb.Count == 0)
-                    //{
-                    //    digitAkhir = "0001";
-                    //    noUrut = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
-                    //    MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
-                    //}
-                    //else
-                    //{
-                    //    var lastRecNum = listAktSubInDb.Last().RecNum;
-                    //    lastRecNum++;
-
-                    //    digitAkhir = lastRecNum.ToString().PadLeft(4, '0');
-                    //    noUrut = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
-                    //}
-                    return PartialView("FormHistoryPembayaranPartial", vm);
+                    await SendInvoice(cekPayment.Single().RecNum, "0");
                 }
             }
 
@@ -632,65 +614,63 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 12/8/2019, kirim invoice lewat email 
-        protected async Task<ActionResult> SendInvoice(int? aktSubID)
+        public async Task<ActionResult> SendInvoice(int? aktSubID, string btnKirim)
         {
             try
             {
+                var ambilUlangAktSub = new AktivitasSubscription();
+                bool succes = false;
                 var aktSubId = Convert.ToInt64(aktSubID);
                 var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
-                var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
-
-                var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
-                var digitAkhir = "";
-                var noInv = "";
-
-                if (listAktSubInDb.Count == 0)
+                if (aktSub.Invoice_No == null || aktSub.Invoice_No.Substring(3, 4) == "2019") //kalo Invoice_No null/masih format lama
                 {
-                    digitAkhir = "0001";
-                    noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
-                    MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
-                }
-                else
-                {
-                    //var lastRecNum = listAktSubInDb.Last().RecNum;
-                    //lastRecNum++;
-                    var NoUrut = listAktSubInDb.Count();
-                    NoUrut++;
+                    var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
 
-                    digitAkhir = NoUrut.ToString().PadLeft(4, '0');
-                    noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
-                }
+                    var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+                    var digitAkhir = "";
+                    var noInv = "";
 
-                if (digitAkhir != "" && noInv != "")
-                {
-                    aktSub.Invoice_No = noInv;
-                    aktSub.tgl_email = DateTime.Today;
-                    MoDbContext.SaveChanges();
-                    ModelState.Clear();
-                }
-                var ambilUlangAktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
-                if (ambilUlangAktSub.Invoice_No != "" || ambilUlangAktSub.Invoice_No != null)
-                {
-                    var email = new MailAddress(ambilUlangAktSub.Email);
+                    if (listAktSubInDb.Count == 0)
+                    {
+                        digitAkhir = "0001";
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                        MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
+                    }
+                    else
+                    {
+                        //var lastRecNum = listAktSubInDb.Last().RecNum;
+                        //lastRecNum++;
+                        //var NoUrut = listAktSubInDb.Count();
+                        var NoUrut = Convert.ToInt32(listAktSubInDb.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderByDescending(a => a.Invoice_No).FirstOrDefault().Invoice_No.Substring(6, 4));
+                        NoUrut++;
+
+                        digitAkhir = NoUrut.ToString().PadLeft(4, '0');
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    }
+
+                    if (digitAkhir != "" && noInv != "")
+                    {
+                        aktSub.Invoice_No = noInv;
+                        aktSub.tgl_email = DateTime.Today;
+                    }
+
+                    var email = new MailAddress(aktSub.Email);
                     //add
                     var today = DateTime.Today.ToString("dd/MM/yyyy");
-                    var nama = ambilUlangAktSub.Account;
-                    var tglBayar = ambilUlangAktSub.TanggalBayar?.ToString("dd/MM/yyyy");
+                    var nama = aktSub.Account;
+                    var tglBayar = aktSub.TanggalBayar?.ToString("dd/MM/yyyy");
                     var subs = sub;
-                    //var nilai = Convert.ToString(ambilUlangAktSub.Nilai);
-                    var nilai = $"Rp. {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ambilUlangAktSub.Nilai)}";
-                    var jmlUser = ambilUlangAktSub.jumlahUser.ToString();
-                    var drTgl = ambilUlangAktSub.DrTGL?.ToString("dd/MM/yyyy");
-                    var sdTgl = ambilUlangAktSub.SdTGL?.ToString("dd/MM/yyyy");
-                    var inv = ambilUlangAktSub.Invoice_No;
+                    var nilai = $"Rp. {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", aktSub.Nilai)}";
+                    var jmlUser = aktSub.jumlahUser.ToString();
+                    var drTgl = aktSub.DrTGL?.ToString("dd/MM/yyyy");
+                    var sdTgl = aktSub.SdTGL?.ToString("dd/MM/yyyy");
+                    var inv = noInv;
                     //end add
 
                     var message = new MailMessage();
                     message.To.Add(email);
                     message.From = new MailAddress("csmasteronline@gmail.com");
                     message.Subject = "Email Payment Subscription";
-                    //message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
-                    //    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
                     message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
                         .Replace("EMAIL", Convert.ToString(email))
                         .Replace("TODAY", today)
@@ -704,20 +684,6 @@ namespace MasterOnline.Controllers
                         .Replace("NOINV", inv);
                     message.IsBodyHtml = true;
 
-                    //#if AWS
-                    //using (var smtp = new SmtpClient())
-                    //{
-                    //    var credential = new NetworkCredential
-                    //    {
-                    //        UserName = "AKIAIXN2D33JPSDL7WEQ",
-                    //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
-                    //    };
-                    //    smtp.Credentials = credential;
-                    //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
-                    //    smtp.Port = 587;
-                    //    smtp.EnableSsl = true;
-                    //    await smtp.SendMailAsync(message);
-                    //}
                     using (var smtp = new SmtpClient())
                     {
                         var credential = new NetworkCredential
@@ -729,36 +695,38 @@ namespace MasterOnline.Controllers
                         smtp.Host = "smtp.gmail.com";
                         smtp.Port = 587;
                         smtp.EnableSsl = true;
-                        await smtp.SendMailAsync(message);
+                        try
+                        {
+                            await smtp.SendMailAsync(message);
+                            succes = true;
+                            MoDbContext.SaveChanges();
+                            ModelState.Clear();
+                        }
+                        catch (Exception ex)
+                        {
+                            ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                        }
                     }
-                    //#else
-                    //                using (var smtp = new SmtpClient())
-                    //                {
-                    //                    var credential = new NetworkCredential
-                    //                    {
-                    //                        UserName = "csmasteronline@gmail.com",
-                    //                        Password = "kmblwexkeretrwxv"
-                    //                    };
-                    //                    smtp.Credentials = credential;
-                    //                    smtp.Host = "smtp.gmail.com";
-                    //                    smtp.Port = 587;
-                    //                    smtp.EnableSsl = true;
-                    //                    await smtp.SendMailAsync(message);
-                    //                }
-                    //#endif
                 }
+                ambilUlangAktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (btnKirim == "1" && succes == true)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} berhasil dikirim email.";
 
-                //}
+                    //var vm = new SubsViewModel()
+                    //{
+                    //    ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+                    //    ListSubs = MoDbContext.Subscription.ToList(),
+                    //    ListAccount = MoDbContext.Account.ToList()
+                    //};
 
-                //ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
-                //var vm = new PartnerViewModel()
-                //{
-                //    ListPartner = MoDbContext.Partner.ToList()
-                //};
-
-                //return View("PartnerMenu", vm);
-                //return new EmptyResult();
-                //return PartialView("FormHistoryPembayaranPartial", aktSub);
+                    //return PartialView("AktivitasSubscription", vm);
+                    return RedirectToAction("AktivitasSubscription");
+                }
+                else if (succes == false)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                }
                 return new EmptyResult();
             }
             catch (Exception e)
@@ -1881,7 +1849,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {
