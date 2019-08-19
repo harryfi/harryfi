@@ -22716,7 +22716,10 @@ namespace MasterOnline.Controllers
                                     if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                     {
                                         //var promoPrice = brgInDB.HJUAL;
-                                        var promoPrice = promo.HARGA_PROMOSI;
+                                        //change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
+                                        //var promoPrice = promo.HARGA_PROMOSI;
+                                        var promoPrice = 0;
+                                        //end change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
                                         PromoLazadaObj data = new PromoLazadaObj
                                         {
@@ -22835,7 +22838,10 @@ namespace MasterOnline.Controllers
                                         fromDt = DateTime.Today.AddDays(-2).ToString("yyyy-MM-dd"),
                                         toDt = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
                                         kdBrg = brgInDB.BRG_MP,
-                                        promoPrice = barangPromosiInDb.HARGA_PROMOSI,
+                                        //change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
+                                        //promoPrice = barangPromosiInDb.HARGA_PROMOSI,
+                                        promoPrice = 0,
+                                        //end change 19/08/2019, ubah harga promo karena lzd tetap cek harga promo walau promo sudah tidak aktif
                                         token = customer.TOKEN
                                     };
                                     lazadaApi.setPromo(data);
