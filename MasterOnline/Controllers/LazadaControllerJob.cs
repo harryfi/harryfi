@@ -529,22 +529,25 @@ namespace MasterOnline.Controllers
                                 xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                             }
                         }
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                        {
-                            var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                            if (uploadImg.status == 1)
-                            {
-                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                        {
-                            var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                            if (uploadImg.status == 1)
-                            {
-                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            }
-                        }
+                        //remark by calvin 19 agustus 2019
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //end remark by calvin 19 agustus 2019
+
                         //END CHANGE BY CALVIN 10 JUNI 2019
                         xmlString += "</Images>";
                         xmlString += "</Sku>";
