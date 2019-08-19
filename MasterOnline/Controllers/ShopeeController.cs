@@ -171,52 +171,58 @@ namespace MasterOnline.Controllers
                 {
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    //add 13 Feb 2019, tuning
-                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
-                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
-                    //end add 13 Feb 2019, tuning
-                    ret.status = 1;
-                    if (listBrg.items.Length == 10)
-                        //ret.message = (page + 1).ToString();
-                        ret.nextPage = 1;
-                    ret.totalData += listBrg.items.Count();//add 18 Juli 2019, show total record
-                    foreach (var item in listBrg.items)
+                    if (listBrg.items != null)
                     {
-                        if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
+                        //add 13 Feb 2019, tuning
+                        var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                        var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                        //end add 13 Feb 2019, tuning
+                        ret.status = 1;
+                        if (listBrg.items.Length == 10)
+                            //ret.message = (page + 1).ToString();
+                            ret.nextPage = 1;
+                        ret.totalData += listBrg.items.Count();//add 18 Juli 2019, show total record
+                        foreach (var item in listBrg.items)
                         {
-                            //if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
-                            //{
-
-                            //}
-                            string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
-                            string brgMp = item.item_id.ToString() + ";0";
-                            //change 13 Feb 2019, tuning
-                            //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                            //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
-                            var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                            var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                            //end change 13 Feb 2019, tuning
-
-                            if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
+                            if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                             {
-                                //var getDetailResult = await GetItemDetail(iden, item.item_id);
-                                var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
-                                ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
-                                if (getDetailResult.exception == 1)
-                                    ret.exception = 1;
-                                if (getDetailResult.status == 1)
+                                //if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
+                                //{
+
+                                //}
+                                string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
+                                string brgMp = item.item_id.ToString() + ";0";
+                                //change 13 Feb 2019, tuning
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                //end change 13 Feb 2019, tuning
+
+                                if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
                                 {
-                                    ret.recordCount += getDetailResult.recordCount;
-                                }
-                                else
-                                {
-                                    currentLog.REQUEST_EXCEPTION = getDetailResult.message;
-                                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                    //var getDetailResult = await GetItemDetail(iden, item.item_id);
+                                    var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
+                                    ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
+                                    if (getDetailResult.exception == 1)
+                                        ret.exception = 1;
+                                    if (getDetailResult.status == 1)
+                                    {
+                                        ret.recordCount += getDetailResult.recordCount;
+                                    }
+                                    else
+                                    {
+                                        currentLog.REQUEST_EXCEPTION = getDetailResult.message;
+                                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                    }
                                 }
                             }
                         }
                     }
-
+                    else
+                    {
+                        ret.nextPage = 0;
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -334,7 +340,8 @@ namespace MasterOnline.Controllers
                                 if (tempbrginDB == null && brgInDB == null)
                                 {
                                     //ret.recordCount++;
-                                    var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden);
+                                    //var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden);
+                                    var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, detailBrg.item.item_sku, 1, "", iden);
                                     ret.recordCount += ret1.status;
                                 }
                                 else if (brgInDB != null)
@@ -408,6 +415,7 @@ namespace MasterOnline.Controllers
             urlImage = "";
             urlImage2 = "";
             urlImage3 = "";
+            sellerSku = sellerSku.ToString().Replace("\'", "\'\'");
             if (namaBrg.Length > 30)
             {
                 nama = namaBrg.Substring(0, 30);
@@ -1766,7 +1774,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Get Order List", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -2108,7 +2117,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = ordersn,
@@ -2224,7 +2234,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = ordersn,
@@ -2303,7 +2314,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = ordersn,
@@ -2400,7 +2412,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update QOH",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -2476,7 +2489,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update QOH",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -2615,7 +2629,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Accept Buyer Cancel", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -2693,7 +2708,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Cancel Order",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -2782,7 +2798,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = brg,
@@ -3305,7 +3322,7 @@ namespace MasterOnline.Controllers
             //        stock = item.stock,
             //        tier_index = item.tier_index,
             //        variation_sku = item.variation_sku,
-                    
+
             //    });
             //}
 
@@ -3612,7 +3629,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update Product",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -3767,7 +3785,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Price", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -3844,7 +3863,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update Price",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -3931,7 +3951,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Update Product Image",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,

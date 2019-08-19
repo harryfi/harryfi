@@ -67,14 +67,26 @@
             width: 200px !important;
         }*/
 
+        /*//change by nurul 16/8/2019*/
+        /*#GUDANG,
+        #GUDANG .selectivity-single-select-input,{
+            width: 100px !important;
+        }*/
+
         #GUDANG,
-        #GUDANG .selectivity-single-select-input {
-            width: 200px !important;
+        #GUDANG .selectivity-single-select-input,
+        #table_tambah_stok > tbody > tr > .gd-barang {
+            width: 70px !important;
         }
+
+            #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*//end change by nurul 16/8/2019*/
         @@media screen and (max-width: 767px) {
             
             .table-responsive {
-                width: 42%;
+                width: 100%;
             }
 
             .addpixel {
@@ -90,7 +102,15 @@
             }
 
             .modalresponsive {
-                width: 400px;
+                width: 100%;
+            }
+
+            .modalresponsivetrklr {
+                width: 80%
+            }
+
+            .modalresponsivetrklr2 {
+                width: 47%
             }
         }
         .hscroll {
@@ -122,7 +142,7 @@
             <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="stok-tab">
                     <div class="row stok_table_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
                             <div class="input-group">
                                 <input id="search_stok" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -147,7 +167,7 @@
                         </div>
                     </div>
                     <div class="row stok_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Transaksi Keluar</h2>
                                 <span class="title-accent"></span>
@@ -362,7 +382,7 @@
 
 <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivetrklr">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -382,7 +402,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivetrklr2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -402,7 +422,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content modalresponsive">
+        <div class="modal-content modalresponsivetrklr2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
@@ -919,7 +939,7 @@
                         //change by nurul 11/3/2019 set default gudang dr sifsys
                         //gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
                         if (link == false || listGd.length == 0) {
-                            $(".selectize-input input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input input[placeholder]").attr('placeholder', 'Pilih');
                             $(".selectize-input input[placeholder]").attr('style', 'width: 66px !important');
                             gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
                         } else if (link == true && listGd.length > 0) {
