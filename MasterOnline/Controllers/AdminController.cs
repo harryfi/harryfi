@@ -351,8 +351,10 @@ namespace MasterOnline.Controllers
             {
                 if (accInDb.DatabasePathErasoft != null)
                 {
-                    try
+                    if (accInDb.DatabasePathErasoft != "")
                     {
+                        try
+                        {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
@@ -360,18 +362,22 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                        System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                           "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
 
-                        accInDb.DatabasePathErasoft = null;
-                        ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                            accInDb.DatabasePathErasoft = null;
+                            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                        }
+                        catch (Exception e)
+                        {
+                            return Content(e.Message);
+                        }
                     }
-                    catch (Exception e)
+                    else
                     {
-                        return Content(e.Message);
+                        ModelState.AddModelError("", @"Database tidak ditemukan!");
                     }
-
                 }
                 else
                 {
@@ -396,6 +402,8 @@ namespace MasterOnline.Controllers
                 {
                     if (accInDb.DatabasePathErasoft != null)
                     {
+                        if (accInDb.DatabasePathErasoft != "")
+                        {
 #if AWS
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
@@ -403,9 +411,10 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
-                        System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 #endif
+                        }
                     }
                     var uname = accInDb.Username;
                     MoDbContext.Account.Remove(accInDb);
