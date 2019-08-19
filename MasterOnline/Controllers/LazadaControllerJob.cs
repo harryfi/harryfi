@@ -362,6 +362,7 @@ namespace MasterOnline.Controllers
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -462,6 +463,7 @@ namespace MasterOnline.Controllers
                     {
                         xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
                         //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                         foreach (var attribute in KombinasiAttribute)
                         {
@@ -786,6 +788,7 @@ namespace MasterOnline.Controllers
                 //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + stf02h.BRG_MP + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
@@ -874,6 +877,7 @@ namespace MasterOnline.Controllers
                             //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + GetStf02h.BRG_MP + "</SellerSku>";
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
@@ -1063,7 +1067,8 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
             xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
-            xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
             xmlString += "</Sku></Skus></Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
