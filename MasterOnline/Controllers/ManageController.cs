@@ -3634,7 +3634,15 @@ namespace MasterOnline.Controllers
         {
             var listKategori = ErasoftDbContext.STF02E.Where(k => k.LEVEL == "1").OrderBy(m => m.KET).ToList();
 
-            return Json(listKategori, JsonRequestBehavior.AllowGet);
+            //return Json(listKategori, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #region Kategori Elevenia
 
@@ -3644,7 +3652,15 @@ namespace MasterOnline.Controllers
             //string[] codelist = code.Split(';');
             var listKategoriEle = MoDbContext.CategoryElevenia.Where(k => k.PARENT_CODE == "").OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriEle),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriEleveniaByParentCode(string code)
@@ -3652,7 +3668,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriEle = MoDbContext.CategoryElevenia.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriEle),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriEleveniaByChildCode(string code)
@@ -3679,14 +3703,30 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriEle.OrderBy(p=>p.RecNum)),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeElevenia(string code)
         {
             string[] codelist = code.Split(';');
             var listAttributeEle = MoDbContext.AttributeElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
-            return Json(listAttributeEle, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeEle, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeEle),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #endregion
         #region Kategori Blibli
@@ -3696,7 +3736,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriBlibli = MoDbContext.CategoryBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriBlibliByParentCode(string code)
@@ -3704,7 +3752,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriBlibli = MoDbContext.CategoryBlibli.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriBlibliByChildCode(string code)
@@ -3728,7 +3784,15 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            return Json(listKategoriBlibli.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriBlibli.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         //public ActionResult GetAttributeBlibli(string code)
@@ -3772,7 +3836,15 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
-            return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeOptBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public async Task<ActionResult> GetAttributeBlibliVar(string code)
@@ -3800,14 +3872,30 @@ namespace MasterOnline.Controllers
 
             var listAttributeBlibli = await BliAPI.GetAttributeToList(data, CategoryBlibli);
 
-            return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptBlibliVar(string code)
         {
             string[] codelist = code.Split(';');
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
-            return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeOptBlibli),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #endregion
         #region lzd
@@ -3818,7 +3906,15 @@ namespace MasterOnline.Controllers
             //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
             var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => string.IsNullOrEmpty(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
 
-            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriLazadaByParentCode(string code)
@@ -3826,7 +3922,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
 
-            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriLazadaByChildCode(string code)
@@ -3850,7 +3954,15 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            return Json(listKategoriLazada.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriLazada.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeLazada(string code)
@@ -3862,7 +3974,15 @@ namespace MasterOnline.Controllers
             var attrLzd = lzdApi.getAttrLzd(code);
             listAttributeLazada.Add(attrLzd);
 
-            return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptLazada(string code, string kategoryCode)
@@ -3872,7 +3992,15 @@ namespace MasterOnline.Controllers
             //var listAttributeOptLazada = MoDbContext.Database.SqlQuery<ATTRIBUTE_OPT_LAZADA>("SELECT * FROM ATTRIBUTE_OPT_LAZADA WHERE UPPER(CATEGORY_CODE)=UPPER('" + kategoryCode + "') AND A_NAME='" + codelist[0] + "'").ToList();
             var lzdApi = new LazadaController();
             var listAttributeOptLazada = lzdApi.getAttrOptLzd(kategoryCode, codelist[0]);
-            return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeOptLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeLazadaVar(string code)
@@ -3883,7 +4011,15 @@ namespace MasterOnline.Controllers
             var lzdApi = new LazadaController();
             var attrLzd = lzdApi.getAttrLzd(code);
             listAttributeLazada.Add(attrLzd);
-            return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptLazadaVar(string code)
@@ -3891,7 +4027,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var lzdApi = new LazadaController();
             var listAttributeOptLazada = lzdApi.getAttrOptLzd(codelist[1], codelist[0]);
-            return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeOptLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #endregion
         //add by Tri 22 Maret 2018
@@ -3903,7 +4047,15 @@ namespace MasterOnline.Controllers
             //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
             var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriJDByParentCode(string code)
@@ -3911,7 +4063,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriLazada),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriJDByChildCode(string code)
@@ -3935,7 +4095,15 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            return Json(listKategoriJD.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriJD.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriJD),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeJD(string code, int cust)
@@ -3959,7 +4127,15 @@ namespace MasterOnline.Controllers
 
             }
 
-            return Json(retData, JsonRequestBehavior.AllowGet);
+            //return Json(retData, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(retData),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptJD(string code, string kategoryCode, int cust)
@@ -3984,7 +4160,15 @@ namespace MasterOnline.Controllers
 
             }
 
-            return Json(retData, JsonRequestBehavior.AllowGet);
+            //return Json(retData, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(retData),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #endregion
         //end add by Tri 22 Maret 2018
@@ -3996,7 +4180,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriShopee),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriShopeeByParentCode(string code)
@@ -4004,7 +4196,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriShopee),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriShopeeByChildCode(string code)
@@ -4030,7 +4230,15 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriShopee),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public async Task<ActionResult> GetAttributeShopee(string code)
@@ -4052,14 +4260,30 @@ namespace MasterOnline.Controllers
 
             var listAttributeShopee = await ShopeeApi.GetAttributeToList(data, CategoryShopee);
 
-            return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeShopee),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetAttributeOptShopee(string code)
         {
             string[] codelist = code.Split(';');
             var listAttributeOptShopee = MoDbContext.AttributeOptShopee.Where(k => codelist.Contains(k.ACODE)).ToList();
-            return Json(listAttributeOptShopee, JsonRequestBehavior.AllowGet);
+            //return Json(listAttributeOptShopee, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listAttributeOptShopee),
+                ContentType = "application/json"
+            };
+            return result;
         }
         #endregion
         //end add by calvin 18 desember 2018
@@ -4072,7 +4296,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriTokped = MoDbContext.CategoryTokped.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriTokped),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriTokpedByParentCode(string code)
@@ -4080,7 +4312,15 @@ namespace MasterOnline.Controllers
             string[] codelist = code.Split(';');
             var listKategoriTokped = MoDbContext.CategoryTokped.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriTokped),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public ActionResult GetKategoriTokpedByChildCode(string code)
@@ -4106,7 +4346,15 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            return Json(listKategoriTokped.OrderBy(p => p.MASTER_CATEGORY_CODE).ThenBy(p => p.IS_LAST_NODE), JsonRequestBehavior.AllowGet);
+            //return Json(listKategoriTokped.OrderBy(p => p.MASTER_CATEGORY_CODE).ThenBy(p => p.IS_LAST_NODE), JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategoriTokped.OrderBy(p=>p.MASTER_CATEGORY_CODE).ThenBy(p=>p.IS_LAST_NODE)),
+                ContentType = "application/json"
+            };
+            return result;
         }
         public class GetAttributeTokpedReturn
         {
@@ -4142,7 +4390,15 @@ namespace MasterOnline.Controllers
                 attribute_unit = listAttributeTokped.attribute_unit
             };
 
-            return Json(returnList, JsonRequestBehavior.AllowGet);
+            //return Json(returnList, JsonRequestBehavior.AllowGet);
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(returnList),
+                ContentType = "application/json"
+            };
+            return result;
         }
         [HttpGet]
         public async Task<ActionResult> GetAttributeOptTokped(string code)
@@ -4172,12 +4428,28 @@ namespace MasterOnline.Controllers
 
                 var listAttributeOptTokped = listAttributeTokped.attribute_opt.Where(p => p.VARIANT_ID == VariantID && p.UNIT_ID == UnitID).ToList();
 
-                return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                //return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listAttributeOptTokped),
+                    ContentType = "application/json"
+                };
+                return result;
             }
             catch (Exception ex)
             {
                 var listAttributeOptTokped = MoDbContext.AttributeOptTokped.Where(p => 0 == 1).ToList();
-                return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                //return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+                var serializer = new JavaScriptSerializer();
+                serializer.MaxJsonLength = Int32.MaxValue;
+                var result = new ContentResult
+                {
+                    Content = serializer.Serialize(listAttributeOptTokped),
+                    ContentType = "application/json"
+                };
+                return result;
             }
         }
         #endregion
