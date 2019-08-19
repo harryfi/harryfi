@@ -898,22 +898,24 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
+                            //remark by calvin 19 agustus 2019
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //end remark by calvin 19 agustus 2019
                             //END CHANGE BY CALVIN 10 JUNI 2019
                             xmlString += "</Images>";
                             xmlString += "</Sku>";
@@ -1668,6 +1670,13 @@ namespace MasterOnline.Controllers
                     ret.message = bindImg.message;
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    if (!string.IsNullOrWhiteSpace( ret.message))
+                    {
+                        if (ret.message.Contains("service timeout"))
+                        {
+                            ret = UploadImage(imagePath, accessToken);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
