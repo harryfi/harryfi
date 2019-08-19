@@ -175,7 +175,7 @@ namespace MasterOnline.Controllers
                 return PartialView("FormAccountPartialNew", Tempvm);
             }
             accInDb.Status = !accInDb.Status;
-            
+
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
@@ -219,7 +219,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {
@@ -349,8 +349,12 @@ namespace MasterOnline.Controllers
 
             if (accInDb != null)
             {
-                try
+                if (accInDb.DatabasePathErasoft != null)
                 {
+                    if (accInDb.DatabasePathErasoft != "")
+                    {
+                        try
+                        {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
@@ -358,16 +362,26 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
 
-                    accInDb.DatabasePathErasoft = null;
-                    ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                            accInDb.DatabasePathErasoft = null;
+                            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                        }
+                        catch (Exception e)
+                        {
+                            return Content(e.Message);
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", @"Database tidak ditemukan!");
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    return Content(e.Message);
+                    ModelState.AddModelError("", @"Database tidak ditemukan!");
                 }
             }
 
@@ -381,11 +395,15 @@ namespace MasterOnline.Controllers
         public ActionResult TambahHapusAcc(int? accId)
         {
             var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
-            
+
             if (accInDb != null)
             {
                 try
                 {
+                    if (accInDb.DatabasePathErasoft != null)
+                    {
+                        if (accInDb.DatabasePathErasoft != "")
+                        {
 #if AWS
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
@@ -393,10 +411,11 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
-
+                        }
+                    }
                     var uname = accInDb.Username;
                     MoDbContext.Account.Remove(accInDb);
                     MoDbContext.SaveChanges();
@@ -1736,7 +1755,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {
