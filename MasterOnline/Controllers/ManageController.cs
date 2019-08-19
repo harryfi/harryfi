@@ -28043,8 +28043,70 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                return JsonErrorMessage("Kode Barang tidak ditemukan.");
+                var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
+                if (tempBrg != null)
+                {
+                    retBarang = new STF02();
+                    //retBarang = ErasoftDbContext.STF02.FirstOrDefault();
+                    retBarang.NAMA = tempBrg.NAMA;
+                    retBarang.NAMA2 = tempBrg.NAMA2;
+                    retBarang.BERAT = tempBrg.BERAT;
+                    retBarang.PANJANG = tempBrg.PANJANG;
+                    retBarang.LEBAR = tempBrg.LEBAR;
+                    retBarang.TINGGI = tempBrg.TINGGI;
+                    retBarang.HJUAL = tempBrg.HJUAL;
+                    retBarang.STN2 = "pcs";
+                    retBarang.MINI = 1;
+                    retBarang.MAXI = 100;
+                    retBarang.Deskripsi = tempBrg.Deskripsi;
+                    retBarang.BRG = brg;
+                    retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
+                    retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
+                    retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+                    retBarang.TYPE = tempBrg.TYPE;
+                    //add 14 juni 2019, kategori dan merek dari transfer excel
+                    if (!string.IsNullOrEmpty(tempBrg.AVALUE_40))//kategori mo di avalue_40
+                    {
+                        var cat = ErasoftDbContext.STF02E.Where(m => m.KODE == tempBrg.AVALUE_40 && m.LEVEL == "1").FirstOrDefault();
+                        if (cat != null)
+                        {
+                            retBarang.Sort1 = cat.KODE;
+                            retBarang.KET_SORT1 = cat.KET;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(tempBrg.MEREK))
+                    {
+                        var mrk = ErasoftDbContext.STF02E.Where(m => m.KODE == tempBrg.MEREK && m.LEVEL == "2").FirstOrDefault();
+                        if (mrk != null)
+                        {
+                            retBarang.Sort2 = mrk.KODE;
+                            retBarang.KET_SORT2 = mrk.KET;
+                        }
+                    }
+                    //end add 14 juni 2019, kategori code dari transfer excel
 
+                    if (!string.IsNullOrEmpty(tempBrg.KODE_BRG_INDUK))
+                    {
+                        var brg_induk = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(tempBrg.KODE_BRG_INDUK.ToUpper())).FirstOrDefault();
+                        if (brg_induk != null)
+                        {
+                            retBarang.Sort1 = brg_induk.Sort1;
+                            retBarang.Sort2 = brg_induk.Sort2;
+                            retBarang.KET_SORT1 = brg_induk.KET_SORT1;
+                            retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                        }
+                    }
+
+                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                    //barangVm.Stf02 = retBarang;
+                    //return PartialView("FormBarangUploadsPartial", barangVm);
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Kode Barang tidak ditemukan.");
+
+                }
             }
         }
 
