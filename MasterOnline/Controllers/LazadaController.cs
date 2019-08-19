@@ -1032,8 +1032,7 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
             xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
-            //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
-            xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
+            xmlString += "<active>" + (display ? "true" : "false") + "</active>";
             xmlString += "</Sku></Skus></Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
