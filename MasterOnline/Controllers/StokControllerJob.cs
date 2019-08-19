@@ -1342,10 +1342,22 @@ namespace MasterOnline.Controllers
 #region Get Product List ( untuk dapatkan QOH di Blibi )
             double QOHBlibli = 0;
             string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+            string skuUpdate = data.kode_mp;
+
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
+                skuUpdate = brg_mp[0];
+            }
+            bool allowUpdate = true;
+            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING"))
+            {
+                allowUpdate = false;
+            }
+
+            if(allowUpdate)
+            { 
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
                 myReq_1.Method = "GET";
@@ -1398,7 +1410,7 @@ namespace MasterOnline.Controllers
                                     //if (QOHBlibli != 0)
                                     {
                                         myData += "{";
-                                        myData += "\"gdnSku\": \"" + brg_mp[0] + "\",  ";
+                                        myData += "\"gdnSku\": \"" + skuUpdate + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
                                         myData += "\"price\": " + data.Price + ", ";
@@ -1505,10 +1517,22 @@ namespace MasterOnline.Controllers
             
             double QOHBlibli = 0;
             string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+            string skuUpdate = kode_mp;
+
             string[] brg_mp = kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
+                skuUpdate = brg_mp[0];
+            }
+            bool allowUpdate = true;
+            if (skuUpdate.Contains("PENDING") || skuUpdate.Contains("PEDITENDING"))
+            {
+                allowUpdate = false;
+            }
+
+            if (allowUpdate)
+            {
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
                 myReq_1.Method = "GET";
