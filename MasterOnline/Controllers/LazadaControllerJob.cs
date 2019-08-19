@@ -1676,6 +1676,13 @@ namespace MasterOnline.Controllers
                     ret.message = bindImg.message;
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    if (!string.IsNullOrWhiteSpace(ret.message))
+                    {
+                        if (ret.message.Contains("service timeout"))
+                        {
+                            ret = UploadImage(imagePath, accessToken);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
