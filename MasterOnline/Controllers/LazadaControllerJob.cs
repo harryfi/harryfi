@@ -519,58 +519,59 @@ namespace MasterOnline.Controllers
                                     catch (Exception ex)
                                     {
 
-                                    }
                                 }
                             }
-                            //end change 8 Apriil 2019, get attr from api
-                            var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
-                            if (qty_stock > 0)
-                            {
-                                xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
-                            }
-                            //change 1/8/2019, gunakan hjual stf02h
-                            //xmlString += "<price>" + data.harga + "</price>";
-                            xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
-                            //change 1/8/2019, gunakan hjual stf02h
-                            xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
-                            xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                            xmlString += "<Images>";
-                            //CHANGE BY CALVIN 10 JUNI 2019
-                            //if (!string.IsNullOrEmpty(data.imageUrl))
-                            //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                            //if (!string.IsNullOrEmpty(data.imageUrl2))
-                            //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                            //if (!string.IsNullOrEmpty(data.imageUrl3))
-                            //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
-                            //END CHANGE BY CALVIN 10 JUNI 2019
-                            xmlString += "</Images>";
-                            xmlString += "</Sku>";
                         }
+                        //end change 8 Apriil 2019, get attr from api
+                        var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
+                        if (qty_stock > 0)
+                        {
+                            xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                        }
+                        //change 1/8/2019, gunakan hjual stf02h
+                        //xmlString += "<price>" + data.harga + "</price>";
+                        xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
+                        //change 1/8/2019, gunakan hjual stf02h
+                        xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                        xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                        xmlString += "<Images>";
+                        //CHANGE BY CALVIN 10 JUNI 2019
+                        //if (!string.IsNullOrEmpty(data.imageUrl))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl2))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl3))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        //remark by calvin 19 agustus 2019
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //end remark by calvin 19 agustus 2019
 
+                        //END CHANGE BY CALVIN 10 JUNI 2019
+                        xmlString += "</Images>";
+                        xmlString += "</Sku>";
                     }
                 }
                 xmlString += "</Skus>";
