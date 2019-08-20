@@ -348,7 +348,7 @@ namespace MasterOnline.Controllers
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -447,7 +447,7 @@ namespace MasterOnline.Controllers
                     if (input && (GetStf02h != null))
                     {
                         xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                         foreach (var attribute in KombinasiAttribute)
                         {
@@ -3737,15 +3737,19 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             string sSQL_Value = "";
+            string sellerSku = "";
             try
             {
                 if (typeBrg != 1)
                 {
-                    sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '" + brg.skus[i].SellerSku + "' , '";
+                    sellerSku = brg.skus[i].SellerSku;
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
                 }
                 else
                 {
-                    sSQL_Value += " ( '" + brg.item_id + "' , '" + brg.item_id + "' , '";
+                    sellerSku = brg.item_id;
+                    //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '' , '";
                 }
                 string namaBrg = brg.attributes.name;
                 if (typeBrg == 2)
