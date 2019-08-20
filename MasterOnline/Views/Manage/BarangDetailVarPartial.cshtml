@@ -550,7 +550,7 @@
                                     <tbody>
                                         @foreach (var barang in Model.VariantMO)
                                         {
-                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
                                                 <tr>
@@ -618,7 +618,7 @@
                                     <tbody>
                                         @foreach (var barang in Model.VariantMO)
                                         {
-                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
                                                 <tr>
@@ -676,7 +676,7 @@
                                     <tbody>
                                         @foreach (var barang in Model.VariantMO)
                                         {
-                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
                                                 <tr>
@@ -734,7 +734,7 @@
                                     <tbody>
                                         @foreach (var barang in Model.VariantMO)
                                         {
-                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
                                                 <tr>
@@ -792,7 +792,7 @@
                                     <tbody>
                                         @foreach (var barang in Model.VariantMO)
                                         {
-                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
                                                 <tr>
