@@ -267,7 +267,6 @@ namespace MasterOnline.Controllers
                 message.Subject = "Akun Master Online Anda sudah aktif!";
                 message.Body = string.Format(body, accInDb.Email, originPassword, nama);
                 message.IsBodyHtml = true;
-
 #if AWS
             //using (var smtp = new SmtpClient())
             //{
@@ -433,7 +432,6 @@ namespace MasterOnline.Controllers
                 {
                     return Content(e.Message);
                 }
-
             }
 
             //MoDbContext.SaveChanges();

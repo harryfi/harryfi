@@ -349,6 +349,7 @@ namespace MasterOnline.Controllers
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -448,6 +449,7 @@ namespace MasterOnline.Controllers
                     {
                         xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
                         //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                         foreach (var attribute in KombinasiAttribute)
                         {
@@ -751,6 +753,7 @@ namespace MasterOnline.Controllers
                 //xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 //change 1/8/2019, gunakan hjual stf02h
@@ -843,6 +846,7 @@ namespace MasterOnline.Controllers
                             xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
                             //end change 1/8/2019, gunakan brg_mp stf02h
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
@@ -898,22 +902,24 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
-                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                            {
-                                var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                                if (uploadImg.status == 1)
-                                {
-                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                                }
-                            }
+                            //remark by calvin 19 agustus 2019
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //end remark by calvin 19 agustus 2019
                             //END CHANGE BY CALVIN 10 JUNI 2019
                             xmlString += "</Images>";
                             xmlString += "</Sku>";
@@ -1032,7 +1038,8 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
             xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
-            xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
             xmlString += "</Sku></Skus></Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -1668,6 +1675,13 @@ namespace MasterOnline.Controllers
                     ret.message = bindImg.message;
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    if (!string.IsNullOrWhiteSpace(ret.message))
+                    {
+                        if (ret.message.Contains("service timeout"))
+                        {
+                            ret = UploadImage(imagePath, accessToken);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
