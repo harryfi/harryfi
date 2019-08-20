@@ -418,6 +418,17 @@ namespace MasterOnline.Controllers
                 var ListStf02Var_BRG = ListStf02Var.Select(p => p.BRG).ToList();
                 int idmarket_int = Convert.ToInt32(data.idMarket);
                 var List_STF02H_Var = ErasoftDbContext.STF02H.Where(p => ListStf02Var_BRG.Contains(p.BRG) && p.IDMARKET == idmarket_int).ToList();
+                //add 14-08-2019,validasi tambah varian
+                var list_STF02H_created = List_STF02H_Var.Where(p => !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                var list_BRGMP_created = "";
+                if (list_STF02H_created.Count > 0)
+                {
+                    list_BRGMP_created = "<AssociatedSku>";
+                    list_BRGMP_created += list_STF02H_created[0].BRG_MP;
+                    list_BRGMP_created += "</AssociatedSku>";
+
+                }
+                //end 14-08-2019,add validasi tambah varian
 
                 //untuk pastikan tidak ada duplikat kombinasi attribute variasi
                 Dictionary<string, string> KombinasiAttribute = new Dictionary<string, string>();
@@ -445,6 +456,10 @@ namespace MasterOnline.Controllers
                 }
                 //end untuk pastikan tidak ada duplikat kombinasi attribute variasi
                 List<string> attributesAdded;
+                if (!string.IsNullOrEmpty(list_BRGMP_created))
+                {
+                    xmlString += list_BRGMP_created;
+                }
                 xmlString += "<Skus>";
                 foreach (var item in ListStf02Var)
                 {
@@ -461,98 +476,105 @@ namespace MasterOnline.Controllers
                     var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
                     if (input && (GetStf02h != null))
                     {
-                        xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                        //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
-                        xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
-
-                        foreach (var attribute in KombinasiAttribute)
+                        if (string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
-                            if (attribute.Value == item.BRG)
+                            xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
+                            //if (!string.IsNullOrEmpty(list_BRGMP_created))
+                            //{
+                            //    xmlString += list_BRGMP_created;
+                            //}
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
+                            
+                            foreach (var attribute in KombinasiAttribute)
                             {
-                                string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
-                                attributesAdded.Add(getId[0]);
-                            }
-                        }
-
-                        //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
-                        //change 8 Apriil 2019, get attr from api
-                        //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
-                        //{
-                        //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
-                        //    {
-                        //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                        //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                        //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                        //    }
-                        //}
-                        for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
-                        {
-                            if (!attributesAdded.Contains(dsSku[i].ToString()))
-                            {
-                                try
+                                if (attribute.Value == item.BRG)
                                 {
-                                    var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                    xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += XmlEscape(getAttrValue);
-                                    xmlString += "</" + dsSku[i].ToString() + ">";
-                                }
-                                catch (Exception ex)
-                                {
-
+                                    string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                                    xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
+                                    attributesAdded.Add(getId[0]);
                                 }
                             }
-                        }
-                        //end change 8 Apriil 2019, get attr from api
-                        var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
-                        if (qty_stock > 0)
-                        {
-                            xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
-                        }
-                        //change 1/8/2019, gunakan hjual stf02h
-                        //xmlString += "<price>" + data.harga + "</price>";
-                        xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
-                        //change 1/8/2019, gunakan hjual stf02h
-                        xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
-                        xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-                        xmlString += "<Images>";
-                        //CHANGE BY CALVIN 10 JUNI 2019
-                        //if (!string.IsNullOrEmpty(data.imageUrl))
-                        //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                        //if (!string.IsNullOrEmpty(data.imageUrl2))
-                        //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                        //if (!string.IsNullOrEmpty(data.imageUrl3))
-                        //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                        {
-                            var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
-                            if (uploadImg.status == 1)
-                            {
-                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            }
-                        }
-                        //remark by calvin 19 agustus 2019
-                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                        //{
-                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                        //    if (uploadImg.status == 1)
-                        //    {
-                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                        //    }
-                        //}
-                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                        //{
-                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                        //    if (uploadImg.status == 1)
-                        //    {
-                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                        //    }
-                        //}
-                        //end remark by calvin 19 agustus 2019
 
-                        //END CHANGE BY CALVIN 10 JUNI 2019
-                        xmlString += "</Images>";
-                        xmlString += "</Sku>";
+                            //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
+                            //change 8 Apriil 2019, get attr from api
+                            //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                            //{
+                            //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            //    {
+                            //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                            //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            //    }
+                            //}
+                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            {
+                                if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                {
+                                    try
+                                    {
+                                        var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                        xmlString += "<" + dsSku[i].ToString() + ">";
+                                        xmlString += XmlEscape(getAttrValue);
+                                        xmlString += "</" + dsSku[i].ToString() + ">";
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                            }
+                            //end change 8 Apriil 2019, get attr from api
+                            var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
+                            if (qty_stock > 0)
+                            {
+                                xmlString += "<quantity>" + Convert.ToString(qty_stock) + "</quantity>";
+                            }
+                            //change 1/8/2019, gunakan hjual stf02h
+                            //xmlString += "<price>" + data.harga + "</price>";
+                            xmlString += "<price>" + GetStf02h.HJUAL + "</price>";
+                            //change 1/8/2019, gunakan hjual stf02h
+                            xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                            xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                            xmlString += "<Images>";
+                            //CHANGE BY CALVIN 10 JUNI 2019
+                            //if (!string.IsNullOrEmpty(data.imageUrl))
+                            //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                            //if (!string.IsNullOrEmpty(data.imageUrl2))
+                            //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                            //if (!string.IsNullOrEmpty(data.imageUrl3))
+                            //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                            {
+                                var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
+                                if (uploadImg.status == 1)
+                                {
+                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                                }
+                            }
+                            //remark by calvin 19 agustus 2019
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                            //{
+                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            //    if (uploadImg.status == 1)
+                            //    {
+                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            //    }
+                            //}
+                            //end remark by calvin 19 agustus 2019
+
+                            //END CHANGE BY CALVIN 10 JUNI 2019
+                            xmlString += "</Images>";
+                            xmlString += "</Sku>";
+                        }
                     }
                 }
                 xmlString += "</Skus>";
