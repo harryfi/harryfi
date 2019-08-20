@@ -348,7 +348,8 @@ namespace MasterOnline.Controllers
             foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
-                xmlString += XmlEscape(lzdAttr.Value.ToString());
+                //xmlString += XmlEscape(lzdAttr.Value.ToString());
+                xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
                 xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
@@ -360,7 +361,7 @@ namespace MasterOnline.Controllers
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -401,7 +402,8 @@ namespace MasterOnline.Controllers
                 foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
                     xmlString += "<" + lzdSkuAttr.Key + ">";
-                    xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
+                    //xmlString += XmlEscape(lzdSkuAttr.Value.ToString());
+                    xmlString += "<![CDATA[" + XmlEscape(Convert.ToString(lzdSkuAttr.Value).Replace(System.Environment.NewLine, "<br>")) + "]]>";
                     xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
                 //end change 8 Apriil 2019, get attr from api
@@ -415,6 +417,17 @@ namespace MasterOnline.Controllers
                 var ListStf02Var_BRG = ListStf02Var.Select(p => p.BRG).ToList();
                 int idmarket_int = Convert.ToInt32(data.idMarket);
                 var List_STF02H_Var = ErasoftDbContext.STF02H.Where(p => ListStf02Var_BRG.Contains(p.BRG) && p.IDMARKET == idmarket_int).ToList();
+                //add 14-08-2019,validasi tambah varian
+                var list_STF02H_created = List_STF02H_Var.Where(p => !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                var list_BRGMP_created = "";
+                if (list_STF02H_created.Count > 0)
+                {
+                    list_BRGMP_created = "<AssociatedSku>";
+                    list_BRGMP_created += list_STF02H_created[0].BRG_MP;
+                    list_BRGMP_created += "</AssociatedSku>";
+
+                }
+                //end 14-08-2019,add validasi tambah varian
 
                 //untuk pastikan tidak ada duplikat kombinasi attribute variasi
                 Dictionary<string, string> KombinasiAttribute = new Dictionary<string, string>();
@@ -442,6 +455,10 @@ namespace MasterOnline.Controllers
                 }
                 //end untuk pastikan tidak ada duplikat kombinasi attribute variasi
                 List<string> attributesAdded;
+                if (!string.IsNullOrEmpty(list_BRGMP_created))
+                {
+                    xmlString += list_BRGMP_created;
+                }
                 xmlString += "<Skus>";
                 foreach (var item in ListStf02Var)
                 {
@@ -458,43 +475,49 @@ namespace MasterOnline.Controllers
                     var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
                     if (input && (GetStf02h != null))
                     {
-                        xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
-
-                        foreach (var attribute in KombinasiAttribute)
+                        if (string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
-                            if (attribute.Value == item.BRG)
-                            {
-                                string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
-                                attributesAdded.Add(getId[0]);
-                            }
-                        }
+                            xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
+                            //if (!string.IsNullOrEmpty(list_BRGMP_created))
+                            //{
+                            //    xmlString += list_BRGMP_created;
+                            //}
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
-                        //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
-                        //change 8 Apriil 2019, get attr from api
-                        //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
-                        //{
-                        //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
-                        //    {
-                        //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                        //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                        //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                        //    }
-                        //}
-                        for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
-                        {
-                            if (!attributesAdded.Contains(dsSku[i].ToString()))
+                            foreach (var attribute in KombinasiAttribute)
                             {
-                                try
+                                if (attribute.Value == item.BRG)
                                 {
-                                    var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                    xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += XmlEscape(getAttrValue);
-                                    xmlString += "</" + dsSku[i].ToString() + ">";
+                                    string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                                    xmlString += "<" + getId[0] + ">" + XmlEscape(getId[1]) + "</" + getId[0] + ">";
+                                    attributesAdded.Add(getId[0]);
                                 }
-                                catch (Exception ex)
+                            }
+
+                            //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
+                            //change 8 Apriil 2019, get attr from api
+                            //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                            //{
+                            //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            //    {
+                            //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                            //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            //    }
+                            //}
+                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            {
+                                if (!attributesAdded.Contains(dsSku[i].ToString()))
                                 {
+                                    try
+                                    {
+                                        var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                        xmlString += "<" + dsSku[i].ToString() + ">";
+                                        xmlString += XmlEscape(getAttrValue);
+                                        xmlString += "</" + dsSku[i].ToString() + ">";
+                                    }
+                                    catch (Exception ex)
+                                    {
 
                                 }
                             }
@@ -527,22 +550,25 @@ namespace MasterOnline.Controllers
                                 xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                             }
                         }
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                        {
-                            var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                            if (uploadImg.status == 1)
-                            {
-                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                        {
-                            var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
-                            if (uploadImg.status == 1)
-                            {
-                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            }
-                        }
+                        //remark by calvin 19 agustus 2019
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        //{
+                        //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                        //    if (uploadImg.status == 1)
+                        //    {
+                        //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                        //    }
+                        //}
+                        //end remark by calvin 19 agustus 2019
+
                         //END CHANGE BY CALVIN 10 JUNI 2019
                         xmlString += "</Images>";
                         xmlString += "</Sku>";
@@ -780,7 +806,7 @@ namespace MasterOnline.Controllers
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + stf02h.BRG_MP + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
@@ -868,7 +894,7 @@ namespace MasterOnline.Controllers
                         {
                             //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
                             xmlString += "<Sku><SellerSku>" + GetStf02h.BRG_MP + "</SellerSku>";
-                            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {

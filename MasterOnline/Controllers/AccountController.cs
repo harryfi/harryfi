@@ -415,7 +415,7 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
                 //end add by nurul 9/8/2019
-                
+
                 //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
                 DateTime AccUserExp14 = accInDb.TGL_SUBSCRIPTION.Value.AddDays(14);
                 if (accInDb.KODE_SUBSCRIPTION == "01" && AccUserExp14 < DateTime.Today)
@@ -454,7 +454,7 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
                 //end add by nurul 9/8/2019
-                
+
                 //add by nurul 30/7/2019, basic + 14 hari expired tidak bisa login
                 DateTime exp14 = accFromDb.TGL_SUBSCRIPTION.Value.AddDays(14);
                 if (accFromDb.KODE_SUBSCRIPTION == "01" && exp14 < DateTime.Today)
@@ -1308,10 +1308,19 @@ namespace MasterOnline.Controllers
             }
 
             //ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
-            return View("RegisterThankYou");
+            //return View("RegisterThankYou");
+            return new EmptyResult();
 
         }
 
+        //add by nurul 14/8/2019
+        [System.Web.Mvc.Route("register/ThankYou")]
+        public ActionResult RegisterThankYou()
+        {
+            return View();
+        }
+        //end add by nurul 14/8/2019
+        
         //[AutomaticRetry(Attempts = 2)]
         //[Queue("2_general")]
         protected async Task<string> TesSendEmail(MailAddress email, string account_Email, string originPassword, string nama)

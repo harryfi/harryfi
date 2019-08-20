@@ -1510,7 +1510,8 @@
                         <div class="col-lg-1 col-sm-1">
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordDibayar" name="TakeRecordDibayar" required="required">
-                                    @*<option>--Pilih--</option>*@
+                                    @*
+                                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1518,7 +1519,6 @@
                             </div>
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
-
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
@@ -1576,13 +1576,15 @@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>*@
+
                             </div>
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                         <div class="col-lg-1 col-sm-1">
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordPacking" name="TakeRecordPacking" required="required">
-                                    @*<option>--Pilih--</option>*@
+                                    @*
+                                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1612,7 +1614,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-7 col-sm-5"style="margin-top:13px;">
+                        <div class="col-lg-7 col-sm-5" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
@@ -1622,14 +1624,15 @@
                                 <button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
                                 </button>
-                                
+
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                             </div>
                         </div>
-                        <div class="col-lg-1 col-sm-1"style="margin-top:13px;">
+                        <div class="col-lg-1 col-sm-1" style="margin-top:13px;">
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
-                                    @*<option>--Pilih--</option>*@
+                                    @*
+                                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -4292,6 +4295,7 @@
                 if ($(this).val() === '') $(this).val(0);
                 $(this).val(convertToAngka($(this).val()));
                 $(this).val(convertToRupiah($(this).val()));
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -4299,6 +4303,7 @@
                 if ($(this).val() <= convertToAngka($('#Pesanan_BRUTO').val())) {
                     $(this).val(convertToAngka($(this).val()));
                     $(this).val(convertToRupiah($(this).val()));
+                    $modeEditDetail = 1;
                     refreshNetto();
                 }
             });
@@ -4309,12 +4314,14 @@
 
             $('#Pesanan_PPN').blur(function() {
                 if ($(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
             $('#Pesanan_PPN').change(function() {
                 if ($(this).val() > 100) $(this).val(100);
                 if ($(this).val() < 0 || $(this).val() === '') $(this).val(0);
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -4341,6 +4348,7 @@
                 }
                 $(this).val(convertToAngka($(this).val()));
                 $(this).val(convertToRupiah($(this).val()));
+                $modeEditDetail = 1;
                 refreshNetto();
             });
 
@@ -4379,15 +4387,21 @@
                 $('#btn-simpan-perubahan-row').show();
             });
 
-            $('#Pesanan_ONGKOS_KIRIM').change(function() {
+            $('#Pesanan_ONGKOS_KIRIM').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
-            $('#Pesanan_PPN').change(function() {
+            $('#Pesanan_PPN').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
-            $('#Pesanan_TGL').change(function() {
+            $('#Pesanan_TGL').change(function () {
+                $modeEditDetail = 1;
+                refreshNetto();
                 $('#btn-simpan-perubahan-row').show();
             });
 
@@ -4415,7 +4429,7 @@
                         $('#loading_spinner').show();
                     },
                     success: function () {
-                        $modeEditDetail = 1;
+                        $modeEditDetail = 0;
                         alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
                         $('#btn-simpan-perubahan-row').hide();
@@ -4516,17 +4530,26 @@
         function hitungUlangBruto() {
             $total_bruto_barang = 0;
             //$('.netto-barang').each(function () {
+            //if ($modeEditDetail == 1) {
+            //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+            //        if ($(this).attr("data-issaved") == "1") {
+            //            $total_bruto_barang += convertToAngka($(this).text());
+            //        }
+            //    });
+            //} else if ($modeEditDetail == 0) {
+            //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+            //    if ($(this).attr("data-issaved") == "0") {
+            //        $total_bruto_barang += convertToAngka($(this).text());
+            //    }
+            //    });
+            //}
             if ($modeEditDetail == 1) {
                 $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-                    if ($(this).attr("data-issaved") == "1") {
-                        $total_bruto_barang += convertToAngka($(this).text());
-                    }
+                    $total_bruto_barang += convertToAngka($(this).text());
                 });
             } else if ($modeEditDetail == 0) {
                 $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-                if ($(this).attr("data-issaved") == "0") {
                     $total_bruto_barang += convertToAngka($(this).text());
-                }
                 });
             }
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
@@ -5452,7 +5475,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 1;
+                    $modeEditDetail = 0;
                     //end add
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
@@ -5466,7 +5489,7 @@
                         ndisc: $('#Pesanan_NILAI_DISC').val(),
                         ppn: $('#Pesanan_PPN').val(),
                         nppn: $('#Pesanan_NILAI_PPN').val(),
-                        ongkir: $('#Pesanan_MATERAI').val()
+                        ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
                     };
                     refreshInputan();
                     //add by nurul 11/2/2019
@@ -5519,7 +5542,7 @@
                     //$('#close-editor-1')[0].disabled = false;
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 1;
+                    $modeEditDetail = 0;
                     //end add
                     $('#form-partial').html(response);
                     //add by Tri 11 Maret 2019
@@ -5653,7 +5676,14 @@
                     $nettoSebelumnya = 0;
                     $bakalNetto = 0;
                     $('#form-partial').html(response);
-
+                    $beforeState = {
+                        brutto: $('#Pesanan_BRUTO').val(),
+                        netto: $('#Pesanan_NETTO').val(),
+                        ndisc: $('#Pesanan_NILAI_DISC').val(),
+                        ppn: $('#Pesanan_PPN').val(),
+                        nppn: $('#Pesanan_NILAI_PPN').val(),
+                        ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
+                    };
                     //add by nurul 5/10/2018
                     refreshInputan();
                     refreshNetto();
@@ -6786,7 +6816,7 @@
                         //samakan dengan function lihatPesananSudahDibayar onSuccess
                         //add by nurul 1/11/2018
                         $modeEdit = 1;
-                        $modeEditDetail = 1;
+                        $modeEditDetail = 0;
                         //end add
                         $('#form-partial-sudah-dibayar').html(response);
                         $('#see_tgl_pesanan').removeAttr('style');
@@ -8154,7 +8184,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 1;
+                    $modeEditDetail = 0;
                     //end add
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8206,7 +8236,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 1;
+                    $modeEditDetail = 0;
                     //end add
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8376,10 +8406,18 @@
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
-                            $modeEditDetail = 1;
+                            $modeEditDetail = 0;
                             //console.log(response);
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
+                            $beforeState = {
+                                brutto: $('#Pesanan_BRUTO').val(),
+                                netto: $('#Pesanan_NETTO').val(),
+                                ndisc: $('#Pesanan_NILAI_DISC').val(),
+                                ppn: $('#Pesanan_PPN').val(),
+                                nppn: $('#Pesanan_NILAI_PPN').val(),
+                                ongkir: $('#Pesanan_ONGKOS_KIRIM').val()
+                            };
                             refreshInputan();
                             refreshNetto();
                             getTanggal();
