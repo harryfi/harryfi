@@ -250,6 +250,8 @@ namespace MasterOnline.Controllers
             }
             //var api = new ManageController();
             //api.RetryGetData("000001", 14319);
+            //var api = new LazadaController();
+            //api.setDisplay("SANDAL1508.40.HI", true, "50000801431bkAgvjlUeRugbkiverTTDjlNG4eRv9dy1731510bmssgyuVgQl2");
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
             var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 
