@@ -2405,7 +2405,16 @@ namespace MasterOnline.Controllers
                         //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
                         sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
                         //end change 25 juli 2019, tukar harga jual dgn harga promo
-                        sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+                        //change 21/8/2019, barang varian ambil 1 gambar saja
+                        if (numVarian > 1)
+                        {
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , ''";
+                        }
+                        else
+                        {
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+                        }
+                        //end change 21/8/2019, barang varian ambil 1 gambar saja
                         //add kode brg induk dan type brg
                         sSQL += ", '" + kdBrgInduk + "' , '3'";
                         //end add kode brg induk dan type brg

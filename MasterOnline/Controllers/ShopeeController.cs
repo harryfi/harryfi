@@ -319,7 +319,6 @@ namespace MasterOnline.Controllers
                             //        sellerSku = barang_id;
                             //    }
                             //}
-
                             if (detailBrg.item.has_variation)
                             {
                                 ret.totalData += detailBrg.item.variations.Count();//add 18 Juli 2019, show total record
@@ -334,7 +333,7 @@ namespace MasterOnline.Controllers
                                 if (tempbrginDB == null && brgInDB == null)
                                 {
                                     //ret.recordCount++;
-                                    var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden);
+                                    var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden, true);
                                     ret.recordCount += ret1.status;
                                 }
                                 else if (brgInDB != null)
@@ -342,6 +341,7 @@ namespace MasterOnline.Controllers
                                     brgMpInduk = brgInDB.BRG;
                                 }
                                 //end insert brg induk
+                                var insert_1st_img = true;
 
                                 foreach (var item in detailBrg.item.variations)
                                 {
@@ -360,8 +360,9 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         //ret.recordCount++;
-                                        var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden);
+                                        var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
                                         ret.recordCount += ret2.status;
+                                        insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
                                     }
                                 }
                             }
@@ -373,7 +374,7 @@ namespace MasterOnline.Controllers
                                 //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
 
                                 //ret.recordCount++;
-                                var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden);
+                                var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden, true);
                                 ret.recordCount += ret0.status;
                             }
                         }
@@ -392,7 +393,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected async Task<BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden)
+        protected async Task<BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden, bool insert_1st_img)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -438,14 +439,19 @@ namespace MasterOnline.Controllers
             if (detailBrg.item.images.Count() > 0)
             {
                 urlImage = detailBrg.item.images[0];
-                if (detailBrg.item.images.Count() >= 2)
+                //change 21/8/2019, barang varian ambil 1 gambar saja
+                if (typeBrg != 2)
                 {
-                    urlImage2 = detailBrg.item.images[1];
-                    if (detailBrg.item.images.Count() >= 3)
+                    if (detailBrg.item.images.Count() >= 2)
                     {
-                        urlImage3 = detailBrg.item.images[2];
+                        urlImage2 = detailBrg.item.images[1];
+                        if (detailBrg.item.images.Count() >= 3)
+                        {
+                            urlImage3 = detailBrg.item.images[2];
+                        }
                     }
                 }
+                //end change 21/8/2019, barang varian ambil 1 gambar saja
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += detailBrg.item.weight * 1000 + "," + detailBrg.item.package_length + "," + detailBrg.item.package_width + "," + detailBrg.item.package_height + ", '";
