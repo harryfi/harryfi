@@ -1174,6 +1174,8 @@ namespace MasterOnline.Controllers
                             if (OrderNoInDb.Contains(dataOrder.dlvNo) && stat == StatusOrder.Paid)
                             {
                                 doInsert = false;
+                                //update status dan request user untuk pesanan belum dibayar
+                                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '0'");
                             }
                             if (doInsert)
                             {
@@ -1298,7 +1300,7 @@ namespace MasterOnline.Controllers
                         if (stat == StatusOrder.Paid)
                         {
                             //jika tidak ada data PAID, lanjut ke PackagingINP
-                            await GetOrder(auth, EleveniaControllerJob.StatusOrder.PackagingINP, CUST, NAMA_CUST,dbPathEra,uname);
+                            await GetOrder(auth, EleveniaControllerJob.StatusOrder.PackagingINP, CUST, NAMA_CUST, dbPathEra, uname);
                         }
                     }
                     else
@@ -1321,7 +1323,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Accept Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage AcceptOrder(string dbPathEra,string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string auth, string ordNo, string ordPrdSeq, string uname)
+        public ClientMessage AcceptOrder(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string auth, string ordNo, string ordPrdSeq, string uname)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);
@@ -1379,7 +1381,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname,string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
+        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);
