@@ -348,7 +348,8 @@ namespace MasterOnline.Controllers
             {
 
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
-                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
 
                 //add by calvin 1 mei 2019
@@ -447,7 +448,8 @@ namespace MasterOnline.Controllers
                     if (input && (GetStf02h != null))
                     {
                         xmlString += "<Sku><SellerSku>" + XmlEscape(item.BRG) + "</SellerSku>";
-                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                        xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                         foreach (var attribute in KombinasiAttribute)
                         {
@@ -751,6 +753,7 @@ namespace MasterOnline.Controllers
                 //xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
                 xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
                 //xmlString += "<quantity>1</quantity>";
                 //change 1/8/2019, gunakan hjual stf02h
@@ -843,6 +846,7 @@ namespace MasterOnline.Controllers
                             xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
                             //end change 1/8/2019, gunakan brg_mp stf02h
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                            xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
                             foreach (var attribute in KombinasiAttribute)
                             {
@@ -1034,7 +1038,8 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
             xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
-            xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
+            xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
             xmlString += "</Sku></Skus></Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -1670,7 +1675,7 @@ namespace MasterOnline.Controllers
                     ret.message = bindImg.message;
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                    if (!string.IsNullOrWhiteSpace( ret.message))
+                    if (!string.IsNullOrWhiteSpace(ret.message))
                     {
                         if (ret.message.Contains("service timeout"))
                         {
@@ -3746,15 +3751,19 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             string sSQL_Value = "";
+            string sellerSku = "";
             try
             {
                 if (typeBrg != 1)
                 {
-                    sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '" + brg.skus[i].SellerSku + "' , '";
+                    sellerSku = brg.skus[i].SellerSku;
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
                 }
                 else
                 {
-                    sSQL_Value += " ( '" + brg.item_id + "' , '" + brg.item_id + "' , '";
+                    sellerSku = brg.item_id;
+                    //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
+                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '' , '";
                 }
                 string namaBrg = brg.attributes.name;
                 if (typeBrg == 2)

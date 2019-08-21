@@ -417,6 +417,7 @@ namespace MasterOnline.Controllers
             urlImage = "";
             urlImage2 = "";
             urlImage3 = "";
+            sellerSku = sellerSku.ToString().Replace("\'", "\'\'");
             if (namaBrg.Length > 30)
             {
                 nama = namaBrg.Substring(0, 30);

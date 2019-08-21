@@ -188,26 +188,69 @@ namespace MasterOnline.Controllers
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
 
-            string sSQL = "SELECT * FROM (";
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+            //DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kode && p.IDMARKET.ToString() == data.IDMarket).FirstOrDefault();
+
+            //List<string> dsNormal = new List<string>();
+            Dictionary<string, string> listAttr = new Dictionary<string, string>();
+
+            var attributeEl = GetAttributeByCategory(auth, stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 30; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
-                if (i < 30)
+                string attribute_code = Convert.ToString(attributeEl["ACODE_" + i.ToString()]);
+                string attribute_id = Convert.ToString(attributeEl["ATYPE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attributeEl["ANAME_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_code))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    listAttr.Add(attribute_code, attribute_id + "[;]" + attribute_name);
                 }
             }
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
-            int data_idmarket = Convert.ToInt32(data.IDMarket);
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
-            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            Dictionary<string, string> elAttrWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 30; i++)
             {
-                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
-                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
-                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (listAttr.ContainsKey(attribute_id))
+                    {
+                        if (!elAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            //var sVar = listAttr[attribute_id].Split(new string[] { "[;]" }, StringSplitOptions.None);
+                            elAttrWithVal.Add(attribute_id + "[;]" + listAttr[attribute_id], value.Trim());
+                        }
+                    }
+                }
+            }
+            int data_idmarket = Convert.ToInt32(data.IDMarket);
+            //var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
+            //xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
+            xmlString += "<dispCtgrNo>" + stf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
+
+            //for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+            //    xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            //    xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+            //    xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            //}
+            foreach (var elSkuAttr in elAttrWithVal)
+            {
+                var sKey = elSkuAttr.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + sKey[0] + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + sKey[2] + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + sKey[1] + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + elSkuAttr.Value + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
             }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
@@ -323,26 +366,70 @@ namespace MasterOnline.Controllers
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
 
-            string sSQL = "SELECT * FROM (";
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+            //DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            //int data_idmarket = Convert.ToInt32(data.IDMarket);
+            //var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
+            //xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";
+
+            //for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+            //    xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            //    xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+            //    xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            //}
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kode && p.IDMARKET.ToString() == data.IDMarket).FirstOrDefault();
+
+            //List<string> dsNormal = new List<string>();
+            Dictionary<string, string> listAttr = new Dictionary<string, string>();
+
+            var attributeEl = GetAttributeByCategory(auth, stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 30; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
-                if (i < 30)
+                string attribute_code = Convert.ToString(attributeEl["ACODE_" + i.ToString()]);
+                string attribute_id = Convert.ToString(attributeEl["ATYPE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attributeEl["ANAME_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_code))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    listAttr.Add(attribute_code, attribute_id + "[;]" + attribute_name);
                 }
             }
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
-            int data_idmarket = Convert.ToInt32(data.IDMarket);
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
-            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";
 
-            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            Dictionary<string, string> elAttrWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 30; i++)
             {
-                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
-                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
-                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (listAttr.ContainsKey(attribute_id))
+                    {
+                        if (!elAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            //var sVar = listAttr[attribute_id].Split(new string[] { "[;]" }, StringSplitOptions.None);
+                            elAttrWithVal.Add(attribute_id + "[;]" + listAttr[attribute_id], value.Trim());
+                        }
+                    }
+                }
+            }
+            xmlString += "<dispCtgrNo>" + stf02h.CATEGORY_CODE + "</dispCtgrNo>";
+
+            foreach (var elSkuAttr in elAttrWithVal)
+            {
+                var sKey = elSkuAttr.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + sKey[0] + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + sKey[2] + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + sKey[1] + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + elSkuAttr.Value + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
             }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
@@ -1053,7 +1140,73 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+        public ATTRIBUTE_ELEVENIA GetAttributeByCategory(string auth, string code)
+        {
+            var ret = new ATTRIBUTE_ELEVENIA();
+            var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
 
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + code, content, typeof(string), auth) as string;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + code, "", typeof(string), auth) as string;
+            if (result != null)
+            {
+                System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                doc.LoadXml(result.Substring(55));
+                string json = JsonConvert.SerializeXmlNode(doc);
+
+                json = json.Replace("ns2:productCtgrAttributes", "Ns2Productctgrattributes").Replace("ns2:productCtgrAttribute", "Ns2Productctgrattribute").Replace("xmlns:ns2", "xmlnsns2");
+                if (json.Contains("}]}"))
+                {
+                    AttributesRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributesRootobject>(json);
+                    if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                    {
+                        int i = 1;
+                        ret.CATEGORY_CODE = code;
+                        foreach (var attr in res.ns2productCtgrAttributes.ns2productCtgrAttribute)
+                        {
+                            ret["ACODE_" + i] = attr.prdAttrCd;
+                            ret["ATYPE_" + i] = attr.prdAttrNo;
+                            ret["ANAME_" + i] = attr.prdAttrNm;
+                            ret["AOPTIONS_" + i] = "0";
+                            i++;
+                        }
+                        for (int j = i; j <= 30; j++)
+                        {
+                            ret["ACODE_" + j] = "";
+                            ret["ATYPE_" + j] = "";
+                            ret["ANAME_" + j] = "";
+                            ret["AOPTIONS_" + j] = "0";
+
+                        }
+                    }
+                }
+                else
+                {
+                    AttributeRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributeRootobject>(json);
+
+                    if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                    {
+                        ret.CATEGORY_CODE = code;
+                        ret["ACODE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrCd;
+                        ret["ATYPE_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNo;
+                        ret["ANAME_1"] = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNm;
+                        ret["AOPTIONS_1"] = "0";
+
+                        for (int j = 2; j <= 30; j++)
+                        {
+                            ret["ACODE_" + j] = "";
+                            ret["ATYPE_" + j] = "";
+                            ret["ANAME_" + j] = "";
+                            ret["AOPTIONS_" + j] = "0";
+
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
         public async Task<BindingBase> GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             var connIdARF01C = Guid.NewGuid().ToString();
