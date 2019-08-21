@@ -3821,10 +3821,15 @@ namespace MasterOnline.Controllers
                 {
                     if (brg.skus[i].Images[0] != null)
                         urlImage = brg.skus[i].Images[0];
-                    if (brg.skus[i].Images[1] != null)
-                        urlImage2 = brg.skus[i].Images[1];
-                    if (brg.skus[i].Images[2] != null)
-                        urlImage3 = brg.skus[i].Images[2];
+                    //change 21/8/2019, barang varian ambil 1 gambar saja
+                    if (typeBrg != 2)
+                    {
+                        if (brg.skus[i].Images[1] != null)
+                            urlImage2 = brg.skus[i].Images[1];
+                        if (brg.skus[i].Images[2] != null)
+                            urlImage3 = brg.skus[i].Images[2];
+                    }
+                    //end change 21/8/2019, barang varian ambil 1 gambar saja
                 }
 
                 var brgAttribute = new Dictionary<string, string>();
