@@ -6604,7 +6604,7 @@ namespace MasterOnline.Controllers
             //    foreach (ARF01 tblCustomer in listLazadaShop)
             //    {
             var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
-            if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
+            if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
             {
                 for (int i = 0; i < imgPath.Length; i++)
                 {
@@ -6664,7 +6664,7 @@ namespace MasterOnline.Controllers
                 //}
 
                 //change by calvin 9 juni 2019
-                if (mode == 1)
+                if (mode == 1 && productMarketPlace.DISPLAY)
                 {
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
