@@ -1165,13 +1165,17 @@ namespace MasterOnline.Controllers
                 else
                 {
                     ret.message = res.detail[0].message;
+                    throw new Exception(ret.message);
                     //currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
             }
             catch (Exception ex)
             {
-                ret.message = ex.ToString();
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                //ret.message = ex.ToString();
+                throw new Exception(msg);
+
                 //currentLog.REQUEST_EXCEPTION = ex.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
             }
