@@ -1824,7 +1824,8 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex)
                 {
-
+                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    throw new Exception(msg);
                 }
             }
             return ret;
