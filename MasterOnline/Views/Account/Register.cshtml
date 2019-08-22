@@ -275,6 +275,7 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
+        var cekEmailsave = false;
         $(document).on('ready', function (event) {
             $("#alert-error-section").hide();
 
@@ -285,18 +286,25 @@
             }
 
             $('#btn-submit-daftar').click(function () {
-                $('#btn-submit-daftar').attr("disabled", true);
-
+                if (!validateForm()) return false;
+                //$('#btn-submit-daftar').attr("disabled", true);
+                if (!cekEmailsave) {
+                    $('#Email').closest('.form-group').addClass('has-error');
+                    $('#Email').closest('div').append('<span class="text-danger">Email ini sudah digunakan!</span>');
+                    return false;
+                }
                 if ($('#Password').val() !== $('#ConfirmPassword').val()) {
                     $('#alert-error-section #message').text('Password tidak sama!');
                     $("#alert-error-section").show();
                     setTimeout(function () {
                         $("#alert-error-section").slideUp(500);
                     }, 2000);
-                    $('#btn-submit-daftar').attr("disabled", false);
-                    return;
+                    //$('#btn-submit-daftar').attr("disabled", false);
+                    $('#ConfirmPassword').closest('.form-group').addClass('has-error');
+                    $('#ConfirmPassword').closest('div').append('<span class="text-danger">Password tidak sama!</span>');
+                    return false;
                 }
-
+                
                 //$('form').submit();
 
                 var $form = $('#btn-submit-daftar').parents('form');
@@ -311,7 +319,7 @@
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
-                        $('#btn-submit-daftar').attr("disabled", false);
+                        //$('#btn-submit-daftar').attr("disabled", false);
                         $('#loading_spinner').hide();
 
                         if (response.error == null) {
@@ -323,7 +331,7 @@
                             else {
                                 //window.location.href = response;
                                 //change by nurul 14/8/2019
-                                //$('#loginColumns').html(response);
+                                $('#loginColumns').html(response);
                                 thankyou();
                                 //end change by nurul 14/8/2019
                             }
@@ -332,7 +340,7 @@
                         }
                     },
                     error: function (xhr, status, error) {
-                        $('#btn-submit-daftar').attr("disabled", false);
+                        //$('#btn-submit-daftar').attr("disabled", false);
                         console.log(error);
                         $('#loading_spinner').hide();
                     }
@@ -580,6 +588,8 @@
                         if (!$this.closest('div').find('.text-danger').length) {
                             $this.closest('div').append('<span class="text-danger">Email ini sudah digunakan!</span>');
                         }
+                    } else if (response.CekNull == null){
+                        cekEmailsave = true;
                     }
                 },
                 error: function (xhr, status, error) {
