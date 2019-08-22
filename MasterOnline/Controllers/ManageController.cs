@@ -15085,6 +15085,14 @@ namespace MasterOnline.Controllers
 #region add button cetak
                         htmlString += "<button id='print-btn' >Cetak</button>";
                         htmlString += "<script>";
+                        htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                        htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                        htmlString += "x.style.height = 'auto'; ";
+                        //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                        //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                        htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
                         htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
                         htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
                         htmlString += "window.print(); }; window.onafterprint = function () {";
