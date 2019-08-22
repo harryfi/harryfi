@@ -161,7 +161,8 @@
 
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
-        <div class="hscroll table-responsive brgtbltrnmskfrm">
+        @*<div class="hscroll table-responsive brgtbltrnmskfrm"> --change by nurul 15/8/2019*@
+        <div class="brgtbltrnmskfrm">
             <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
             <table id="table_tambah_stok" class="table table-bordered" role="grid">
                 <thead>
@@ -269,7 +270,7 @@
                         <td class="gd-barang" style="width: 100px; max-width: 100px;">
                             <span id="gudang-kode">-</span>
                             <div id="gudang-select" style="display: none;">
-                                <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+                                <select id="GUDANG" placeholder="Pilih" required="required"></select>
                             </div>
                             @Html.HiddenFor(m => m.BarangStok.Ke_Gd)
                         </td>
