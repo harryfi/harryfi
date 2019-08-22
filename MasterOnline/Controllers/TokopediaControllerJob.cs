@@ -262,10 +262,10 @@ namespace MasterOnline.Controllers
                                 {
                                     currentLog.REQUEST_RESULT = item_failed.error;
                                     currentLog.REQUEST_EXCEPTION = item_failed.error;
-                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITFAILED;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 }
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                                throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION);
+                                throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION + ";PEDITFAILED;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";");
                             }
                         }
                     }
