@@ -4763,7 +4763,7 @@ namespace MasterOnline.Controllers
                                     //    }
                                     //}
                                     var retVal = ValidasiHarga(kdMarket, hargaPerMarket.HJUAL);
-                                    if(retVal.status == 0)
+                                    if (retVal.status == 0)
                                     {
                                         validPrice = false;
                                         listError.Add(i + "_errortext_" + retVal.message);
@@ -5025,63 +5025,74 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                if (akunMP.NAMA == kdLazada.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 3000)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
-                                    }
-                                    //else if (dataBaru.HJUAL % 100 != 0)
-                                    //{
-                                    //    validPrice = false;
-                                    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                //change by Tri 22 agustus 2019, validasi harga 1 function
+                                //if (akunMP.NAMA == kdLazada.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 3000)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                //    }
+                                //    //else if (dataBaru.HJUAL % 100 != 0)
+                                //    //{
+                                //    //    validPrice = false;
+                                //    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
-                                    //}
-                                    ////add by nurul 31/1/2019
-                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    //{
-                                    //    validPrice = false;
-                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    //}
-                                    ////end add by nurul 31/1/2019
-                                }
-                                else if (akunMP.NAMA == kdBlibli.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 1100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
-                                    }
-                                    ////add by nurul 31/1/2019
-                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    //{
-                                    //    validPrice = false;
-                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    //}
-                                    ////end add by nurul 31/1/2019
-                                }
-                                else if (akunMP.NAMA == kdBL.IdMarket.ToString() || akunMP.NAMA == kdElevenia.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
-                                    }
-                                    else if (dataBaru.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                //    //}
+                                //    ////add by nurul 31/1/2019
+                                //    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                //    //{
+                                //    //    validPrice = false;
+                                //    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                //    //}
+                                //    ////end add by nurul 31/1/2019
+                                //}
+                                //else if (akunMP.NAMA == kdBlibli.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 1100)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                //    }
+                                //    ////add by nurul 31/1/2019
+                                //    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                //    //{
+                                //    //    validPrice = false;
+                                //    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                //    //}
+                                //    ////end add by nurul 31/1/2019
+                                //}
+                                //else if (akunMP.NAMA == kdBL.IdMarket.ToString() || akunMP.NAMA == kdElevenia.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 100)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                //    }
+                                //    else if (dataBaru.HJUAL % 100 != 0)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
+                                //    }
+                                //    ////add by nurul 31/1/2019
+                                //    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                //    //{
+                                //    //    validPrice = false;
+                                //    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                //    //}
+                                //    ////end add by nurul 31/1/2019
+                                //}
+                                if (dataBaru.DISPLAY)
+                                {
+                                    var retVal = ValidasiHarga(akunMP.NAMA, dataBaru.HJUAL);
+                                    if (retVal.status == 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + retVal.message);
                                     }
-                                    ////add by nurul 31/1/2019
-                                    //if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
-                                    //{
-                                    //    validPrice = false;
-                                    //    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
-                                    //}
-                                    ////end add by nurul 31/1/2019
                                 }
+                                //end change by Tri 23 agustus 2019, validasi harga 1 function
                                 i++;
                                 //end add validasi harga per marketplace
                             }
@@ -5844,49 +5855,61 @@ namespace MasterOnline.Controllers
                         List<int> processedIdMarket = new List<int>();
                         foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                         {
-                            if (!processedIdMarket.Contains(hargaPerMarket.IDMARKET))
+                            if (hargaPerMarket.DISPLAY)
                             {
-                                processedIdMarket.Add(hargaPerMarket.IDMARKET);
-
-                                var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
-                                if (kdMarket == kdLazada.IdMarket.ToString())
+                                if (!processedIdMarket.Contains(hargaPerMarket.IDMARKET))
                                 {
-                                    if (hargaPerMarket.HJUAL < 3000)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
-                                    }
-                                    //else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    processedIdMarket.Add(hargaPerMarket.IDMARKET);
+
+                                    var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
+                                    //change by Tri 23 agustus 2019, validasi harga 1 function
+                                    //if (kdMarket == kdLazada.IdMarket.ToString())
                                     //{
-                                    //    validPrice = false;
-                                    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    //    if (hargaPerMarket.HJUAL < 3000)
+                                    //    {
+                                    //        validPrice = false;
+                                    //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                    //    }
+                                    //    //else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    //    //{
+                                    //    //    validPrice = false;
+                                    //    //    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
+                                    //    //}
                                     //}
-                                }
-                                else if (kdMarket == kdBlibli.IdMarket.ToString())
-                                {
-                                    if (hargaPerMarket.HJUAL < 1100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
-                                    }
-                                }
-                                else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
-                                {
-                                    if (hargaPerMarket.HJUAL < 100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
-                                    }
-                                    else if (hargaPerMarket.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                    //else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                    //{
+                                    //    if (hargaPerMarket.HJUAL < 1100)
+                                    //    {
+                                    //        validPrice = false;
+                                    //        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                    //    }
+                                    //}
+                                    //else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                                    //{
+                                    //    if (hargaPerMarket.HJUAL < 100)
+                                    //    {
+                                    //        validPrice = false;
+                                    //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                    //    }
+                                    //    else if (hargaPerMarket.HJUAL % 100 != 0)
+                                    //    {
+                                    //        validPrice = false;
+                                    //        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
+                                    //    }
+                                    //}
+                                    var retVal = ValidasiHarga(kdMarket, hargaPerMarket.HJUAL);
+                                    if (retVal.status == 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + retVal.message);
                                     }
+                                    //end change by Tri 23 agustus 2019, validasi harga 1 function
+                                    i++;
                                 }
-                                i++;
                             }
+
                         }
                         if (validPrice)
                         {
@@ -6018,42 +6041,53 @@ namespace MasterOnline.Controllers
                             {
                                 //add validasi harga per marketplace
                                 var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
-                                if (kdMarket == kdLazada.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 3000)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
-                                    }
-                                    else if (dataBaru.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                //change by Tri 23 agustus 2019, validasi harga 1 function
+                                //if (kdMarket == kdLazada.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 3000)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                //    }
+                                //    else if (dataBaru.HJUAL % 100 != 0)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
-                                    }
-                                }
-                                else if (kdMarket == kdBlibli.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 1100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
-                                    }
-                                }
-                                else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
-                                {
-                                    if (dataBaru.HJUAL < 100)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
-                                    }
-                                    else if (dataBaru.HJUAL % 100 != 0)
-                                    {
-                                        validPrice = false;
-                                        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+                                //    }
+                                //}
+                                //else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 1100)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                //    }
+                                //}
+                                //else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                                //{
+                                //    if (dataBaru.HJUAL < 100)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                //    }
+                                //    else if (dataBaru.HJUAL % 100 != 0)
+                                //    {
+                                //        validPrice = false;
+                                //        listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
+                                //    }
+                                //}
+                                if (dataBaru.DISPLAY)
+                                {
+                                    var retVal = ValidasiHarga(kdMarket, dataBaru.HJUAL);
+                                    if (retVal.status == 0)
+                                    {
+                                        validPrice = false;
+                                        listError.Add(i + "_errortext_" + retVal.message);
                                     }
                                 }
+                                //end change by Tri 23 agustus 2019, validasi harga 1 function
                                 i++;
                                 //end add validasi harga per marketplace
                             }
@@ -8485,28 +8519,63 @@ namespace MasterOnline.Controllers
             {
                 ids.Add(item.recnum);
             }
+            var customer = ErasoftDbContext.ARF01.ToList();
+            var brgInduk = ErasoftDbContext.STF02H.Where(m => m.BRG == brg).ToList();
+            partialVm.Errors = new List<string>();
+            string errorMsg = "";
             foreach (var record in ErasoftDbContext.STF02H.Where(x => ids.Contains(x.RecNum.HasValue ? x.RecNum.Value : 0)).ToList())
             {
+                var newPrice = newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual;
+                var currentCust = customer.Where(m => m.RecNum == record.IDMARKET).FirstOrDefault();
                 //add 31 juli 2019, cek barang sedang dalam promo
-                var akunMP = ErasoftDbContext.ARF01.Where(m => m.RecNum == record.IDMARKET).SingleOrDefault();
-                var dsPromo = EDB.GetDataSet("CString", "PROMOSIS", "select * from promosis a inner join detailpromosis b on a.recnum = b.RecNumPromosi where tgl_mulai < dateadd(hour,7,getutcdate()) and tgl_akhir > dateadd(hour,7,getutcdate()) and kode_brg = '" + record.BRG + "' and nama_market = '" + akunMP.CUST + "'");
+                //var akunMP = ErasoftDbContext.ARF01.Where(m => m.RecNum == record.IDMARKET).SingleOrDefault();
+                var dsPromo = EDB.GetDataSet("CString", "PROMOSIS", "select * from promosis a inner join detailpromosis b on a.recnum = b.RecNumPromosi where tgl_mulai < dateadd(hour,7,getutcdate()) and tgl_akhir > dateadd(hour,7,getutcdate()) and kode_brg = '" + record.BRG + "' and nama_market = '" + currentCust.CUST + "'");
                 if (dsPromo.Tables[0].Rows.Count > 0)
                 {
                     //var stf02hInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangInDb.BRG && m.IDMARKET == dataBaru.IDMARKET).FirstOrDefault();
                     //if (stf02hInDB != null)
                     if (record.HJUAL > 0)
                     {
-                        if (record.HJUAL != newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual)
+                        //if (record.HJUAL != newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual)
+                        if (record.HJUAL != newPrice)
                         {
-                            partialVm.Errors = new List<string>();
-                            partialVm.Errors.Add("Harga barang " + record.BRG + " tidak dapat di update, karena sedang dalam masa promosi di akun : " + akunMP.PERSO);
+                            //partialVm.Errors = new List<string>();
+                            partialVm.Errors.Add("Harga barang " + record.BRG + " tidak dapat di update, karena sedang dalam masa promosi di akun : " + currentCust.PERSO);
                             return Json(partialVm, JsonRequestBehavior.AllowGet);
                         }
                     }
                 }
                 //end add 31 juli 2019, cek barang sedang dalam promo
-                record.HJUAL = newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual;
+                //add 23 Agustus 2019, validasi harga per mp
+                var currentInduk = brgInduk.Where(m => m.IDMARKET == currentCust.RecNum).FirstOrDefault();
+                if (currentInduk.DISPLAY)
+                {
+                    if (currentCust != null)
+                    {
+                        if (currentCust.NAMA != "18")//bukan marketplace offline
+                        {
+                            var retVal = ValidasiHarga(currentCust.NAMA, newPrice);
+                            if (retVal.status == 0)
+                            {
+                                //partialVm.Errors.Add("Harga barang " + record.BRG + "di akun : " + currentCust.PERSO + " tidak valid, " + retVal.message + "\n" );
+                                errorMsg += "Harga barang " + record.BRG + " di akun : " + currentCust.PERSO + " tidak valid, " + retVal.message + "\n";
+
+                            }
+                        }
+                    }
+                }
+                //end add 23 Agustus 2019, validasi harga per mp
+                //record.HJUAL = newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual;
+                record.HJUAL = newPrice;
+
             }
+
+            if (!string.IsNullOrEmpty(errorMsg))
+            {
+                partialVm.Errors.Add(errorMsg);
+                return Json(partialVm, JsonRequestBehavior.AllowGet);
+            }
+
             ErasoftDbContext.SaveChanges();
 
             ModelState.Clear();
@@ -23604,7 +23673,7 @@ namespace MasterOnline.Controllers
                 if (hJualInDb.DISPLAY)
                 {
                     var retVal = ValidasiHarga(customer.NAMA, hargaJualBaru);
-                    if(retVal.status == 0)
+                    if (retVal.status == 0)
                     {
                         ret.message = retVal.message;
                         return Json(ret, JsonRequestBehavior.AllowGet);
@@ -24057,54 +24126,63 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage(listError);
             }
             #region validasi harga
-
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            //change 23 agustus 2019, validasi harga 1 function
+            //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            //var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            //var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            //var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
 
             var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == data.TempBrg.IDMARKET).FirstOrDefault().NAMA;
-            if (kdMarket == kdLazada.IdMarket.ToString())
+            //if (kdMarket == kdLazada.IdMarket.ToString())
+            //{
+            //    if (data.Stf02.HJUAL < 3000)
+            //    {
+            //        return JsonErrorMessage("Harga Jual harus lebih dari 3000.");
+            //    }
+            //    else if (data.Stf02.HJUAL % 100 != 0)
+            //    {
+            //        return JsonErrorMessage("Harga Jual harus kelipatan 100.");
+            //    }
+            //}
+            //else if (kdMarket == kdBlibli.IdMarket.ToString())
+            //{
+            //    if (data.Stf02.HJUAL < 1100)
+            //    {
+            //        return JsonErrorMessage("Harga Jual minimal 1100.");
+            //    }
+            //}
+            //else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+            //{
+            //    if (data.Stf02.HJUAL < 100)
+            //    {
+            //        return JsonErrorMessage("Harga Jual harus lebih dari 100.");
+            //    }
+            //    else if (data.Stf02.HJUAL % 100 != 0)
+            //    {
+            //        return JsonErrorMessage("Harga Jual harus kelipatan 100.");
+            //    }
+            //}
+            //else if (kdMarket == kdShopee.IdMarket.ToString())
+            //{
+            //    if (data.Stf02.HJUAL < 100)
+            //    {
+            //        return JsonErrorMessage("Harga Jual harus lebih dari 100.");
+            //    }
+            //    //else if (data.Stf02.HJUAL > 9999999999999)
+            //    //{
+            //    //    return JsonErrorMessage("Harga Jual tidak boleh lebih dari 9,999,999,999,999.");
+            //    //}
+            //}
+            if (data.TempBrg.DISPLAY)
             {
-                if (data.Stf02.HJUAL < 3000)
+                var retVal = ValidasiHarga(kdMarket, data.Stf02.HJUAL);
+                if (retVal.status == 0)
                 {
-                    return JsonErrorMessage("Harga Jual harus lebih dari 3000.");
-                }
-                else if (data.Stf02.HJUAL % 100 != 0)
-                {
-                    return JsonErrorMessage("Harga Jual harus kelipatan 100.");
+                    return JsonErrorMessage(retVal.message);
                 }
             }
-            else if (kdMarket == kdBlibli.IdMarket.ToString())
-            {
-                if (data.Stf02.HJUAL < 1100)
-                {
-                    return JsonErrorMessage("Harga Jual minimal 1100.");
-                }
-            }
-            else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
-            {
-                if (data.Stf02.HJUAL < 100)
-                {
-                    return JsonErrorMessage("Harga Jual harus lebih dari 100.");
-                }
-                else if (data.Stf02.HJUAL % 100 != 0)
-                {
-                    return JsonErrorMessage("Harga Jual harus kelipatan 100.");
-                }
-            }
-            else if (kdMarket == kdShopee.IdMarket.ToString())
-            {
-                if (data.Stf02.HJUAL < 100)
-                {
-                    return JsonErrorMessage("Harga Jual harus lebih dari 100.");
-                }
-                //else if (data.Stf02.HJUAL > 9999999999999)
-                //{
-                //    return JsonErrorMessage("Harga Jual tidak boleh lebih dari 9,999,999,999,999.");
-                //}
-            }
+            //end change 23 agustus 2019, validasi harga 1 function
             #endregion
             if (data != null)
             {
