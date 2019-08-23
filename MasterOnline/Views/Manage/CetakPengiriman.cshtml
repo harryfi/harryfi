@@ -1,0 +1,602 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.PengirimanViewModel
+@{
+    ViewBag.Title = "Cetak Pengiriman";
+    Layout = null;
+
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.SingleOrDefault(u => u.Username == dataSession.User.Username)?.AccountId;
+        username = context.Account.SingleOrDefault(a => a.AccountId == accId)?.Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <link href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="~/Content/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <link href="~/Content/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+    <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
+    <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css" media="print">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.min.css" media="print">
+    
+    <style>
+        body {
+            background-color: #F7F7F7;
+            font-family: 'Roboto Condensed', sans-serif;
+            color: #606060;
+        }
+
+        #faktur_viewer {
+            padding: 20px;
+        }
+
+        #fake_page {
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        .bold_title {
+            font-weight: bold;
+            padding-top: 20px;
+            font-size: 24px;
+            height: 59px;
+        }
+
+        .bold_title_invoice {
+            font-weight: bold;
+            padding-top: 20px;
+            font-size: 36px;
+        }
+
+        .sub_title {
+            font-size: 16px;
+        }
+
+        .block_subtitle {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+        }
+
+        .block_subtitle_label {
+            display: inline-block;
+            width: 135px;
+            font-weight: bold;
+        }
+
+        hr {
+            border: solid 1.5px #eee;
+            margin: 15px 0 10px 0;
+        }
+
+        #rincian_faktur > thead > tr:not(:last-child) > th {
+            border-top: 0;
+            border-bottom: 0;
+        }
+
+        #rincian_faktur > thead > tr:first-child > th {
+            border-top: solid 1px #ddd;
+        }
+
+        #garis_potong {
+            border: dashed 1.5px #606060;
+            margin: 12px 0;
+        }
+
+        #print-btn {
+            /*position: absolute;
+            top: 20px;
+            right: 20px;*/
+        }
+
+        #barang-faktur > tr > td {
+            border-top: none;
+        }
+    </style>
+    <style type="text/css">
+        @@media print {
+            @@page {
+                size: A4 portrait;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            body * {
+                page: initial;
+                position: initial;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body class="A4">
+    <div id="faktur_viewer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6" id="fake_page">
+                    @if (Model.Pengiriman != null)
+                    {
+                        //var pembeli = Model.ListPembeli.SingleOrDefault(p => p.BUYER_CODE == Model.Faktur.PEMESAN);
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
+                            </div>
+                        </div>
+                        <div class="row center" >
+                            <h1 class="text-center">BUKTI PENGIRIMAN</h1>
+                        </div>
+                        <br />
+                        <div hidden="hidden">
+                            @Html.Label(Model.NamaToko, new { @id = "nm_toko" })
+                            @Html.Label(Model.TlpToko, new { @id = "no_toko" })
+                        </div>
+                        //add by nurul 29/11/2018
+                        <div id="div_faktur">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table cellpadding="0">
+                                        <tr>
+                                            <td @*style="width:500px"*@>
+                                                <table class="table-hover">
+                                                    @*<tr>
+                                                        <td style="text-align:left; width:500px">
+                                                            <div id="nama_faktur"><h3 style="padding-top:unset; margin-left:10px"><span id="nama_toko"><b>@Model.NamaToko</b></span></h3></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div id="alamat_faktur" class="col-md-12"><span>@Model.AlamatToko</span></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <div id="tlp_faktur" class="col-md-12"><span id="tlp_toko">@Model.TlpToko</span></div>
+                                                        </td>
+                                                    </tr>*@
+                                                    <tr>
+                                                        <td style="text-align:left; "  width="500px">
+                                                            <div style="background-color:lightskyblue;">
+                                                                <span style="color:white; font-size:16px;  text-decoration-line:underline; margin-left:10px ; ">Detail Pengiriman :</span>
+                                                            </div>
+                                                        </td>
+                                                        <td style="text-align:left; width:500px">
+                                                            <div id="nama_faktur"><h3 style="padding-top:unset; margin-left:10px"><span id="nama_toko"><b>@Model.NamaToko</b></span></h3></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td @*colspan="2"*@ width="500px">
+                                                            <span class="block_subtitle" style="margin-left:10px">No. Bukti</span> @Model.Pengiriman.NO_BUKTI
+                                                        </td>
+                                                        <td style="text-align:left; width:500px">
+                                                            <div id="alamat_faktur" class="col-md-12"><span>@Model.AlamatToko</span></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td @*colspan="2"*@ style="text-align:left; width:500px">
+                                                            <span class="block_subtitle" style="margin-left:10px">Tgl Kirim</span> @(Model.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy")) @(Model.Pengiriman.JAM_KIRIM?.ToString("HH:mm"))
+                                                        </td>
+                                                        <td style="text-align:left; width:500px">
+                                                            <div id="tlp_faktur" class="col-md-12"><span id="tlp_toko">@Model.TlpToko</span></div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <span class="block_subtitle" style="margin-left:10px">Kurir</span> @Model.NamaKurir
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2">
+                                                            <span class="block_subtitle" style="margin-left:10px">Nama Kurir</span> @Model.Pengiriman.NAMA_KURIR
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                            <br />
+                            @*<table>
+                                <tr>
+                                    <td>
+                                        <table class="table-hover">
+                                            <tr>
+                                                <td style="text-align:left; background-color:lightskyblue; width:500px">
+                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
+                                                </td>
+                                                <td style="text-align:center; width:50px"></td>
+                                                <td style="width:250px; background-color:lightskyblue; text-align:center">
+                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
+                                                </td>
+                                                <td style="width:250px; background-color:lightskyblue ; text-align:center">
+                                                    <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:500px">
+                                                    <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(pembeli == null ? "" : pembeli.NAMA)
+                                                </td>
+                                                <td style="text-align:center; width:50px"></td>
+                                                <td style="width:250px; text-align:center">
+                                                    <span class="block_subtitle">@(Model.Faktur.NO_BUKTI)</span>
+                                                </td>
+                                                <td style="width:250px; text-align:center">
+                                                    <span class="block_subtitle">@(Model.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:left; background-color:lightskyblue; width:500px">
+                                                    <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.noRef == null || Model.noRef == "" ? "-" : Model.noRef)
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>*@
+                            @*<br /><br />*@
+                            <table class="table">
+                                @*<thead>*@
+                                <tr>
+                                    <th>Pesanan</th>
+                                    <th>Marketplace</th>
+                                    <th>Pembeli</th>
+                                    <th>Alamat</th>
+                                </tr>
+                                @*</thead>*@
+                                <tbody id="barang-faktur">
+                                    @foreach (var KirimDetail in Model.ListPengirimanDetail)
+                                    {
+                                        //var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                        //var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                        //var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                        //var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                        //var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                        <tr>
+                                            <td>
+                                                @KirimDetail.PESANAN
+                                            </td>
+                                            <td >
+                                                @KirimDetail.NAMA_MARKET
+                                            </td>
+                                            <td >
+                                                @KirimDetail.NAMA_PEMBELI
+                                            </td>
+                                            <td >
+                                                @KirimDetail.ALAMAT_KIRIM @KirimDetail.KOTA @KirimDetail.PROPINSI @KirimDetail.KODE_POS
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <hr />
+                            @*<table class="table-hover" id="rincian_faktur">
+                                <thead>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Subtotal</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.BRUTO)</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Nilai Diskon</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", Model?.Faktur?.NILAI_DISC)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.NILAI_PPN)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
+                                        <td style="width: 100px; border-bottom:groove;"></td>
+                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.MATERAI)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; border-bottom:groove;">TOTAL</td>
+                                        <td style="width: 100px; border-bottom:groove;"></td>
+                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NETTO)</td>
+                                    </tr>
+                                </tbody>
+                            </table>*@
+                        </div>
+                        @*<br />
+                        <div id="div_gunting" class="row">
+                            <div class="col-md-1">
+                                <span style="font-size: 20px">&#9986;</span>
+                            </div>
+                            <div class="col-md-11">
+                                <hr id="garis_potong" />
+                            </div>
+                            <br />
+                        </div>
+                        <div id="div_label_pengiriman">
+                            <div id="resiyes">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = @Model.NoResi == null || @Model.NoResi == "" ? "-" : Model.NoResi })" alt="" />
+                                </p>
+                            </div>
+                            <div id="resino">
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">No Resi</span> @(Model.NoResi == null || Model.NoResi == "" ? "-" : Model.NoResi)
+                                </p>
+                            </div>
+                            <br />
+                            <table>
+                                <tr>
+                                    <td class="sub_title" style="width:450px">
+                                        <span class="block_subtitle_label">Marketplace</span> @(Model.Marketplace)
+                                    </td>
+                                    <td class="sub_title" style="width:550px">
+                                        <span class="block_subtitle_label">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title" style="width:450px">
+                                        <span class="block_subtitle_label">Kurir</span> @(Model.Kurir)
+                                    </td>
+                                    <td class="sub_title" style="width:550px">
+                                        <span class="block_subtitle_label">Alamat Penerima</span> @(Model.alamatPenerima)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title">
+                                        <span class="block_subtitle_label">No. Referensi</span> @(Model.noRef == null || Model.noRef == "" ? "-" : Model.noRef)
+                                    </td>
+                                    <td class="sub_title">
+                                        <span class="block_subtitle_label">No. Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                    </td>
+                                </tr>
+                            </table>
+                            <table>
+                                <tr>
+                                    <td class="sub_title">
+                                        <span class="block_subtitle_label">No. SO</span> @(Model.Faktur.NO_SO == null || Model.Faktur.NO_SO == "" ? "-" : Model.Faktur.NO_SO)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title">
+                                        <span class="block_subtitle_label">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title">
+                                        <span class="block_subtitle_label">Nama Penjual</span> <span id="nama_toko_label"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title">
+                                        <div id="alamat_label">
+                                            <span class="block_subtitle_label">Alamat Penjual</span> @(Model.AlamatToko)
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="sub_title">
+                                        <div id="tlp_label">
+                                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span id="tlp_toko_label"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <br />
+                            <table class="table" style="width:600px">
+                                <tr>
+                                    <th style="width:450px">Nama Produk</th>
+                                    <th style="text-align: right; width:150px">Jumlah Barang</th>
+                                </tr>
+                                <tbody id="barang-faktur">
+                                    @foreach (var fakturDetail in Model.ListFakturDetail)
+                                    {
+                                        var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                        var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                        var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                        <tr>
+                                            <td>
+                                                @namaBarang1
+                                                @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                {
+                                                    @namaBarang2
+                                                }
+                                            </td>
+                                            <td style="text-align: right;">
+                                                @fakturDetail.QTY @satuan
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <hr style="width:600px" />
+                        </div>*@
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+    <script>
+
+        //function parse_query_string(query) {
+        //    var vars = query.split("&");
+        //    var query_string = {};
+        //    for (var i = 0; i < vars.length; i++) {
+        //        var pair = vars[i].split("=");
+        //        var key = decodeURIComponent(pair[0]);
+        //        var value = decodeURIComponent(pair[1]);
+        //        // If first entry with this name
+        //        if (typeof query_string[key] === "undefined") {
+        //            query_string[key] = decodeURIComponent(value);
+        //            // If second entry with this name
+        //        } else if (typeof query_string[key] === "string") {
+        //            var arr = [query_string[key], decodeURIComponent(value)];
+        //            query_string[key] = arr;
+        //            // If third or later entry with this name
+        //        } else {
+        //            query_string[key].push(decodeURIComponent(value));
+        //        }
+        //    }
+        //    return query_string;
+        //}
+
+        $(document).ready(function () {
+            $('#print-btn').click(function () {
+                $(this).hide();
+                window.print();
+            });
+
+            window.onafterprint = function () {
+                $('#print-btn').show();
+            }
+            //add by nurul 29/4/2019
+            @*function overrideKeyDown(winEvent) {
+                var keyCode;
+
+                if (!winEvent) {
+                    // IE code
+                    winEvent = window.event;
+                    keyCode = winEvent.keyCode;
+                }
+                else {
+                    keyCode = winEvent.which;
+                }
+
+                if (keyCode == 80 && winEvent.ctrlKey) {
+                    //alert('Printer Friendly Page');
+                    $('#print-btn').click();
+                    return false;
+                }
+            }
+
+            document.onkeydown = overrideKeyDown;
+            //end add by nurul 29/4/2019
+            //add by nurul 30/11/2018
+            //var url1 = window.location.search.split('&')[1]; // faktur
+            //var url2 = window.location.search.split('&')[2]; //label
+            //var url3 = window.location.search.split('&')[3]; //alamat
+            //var url4 = window.location.search.split('&')[4]; //tlp
+            //var url5 = decodeURI(window.location.search.split('&')[5]); //nama toko
+            var query = window.location.search.substring(1);
+            var qs = parse_query_string(query);
+            var url1 = qs.faktur; // faktur
+            var url2 = qs.label; //label
+            var url3 = qs.alamat; //alamat
+            var url4 = qs.tlp; //tlp
+            var url5 = qs.toko; //nama toko
+            //add by nurul 24/6/2019
+            var url6 = qs.tlpToko; //tlp toko
+            //end add nurul 24/6/2019
+            if (url1 == "1" && url2 == "1") {
+                $('#div_faktur').show()
+                $('#div_gunting').show()
+                $('#div_label_pengiriman').show()
+            } else if (url1 == "1" && url2 == "0") {
+                $('#div_faktur').show()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').hide()
+            } else if (url1 == "0" && url2 == "1") {
+                $('#div_faktur').hide()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').show()
+            } else if (url1 == "0" && url2 == "0") {
+                $('#div_faktur').hide()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').hide()
+            }
+
+            if (url3 == "1") {
+                $('#alamat_faktur').show()
+                $('#alamat_label').show()
+            } else if (url3 == "0") {
+                $('#alamat_faktur').hide()
+                $('#alamat_label').hide()
+            }
+            if (url4 == "1") {
+                if (url6 != "") {
+                    $('#tlp_toko').text(url6);
+                    $('#tlp_toko_label').text(url6);
+                } else if (url6 == "") {
+                    $('#tlp_toko').text($('#no_toko').text());
+                    $('#tlp_toko_label').text($('#no_toko').text());
+                }
+                $('#tlp_faktur').show()
+                $('#tlp_label').show()
+            } else if (url4 == "0") {
+                $('#tlp_faktur').hide()
+                $('#tlp_label').hide()
+            }
+
+            if (url5 == "") {
+
+                $('#nama_toko').text($('#nm_toko').text());
+                $('#nama_toko_label').text($('#nm_toko').text());
+            } else if (url5 != "") {
+                $('#nama_toko').text(url5);
+                $('#nama_toko_label').text(url5);
+            }
+
+            if ('@Model.NoResi' == null || '@Model.NoResi' == "" || '@Model.NoResi' == "-") {
+                $('#resiyes').hide();
+                $('#resino').show();
+            } else {
+                $('#resiyes').show();
+                $('#resino').hide();
+            }*@
+            //end add
+            @*if (@Model.NoResi != "") {
+                <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = "@ReplaceResi" })" alt="@Model.NoResi" />
+                img src = "@Url.Action("LihatFakturBarcode", "Manage", new { resi = "@ReplaceResi" })";
+                src = src.replace("ReplaceResi", "@Model.NoResi");
+            }*@
+        });
+    </script>
+
+</body>
+</html>

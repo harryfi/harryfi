@@ -1019,6 +1019,8 @@
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
     <Compile Include="Models\QOH_PER_GD.cs" />
+    <Compile Include="Models\SIT04A.cs" />
+    <Compile Include="Models\SIT04B.cs" />
     <Compile Include="Models\STF02I.cs" />
     <Compile Include="Models\STF20B.cs" />
     <Compile Include="Models\STF20.cs" />
@@ -1047,6 +1049,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />
     <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
@@ -1370,8 +1373,12 @@
     <Content Include="Content\admin\PartnerApproval.html" />
     <Content Include="Content\admin\util.css" />
     <Content Include="Content\build\css\bootstrap-datepicker.min.css" />
+    <Content Include="Content\build\css\bootstrap-timepicker.css" />
+    <Content Include="Content\build\css\bootstrap-timepicker.min.css" />
     <Content Include="Content\build\css\selectivity-jquery.min.css" />
     <Content Include="Content\build\js\bootstrap-datepicker.min.js" />
+    <Content Include="Content\build\js\bootstrap-timepicker.js" />
+    <Content Include="Content\build\js\bootstrap-timepicker.min.js" />
     <Content Include="Content\build\js\bootstrap-wysiwyg.min.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
@@ -5663,6 +5670,7 @@
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-radar-boundary-origin.json" />
     <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
     <Content Include="MO_Panduan.pdf" />
+    <Content Include="Content\vendors\bootstrap\less\timepicker.less" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Development.pubxml" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
@@ -6112,6 +6120,11 @@
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
+    <Content Include="Views\Manage\Pengiriman.cshtml" />
+    <Content Include="Views\Manage\PengirimanMenu.cshtml" />
+    <Content Include="Views\Manage\TableKirimPartial.cshtml" />
+    <Content Include="Views\Manage\BarangKirimPartial.cshtml" />
+    <Content Include="Views\Manage\CetakPengiriman.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
