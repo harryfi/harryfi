@@ -26,12 +26,12 @@
             position: relative;
         }
 
-        #top {
+        #counter_top {
             position: relative;
             top: 125px;
         }
 
-        #bottom {
+        #counter_bottom {
             position: relative;
             bottom: 125px;
         }
@@ -196,24 +196,35 @@
 
                 #mobile-app-section {
                     margin-top: 25px !important;
+                    margin-bottom: 25px !important;
                 }
-        
-                #top {
+                #counter_container {
+                    padding-left:0px;
+                    padding-right:0px;
+                }
+                #counter_top {
                     position: relative;
                     top: 26px;
                 }
 
-                #bottom {
+                #counter_bottom {
                     position: relative;
                     bottom: 17px;
                 }
                 .count {
-                    font-size:8pt;
+                    font-size:13pt;
                 }
                 .foot_text {
-                    font-size:8pt;
+                    font-size:11pt;
+                }
+                
+                #counter .right {
+                    position: relative;
                 }
 
+                #central_img {
+                    width:80%;
+                }
                 #counter .title {
                     line-height:30px;
                     font-size:15pt;
@@ -1012,27 +1023,27 @@
                         </div>
                     </div>
                 </div>*@
-            <div class="col-xs-12">
+            <div class="col-xs-12" id="counter_container">
                 <div id="counter">
                     <div class="title">Kembangkan Bisnis Online Anda</div>
                     <div class="container-fluid" id="counter_wrap">
-                        <div class="row" id="top">
-                            <div class="col-xs-6">
+                        <div class="row" id="counter_top">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
                                 <div class="count left" id="member">300+</div>
                                 <div class="foot_text left">Users</div>
                             </div>
-                            <div class="col-xs-6">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
                                 <div id="currency"></div><span class="count" id="revenue">IDR 8 B</span></div>
                                 <div class="foot_text right">Omset / Month</div>
                             </div>
                         </div>
                         <img src="~/Content/Images/counter_image.png" id="central_img">
-                        <div class="row" id="bottom">
-                            <div class="col-xs-6">
+                        <div class="row" id="counter_bottom">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
                                 <div class="count left" id="order">38 K</div>
                                 <div class="foot_text left">Order / Month</div>
                             </div>
-                            <div class="col-xs-6">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
                                 <div class="count right" id="sent">76 K</div>
                                 <div class="foot_text right">Produk Terkirim / Month</div>
                             </div>
