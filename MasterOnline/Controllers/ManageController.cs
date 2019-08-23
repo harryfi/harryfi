@@ -13875,7 +13875,7 @@ namespace MasterOnline.Controllers
             //var totalCount = Pesanan.Count();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, A.JAMKIRIM AS TGLKIRIM, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -28597,6 +28597,343 @@ namespace MasterOnline.Controllers
         }
         //end add by Tri 18 Juli 2019
 
+        //add by nurul 19/8/2019, tambah form pengiriman 
+        // =============================================== Bagian Pengiriman (START)
+
+        public ActionResult GetDataPesanan(string code)
+        {
+            string sSQL = "";
+            sSQL += "select a.no_bukti AS PESANAN, ";
+            sSQL += "isnull(a.CUST,'') AS MARKETPLACE, ";
+            sSQL += "isnull(c.namamarket, '') + ' (' + isnull(b.perso, '') + ')' AS NAMA_MARKET, ";
+            sSQL += "isnull(a.pemesan, '') as PEMBELI, ";
+            sSQL += "isnull(a.namapemesan, '') as NAMA_PEMBELI, ";
+            sSQL += "isnull(a.alamat_kirim, '') AS ALAMAT, ";
+            sSQL += "isnull(a.kota, '') AS KOTA, isnull(a.propinsi, '') AS PROPINSI, isnull(a.kode_pos, '') AS KODE_POS ";
+            sSQL += "from sot01a a ";
+            sSQL += "left join arf01 b on a.cust=b.cust ";
+            sSQL += "left join MO.dbo.marketplace c on b.nama = c.idmarket ";
+            sSQL += "left join (select distinct pesanan from sit04a e inner join sit04b f on e.no_bukti=f.no_bukti)d on a.no_bukti=d.pesanan ";
+            sSQL += "where isnull(d.pesanan, '')='' and a.status_transaksi='03' ";
+            var listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<smolSOT01A>(sSQL).ToList();
+
+            return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
+
+        }
+
+        public ActionResult PengirimanMenu()
+        {
+            var vm = new PengirimanViewModel()
+            {
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult SaveKirim(PengirimanViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+            List<string> listSOT01A = new List<string>();
+            List<string> listDetail = new List<string>();
+            try
+            {
+                DateTime? jamkirim = Convert.ToDateTime(dataVm.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy") + ' ' + dataVm.Pengiriman.JAM_KIRIM?.ToString("HH:mm"));
+                dataVm.Pengiriman.JAM_KIRIM = jamkirim;
+                if (dataVm.Pengiriman.RECNUM == null)
+                {
+                    var listKirimInDb = ErasoftDbContext.SIT04A.OrderBy(p => p.RECNUM).ToList();
+                    var digitAkhir = "";
+                    var noKirim = "";
+
+                    if (listKirimInDb.Count == 0)
+                    {
+                        digitAkhir = "000001";
+                        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT04A, RESEED, 0)");
+                    }
+                    else
+                    {
+                        var lastRecNum = listKirimInDb.Last().RECNUM;
+                        var lastKode = listKirimInDb.Last().NO_BUKTI;
+                        lastRecNum++;
+
+                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+
+                        if (noKirim == lastKode)
+                        {
+                            lastRecNum++;
+                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        }
+                    }
+
+                    dataVm.Pengiriman.NO_BUKTI = noKirim;
+                    dataVm.PengirimanDetail.NO_BUKTI = noKirim;
+
+                    #region agar field yg penting di sit04a tidak null
+                    #endregion
+                    
+                    ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+
+                    if (dataVm.PengirimanDetail.NO_URUT == null)
+                    {
+                        #region agar field yg penting di sit04b tidak null
+                        #endregion
+
+                        ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
+
+
+                    }
+                }
+                else
+                {
+                    var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI);
+
+                    kirimInDb.TGL_KIRIM = dataVm.Pengiriman.TGL_KIRIM;
+                    dataVm.PengirimanDetail.NO_BUKTI = dataVm.Pengiriman.NO_BUKTI;
+
+                    if (dataVm.PengirimanDetail.NO_URUT == null)
+                    {
+                        #region agar field yg penting di sit04b tidak null
+                        #endregion
+
+                        ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
+                    }
+                }
+
+                ErasoftDbContext.SaveChanges();
+
+                var selectSOT01a = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == dataVm.PengirimanDetail.PESANAN).Single();
+                selectSOT01a.JAMKIRIM = jamkirim;
+                ErasoftDbContext.SaveChanges();
+                ModelState.Clear();
+
+                var ListKirimDetail = ErasoftDbContext.SIT04B.Where(pd => pd.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).ToList();
+                var listPesananInKirimDetail = ListKirimDetail.Select(p => p.PESANAN).ToList();
+                var vm = new PengirimanViewModel()
+                {
+                    Pengiriman = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI),
+                    ListPengirimanDetail = ListKirimDetail,
+                };
+
+                return PartialView("BarangKirimPartial", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult RefreshTableKirim(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM, A.NO_BUKTI, A.TGL_KIRIM, A.NAMA_KURIR, A.JAM_KIRIM, B.NAMAEKSPEDISI AS KURIR ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SIT04A A LEFT JOIN MO.dbo.EKSPEDISI B ON A.KURIR = B.RECNUM ";
+            if (search != "")
+            {
+                sSQL2 += "WHERE (A.NO_BUKTI LIKE '%" + search + "%' OR B.NamaEkspedisi LIKE '%" + search + "%' OR A.NAMA_KURIR LIKE '%" + search + "%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.JAM_KIRIM DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListSit04a = ErasoftDbContext.Database.SqlQuery<SIT04A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<SIT04A> pageOrders = new StaticPagedList<SIT04A>(ListSit04a, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            return PartialView("TableKirimPartial", pageOrders);
+        }
+
+        public ActionResult RefreshKirimForm()
+        {
+            try
+            {
+                var vm = new PengirimanViewModel()
+                {
+                    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
+                };
+
+                return PartialView("BarangKirimPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult EditKirim(int? kirimId)
+        {
+            try
+            {
+                var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
+
+                var vm = new PengirimanViewModel()
+                {
+                    Pengiriman = kirimInDb,
+                    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
+                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                };
+
+                return PartialView("BarangKirimPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult DeleteKirim(int? kirimId)
+        {
+            var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
+
+            List<string> listDetail = new List<string>();
+            
+            var kirimDetailInDb = ErasoftDbContext.SIT04B.Where(b => b.NO_BUKTI == kirimInDb.NO_BUKTI).ToList();
+            foreach (var item in kirimDetailInDb)
+            {
+                listDetail.Add(item.PESANAN);
+                var listOrder = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == item.PESANAN).ToList();
+                listOrder.Single().JAMKIRIM = null;
+                ErasoftDbContext.SaveChanges();
+            }
+            
+            ErasoftDbContext.SIT04B.RemoveRange(kirimDetailInDb);
+
+            ErasoftDbContext.SIT04A.Remove(kirimInDb);
+            ErasoftDbContext.SaveChanges();
+            
+            var vm = new StokViewModel()
+            {
+                Errors = null
+            };
+
+            return Json(kirimInDb, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteDetailKirim(int noUrut)
+        {
+            try
+            {
+                var detailKirimInDb = ErasoftDbContext.SIT04B.Single(b => b.NO_URUT == noUrut);
+                var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == detailKirimInDb.NO_BUKTI);
+                
+                var listOrder = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == detailKirimInDb.PESANAN).ToList();
+                listOrder.Single().JAMKIRIM = null;
+
+                ErasoftDbContext.SIT04B.Remove(detailKirimInDb);
+                ErasoftDbContext.SaveChanges();
+                
+                var vm = new PengirimanViewModel()
+                {
+                    Pengiriman = ErasoftDbContext.SIT04A.Single(a => a.NO_BUKTI == kirimInDb.NO_BUKTI),
+                    ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
+                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList()
+                };
+
+                return PartialView("BarangKirimPartial", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UpdateKirim(UpdateData dataUpdate)
+        {
+            var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataUpdate.NoBuktiKirim);
+            kirimInDb.TGL_KIRIM = DateTime.ParseExact(dataUpdate.TglKirim, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            kirimInDb.KURIR = dataUpdate.Kurir;
+            kirimInDb.NAMA_KURIR = dataUpdate.NamaKurir;
+            kirimInDb.JAM_KIRIM = DateTime.ParseExact(dataUpdate.jamKirim, "dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+            ErasoftDbContext.SaveChanges();
+
+
+            var getDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == dataUpdate.NoBuktiKirim).ToList();
+            var getPesanan = getDetail.Select(a => a.PESANAN).ToList();
+            for (int z = 0; z < getPesanan.Count; z++)
+            {
+                if (getPesanan[z] != null)
+                {
+                    var nobuk = getPesanan[z];
+                    var selectSOT01a = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == nobuk).Single();
+                    
+                    selectSOT01a.JAMKIRIM = kirimInDb.JAM_KIRIM;
+                    ErasoftDbContext.SaveChanges();
+                    ModelState.Clear();
+                }
+            }
+
+            return new EmptyResult();
+        }
+
+        [HttpGet]
+        public ActionResult CetakPengiriman(int? KirimId)
+        {
+            try
+            {
+                var kirimInDb = ErasoftDbContext.SIT04A.Single(a => a.RECNUM == KirimId);
+                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                var namaToko = "";
+                if (sessionData?.Account != null)
+                {
+                    namaToko = sessionData.Account.NamaTokoOnline;
+                }
+                else
+                {
+                    if (sessionData?.User != null)
+                    {
+                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                        namaToko = accFromUser.NamaTokoOnline;
+                    }
+                }
+                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                var getKurir = Convert.ToInt32(kirimInDb.KURIR);
+                var kurir = MoDbContext.Ekspedisi.Single(a => a.RecNum == getKurir).NamaEkspedisi;
+                var vm = new PengirimanViewModel()
+                {
+                    Pengiriman = kirimInDb,
+                    ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(fd => fd.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
+                    NamaToko = namaToko,
+                    NamaPerusahaan = namaPT,
+                    AlamatToko = alamat,
+                    TlpToko = tlp,
+                    NamaKurir = kurir
+                };
+                return View(vm);
+            }
+            catch (Exception)
+            {
+                return View("NotFoundPage");
+            }
+        }
+
+        // =============================================== Bagian Pengiriman (END)
+        //end add by nurul 19/8/2019, tambah form pengiriman 
+
     }
     public class smolSTF02
     {
@@ -28606,5 +28943,18 @@ namespace MasterOnline.Controllers
         public string STN2 { get; set; }
         public double HJUAL { get; set; }
 
+    }
+
+    public class smolSOT01A
+    {
+        public string PESANAN { get; set; }
+        public string MARKETPLACE { get; set; }
+        public string NAMA_MARKET { get; set; }
+        public string PEMBELI { get; set; }
+        public string NAMA_PEMBELI { get; set; }
+        public string ALAMAT { get; set; }
+        public string KOTA { get; set; }
+        public string PROPINSI { get; set; }
+        public string KODE_POS { get; set; }
     }
 }

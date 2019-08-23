@@ -443,6 +443,11 @@ namespace MasterOnline
         public virtual DbSet<STF02I> STF02I { get; set; }
         public virtual DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
 
+        //add by nurul 20/8/2019
+        public virtual DbSet<SIT04A> SIT04A { get; set; }
+        public virtual DbSet<SIT04B> SIT04B { get; set; }
+        //end add by nurul 20/8/2019
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 
