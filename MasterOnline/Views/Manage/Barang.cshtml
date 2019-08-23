@@ -4212,8 +4212,9 @@
                     $('.barang_editor_section').show();
                     $('#form-partial').html(response);
 
-                    $('#variant-induk-tab').removeAttr('data-toggle');
-                    $('#variant-induk-tab').addClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    //$('#variant-induk-tab').removeAttr('data-toggle');
+                    //$('#variant-induk-tab').addClass('disabled-tab');
                     if ($('#Stf02_BRG').val() == '') {
                         $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
                             $(this).val(convertToRupiah(0));
@@ -4269,30 +4270,34 @@
         }
         function CekTabVariant(){
             if ($('#Stf02_ID').val() == "") { // tambah barang
-                //disable Tab Variant
-                $('#variant-induk-tab').removeAttr('data-toggle');
-                $('#variant-induk-tab').addClass('disabled-tab');
+                //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                ////disable Tab Variant
+                //$('#variant-induk-tab').removeAttr('data-toggle');
+                //$('#variant-induk-tab').addClass('disabled-tab');
 
                 if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
                     enableFotoProdukSection();
                 } else {
-                    $('#variant-induk-tab').attr('data-toggle', 'tab');
-                    $('#variant-induk-tab').removeClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    //$('#variant-induk-tab').attr('data-toggle', 'tab');
+                    //$('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
                 }
             }
             else {
                 //edit barang
                 if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
-                    //disable Tab Variant
-                    $('#variant-induk-tab').removeAttr('data-toggle');
-                    $('#variant-induk-tab').addClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    ////disable Tab Variant
+                    //$('#variant-induk-tab').removeAttr('data-toggle');
+                    //$('#variant-induk-tab').addClass('disabled-tab');
                     enableFotoProdukSection();
                 } else {
                     //ada Variant
-                    //enable Tab Variant
-                    $('#variant-induk-tab').attr('data-toggle', 'tab');
-                    $('#variant-induk-tab').removeClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    ////enable Tab Variant
+                    //$('#variant-induk-tab').attr('data-toggle', 'tab');
+                    //$('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
                     GetStrukturVariant();
                     GetDetailBarangVariant();

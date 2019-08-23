@@ -1366,6 +1366,7 @@
     <Content Include="Content\admin\fonts\montserrat\OFL.txt" />
     <Content Include="Content\admin\fonts\raleway\OFL.txt" />
     <Content Include="Content\admin\fonts\ubuntu\UFL.txt" />
+    <Content Include="Content\admin\PaymentSubscription.html" />
     <Content Include="Content\admin\PartnerApproval.html" />
     <Content Include="Content\admin\util.css" />
     <Content Include="Content\build\css\bootstrap-datepicker.min.css" />
@@ -6095,6 +6096,7 @@
     <Content Include="Views\Manage\TableFakturTempoPartial.cshtml" />
     <Content Include="Views\Manage\TableInvoiceTempoPartial.cshtml" />
     <Content Include="Views\Manage\TablePromptBarangPartial.cshtml" />
+    <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardBarangLakuPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardFakturPartial.cshtml" />
     <Content Include="Views\Manage\SyncBarangLog.cshtml" />
@@ -6105,6 +6107,8 @@
     <Content Include="Views\Report\TablePromptSupplierPartial.cshtml" />
     <Content Include="Views\Report\TablePromptKodeRekPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
+    <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
