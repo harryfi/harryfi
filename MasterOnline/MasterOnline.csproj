@@ -1409,6 +1409,7 @@
     <Content Include="Content\Images\chart_mo.png" />
     <Content Include="Content\Images\contoh_query_add_column.png" />
     <Content Include="Content\Images\contoh_query_insert.png" />
+    <Content Include="Content\Images\counter_image.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
     <Content Include="Content\Images\daily-social-logo.png" />
