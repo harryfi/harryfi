@@ -13467,7 +13467,7 @@ namespace MasterOnline.Controllers
         //public ActionResult CekJumlahPesananBulanIni(string uname)
         public ActionResult CekJumlahPesananBulanIni(long accId)
         {
-            var jumlahPesananBulanIni = ErasoftDbContext.SOT01A.Count(p => p.TGL.Value.Month == DateTime.Today.Month);
+            var jumlahPesananBulanIni = ErasoftDbContext.SOT01A.Count(p => p.TGL.Value.Year == DateTime.Today.Year && p.TGL.Value.Month == DateTime.Today.Month);
             var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
 
             if (accInDb == null)
@@ -14794,12 +14794,12 @@ namespace MasterOnline.Controllers
             {
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
                 return PartialView("BarangPesananPartial", vm);
