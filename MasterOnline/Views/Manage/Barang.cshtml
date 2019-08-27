@@ -4491,6 +4491,21 @@
                         
                     } else {               
                         $('#cbxStf02Type').prop('checked', false);
+                        //checkbox on click event
+                        var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+                        $cbxTarget.val('3');
+                        $('#var-structure-partial').html('');
+                        $('#var-detail-variant-partial').html('');
+                        $('#simpan_btn').show();
+                        $('#next_btn').hide();
+                        $('#div_info_harga_variant').hide();
+
+                        $('.detail_mp_blibli_gambar').each(function () {
+                            var $this = $(this);
+                            $this.show();
+                        });
+                        enableFotoProdukSection();
+                        //end checkbox on click event
                         alert(response.Errors[0]);
                     }
                     //end change by calvin 25 april 2019
