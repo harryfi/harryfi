@@ -34,7 +34,7 @@
                 @Html.HiddenFor(m => m.Pengiriman.NO_BUKTI)
                 @if (Model.Pengiriman != null)
                 {
-                    <input type="text" value="@Model.Pengiriman.NO_BUKTI" disabled class="form-control" />
+                    <input id="NOBUK_KIRIM" type="text" value="@Model.Pengiriman.NO_BUKTI" disabled class="form-control" />
                 }
                 else
                 {
@@ -103,7 +103,7 @@
             <div class="form-group">
                 <div class="col-md-4"></div>
                 <div class="col-md-8">
-                    <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" class="btn btn-primary btn-block">Autoload</button>
+                    <button id="btn-autoload" type="button"  onclick="validasiAutoload()" class="btn btn-primary btn-block">Autoload</button>
                 </div>
             </div>
         </div>

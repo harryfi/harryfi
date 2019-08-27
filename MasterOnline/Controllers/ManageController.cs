@@ -30826,6 +30826,181 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult GetDetailKirim(string orderId)
+        {
+            var listDetail = ErasoftDbContext.SIT04B.Where(b => b.NO_BUKTI == orderId).ToList();
+            var detail = listDetail.Count();
+
+            return Json(detail, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult SaveAutoloadKirim(FakturViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+
+            bool returBaru = false;
+
+            if (dataVm.Faktur.RecNum == null)
+            {
+
+                var cekREf = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_REF == dataVm.Faktur.NO_REF);
+                if (cekREf == null)
+                {
+                    var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                    var digitAkhir = "";
+                    var noOrder = "";
+
+                    if (listFakturInDb.Count == 0)
+                    {
+                        digitAkhir = "000001";
+                        noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                    }
+                    else
+                    {
+                        var lastRecNum = listFakturInDb.Last().RecNum;
+                        lastRecNum++;
+
+                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                        noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    }
+
+                    var fakturInDb = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_BUKTI == dataVm.Faktur.NO_REF);
+
+                    if (fakturInDb != null)
+                    {
+                        fakturInDb.NO_REF = noOrder;
+                        dataVm.Faktur.PEMESAN = fakturInDb.PEMESAN;
+                        dataVm.Faktur.NAMAPEMESAN = fakturInDb.NAMAPEMESAN;
+                    }
+
+                    //var recNumCust = ParseInt(dataVm.Faktur.CUST);
+                    var CustInDb = ErasoftDbContext.ARF01.SingleOrDefault(p => p.CUST == dataVm.Faktur.CUST);
+                    if (CustInDb != null)
+                    {
+                        dataVm.Faktur.NAMA_CUST = CustInDb.NAMA;
+                        dataVm.Faktur.AL = CustInDb.AL;
+                        dataVm.Faktur.AL2 = CustInDb.AL2;
+                        dataVm.Faktur.AL3 = CustInDb.AL3;
+                    }
+                    dataVm.Faktur.NO_BUKTI = noOrder;
+                    dataVm.Faktur.NO_F_PAJAK = "";
+                    //dataVm.Faktur.NAMA_CUST = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).NAMA;
+                    //dataVm.Faktur.AL = ErasoftDbContext.ARF01.Single(p => p.RecNum == recNumCust).AL;
+                    //dataVm.Faktur.AL2 = ErasoftDbContext.ARF01.Single(p => p.RecNum == recNumCust).AL2;
+                    //dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.RecNum == recNumCust).AL3;
+                    dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
+                    dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
+                    ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+
+                    ErasoftDbContext.SaveChanges();
+
+                    //add by ega
+                    returBaru = true;
+                    //end add by ega
+                }
+                else
+                {
+                    dataVm.Faktur.NO_BUKTI = cekREf.NO_BUKTI;
+                }
+            }
+            else
+            {
+                //add by calvin 16 nov 2018, cek jika tidak ada detail, autoload
+                var cekdetail = ErasoftDbContext.SIT01B.FirstOrDefault(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI);
+                if (cekdetail != null)
+                {
+                    //UPDATE ANAK
+                    var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
+
+                    //add by calvin, validasi QOH
+                    var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
+
+                    if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
+                    {
+                        var vmError = new InvoiceViewModel()
+                        {
+
+                        };
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    //end add by calvin, validasi QOH
+
+                    FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
+                    FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
+                    FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
+                    FakturDetailDB.NILAI_DISC_1 = dataVm.FakturDetail.NILAI_DISC_1;
+                    FakturDetailDB.NILAI_DISC_2 = dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.HARGA = (dataVm.FakturDetail.QTY) * (FakturDetailDB.H_SATUAN) - (FakturDetailDB.NILAI_DISC_1 + FakturDetailDB.NILAI_DISC_2);
+                    ErasoftDbContext.SaveChanges();
+
+                    //UPDATE BAPAK
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3");
+                    double bruto_ = (double)ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Sum(p => p.HARGA);
+                    //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                    fakturInDb.BRUTO = bruto_;
+                    fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                    fakturInDb.PPN = dataVm.Faktur.PPN;
+                    fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
+                    fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                    fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+                    ErasoftDbContext.SaveChanges();
+
+                    returBaru = false;
+
+                    //add by calvin 8 nov 2018, update stok marketplace
+                    List<string> listBrg = new List<string>();
+                    listBrg.Add(FakturDetailDB.BRG);
+                    updateStockMarketPlace(listBrg, "[INS_RJ][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                    //end add by calvin 8 nov 2018
+                }
+                else
+                {
+                    returBaru = true;
+                }
+            }
+
+            // autoload detail item, jika buat retur baru
+            if (returBaru)
+            {
+                object[] spParams = {
+                    new SqlParameter("@NOBUK",dataVm.Faktur.NO_BUKTI),
+                    new SqlParameter("@NO_REF",dataVm.Faktur.NO_REF)
+                };
+
+                ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PENJUALAN] @NOBUK, @NO_REF", spParams);
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                var detailReturFakturInDb = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "3").ToList();
+                foreach (var item in detailReturFakturInDb)
+                {
+                    listBrg.Add(item.BRG);
+                }
+                updateStockMarketPlace(listBrg, "[INS_RJ][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                //end add by calvin 8 nov 2018
+            }
+            ModelState.Clear();
+
+            //var ListKirimDetail = ErasoftDbContext.SIT04B.Where(pd => pd.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).ToList();
+            //var listPesananInKirimDetail = ListKirimDetail.Select(p => p.PESANAN).ToList();
+            var vm = new PengirimanViewModel()
+            {
+                //Pengiriman = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI),
+                //ListPengirimanDetail = ListKirimDetail,
+            };
+
+
+            return PartialView("BarangKirimPartial", vm);
+        }
+
         // =============================================== Bagian Pengiriman (END)
         //end add by nurul 19/8/2019, tambah form pengiriman 
 
