@@ -94,6 +94,22 @@
             </div>
         </div>
     </div>
+
+    @*//add btn autoload*@
+    <div id="btn-autoload-row" class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" class="btn btn-primary btn-block">Autoload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*//end add btn autoload*@
+
     @if (Model?.Pengiriman?.RECNUM != null)
     {
         <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
