@@ -20,6 +20,8 @@ using System.Collections;
 using System.Reflection;
 using PagedList;
 
+using System.Globalization;
+
 namespace MasterOnline.Controllers
 {
     public class AdminController : Controller
@@ -175,7 +177,7 @@ namespace MasterOnline.Controllers
                 return PartialView("FormAccountPartialNew", Tempvm);
             }
             accInDb.Status = !accInDb.Status;
-            
+
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
@@ -219,7 +221,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {
@@ -349,8 +351,12 @@ namespace MasterOnline.Controllers
 
             if (accInDb != null)
             {
-                try
+                if (accInDb.DatabasePathErasoft != null)
                 {
+                    if (accInDb.DatabasePathErasoft != "")
+                    {
+                        try
+                        {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
@@ -358,16 +364,26 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
 
-                    accInDb.DatabasePathErasoft = null;
-                    ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                            accInDb.DatabasePathErasoft = null;
+                            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                        }
+                        catch (Exception e)
+                        {
+                            return Content(e.Message);
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", @"Database tidak ditemukan!");
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    return Content(e.Message);
+                    ModelState.AddModelError("", @"Database tidak ditemukan!");
                 }
             }
 
@@ -381,11 +397,15 @@ namespace MasterOnline.Controllers
         public ActionResult TambahHapusAcc(int? accId)
         {
             var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
-            
+
             if (accInDb != null)
             {
                 try
                 {
+                    if (accInDb.DatabasePathErasoft != null)
+                    {
+                        if (accInDb.DatabasePathErasoft != "")
+                        {
 #if AWS
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
@@ -393,10 +413,11 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
-
+                        }
+                    }
                     var uname = accInDb.Username;
                     MoDbContext.Account.Remove(accInDb);
                     MoDbContext.SaveChanges();
@@ -513,7 +534,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Subs (END)
 
         // =============================================== Bagian History Pembayaran (START)
-
+        [Route("admin/manage/AktivitasSubscription")]
         [SessionAdminCheck]
         public ActionResult AktivitasSubscription()
         {
@@ -558,8 +579,9 @@ namespace MasterOnline.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SavePayment(SubsViewModel vm)
+        public async Task<ActionResult> SavePayment(SubsViewModel vm)
         {
+            var newPayment = false;
             if (!ModelState.IsValid)
             {
                 //return View("FormHistoryPembayaranPartial", vm);
@@ -575,8 +597,12 @@ namespace MasterOnline.Controllers
                 //    ModelState.AddModelError("", @"Kode history pembayaran sudah terdaftar!");
                 //    return View("AktivitasSubscription", vm);
                 //}
-
+                if (vm.Payment.TipePembayaran == null)
+                {
+                    vm.Payment.TipePembayaran = "Manual_Transfer";
+                }
                 MoDbContext.AktivitasSubscription.Add(vm.Payment);
+                newPayment = true;
             }
             else
             {
@@ -591,6 +617,8 @@ namespace MasterOnline.Controllers
                 subsInDb.SdTGL = vm.Payment.SdTGL;
                 subsInDb.jumlahUser = vm.Payment.jumlahUser;
 
+                //vm.newPayment = false;
+
             }
 
             var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
@@ -599,6 +627,14 @@ namespace MasterOnline.Controllers
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
             ModelState.Clear();
+            if (newPayment == true)
+            {
+                var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
+                if (cekPayment != null)
+                {
+                    await SendInvoice(cekPayment.Single().RecNum, "0");
+                }
+            }
 
             return PartialView("FormHistoryPembayaranPartial", vm);
         }
@@ -609,6 +645,129 @@ namespace MasterOnline.Controllers
 
             return Json(account, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 12/8/2019, kirim invoice lewat email 
+        public async Task<ActionResult> SendInvoice(int? aktSubID, string btnKirim)
+        {
+            try
+            {
+                var ambilUlangAktSub = new AktivitasSubscription();
+                bool succes = false;
+                var aktSubId = Convert.ToInt64(aktSubID);
+                var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (aktSub.Invoice_No == null || aktSub.Invoice_No.Substring(3, 4) == "2019") //kalo Invoice_No null/masih format lama
+                {
+                    var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
+
+                    var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+                    var digitAkhir = "";
+                    var noInv = "";
+
+                    if (listAktSubInDb.Count == 0)
+                    {
+                        digitAkhir = "0001";
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                        MoDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (AktivitasSubscription, RESEED, 0)");
+                    }
+                    else
+                    {
+                        //var lastRecNum = listAktSubInDb.Last().RecNum;
+                        //lastRecNum++;
+                        //var NoUrut = listAktSubInDb.Count();
+                        var NoUrut = Convert.ToInt32(listAktSubInDb.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderByDescending(a => a.Invoice_No).FirstOrDefault().Invoice_No.Substring(6, 4));
+                        NoUrut++;
+
+                        digitAkhir = NoUrut.ToString().PadLeft(4, '0');
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    }
+
+                    if (digitAkhir != "" && noInv != "")
+                    {
+                        aktSub.Invoice_No = noInv;
+                        aktSub.tgl_email = DateTime.Today;
+                    }
+
+                    var email = new MailAddress(aktSub.Email);
+                    //add
+                    var today = DateTime.Today.ToString("dd/MM/yyyy");
+                    var nama = aktSub.Account;
+                    var tglBayar = aktSub.TanggalBayar?.ToString("dd/MM/yyyy");
+                    var subs = sub;
+                    var nilai = $"Rp. {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", aktSub.Nilai)}";
+                    var jmlUser = aktSub.jumlahUser.ToString();
+                    var drTgl = aktSub.DrTGL?.ToString("dd/MM/yyyy");
+                    var sdTgl = aktSub.SdTGL?.ToString("dd/MM/yyyy");
+                    var inv = noInv;
+                    //end add
+
+                    var message = new MailMessage();
+                    message.To.Add(email);
+                    message.From = new MailAddress("csmasteronline@gmail.com");
+                    message.Subject = "Email Payment Subscription";
+                    message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                        .Replace("EMAIL", Convert.ToString(email))
+                        .Replace("TODAY", today)
+                        .Replace("NAMA", nama)
+                        .Replace("TGLBAYAR", tglBayar)
+                        .Replace("SUBS", subs)
+                        .Replace("NILAI", nilai)
+                        .Replace("JMLUSER", jmlUser)
+                        .Replace("DRTGL", drTgl)
+                        .Replace("SDTGL", sdTgl)
+                        .Replace("NOINV", inv);
+                    message.IsBodyHtml = true;
+
+                    using (var smtp = new SmtpClient())
+                    {
+                        var credential = new NetworkCredential
+                        {
+                            UserName = "csmasteronline@gmail.com",
+                            Password = "kmblwexkeretrwxv"
+                        };
+                        smtp.Credentials = credential;
+                        smtp.Host = "smtp.gmail.com";
+                        smtp.Port = 587;
+                        smtp.EnableSsl = true;
+                        try
+                        {
+                            await smtp.SendMailAsync(message);
+                            succes = true;
+                            MoDbContext.SaveChanges();
+                            ModelState.Clear();
+                        }
+                        catch (Exception ex)
+                        {
+                            ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                        }
+                    }
+                }
+                ambilUlangAktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (btnKirim == "1" && succes == true)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} berhasil dikirim email.";
+
+                    //var vm = new SubsViewModel()
+                    //{
+                    //    ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+                    //    ListSubs = MoDbContext.Subscription.ToList(),
+                    //    ListAccount = MoDbContext.Account.ToList()
+                    //};
+
+                    //return PartialView("AktivitasSubscription", vm);
+                    return RedirectToAction("AktivitasSubscription");
+                }
+                else if (succes == false)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                }
+                return new EmptyResult();
+            }
+            catch (Exception e)
+            {
+                return Content(e.Message);
+            }
+        }
+        //end add by nurul 12/8/2019
 
         // =============================================== Bagian History Pembayaran (END)
 
@@ -1736,7 +1895,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
 
-                
+
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
                 {

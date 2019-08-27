@@ -1,0 +1,243 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model PengirimanViewModel
+@{
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+    }
+}
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Pengiriman.RECNUM)
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
+<div class="form-horizontal">
+    <div class="row">
+        @*<div class="col-md-6">*@
+        <div class="form-group text-left">
+            @Html.LabelFor(m => m.Pengiriman.NO_BUKTI, "No. Bukti", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.HiddenFor(m => m.Pengiriman.NO_BUKTI)
+                @if (Model.Pengiriman != null)
+                {
+                    <input type="text" value="@Model.Pengiriman.NO_BUKTI" disabled class="form-control" />
+                }
+                else
+                {
+                    <input type="text" value="[AUTO]" disabled class="form-control" />
+                }
+            </div>
+            @*</div>*@
+        </div>
+    </div>
+    <div class="row">
+        @*<div class="col-md-6">*@
+        <div class="form-group text-left">
+            @Html.LabelFor(m => m.Pengiriman.TGL_KIRIM, "Tanggal Kirim", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="input-group date">
+                    @Html.TextBoxFor(m => m.Pengiriman.TGL_KIRIM, new { @class = "form-control", Value = Model?.Pengiriman?.TGL_KIRIM?.ToString("dd/MM/yyyy") })
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        @*</div>
+            <div class="col-md-6">
+                <div class="form-group text-right">
+                </div>
+            </div>*@
+    </div>
+    <div class="row">
+        <div class="form-group text-left">
+            @Html.LabelFor(m => m.Pengiriman.KURIR, "Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
+                @*@Html.HiddenFor(m => m.Pengiriman.NAMAPENGIRIM)
+                    @Html.HiddenFor(m => m.Pengiriman.EXPEDISI)*@
+                @Html.HiddenFor(m => m.Pengiriman.KURIR)
+                <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group text-left">
+            @Html.LabelFor(m => m.Pengiriman.NAMA_KURIR, "Nama Kurir", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
+                @Html.TextBoxFor(m => m.Pengiriman.NAMA_KURIR, new { @class = "form-control", @maxlength = "50" })
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group text-left">
+            @Html.LabelFor(m => m.Pengiriman.JAM_KIRIM, "Jam Kirim", new { @class = "col-md-3 col-sm-3 col-xs-12 control-label" })
+            <div class="col-md-6 col-sm-6 col-xs-12  ">
+                <div class="input-group bootstrap-timepicker timepicker">
+                    @Html.TextBoxFor(m => m.Pengiriman.JAM_KIRIM, new { @class = "form-control input-small bootstrap-timepicker timepicker", @id = "timepicker1", @Value = Model?.Pengiriman?.JAM_KIRIM?.ToString("HH:mm"), @style = "width:80px;" })
+                    @*<input id="timepicker1" type="text" class="form-control input-small">*@
+                    @*<span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model?.Pengiriman?.RECNUM != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.PengirimanDetail.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.PengirimanDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        @*<h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>*@
+        <table id="table_tambah_kirim" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="20">Kode Pesanan</th>
+                    <th width="80">Marketplace</th>
+                    <th width="100">Pembeli</th>
+                    <th width="275">Alamat</th>
+                    <th width="30">Simpan</th>
+                    <th width="30">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @*@{
+                        var listBarang = Model.ListBarang.ToList();
+                    }*@
+                @foreach (var kirim in Model.ListPengirimanDetail.Where(pb => pb.NO_BUKTI == Model?.Pengiriman?.NO_BUKTI).ToList())
+                {
+                    <tr data-barang-id="detail-@kirim.NO_URUT">
+                        <td>
+                            @kirim.PESANAN
+                        </td>
+                        <td class="mp-detail">
+                            @kirim.NAMA_MARKET
+                        </td>
+                        <td class="buyer-detail">
+                            @kirim.NAMA_PEMBELI
+                        </td>
+                        <td class="al-detail">
+                            @kirim.ALAMAT_KIRIM @kirim.KOTA @kirim.PROPINSI @kirim.KODE_POS
+                        </td>
+                        @*<td class="nama-barang">
+                                @listBarang.Single(b => b.BRG == stok.Kobar).NAMA @listBarang.Single(b => b.BRG == stok.Kobar).NAMA2
+                            </td>
+                            <td class="stn-barang">
+                                @(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
+                            </td>
+                            <td class="harga-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
+                            </td>
+                            <td class="gd-barang">
+                                @stok.Ke_Gd
+                            </td>
+                            <td class="qty-barang">
+                                @stok.Qty
+                            </td>
+                            <td class="netto-barang" style="text-align:right">
+                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
+                            </td>*@
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusDetail" onclick="passBarangInDb('@kirim.NO_URUT')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                    <tr data-kirim-id="0">
+                        @Html.HiddenFor(m => m.PengirimanDetail.NO_URUT)
+                        @Html.HiddenFor(m => m.PengirimanDetail.MARKETPLACE)
+                        @Html.HiddenFor(m => m.PengirimanDetail.PEMBELI)
+                        @Html.HiddenFor(m => m.PengirimanDetail.KOTA)
+                        @Html.HiddenFor(m => m.PengirimanDetail.PROPINSI)
+                        @Html.HiddenFor(m => m.PengirimanDetail.KODE_POS)
+                        <td style="width: 110px; max-width: 110px;">
+                            <div id="PESANAN" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.PengirimanDetail.PESANAN)
+                        </td>
+                        <td class="mp-detail">
+                            -
+                            @Html.HiddenFor(m => m.PengirimanDetail.NAMA_MARKET)
+
+                        </td>
+                        <td class="buyer-detail">
+                            -
+                            @Html.HiddenFor(m => m.PengirimanDetail.NAMA_PEMBELI)
+
+                        </td>
+                        <td class="al-detail">
+                            -
+                            @Html.HiddenFor(m => m.PengirimanDetail.ALAMAT_KIRIM)
+
+                        </td>
+                        @*<td class="stn-barang">
+            -
+            @Html.HiddenFor(m => m.PengirimanDetail.Satuan, new { Value = "2" })
+        </td>
+        <td class="harga-barang" style="text-align:right">
+            0,00
+            @Html.HiddenFor(m => m.PengirimanDetail.Harsat)
+        </td>
+        <td class="gd-barang">
+            <span id="gudang-kode">-</span>
+            <div id="gudang-select" style="display: none;">
+                <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+            </div>
+            @Html.HiddenFor(m => m.BarangStok.Ke_Gd)
+        </td>
+        <td class="qty-barang">
+            0
+            @Html.HiddenFor(m => m.BarangStok.Qty)
+        </td>
+        <td class="netto-barang" style="text-align:right">
+            0,00
+            @Html.HiddenFor(m => m.BarangStok.Harga)
+        </td>*@
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('detail-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusDetail">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

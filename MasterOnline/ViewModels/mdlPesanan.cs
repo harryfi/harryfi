@@ -47,6 +47,10 @@ namespace MasterOnline
         public string PRINT_FAKTUR { get; set; }
         //END ADD BY NURUL 20/6/2019
 
+        //add by nurul 23/8/2019
+        public DateTime? TGLKIRIM { get; set; }
+        //end add by nurul 23/8/2019
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

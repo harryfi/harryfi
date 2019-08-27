@@ -1146,6 +1146,7 @@
             //$('#datatable').DataTable().page($page).draw(false);
             ////end add by nurul 12/2/2019
             //end remark by calvin 23 april 2019
+            CekTabVariant();
         }
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
@@ -1776,9 +1777,11 @@
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
                                                 var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                keyName = keyName.replace('ACODE_','AVALUE_');
-                                                keyName = keyName.replace('ANAME_','AVALUE_');
-                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                if (keyName != undefined) {
+                                                    keyName = keyName.replace('ACODE_','AVALUE_');
+                                                    keyName = keyName.replace('ANAME_','AVALUE_');
+                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                                }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
@@ -2164,8 +2167,10 @@
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
                                                 var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                keyName = keyName.replace('FIELDNAME_','AVALUE_');
-                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                if (keyName != undefined) {
+                                                    keyName = keyName.replace('FIELDNAME_','AVALUE_');
+                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                                }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
@@ -2483,6 +2488,7 @@
             });
         }
         function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+            debugger;
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             @*var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
@@ -2536,9 +2542,11 @@
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
                                                 var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                keyName = keyName.replace('ACODE_','AVALUE_');
-                                                keyName = keyName.replace('ANAME_','AVALUE_');
-                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                if (keyName != undefined) {
+                                                    keyName = keyName.replace('ACODE_','AVALUE_');
+                                                    keyName = keyName.replace('ANAME_','AVALUE_');
+                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                                }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
@@ -2890,10 +2898,10 @@
                                             if (ListHargaJualPermarketView.length > 0) {
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
-                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0], ANAME);
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
                                                 if (keyName != undefined) {
-                                                    keyName = keyName.replace('ACODE_', 'AVALUE_');
-                                                    keyName = keyName.replace('ANAME_', 'AVALUE_');
+                                                    keyName = keyName.replace('ACODE_','AVALUE_');
+                                                    keyName = keyName.replace('ANAME_','AVALUE_');
                                                     adaValue = ListHargaJualPermarketView[0][keyName];
                                                 }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
@@ -3200,8 +3208,10 @@
                                                 //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                                 //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
                                                 var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
-                                                keyName = keyName.replace('ANAME_','AVALUE_');
-                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                if (keyName != undefined) {
+                                                    keyName = keyName.replace('ANAME_','AVALUE_');
+                                                    adaValue = ListHargaJualPermarketView[0][keyName];
+                                                }
                                                 //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
@@ -4117,6 +4127,10 @@
                     $(btnClicked).attr("disabled", false);
 
                     if (response.Errors == null) {
+
+                        $('#txtInfoKodeBarang').val($('#Stf02_BRG').val());
+                        $('#txtInfoNamaBarang').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+
                         //change by calvin 23 april 2019
                         //$('#var-structure-partial').html('');
                         //$('#var-detail-variant-partial').html('');
@@ -4203,8 +4217,9 @@
                     $('.barang_editor_section').show();
                     $('#form-partial').html(response);
 
-                    $('#variant-induk-tab').removeAttr('data-toggle');
-                    $('#variant-induk-tab').addClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    //$('#variant-induk-tab').removeAttr('data-toggle');
+                    //$('#variant-induk-tab').addClass('disabled-tab');
                     if ($('#Stf02_BRG').val() == '') {
                         $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
                             $(this).val(convertToRupiah(0));
@@ -4260,33 +4275,54 @@
         }
         function CekTabVariant(){
             if ($('#Stf02_ID').val() == "") { // tambah barang
-                //disable Tab Variant
-                $('#variant-induk-tab').removeAttr('data-toggle');
-                $('#variant-induk-tab').addClass('disabled-tab');
+                //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                ////disable Tab Variant
+                //$('#variant-induk-tab').removeAttr('data-toggle');
+                //$('#variant-induk-tab').addClass('disabled-tab');
 
                 if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
                     enableFotoProdukSection();
                 } else {
-                    $('#variant-induk-tab').attr('data-toggle', 'tab');
-                    $('#variant-induk-tab').removeClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    //$('#variant-induk-tab').attr('data-toggle', 'tab');
+                    //$('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
                 }
             }
             else {
                 //edit barang
                 if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
-                    //disable Tab Variant
-                    $('#variant-induk-tab').removeAttr('data-toggle');
-                    $('#variant-induk-tab').addClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    ////disable Tab Variant
+                    //$('#variant-induk-tab').removeAttr('data-toggle');
+                    //$('#variant-induk-tab').addClass('disabled-tab');
                     enableFotoProdukSection();
+                    $('#simpan_btn').show();
+                    $('#next_btn').hide();
+                    $('#div_info_harga_variant').hide();
+
+                    $('.detail_mp_blibli_gambar').each(function () {
+                        var $this = $(this);
+                        $this.show();
+                    });
                 } else {
                     //ada Variant
-                    //enable Tab Variant
-                    $('#variant-induk-tab').attr('data-toggle', 'tab');
-                    $('#variant-induk-tab').removeClass('disabled-tab');
+                    //remark by calvin 22 agustus 2019, dibuat selalu disabled
+                    ////enable Tab Variant
+                    //$('#variant-induk-tab').attr('data-toggle', 'tab');
+                    //$('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
-                    GetStrukturVariant();
-                    GetDetailBarangVariant();
+                    //GetStrukturVariant();
+                    //GetDetailBarangVariant();
+                    
+                    $('#simpan_btn').hide();
+                    $('#next_btn').show();
+                    $('#div_info_harga_variant').show();
+
+                    $('.detail_mp_blibli_gambar').each(function () {
+                        var $this = $(this);
+                        $this.hide();
+                    });
                 }
             }
         }

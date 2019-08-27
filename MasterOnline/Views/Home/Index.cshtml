@@ -5,6 +5,86 @@
 {
     <link href="~/Content/hover-min.css" rel="stylesheet" />
     <style>
+        #counter {
+            text-align: center;
+        }
+
+        #counter_wrap {
+            background-color: white;
+            text-align: center;
+        }
+
+        .title {
+            color: #7c003e;
+            font-size: 20pt;
+            position: relative;
+            z-index: 2;
+            top: 50px;
+        }
+
+        .row {
+            position: relative;
+        }
+
+        #counter_top {
+            position: relative;
+            top: 125px;
+        }
+
+        #counter_bottom {
+            position: relative;
+            bottom: 125px;
+        }
+
+        #central_img {
+            position: relative;
+            width: 70%;
+        }
+
+        .foot_text {
+            position: relative;
+            color: #333333;
+            font-size: 13pt;
+            line-height: 13pt;
+        }
+
+        .count {
+            position: relative;
+            color: #7c003e;
+            font-size: 30pt;
+            font-weight: bold;
+        }
+
+        #currency {
+            position: relative;
+            color: #7c003e;
+            font-size: 30pt;
+            font-weight: bold;
+            right: 0;
+        }
+
+        .count.left {
+            position: relative;
+            left: 0;
+        }
+
+        .foot_text.left {
+            position: relative;
+            left: 0;
+        }
+
+        .count.right {
+            position: relative;
+            right: 0;
+        }
+
+        .foot_text.right {
+            position: relative;
+            right: 0;
+        }
+    </style>
+
+    <style>
 
         @@media screen and (min-width: 768px) {
             .videoWrapper iframe {
@@ -116,7 +196,42 @@
 
                 #mobile-app-section {
                     margin-top: 25px !important;
+                    margin-bottom: 25px !important;
                 }
+                #counter_container {
+                    padding-left:0px;
+                    padding-right:0px;
+                }
+                #counter_top {
+                    position: relative;
+                    top: 26px;
+                }
+
+                #counter_bottom {
+                    position: relative;
+                    bottom: 17px;
+                }
+                .count {
+                    font-size:13pt;
+                }
+                .foot_text {
+                    font-size:11pt;
+                }
+                
+                #counter .right {
+                    position: relative;
+                }
+
+                #central_img {
+                    width:80%;
+                }
+                #counter .title {
+                    line-height:30px;
+                    font-size:15pt;
+                    font-weight:300;
+                    top:0px;
+                }
+
             }
 
             @@font-face {
@@ -510,7 +625,9 @@
             margin-right:0px;
         }
     </style>
+    
 }
+
 <a href="@Url.Action("Promo")">
     <img class="hvr-buzz" src="~/Content/Images/PromoPulsa.png" id="promo_pulsa" />
 </a>
@@ -866,48 +983,77 @@
 <div class="container-fluid grayish-white hidden-md hidden-lg" style="padding: 20px 0; background: #F1F0F1;">
     <img width="90%" style="display: block; margin: 0 auto;" src="~/Content/Images/flowchart_MO.png" />
 </div>
-<div class="container-fluid" style="padding: 20px 0 40px 0;">
-    <div class="col-md-12 text-center">
+<div class="container-fluid" style="padding: 0px 0 0px 0;">
+    @*<div class="col-md-12 text-center">
         <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
         <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
         <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;" class="hidden-xs hidden-sm">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
         <p style="color: #5a5a5a; font-size: 14px; margin-bottom: 25px;" class="hidden-md hidden-lg">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
-    </div>
+    </div>*@
     <div class="row" id="mobile-app-section">
-        <div class="col-md-3"></div>
-        <div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
-            <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP_sample.png" />
-            <div class="row hidden-xs hidden-sm" style="margin-top: 25px;">
-                <div class="col-md-1"></div>
-                <div class="col-md-4" style="margin-left: 20px;">
-                    <a href="#">
-                        <img style="display: block; float: right" width="75%" src="~/Content/Images/app_store.png" />
-                    </a>
-                </div>
-                <br class="hidden-md hidden-lg" />
-                <div class="col-md-4" style="margin-left: 20px;">
-                    <a href="#">
-                        <img style="display: block; float: right" width="75%" src="~/Content/Images/play_store.png" />
-                    </a>
+    @*<div class="row">*@
+            @*<div class="col-md-3"></div>*@
+            @*<div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
+                    <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP_sample.png" />
+                    <div class="row hidden-xs hidden-sm" style="margin-top: 25px;">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-4" style="margin-left: 20px;">
+                            <a href="#">
+                                <img style="display: block; float: right" width="75%" src="~/Content/Images/app_store.png" />
+                            </a>
+                        </div>
+                        <br class="hidden-md hidden-lg" />
+                        <div class="col-md-4" style="margin-left: 20px;">
+                            <a href="#">
+                                <img style="display: block; float: right" width="75%" src="~/Content/Images/play_store.png" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row hidden-md hidden-lg" style="margin-top: 25px;">
+                        <div class="col-md-6">
+                            <a href="#">
+                                <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/app_store.png" />
+                            </a>
+                        </div>
+                        <br class="hidden-md hidden-lg" />
+                        <div class="col-md-6">
+                            <a href="#">
+                                <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/play_store.png" />
+                            </a>
+                        </div>
+                    </div>
+                </div>*@
+            <div class="col-xs-12" id="counter_container">
+                <div id="counter">
+                    <div class="title">Kembangkan Bisnis Online Anda</div>
+                    <div class="container-fluid" id="counter_wrap">
+                        <div class="row" id="counter_top">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
+                                <div class="count left" id="member">300+</div>
+                                <div class="foot_text left">Users</div>
+                            </div>
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
+                                <div id="currency"></div><span class="count" id="revenue">IDR 8 B</span></div>
+                                <div class="foot_text right">Omset / Month</div>
+                            </div>
+                        </div>
+                        <img src="~/Content/Images/counter_image.png" id="central_img">
+                        <div class="row" id="counter_bottom">
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
+                                <div class="count left" id="order">38 K</div>
+                                <div class="foot_text left">Order / Month</div>
+                            </div>
+                            <div class="col-xs-6" style="padding:0px 0px 0px 0px">
+                                <div class="count right" id="sent">76 K</div>
+                                <div class="foot_text right">Produk Terkirim / Month</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row hidden-md hidden-lg" style="margin-top: 25px;">
-                <div class="col-md-6">
-                    <a href="#">
-                        <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/app_store.png" />
-                    </a>
-                </div>
-                <br class="hidden-md hidden-lg" />
-                <div class="col-md-6">
-                    <a href="#">
-                        <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/play_store.png" />
-                    </a>
-                </div>
-            </div>
+            @*<div class="col-md-3"></div>*@
         </div>
-        <div class="col-md-3"></div>
     </div>
-</div>
 <div class="modal fade" style="overflow-y: hidden;" id="modalVideo" tabindex="-1" role="dialog" aria-labelledby="modalvideo">
     <div class="modal-dialog" role="document">
         <div class="container hidden-xs hidden-sm">
@@ -1000,6 +1146,45 @@
             $('#close-video').click(function () {
                 $('#modalVideo').modal('hide');
             });
+
+            //var waypoint = new Waypoint({
+            //    element: document.getElementById('counter'),
+            //    handler: function (direction) {
+            //        setData(300, 881, 760, 79);
+            //    },
+            //    offset: "100%"
+            //})
+
         });
+
+        function setData(member, order, sent, revenue) {
+            document.getElementById("member").textContent = formatNumber(member);
+            document.getElementById("order").textContent = formatNumber(order);
+            document.getElementById("sent").textContent = formatNumber(sent);
+            document.getElementById("revenue").textContent = formatNumber(revenue);
+        }
+        function formatNumber(num) {
+            if (num >= 1000000000) {
+                num /= 1000000000;
+                num = Math.floor(num);
+                return String(num) + "B +";
+            }
+            else if (num >= 1000000) {
+                num /= 1000000;
+                num = Math.floor(num);
+                return String(num) + "M +";
+            }
+            else if (num >= 1000) {
+                num /= 1000;
+                num = Math.floor(num);
+                return String(num) + "K +";
+            }
+            else if (num >= 100) {
+                num /= 100;
+                num = Math.floor(num);
+                return String(num) + "00+";
+            }
+
+        }
     </script>
 }
