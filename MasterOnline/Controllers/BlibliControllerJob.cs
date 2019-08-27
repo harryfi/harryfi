@@ -4616,7 +4616,7 @@ namespace MasterOnline.Controllers
                                                         sSQL += "( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
                                                         sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + getLogMarketplace.REQUEST_DATETIME.ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
                                                         sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
-                                                        sSQL += "'Create Product "+ subjectDescription + " ke Blibli Gagal.' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                                                        sSQL += "'Create Product " + subjectDescription + " ke Blibli Gagal.' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
                                                         sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
                                                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     }
@@ -5851,7 +5851,7 @@ namespace MasterOnline.Controllers
             List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
             #region bukan barang variasi
-            if (data.type == "3") 
+            if (data.type == "3")
             {
                 List<string> images_pervar = new List<string>();
                 string idGambar = "";
@@ -5868,7 +5868,6 @@ namespace MasterOnline.Controllers
                 {
                     if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -5903,8 +5902,16 @@ namespace MasterOnline.Controllers
                                 //end change by calvin 1 maret 2019
                                 resizedStream.Dispose();
 
-                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(idGambar);
+                                if (string.IsNullOrWhiteSpace(idGambar))
+                                {
+                                    idGambar = Convert.ToString(bytes.Length);
+                                }
+                                if (!uploadedImageID.Contains(idGambar))
+                                {
+                                    uploadedImageID.Add(idGambar);
+                                    images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    images_pervar.Add(idGambar);
+                                }
                             }
                         }
                     }
@@ -5920,7 +5927,6 @@ namespace MasterOnline.Controllers
                 {
                     if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -5955,8 +5961,17 @@ namespace MasterOnline.Controllers
                                 //end change by calvin 1 maret 2019
                                 resizedStream.Dispose();
 
-                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(idGambar);
+                                if (string.IsNullOrWhiteSpace(idGambar))
+                                {
+                                    idGambar = Convert.ToString(bytes.Length);
+                                }
+
+                                if (!uploadedImageID.Contains(idGambar))
+                                {
+                                    uploadedImageID.Add(idGambar);
+                                    images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    images_pervar.Add(idGambar);
+                                }
                             }
                         }
                     }
@@ -5973,7 +5988,6 @@ namespace MasterOnline.Controllers
                 {
                     if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6008,8 +6022,17 @@ namespace MasterOnline.Controllers
                                 //end change by calvin 1 maret 2019
                                 resizedStream.Dispose();
 
-                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(idGambar);
+                                if (string.IsNullOrWhiteSpace(idGambar))
+                                {
+                                    idGambar = Convert.ToString(bytes.Length);
+                                }
+
+                                if (!uploadedImageID.Contains(idGambar))
+                                {
+                                    uploadedImageID.Add(idGambar);
+                                    images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    images_pervar.Add(idGambar);
+                                }
                             }
                         }
                     }
@@ -6156,7 +6179,7 @@ namespace MasterOnline.Controllers
                                 //if (attribute_id == "WA-0000002") // Warna
                                 //{
                                 //    ValueVariasiWarna = value;
-                                    dsVariasiValues.Add(value);
+                                dsVariasiValues.Add(value);
                                 //}
                             }
                             //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
@@ -6182,11 +6205,9 @@ namespace MasterOnline.Controllers
                     {
                         image_id = var_item.Sort5;
                     }
-                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
 
                     if (!uploadedImageID.Contains(image_id))
                     {
-                        uploadedImageID.Add(image_id);
                         using (var client = new HttpClient())
                         {
                             string url = var_stf02h_item.AVALUE_50;
@@ -6229,7 +6250,16 @@ namespace MasterOnline.Controllers
                                 resizedStream.Dispose();
 
                                 //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                if (string.IsNullOrWhiteSpace(image_id))
+                                {
+                                    image_id = Convert.ToString(bytes.Length);
+                                }
+                                if (!uploadedImageID.Contains(image_id))
+                                {
+                                    uploadedImageID.Add(image_id);
+                                    images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                }
                             }
                         }
                     }
@@ -6315,7 +6345,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ATTRIBUTE_1 = data.kode,
                 REQUEST_ATTRIBUTE_2 = data.nama,
                 REQUEST_ATTRIBUTE_3 = jobId, //hangfire job id ( create product )
-                
+
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);

@@ -22,29 +22,29 @@
             $('#Stf02_ID').val($('#txtStf02ID').val());
         }
 
-        $('.cbxtype').each(function () {
-            var $this = $(this);
-            var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
-            if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
-                $('#simpan_btn').show();
-                $('#next_btn').hide();
-                $('#div_info_harga_variant').hide();
+        //$('.cbxtype').each(function () {
+        //    var $this = $(this);
+        //    var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+        //    if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+        //        $('#simpan_btn').show();
+        //        $('#next_btn').hide();
+        //        $('#div_info_harga_variant').hide();
 
-                $('.detail_mp_blibli_gambar').each(function () {
-                    var $this = $(this);
-                    $this.show();
-                });
-            } else {
-                $('#simpan_btn').hide();
-                $('#next_btn').show();
-                $('#div_info_harga_variant').show();
+        //        $('.detail_mp_blibli_gambar').each(function () {
+        //            var $this = $(this);
+        //            $this.show();
+        //        });
+        //    } else {
+        //        $('#simpan_btn').hide();
+        //        $('#next_btn').show();
+        //        $('#div_info_harga_variant').show();
 
-                $('.detail_mp_blibli_gambar').each(function () {
-                    var $this = $(this);
-                    $this.hide();
-                });
-            }
-        });
+        //        $('.detail_mp_blibli_gambar').each(function () {
+        //            var $this = $(this);
+        //            $this.hide();
+        //        });
+        //    }
+        //});
 
         getOptSelectMultiple(1);
         getOptSelectMultiple(2);
@@ -721,6 +721,7 @@
             contentType: 'application/json',
             cache: false,
             success: function (data) {
+                debugger;
                 var SelectList = [];
                 var counter = 0;
                 $.each(data,
@@ -777,7 +778,7 @@
                         });
 
                         attributeOptSelect[0].selectize.clearOptions();
-                        //attributeOptSelect[0].selectize.renderCache = {};
+                        attributeOptSelect[0].selectize.renderCache = {};
                         attributeOptSelect[0].selectize.load(function (callback) {
                             callback(SelectList);
 

@@ -7303,10 +7303,10 @@ namespace MasterOnline.Controllers
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
-                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
-                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
+                                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -7523,10 +7523,10 @@ namespace MasterOnline.Controllers
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
 #if (DEBUG || Debug_AWS)
-                                                    //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
-                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
+                                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -18303,32 +18303,32 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
-            //if (listBLIShop.Count > 0)
-            //{
-            //    //remark by calvin 1 april 2019
-            //    //var BliApi = new BlibliController();
-            //    foreach (ARF01 tblCustomer in listBLIShop)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-            //        {
-            //            BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
-            //            {
-            //                API_client_username = tblCustomer.API_CLIENT_U,
-            //                API_client_password = tblCustomer.API_CLIENT_P,
-            //                API_secret_key = tblCustomer.API_KEY,
-            //                mta_username_email_merchant = tblCustomer.EMAIL,
-            //                mta_password_password_merchant = tblCustomer.PASSWORD,
-            //                merchant_code = tblCustomer.Sort1_Cust,
-            //                token = tblCustomer.TOKEN,
-            //                idmarket = tblCustomer.RecNum.Value,
-            //                DatabasePathErasoft = dbPathEra,
-            //                username = "ctes"
-            //            };
-            //            await new BlibliControllerJob().GetQueueFeedDetail(data, null);
-            //        }
-            //    }
-            //}
+            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
+            if (listBLIShop.Count > 0)
+            {
+                //remark by calvin 1 april 2019
+                //var BliApi = new BlibliController();
+                foreach (ARF01 tblCustomer in listBLIShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                    {
+                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+                        {
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_secret_key = tblCustomer.API_KEY,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = "ctes"
+                        };
+                        await new BlibliControllerJob().GetQueueFeedDetail(data, null);
+                    }
+                }
+            }
             return View();
         }
 
