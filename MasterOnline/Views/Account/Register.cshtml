@@ -322,7 +322,10 @@
                             }
                             else {
                                 //window.location.href = response;
-                                $('#loginColumns').html(response);
+                                //change by nurul 14/8/2019
+                                //$('#loginColumns').html(response);
+                                thankyou();
+                                //end change by nurul 14/8/2019
                             }
                         } else {
                             alert(response.error);
@@ -647,6 +650,13 @@
             if ($errorElement.length) $isValid = false;
 
             return $isValid;
+        }
+
+        function thankyou() {
+            var link = '@Url.Action("RegisterThankYou", "Account")';
+            //link = link.replace("replaceId", this.$accId);
+
+            location.href = link;
         }
     </script>
 }
