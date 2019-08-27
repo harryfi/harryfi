@@ -1311,14 +1311,16 @@ namespace MasterOnline.Controllers
                         if (brg.product_sku[i].images != null)
                         {
                             urlImage = brg.product_sku[i].images[0];
-                            if (brg.product_sku[i].images.Length >= 2)
-                            {
-                                urlImage2 = brg.product_sku[i].images[1];
-                                if (brg.product_sku[i].images.Length >= 3)
-                                {
-                                    urlImage3 = brg.product_sku[i].images[2];
-                                }
-                            }
+                            //remark 21/8/2019, barang varian ambil 1 gambar saja
+                            //if (brg.product_sku[i].images.Length >= 2)
+                            //{
+                            //    urlImage2 = brg.product_sku[i].images[1];
+                            //    if (brg.product_sku[i].images.Length >= 3)
+                            //    {
+                            //        urlImage3 = brg.product_sku[i].images[2];
+                            //    }
+                            //}
+                            //end remark 21/8/2019, barang varian ambil 1 gambar saja
                         }
                     }
 

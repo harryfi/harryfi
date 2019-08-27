@@ -48,5 +48,13 @@ namespace MasterOnline.Models
         public string NamaMarket { get; set; }
         public string TglMulai { get; set; }
         public string TglAkhir { get; set; }
+
+        //add by nurul 20/8/2019, update data pengiriman
+        public string NoBuktiKirim { get; set; }
+        public string TglKirim { get; set; }
+        public string Kurir { get; set; }
+        public string NamaKurir { get; set; }
+        public string jamKirim { get; set; }
+        //end add by nurul 20/8/2019
     }
 }

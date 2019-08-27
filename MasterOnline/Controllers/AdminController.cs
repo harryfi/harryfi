@@ -175,8 +175,11 @@ namespace MasterOnline.Controllers
                 };
 
                 return PartialView("FormAccountPartialNew", Tempvm);
+
             }
             accInDb.Status = !accInDb.Status;
+
+
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
@@ -321,6 +324,7 @@ namespace MasterOnline.Controllers
                 }
                 ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dinonaktifkan.";
                 MoDbContext.SaveChanges();
+
             }
             //end add by nurul 5/3/2019
 
@@ -350,8 +354,12 @@ namespace MasterOnline.Controllers
 
             if (accInDb != null)
             {
-                try
+                if (accInDb.DatabasePathErasoft != null)
                 {
+                    if (accInDb.DatabasePathErasoft != "")
+                    {
+                        try
+                        {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
@@ -359,16 +367,26 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
 
-                    accInDb.DatabasePathErasoft = null;
-                    ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                            accInDb.DatabasePathErasoft = null;
+                            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dihapus databasenya.";
+                        }
+                        catch (Exception e)
+                        {
+                            return Content(e.Message);
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", @"Database tidak ditemukan!");
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    return Content(e.Message);
+                    ModelState.AddModelError("", @"Database tidak ditemukan!");
                 }
             }
 
@@ -387,6 +405,11 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
+                    if (accInDb.DatabasePathErasoft != null)
+                    {
+                        if (accInDb.DatabasePathErasoft != "")
+                        {
+
 #if AWS
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
@@ -394,9 +417,12 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                       "user id=masteronline;password=M@ster123;");
+
+                            System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                               "user id=masteronline;password=M@ster123;");
 #endif
+                        }
+                    }
 
                     var uname = accInDb.Username;
                     MoDbContext.Account.Remove(accInDb);
@@ -407,7 +433,9 @@ namespace MasterOnline.Controllers
                     {
                         ViewData["SuccessMessage"] = $"Database dan Akun dari {uname} berhasil dihapus.";
                     }
+
                 }
+
                 catch (Exception e)
                 {
                     return Content(e.Message);
@@ -612,6 +640,7 @@ namespace MasterOnline.Controllers
                 var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
                 if (cekPayment != null)
                 {
+
                     await SendInvoice(Convert.ToString(cekPayment.Single().RecNum), "0");
                 }
             }
@@ -630,17 +659,21 @@ namespace MasterOnline.Controllers
         //public async Task<ActionResult> SendInvoice(int? aktSubID, string btnKirim)
         public async Task<ActionResult> SendInvoice(string aktSubID, string btnKirim)
         {
+
             try
             {
                 var ambilUlangAktSub = new AktivitasSubscription();
                 bool succes = false;
+
                 var aktSubId = Convert.ToInt32(aktSubID);
+
                 var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
                 if (aktSub.Invoice_No == null || aktSub.Invoice_No.Substring(3, 4) == "2019") //kalo Invoice_No null/masih format lama
                 {
                     var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
 
                     var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+
                     var cekListSudahAdaNoInv = MoDbContext.AktivitasSubscription.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderBy(p => p.RecNum).ToList();
                     var digitAkhir = "";
                     var noInv = "";
@@ -651,6 +684,7 @@ namespace MasterOnline.Controllers
                         noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
                     }
                     else 
+
                     {
                         //var lastRecNum = listAktSubInDb.Last().RecNum;
                         //lastRecNum++;
@@ -740,7 +774,9 @@ namespace MasterOnline.Controllers
                 else if (succes == false)
                 {
                     ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+
                     return RedirectToAction("AktivitasSubscription");
+
                 }
                 return new EmptyResult();
             }

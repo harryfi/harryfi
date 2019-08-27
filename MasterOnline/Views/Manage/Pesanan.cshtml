@@ -4091,12 +4091,19 @@
                                         getTanggal();
                                         getMarketplace();
                                         getExpedisi();
-                                        getBuyer();
+                                        //getBuyer();
                                         getGudang();
                                         getDataBarang();
 
                                         //refreshInputan();
                                         //refreshNetto();
+                                        
+                                        $('#Pesanan_NETTO').val(convertToRupiah(0));
+                                        $('#Pesanan_BRUTO').val(convertToRupiah(0));
+                                        $('#Pesanan_NILAI_DISC').val(convertToRupiah(0));
+                                        $('#Pesanan_PPN').val(0);
+                                        $('#Pesanan_NILAI_PPN').val(convertToRupiah(0));
+                                        $('#Pesanan_ONGKOS_KIRIM').val(convertToRupiah(0));
 
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
@@ -5499,7 +5506,7 @@
                     });
                     //end add by nurul 11/2/2019
                     getTanggal();
-                    getBuyer();
+                    //getBuyer();
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
@@ -5693,7 +5700,7 @@
                     getTanggal();
                     getMarketplace();
                     getExpedisi();
-                    getBuyer();
+                    //getBuyer();
                     getDataBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
@@ -6733,6 +6740,8 @@
         //end add by nurul 7/5/2019
 
         function refreshForm1() {
+            refreshInputan();
+            @*remark by calvin 26 agustus 2019, tidak diperlukan, karena saat tambah baru, di refresh.
             var link = '@Url.Action("RefreshPesananForm", "Manage")';
 
             $.ajax({
@@ -6744,13 +6753,14 @@
                     getTanggal();
                     getMarketplace();
                     getExpedisi();
-                    getBuyer();
+                    //getBuyer();
                     getDataBarang();
+                    refreshNetto();
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
                 }
-            });
+            });*@
         }
 
         function passRecResi(rec) {
@@ -6810,7 +6820,7 @@
                         $('#loading_spinner').show();
                     },
                     success: function(response) {
-                        lihatPesananSudahDibayar
+                        //lihatPesananSudahDibayar
                         alert('Data berhasil disimpan!');
                         $('#modalFixNotFound').modal('hide');
                         //samakan dengan function lihatPesananSudahDibayar onSuccess
