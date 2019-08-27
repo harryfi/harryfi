@@ -6327,7 +6327,7 @@ namespace MasterOnline.Controllers
 
             newData.productItems = (productItems);
             newData.imageMap = images;
-            newData.uniqueSellingPoint = Convert.ToString(stf02h["AVALUE_39"]);
+            newData.uniqueSellingPoint = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
 
             string myData = JsonConvert.SerializeObject(newData);
 
