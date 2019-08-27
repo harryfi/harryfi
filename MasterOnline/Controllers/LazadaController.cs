@@ -3757,13 +3757,15 @@ namespace MasterOnline.Controllers
                 if (typeBrg != 1)
                 {
                     sellerSku = brg.skus[i].SellerSku;
-                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
+                    //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
+                    sSQL_Value += " ( '" + sellerSku + "' , '" + sellerSku + "' , '";
                 }
                 else
                 {
                     sellerSku = brg.item_id;
                     //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '" + sellerSku.Replace("\'", "\'\'") + "' , '";
-                    sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '' , '";
+                    //sSQL_Value += " ( '" + sellerSku.Replace("\'", "\'\'") + "' , '' , '";
+                    sSQL_Value += " ( '" + sellerSku + "' , '' , '";
                 }
                 string namaBrg = brg.attributes.name;
                 if (typeBrg == 2)
