@@ -28236,7 +28236,33 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         //end add by Tri 18 Juli 2019
-
+        //add by Tri 27 agustus 2019, validasi ubah barang non-varian menjadi varian
+        public ActionResult ValidateCkVarian(string brg)
+        {
+            var barangInDB = ErasoftDbContext.STF02.Where(m => m.BRG == brg).FirstOrDefault();
+            if(barangInDB != null)
+            {
+                if(barangInDB.TYPE == "3")
+                {
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.NAMA == "7").ToList();//cari customer lazada
+                    if(customer.Count > 0)
+                    {
+                        var listIdmarket = new List<int>();
+                        foreach (var cust in customer)
+                        {
+                            listIdmarket.Add(cust.RecNum.Value);
+                        }
+                        var stf02h = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && listIdmarket.Contains(m.IDMARKET) && !string.IsNullOrEmpty(m.BRG_MP)).ToList();
+                        if(stf02h.Count > 0)// sudah link dengan akun lazada
+                        {
+                            return JsonErrorMessage("Barang ini sudah link dengan marketplace lazada, tidak dapat diubah menjadi barang varian.");
+                        }
+                    }
+                }
+            }
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+        //end add by Tri 27 agustus 2019, validasi ubah barang non-varian menjadi varian
     }
     public class smolSTF02
     {

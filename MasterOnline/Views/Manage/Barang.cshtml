@@ -4462,6 +4462,32 @@
             return false;
         }
         //end add by nurul
+        //add by Tri, validasi ubah brg non varian menjadi varian
+        function validateCkVarian(value) {
+            if (value) {
+                $('#Stf02_BRG').val();
+                var link = '@Url.Action("ValidateCkVarian", "Manage", new { brg = "replaceId" })';
+                link = link.replace("replaceId", $('#Stf02_BRG').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        
+                    } else {               
+                        $('#cbxStf02Type').prop('checked', false);
+                        alert(response.Errors[0]);
+                    }
+                    //end change by calvin 25 april 2019
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            }
+        }
+        //end add by Tri, validasi ubah brg non varian menjadi varian
     </script>
     <script>
         var mimes = {
