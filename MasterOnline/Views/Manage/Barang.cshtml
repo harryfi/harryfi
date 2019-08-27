@@ -4512,6 +4512,47 @@
             return false;
         }
         //end add by nurul
+        //add by Tri, validasi ubah brg non varian menjadi varian
+        function validateCkVarian(value) {
+            if (value) {
+                $('#Stf02_BRG').val();
+                var link = '@Url.Action("ValidateCkVarian", "Manage", new { brg = "replaceId" })';
+                link = link.replace("replaceId", $('#Stf02_BRG').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        
+                    } else {               
+                        $('#cbxStf02Type').prop('checked', false);
+                        //checkbox on click event
+                        var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+                        $cbxTarget.val('3');
+                        $('#var-structure-partial').html('');
+                        $('#var-detail-variant-partial').html('');
+                        $('#simpan_btn').show();
+                        $('#next_btn').hide();
+                        $('#div_info_harga_variant').hide();
+
+                        $('.detail_mp_blibli_gambar').each(function () {
+                            var $this = $(this);
+                            $this.show();
+                        });
+                        enableFotoProdukSection();
+                        //end checkbox on click event
+                        alert(response.Errors[0]);
+                    }
+                    //end change by calvin 25 april 2019
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            }
+        }
+        //end add by Tri, validasi ubah brg non varian menjadi varian
     </script>
     <script>
         var mimes = {
