@@ -1146,6 +1146,7 @@
             //$('#datatable').DataTable().page($page).draw(false);
             ////end add by nurul 12/2/2019
             //end remark by calvin 23 april 2019
+            CekTabVariant();
         }
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
@@ -4126,6 +4127,10 @@
                     $(btnClicked).attr("disabled", false);
 
                     if (response.Errors == null) {
+
+                        $('#txtInfoKodeBarang').val($('#Stf02_BRG').val());
+                        $('#txtInfoNamaBarang').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+
                         //change by calvin 23 april 2019
                         //$('#var-structure-partial').html('');
                         //$('#var-detail-variant-partial').html('');
@@ -4292,6 +4297,14 @@
                     //$('#variant-induk-tab').removeAttr('data-toggle');
                     //$('#variant-induk-tab').addClass('disabled-tab');
                     enableFotoProdukSection();
+                    $('#simpan_btn').show();
+                    $('#next_btn').hide();
+                    $('#div_info_harga_variant').hide();
+
+                    $('.detail_mp_blibli_gambar').each(function () {
+                        var $this = $(this);
+                        $this.show();
+                    });
                 } else {
                     //ada Variant
                     //remark by calvin 22 agustus 2019, dibuat selalu disabled
@@ -4299,8 +4312,17 @@
                     //$('#variant-induk-tab').attr('data-toggle', 'tab');
                     //$('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
-                    GetStrukturVariant();
-                    GetDetailBarangVariant();
+                    //GetStrukturVariant();
+                    //GetDetailBarangVariant();
+                    
+                    $('#simpan_btn').hide();
+                    $('#next_btn').show();
+                    $('#div_info_harga_variant').show();
+
+                    $('.detail_mp_blibli_gambar').each(function () {
+                        var $this = $(this);
+                        $this.hide();
+                    });
                 }
             }
         }
