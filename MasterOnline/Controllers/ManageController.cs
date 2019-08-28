@@ -7765,7 +7765,7 @@ namespace MasterOnline.Controllers
                     //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.AsNoTracking().Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
-                    StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
+                    //StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -7786,7 +7786,7 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
+                //StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
 
             return PartialView("FormBarangPartial", vm);
@@ -24319,6 +24319,9 @@ namespace MasterOnline.Controllers
                                                 dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                                 dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
                                                 #endregion
+                                                dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                                dupeStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                                dupeStf02h.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                                 ErasoftDbContext.STF02H.Add(dupeStf02h);
                                                 if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
                                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
@@ -24578,6 +24581,9 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                     brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                     #endregion
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
@@ -24751,6 +24757,9 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                 #endregion
+                                brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                 ErasoftDbContext.STF02H.Add(brgMp);
                                 ErasoftDbContext.SaveChanges();
 
@@ -25016,6 +25025,9 @@ namespace MasterOnline.Controllers
                             brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                             brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                             #endregion
+                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
 
@@ -25450,6 +25462,9 @@ namespace MasterOnline.Controllers
                     brgMp.ANAME_50 = tempBrg.ANAME_50;
                     brgMp.AVALUE_50 = tempBrg.AVALUE_50;
                     #endregion
+                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                     if (insertSTF02h)
                         eraDB.STF02H.Add(brgMp);
                     eraDB.SaveChanges();
@@ -26072,6 +26087,10 @@ namespace MasterOnline.Controllers
                                         brgMp.ANAME_50 = item.ANAME_50;
                                         brgMp.AVALUE_50 = item.AVALUE_50;
                                         #endregion
+
+                                        brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                        brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                        brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                         eraDB.STF02H.Add(brgMp);
                                         eraDB.SaveChanges();
                                         listBrgSuccess.Add(item.BRG_MP);
@@ -26440,6 +26459,9 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                     eraDB.STF02H.Add(brgMp);
 
                                     //change 17 juni 2019, handle gagal save

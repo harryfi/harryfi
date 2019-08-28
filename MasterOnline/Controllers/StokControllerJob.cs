@@ -155,6 +155,16 @@ namespace MasterOnline.Controllers
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         }
                         //end add by calvin 14 mei 2019
+                        //add by calvin 28 agustus 2019
+                        if (ActionName == "Buat Produk")
+                        {
+                            sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Gagal', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+                            //jobid;request_action;request_result;request_exception
+                            string Link_Error = jobId + ";" + ActionName + ";" + this._deskripsi.Replace("{obj}", subjectDescription) + ";" + exceptionMessage.Replace("'", "`");
+                            sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + CUST + "' WHERE S.BRG = '" + subjectDescription + "' ";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        }
+                        //end add by calvin 28 agustus 2019
                     }
                     catch (Exception ex)
                     {
