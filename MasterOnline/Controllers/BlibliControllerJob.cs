@@ -5771,10 +5771,10 @@ namespace MasterOnline.Controllers
                 categoryCode = data.CategoryCode,
                 productType = 1,
                 pickupPointCode = data.PickupPoint,
-                length = Convert.ToInt32(data.Length),
-                width = Convert.ToInt32(data.Width),
-                height = Convert.ToInt32(data.Height),
-                weight = Convert.ToInt32(data.berat),
+                length = Convert.ToInt32(Convert.ToDouble(data.Length)),
+                width = Convert.ToInt32(Convert.ToDouble(data.Width)),
+                height = Convert.ToInt32(Convert.ToDouble(data.Height)),
+                weight = Convert.ToInt32(Convert.ToDouble(data.berat)),
                 description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
                 //uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
                 //diisi dengan AVALUE_39
@@ -6086,7 +6086,7 @@ namespace MasterOnline.Controllers
                 {
                     upcCode = data.dataBarangInDb.BRG,
                     merchantSku = data.dataBarangInDb.BRG,
-                    price = Convert.ToInt32(data.Price),
+                    price = Convert.ToInt32(Convert.ToDouble(data.Price)),
                     salePrice = Convert.ToInt32(stf02h.HJUAL),
                     minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     stock = Convert.ToInt32(data.dataBarangInDb.MINI),
@@ -6327,8 +6327,8 @@ namespace MasterOnline.Controllers
 
             newData.productItems = (productItems);
             newData.imageMap = images;
-            newData.uniqueSellingPoint = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
-
+            newData.uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(Convert.ToString(stf02h["AVALUE_39"])));
+            
             string myData = JsonConvert.SerializeObject(newData);
 
             //myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
