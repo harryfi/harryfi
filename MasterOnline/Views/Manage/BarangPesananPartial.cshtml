@@ -351,14 +351,24 @@
                     {
                         <tr data-barang-id="brg-@pesanan.NO_URUT">
                             @{
-                        var stnBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.STN2;
-                        var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.HJUAL;
+                                var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
+
+                                var stnBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.STN2;
+                                var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.HJUAL;
+
+                                var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                                var namaDiCatatan = "";
+                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                                {
+                                    namaDiCatatan = catatan_split[1];
+                                }
+                                var namaBarang = barang == null ? namaDiCatatan : (barang.NAMA + " " + barang.NAMA2);
                             }
                             <td>
                                 @pesanan.BRG
                             </td>
                             <td class="nama-barang">
-                                @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA) @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA2)
+                                @namaBarang
                             </td>
                             <td class="stn-barang">
                                 @stnBarang
