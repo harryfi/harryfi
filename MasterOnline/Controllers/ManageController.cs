@@ -6557,6 +6557,8 @@ namespace MasterOnline.Controllers
                     }
                     if (string.IsNullOrWhiteSpace(productMarketPlace.BRG_MP) && productMarketPlace.DISPLAY)
                     {
+                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
+                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -6646,6 +6648,9 @@ namespace MasterOnline.Controllers
                 //change by calvin 9 juni 2019
                 if (mode == 1)
                 {
+                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
+                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //var result = lzdApi.CreateProduct(dataLazada);
@@ -6752,6 +6757,9 @@ namespace MasterOnline.Controllers
                                             //};
                                             //TokopediaController tokoAPI = new TokopediaController();
                                             //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust, //FSID
@@ -6864,6 +6872,9 @@ namespace MasterOnline.Controllers
                                                         //};
                                                         //TokopediaController tokoAPI = new TokopediaController();
                                                         //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+
+                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                         TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                                         {
                                                             merchant_code = tblCustomer.Sort1_Cust, //FSID
@@ -6921,6 +6932,8 @@ namespace MasterOnline.Controllers
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
 
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -6983,6 +6996,9 @@ namespace MasterOnline.Controllers
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -7032,6 +7048,9 @@ namespace MasterOnline.Controllers
                                             //};
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -7084,6 +7103,9 @@ namespace MasterOnline.Controllers
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -7182,6 +7204,8 @@ namespace MasterOnline.Controllers
                                             data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7302,6 +7326,8 @@ namespace MasterOnline.Controllers
                                                     data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '"+ tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '"+ data.kode +"'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
                                                     //var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7402,6 +7428,9 @@ namespace MasterOnline.Controllers
                                             data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7522,6 +7551,8 @@ namespace MasterOnline.Controllers
                                                     data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
                                                     //var sqlStorage = new SqlServerStorage(EDBConnID);
