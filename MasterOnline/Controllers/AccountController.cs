@@ -695,7 +695,7 @@ namespace MasterOnline.Controllers
             //add by calvin 9 oktober 2018
             //delete log API older than 7 days
             var dtolderThan7Days = DateTime.UtcNow.AddDays(-7);
-            var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME <= dtolderThan7Days select p).ToList();
+            var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME <= dtolderThan7Days && p.REQUEST_ATTRIBUTE_5 != "HANGFIRE" select p).ToList();
             LocalErasoftDbContext.API_LOG_MARKETPLACE.RemoveRange(deleteOldLogs);
             LocalErasoftDbContext.SaveChanges();
             //end add by calvin 9 oktober 2018
