@@ -4620,6 +4620,11 @@ namespace MasterOnline.Controllers
                                                         sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST = B.CUST AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS IN ('FAILED','RETRYING')";
                                                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     }
+                                                    sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Gagal', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+                                                    //jobid;request_action;request_result;request_exception
+                                                    string Link_Error = jobId + ";" + ActionName + ";Create Product " + subjectDescription + " ke Blibli Gagal.;" + exceptionMessage.Replace("'", "`");
+                                                    sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + CUST + "' WHERE S.BRG = '" + subjectDescription + "' ";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     #endregion
                                                 }
                                             }
@@ -6479,13 +6484,13 @@ namespace MasterOnline.Controllers
                     //oCommand.ExecuteNonQuery();
                     //oCommand.Transaction = oTransaction;
                     oCommand.CommandType = CommandType.Text;
-                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING'  FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                    string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                    oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
                     //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@LOG_REQUEST_ID", SqlDbType.NVarChar, 50));
                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-
                     oCommand.Parameters[0].Value = result_value_queueFeedId;
                     oCommand.Parameters[1].Value = iden.merchant_code;
                     oCommand.Parameters[2].Value = milis;
@@ -6705,7 +6710,7 @@ namespace MasterOnline.Controllers
                                             using (SqlCommand oCommand = oConnection.CreateCommand())
                                             {
                                                 oCommand.CommandType = CommandType.Text;
-                                                oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                                oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
                                                 //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                                                 oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                                 oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
@@ -6757,7 +6762,7 @@ namespace MasterOnline.Controllers
                                     using (SqlCommand oCommand = oConnection.CreateCommand())
                                     {
                                         oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                        oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP,LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '0;Buat Produk;;' WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
                                         oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                         oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
                                         oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));

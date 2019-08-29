@@ -155,6 +155,16 @@ namespace MasterOnline.Controllers
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         }
                         //end add by calvin 14 mei 2019
+                        //add by calvin 28 agustus 2019
+                        if (ActionName == "Buat Produk")
+                        {
+                            sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Gagal', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+                            //jobid;request_action;request_result;request_exception
+                            string Link_Error = jobId + ";" + ActionName + ";" + this._deskripsi.Replace("{obj}", subjectDescription) + ";" + exceptionMessage.Replace("'", "`");
+                            sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + CUST + "' WHERE S.BRG = '" + subjectDescription + "' ";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        }
+                        //end add by calvin 28 agustus 2019
                     }
                     catch (Exception ex)
                     {
@@ -341,7 +351,8 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        protected string SetupContextTokopedia(string DatabasePathErasoft, string uname, TokopediaAPIData data) {
+        protected string SetupContextTokopedia(string DatabasePathErasoft, string uname, TokopediaAPIData data)
+        {
 
             string ret = "";
             MoDbContext = new MoDbContext();
@@ -500,7 +511,6 @@ namespace MasterOnline.Controllers
             //karena reserved stock blibli sudah terisi saat pembeli belum memilih metode pembayaran, sehingga besar kemungkinan dapat membatalkan pesanan.
             //{
             //    var list_brg_mp = ErasoftDbContext.Database.SqlQuery<mp_and_item_data>("SELECT SORT1_CUST,API_CLIENT_P,API_CLIENT_U,API_KEY,TOKEN,EMAIL,PASSWORD,A.RECNUM,ISNULL(B.BRG_MP,'') KODE_BRG_MP FROM ARF01 (NOLOCK) A INNER JOIN STF02H (NOLOCK) B ON A.RECNUM = B.IDMARKET WHERE B.BRG = '" + Barang +"' AND B.DISPLAY = '1' AND A.NAMA='16' AND A.STATUS_API='1'").ToList();
-
             //    foreach (var item in list_brg_mp)
             //    {
             //        BlibliAPIData iden = new BlibliAPIData
@@ -865,7 +875,11 @@ namespace MasterOnline.Controllers
                             data.Price = stf02h.HJUAL.ToString();
                             data.kode_mp = stf02h.BRG_MP;
                             //eleApi.UpdateProductQOH_Price(data);
+#if (DEBUG || Debug_AWS)
+                            Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null);
+#else
                             client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null));
+#endif
                         }
                         else if (marketPlace.NAMA.Equals(kdBli.ToString()))
                         {
@@ -1224,26 +1238,70 @@ namespace MasterOnline.Controllers
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
 
-            string sSQL = "SELECT * FROM (";
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+            //DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            //int data_idmarket = Convert.ToInt32(data.IDMarket);
+            //var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
+            //xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
+
+            //for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+            //    xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            //    xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+            //    xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            //}
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kode && p.IDMARKET.ToString() == data.IDMarket).FirstOrDefault();
+
+            //List<string> dsNormal = new List<string>();
+            Dictionary<string, string> listAttr = new Dictionary<string, string>();
+
+            var attributeEl = new EleveniaControllerJob().GetAttributeByCategory(auth, stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 30; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
-                if (i < 30)
+                string attribute_code = Convert.ToString(attributeEl["ACODE_" + i.ToString()]);
+                string attribute_id = Convert.ToString(attributeEl["ATYPE_" + i.ToString()]);
+                string attribute_name = Convert.ToString(attributeEl["ANAME_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_code))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    listAttr.Add(attribute_code, attribute_id + "[;]" + attribute_name);
                 }
             }
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
-            int data_idmarket = Convert.ToInt32(data.IDMarket);
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
-            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            Dictionary<string, string> elAttrWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 30; i++)
             {
-                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
-                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
-                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (listAttr.ContainsKey(attribute_id))
+                    {
+                        if (!elAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            //var sVar = listAttr[attribute_id].Split(new string[] { "[;]" }, StringSplitOptions.None);
+                            elAttrWithVal.Add(attribute_id + "[;]" + listAttr[attribute_id], value.Trim());
+                        }
+                    }
+                }
+            }
+            xmlString += "<dispCtgrNo>" + stf02h.CATEGORY_CODE + "</dispCtgrNo>";
+
+            foreach (var elSkuAttr in elAttrWithVal)
+            {
+                var sKey = elSkuAttr.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + sKey[0] + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + sKey[2] + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + sKey[1] + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + elSkuAttr.Value + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
             }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
@@ -1324,7 +1382,7 @@ namespace MasterOnline.Controllers
             iden.token = newToken;
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
-            
+
             //add by calvin 17 juni 2019
             if (qtyOnHand < 0)
             {
@@ -1343,7 +1401,7 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
 
-#region Get Product List ( untuk dapatkan QOH di Blibi )
+            #region Get Product List ( untuk dapatkan QOH di Blibi )
             double QOHBlibli = 0;
             string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
             string skuUpdate = data.kode_mp;
@@ -1504,7 +1562,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-#endregion
+                #endregion
             }
 
             return ret;
@@ -1518,7 +1576,7 @@ namespace MasterOnline.Controllers
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
-            
+
             double QOHBlibli = 0;
             string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
             string skuUpdate = kode_mp;

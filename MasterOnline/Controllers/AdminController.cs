@@ -175,8 +175,10 @@ namespace MasterOnline.Controllers
                 };
 
                 return PartialView("FormAccountPartialNew", Tempvm);
+
             }
             accInDb.Status = !accInDb.Status;
+
 
             if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
             {
@@ -322,6 +324,7 @@ namespace MasterOnline.Controllers
                 }
                 ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil dinonaktifkan.";
                 MoDbContext.SaveChanges();
+
             }
             //end add by nurul 5/3/2019
 
@@ -406,6 +409,7 @@ namespace MasterOnline.Controllers
                     {
                         if (accInDb.DatabasePathErasoft != "")
                         {
+
 #if AWS
                                         System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
@@ -413,11 +417,13 @@ namespace MasterOnline.Controllers
                                         System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                            "user id=masteronline;password=M@ster123;");
 #else
+
                             System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                                "user id=masteronline;password=M@ster123;");
 #endif
                         }
                     }
+
                     var uname = accInDb.Username;
                     MoDbContext.Account.Remove(accInDb);
                     MoDbContext.SaveChanges();
@@ -427,7 +433,9 @@ namespace MasterOnline.Controllers
                     {
                         ViewData["SuccessMessage"] = $"Database dan Akun dari {uname} berhasil dihapus.";
                     }
+
                 }
+
                 catch (Exception e)
                 {
                     return Content(e.Message);

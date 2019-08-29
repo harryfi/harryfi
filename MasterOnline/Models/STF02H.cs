@@ -514,5 +514,10 @@ namespace MasterOnline
 
         [StringLength(30)]
         public string PICKUP_POINT { get; set; }
+
+        [StringLength(50)]
+        public string LINK_STATUS { get; set; }
+        public DateTime? LINK_DATETIME { get; set; }
+        public string LINK_ERROR { get; set; } //jobid;request_action;request_result;request_exception
     }
 }

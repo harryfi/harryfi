@@ -86,6 +86,7 @@
             <tr role="row">
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Kirim</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
@@ -171,6 +172,7 @@
                     @*<td>@pesanan.NO_BUKTI</td>*@
                     <td>@pesanan.NOSO</td>
                     <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                    <td>@(pesanan.TGLKIRIM?.ToString("dd/MM/yyyy HH:mm"))</td>
                     @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                     <td>
                         @if (pesanan.PERSO != "")
