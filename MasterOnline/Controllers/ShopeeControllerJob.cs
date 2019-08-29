@@ -3288,6 +3288,13 @@ namespace MasterOnline.Controllers
             //try
             //{
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            string sSQL = "UPDATE S SET LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+            //jobid;request_action;request_result;request_exception
+            string Link_Error = "0;Buat Produk;;";
+            sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + log_CUST + "' WHERE S.BRG = '" + kodeProduk + "' ";
+            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
             myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
@@ -3321,6 +3328,9 @@ namespace MasterOnline.Controllers
                         if (item != null)
                         {
                             item.BRG_MP = Convert.ToString(resServer.item_id) + ";0";
+                            item.LINK_STATUS = "Buat Produk Berhasil";
+                            item.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            item.LINK_ERROR = "0;Buat Produk;;";
                             ErasoftDbContext.SaveChanges();
 
                             if (brgInDb.TYPE == "4")
@@ -3895,7 +3905,8 @@ namespace MasterOnline.Controllers
                             //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                             //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                             //ErasoftDbContext.SaveChanges();
-                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                            string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
                         }
 
                         if (currentLog != null)

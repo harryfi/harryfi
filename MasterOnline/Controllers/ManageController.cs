@@ -6617,6 +6617,8 @@ namespace MasterOnline.Controllers
                     //if (string.IsNullOrWhiteSpace(productMarketPlace[0].BRG_MP) && productMarketPlace[0].DISPLAY)
                     if (brg_notInLzd.Tables[0].Rows.Count > 0 && productMarketPlace.DISPLAY)
                     {
+                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
+                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         //var result = lzdApi.CreateProduct(dataLazada);
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -6710,6 +6712,9 @@ namespace MasterOnline.Controllers
                 //change by calvin 9 juni 2019
                 if (mode == 1 && productMarketPlace.DISPLAY)
                 {
+                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
+                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //var result = lzdApi.CreateProduct(dataLazada);
@@ -6816,6 +6821,9 @@ namespace MasterOnline.Controllers
                                             //};
                                             //TokopediaController tokoAPI = new TokopediaController();
                                             //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust, //FSID
@@ -6928,6 +6936,9 @@ namespace MasterOnline.Controllers
                                                         //};
                                                         //TokopediaController tokoAPI = new TokopediaController();
                                                         //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
+
+                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                         TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                                         {
                                                             merchant_code = tblCustomer.Sort1_Cust, //FSID
@@ -6985,6 +6996,8 @@ namespace MasterOnline.Controllers
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
 
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -7047,6 +7060,9 @@ namespace MasterOnline.Controllers
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -7096,6 +7112,9 @@ namespace MasterOnline.Controllers
                                             //};
                                             //ShopeeController shoAPI = new ShopeeController();
                                             //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -7148,6 +7167,9 @@ namespace MasterOnline.Controllers
                                                     //};
                                                     //ShopeeController shoAPI = new ShopeeController();
                                                     //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                     ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                                     {
                                                         merchant_code = tblCustomer.Sort1_Cust,
@@ -7246,6 +7268,8 @@ namespace MasterOnline.Controllers
                                             data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7366,6 +7390,8 @@ namespace MasterOnline.Controllers
                                                     data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '"+ tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '"+ data.kode +"'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
                                                     //var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7466,6 +7492,9 @@ namespace MasterOnline.Controllers
                                             data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                             //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7586,6 +7615,8 @@ namespace MasterOnline.Controllers
                                                     data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data,null).Wait());
                                                     //var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -7843,7 +7874,7 @@ namespace MasterOnline.Controllers
                     //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.AsNoTracking().Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
-                    StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
+                    //StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -7864,7 +7895,7 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
+                //StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
 
             return PartialView("FormBarangPartial", vm);
@@ -24452,7 +24483,10 @@ namespace MasterOnline.Controllers
                                                 dupeStf02h.ACODE_50 = stf02h_induk.ACODE_50;
                                                 dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                                 dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
-#endregion
+                                                #endregion
+                                                dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                                dupeStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                                dupeStf02h.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                                 ErasoftDbContext.STF02H.Add(dupeStf02h);
                                                 if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
                                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
@@ -24711,7 +24745,10 @@ namespace MasterOnline.Controllers
                                     brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                                     brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                     brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-#endregion
+                                    #endregion
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
@@ -24884,7 +24921,10 @@ namespace MasterOnline.Controllers
                                 brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-#endregion
+                                #endregion
+                                brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                 ErasoftDbContext.STF02H.Add(brgMp);
                                 ErasoftDbContext.SaveChanges();
 
@@ -25149,7 +25189,10 @@ namespace MasterOnline.Controllers
                             brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                             brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                             brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-#endregion
+                            #endregion
+                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
 
@@ -25583,7 +25626,10 @@ namespace MasterOnline.Controllers
                     brgMp.ACODE_50 = tempBrg.ACODE_50;
                     brgMp.ANAME_50 = tempBrg.ANAME_50;
                     brgMp.AVALUE_50 = tempBrg.AVALUE_50;
-#endregion
+                    #endregion
+                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                     if (insertSTF02h)
                         eraDB.STF02H.Add(brgMp);
                     eraDB.SaveChanges();
@@ -26205,7 +26251,11 @@ namespace MasterOnline.Controllers
                                         brgMp.ACODE_50 = item.ACODE_50;
                                         brgMp.ANAME_50 = item.ANAME_50;
                                         brgMp.AVALUE_50 = item.AVALUE_50;
-#endregion
+                                        #endregion
+
+                                        brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                        brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                        brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                         eraDB.STF02H.Add(brgMp);
                                         eraDB.SaveChanges();
                                         listBrgSuccess.Add(item.BRG_MP);
@@ -26573,7 +26623,10 @@ namespace MasterOnline.Controllers
                                     brgMp.ACODE_50 = item.ACODE_50;
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
-#endregion
+                                    #endregion
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                                     eraDB.STF02H.Add(brgMp);
 
                                     //change 17 juni 2019, handle gagal save
