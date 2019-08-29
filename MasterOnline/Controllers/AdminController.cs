@@ -640,7 +640,6 @@ namespace MasterOnline.Controllers
                 var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
                 if (cekPayment != null)
                 {
-
                     await SendInvoice(Convert.ToString(cekPayment.Single().RecNum), "0");
                 }
             }
@@ -659,21 +658,17 @@ namespace MasterOnline.Controllers
         //public async Task<ActionResult> SendInvoice(int? aktSubID, string btnKirim)
         public async Task<ActionResult> SendInvoice(string aktSubID, string btnKirim)
         {
-
             try
             {
                 var ambilUlangAktSub = new AktivitasSubscription();
                 bool succes = false;
-
                 var aktSubId = Convert.ToInt32(aktSubID);
-
                 var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
                 if (aktSub.Invoice_No == null || aktSub.Invoice_No.Substring(3, 4) == "2019") //kalo Invoice_No null/masih format lama
                 {
                     var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
 
                     var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
-
                     var cekListSudahAdaNoInv = MoDbContext.AktivitasSubscription.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderBy(p => p.RecNum).ToList();
                     var digitAkhir = "";
                     var noInv = "";
@@ -684,7 +679,6 @@ namespace MasterOnline.Controllers
                         noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
                     }
                     else 
-
                     {
                         //var lastRecNum = listAktSubInDb.Last().RecNum;
                         //lastRecNum++;
@@ -774,9 +768,7 @@ namespace MasterOnline.Controllers
                 else if (succes == false)
                 {
                     ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
-
                     return RedirectToAction("AktivitasSubscription");
-
                 }
                 return new EmptyResult();
             }
