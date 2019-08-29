@@ -22,6 +22,28 @@
 @section styles
 {
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    @*<link href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.min.css" rel="stylesheet" type="text/css" />*@
+    <style>
+        .datepicker-days .prev {
+            display: none !important;
+        }
+
+        .datepicker-days .next {
+            display: none !important;
+        }
+
+        .datepicker-days .datepicker-switch {
+            display: none !important;
+        }
+
+        .datepicker-days .old {
+            display: marker !important;
+        }
+
+        .datepicker-days .new {
+            display: marker !important;
+        }
+    </style>
 }
 
 <h2>Posting</h2>
@@ -44,20 +66,29 @@
 </div>
 <div class="row">
     <div class="col-md-2">
-        @Html.Label("", "Dari Tanggal")
-        <div class="input-group number">
-            @Html.TextBox("DrTgl", null, new { @class = "form-control", @ReadOnly = true })
-        </div>
+        @Html.Label("", "Dari Tanggal", new { @style = "padding-right:10px" })
+            <select id="DrTgl" style="height:30px; padding-left:10px"></select>
     </div>
     <div class="col-md-2">
-        @Html.Label("", "Sampai Tanggal")
-        <div class="input-group number">
-            @Html.TextBox("SdTgl", null, new { @class = "form-control", @ReadOnly = true })
-        </div>
+        @Html.Label("", "Sampai Tanggal", new { @style= "padding-right:10px" })
+            <select id="SdTgl" style="height:30px; padding-left:10px"></select>
     </div>
+    @*<div class="col-md-2">
+            @Html.Label("", "Dari Tanggal")
+            <div class="input-group number">
+                @Html.TextBox("DrTgl", null, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "Sampai Tanggal")
+            <div class="input-group number">
+                @Html.TextBox("SdTgl", null, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>*@
     <div class="col-md-8">
     </div>
 </div>
+<br/>
 <div class="row">
     <div class="col-md-12">
         <button type="button" class="btn btn-primary" id="process-posting">Process</button>
@@ -104,12 +135,36 @@
 @section scripts
 {
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    @*<script src="//code.jquery.com/ui/1.11.0/jquery-ui.min.js" type="text/javascript"></script>*@
 
     <script>
         var promptSupp = "";
         var promptBrg = "";
+        var $bln = "";
+        var $thn = "";
+        var $first = "";
+        var $last = "";
+        var firstOfThisMonth = new Date();
+        var lastOfThisMonth = new Date();
+        firstOfThisMonth.setDate(1);
+        var a = new Date();
+        a.setDate(1);
+        lastOfThisMonth = a.addMonths(1).addDays(-1);
+
+        var optionsDr = "";
+        for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+            optionsDr += "<option>" + DrTgl + "</option>";
+        }
+        document.getElementById("DrTgl").innerHTML = optionsDr;
+        var optionsSd = "";
+        for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+            optionsSd += "<option>" + SdTgl + "</option>";
+        }
+        document.getElementById("SdTgl").innerHTML = optionsSd;
+
         $(document).ready(function () {
             var d = new Date();
+
 
             $('#Tahun').val(d.getFullYear());
 
@@ -130,32 +185,82 @@
             //    language: 'id',
             //    minViewMode: 0
             //}).datepicker('setDate', d);
+
+            //change by nurul 23/8/2019
+            //$('#Bulan').datepicker({
+            //    format: 'MM',
+            //    language: 'id',
+            //    minViewMode: 1
+            //}).datepicker('setDate', d).change(function () {
+            //    $('#Bulan').val($(this).val());
+            //    $(this).datepicker('hide');
+            //});
             $('#Bulan').datepicker({
                 format: 'MM',
                 language: 'id',
-                minViewMode: 1
+                //menghilangkan tahun
+                //minViewMode: 1
+                minViewMode: 'months',
+                maxViewMode: 'months',
+                startView: 'months'
             }).datepicker('setDate', d).change(function () {
                 $('#Bulan').val($(this).val());
                 $(this).datepicker('hide');
-            });
 
-            $('#DrTgl').datepicker({
-                format: 'dd',
-                language: 'id',
-                minViewMode: 0
-            }).datepicker('setDate', d).change(function () {
-                $('#DrTgl').val($(this).val());
-                $(this).datepicker('hide');
-            });
+                var x = new Date($('#Bulan').val() + ' ' + 2018);
+                firstOfThisMonth = new Date($('#Tahun').val() + '-' + (x.getMonth() + 1) + '-01');
+                var y = new Date($('#Tahun').val() + '-' + (x.getMonth() + 1) + '-01');
+                lastOfThisMonth = y.addMonths(1).addDays(-1);
+                //drSdTgl();
+                optionsDr = "";
+                for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+                    optionsDr += "<option>" + DrTgl + "</option>";
+                }
+                document.getElementById("DrTgl").innerHTML = optionsDr;
+                optionsSd = "";
+                for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                    optionsSd += "<option>" + SdTgl + "</option>";
+                }
+                document.getElementById("SdTgl").innerHTML = optionsSd;
+                });
+            //end change by nurul 23/8/2019
+            $('#Tahun').change(function () {
 
-            $('#SdTgl').datepicker({
-                format: 'dd',
-                language: 'id',
-                minViewMode: 0
-            }).datepicker('setDate', d).change(function () {
-                $('#SdTgl').val($(this).val());
-                $(this).datepicker('hide');
+                var x = new Date($('#Bulan').val() + ' ' + 2018);
+                firstOfThisMonth = new Date($('#Tahun').val() + '-' + (x.getMonth() + 1) + '-01');
+                var y = new Date($('#Tahun').val() + '-' + (x.getMonth() + 1) + '-01');
+                lastOfThisMonth = y.addMonths(1).addDays(-1);
+                //drSdTgl();
+                optionsDr = "";
+                for (var DrTgl = 1; DrTgl <= lastOfThisMonth.getDate(); DrTgl++) {
+                    optionsDr += "<option>" + DrTgl + "</option>";
+                }
+                document.getElementById("DrTgl").innerHTML = optionsDr;
+                optionsSd = "";
+                for (var SdTgl = 1; SdTgl <= lastOfThisMonth.getDate(); SdTgl++) {
+                    optionsSd += "<option>" + SdTgl + "</option>";
+                }
+                document.getElementById("SdTgl").innerHTML = optionsSd;
             });
+            //drSdTgl();
+            //$('#DrTgl').datepicker({
+            //    format: 'dd',
+            //    language: 'id',
+            //    //minViewMode: 0
+            //}).datepicker('setDate', d).change(function () {
+            //    $('#DrTgl').val($(this).val());
+            //    $(this).datepicker('hide');
+            //});
+
+
+            //$('#SdTgl').datepicker({
+            //    format: 'dd',
+            //    language: 'id',
+            //    //minViewMode: 0
+            //}).datepicker('setDate', d).change(function () {
+            //    $('#SdTgl').val($(this).val());
+            //    $(this).datepicker('hide');
+            //});
 
             $('#process-posting').click(function () {
                 $('.labelPosting').html('Status : Proses sedang dimulai..');
@@ -169,6 +274,53 @@
             });
         });
 
+        //add by nurul 23/8/2019
+        function getFirstLastMonth() {
+            var $link = '@Html.Raw(Url.Action("getFirstLastMonth", "Manage", new { bulan = "replaceBulan", tahun = "replaceTahun" }))';
+            $link = $link.replace("replaceBulan", $('#Bulan').val());
+            $link = $link.replace("replaceTahun", $('#Tahun').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                success: function (data) {
+                    $('#table-pesanan-partial').html(data);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 23/8/2019
+        //function drSdTgl() {
+        //    var e = new Date();
+        //    e.getDate();
+        //    var x = new Date($('#Bulan').val() + ' ' + 2018);
+        //    var d = new Date($('#Tahun').val() + '-' + (x.getMonth() + 1) + '-' + (e.getDate()));
+        //    $('#DrTgl').datepicker({
+        //        format: 'dd',
+        //        language: 'id',
+        //        minDate: firstOfThisMonth,
+        //        maxDate: lastOfThisMonth,
+        //        stepMonths: 0
+        //    }).datepicker('setDate', d).change(function () {
+        //        $('#DrTgl').val($(this).val());
+        //        $(this).datepicker('hide');
+        //    });
+
+
+        //    $('#SdTgl').datepicker({
+        //        format: 'dd',
+        //        language: 'id',
+        //        minDate: firstOfThisMonth,
+        //        maxDate: lastOfThisMonth,
+        //        stepMonths: 0
+        //    }).datepicker('setDate', d).change(function () {
+        //        $('#SdTgl').val($(this).val());
+        //        $(this).datepicker('hide');
+        //    });
+        //}
         function FormatMonth() {
             var d;
             d = new Date($('#Bulan').val() + ' ' + 2018);
