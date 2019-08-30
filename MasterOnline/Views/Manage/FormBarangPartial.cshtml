@@ -554,9 +554,10 @@
                                                                         if (data_tip.Count() == 4)
                                                                         {
                                                                             //jobid;request_action;request_result;request_exception
-                                                                            if (string.IsNullOrWhiteSpace(data_tip[2]))
+                                                                            msg_tip = data_tip[3];
+                                                                            if (string.IsNullOrWhiteSpace(data_tip[3]))
                                                                             {
-                                                                                msg_tip = data_tip[3];
+                                                                                msg_tip = data_tip[2];
                                                                             }
                                                                             <div data-tip="@msg_tip">
                                                                                 @Html.TextBox("statusLog", data_tip[1] + " : " + getLatestLog.LINK_STATUS, new { @class = "form-control", disabled = "disabled" })
