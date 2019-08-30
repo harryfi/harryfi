@@ -2346,8 +2346,9 @@ namespace MasterOnline.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SavePaymentCS(SubsViewModel vm)
+        public async Task<ActionResult> SavePaymentCS(SubsViewModel vm)
         {
+            var newPayment = false;
             if (!ModelState.IsValid)
             {
                 return PartialView("FormHistoryPembPartial", vm);
@@ -2356,7 +2357,12 @@ namespace MasterOnline.Controllers
             if (vm.Payment.RecNum == null)
             {
 
+                if (vm.Payment.TipePembayaran == null)
+                {
+                    vm.Payment.TipePembayaran = "Manual_Transfer";
+                }
                 MoDbContext.AktivitasSubscription.Add(vm.Payment);
+                newPayment = true;
             }
             else
             {
@@ -2378,7 +2384,14 @@ namespace MasterOnline.Controllers
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             MoDbContext.SaveChanges();
             ModelState.Clear();
-
+            if (newPayment == true)
+            {
+                var cekPayment = MoDbContext.AktivitasSubscription.Where(a => a.Email == vm.Payment.Email && a.TanggalBayar == vm.Payment.TanggalBayar && a.Nilai == vm.Payment.Nilai).ToList();
+                if (cekPayment != null)
+                {
+                    await SendInvoiceCS(Convert.ToString(cekPayment.Single().RecNum), "0");
+                }
+            }
             return PartialView("FormHistoryPembPartial", vm);
         }
         [HttpGet]
@@ -2387,6 +2400,116 @@ namespace MasterOnline.Controllers
             var account = MoDbContext.Account.ToList();
 
             return Json(account, JsonRequestBehavior.AllowGet);
+        }
+
+        public async Task<ActionResult> SendInvoiceCS(string aktSubID, string btnKirim)
+        {
+            try
+            {
+                var ambilUlangAktSub = new AktivitasSubscription();
+                bool succes = false;
+                var aktSubId = Convert.ToInt32(aktSubID);
+                var aktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (aktSub.Invoice_No == null || aktSub.Invoice_No.Substring(3, 4) == "2019") //kalo Invoice_No null/masih format lama
+                {
+                    var sub = MoDbContext.Subscription.Single(u => u.KODE == aktSub.TipeSubs).KETERANGAN;
+
+                    var listAktSubInDb = MoDbContext.AktivitasSubscription.OrderBy(p => p.RecNum).ToList();
+                    var cekListSudahAdaNoInv = MoDbContext.AktivitasSubscription.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderBy(p => p.RecNum).ToList();
+                    var digitAkhir = "";
+                    var noInv = "";
+                    if (cekListSudahAdaNoInv.Count() == 0)
+                    {
+                        digitAkhir = "0001";
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    }
+                    else
+                    {
+                        var NoUrut = Convert.ToInt32(listAktSubInDb.Where(a => a.Invoice_No != null && a.Invoice_No.Substring(3, 4) != "2019").OrderByDescending(a => a.Invoice_No).FirstOrDefault().Invoice_No.Substring(6, 4));
+                        NoUrut++;
+
+                        digitAkhir = NoUrut.ToString().PadLeft(4, '0');
+                        noInv = $"MO/{DateTime.Now.Year.ToString().Substring(2, 2)}/{digitAkhir}";
+                    }
+
+                    if (digitAkhir != "" && noInv != "")
+                    {
+                        aktSub.Invoice_No = noInv;
+                        aktSub.tgl_email = DateTime.Today;
+                    }
+
+                    var email = new MailAddress(aktSub.Email);
+                    //add
+                    var today = DateTime.Today.ToString("dd/MM/yyyy");
+                    var nama = aktSub.Account;
+                    var tglBayar = aktSub.TanggalBayar?.ToString("dd/MM/yyyy");
+                    var subs = sub;
+                    var nilai = $"Rp. {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", aktSub.Nilai)}";
+                    var jmlUser = aktSub.jumlahUser.ToString();
+                    var drTgl = aktSub.DrTGL?.ToString("dd/MM/yyyy");
+                    var sdTgl = aktSub.SdTGL?.ToString("dd/MM/yyyy");
+                    var inv = noInv;
+                    //end add
+
+                    var message = new MailMessage();
+                    message.To.Add(email);
+                    message.From = new MailAddress("csmasteronline@gmail.com");
+                    message.Subject = "Email Payment Subscription";
+                    message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PaymentSubscription.html"))
+                        .Replace("EMAIL", Convert.ToString(email))
+                        .Replace("TODAY", today)
+                        .Replace("NAMA", nama)
+                        .Replace("TGLBAYAR", tglBayar)
+                        .Replace("SUBS", subs)
+                        .Replace("NILAI", nilai)
+                        .Replace("JMLUSER", jmlUser)
+                        .Replace("DRTGL", drTgl)
+                        .Replace("SDTGL", sdTgl)
+                        .Replace("NOINV", inv);
+                    message.IsBodyHtml = true;
+
+                    using (var smtp = new SmtpClient())
+                    {
+                        var credential = new NetworkCredential
+                        {
+                            UserName = "csmasteronline@gmail.com",
+                            Password = "kmblwexkeretrwxv"
+                        };
+                        smtp.Credentials = credential;
+                        smtp.Host = "smtp.gmail.com";
+                        smtp.Port = 587;
+                        smtp.EnableSsl = true;
+                        try
+                        {
+                            await smtp.SendMailAsync(message);
+                            succes = true;
+                            MoDbContext.SaveChanges();
+                            ModelState.Clear();
+                        }
+                        catch (Exception ex)
+                        {
+                            ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                        }
+                    }
+                }
+                ambilUlangAktSub = MoDbContext.AktivitasSubscription.Single(u => u.RecNum == aktSubId);
+                if (btnKirim == "1" && succes == true)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} berhasil dikirim email.";
+
+                    return RedirectToAction("AktivitasSubs");
+                }
+                else if (succes == false)
+                {
+                    ViewData["SuccessMessage"] = $"Pembayaran {ambilUlangAktSub.Account} gagal kirim email.";
+                    return RedirectToAction("AktivitasSubs");
+                }
+                return new EmptyResult();
+            }
+            catch (Exception e)
+            {
+                return Content(e.Message);
+            }
         }
 
         // =============================================== Bagian History Pembayaran (END)
