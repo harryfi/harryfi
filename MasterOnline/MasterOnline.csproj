@@ -6332,6 +6332,7 @@
     <Content Include="Views\Manage\TablePromptBrandLazada.cshtml" />
     <Content Include="Views\Manage\PromptBrandBlibli.cshtml" />
     <Content Include="Views\Manage\TablePromptBrandBlibli.cshtml" />
+    <Content Include="Views\Manage\PickingList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
