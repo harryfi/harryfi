@@ -84,7 +84,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
-        [NotifyOnFailed("Create Product {obj} ke Tokopedia Berhasil. Link Produk Gagal.")]
+        [NotifyOnFailed("Create Product {obj} ke Tokopedia Gagal.")]
         public async Task<string> CreateProductGetStatus(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
         {
             //if merchant code diisi. barulah GetOrderList
@@ -920,7 +920,19 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        product_variant.variant.Add(newVariasi);
+                        //cek duplikat map variasi
+                        var duplicateVdanVU = false;
+                        foreach (var item in product_variant.variant)
+                        {
+                            if (item.v == newVariasi.v && item.vu == newVariasi.vu)
+                            {
+                                duplicateVdanVU = true;
+                            }
+                        }
+                        if (!duplicateVdanVU)
+                        {
+                            product_variant.variant.Add(newVariasi);
+                        }
                     }
 #endregion
 
@@ -941,7 +953,22 @@ namespace MasterOnline.Controllers
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //cek apakah recnumVariasi.RECNUM ada di opt variant
+                                var doAddOpt = false;
+                                foreach (var item in product_variant.variant)
+                                {
+                                    foreach (var opts in item.opt)
+                                    {
+                                        if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
+                                        {
+                                            doAddOpt = true;
+                                        }
+                                    }
+                                }
+                                if (doAddOpt)
+                                {
+                                    newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                }
                             }
                         }
                         if (!string.IsNullOrWhiteSpace(item_var.Sort9))
@@ -949,7 +976,22 @@ namespace MasterOnline.Controllers
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item_var.Sort9).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //cek apakah recnumVariasi.RECNUM ada di opt variant
+                                var doAddOpt = false;
+                                foreach (var item in product_variant.variant)
+                                {
+                                    foreach (var opts in item.opt)
+                                    {
+                                        if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
+                                        {
+                                            doAddOpt = true;
+                                        }
+                                    }
+                                }
+                                if (doAddOpt)
+                                {
+                                    newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                }
                             }
                         }
                         product_variant.product_variant.Add(newProductVariasi);
