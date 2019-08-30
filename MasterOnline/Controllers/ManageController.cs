@@ -14338,7 +14338,8 @@ namespace MasterOnline.Controllers
                         if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                         {
                             DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
+                            //dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
 
@@ -14352,6 +14353,7 @@ namespace MasterOnline.Controllers
                                     //var elApi = new EleveniaController();
                                     //elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
                                     clientJobServer.Enqueue<EleveniaControllerJob>(x => x.AcceptOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Accept Order", marketPlace.API_KEY, ordNo, ordPrdSeq, usernameLogin));
+                                    //new EleveniaControllerJob().AcceptOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Accept Order", marketPlace.API_KEY, ordNo, ordPrdSeq, usernameLogin);
                                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                 }
                             }
@@ -14472,7 +14474,8 @@ namespace MasterOnline.Controllers
                             if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             {
                                 DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                                dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
+                                //dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
+                                dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE ORDER_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_NO,DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                                 if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                                 {
 
@@ -14482,7 +14485,7 @@ namespace MasterOnline.Controllers
                                     for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                     {
                                         string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
-                                        string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
+                                        string dlvNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_NO"]);
                                         string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_MTD_CD"]);
                                         string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_ETR_CD"]);
                                         string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
@@ -14493,6 +14496,7 @@ namespace MasterOnline.Controllers
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
                                         //elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
                                         clientJobServer.Enqueue<EleveniaControllerJob>(x => x.UpdateAWBNumber(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq));
+                                        //new EleveniaControllerJob().UpdateAWBNumber(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", usernameLogin, marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }

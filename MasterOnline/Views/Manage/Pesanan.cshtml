@@ -7174,6 +7174,10 @@
                         $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
 
                 }
+                else if (document.getElementById("resi_kurir") != null) {
+                    link = link.replace("replaceDeliveryProv",
+                        $('#resi_kurir').val() == undefined ? '' : $('#resi_kurir').val());
+                }
                 //link = link.replace("replaceTypeDelivery", $('#TypePengiriman').val());
 
                 $.ajax({

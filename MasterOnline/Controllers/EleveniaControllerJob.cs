@@ -1181,6 +1181,14 @@ namespace MasterOnline.Controllers
                                 {
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '0'");
                                 }
+                                else if (stat == StatusOrder.PackagingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '02'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '01'");
+                                }
+                                else if (stat == StatusOrder.ShippingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '03'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '02'");
+                                }
                             }
                             if (doInsert)
                             {
@@ -1240,6 +1248,14 @@ namespace MasterOnline.Controllers
                                 if (stat == StatusOrder.Paid)
                                 {
                                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '0'");
+                                }
+                                else if (stat == StatusOrder.PackagingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '02'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '01'");
+                                }
+                                else if (stat == StatusOrder.ShippingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '03'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '02'");
                                 }
                             }
 
