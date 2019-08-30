@@ -76,14 +76,15 @@
                         </div>
                     }
                 }
-                <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                <table id="datatable" class="table table-striped table-bordered dataTable" style="display:block;overflow-x:auto;white-space:nowrap" role="grid" aria-describedby="datatable_info">
+                    @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
                     <thead>
                         <tr role="row">
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Pembayaran</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
@@ -95,9 +96,12 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Jumlah User</th>
                             @*end add by nurul 4/3/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Invoice_No</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">tgl_email</th>
                             @*add by nurul 2/4/2019*@
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 80px; max-width: 80px;">Kirim Email</th>
                             @*end add by nurul 2/4/2019*@
                         </tr>
                     </thead>
@@ -106,33 +110,55 @@
                         {
                             foreach (var sub in Model.ListAktivitasSubs)
                             {
-                                <tr>
-                                    <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@sub.TipePembayaran</td>
-                                    <td class="text-center">@sub.Email</td>
-                                    <td class="text-center">@sub.Account</td>
-                                    <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
-                                    @*<td class="text-center">@sub.TipeSubs</td>*@
-                                    <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
-                                    @*add by nurul 4/3/2019*@
-                                    @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
-                                    <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
-                                    @*end add by nurul 4/3/2019*@
-                                    <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
-                                    @*add by nurul 2/4/2019*@
-                                    <td class="edit-hapus-col">
-                                        <button class="btn btn-primary" onclick="editPayment(@sub.RecNum)">
-                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                        </button>
-                                    </td>
-                                    <td class="edit-hapus-col">
-                                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusSubs" onclick="pass(@sub.RecNum)">
-                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                        </button>
-                                    </td>
-                                    @*end add by nurul 2/4/2019*@
-                                </tr>
+                        <tr>
+                            <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
+                            <td class="text-center">@sub.TipePembayaran</td>
+                            <td class="text-center">@sub.Email</td>
+                            <td class="text-center">@sub.Account</td>
+                            <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
+                            <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
+                            @*<td class="text-center">@sub.TipeSubs</td>*@
+                            <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
+                            @*add by nurul 4/3/2019*@
+                            @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
+                            <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
+                            @*end add by nurul 4/3/2019*@
+                            <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
+                            <td class="text-center">@sub.Invoice_No</td>
+                            <td class="text-center">@(sub.tgl_email?.ToString("dd/MM/yyyy"))</td>
+                            @*add by nurul 2/4/2019*@
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-primary" onclick="editPayment(@sub.RecNum)">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusSubs" onclick="pass(@sub.RecNum)">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            @*end add by nurul 2/4/2019*@
+                            <td class="edit-hapus-col">
+                                @if (sub.TipePembayaran != "Manual_Transfer" && sub.tgl_email == null && sub.Invoice_No == null || sub.Invoice_No?.Substring(3, 4) == "2019")
+                                {
+                                    <button class="btn btn-success" data-toggle="modal" data-target="#konfSendEmail" onclick="passEmail(@sub.RecNum)">
+                                        <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else if (sub.TipePembayaran == "Manual_Transfer" && sub.tgl_email == null && sub.Invoice_No == null || sub.Invoice_No?.Substring(3, 4) == "2019")
+                                {
+                                    <button class="btn btn-success" data-toggle="modal" data-target="#konfSendEmail" onclick="passEmail(@sub.RecNum)">
+                                        <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button style="background-color:darkgray; cursor:not-allowed">
+                                        <span class="glyphicon glyphicon-envelope" aria-hidden="false"></span>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
                             }
                         }
                     </tbody>
@@ -213,6 +239,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="konfSendEmail" tabindex="-1" role="dialog" aria-labelledby="konfSendEmailLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfSendEmailLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin kirim email untuk pembayaran ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="sendEmail()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -220,10 +266,11 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script type="text/javascript">
+        var $aktsubID = "";
         var $paymentId = 0;
         var $modeEdit = 0;
         var table = $('#datatable').DataTable({
-            "order": [[0, "desc"]], //or asc
+            "order": [[0, "desc"], [9, "desc"]], //or asc
             "columnDefs": [{ "targets": 0, "type": "date-eu" }],
         });
         $(document).on('ready',
@@ -350,7 +397,13 @@
                 }
             });
         }
+        function sendEmail() {
+            var link = '@Html.Raw(Url.Action("SendInvoiceCS", "Admin", new { aktSubID = "replaceId", btnKirim = "replaceKirim" }))';
+            link = link.replace("replaceId", this.$aktsubID);
+            link = link.replace("replaceKirim", "1");
 
+            location.href = link;
+        }
         //function simpanPayment($id) {
         function simpanPayment(btnClicked) {
             //if (!validateForm()) return false;
@@ -361,13 +414,15 @@
                 data: $('#form-payment').serialize(),*@
                 url: $form.attr('action'),
                 data: $form.serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     alert('Data berhasil tersimpan');
 
                     $('#form-partial').html(response);
                     $('.subs_table_section').hide();
                     $('.payment_editor_section').show();
-
                     $('#KODESUBS').val($('#Payment_TipeSubs').val());
                     $('#ACCOUNT').val($('#Payment_Email').val());
                     getTanggal();
@@ -395,6 +450,9 @@
                                 $("#Payment_jumlahUser").val('0');
                             }
                         });
+
+                    $('#loading_spinner').hide();
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -405,6 +463,9 @@
 
         function pass(paymentId) {
             this.$paymentId = paymentId;
+        }
+        function passEmail(aktsubID) {
+            this.$aktsubID = aktsubID;
         }
 
         function deleteSubs() {
