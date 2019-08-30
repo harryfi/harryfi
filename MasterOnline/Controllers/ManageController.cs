@@ -11195,11 +11195,20 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetFakturByMarketplace(string kodeMarket)
         {
-            var listFaktur = ErasoftDbContext.SIT01A
-                            // change by ega 9/8/2018 , katanya calvin dibikin kaya gini aja, jadi tanya dia aja
-                            //.Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && String.IsNullOrEmpty(f.NO_REF))
-                            .Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && (String.IsNullOrEmpty(f.NO_REF) || f.NO_REF == "-"))
-                            .OrderBy(f => f.NO_BUKTI).ToList();
+            //change by nurul 29/8/2019, ubah jd cek no si yg blm ada di no_ref yg jenis_form 3
+            //var listFaktur = ErasoftDbContext.SIT01A
+            //                // change by ega 9/8/2018 , katanya calvin dibikin kaya gini aja, jadi tanya dia aja
+            //                //.Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && String.IsNullOrEmpty(f.NO_REF))
+            //                .Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && (String.IsNullOrEmpty(f.NO_REF) || f.NO_REF == "-"))
+            //                .OrderBy(f => f.NO_BUKTI).ToList();
+
+            var sSql = "";
+            sSql = "SELECT * FROM SIT01A WHERE JENIS_FORM='2' AND CUST = '" + kodeMarket + "' AND STATUS IN (0,1) AND NO_BUKTI NOT IN ";
+            sSql += "(SELECT DISTINCT NO_REF FROM SIT01A WHERE JENIS_FORM='3' AND STATUS IN (0,1)) ";
+
+            var listFaktur = ErasoftDbContext.Database.SqlQuery<SIT01A>(sSql).ToList();
+            //end change by nurul 29/8/2019
+
             var listKodeFaktur = new List<FakturJson>();
 
             foreach (var faktur in listFaktur)
@@ -11480,7 +11489,9 @@ namespace MasterOnline.Controllers
 
                     if (fakturInDb != null)
                     {
-                        fakturInDb.NO_REF = noOrder;
+                        //remark by nurul 29/8/2019 no_ref faktur nya tidak simpan no bukti retur, req pak dani 
+                        //fakturInDb.NO_REF = noOrder;
+                        //end remark by nurul 29/8/2019
                         dataVm.Faktur.PEMESAN = fakturInDb.PEMESAN;
                         dataVm.Faktur.NAMAPEMESAN = fakturInDb.NAMAPEMESAN;
                     }
