@@ -282,7 +282,7 @@
                                                 else
                                                 {
                                                     <label class="checkbox-container">
-                                                        <input type="checkbox" id="cbxStf02Type" class="cbxtype" name="@($"cbx-sf02-type")" onclick="validateCkVarian($('#cbxStf02Type').is(':checked'));"/>
+                                                        <input type="checkbox" id="cbxStf02Type" class="cbxtype" name="@($"cbx-sf02-type")" onclick="validateCkVarian($('#cbxStf02Type').is(':checked'));" />
                                                         <span class="checkmark"></span>
                                                     </label>
                                                 }
@@ -489,7 +489,7 @@
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" style="font-size: 11px;">
                                                             @if (idMarket == 16)
-                                                            { @($"Harga Promosi ") }@context_Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                            {@($"Harga Promosi ")}@context_Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
                                                         </label>
                                                         <div class="col-md-4 col-sm-4 col-xs-12">
                                                             @if (Model.ListHargaJualPermarketView.Count > 0)
@@ -547,23 +547,32 @@
                                                                 }
                                                                 else
                                                                 {
-                                                                    var data_tip = getLatestLog.LINK_ERROR.Split(';');
-                                                                    var msg_tip = "";
-                                                                    if (data_tip.Count() == 4)
+                                                                    if (!string.IsNullOrEmpty(getLatestLog.LINK_ERROR))
                                                                     {
-                                                                        //jobid;request_action;request_result;request_exception
-                                                                        if (string.IsNullOrWhiteSpace(data_tip[2]))
+                                                                        var data_tip = getLatestLog.LINK_ERROR.Split(';');
+                                                                        var msg_tip = "";
+                                                                        if (data_tip.Count() == 4)
                                                                         {
+                                                                            //jobid;request_action;request_result;request_exception
                                                                             msg_tip = data_tip[3];
+                                                                            if (string.IsNullOrWhiteSpace(data_tip[3]))
+                                                                            {
+                                                                                msg_tip = data_tip[2];
+                                                                            }
+                                                                            <div data-tip="@msg_tip">
+                                                                                @Html.TextBox("statusLog", data_tip[1] + " : " + getLatestLog.LINK_STATUS, new { @class = "form-control", disabled = "disabled" })
+                                                                            </div>
                                                                         }
-                                                                        <div data-tip="@msg_tip">
-                                                                            @Html.TextBox("statusLog", data_tip[1] + " : " + getLatestLog.LINK_STATUS, new { @class = "form-control", disabled = "disabled" })
-                                                                        </div>
+                                                                        else
+                                                                        {
+                                                                            @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                                                        }
                                                                     }
                                                                     else
                                                                     {
                                                                         @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
                                                                     }
+
                                                                 }
                                                             }
                                                             else
@@ -810,14 +819,14 @@
                                                                                         </div>
                                                                                         <div class="col-md-4 col-sm-4 col-xs-12 form-group">
                                                                                             @*<div class="input-group text">*@
-                                                                                                @*@Html.TextBox("UniqueSellingPoint" + i + "Blibli", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })*@
-                                                                                                @*@Html.TextArea("UniqueSellingPoint" + i + "Blibli", "", new { @style = "resize: none; width:max;", @class = "form-control form-group", data_valid_toggle_required = "1", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })*@
-                                                                                                @{
-                                                                                                    string idUniqueSellingPoint = "ListHargaJualPermarket_" + i + "__AVALUE_39";
-                                                                                                    string ValueUniqueSellingPoint = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39;
-                                                                                                    string nameUniqueSellingPoint = "ListHargaJualPermarket[" + i + "].AVALUE_39";
-                                                                                                }
-                                                                                                <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
+                                                                                            @*@Html.TextBox("UniqueSellingPoint" + i + "Blibli", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })*@
+                                                                                            @*@Html.TextArea("UniqueSellingPoint" + i + "Blibli", "", new { @style = "resize: none; width:max;", @class = "form-control form-group", data_valid_toggle_required = "1", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })*@
+                                                                                            @{
+                                                                                                string idUniqueSellingPoint = "ListHargaJualPermarket_" + i + "__AVALUE_39";
+                                                                                                string ValueUniqueSellingPoint = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39;
+                                                                                                string nameUniqueSellingPoint = "ListHargaJualPermarket[" + i + "].AVALUE_39";
+                                                                                            }
+                                                                                            <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
                                                                                             @*</div>*@
                                                                                         </div>
                                                                                     </div>
