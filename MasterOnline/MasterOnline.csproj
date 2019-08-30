@@ -715,6 +715,7 @@
     <Compile Include="Models\DashboardTahunanModel.cs" />
     <Compile Include="Models\MenuAccount.cs" />
     <Compile Include="Models\DashboardMingguanModel.cs" />
+    <Compile Include="Models\PickingListDBClass.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />

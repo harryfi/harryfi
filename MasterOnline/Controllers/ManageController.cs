@@ -30433,6 +30433,50 @@ namespace MasterOnline.Controllers
         }
         //end add by Tri 27 agustus 2019, validasi ubah barang non-varian menjadi varian
 
+        //add by Tri 30-08-2019, picking list
+        public ActionResult refreshTablePackinglist(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SOT03A ";
+            //sSQL2 += "LEFT JOIN ARF01 B ON A.NAMA_MARKET = B.CUST ";
+            //sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            if (search != "")
+            {
+                sSQL2 += "WHERE (NO_BUKTI LIKE '%" + search + "%' ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPackinglist = ErasoftDbContext.Database.SqlQuery<SOT03A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<SOT03A> pagePackinglist = new StaticPagedList<SOT03A>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePackinglistPartial", pagePackinglist);
+        }
+        //end add by Tri 30-08-2019, picking list
+
+
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {

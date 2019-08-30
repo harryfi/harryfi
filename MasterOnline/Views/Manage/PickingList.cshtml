@@ -2,7 +2,7 @@
 @using MasterOnline.ViewModels
 @model MasterOnline.ViewModels.UploadBarangViewModel
 @{
-    ViewBag.Title = "Laporan Picking List";
+    ViewBag.Title = "Laporan Packing List";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
     var context_ = new MoDbContext();
@@ -196,14 +196,14 @@
         }
     </style>
 }
-<div class="row" id="pickinglist_section">
+<div class="row" id="packinglist_section">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row pickinglist_table_section">
+        <div class="row packinglist_table_section">
             <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
                 <div class="input-group">
-                    <input id="search_pickinglist" type="text" class="form-control" placeholder="Pencarian">
+                    <input id="search_packinglist" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" id="search_pickinglist_click" class="btn btn-primary">
+                        <button type="button" id="search_packinglist_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -214,16 +214,16 @@
                     @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
                             <span>Refresh</span>
                         </button>*@
-                    <button class="btn btn-primary btn_tambah_data" id="tambah_pickinglist">Tambah Baru</button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist">Tambah Baru</button>
                 </div>
             </div>
         </div>
-        <div class="row pickinglist_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12 addpixel" id="table-pickinglist-partial">
+        <div class="row packinglist_table_section" style="margin-top: 5px;">
+            <div class="col-sm-12 addpixel" id="table-packinglist-partial">
                 @*@Html.Partial("TablePromosiPartial")*@
             </div>
         </div>
-        <div class="row pickinglist_editor_section" style="display: none;">
+        <div class="row packinglist_editor_section" style="display: none;">
             <div class="col-lg-12 modalresponsive">
                 <div class="page-editor">
                     <h2 class="editor-title">Promosi</h2>
@@ -243,7 +243,7 @@
                             </div>
                         }
                     }
-                    @using (Html.BeginForm("SavePickinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-pickinglist" }))
+                    @using (Html.BeginForm("SavePackinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-packinglist" }))
                     {
                         <div id="form-partial">
                             @*@Html.Partial("BarangPromosiPartial")*@
@@ -271,7 +271,7 @@
             //end add by nurul 12/2/2019
 
         $(document).ready(function () {
-            refreshTablePickinglist1();
+            refreshTablePackinglist1();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -291,10 +291,10 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
-            $('#pickinglist-tab').click(function () {
-                refreshTablePickinglist1();
-                $('#tambah_pickinglist').show();
-                $('#refresh_pickinglist').show();
+            $('#packinglist-tab').click(function () {
+                refreshTablePackinglist1();
+                $('#tambah_packinglist').show();
+                $('#refresh_packinglist').show();
             });
 
             //Initialize();
@@ -305,19 +305,19 @@
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
 
-            $('#search_pickinglist').keypress(function (e) {
+            $('#search_packinglist').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code
                 {
-                    searchTablePickinglist1();
+                    searchTablePackinglist1();
                     return false;
                 }
             });
-            $('#search_pickinglist_click').click(function () {
-                searchTablePickinglist1();
+            $('#search_packinglist_click').click(function () {
+                searchTablePackinglist1();
             });
 
-            $('#tambah_pickinglist').on('click', function () {
+            $('#tambah_packinglist').on('click', function () {
                 $modeEdit = 0;
                 refreshForm1();
             });
@@ -327,12 +327,12 @@
                     $('#modalTutupEditor').modal('show');
                 } else {
                     $modeEdit = 0;
-                    refreshTablePickinglist1();
+                    refreshTablePackinglist1();
                     $('input, select, .btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
-                    $('.pickinglist_editor_section').hide();
-                    $('.pickinglist_table_section').show();
+                    $('.packinglist_editor_section').hide();
+                    $('.packinglist_table_section').show();
                     $('.btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
@@ -419,7 +419,7 @@
             @*$('#btn-simpan-perubahan').click(function () {
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UpdatePickinglist", "Manage")',
+                    url: '@Url.Action("UpdatePackinglist", "Manage")',
                     data: JSON.stringify({
                         RecNumPromosi: $('#Promosi_RecNum').val(),
                         NamaMarket: $('#Promosi_NAMA_MARKET').val(),
@@ -449,34 +449,34 @@
             $('input, select, .btn-danger').each(function () {
                 $(this).removeAttr('disabled');
             });
-            $('.pickinglist_editor_section').hide();
-            $('.pickinglist_table_section').show();
+            $('.packinglist_editor_section').hide();
+            $('.packinglist_table_section').show();
             $('.btn-danger').each(function () {
                 $(this).removeAttr('disabled');
             });
         }
 
         function Initialize() {
-            $('#search_pickinglist').keypress(function (e) {
+            $('#search_packinglist').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code
                 {
-                    searchTablePickinglist1();
+                    searchTablePackinglist1();
                     return false;
                 }
             });
-            $('#search_pickinglist_click').click(function () {
-                searchTablePickinglist1();
+            $('#search_packinglist_click').click(function () {
+                searchTablePackinglist1();
             });
             
 
             if ($('.message-error').text() !== '') {
                 //$('#tambah_promosi').click();
-                $('.pickinglist_table_section').hide();
-                $('.pickinglist_editor_section').show();
+                $('.packinglist_table_section').hide();
+                $('.packinglist_editor_section').show();
             }
 
-            $('#table_tambah_pickinglist > tbody > tr > td.editable-kode').prop('contentEditable', true);
+            $('#table_tambah_packinglist > tbody > tr > td.editable-kode').prop('contentEditable', true);
             
         }
         function offTab() {
@@ -493,7 +493,7 @@
             });
         }
 
-        function refreshTablePickinglist1($savePage) {
+        function refreshTablePackinglist1($savePage) {
             var $tpPage = "";
             if ($savePage == undefined) {
                 $tpPage = $('#txt_last_page').val();
@@ -504,8 +504,8 @@
                     $tpPage = $('#txt_last_page').val();
                 }
             }
-            var $link = '@Html.Raw(Url.Action("RefreshTablePickinglist", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pickinglist').val());
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackinglist", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_packinglist').val());
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
             $link = $link.replace("replaceLastPage", $tpPage);
 
@@ -513,13 +513,13 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#table-pickinglist-partial').hide();
-                    $('#loading_pickinglist_tab').show();
+                    $('#table-packinglist-partial').hide();
+                    $('#loading_packinglist_tab').show();
                 },
                 success: function (response) {
-                    $('#table-pickinglist-partial').html(response);
-                    $('#loading_pickinglist_tab').hide();
-                    $('#table-pickinglist-partial').show();
+                    $('#table-packinglist-partial').html(response);
+                    $('#loading_packinglist_tab').hide();
+                    $('#table-packinglist-partial').show();
 
                 },
                 error: function (xhr, status, error) {
@@ -528,31 +528,31 @@
             });
         }
 
-        function searchTablePickinglist1(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePickinglist", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pickinglist').val());
+        function searchTablePackinglist1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackinglist", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_packinglist').val());
 
             $.ajax({
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#search_pickinglist_click')[0].disabled = true;
-                    $('#loading_pickinglist_tab').show();
+                    $('#search_packinglist_click')[0].disabled = true;
+                    $('#loading_packinglist_tab').show();
                 },
                 success: function (response) {
-                    $('#search_pickinglist_click')[0].disabled = false;
-                    $('#table-pickinglist-partial').html(response);
-                    $('#loading_pickinglist_tab').hide();
+                    $('#search_packinglist_click')[0].disabled = false;
+                    $('#table-packinglist-partial').html(response);
+                    $('#loading_packinglist_tab').hide();
                 },
                 error: function (xhr, status, error) {
-                    $('#search_pickinglist_click')[0].disabled = false;
+                    $('#search_packinglist_click')[0].disabled = false;
                     console.log(error);
                 }
             });
         }
         
         function refreshForm1() {
-            var link = '@Url.Action("RefreshPickinglistForm", "Manage")';
+            var link = '@Url.Action("RefreshPackinglistForm", "Manage")';
 
             $.ajax({
                 type: "GET",
@@ -561,8 +561,8 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('.pickinglist_table_section').hide();
-                    $('.pickinglist_editor_section').show();
+                    $('.packinglist_table_section').hide();
+                    $('.packinglist_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     //getTanggal();
