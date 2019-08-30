@@ -25,5 +25,13 @@ namespace MasterOnline.ViewModels
         public string AlamatToko { get; set; }
         public string TlpToko { get; set; }
         public string NamaKurir { get; set; }
+
+        //ADD FOR AUTOLOAD 
+        public string DRTGL { get; set; }
+        public string SDTGL { get; set; }
+        public string DRCUST { get; set; }
+        public string SDCUST { get; set; }  
+        public string USERNAME { get; set; }
+        
     }
 }

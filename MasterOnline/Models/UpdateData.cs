@@ -55,6 +55,7 @@ namespace MasterOnline.Models
         public string Kurir { get; set; }
         public string NamaKurir { get; set; }
         public string jamKirim { get; set; }
+        public string Ekspedisi { get; set; }
         //end add by nurul 20/8/2019
 
         //add by Tri 3/9/2019, packing list

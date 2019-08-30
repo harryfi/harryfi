@@ -336,9 +336,6 @@
                     $('#form-partial').html('');
                     refreshTableKirim();
                 }
-
-
-
             });
 
 
@@ -474,8 +471,9 @@
                         NoBuktiKirim: $('#Pengiriman_NO_BUKTI').val(),
                         TglKirim: $('#Pengiriman_TGL_KIRIM').val(),
                         Kurir: $('#Pengiriman_KURIR').val(),
+                        Ekspedisi: $('#Pengiriman_NAMA_EKSPEDISI').val(),
                         NamaKurir: $('#Pengiriman_NAMA_KURIR').val(),
-                        jamKirim: $('#Pengiriman_TGL_KIRIM').val() + ' ' + $('#timepicker1').val()
+                        jamKirim: $('#timepicker1').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -594,7 +592,11 @@
                     $('#close-editor')[0].disabled = false;
 
                     $('#form-partial').html(response);
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
                     //getDetailKirim();
+                    refreshInputan();
                     getDataPesanan();
                     getExpedisi();
                     $('#loading_spinner').hide();
@@ -677,7 +679,7 @@
                         $('#SdTanggal').val($('#SdTanggal').val());
                         $('#SdTanggal').datepicker('hide');
                         });
-                    $('#prompt-daricustomer').click(function () {
+            $('#prompt-daricustomer').click(function () {
                 promptCust = "1";
                 var $link = '@Url.Action("PromptCustomer", "Report")';
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
@@ -756,7 +758,11 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#form-partial').html(response);
-                        //getDetailKirim()
+                        //$('input, select, .btn-danger').each(function () {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                        getDetailKirim()
+                        refreshInputan();
                         getDataPesanan();
                         getExpedisi();
                     } else {
@@ -795,7 +801,11 @@
                                 $('#close-editor')[0].disabled = false;
                                 $modeEdit = 1;
                                 $('#form-partial').html(response);
+                                $('input, select, .btn-danger').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
                                 //getDetailKirim();
+                                refreshInputan();
                                 getDataPesanan();
                                 getExpedisi();
                                 getTanggal();
@@ -911,6 +921,7 @@
                                 $("#Pengiriman_KURIR").val(null);
                             } else {
                                 $("#Pengiriman_KURIR").val(value).trigger('change');
+                                $('#Pengiriman_NAMA_EKSPEDISI').val($("#EXPEDISI option:selected").text());
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -964,6 +975,7 @@
                 $('#Pengiriman_NAMA_KURIR').val() != '' &&
                 $('#timepicker1').val() != '') {
                 $("#konfAutoload").modal('show');
+                refreshInputan();
             } else {
                 alert('Silahkan isi semua field terlebih dulu !');
 
@@ -982,9 +994,15 @@
                 success: function (res) {
                     var $jumlahDetail = res;
                     if ($jumlahDetail == 0) {
-                        $("#btn-autoload-row").show();
+                        //$("#btn-autoload-row").show();
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
                     } else {
-                        $("#btn-autoload-row").hide();
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        //$("#btn-autoload-row").hide();
                     }
                 },
                 error: function (xhr, status, error) {
@@ -999,11 +1017,15 @@
                 $('#SdTanggal').val() != '' &&
                 //$('#FromCust').val() != '' &&
                 $('#ToCust').val() != '') {
-                alert('Data sudah lengkap');
 
-                @*$.ajax({
+                var link = '@Url.Action("SaveAutoloadKirim", "Manage", new { param = "replacedrTgl;replacesdTgl;replacedrCust;replacesdCust"})';
+                link = link.replace("replacedrTgl", $('#DrTanggal').val());
+                link = link.replace("replacesdTgl", $('#SdTanggal').val());
+                link = link.replace("replacedrCust", $('#FromCust').val());
+                link = link.replace("replacesdCust", $('#ToCust').val());
+                $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SaveAutoloadKirim", "Manage")',
+                        url: link,
                         data: $('#form-kirim').serialize(),
                         beforeSend: function() {
                             $('#loading_spinner').show();
@@ -1018,7 +1040,7 @@
                                 //getDataPesanan();
                                 getExpedisi();
                                 getTanggal();
-                                $('#loading_spinner').hide();
+                                //$('#loading_spinner').hide();
                                 $('input, select, .btn-danger').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
@@ -1030,7 +1052,7 @@
                                 $("#konfAutoload").modal('hide');
                                 $('#btn-simpan-perubahan-row').hide();
                                 $("#btn-autoload-row").hide();
-                                //$('#loading_spinner').hide();
+                                $('#loading_spinner').hide();
 
                             } else {
                                 if (response.Errors[0] == "") {
@@ -1045,7 +1067,7 @@
                         error: function (xhr) {
                             console.log(xhr);
                         }
-                    });*@
+                });
 
             } else {
                 alert('Silakan isi semua field terlebih dahulu!');

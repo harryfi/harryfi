@@ -20,6 +20,9 @@ namespace MasterOnline
         [StringLength(10)]
         public string KURIR { get; set; }
 
+        [StringLength(25)]
+        public string NAMA_EKSPEDISI { get; set; }
+
         [StringLength(50)]
         public string NAMA_KURIR { get; set; }
 
