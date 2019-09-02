@@ -752,21 +752,17 @@
         
         function simpanpesanan($id) {
             if (!validateForm() || !DataIsValid()) return false;
-            if ($id == 'brg-0') {
+            if ($id == 'pesanan-0') {
                 //if ($('#Promosi_TGL_MULAI').val() != '' &&
                 //    $('#Promosi_TGL_AKHIR').val() != '' &&
                 //    $('#Promosi_NAMA_MARKET').val() != '' &&
                 //    $('#Promosi_NAMA_PROMOSI').val() != ''
                 //) {
-                    $('#PromosiDetail_KODE_BRG').val($('#BRG').selectivity('val'));
-                    $('#PromosiDetail_HARGA_NORMAL').val(convertToAngka($('tr[data-promosi-id="0"] .harga-barang').text()));
-                    $('#PromosiDetail_HARGA_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .harga-promosi-barang').text()));
-                    $('#PromosiDetail_PERSEN_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .persen-promosi-barang').text()));
-                    $('#PromosiDetail_MAX_QTY').val(convertToAngka($('tr[data-promosi-id="0"] .batas-pembelanjaan').text()));
+                $('#detailPackingList_NO_BUKTI').val($('#packingList_NO_BUKTI').selectivity('val'));
 
                     $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SavePromosi", "Manage")',
+                        url: '@Url.Action("SavePackinglist", "Manage")',
                         data: $('#form-promosi').serialize(),
                         beforeSend: function() {
                             $('#loading_spinner').show();
@@ -779,16 +775,10 @@
                                 $('#form-partial').html(response);
                                 refreshInputan();
                                 getTanggal();
-                                getDataBarang();
-                                getMarketplace();
+                                GetDataPesananPackinglist();
+                                //getMarketplace();
                                 //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
-                                $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
-                                    .css('cursor', 'not-allowed');
-                                //$('#Promosi_NAMA_MARKET').attr('readonly', 'readonly').css('background-color', '#eee')
-                                //.css('cursor', 'not-allowed');
-                                $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
-                                    .css('cursor', 'not-allowed');
-                                $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                                $('#packingList_TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
                                 //END ADD
                             } else {
