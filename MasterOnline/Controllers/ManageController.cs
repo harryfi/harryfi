@@ -24518,6 +24518,8 @@ namespace MasterOnline.Controllers
                                                 dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                                 dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
                                                 #endregion
+                                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                                dupeStf02h.AVALUE_39 = HttpUtility.HtmlEncode(stf02h_induk.AVALUE_39);
                                                 dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                                 dupeStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                                 dupeStf02h.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -24790,6 +24792,8 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                     brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                     #endregion
+                                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -24976,6 +24980,8 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                 #endregion
+                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                 brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                 brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -25254,6 +25260,8 @@ namespace MasterOnline.Controllers
                             brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                             brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                             #endregion
+                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                             brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -25701,6 +25709,8 @@ namespace MasterOnline.Controllers
                     brgMp.ANAME_50 = tempBrg.ANAME_50;
                     brgMp.AVALUE_50 = tempBrg.AVALUE_50;
                     #endregion
+                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -26140,6 +26150,12 @@ namespace MasterOnline.Controllers
                                             brgMp.ANAME_50 = item.ANAME_50;
                                             brgMp.AVALUE_50 = item.AVALUE_50;
                                             #endregion
+                                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
+                                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                            #endregion
                                             if (customer.NAMA == "7")
                                             {
                                                 //merek
@@ -26347,6 +26363,8 @@ namespace MasterOnline.Controllers
                                         brgMp.AVALUE_50 = item.AVALUE_50;
                                         #endregion
 
+                                        //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                        brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                         brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                         brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                         brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -26728,6 +26746,8 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
