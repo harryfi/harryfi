@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 namespace MasterOnline
 {
     using System;
+    using System.Web.Mvc;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -240,6 +241,7 @@ namespace MasterOnline
         public double HJUAL { get; set; }
         
         [Required]
+        [AllowHtml]
         public string Deskripsi { get; set; }
 
         public double PANJANG { get; set; }
