@@ -1,6 +1,6 @@
 ﻿@using MasterOnline.Models
 @using MasterOnline.ViewModels
-@model MasterOnline.ViewModels.UploadBarangViewModel
+@model MasterOnline.ViewModels.PackingListViewModel
 @{
     ViewBag.Title = "Laporan Packing List";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
@@ -416,20 +416,19 @@
                     }
                 });
 
-            @*$('#btn-simpan-perubahan').click(function () {
+            $('#btn-simpan-perubahan').click(function () {
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("UpdatePackinglist", "Manage")',
                     data: JSON.stringify({
-                        RecNumPromosi: $('#Promosi_RecNum').val(),
-                        NamaMarket: $('#Promosi_NAMA_MARKET').val(),
-                        TglMulai: $('#Promosi_TGL_MULAI').val(),
-                        TglAkhir: $('#Promosi_TGL_AKHIR').val()
+                        RecNumPromosi: $('#packingList_RecNum').val(),
+                        NO_BUKTI: $('#packingList_NO_BUKTI').val(),
+                        TGL: $('#packingList_TGL').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function () {
-                        alert('Data promosi berhasil di-update');
+                        alert('Data packing list berhasil di-update');
                         //change by calvin 7 juni 2018
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
@@ -439,7 +438,7 @@
                         console.log(xhr);
                     }
                 });
-            });*@
+            });
         }
 
         function closeEditor() {
@@ -565,9 +564,9 @@
                     $('.packinglist_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
-                    //getTanggal();
+                    getTanggal();
                     //getMarketplace();
-                    //getDataBarang();
+                    GetDataPesananPackinglist();
                     $('#loading_spinner').hide();
                     
                 },
@@ -577,6 +576,239 @@
             });
         }
 
+        function editPackinglist1(idPromosi) {
+            var link = '@Url.Action("EditPackinglist", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", idPromosi);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    getDataPesanan();
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+
+                    //END ADD
+                    //$('#tambah_promosi').click();
+                    $('.promosi_table_section').hide();
+                    $('.promosi_editor_section').show();
+
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function getTanggal() {
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    $('#packingList_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    $('#btn-simpan-perubahan-row').show();
+                });
+                
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    $('#packingList_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    $('#btn-simpan-perubahan-row').show();
+                });
+                
+            }
+        }
+        
+        function GetDataPesananPackinglist() {
+            var link = '@Url.Action("GetDataPesananPackinglist", "Manage", new { promoId = "replaceId"})';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+            //link += "&cust=" + $('#Promosi_NAMA_MARKET').val();
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listPesanan = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            ////add by nurul 31/1/2019
+                            //var nama2 = "";
+                            //if (item.NAMA2 != null && item.NAMA2 != "null") {
+                            //    nama2 = item.NAMA2;
+                            //}
+                            ////end add by nurul 31/1/2019
+                            listPesanan[i] = {
+                                id: item.NO_PESANAN,
+                                //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                //text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
+                                text: item.NO_PESANAN
+                            };
+                        });
+
+                    $('#PESANAN').selectivity({
+                        allowClear: true,
+                        items: listPesanan,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var val = $(this).selectivity('value');
+                        var $trId = $(this).closest('tr').attr('data-packing-id');
+                        var $trElement = 'tr[data-packing-id="' + $trId + '"]';
+
+                        if (val != null) {
+                            $.each(data,
+                                function (i, item) {
+                                    if (item.NO_PESANAN === val) {
+                                        //if (item.NAMA2 == null)
+                                        //    $($trElement + ' .nama-barang').text(item.NAMA + " ");
+                                        //else
+                                        //    $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
+
+                                        //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field HARGA_NORMAL must be a number." data-val-required="The HARGA_NORMAL field is required." id="PromosiDetail_HARGA_NORMAL" name="PromosiDetail.HARGA_NORMAL" type="hidden" value="">');
+                                        $($trElement + ' .tgl-pesanan').text(ToJavaScriptDate(item.TGL_PESANAN) + " ");
+                                        $($trElement + ' .pembeli-pesanan').text(item.PEMBELI + " ");
+                                        $($trElement + ' .marketplace-pesanan').text(item.MARKETPLACE + " ");
+                                        return;
+                                    }
+                                });
+
+                            $($trElement + ' .btn-primary').removeAttr('disabled');
+                            offTab();
+                            modeEditTd();
+                        } else {
+                            $($trElement + ' .tgl-pesanan').text('');
+                            $($trElement + ' .pembeli-pesanan').html('');
+                            $($trElement + ' .marketplace-pesanan').html('');
+                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                            onTab();
+                            modeEditOff();
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function modeEditTd() {
+
+        }
+
+        function modeEditOff() {
+            $('#table_tambah_promosi > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_promosi > tbody > tr > td.editable').prop('onclick', null).off('click');
+            //$('.harga-promosi-barang').removeClass('editable');
+            //$('.persen-promosi-barang').removeClass('editable');
+            //$('.batas-pembelanjaan').removeClass('editable');
+        }
+
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }        
+
+        function ToJavaScriptDate(value) {
+            var pattern = /Date\(([^)]+)\)/;
+            var results = pattern.exec(value);
+            var dt = new Date(parseFloat(results[1]));
+            return dt.getDate() + "/" + (dt.getMonth() + 1) + "/" +dt.getFullYear();
+        }
+        
+        function simpanpesanan($id) {
+            if (!validateForm() || !DataIsValid()) return false;
+            if ($id == 'brg-0') {
+                //if ($('#Promosi_TGL_MULAI').val() != '' &&
+                //    $('#Promosi_TGL_AKHIR').val() != '' &&
+                //    $('#Promosi_NAMA_MARKET').val() != '' &&
+                //    $('#Promosi_NAMA_PROMOSI').val() != ''
+                //) {
+                    $('#PromosiDetail_KODE_BRG').val($('#BRG').selectivity('val'));
+                    $('#PromosiDetail_HARGA_NORMAL').val(convertToAngka($('tr[data-promosi-id="0"] .harga-barang').text()));
+                    $('#PromosiDetail_HARGA_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .harga-promosi-barang').text()));
+                    $('#PromosiDetail_PERSEN_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .persen-promosi-barang').text()));
+                    $('#PromosiDetail_MAX_QTY').val(convertToAngka($('tr[data-promosi-id="0"] .batas-pembelanjaan').text()));
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SavePromosi", "Manage")',
+                        data: $('#form-promosi').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                //add by nurul 3/1/2019
+                                $modeEdit = 1;
+                                //end add
+                                $('#form-partial').html(response);
+                                refreshInputan();
+                                getTanggal();
+                                getDataBarang();
+                                getMarketplace();
+                                //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                                $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                //$('#Promosi_NAMA_MARKET').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //.css('cursor', 'not-allowed');
+                                $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                //END ADD
+                            } else {
+                                console.log(response.Errors);
+                                alert(response.Errors[0]);
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
+                            console.log(xhr);
+                        }
+                    });
+            //}
+            //else {
+            //        alert('Silakan isi semua field terlebih dahulu!');
+            //    }
+            }
+        }
     </script>
     <script>
         //Disable Enter Key Submit Form

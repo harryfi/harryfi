@@ -22,7 +22,7 @@ namespace MasterOnline.Models
         public DateTime? TGL { get; set; }
 
         [StringLength(20)]
-        public string USER_NAME { get; set; }
+        public string USERNAME { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
@@ -43,7 +43,7 @@ namespace MasterOnline.Models
         public string MARKETPLACE { get; set; }
 
         [StringLength(20)]
-        public string USER_NAME { get; set; }
+        public string USERNAME { get; set; }
 
         public DateTime? TGL_INPUT { get; set; }
 
@@ -69,7 +69,7 @@ namespace MasterOnline.Models
         public int? QTY { get; set; }
 
         [StringLength(20)]
-        public string USER_NAME { get; set; }
+        public string USERNAME { get; set; }
 
         public DateTime? TGL_INPUT { get; set; }
 
