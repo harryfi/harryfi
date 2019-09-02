@@ -1,0 +1,44 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listBarangTidakLaku = Model.ListBarangTidakLaku;
+    }
+    var listBarangTidakLaku = @Html.Raw(Json.Encode(listBarangTidakLaku));
+</script>
+    <div class="row table-mode">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Kode Barang</th>
+                    <th class="text-center">Nama Barang</th>
+                    <th class="text-center">Sisa Qty</th>
+                    <th class="text-center">Mini Stok</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.ListBarangTidakLaku?.Count > 0)
+                {
+                    foreach (var barang in Model.ListBarangTidakLaku)
+                    {
+                            <tr>
+                                <td>@barang.KodeBrg</td>
+                                <td>@barang.NamaBrg</td>
+                                <td>@barang.Qty</td>
+                                <td>@barang.Min</td>
+                            </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>---</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+

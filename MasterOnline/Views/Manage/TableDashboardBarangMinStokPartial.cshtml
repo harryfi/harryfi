@@ -1,0 +1,53 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+    @{
+        var listBarangMin = Model.ListBarangMiniStok;
+    }
+    var listBarangMin = @Html.Raw(Json.Encode(listBarangMin));
+</script>
+@*@if (listBarangMin.Count() > 0)
+{*@
+    <div class="row table-mode">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th class="text-center">Kode Barang</th>
+                    <th class="text-center">Nama Barang</th>
+                    <th class="text-center">Sisa Qty</th>
+                    <th class="text-center">Mini Stok</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.ListBarangMiniStok?.Count > 0)
+                {
+                    foreach (var barangMini in Model.ListBarangMiniStok)
+                    {
+                            <tr>
+                                <td>@barangMini.KodeBrg</td>
+                                <td>@barangMini.NamaBrg</td>
+                                <td>@barangMini.Qty</td>
+                                <td>@barangMini.Min</td>
+                            </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td>---</td>
+                        <td>---</td>
+                        <td>---</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+@*}
+else
+{
+    <div class="center">
+        <h4>Tidak ada Pesanan pada periode ini</h4>
+    </div>
+}*@
+
