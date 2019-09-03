@@ -15711,7 +15711,12 @@ namespace MasterOnline.Controllers
                 //format : N[;]TRACKING_NO
                 nilaiTRACKING_SHIPMENT = "N[;]" + nTrackNo;
             }
-
+            if (metode == "3") // create manual
+            {
+                pesananInDb.TRACKING_SHIPMENT = nTrackNo;
+                ErasoftDbContext.SaveChanges();
+                changeStat = false;
+            }
             //pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
             //ErasoftDbContext.SaveChanges();
 
