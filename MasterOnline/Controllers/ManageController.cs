@@ -30990,6 +30990,16 @@ namespace MasterOnline.Controllers
             return PartialView("BarangKirimPartial", vm);
         }
 
+        [HttpGet]
+        public ActionResult GetEkspedisiKirim()
+        {
+            var ssQl = "";
+            ssQl = "select distinct SHIPMENT from sot01a where isnull(shipment, '') <> '' and shipment <> 'replaceDeliveryProv'";
+            var listEkspedisi = ErasoftDbContext.Database.SqlQuery<listKurir>(ssQl).ToList();
+
+            return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
+        }
+
         // =============================================== Bagian Pengiriman (END)
         //end add by nurul 19/8/2019, tambah form pengiriman 
 
@@ -31602,4 +31612,9 @@ namespace MasterOnline.Controllers
         public bool success { get; set; }
         public List<string> value { get; set; }
     }
+    public class listKurir
+    {
+        public string SHIPMENT { get; set; }
+    }
+
 }

@@ -896,7 +896,7 @@
         function getExpedisi() {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("GetEkspedisi", "Manage")',
+                url: '@Url.Action("GetEkspedisiKirim", "Manage")',
                 contentType: 'application/json',
                 cache: false,
                 success: function(data) {
@@ -905,8 +905,8 @@
                     $.each(data,
                         function(i, item) {
                             listEkspedisi[i] = {
-                                id: item.RecNum,
-                                text: item.NamaEkspedisi
+                                id: item.SHIPMENT,
+                                text: item.SHIPMENT
                             };
                         });
 
