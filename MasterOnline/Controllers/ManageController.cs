@@ -1151,10 +1151,11 @@ namespace MasterOnline.Controllers
         {
             public string BRG { get; set; }
             public string NAMA { get; set; }
-            public double QOH { get; set; }
-            public double QOO { get; set; }
-            public double QTY { get; set; }
-            public double MINI { get; set; }
+            public string QOH { get; set; }
+            public string QOO { get; set; }
+            public string SISA { get; set; }
+            public string MINI { get; set; }
+            public string QTY_JUAL { get; set; }
         }
         public ActionResult RefreshDashboardBarangMinStok(string drTgl, string sdTgl)
         {
@@ -1171,36 +1172,39 @@ namespace MasterOnline.Controllers
             };
 
             string sSql1 = "";
-            sSql1 = "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI FROM  ";
-            sSql1 = "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
-            sSql1 = "INNER JOIN ";
-            sSql1 = "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
-            sSql1 = "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
-            sSql1 = "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
-            sSql1 = "	FROM ( ";
-            sSql1 = "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
-            sSql1 = "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
-            sSql1 = "		FROM            STF08A(NOLOCK) INNER JOIN ";
-            sSql1 = "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
-            sSql1 = "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
-            sSql1 = "		GROUP BY BRG ";
-            sSql1 = "		UNION ALL ";
-            sSql1 = "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
-            sSql1 = "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
-            sSql1 = "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
-            sSql1 = "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
-            sSql1 = "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-            sSql1 = "		GROUP BY B.BRG)A ";
-            sSql1 = "	GROUP BY BRG ";
-            sSql1 = "	) A ";
-            sSql1 = "LEFT JOIN STF02 B ON A.BRG = B.BRG ";
-            sSql1 = ") A ";
-            sSql1 = "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
-            sSql1 = "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-            sSql1 = "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
-            sSql1 = "ORDER BY (A.MINI - A.SISA) DESC ";
-            sSql1 = "OFFSET 0 ROWS ";
-            sSql1 = "FETCH NEXT 10 ROWS ONLY ";
+            sSql1 += "SELECT A.BRG, A.NAMA, CONVERT(NVARCHAR,A.QOH) QOH, CONVERT(NVARCHAR,A.QOO) QOO , CONVERT(NVARCHAR,A.SISA) SISA, CONVERT(NVARCHAR,A.MINI) MINI, CONVERT(NVARCHAR,D.QTY) QTY_JUAL FROM  ";
+            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "INNER JOIN ";
+            sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
+            sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "	FROM ( ";
+            sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		GROUP BY BRG ";
+            sSql1 += "		UNION ALL ";
+            sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "		GROUP BY B.BRG)A ";
+            sSql1 += "	GROUP BY BRG ";
+            sSql1 += "	) A ";
+            sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG ";
+            sSql1 += ") A ";
+            sSql1 += "ON A.BRG=B.BRG ";
+            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '2019-08-03' AND '2019-09-03' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ";
+            sSql1 += "ON A.BRG=D.BRG ";
+            sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
+            sSql1 += "ORDER BY D.QTY DESC, A.SISA ASC ";
+            sSql1 += "OFFSET 0 ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY ";
 
             var ListBarangMinStokInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
             foreach (var item in ListBarangMinStokInPesanan)
@@ -1209,8 +1213,9 @@ namespace MasterOnline.Controllers
                 {
                     KodeBrg = item.BRG,
                     NamaBrg = item.NAMA,
-                    Qty = item.QTY,
-                    Min = item.MINI
+                    QtySales = Convert.ToDouble(item.QTY_JUAL),
+                    Qty = Convert.ToDouble(item.SISA),
+                    Min = Convert.ToDouble(item.MINI)
                 });
             }
 
@@ -1231,46 +1236,46 @@ namespace MasterOnline.Controllers
             };
 
             string sSql1 = "";
-            sSql1 = "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI FROM  ";
-            sSql1 = "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
-            sSql1 = "INNER JOIN ";
-            sSql1 = "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
-            sSql1 = "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
-            sSql1 = "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
-            sSql1 = "	FROM ( ";
-            sSql1 = "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
-            sSql1 = "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
-            sSql1 = "		FROM            STF08A(NOLOCK) INNER JOIN ";
-            sSql1 = "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
-            sSql1 = "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
-            sSql1 = "		GROUP BY BRG ";
-            sSql1 = "		UNION ALL ";
-            sSql1 = "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
-            sSql1 = "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
-            sSql1 = "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
-            sSql1 = "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
-            sSql1 = "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-            sSql1 = "		GROUP BY B.BRG)A ";
-            sSql1 = "	GROUP BY BRG ";
-            sSql1 = "	) A ";
-            sSql1 = "LEFT JOIN STF02 B ON A.BRG = B.BRG ";
-            sSql1 = ") A ";
-            sSql1 = "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
-            sSql1 = "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
-            sSql1 = "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
-            sSql1 = "ORDER BY (A.MINI - A.SISA) DESC ";
-            sSql1 = "OFFSET 0 ROWS ";
-            sSql1 = "FETCH NEXT 10 ROWS ONLY ";
+            sSql1 += "SELECT A.BRG, A.NAMA, CONVERT(NVARCHAR,A.QOH) QOH, CONVERT(NVARCHAR,A.QOO) QOO , CONVERT(NVARCHAR,A.SISA) SISA FROM  ";
+            sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
+            sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "	FROM (";
+            sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		GROUP BY BRG ";
+            sSql1 += "		UNION ALL ";
+            sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "		GROUP BY B.BRG)A ";
+            sSql1 += "	GROUP BY BRG  ";
+            sSql1 += "	) A  ";
+            sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG ";
+            sSql1 += ") A  ";
+            sSql1 += "left join  ";
+            sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "')B ";
+            sSql1 += "ON B.BRG=A.BRG ";
+            sSql1 += "WHERE ISNULL(B.BRG, '') = '' ";
+            sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA ";
+            sSql1 += "ORDER BY A.SISA DESC , A.QOH DESC ";
+            sSql1 += "OFFSET 0 ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var ListBarangMinStokInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
-            foreach (var item in ListBarangMinStokInPesanan)
+            var ListBarangTidakLakuInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
+            foreach (var item in ListBarangTidakLakuInPesanan)
             {
-                vm.ListBarangMiniStok.Add(new PenjualanBarang
+                vm.ListBarangTidakLaku.Add(new PenjualanBarang
                 {
                     KodeBrg = item.BRG,
                     NamaBrg = item.NAMA,
-                    Qty = item.QTY,
-                    Min = item.MINI
+                    Qoh = Convert.ToDouble(item.QOH),
+                    Qty = Convert.ToDouble(item.SISA)
                 });
             }
 
