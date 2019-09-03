@@ -3471,7 +3471,7 @@ namespace MasterOnline.Controllers
                 nama2 = "";
                 nama3 = "";
             }
-
+            string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
             string desc = result.value.description;
             string categoryCode = result.value.categoryCode.ToString();
             string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
