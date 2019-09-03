@@ -13,5 +13,6 @@ namespace MasterOnline.ViewModels
         public SOT03B detailPackingList { get; set; }
         public List<SOT03B> listDetailPacking { get; set; }
         public List<SOT03B> listPesanan { get; set; }
+        public List<string> Errors { get; set; }
     }
 }

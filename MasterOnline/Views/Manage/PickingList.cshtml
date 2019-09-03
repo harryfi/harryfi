@@ -226,7 +226,7 @@
         <div class="row packinglist_editor_section" style="display: none;">
             <div class="col-lg-12 modalresponsive">
                 <div class="page-editor">
-                    <h2 class="editor-title">Promosi</h2>
+                    <h2 class="editor-title">Packing List</h2>
                     <span class="title-accent"></span>
                     <button id="close-editor-1" type="button" class="pull-right page-close">
                         <span class="close-btn thick"></span>
@@ -250,6 +250,46 @@
                         </div>
                     }
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusPackinglist" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus packing list ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="DeletePackinglist();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusPesanan" tabindex="-1" role="dialog" aria-labelledby="konfHapusPesananLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfHapusPesananLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus pesanan ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deletePesanan();">Ya</button>
             </div>
         </div>
     </div>
@@ -345,7 +385,7 @@
                 }
             });
         });
-        
+
         function refreshInputan() {
             //add by nurul 19/12/2018 ngatur width barang
             $(window).on('resize', function () {
@@ -385,12 +425,12 @@
             //});
             //end add
 
-            //if ($('#Promosi_TGL_MULAI').val() != '') {
-            //    $('#Promosi_TGL_MULAI').val($('#Promosi_TGL_MULAI').val().split(' ')[0]);
-            //    $('#TGL_MULAI').val($('#Promosi_TGL_MULAI').val());
-            //} else {
-            //    $('#Promosi_TGL_MULAI').val($('#TGL_MULAI').val());
-            //}
+            if ($('#packingList_TGL').val() != '') {
+                $('#packingList_TGL').val($('#packingList_TGL').val().split(' ')[0]);
+                $('#TGL').val($('#packingList_TGL').val());
+            } else {
+                $('#packingList_TGL').val($('#TGL_MULAI').val());
+            }
 
             //if ($('#Promosi_TGL_AKHIR').val() != '') {
             //    $('#Promosi_TGL_AKHIR').val($('#Promosi_TGL_AKHIR').val().split(' ')[0]);
@@ -421,7 +461,7 @@
                     type: "POST",
                     url: '@Url.Action("UpdatePackinglist", "Manage")',
                     data: JSON.stringify({
-                        RecNumPromosi: $('#packingList_RecNum').val(),
+                        RecNumPackinglist: $('#packingList_RecNum').val(),
                         NO_BUKTI: $('#packingList_NO_BUKTI').val(),
                         TGL: $('#packingList_TGL').val()
                     }),
@@ -444,7 +484,7 @@
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
             $modeEdit = 0;
-            refreshTablePromosi1();
+            refreshTablePackinglist1();
             $('input, select, .btn-danger').each(function () {
                 $(this).removeAttr('disabled');
             });
@@ -467,7 +507,7 @@
             $('#search_packinglist_click').click(function () {
                 searchTablePackinglist1();
             });
-            
+
 
             if ($('.message-error').text() !== '') {
                 //$('#tambah_promosi').click();
@@ -476,7 +516,7 @@
             }
 
             $('#table_tambah_packinglist > tbody > tr > td.editable-kode').prop('contentEditable', true);
-            
+
         }
         function offTab() {
             $(document).keydown(function (objEvent) {
@@ -549,7 +589,7 @@
                 }
             });
         }
-        
+
         function refreshForm1() {
             var link = '@Url.Action("RefreshPackinglistForm", "Manage")';
 
@@ -568,7 +608,7 @@
                     //getMarketplace();
                     GetDataPesananPackinglist();
                     $('#loading_spinner').hide();
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -576,9 +616,9 @@
             });
         }
 
-        function editPackinglist1(idPromosi) {
-            var link = '@Url.Action("EditPackinglist", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idPromosi);
+        function editPackinglist1(idPackinglist) {
+            var link = '@Url.Action("EditPackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", idPackinglist);
 
             $.ajax({
                 type: "GET",
@@ -591,19 +631,15 @@
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
-                    getDataPesanan();
+                    GetDataPesananPackinglist();
                     //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
-                    $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
 
                     //END ADD
                     //$('#tambah_promosi').click();
-                    $('.promosi_table_section').hide();
-                    $('.promosi_editor_section').show();
+                    $('.packinglist_table_section').hide();
+                    $('.packinglist_editor_section').show();
 
                     $('#loading_spinner').hide();
                 },
@@ -626,7 +662,7 @@
 
                     $('#btn-simpan-perubahan-row').show();
                 });
-                
+
             }
             else { //new
                 $('#TGL').datepicker({
@@ -640,12 +676,12 @@
 
                     $('#btn-simpan-perubahan-row').show();
                 });
-                
+
             }
         }
-        
+
         function GetDataPesananPackinglist() {
-            var link = '@Url.Action("GetDataPesananPackinglist", "Manage", new { promoId = "replaceId"})';
+            var link = '@Url.Action("GetDataPesananPackinglist", "Manage", new { nobuk = "replaceId"})';
             link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
             //link += "&cust=" + $('#Promosi_NAMA_MARKET').val();
             $.ajax({
@@ -703,8 +739,8 @@
                             modeEditTd();
                         } else {
                             $($trElement + ' .tgl-pesanan').text('');
-                            $($trElement + ' .pembeli-pesanan').html('');
-                            $($trElement + ' .marketplace-pesanan').html('');
+                            $($trElement + ' .pembeli-pesanan').text('');
+                            $($trElement + ' .marketplace-pesanan').text('');
                             $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                             onTab();
                             modeEditOff();
@@ -722,8 +758,8 @@
         }
 
         function modeEditOff() {
-            $('#table_tambah_promosi > tbody > tr > td.editable').prop('contentEditable', false);
-            $('#table_tambah_promosi > tbody > tr > td.editable').prop('onclick', null).off('click');
+            $('#table_tambah_packinglist > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_packinglist > tbody > tr > td.editable').prop('onclick', null).off('click');
             //$('.harga-promosi-barang').removeClass('editable');
             //$('.persen-promosi-barang').removeClass('editable');
             //$('.batas-pembelanjaan').removeClass('editable');
@@ -741,7 +777,7 @@
             $(document).keydown(function (objEvent) {
                 if (objEvent.keyCode == 9) { }
             });
-        }        
+        }
 
         function ToJavaScriptDate(value) {
             var pattern = /Date\(([^)]+)\)/;
@@ -749,21 +785,26 @@
             var dt = new Date(parseFloat(results[1]));
             return dt.getDate() + "/" + (dt.getMonth() + 1) + "/" +dt.getFullYear();
         }
-        
+
         function simpanpesanan($id) {
-            if (!validateForm() || !DataIsValid()) return false;
+            //if (!validateForm() || !DataIsValid()) return false;
+            if (!validateForm()) return false;
             if ($id == 'pesanan-0') {
                 //if ($('#Promosi_TGL_MULAI').val() != '' &&
                 //    $('#Promosi_TGL_AKHIR').val() != '' &&
                 //    $('#Promosi_NAMA_MARKET').val() != '' &&
                 //    $('#Promosi_NAMA_PROMOSI').val() != ''
                 //) {
-                $('#detailPackingList_NO_BUKTI').val($('#packingList_NO_BUKTI').selectivity('val'));
+                //$('#detailPackingList_NO_BUKTI').val($('#packingList_NO_BUKTI').val());
+                $('#detailPackingList_NO_PESANAN').val($('#PESANAN').selectivity('val'));
+                $('#detailPackingList_TGL_PESANAN').val($('tr[data-packing-id="0"] .tgl-pesanan').text());
+                $('#detailPackingList_PEMBELI').val($('tr[data-packing-id="0"] .pembeli-pesanan').text());
+                $('#detailPackingList_MARKETPLACE').val($('tr[data-packing-id="0"] .marketplace-pesanan').text());
 
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SavePackinglist", "Manage")',
-                        data: $('#form-promosi').serialize(),
+                        data: $('#form-packinglist').serialize(),
                         beforeSend: function() {
                             $('#loading_spinner').show();
                         },
@@ -778,7 +819,7 @@
                                 GetDataPesananPackinglist();
                                 //getMarketplace();
                                 //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
-                                $('#packingList_TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                                $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
                                 //END ADD
                             } else {
@@ -799,6 +840,74 @@
             //    }
             }
         }
+
+        var $nobukPacking = "";
+
+        function pass(nobuk) {
+            this.$nobukPacking = nobuk;
+        }
+
+        function DeletePackinglist() {
+            var $savePage = $('#txt_last_page').val();
+            var link = '@Url.Action("DeletePackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", this.$nobukPacking);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist-partial').html(response);
+                    //Initialize();
+                    refreshTablePackinglist1($savePage);
+                    $('#loading_spinner').hide();
+                    $('#konfHapusPackinglist').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        var $kode = '';
+
+        function passKodeInDb($kd) {
+            this.$kode = $kd;
+        }
+
+        function deletePesanan() {
+            var link = '@Url.Action("DeletePesananPackinglist", "Manage", new { noUrut = "replaceId" })';
+            link = link.replace("replaceId", this.$kode);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    GetDataPesananPackinglist();
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    //END ADD
+                    $('#konfHapusPesanan').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
     </script>
     <script>
         //Disable Enter Key Submit Form

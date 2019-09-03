@@ -30539,6 +30539,144 @@ namespace MasterOnline.Controllers
             return Json(listPesanan, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public ActionResult UpdatePackinglist(UpdateData dataUpdate)
+        {
+            var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.RecNum == dataUpdate.RecNumPackinglist);
+            packinglistInDb.TGL = DateTime.ParseExact(dataUpdate.TGL, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            ErasoftDbContext.SaveChanges();
+
+            return new EmptyResult();
+        }
+
+        public ActionResult EditPackinglist(string nobuk)
+        {
+            var vm = new PackingListViewModel()
+            {
+            };
+            vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+            vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+
+            return PartialView("FormPackinglistPartial", vm);
+        }
+
+        public ActionResult SavePackinglist(PackingListViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+
+            if (dataVm.packingList.RecNum == null)
+            {
+                var listPackinglistInDb = ErasoftDbContext.SOT03A.OrderBy(p => p.RecNum).ToList();
+                int? lastRecNum = 0;
+                string nobuk = "";
+                if (listPackinglistInDb.Count == 0)
+                {
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT03A, RESEED, 0)");
+                    lastRecNum++;
+                }
+                else
+                {
+                    lastRecNum = listPackinglistInDb.Last().RecNum;
+                    lastRecNum++;
+                }
+                nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
+                dataVm.packingList.NO_BUKTI = nobuk;
+
+                ErasoftDbContext.SOT03A.Add(dataVm.packingList);
+                ErasoftDbContext.SaveChanges();
+
+                if (dataVm.detailPackingList.RecNum == null)
+                {
+                    //change by nurul 3/1/2019 -- dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
+                    dataVm.detailPackingList.NO_BUKTI = dataVm.packingList.NO_BUKTI;
+                    ErasoftDbContext.SOT03B.Add(dataVm.detailPackingList);
+                    ErasoftDbContext.SaveChanges();
+                }
+                
+            }
+            else
+            {
+                var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == dataVm.packingList.NO_BUKTI);                
+
+                if (dataVm.detailPackingList.RecNum == null)
+                {
+                    dataVm.detailPackingList.NO_BUKTI = packinglistInDb.NO_BUKTI;
+                    ErasoftDbContext.SOT03B.Add(dataVm.detailPackingList);
+                    ErasoftDbContext.SaveChanges();
+                    
+                }
+            }
+
+            ErasoftDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var vm = new PackingListViewModel()
+            {
+                
+            };
+            vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).FirstOrDefault();
+            vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).ToList();
+
+            return PartialView("FormPackinglistPartial", vm);
+        }
+
+        public ActionResult DeletePackinglist(string nobuk)
+        {
+            var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == nobuk);
+            var detailPackinglistInDb = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
+            var detailBrgPackinglistInDb = ErasoftDbContext.SOT03C.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
+            
+            if (detailPackinglistInDb.Count > 0)
+            {
+                ErasoftDbContext.SOT03B.RemoveRange(detailPackinglistInDb);
+            }
+            if (detailBrgPackinglistInDb.Count > 0)
+            {
+                ErasoftDbContext.SOT03C.RemoveRange(detailBrgPackinglistInDb);
+            }
+            ErasoftDbContext.SOT03A.Remove(packinglistInDb);
+            ErasoftDbContext.SaveChanges();
+            
+
+            return Json(packinglistInDb, JsonRequestBehavior.AllowGet);
+            //return PartialView("TablePromosiPartial", vm);
+        }
+
+        [HttpGet]
+        public ActionResult DeletePesananPackinglist(int noUrut)
+        {
+            try
+            {
+                var pesananPackinglistInDb = ErasoftDbContext.SOT03B.Single(b => b.RecNum == noUrut);
+                var sot03c = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI && m.NO_PESANAN == pesananPackinglistInDb.NO_PESANAN).ToList();
+
+                ErasoftDbContext.SOT03B.Remove(pesananPackinglistInDb);
+                if(sot03c.Count > 0)
+                {
+                    ErasoftDbContext.SOT03C.RemoveRange(sot03c);
+                }
+                ErasoftDbContext.SaveChanges();                
+
+                var vm = new PackingListViewModel()
+                {
+
+                };
+                vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).FirstOrDefault();
+                vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).ToList();
+
+                return PartialView("FormPackinglistPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
         //end add by Tri 30-08-2019, picking list
 
 
