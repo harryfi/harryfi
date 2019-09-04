@@ -3057,6 +3057,18 @@ namespace MasterOnline.Controllers
             public string NAMA { get; set; }
             public double QTY { get; set; }
         }
+        public class listBrgNotInPesanan
+        {
+            public string BRG { get; set; }
+            public string NAMA { get; set; }
+            public string NAMA2 { get; set; }
+            public double HJUAL { get; set; }
+            public int ID { get; set; }
+            public string KET_SORT1 { get; set; }
+            public string KET_SORT2 { get; set; }
+            public string LINK_GAMBAR_1 { get; set; }
+            public double QOH { get; set; }
+        }
         public ActionResult RefreshTableBarangTidakLaku(string param, int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
@@ -3157,40 +3169,74 @@ namespace MasterOnline.Controllers
 
             //add by calvin 24 mei 2019
             //note by calvin 24 mei 2019 : hanya cari dari pesanan, confirm by pak dani
+
+            //change by nurul 4/9/2019, order by qoh desc
+            string sSql = "";
+            sSql += "select * from ( ";
+            sSql += "	select st.brg, ";
+            sSql += "   st2.NAMA, st2.NAMA2, ISNULL(SUM(ISNULL(st2.HJUAL, 0)), 0) HJUAL, ISNULL(SUM(ISNULL(st2.ID, 0)), 0) ID, st2.KET_SORT1, st2.KET_SORT2, st2.LINK_GAMBAR_1, ";
+            sSql += "	ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) QOH ";
+            sSql += "	from stf08a st inner join stf18 gd on st.gd = gd.kode_gudang and gd.QOH_SALES=0 ";
+            //sSql += "	--AND LTRIM(RTRIM(ISNULL(gd.kd_harga_jual,''))) IN ('','0') -- hanya gudang link ke marketplace";
+            sSql += "	left join ( ";
+            sSql += "		select distinct sob.brg ";
+            sSql += "		from sot01a soa inner join sot01b sob on soa.no_bukti = sob.no_bukti ";
+            sSql += "		where soa.tgl between '" + drtanggal + "' and '" + sdtanggal + "' and soa.status_transaksi not in ('11') ";
+            sSql += "		group by sob.brg ";
+            sSql += "   )so on 	st.brg = so.brg ";
+            sSql += "   inner join stf02 st2 on st.brg = st2.brg";
+            sSql += "	where isnull(so.brg ,'') = ''";
+            if(search != "")
+            {
+                sSql += "and st2.NAMA LIKE '%" + search + "%' OR st.BRG LIKE '%" + search + "%'";
+            }
+            sSql += "	group by st.brg, st2.NAMA, st2.NAMA2, st2.HJUAL, st2.ID, st2.KET_SORT1, st2.KET_SORT2, st2.LINK_GAMBAR_1 ";
+            sSql += ") a order by qoh desc, brg asc ";
+            string sSql1 = "";
+            sSql1 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY; ";
+
+
             var result = new List<TableMenuBarang1PartialViewModel>();
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>("SELECT BRG, NAMA, QTY FROM ( SELECT B.BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2,'') AS NAMA, SUM(B.QTY) QTY FROM SOT01A (nolock) A INNER JOIN SOT01B (nolock) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN STF02 (nolock) C ON B.BRG = C.BRG WHERE A.TGL between '" + drtanggal + "' AND '" + sdtanggal + "' GROUP BY B.BRG,C.NAMA,C.NAMA2 ) A WHERE A.NAMA LIKE '%" + search + "%' OR A.BRG LIKE '%" + search + "%' ORDER BY QTY ASC").ToList();
-            var listBarangInPesanan = ListBarangAndQtyInPesanan.Select(p => p.BRG).ToList();
-            var totalCountInPesanan = listBarangInPesanan.Count();
+            //var listBarangInPesanan = ListBarangAndQtyInPesanan.Select(p => p.BRG).ToList();
+            //var totalCountInPesanan = listBarangInPesanan.Count();
+            var totalCountInPesanan = ListBarangAndQtyInPesanan.Count();
             var totalCount0Pesanan = 0;
 
             #region cari yang 0 pesanannya
             {
-                var Stf02S = (from p in ErasoftDbContext.STF02
-                              where
-                              (
-                                (p.TYPE == "3")
-                                &&
-                                ((p.NAMA + " " + (p.NAMA2 ?? "")).Contains(search) || p.BRG.Contains(search))
-                              //&&
-                              //!listBarangInPesanan.Contains(p.BRG)
-                              )
-                              orderby p.NAMA
-                              select new { p.BRG, p.NAMA, p.NAMA2, p.HJUAL, p.ID, p.KET_SORT1, p.KET_SORT2, p.LINK_GAMBAR_1 });
-                var sudahFilter = Stf02S.ToList().Where(p => !listBarangInPesanan.Contains(p.BRG)).OrderBy(p => p.NAMA).ToList();
-                var ListStf02S = sudahFilter.Skip(pagenumber * 10).Take(10).ToList();
-                totalCount0Pesanan = sudahFilter.Count();
+                //var Stf02S = (from p in ErasoftDbContext.STF02
+                //              where
+                //              (
+                //                (p.TYPE == "3")
+                //                &&
+                //                ((p.NAMA + " " + (p.NAMA2 ?? "")).Contains(search) || p.BRG.Contains(search))
+                //              //&&
+                //              //!listBarangInPesanan.Contains(p.BRG)
+                //              )
+                //              orderby p.NAMA
+                //              select new { p.BRG, p.NAMA, p.NAMA2, p.HJUAL, p.ID, p.KET_SORT1, p.KET_SORT2, p.LINK_GAMBAR_1 });
+                //var sudahFilter = Stf02S.ToList().Where(p => !listBarangInPesanan.Contains(p.BRG)).OrderBy(p => p.NAMA).ToList();
+                //var ListStf02S = sudahFilter.Skip(pagenumber * 10).Take(10).ToList();
+                //totalCount0Pesanan = sudahFilter.Count();
 
-                if (ListStf02S.Count() > 0)
+
+                var listBrgNotInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgNotInPesanan>(sSql).ToList();
+                var ListBrg10 = ErasoftDbContext.Database.SqlQuery<listBrgNotInPesanan>(sSql + sSql1).ToList();
+                totalCount0Pesanan = listBrgNotInPesanan.Count();
+
+                if (ListBrg10.Count() > 0)
                 {
                     string kodeBarang = "";
-                    foreach (var item in ListStf02S)
+                    foreach (var item in ListBrg10)
                     {
                         kodeBarang += "'" + item.BRG + "'" + ",";
                     }
                     kodeBarang = kodeBarang.Substring(0, kodeBarang.Length - 1);
                     var listQOH_QOO = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM] WHERE BRG IN (" + kodeBarang + ")").ToList();
 
-                    foreach (var item in ListStf02S)
+                    foreach (var item in ListBrg10)
                     {
                         var resultItem = new TableMenuBarang1PartialViewModel()
                         {
@@ -3220,7 +3266,48 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                //if (ListStf02S.Count() > 0)
+                //{
+                //    string kodeBarang = "";
+                //    foreach (var item in ListStf02S)
+                //    {
+                //        kodeBarang += "'" + item.BRG + "'" + ",";
+                //    }
+                //    kodeBarang = kodeBarang.Substring(0, kodeBarang.Length - 1);
+                //    var listQOH_QOO = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM] WHERE BRG IN (" + kodeBarang + ")").ToList();
+
+                //    foreach (var item in ListStf02S)
+                //    {
+                //        var resultItem = new TableMenuBarang1PartialViewModel()
+                //        {
+                //            BRG = item.BRG,
+                //            HJUAL = item.HJUAL,
+                //            ID = item.ID,
+                //            KET_SORT1 = item.KET_SORT1,
+                //            KET_SORT2 = item.KET_SORT2,
+                //            LINK_GAMBAR_1 = item.LINK_GAMBAR_1,
+                //            NAMA = item.NAMA,
+                //            NAMA2 = item.NAMA2,
+                //            QOH = 0,
+                //            QOO = 0,
+                //            QtySales = 0
+                //        };
+                //        var getQOH = listQOH_QOO.Where(p => p.BRG == item.BRG && p.JENIS == "QOH").FirstOrDefault();
+                //        if (getQOH != null)
+                //        {
+                //            resultItem.QOH = getQOH.JUMLAH;
+                //        }
+                //        var getQOO = listQOH_QOO.Where(p => p.BRG == item.BRG && p.JENIS == "QOO").FirstOrDefault();
+                //        if (getQOO != null)
+                //        {
+                //            resultItem.QOO = getQOO.JUMLAH;
+                //        }
+                //        result.Add(resultItem);
+                //    }
+                //}
+
             }
+            //end change by nurul 4/9/2019, order by qoh desc
             #endregion
             var jumlahResult0Pesanan = result.Count();
             if (jumlahResult0Pesanan < 10)
@@ -3284,7 +3371,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            
             IPagedList<TableMenuBarang1PartialViewModel> pageOrders = new StaticPagedList<TableMenuBarang1PartialViewModel>(result, pagenumber + 1, 10, totalCountInPesanan + totalCount0Pesanan);
+            
             return PartialView("TableBarangTidakLakuPartial", pageOrders);
             //end add by calvin 24 mei 2019
         }
