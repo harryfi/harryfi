@@ -30892,7 +30892,7 @@ namespace MasterOnline.Controllers
             sSql += "isnull(a.alamat_kirim, '') AS ALAMAT, ";
             sSql += "isnull(a.kota, '') AS KOTA, isnull(a.propinsi, '') AS PROPINSI, isnull(a.kode_pos, '') AS KODE_POS ";
             sSql += "FROM SOT01A a ";
-            sSql += "LEFT JOIN ARF01 b on a.cust = b.cust ";
+            sSql += "INNER JOIN ARF01 b on a.cust = b.cust ";
             sSql += "LEFT JOIN MO.dbo.MARKETPLACE c on b.nama = c.idmarket "; 
             sSql += "LEFT JOIN(SELECT DISTINCT PESANAN FROM SIT04A e INNER JOIN SIT04B f on e.no_bukti= f.no_bukti)d on a.no_bukti = d.pesanan "; 
             sSql += "WHERE isnull(d.pesanan, '')= '' and a.status_transaksi = '03' "; 
@@ -30904,6 +30904,15 @@ namespace MasterOnline.Controllers
             {
                 vmError.Errors.Add("Pesanan tidak ditemukan");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+
+            for (int i = 0; i < cekPesanan.Count(); i++)
+            {
+                if(cekPesanan[i].NAMA_MARKET == " ()")
+                {
+                    vmError.Errors.Add("Marketplace tidak ditemukan");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
             }
 
             DateTime? jamkirim = Convert.ToDateTime(dataVm.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy") + ' ' + dataVm.Pengiriman.JAM_KIRIM?.ToString("HH:mm"));
