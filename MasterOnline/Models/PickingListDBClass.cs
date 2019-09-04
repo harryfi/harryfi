@@ -64,7 +64,7 @@ namespace MasterOnline.Models
         [StringLength(20)]
         public string BRG { get; set; }
 
-        public string NAMA_BARANG { get; set; }
+        //public string NAMA_BARANG { get; set; }
 
         public int? QTY { get; set; }
 

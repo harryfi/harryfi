@@ -295,6 +295,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalPrint" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalPrintLabel">Print Packing List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <input type="radio" name="printType" value="0" checked/>Rekap<br />
+                    <input type="radio" name="printType" value="1" />Detail<br />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success" onclick="printRekap();">Print</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
@@ -822,6 +842,7 @@
                                 $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
                                 //END ADD
+                                $('#btnPrint').prop('disabled', true);
                             } else {
                                 console.log(response.Errors);
                                 alert(response.Errors[0]);
@@ -899,6 +920,8 @@
                     $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
                     //END ADD
+                    alert('Pesanan berhasil dihapus.\nSilahkan lakukan proses ulang.');
+                    $('#btnPrint').prop('disabled', true);
                     $('#konfHapusPesanan').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -906,6 +929,47 @@
                     console.log(xhr);
                 }
             });
+        }
+
+        function prosesDetail() {
+            var link = '@Url.Action("ProsesDetailPackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors != null) {
+                        alert(response.Errors[0]);
+                    } else {
+                        alert('Proses Rekap Barang telah selesai.');
+                        $('#btnPrint').prop('disabled', false);
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+
+        }
+
+        function printRekap() {
+            var link = '@Url.Action("LihatRekapPackingList", "Manage", new {nobuk = "replaceId" })';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+            link += "&mode=" + $('input[name="printType"]:checked').val();
+            var win = encodeURIComponent(window.open(link, '_blank'));
+            if (win) {
+                $('#modalPrint').modal('hide');
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }
         }
 
     </script>

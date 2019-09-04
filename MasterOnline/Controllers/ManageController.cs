@@ -30493,9 +30493,10 @@ namespace MasterOnline.Controllers
                 var vm = new PackingListViewModel()
                 {
                     listPesanan = new List<SOT03B>(),
-                    listDetailPacking = new List<SOT03B>()
+                    listDetailPacking = new List<SOT03B>(),
+                    listRekapBarang = new List<RekapBarang>()
                 };
-               
+
                 return PartialView("FormPackinglistPartial", vm);
             }
             catch (Exception)
@@ -30509,10 +30510,12 @@ namespace MasterOnline.Controllers
             var listPesanan = new List<SOT03B>();
             var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET WHERE A.STATUS_TRANSAKSI = '02'");
             var listPesanandiPackinglist = new List<SOT03B>();
-            if (!string.IsNullOrEmpty(nobuk))
-            {
-                listPesanandiPackinglist = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == nobuk).ToList();
-            }
+            //if (!string.IsNullOrEmpty(nobuk))
+            //{
+            //listPesanandiPackinglist = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == nobuk).ToList();
+            //}
+            listPesanandiPackinglist = ErasoftDbContext.SOT03B.ToList();
+
             if (dsPesanan.Tables[0].Rows.Count > 0)
             {
                 for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
@@ -30557,6 +30560,22 @@ namespace MasterOnline.Controllers
             };
             vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
             vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+            var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == nobuk).ToList();
+            vm.listRekapBarang = new List<RekapBarang>();
+            if (listRekapBarang.Count > 0)
+            {
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                {
+                    var newData = new RekapBarang
+                    {
+                        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    };
+                    vm.listRekapBarang.Add(newData);
+                }
+            }
 
             return PartialView("FormPackinglistPartial", vm);
         }
@@ -30586,6 +30605,7 @@ namespace MasterOnline.Controllers
                 }
                 nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
                 dataVm.packingList.NO_BUKTI = nobuk;
+                dataVm.packingList.USERNAME = usernameLogin;
 
                 ErasoftDbContext.SOT03A.Add(dataVm.packingList);
                 ErasoftDbContext.SaveChanges();
@@ -30594,21 +30614,23 @@ namespace MasterOnline.Controllers
                 {
                     //change by nurul 3/1/2019 -- dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
                     dataVm.detailPackingList.NO_BUKTI = dataVm.packingList.NO_BUKTI;
+                    dataVm.detailPackingList.USERNAME = usernameLogin;
                     ErasoftDbContext.SOT03B.Add(dataVm.detailPackingList);
                     ErasoftDbContext.SaveChanges();
                 }
-                
+
             }
             else
             {
-                var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == dataVm.packingList.NO_BUKTI);                
+                var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == dataVm.packingList.NO_BUKTI);
 
                 if (dataVm.detailPackingList.RecNum == null)
                 {
                     dataVm.detailPackingList.NO_BUKTI = packinglistInDb.NO_BUKTI;
+                    dataVm.detailPackingList.USERNAME = usernameLogin;
                     ErasoftDbContext.SOT03B.Add(dataVm.detailPackingList);
                     ErasoftDbContext.SaveChanges();
-                    
+
                 }
             }
 
@@ -30617,10 +30639,26 @@ namespace MasterOnline.Controllers
 
             var vm = new PackingListViewModel()
             {
-                
+
             };
             vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).FirstOrDefault();
             vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).ToList();
+            var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).ToList();
+            vm.listRekapBarang = new List<RekapBarang>();
+            if (listRekapBarang.Count > 0)
+            {
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + dataVm.packingList.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                {
+                    var newData = new RekapBarang
+                    {
+                        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    };
+                    vm.listRekapBarang.Add(newData);
+                }
+            }
 
             return PartialView("FormPackinglistPartial", vm);
         }
@@ -30630,7 +30668,7 @@ namespace MasterOnline.Controllers
             var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.NO_BUKTI == nobuk);
             var detailPackinglistInDb = ErasoftDbContext.SOT03B.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
             var detailBrgPackinglistInDb = ErasoftDbContext.SOT03C.Where(dp => dp.NO_BUKTI == packinglistInDb.NO_BUKTI).ToList();
-            
+
             if (detailPackinglistInDb.Count > 0)
             {
                 ErasoftDbContext.SOT03B.RemoveRange(detailPackinglistInDb);
@@ -30641,7 +30679,7 @@ namespace MasterOnline.Controllers
             }
             ErasoftDbContext.SOT03A.Remove(packinglistInDb);
             ErasoftDbContext.SaveChanges();
-            
+
 
             return Json(packinglistInDb, JsonRequestBehavior.AllowGet);
             //return PartialView("TablePromosiPartial", vm);
@@ -30656,11 +30694,11 @@ namespace MasterOnline.Controllers
                 var sot03c = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI && m.NO_PESANAN == pesananPackinglistInDb.NO_PESANAN).ToList();
 
                 ErasoftDbContext.SOT03B.Remove(pesananPackinglistInDb);
-                if(sot03c.Count > 0)
+                if (sot03c.Count > 0)
                 {
                     ErasoftDbContext.SOT03C.RemoveRange(sot03c);
                 }
-                ErasoftDbContext.SaveChanges();                
+                ErasoftDbContext.SaveChanges();
 
                 var vm = new PackingListViewModel()
                 {
@@ -30668,6 +30706,22 @@ namespace MasterOnline.Controllers
                 };
                 vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).FirstOrDefault();
                 vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).ToList();
+                var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).ToList();
+                vm.listRekapBarang = new List<RekapBarang>();
+                if (listRekapBarang.Count > 0)
+                {
+                    var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + pesananPackinglistInDb.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                    for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                    {
+                        var newData = new RekapBarang
+                        {
+                            BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                            NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                            QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                        };
+                        vm.listRekapBarang.Add(newData);
+                    }
+                }
 
                 return PartialView("FormPackinglistPartial", vm);
             }
@@ -30677,6 +30731,87 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult ProsesDetailPackinglist(string nobuk)
+        {
+            var sot03b = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+            var tglInput = DateTime.Now;
+            if (sot03b.Count > 0)
+            {
+                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM SOT03C WHERE NO_BUKTI = '" + nobuk + "'");
+                var listNoPesanan = sot03b.Select(m => m.NO_PESANAN).ToList();
+                var pesananInDB = ErasoftDbContext.SOT01B.Where(m => listNoPesanan.Contains(m.NO_BUKTI)).ToList();
+                foreach (var data in pesananInDB)
+                {
+                    var newSot03c = new SOT03C();
+                    newSot03c.NO_BUKTI = nobuk;
+                    newSot03c.NO_PESANAN = data.NO_BUKTI;
+                    newSot03c.BRG = data.BRG;
+                    newSot03c.QTY = data.QTY_N == 0 ? Convert.ToInt32(data.QTY) : Convert.ToInt32(data.QTY_N);
+                    newSot03c.USERNAME = usernameLogin;
+                    newSot03c.TGL_INPUT = tglInput;
+
+                    //var brgInDB = ErasoftDbContext.STF02.Where(m => m.BRG == data.BRG).FirstOrDefault();
+                    //if(brgInDB != null)
+                    //{
+                    //    newSot03c.NAMA_BARANG = brgInDB.NAMA + (string.IsNullOrEmpty(brgInDB.NAMA2) ? "" : " " + brgInDB.NAMA2);
+                    //}
+
+                    ErasoftDbContext.SOT03C.Add(newSot03c);
+                    ErasoftDbContext.SaveChanges();
+                }
+            }
+            else
+            {
+                return JsonErrorMessage("Tidak ada pesanan pada No Bukti ini untuk diproses");
+            }
+            return Json("", JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult LihatRekapPackingList(string nobuk, string mode)
+        {
+            var retData = new PackingListViewModel();
+            retData.printMode = mode;
+            retData.listRekapBarang = new List<RekapBarang>();
+            retData.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+            if (mode == "1")
+            {
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.NO_PESANAN, A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, QTY, PEMBELI, MARKETPLACE FROM SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG INNER JOIN SOT03B C ON A.NO_BUKTI = C.NO_BUKTI AND A.NO_PESANAN = C.NO_PESANAN WHERE A.NO_BUKTI = '" + nobuk + "' ORDER BY A.NO_PESANAN, NAMA_BARANG");
+                var retRekap = new List<RekapBarang>();
+                if (dsRekap.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                    {
+                        var newData = new RekapBarang
+                        {
+                            NO_PESANAN = dsRekap.Tables[0].Rows[i]["NO_PESANAN"].ToString(),
+                            BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                            NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                            PEMBELI = dsRekap.Tables[0].Rows[i]["PEMBELI"].ToString(),
+                            MARKETPLACE = dsRekap.Tables[0].Rows[i]["MARKETPLACE"].ToString(),
+                            QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                        };
+                        retRekap.Add(newData);
+                    }
+                }
+                retData.listRekapBarang = retRekap;
+            }
+            else
+            {
+                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                {
+                    var newData = new RekapBarang
+                    {
+                        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                    };
+                    retData.listRekapBarang.Add(newData);
+                }
+            }
+
+            return View(retData);
+        }
         //end add by Tri 30-08-2019, picking list
 
 

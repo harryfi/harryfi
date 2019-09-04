@@ -6337,6 +6337,7 @@
     <Content Include="Views\Manage\PickingList.cshtml" />
     <Content Include="Views\Manage\TablePackinglistPartialView.cshtml" />
     <Content Include="Views\Manage\FormPackinglistPartial.cshtml" />
+    <Content Include="Views\Manage\LihatRekapPackinglist.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
