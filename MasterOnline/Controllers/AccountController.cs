@@ -552,7 +552,7 @@ namespace MasterOnline.Controllers
                     }
                 }
 #else
-                
+
 #endif
             }
             if (serverList.Count() == 0)
@@ -599,7 +599,7 @@ namespace MasterOnline.Controllers
                     ServerName = "StatusResiPesanan",
                     Queues = new[] { "1_manage_pesanan" },
                     WorkerCount = 1,
-                    
+
                 };
                 var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
 
@@ -718,97 +718,101 @@ namespace MasterOnline.Controllers
             //string username = sessionData.Account.Username;
 
             #region bukalapak
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            if (listBLShop.Count > 0)
-            {
-                foreach (ARF01 tblCustomer in listBLShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                    {
-                        string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        if (sync_pesanan_stok == "1")
-                        {
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-                            //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
-                        }
-                        else
-                        {
-                            recurJobM.RemoveIfExists(connId_JobId);
-                        }
-                    }
-                }
-            }
+            //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            //var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            //if (listBLShop.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listBLShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+            //        {
+            //            string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            if (sync_pesanan_stok == "1")
+            //            {
+            //                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //                //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
+            //            }
+            //            else
+            //            {
+            //                recurJobM.RemoveIfExists(connId_JobId);
+            //            }
+            //        }
+            //    }
+            //}
             #endregion
 
             #region lazada
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-            //var lzdApi = new LazadaController();
-            if (listLazadaShop.Count > 0)
-            {
-                foreach (ARF01 tblCustomer in listLazadaShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                    {
-                        #region refresh token lazada
-                        //change by calvin 4 april 2019
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
-                        //end change by calvin 4 april 2019
-                        #endregion
-                        //var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
-                        //foreach (var item in stf02hinDB)
-                        //{
-                        //    var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
-                        //    if (barangInDb != null)
-                        //    {
-                        //        var qtyOnHand = 0d;
-                        //        {
-                        //            object[] spParams = {
-                        //                    new SqlParameter("@BRG", barangInDb.BRG),
-                        //                    new SqlParameter("@GD","ALL"),
-                        //                    new SqlParameter("@Satuan", "2"),
-                        //                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                        //                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                        //                };
+//            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+//            var listLazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+//            //var lzdApi = new LazadaController();
+//            if (listLazadaShop.Count > 0)
+//            {
+//                foreach (ARF01 tblCustomer in listLazadaShop)
+//                {
+//                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+//                    {
+//                        #region refresh token lazada
+//                        //change by calvin 4 april 2019
+//                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+//                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+//                        client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
+//                        //end change by calvin 4 april 2019
+//                        #endregion
+//                        //var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+//                        //foreach (var item in stf02hinDB)
+//                        //{
+//                        //    var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+//                        //    if (barangInDb != null)
+//                        //    {
+//                        //        var qtyOnHand = 0d;
+//                        //        {
+//                        //            object[] spParams = {
+//                        //                    new SqlParameter("@BRG", barangInDb.BRG),
+//                        //                    new SqlParameter("@GD","ALL"),
+//                        //                    new SqlParameter("@Satuan", "2"),
+//                        //                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+//                        //                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+//                        //                };
 
-                        //            LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                        //            qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                        //        }
-                        //        lzdApi.UpdatePriceQuantity(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.TOKEN);
-                        //    }
+//                        //            LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+//                        //            qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+//                        //        }
+//                        //        lzdApi.UpdatePriceQuantity(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.TOKEN);
+//                        //    }
 
-                        //}
-                        if (sync_pesanan_stok == "1")
-                        {
-                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//                        //}
+//                        if (sync_pesanan_stok == "1")
+//                        {
+//#if (DEBUG || Debug_AWS)
+//                            new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+//                            new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+//                            new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+//#else
+//                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-                        }
-                        else
-                        {
-                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.RemoveIfExists(connId_JobId);
+//                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//#endif
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.RemoveIfExists(connId_JobId);
+//                        }
+//                        else
+//                        {
+//                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.RemoveIfExists(connId_JobId);
 
-                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.RemoveIfExists(connId_JobId);
-                        }
-                    }
-                }
-            }
+//                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.RemoveIfExists(connId_JobId);
+
+//                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                            recurJobM.RemoveIfExists(connId_JobId);
+//                        }
+//                    }
+//                }
+//            }
             #endregion
 
             #region Blibli
@@ -857,11 +861,16 @@ namespace MasterOnline.Controllers
 
                         if (sync_pesanan_stok == "1")
                         {
-                            connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+#if (DEBUG || Debug_AWS)
+                            new BlibliControllerJob().GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA);
+                            new BlibliControllerJob().GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA);
+#else
+                         connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_blibli_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);                          
+#endif
                         }
                         else
                         {
@@ -894,14 +903,25 @@ namespace MasterOnline.Controllers
                     string connId_JobId = "";
                     if (sync_pesanan_stok == "1")
                     {
+#if (DEBUG || Debug_AWS)
+                        new EleveniaControllerJob().GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username);
+                        new EleveniaControllerJob().GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username);
+                        //new EleveniaControllerJob().GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.ConfirmPurchase, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username);
+                        new EleveniaControllerJob().GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Waitingtobepaid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username);
+
+#else
                         connId_JobId = dbPathEra + "_elevenia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_elevenia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                        //connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.ConfirmPurchase, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);    
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_waitingtobepaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Waitingtobepaid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);                        
+#endif
+
                     }
                     else
                     {
@@ -980,60 +1000,60 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Shopee
-            //debug
-            //ShopeeController.ShopeeAPIData dataaa = new ShopeeController.ShopeeAPIData()
+            ////debug
+            ////ShopeeController.ShopeeAPIData dataaa = new ShopeeController.ShopeeAPIData()
+            ////{
+            ////    merchant_code = "6297330",
+
+            ////};
+            ////var ShopeeApi = new ShopeeController();
+            ////var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
+            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            //var listShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            //if (listShopeeShop.Count > 0)
             //{
-            //    merchant_code = "6297330",
+            //    //var shopeeApi = new ShopeeController();
+            //    foreach (ARF01 tblCustomer in listShopeeShop)
+            //    {
+            //        ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
+            //        iden.merchant_code = tblCustomer.Sort1_Cust;
+            //        iden.DatabasePathErasoft = dbPathEra;
+            //        iden.username = username;
 
-            //};
-            //var ShopeeApi = new ShopeeController();
-            //var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
-            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            var listShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
-            if (listShopeeShop.Count > 0)
-            {
-                //var shopeeApi = new ShopeeController();
-                foreach (ARF01 tblCustomer in listShopeeShop)
-                {
-                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
-                    iden.merchant_code = tblCustomer.Sort1_Cust;
-                    iden.DatabasePathErasoft = dbPathEra;
-                    iden.username = username;
+            //        string connId_JobId = "";
+            //        if (sync_pesanan_stok == "1")
+            //        {
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                    string connId_JobId = "";
-                    if (sync_pesanan_stok == "1")
-                    {
-                        connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+            //            ////hanya untuk testing
+            //            //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+            //        }
+            //        else
+            //        {
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.RemoveIfExists(connId_JobId);
 
-                        ////hanya untuk testing
-                        //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
-                    }
-                    else
-                    {
-                        connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.RemoveIfExists(connId_JobId);
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.RemoveIfExists(connId_JobId);
 
-                        connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.RemoveIfExists(connId_JobId);
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.RemoveIfExists(connId_JobId);
 
-                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.RemoveIfExists(connId_JobId);
-
-                        connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.RemoveIfExists(connId_JobId);
-                    }
-                }
-            }
+            //            connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //            recurJobM.RemoveIfExists(connId_JobId);
+            //        }
+            //    }
+            //}
             #endregion
             return "";
         }
@@ -1389,8 +1409,8 @@ namespace MasterOnline.Controllers
                 SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #else
-            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                  "user id=masteronline;password=M@ster123;");
+                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #endif
                 SqlCommand command = new SqlCommand(sql, con);
 

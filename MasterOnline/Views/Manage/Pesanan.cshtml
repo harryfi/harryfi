@@ -5601,6 +5601,8 @@
                         .css('cursor', 'not-allowed');
                     $('#Pesanan_NAMAPEMESAN').css('width', '225px');
                     $('#tambah-pembeli').hide();
+                    $('#Pesanan_KET').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
                     //if ($jumlahPesanan == true) {
                     //    $('input, select, .btn-danger').each(function () {
                     //        $(this).attr('disabled', 'disabled');
@@ -7554,6 +7556,10 @@
                     link = link.replace("replaceDeliveryProv",
                         $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
 
+                }
+                else if (document.getElementById("resi_kurir") != null) {
+                    link = link.replace("replaceDeliveryProv",
+                        $('#resi_kurir').val() == undefined ? '' : $('#resi_kurir').val());
                 }
                 //link = link.replace("replaceTypeDelivery", $('#TypePengiriman').val());
 

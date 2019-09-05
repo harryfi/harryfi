@@ -99,7 +99,8 @@ namespace MasterOnline.Controllers
             PackagingINP = 3,
             ShippingINP = 4,
             Completed = 5,
-            ConfirmPurchase = 6
+            ConfirmPurchase = 6,
+            Waitingtobepaid = 7
         }
         public enum api_status
         {
@@ -1269,6 +1270,9 @@ namespace MasterOnline.Controllers
                     //Confirm Purchase
                     status = "901";
                     break;
+                case StatusOrder.Waitingtobepaid:
+                    status = "103";
+                    break;
                 default:
                     break;
             }
@@ -1312,7 +1316,7 @@ namespace MasterOnline.Controllers
                     string sellerShop = "seller elv";
                     string sSQL = "insert into TEMP_ELV_ORDERS ([DELIVERY_NO],[DELIVERY_MTD_CD],[DELIVERY_ETR_CD],[DELIVERY_ETR_NAME],[ORDER_NO]";
                     sSQL += ",[ORDER_NAME],[ORDER_DATE],[ORDER_AMOUNT],[ORDER_PROD_NO],[ORDER_PROD_QTY],[PROD_NO],[RECEIVER_ADDRESS],[RECEIVER_POSTCODE]";
-                    sSQL += ",[DELIVERY_PHONE],[DELIVERY_COST],[ORDER_STAT],[SHOP_NAME],[CUST],[NAMA_CUST],[USERNAME],[CONN_ID],[ProdNm]) VALUES";
+                    sSQL += ",[DELIVERY_PHONE],[DELIVERY_COST],[ORDER_STAT],[SHOP_NAME],[CUST],[NAMA_CUST],[USERNAME],[CONN_ID],[ProdNm], [REQUEST_BUYER]) VALUES";
 
                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
@@ -1327,17 +1331,40 @@ namespace MasterOnline.Controllers
                         foreach (ElOrder dataOrder in res.Orders.order)
                         {
                             bool doInsert = true;
-                            if (OrderNoInDb.Contains(dataOrder.dlvNo) && stat == StatusOrder.Paid)
+                            //if (OrderNoInDb.Contains(dataOrder.dlvNo) && stat == StatusOrder.Paid)
+                            if (OrderNoInDb.Contains(dataOrder.ordNo))
                             {
                                 doInsert = false;
+                                //update status dan request user untuk pesanan belum dibayar
+                                //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '0'");
+                                if (stat == StatusOrder.Paid)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '0'");
+                                }
+                                else if (stat == StatusOrder.PackagingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '02'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '01'");
+                                }
+                                else if (stat == StatusOrder.ShippingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '03'" + (string.IsNullOrEmpty(dataOrder.ordDlvReqCont) ? " " : ", KET = '" + dataOrder.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + dataOrder.ordNo + "') AND STATUS_TRANSAKSI = '02'");
+                                }
                             }
                             if (doInsert)
                             {
                                 adaInsert = true;
+                                var hargaNormal = Convert.ToDouble(dataOrder.orderAmt);
+                                double potonganDiskon = 0;
+                                if (!string.IsNullOrEmpty(dataOrder.sellerDscPrc))
+                                {
+                                    potonganDiskon = Convert.ToDouble(dataOrder.sellerDscPrc);
+                                }
                                 sSQL += "('" + dataOrder.dlvNo + "','" + dataOrder.dlvMthdCd + "','" + dataOrder.dlvEtprsCd + "','" + dataOrder.dlvEtprsNm + "','" + dataOrder.ordNo + "',";
-                                sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + dataOrder.orderAmt + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
-                                sSQL += "'" + dataOrder.rcvrTlphn + "','" + Convert.ToDecimal(dataOrder.lstDlvCst) + "','" + dataOrder.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + dataOrder.prdNm + "')";//17 desember 2018
-                                PESANAN_DI_ELEVENIA += "'" + dataOrder.dlvNo + "',";
+                                //sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + dataOrder.orderAmt + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
+                                sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
+                                sSQL += "'" + dataOrder.rcvrTlphn + "','" + Convert.ToDecimal(dataOrder.lstDlvCst) + "','" + dataOrder.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + dataOrder.prdNm + "','" + dataOrder.ordDlvReqCont + "')";//17 desember 2018
+                                //PESANAN_DI_ELEVENIA += "'" + dataOrder.dlvNo + "',";
+                                PESANAN_DI_ELEVENIA += "'" + dataOrder.ordNo + "',";
                                 //var tblKabKot = EDB.GetDataSet("dotnet", "SCREEN_MO", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
                                 //var tblProv = EDB.GetDataSet("dotnet", "SCREEN_MO", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
 
@@ -1374,19 +1401,40 @@ namespace MasterOnline.Controllers
                             ret.message = "single\n" + json;
 
                             bool doInsert = true;
-                            if (OrderNoInDb.Contains(res2.Orders.order.dlvNo) && stat == StatusOrder.Paid)
+                            //if (OrderNoInDb.Contains(res2.Orders.order.dlvNo) && stat == StatusOrder.Paid)
+                            if (OrderNoInDb.Contains(res2.Orders.order.ordNo))
                             {
                                 doInsert = false;
+                                if (stat == StatusOrder.Paid)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '0'");
+                                }
+                                else if (stat == StatusOrder.PackagingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '02'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '01'");
+                                }
+                                else if (stat == StatusOrder.ShippingINP)
+                                {
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '03'" + (string.IsNullOrEmpty(res2.Orders.order.ordDlvReqCont) ? " " : ", KET = '" + res2.Orders.order.ordDlvReqCont + "'") + " WHERE NO_REFERENSI IN ('" + res2.Orders.order.ordNo + "') AND STATUS_TRANSAKSI = '02'");
+                                }
                             }
 
                             if (doInsert)
                             {
                                 adaInsert = true;
+                                var hargaNormal = Convert.ToDouble(res2.Orders.order.orderAmt);
+                                double potonganDiskon = 0;
+                                if (!string.IsNullOrEmpty(res2.Orders.order.sellerDscPrc))
+                                {
+                                    potonganDiskon = Convert.ToDouble(res2.Orders.order.sellerDscPrc);
+                                }
                                 sSQL += "('" + res2.Orders.order.dlvNo + "','" + res2.Orders.order.dlvMthdCd + "','" + res2.Orders.order.dlvEtprsCd + "','" + res2.Orders.order.dlvEtprsNm + "','" + res2.Orders.order.ordNo + "',";
-                                sSQL += "'" + res2.Orders.order.ordNm + "','" + res2.Orders.order.ordDt + "'," + res2.Orders.order.orderAmt + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
-                                sSQL += "'" + res2.Orders.order.rcvrTlphn + "'," + Convert.ToDecimal(res2.Orders.order.lstDlvCst) + ",'" + res2.Orders.order.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + res2.Orders.order.prdNm + "')";//17 desember 2018
+                                //sSQL += "'" + res2.Orders.order.ordNm + "','" + res2.Orders.order.ordDt + "'," + res2.Orders.order.orderAmt + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
+                                sSQL += "'" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
+                                sSQL += "'" + res2.Orders.order.rcvrTlphn + "'," + Convert.ToDecimal(res2.Orders.order.lstDlvCst) + ",'" + res2.Orders.order.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + res2.Orders.order.prdNm + "','" + res2.Orders.order.ordDlvReqCont + "')";//17 desember 2018
 
-                                PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.dlvNo + "'";
+                                //PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.dlvNo + "'";
+                                PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.ordNo + "'";
 
                                 var kabKot = "3174";
                                 var prov = "31";
@@ -1403,7 +1451,7 @@ namespace MasterOnline.Controllers
                     {
                         EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
-                        if (EDB.ExecuteSQL("Constring", CommandType.Text, sSQL) == 1)
+                        if (EDB.ExecuteSQL("Constring", CommandType.Text, sSQL) >= 1)
                         {
                             SqlCommand CommandSQL = new SqlCommand();
                             //call sp to insert buyer data
@@ -1454,7 +1502,7 @@ namespace MasterOnline.Controllers
                         if (stat == StatusOrder.Paid)
                         {
                             //jika tidak ada data PAID, lanjut ke PackagingINP
-                            await GetOrder(auth, EleveniaControllerJob.StatusOrder.PackagingINP, CUST, NAMA_CUST,dbPathEra,uname);
+                            await GetOrder(auth, EleveniaControllerJob.StatusOrder.PackagingINP, CUST, NAMA_CUST, dbPathEra, uname);
                         }
                     }
                     else
@@ -1477,7 +1525,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Accept Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage AcceptOrder(string dbPathEra,string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string auth, string ordNo, string ordPrdSeq, string uname)
+        public ClientMessage AcceptOrder(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string auth, string ordNo, string ordPrdSeq, string uname)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);
@@ -1535,7 +1583,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname,string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
+        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);
