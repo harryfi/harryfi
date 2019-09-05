@@ -5,7 +5,8 @@
         var prov = context_.Provinsi.ToList();
         var kota = context_.KabupatenKota.ToList();
     }*@
-@model PagedList.IPagedList<ARF01C>
+@*@model PagedList.IPagedList<ARF01C>*@
+@model PagedList.IPagedList<mdlPembeli>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -105,18 +106,18 @@
 {
     <div id="tabelbuyerpartialpager" class="pager">
         @Html.PagedListPager(Model, page => Url.Action("RefreshTableBuyer", new
-   {
-       page,
-       search = ViewData["searchParam"]
-   }),
-        new PagedListRenderOptions
         {
-            LinkToFirstPageFormat = "<<",
-            LinkToPreviousPageFormat = "prev",
-            LinkToNextPageFormat = "next",
-            LinkToLastPageFormat = ">>",
-            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-        })
+            page,
+            search = ViewData["searchParam"]
+        }),
+             new PagedListRenderOptions
+             {
+                 LinkToFirstPageFormat = "<<",
+                 LinkToPreviousPageFormat = "prev",
+                 LinkToNextPageFormat = "next",
+                 LinkToLastPageFormat = ">>",
+                 DisplayEllipsesWhenNotShowingAllPageNumbers = false
+             })
         Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
     </div>
 }

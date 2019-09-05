@@ -20,4 +20,18 @@ namespace MasterOnline
         public string NAMAMARKET { get; set; }
         
     }
+
+    //add 5/9/2019 by Tri, model untuk master pembeli
+    public class mdlPembeli
+    {
+        public int RecNum { get; set; }
+        public string BUYER_CODE { get; set; }
+        public string NAMA { get; set; }
+        public string KODEPROV { get; set; }
+        public string EMAIL { get; set; }
+        public string KODEKABKOT { get; set; }
+        public string TLP { get; set; }
+
+    }
+    //end add 5/9/2019 by Tri, model untuk master pembeli
 }
