@@ -15607,6 +15607,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            else
+            {
+                if (pesananInDb.TRACKING_SHIPMENT.Contains("[;]")) {
+                    parameters = "AUTO_SHOPEE";
+                }
+            }
             shipment[5] = parameters;
             return Json(shipment, JsonRequestBehavior.AllowGet);
         }
@@ -15761,7 +15767,7 @@ namespace MasterOnline.Controllers
                         detail.tracking_no = dTrackNo;
                     }
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
-                    //await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
+                    //await new ShopeeControllerJob().InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
 
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
