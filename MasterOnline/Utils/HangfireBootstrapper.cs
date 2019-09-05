@@ -159,7 +159,14 @@ namespace MasterOnline.Utils
                 //update semua recurring job dengan interval sesuai setting timer
                 foreach (var recurringJob in connection.GetRecurringJobs())
                 {
-                    recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                    if (recurringJob.Job != null)
+                    {
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                    }
+                    else
+                    {
+                        recurJobM.RemoveIfExists(recurringJob.Id);
+                    }
                 }
             }
         }
