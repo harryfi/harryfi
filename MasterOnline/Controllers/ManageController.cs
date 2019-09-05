@@ -30978,7 +30978,7 @@ namespace MasterOnline.Controllers
             CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.VarChar, 10).Value = spSdTgl;
             CommandSQL.Parameters.Add("@DR_CUST", SqlDbType.VarChar, 10).Value = drCust;
             CommandSQL.Parameters.Add("@SD_CUST", SqlDbType.VarChar, 10).Value = sdCust;
-            CommandSQL.Parameters.Add("@KURIR", SqlDbType.VarChar, 10).Value = dataVm.Pengiriman.NAMA_EKSPEDISI;
+            CommandSQL.Parameters.Add("@KURIR", SqlDbType.VarChar, 50).Value = dataVm.Pengiriman.NAMA_EKSPEDISI;
             CommandSQL.Parameters.Add("@USERNAME", SqlDbType.VarChar, 30).Value = dataVm.PengirimanDetail.USERNAME;
             CommandSQL.Parameters.Add("@TGL_INPUT", SqlDbType.VarChar, 10).Value = spTglInput;
             CommandSQL.Parameters.Add("@JAM_KIRIM", SqlDbType.VarChar, 16).Value = spJamKirim;
