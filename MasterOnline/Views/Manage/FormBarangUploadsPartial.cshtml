@@ -216,10 +216,19 @@
     @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
     @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 </div>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
+    function initCKEditor() {
+        $('.make_ckeditor').each(function (i, item) {
+            if ($('#cke_' + item.id).length == 0) {
+                CKEDITOR.replace(item.id);
+            }
+        });
+    }
     $(document).ready(function () {
         Initialize();
         initRequired();
+        initCKEditor();
     });
 </script>
 <div class="form-horizontal">
@@ -402,7 +411,7 @@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control", required = "required", minlength = 30 })
+                            @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                             @*@Html.EditorFor(m => m.Stf02.Deskripsi)*@
                         </div>
                     </div>

@@ -2400,8 +2400,8 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //end add, check ada varian
-                        string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
-                        string desc = result.value.description;
+                        string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
+                        string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
                         //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
@@ -3471,8 +3471,8 @@ namespace MasterOnline.Controllers
                 nama2 = "";
                 nama3 = "";
             }
-            string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
-            string desc = result.value.description;
+            string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
+            string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string categoryCode = result.value.categoryCode.ToString();
             string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
             //string merchantSku = result.value.items[0].merchantSku.ToString();

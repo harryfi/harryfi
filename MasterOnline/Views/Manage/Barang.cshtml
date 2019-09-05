@@ -1370,6 +1370,7 @@
                                 var AMANDATORY = item["AMANDATORY" + (i + 1)];
                                 if (ANAME != null) {
                                     if (ANAME != "") {
+                                        var setCKEditor = false;
                                         //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
                                         //if (ANAME != "quantity") {
 
@@ -1423,7 +1424,8 @@
                                             if (AMANDATORY == "1") {
                                                 if (ANAME == 'short_description') {
                                                     //fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
-                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + removeTag(adaValue) + '</textarea></div>';
+                                                    fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
+                                                    setCKEditor = true;
                                                 } else {
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
@@ -1439,7 +1441,10 @@
                                         }
                                         else if (loop == 1) {
                                             $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
-                                            initCKEditor();
+                                            if(setCKEditor){
+                                                initCKEditor();
+                                                CKEDITOR.instances[fieldAVALUE_ID].setData(adaValue);
+                                            }
                                             fieldAVALUE = "";
                                             loop = 0;
                                         }
