@@ -13930,6 +13930,13 @@ namespace MasterOnline.Controllers
                             //add by Tri, call marketplace api to update order status
                             ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false);
                             //end add by Tri, call marketplace api to update order status
+
+                            //add by nurul 5/9/2019, langsung generate faktur
+                            if (pesananInDb.STATUS_TRANSAKSI == "03")
+                            {
+                                GenerateFaktur(rec, pesananInDb.USER_NAME);
+                            }
+                            //end add by nurul 5/9/2019
                         }
                     }
                     //}
