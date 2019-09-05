@@ -947,6 +947,14 @@
                     if (response.Errors != null) {
                         alert(response.Errors[0]);
                     } else {
+                        $modeEdit = 1;
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        getTanggal();
+                        GetDataPesananPackinglist();
+                        //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                        $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                            .css('cursor', 'not-allowed');
                         alert('Proses Rekap Barang telah selesai.');
                         $('#btnPrint').prop('disabled', false);
                     }
