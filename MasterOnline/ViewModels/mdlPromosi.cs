@@ -31,7 +31,8 @@ namespace MasterOnline
         public string EMAIL { get; set; }
         public string KODEKABKOT { get; set; }
         public string TLP { get; set; }
-
+        public int FREKUENSI { get; set; }
+        public double NILAI { get; set; }
     }
     //end add 5/9/2019 by Tri, model untuk master pembeli
 }

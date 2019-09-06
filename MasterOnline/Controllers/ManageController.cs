@@ -2081,7 +2081,7 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             string sSQLSelect = "";
-            sSQLSelect += "select c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, c.recnum ";
+            sSQLSelect += "select c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, sum(a.netto) nilai ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(*) AS JUMLAH FROM ARF01C ";
             string sSQL2 = "";
@@ -2105,7 +2105,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "order by count(a.pemesan) desc, nama ";
+            sSQLSelect2 += "order by sum(a.netto) desc ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
