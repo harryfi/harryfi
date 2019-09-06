@@ -21810,7 +21810,7 @@ namespace MasterOnline.Controllers
                             SATUAN = "2",
                             H_SATUAN = Convert.ToDouble(faktur.PriceRp.Replace("Rp ", "").Replace(".", "")),
                             QTY = Convert.ToDouble(faktur.Quantity),
-                            HARGA = Convert.ToDouble(faktur.PriceRp.Replace("Rp ", "").Replace(".", "")),
+                            HARGA = Convert.ToDouble(faktur.Quantity) * Convert.ToDouble(faktur.PriceRp.Replace("Rp ", "").Replace(".", "")),
                             QTY_KIRIM = 0,
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
@@ -22490,7 +22490,7 @@ namespace MasterOnline.Controllers
                             SATUAN = "2",
                             H_SATUAN = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
                             QTY = Convert.ToDouble(faktur.JumlahProduk),
-                            HARGA = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            HARGA = Convert.ToDouble(faktur.JumlahProduk) * Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
                             QTY_KIRIM = 0,
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
