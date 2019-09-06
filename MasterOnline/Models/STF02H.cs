@@ -522,5 +522,13 @@ namespace MasterOnline
         public string LINK_STATUS { get; set; }
         public DateTime? LINK_DATETIME { get; set; }
         public string LINK_ERROR { get; set; } //jobid;request_action;request_result;request_exception
+
+        public string LINK_GAMBAR_4 { get; set; }
+
+        public string LINK_GAMBAR_5 { get; set; }
+
+        public string SIZE_GAMBAR_4 { get; set; }
+
+        public string SIZE_GAMBAR_5 { get; set; }
     }
 }

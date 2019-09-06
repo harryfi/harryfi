@@ -258,6 +258,14 @@ namespace MasterOnline
 
         public string LINK_GAMBAR_3 { get; set; }
 
+        public string LINK_GAMBAR_4 { get; set; }
+
+        public string LINK_GAMBAR_5 { get; set; }
+
+        public string SIZE_GAMBAR_4 { get; set; }
+
+        public string SIZE_GAMBAR_5 { get; set; }
+
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STF02B> STF02B { get; set; }

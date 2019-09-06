@@ -3343,6 +3343,12 @@ namespace MasterOnline.Controllers
                 HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
                 HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+            //add 6/9/2019, 5 gambar
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
+            //end add 6/9/2019, 5 gambar
             if (brgInDb.TYPE == "4")
             {
                 var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();

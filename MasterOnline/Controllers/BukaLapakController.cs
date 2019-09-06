@@ -248,6 +248,20 @@ namespace MasterOnline.Controllers
                     listImage += ",";
                 listImage += "," + data.imageId3;
             }
+            //add 6/9/2019, 5 gambar
+            if (!string.IsNullOrEmpty(data.imageId4))
+            {
+                if (!string.IsNullOrEmpty(listImage))
+                    listImage += ",";
+                listImage += data.imageId4;
+            }
+            if (!string.IsNullOrEmpty(data.imageId5))
+            {
+                if (!string.IsNullOrEmpty(listImage))
+                    listImage += ",";
+                listImage += "," + data.imageId5;
+            }
+            //end add 6/9/2019, 5 gambar
             dataBrg += "} }, \"images\":\"" + listImage + "\"}";
 
             //end change by Tri 7 Mei 2019

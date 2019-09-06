@@ -125,6 +125,38 @@
             });
         });
 
+         $('.btn_hapus_foto_produk_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_var2_' + data_barang_id).hide();
+            $('#btn_hapus_var2_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", data_barang_kode);
+                $link = $link.replace("replaceUrutan", 2);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_var2_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_var2_' + data_barang_id).val(null);
+                        $('#box_upload_var2_' + data_barang_id).css('background-image', '');
+                        $('#box_upload_var2_' + data_barang_id + ' span').show();
+                        $('#btn_hapus_var2_' + data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
         $('.foto_produk_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $('#foto_produk_var_' + data_barang_id).hide();
@@ -148,10 +180,40 @@
             });
         });
 
+        $('.foto_produk_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_var2_' + data_barang_id).hide();
+            $('#foto_produk_var2_' + data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImageVar) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_var2_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_var2_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_var2_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
         $('.box_upload_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $(item).off('click').on('click', function () {
                 $('#foto_produk_var_' + data_barang_id).click();
+            });
+        });
+
+        $('.box_upload_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_var2_' + data_barang_id).click();
             });
         });
 
@@ -216,6 +278,38 @@
             });
         });
 
+        $('.btn_hapus_foto_produk_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+            $('#btn_hapus_var_blibli2_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBliVar", "Manage", new { recnum = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", data_barang_id);
+                $link = $link.replace("replaceUrutan", 2);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_var_blibli2_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_var_blibli2_' + data_barang_id).val(null);
+                        $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', '');
+                        $('#box_upload_var_blibli2_' + data_barang_id + ' span').show();
+                        $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
         $('.foto_produk_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $('#foto_produk_var_blibli_' + data_barang_id).hide();
@@ -239,10 +333,40 @@
             });
         });
 
+        $('.foto_produk_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_var_blibli2_' + data_barang_id).hide();
+            $('#foto_produk_var_blibli2_' + data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImageVar) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_var_blibli2_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_var_blibli2_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
         $('.box_upload_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $(item).off('click').on('click', function () {
                 $('#foto_produk_var_blibli_' + data_barang_id).click();
+            });
+        });
+
+        $('.box_upload_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_var_blibli2_' + data_barang_id).click();
             });
         });
 
@@ -268,6 +392,25 @@
             }
 
         });
+
+        $('.hidden_url_gambar_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+
+            $('#foto_produk_var2_' + data_barang_id).val(null);
+            $('#box_upload_var2_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var2_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var2_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var2_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var2_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var_' + data_barang_id).show();
+            }
+
+        });
     }
 
     function getFotoProdukBlibliVariant() {
@@ -288,12 +431,35 @@
                 $('#btn_hapus_var_blibli_' + data_barang_id).show();
             }
         });
+
+        $('.hidden_url_gambar_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+
+            $('#foto_produk_var_blibli2_' + data_barang_id).val(null);
+            $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var_blibli2_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var_blibli2_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var_blibli2_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var_blibli2_' + data_barang_id).show();
+            }
+        });
     }
 
     function UpdateGambarVariantBarangBlibli() {
         var listGambarVariant = new FormData();
 
         $('.foto_produk_var_blibli').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+        });
+
+        $('.foto_produk_var_blibli_2').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
         });
@@ -325,6 +491,11 @@
                 var listGambarVariant = new FormData();
 
                 $('.foto_produk_var').each(function (i, item) {
+                    var data_barang_id = $(item).attr("data-barang-id");
+                    listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+                });
+
+                $('.foto_produk_var_2').each(function (i, item) {
                     var data_barang_id = $(item).attr("data-barang-id");
                     listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
                 });
@@ -500,20 +671,32 @@
                             <tbody>
                                 @foreach (var barang in Model.VariantMO)
                                 {
-                                    <tr>
-                                        <td>@barang.BRG</td>
-                                        <td>@barang.NAMA @barang.NAMA2</td>
-                                        <td class="text-center">
-                                            <div class="foto_produk_section">
-                                                <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
-                                                    <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                    <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
-                                                    <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
-                                                </div>
-                                                <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                <tr>
+                                    <td>@barang.BRG</td>
+                                    <td>@barang.NAMA @barang.NAMA2</td>
+                                    <td class="text-center">
+                                        <div class="foto_produk_section">
+                                            <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
                                             </div>
-                                        </td>
-                                    </tr>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                        </div>
+                                    </td>
+                                    @* add 6/9/2019, barang varian 2 gambar *@
+                                    <td class="text-center">
+                                        <div class="foto_produk_section">
+                                            <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
+                                        </div>
+                                    </td>
+                                    @* end add 6/9/2019, barang varian 2 gambar *@
+                                </tr>
                                 }
                             </tbody>
                         </table>
@@ -553,29 +736,42 @@
                                             var VarStf02H = Model.VariantMO_H.Where(p => p.BRG.ToLower() == barang.BRG.ToLower() && p.IDMARKET == recnumArf01).FirstOrDefault();
                                             if (VarStf02H != null)
                                             {
-                                                <tr>
-                                                    <td>@barang.BRG</td>
-                                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                                    <td style="text-align:right">
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <div class="foto_produk_section">
-                                                            <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
-                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg" />
-                                                                <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
-                                                            </div>
-                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                        {
-                                                            <label>Sukses</label>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                        <tr>
+                                            <td>@barang.BRG</td>
+                                            <td>@barang.NAMA @barang.NAMA2</td>
+                                            <td style="text-align:right">
+                                                @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="foto_produk_section">
+                                                    <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
+                                                        <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                        <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg" />
+                                                        <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
+                                                    </div>
+                                                    <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
+                                                </div>
+                                            </td>
+                                            @* add 6/9/2019, barang varian 2 gambar *@
+                                            <td class="text-center">
+                                                <div class="foto_produk_section">
+                                                    <div class="box_upload_var_blibli_2" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli2_@VarStf02H.RecNum">
+                                                        <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                        <input type='file' id='foto_produk_var_blibli2_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli_2" accept=".jpg" />
+                                                        <input type="hidden" id="hidden_url_gambar_var_blibli2_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli_2" value="@(VarStf02H.AVALUE_49)" />
+                                                    </div>
+                                                    <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli2_@VarStf02H.RecNum">Hapus</button>
+                                                </div>
+                                            </td>
+                                            @* end add 6/9/2019, barang varian 2 gambar *@
+
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+        {
+                                        <label>Sukses</label>
+}
+                                            </td>
+                                        </tr>
                                             }
                                         }
                                     </tbody>

@@ -1026,6 +1026,62 @@
 
                 return;
             });
+            
+            //add 6/9/2019, 5 gambar
+            $('#btn_hapus_4').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
+                $link = $link.replace("replaceUrutan", 4);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_2').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_4').val(null);
+                        $('#box_upload_4').css('background-image', '');
+                        $('#box_upload_4 span').show();
+                        $('#btn_hapus_4').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+
+            $('#btn_hapus_5').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
+                $link = $link.replace("replaceUrutan", 5);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_5').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_5').val(null);
+                        $('#box_upload_5').css('background-image', '');
+                        $('#box_upload_5 span').show();
+                        $('#btn_hapus_5').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+            //end add 6/9/2019, 5 gambar
 
             var validImage = ["image/jpeg"];
 
@@ -1086,6 +1142,46 @@
                 }
             });
 
+            //add 6/9/2019, 5 gambar
+            $('#foto_produk_4').off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImage) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_4').css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_4 span').hide();
+                    $('#btn_hapus_4').show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#foto_produk_5').off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImage) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_5').css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_5 span').hide();
+                    $('#btn_hapus_5').show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+            //end add 6/9/2019, 5 gambar
+
             $('#box_upload_1').off('click').on('click', function () {
             });
 
@@ -1095,6 +1191,14 @@
             $('#box_upload_3').off('click').on('click', function () {
 
             });
+            //add 6/9/2019, 5 gambar
+            $('#box_upload_4').off('click').on('click', function () {
+            });
+
+            $('#box_upload_5').off('click').on('click', function () {
+
+            });
+            //end add 6/9/2019, 5 gambar
             $('#box_upload_1').off('click').on('click', function () {
                 $('#foto_produk_1').click();
             });
@@ -1106,6 +1210,16 @@
             $('#box_upload_3').off('click').on('click', function () {
                 $('#foto_produk_3').click();
             });
+
+            //add 6/9/2019, 5 gambar
+            $('#box_upload_4').off('click').on('click', function () {
+                $('#foto_produk_4').click();
+            });
+
+            $('#box_upload_5').off('click').on('click', function () {
+                $('#foto_produk_5').click();
+            });
+            //end add 6/9/2019, 5 gambar
 
             if ($('#Stf02_ID').off('click').val() != '') {
                 getFotoProduk();
@@ -3763,6 +3877,24 @@
                 });
                 $('#box_upload_3 span').hide();
                 $('#btn_hapus_3').show();
+            }
+
+            if ($('#hidden_url_gambar_4').val() != "") {
+                $('#box_upload_4').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_4').val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_4 span').hide();
+                $('#btn_hapus_4').show();
+            }
+
+            if ($('#hidden_url_gambar_5').val() != "") {
+                $('#box_upload_5').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_5').val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_5 span').hide();
+                $('#btn_hapus_5').show();
             }
         }
 

@@ -770,6 +770,12 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
                 if (!string.IsNullOrEmpty(data.imageUrl3))
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                //add 6/9/2019, 5 gambar
+                if (!string.IsNullOrEmpty(data.imageUrl4))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl5))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+                //end add 6/9/2019, 5 gambar
                 xmlString += "</Images>";
 
 
@@ -902,15 +908,17 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
+                            // 6/9/2019, 2 gambar untuk varian
                             //remark by calvin 19 agustus 2019
-                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            //{
-                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                            //    if (uploadImg.status == 1)
-                            //    {
-                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            //    }
-                            //}
+                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            {
+                                var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                                if (uploadImg.status == 1)
+                                {
+                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                                }
+                            }
+                            // 6/9/2019, 2 gambar untuk varian
                             //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
                             //{
                             //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
