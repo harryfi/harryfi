@@ -51,5 +51,9 @@ namespace MasterOnline.ViewModels
         public double? NilaiReturHariIni { get; set; }
         public int? JumlahReturBulanIni { get; set; }
         public double? NilaiReturBulanIni { get; set; }
+
+        //add by nurul 9/9/2019
+        public List<string> Errors { get; set; } = new List<string>();
+        //end add by nurul 9/9/2019
     }
 }

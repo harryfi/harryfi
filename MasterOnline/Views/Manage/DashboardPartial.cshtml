@@ -597,9 +597,12 @@
         <div class="x_panel">
             <div class="x_title">
                 <h2>10 barang tidak laku</h2>
+                <div class="nav navbar-right panel_toolbox">
+                    <h5><span class="label label-success" style="color:white">1 Bulan Terakhir</span></h5>
+                </div>
                 <div class="clearfix"></div>
             </div>
-            <div class="row">
+            <div class="row" id="periode_tdklaku">
                 <div class="col-md-4">
                     @Html.Label("", "Dari Tanggal")
                     <div class="input-group date">

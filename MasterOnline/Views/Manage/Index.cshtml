@@ -1633,6 +1633,10 @@
                 success: function (response) {
                     $('#dashboard_page').html(response);
 
+                    //add by nurul 6/9/2019
+                    $('#periode_tdklaku').hide();
+                    //end add by nurul 6/9/2019
+
                     if ($selectedDate !== '' && $selectedDate !== moment(new Date()).format("DD/MM/YYYY")) {
                         $('.date_label').text('Tanggal ' + $selectedDate);
                     }
@@ -9809,10 +9813,41 @@
                     $('#loading_barang_minstok').show();
                 },
                 success: function (response) {
-                    $('#table-barang-minstok-partial').html(response);
-                    
-                    $('#loading_barang_minstok').hide();
-                    $('#table-barang-minstok-partial').show();
+                    if (response.Errors == null) {
+                        $('#table-barang-minstok-partial').html(response);
+
+                        $('#loading_barang_minstok').hide();
+                        $('#table-barang-minstok-partial').show();
+                    } else {
+                        alert(response.Errors);
+                        var c = new Date();
+                        c.setMonth(c.getMonth() - 1);
+                        $('#DrTanggal2').datepicker({
+                            format: 'dd/mm/yyyy',
+                            language: 'id'
+                        }).datepicker('setDate', c);
+                        //$('#DrTanggal2').datepicker({
+                        //    format: 'dd/mm/yyyy',
+                        //    language: 'id'
+                        //}).change(function () {
+                        //    $('#DrTanggal2').val($('#DrTanggal2').val());
+                        //    $('#DrTanggal2').datepicker('hide');
+                        //    //RefreshTableDashboardBarangMinStok();
+                        //});
+                        $('#SdTanggal2').datepicker({
+                            format: 'dd/mm/yyyy',
+                            language: 'id'
+                        }).datepicker('setDate', '0');
+                        //$('#SdTanggal2').datepicker({
+                        //    format: 'dd/mm/yyyy',
+                        //    language: 'id'
+                        //}).change(function () {
+                        //    $('#SdTanggal2').val($('#SdTanggal2').val());
+                        //    $('#SdTanggal2').datepicker('hide');
+                        //    //RefreshTableDashboardBarangMinStok();
+                        //});
+                        //RefreshTableDashboardBarangMinStok();
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
