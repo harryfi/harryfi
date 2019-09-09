@@ -2183,7 +2183,10 @@ namespace MasterOnline.Controllers
                                         //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
                                         //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                       //change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
+                                        //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.gdnSku.ToUpper())).FirstOrDefault();
+                                        //end change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
@@ -2372,7 +2375,10 @@ namespace MasterOnline.Controllers
                             //remove bussiness partner code from productsku -> max length < 20
                             string productSku = result.value.productSku;
                             var splitSku = productSku.Split('-');
-                            string prdCd = result.value.productCode;
+                            //change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
+                            //string prdCd = result.value.productCode;
+                            string prdCd = result.value.gdnSku;
+                            //end change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                             kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
                             //cek brg induk di db
                             var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP.Contains(prdCd) && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
