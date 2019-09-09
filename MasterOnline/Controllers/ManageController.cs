@@ -30896,7 +30896,7 @@ namespace MasterOnline.Controllers
             sSql += "LEFT JOIN MO.dbo.MARKETPLACE c on b.nama = c.idmarket "; 
             sSql += "LEFT JOIN(SELECT DISTINCT PESANAN FROM SIT04A e INNER JOIN SIT04B f on e.no_bukti= f.no_bukti)d on a.no_bukti = d.pesanan "; 
             sSql += "WHERE isnull(d.pesanan, '')= '' and a.status_transaksi = '03' "; 
-            sSql += "AND a.TGL BETWEEN '" + drTgl.ToString("yyyy-MM-dd") + "' AND '" + sdTgl.ToString("yyyy-MM-dd") + "' "; 
+            sSql += "AND a.TGL BETWEEN '" + drTgl.ToString("yyyy-MM-dd") + " 00:00:00.000" + "' AND '" + sdTgl.ToString("yyyy-MM-dd") + " 23:59:59.999" + "' "; 
             sSql += "AND a.CUST BETWEEN '" + drCust + "' AND '" + sdCust + "' "; 
             sSql += "AND a.SHIPMENT = '" + dataVm.Pengiriman.NAMA_EKSPEDISI + "'";
             var cekPesanan = ErasoftDbContext.Database.SqlQuery<smolSOT01A>(sSql).ToList();
@@ -30966,16 +30966,16 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            var spDrTgl = drTgl.ToString("yyyy-MM-dd");
-            var spSdTgl = sdTgl.ToString("yyyy-MM-dd");
+            var spDrTgl = drTgl.ToString("yyyy-MM-dd") + " 00:00:00.000"; //23
+            var spSdTgl = sdTgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
             var spTglInput = dataVm.PengirimanDetail.TGL_INPUT?.ToString("yyyy-MM-dd");
             var spJamKirim = jamkirim?.ToString("yyyy-MM-dd HH:mm");
             
             SqlCommand CommandSQL = new SqlCommand();
             CommandSQL.Parameters.Add("@NOBUK", SqlDbType.VarChar, 10).Value = dataVm.Pengiriman.NO_BUKTI;
 
-            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.VarChar, 10).Value = spDrTgl;
-            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.VarChar, 10).Value = spSdTgl;
+            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.VarChar, 23).Value = spDrTgl;
+            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.VarChar, 23).Value = spSdTgl;
             CommandSQL.Parameters.Add("@DR_CUST", SqlDbType.VarChar, 10).Value = drCust;
             CommandSQL.Parameters.Add("@SD_CUST", SqlDbType.VarChar, 10).Value = sdCust;
             CommandSQL.Parameters.Add("@KURIR", SqlDbType.VarChar, 50).Value = dataVm.Pengiriman.NAMA_EKSPEDISI;
