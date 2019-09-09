@@ -456,6 +456,173 @@ namespace MasterOnline.Controllers
             ShippingINP = 4,
             Completed = 5
         }
+
+        public async Task<string> CekOrder(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+            switch (stat)
+            {
+                case StatusOrder.Cancel:
+                    //Cancel Order
+                    status = "X";
+                    break;
+                case StatusOrder.Paid:
+                    //paid
+                    status = "FP";
+                    break;
+                //case StatusOrder.PackagingINP:
+                //    //Packaging in Progress
+                //    status = "301";
+                //    break;
+                case StatusOrder.ShippingINP:
+                    //Shipping in Progress
+                    status = "CX";
+                    break;
+                case StatusOrder.Completed:
+                    //Completed (Shipping)
+                    status = "D";
+                    break;
+                default:
+                    break;
+            }
+            //string filterstartdate = DateTime.UtcNow.AddDays(-28).ToString("yyyy-MM-dd HH:mm:ss");
+            //string filterenddate = DateTime.UtcNow.AddDays(-25).ToString("yyyy-MM-dd HH:mm:ss");
+            string filterstartdate = "2019-08-15 00:00:00";
+            string filterenddate = "2019-08-15 23:59:59";
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                                                                 //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
+            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(filterstartdate) + "&filterEndDate=" + Uri.EscapeDataString(filterenddate);
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrder)) as BlibliGetOrder;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    if (result.content.Count() > 0)
+                    {
+                        if (stat == StatusOrder.Paid)
+                        {
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                            var jmlhNewOrder = 0;//add by calvin 1 april 2019
+                            foreach (var item in result.content)
+                            {
+                                if (!OrderNoInDb.Contains(item.orderNo))
+                                {
+                                    await GetOrderDetail(iden, item.orderNo, item.orderItemNo, connId, CUST, NAMA_CUST);
+                                    jmlhNewOrder++;
+                                }
+                            }
+                            ////add by calvin 1 april 2019
+                            ////notify user
+                            //if (jmlhNewOrder > 0)
+                            //{
+                            //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            //    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Blibli.");
+
+                            //    new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
+                            //}
+                            ////end add by calvin 1 april 2019
+                        }
+                        else
+                        {
+                            if (stat == StatusOrder.Completed)
+                            {
+                                //var jmlhSuccessOrder = 0;
+                                foreach (var item in result.content)
+                                {
+                                    if (item.orderNo == "12034924873")
+                                    {
+                                        await GetOrderDetail(iden, item.orderNo, item.orderItemNo, connId, CUST, NAMA_CUST);
+                                    }
+                                    //    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
+                                    //    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                                    //    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                    //    {
+                                    //        oConnection.Open();
+                                    //        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                    //        //{
+                                    //        using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    //        {
+                                    //            oCommand.CommandType = CommandType.Text;
+                                    //            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo + "' AND STATUS_TRANSAKSI='03'";
+                                    //            int affected = oCommand.ExecuteNonQuery();
+                                    //            if (affected == 1)
+                                    //            {
+                                    //                jmlhSuccessOrder++;
+                                    //            }
+                                    //        }
+                                    //    }
+                                }
+                                //if (jmlhSuccessOrder > 0)
+                                //{
+                                //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                //    contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification(Convert.ToString(jmlhSuccessOrder) + " Pesanan dari Blibli sudah selesai.");
+                                //}
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public async Task<string> GetOrderList(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
@@ -557,6 +724,16 @@ namespace MasterOnline.Controllers
                                 {
                                     await GetOrderDetail(iden, item.orderNo, item.orderItemNo, connId, CUST, NAMA_CUST);
                                     jmlhNewOrder++;
+                                }
+                                else
+                                {
+                                    var GetNoBukti = ErasoftDbContext.SOT01A.Where(p => p.NO_REFERENSI == item.orderNo).Select(p => p.NO_BUKTI).First();
+                                    var CekItemOrderNo = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == GetNoBukti && p.ORDER_ITEM_ID == item.orderItemNo).FirstOrDefault();
+
+                                    if (CekItemOrderNo == null)
+                                    {
+                                        await GetOrderDetail(iden, item.orderNo, item.orderItemNo, connId, CUST, NAMA_CUST);
+                                    }
                                 }
                             }
                             //add by calvin 1 april 2019
