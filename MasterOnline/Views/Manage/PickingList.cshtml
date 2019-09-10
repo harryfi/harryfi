@@ -13,6 +13,18 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
         #statusBorder {
             position: relative;
             height: 5px;
@@ -404,7 +416,36 @@
                     //end add by nurul 12/2/2019
                 }
             });
+
+            var query = window.location.search.substring(1);
+            var qs = parse_query_string(query);
+            //alert(qs.nobuk);
+            if (qs.nobuk != undefined) {
+                editPackinglist1(qs.nobuk);
+            }
         });
+
+        function parse_query_string(query) {
+            var vars = query.split("&");
+            var query_string = {};
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                var key = decodeURIComponent(pair[0]);
+                var value = decodeURIComponent(pair[1]);
+                // If first entry with this name
+                if (typeof query_string[key] === "undefined") {
+                    query_string[key] = decodeURIComponent(value);
+                    // If second entry with this name
+                } else if (typeof query_string[key] === "string") {
+                    var arr = [query_string[key], decodeURIComponent(value)];
+                    query_string[key] = arr;
+                    // If third or later entry with this name
+                } else {
+                    query_string[key].push(decodeURIComponent(value));
+                }
+            }
+            return query_string;
+        }
 
         function refreshInputan() {
             //add by nurul 19/12/2018 ngatur width barang
@@ -806,9 +847,26 @@
             return dt.getDate() + "/" + (dt.getMonth() + 1) + "/" +dt.getFullYear();
         }
 
+        function DataIsValid() {
+            if ($('#TGL').val() == '') {
+                alert('Anda belum memilih tanggal packing list');
+                //addError($('#TGL'), 'Anda belum memilih tanggal packing list.');
+                return false;
+            }
+            return true;
+        }
+
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
+
         function simpanpesanan($id) {
-            //if (!validateForm() || !DataIsValid()) return false;
-            if (!validateForm()) return false;
+            if (!validateForm() || !DataIsValid()) return false;
+            //if (!validateForm()) return false;
             if ($id == 'pesanan-0') {
                 //if ($('#Promosi_TGL_MULAI').val() != '' &&
                 //    $('#Promosi_TGL_AKHIR').val() != '' &&
@@ -842,7 +900,7 @@
                                 $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                                     .css('cursor', 'not-allowed');
                                 //END ADD
-                                $('#btnPrint').prop('disabled', true);
+                                //$('#btnPrint').prop('disabled', true);
                             } else {
                                 console.log(response.Errors);
                                 alert(response.Errors[0]);
@@ -920,8 +978,8 @@
                     $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
                     //END ADD
-                    alert('Pesanan berhasil dihapus.\nSilahkan lakukan proses ulang.');
-                    $('#btnPrint').prop('disabled', true);
+                    //alert('Pesanan berhasil dihapus.\nSilahkan lakukan proses ulang.');
+                    //$('#btnPrint').prop('disabled', true);
                     $('#konfHapusPesanan').modal('hide');
                     $('#loading_spinner').hide();
                 },

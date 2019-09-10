@@ -30445,6 +30445,16 @@ namespace MasterOnline.Controllers
             return View("Pickinglist", vm);
         }
 
+        public ActionResult Packinglist(string nobuk)
+        {
+            var vm = new PackingListViewModel()
+            {
+                listParent = ErasoftDbContext.SOT03A.ToList(),
+            };
+
+            return View("Pickinglist", vm);
+        }
+
         public ActionResult refreshTablePackinglist(int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
@@ -30526,15 +30536,15 @@ namespace MasterOnline.Controllers
                     pesanan.PEMBELI = dsPesanan.Tables[0].Rows[i]["NAMAPEMESAN"].ToString();
                     pesanan.MARKETPLACE = dsPesanan.Tables[0].Rows[i]["NAMAMARKET"].ToString();
 
-                    if (!string.IsNullOrEmpty(nobuk))
-                    {
-                        if (!listPesanandiPackinglist.Select(m => m.NO_PESANAN).Contains(pesanan.NO_PESANAN))
-                            listPesanan.Add(pesanan);
-                    }
-                    else
-                    {
+                    //if (!string.IsNullOrEmpty(nobuk))
+                    //{
+                    if (!listPesanandiPackinglist.Select(m => m.NO_PESANAN).Contains(pesanan.NO_PESANAN))
                         listPesanan.Add(pesanan);
-                    }
+                    //}
+                    //else
+                    //{
+                    //    listPesanan.Add(pesanan);
+                    //}
                 }
             }
 
@@ -30637,6 +30647,10 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
+            //add 9/9/19, proses ulang setiap penambahan pesanan
+            ProsesDetailPackinglist(dataVm.packingList.NO_BUKTI);
+            //end add 9/9/19, proses ulang setiap penambahan pesanan
+
             var vm = new PackingListViewModel()
             {
 
@@ -30731,7 +30745,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult ProsesDetailPackinglist(string nobuk)
+        public void ProsesDetailPackinglist(string nobuk)
         {
             var sot03b = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
             var tglInput = DateTime.Now;
@@ -30760,38 +30774,39 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
             }
-            else
-            {
-                return JsonErrorMessage("Tidak ada pesanan pada No Bukti ini untuk diproses");
-            }
+            //remark 9/9/19, proses dipanggil saat insert pesanan
+            //else
+            //{
+            //    return JsonErrorMessage("Tidak ada pesanan pada No Bukti ini untuk diproses");
+            //}
 
-            //return Json("", JsonRequestBehavior.AllowGet);
-            var vm = new PackingListViewModel()
-            {
+            ////return Json("", JsonRequestBehavior.AllowGet);
+            //var vm = new PackingListViewModel()
+            //{
 
-            };
+            //};
 
-            vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
-            vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
-            var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == nobuk).ToList();
-            vm.listRekapBarang = new List<RekapBarang>();
-            if (listRekapBarang.Count > 0)
-            {
-                var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
-                for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
-                {
-                    var newData = new RekapBarang
-                    {
-                        BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
-                        NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
-                        QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
-                    };
-                    vm.listRekapBarang.Add(newData);
-                }
-            }
+            //vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+            //vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == nobuk).ToList();
+            //var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == nobuk).ToList();
+            //vm.listRekapBarang = new List<RekapBarang>();
+            //if (listRekapBarang.Count > 0)
+            //{
+            //    var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+            //    for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+            //    {
+            //        var newData = new RekapBarang
+            //        {
+            //            BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+            //            NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+            //            QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+            //        };
+            //        vm.listRekapBarang.Add(newData);
+            //    }
+            //}
 
-            return PartialView("FormPackinglistPartial", vm);
-
+            //return PartialView("FormPackinglistPartial", vm);
+            //end remark 9/9/19, proses dipanggil saat insert pesanan
         }
 
         public ActionResult LihatRekapPackingList(string nobuk, string mode)
@@ -30839,6 +30854,114 @@ namespace MasterOnline.Controllers
 
             return View(retData);
         }
+
+
+        public ActionResult ProsesPesananToPackingList(string[] rows_selected)
+        {
+            var vmError = new PesananViewModel() { };
+            if (rows_selected == null)
+            {
+               
+
+                vmError.Errors.Add("Silahkan pilih pesanan yang akan masuk packing list !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            var listPackinglistinDB = ErasoftDbContext.SOT03B.Select(m => m.NO_PESANAN).ToList();
+            var listorder = new List<SOT01A>();
+            var listBuyer = new List<ARF01C>();
+            var listPesanan = new List<string>();
+            for (int i = 0; i < rows_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(rows_selected[i]))
+                {
+                    Int32 row = Convert.ToInt32(rows_selected[i]);
+                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "02").FirstOrDefault();
+                    if (xx != null)
+                    {
+                        if (!listPackinglistinDB.Contains(xx.NO_BUKTI))
+                        {
+                            listPesanan.Add(xx.NO_BUKTI);
+                        }
+                    }
+                }
+            }
+
+            if (listPesanan.Count > 0)
+            {
+                var newPackinglist = new SOT03A
+                {
+                    TGL = DateTime.Now,
+                    USERNAME = "AUTO_CREATE"
+                };
+                var listPackinglistInDb = ErasoftDbContext.SOT03A.OrderBy(p => p.RecNum).ToList();
+                int? lastRecNum = 0;
+                string nobuk = "";
+                if (listPackinglistInDb.Count == 0)
+                {
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT03A, RESEED, 0)");
+                    lastRecNum++;
+                }
+                else
+                {
+                    lastRecNum = listPackinglistInDb.Last().RecNum;
+                    lastRecNum++;
+                }
+                nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
+                newPackinglist.NO_BUKTI = nobuk;
+                ErasoftDbContext.SOT03A.Add(newPackinglist);
+                ErasoftDbContext.SaveChanges();
+
+
+                foreach (var order in listPesanan)
+                {
+                    var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET WHERE A.NO_BUKTI = '" + order + "'");
+                    if (dsPesanan.Tables[0].Rows.Count > 0)
+                    {
+                        var pesanan = new SOT03B();
+                        pesanan.NO_PESANAN = dsPesanan.Tables[0].Rows[0]["NO_BUKTI"].ToString();
+                        pesanan.TGL_PESANAN = Convert.ToDateTime(dsPesanan.Tables[0].Rows[0]["TGL"]);
+                        pesanan.PEMBELI = dsPesanan.Tables[0].Rows[0]["NAMAPEMESAN"].ToString();
+                        pesanan.MARKETPLACE = dsPesanan.Tables[0].Rows[0]["NAMAMARKET"].ToString();
+                        pesanan.NO_BUKTI = newPackinglist.NO_BUKTI;
+                        pesanan.USERNAME = newPackinglist.USERNAME;
+                        pesanan.TGL_INPUT = newPackinglist.TGL;
+                        ErasoftDbContext.SOT03B.Add(pesanan);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                }
+
+                ProsesDetailPackinglist(newPackinglist.NO_BUKTI);
+                vmError.selectRec = newPackinglist.NO_BUKTI;
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+                //var vm = new PackingListViewModel()
+                //{
+
+                //};
+                //vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == newPackinglist.NO_BUKTI).FirstOrDefault();
+                //vm.listDetailPacking = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == newPackinglist.NO_BUKTI).ToList();
+                //var listRekapBarang = ErasoftDbContext.SOT03C.Where(m => m.NO_BUKTI == newPackinglist.NO_BUKTI).ToList();
+                //vm.listRekapBarang = new List<RekapBarang>();
+                //if (listRekapBarang.Count > 0)
+                //{
+                //    var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + newPackinglist.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
+                //    for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
+                //    {
+                //        var newData = new RekapBarang
+                //        {
+                //            BRG = dsRekap.Tables[0].Rows[i]["BRG"].ToString(),
+                //            NAMA_BARANG = dsRekap.Tables[0].Rows[i]["NAMA_BARANG"].ToString(),
+                //            QTY = Convert.ToInt32(dsRekap.Tables[0].Rows[i]["QTY"].ToString()),
+                //        };
+                //        vm.listRekapBarang.Add(newData);
+                //    }
+                //}
+
+                //return View("FormPackinglistPartial", vm);
+            }
+
+            return JsonErrorMessage("Pesanan yang ada pilih sudah masuk Packing List");
+        }
+
         //end add by Tri 30-08-2019, picking list
 
 

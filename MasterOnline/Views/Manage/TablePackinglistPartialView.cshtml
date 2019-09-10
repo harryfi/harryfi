@@ -73,7 +73,9 @@
                 <tr>
                     <td>@packingList.NO_BUKTI</td>
                     <td>
+                        @if(@packingList.TGL.HasValue){
                         @packingList.TGL.Value.ToString("dd/MM/yyyy")
+                        }
                     </td>
                     <td class="edit-hapus-col">
                         <button class="btn btn-primary" onclick="editPackinglist1('@packingList.NO_BUKTI')">
@@ -99,38 +101,38 @@
                 page,
                 search = ViewData["searchParam"]
             }),
-                 new PagedListRenderOptions
-                 {
-                     LinkToFirstPageFormat = "<<",
-                     LinkToPreviousPageFormat = "prev",
-                     LinkToNextPageFormat = "next",
-                     LinkToLastPageFormat = ">>",
-                     DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                 })
+                      new PagedListRenderOptions
+                      {
+                          LinkToFirstPageFormat = "<<",
+                          LinkToPreviousPageFormat = "prev",
+                          LinkToNextPageFormat = "next",
+                          LinkToLastPageFormat = ">>",
+                          DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                      })
             Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
 
         </div>
     }
 </div>
 <script type="text/javascript">
-        $(function () {
-            $('#tabelpromosipartialpager').on('click', 'a', function () {
-                if (this.href != "") {
-                    $.ajax({
-                        url: this.href,
-                        type: 'GET',
-                        cache: false,
-                        beforeSend: function () {
-                            $('#loading_promosi_tab').show();
-                        },
-                        success: function (response) {
-                            $('#table-promosi-partial').html(response);
-                            $('#loading_promosi_tab').hide();
-                        }
-                    });
-                }
-                return false;
+    $(function () {
+        $('#tabelpromosipartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_promosi_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-promosi-partial').html(response);
+                        $('#loading_promosi_tab').hide();
+                    }
+                });
+            }
+            return false;
 
-            });
         });
+    });
 </script>
