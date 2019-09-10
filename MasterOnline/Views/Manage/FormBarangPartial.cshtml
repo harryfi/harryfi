@@ -155,6 +155,15 @@
 
         getFotoProdukBlibli();
         //end add by calvin 28 februari 2019
+
+        //add by nurul 10/9/2019, buat preview nama barang 
+        $('#Stf02_NAMA').change(function () {
+            $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+        });
+        $('#Stf02_NAMA2').change(function () {
+            $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+        });
+        //end add by nurul 10/9/2019, buat preview nama barang 
     });
 
     function getFotoProdukBlibli() {
@@ -205,19 +214,44 @@
                                                 @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 11, @data_val_length_max = 11, required = "required" })
                                             </div>
                                         </div>
+                                        @*//CHANGE BY NURUL 10/9/2019, buat preview nama barang*@
+                                        @*<div class="form-group">
+            @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-3 col-sm-3 col-xs-12"></div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
+            </div>
+        </div>*@
                                         <div class="form-group">
-                                            @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+                                            <div>
+                                                <div class="col-md-9 col-sm-9 col-xs-12">
+                                                    <div class="form-group">
+                                                        @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                                                        <div class="col-md-8 col-sm-8 col-xs-12">
+                                                            @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="col-md-4 col-sm-4 col-xs-12"></div>
+                                                        <div class="col-md-8 col-sm-8 col-xs-12">
+                                                            @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3 col-sm-3 col-xs-12" style="height:75px; ">
+                                                    <div style="margin-top:-15px">
+                                                        Preview Nama Barang :
+                                                        @Html.TextArea("preview_Nama", Model?.Stf02?.NAMA + " " + Model?.Stf02?.NAMA2, new { @class = "form-control", disabled = "disabled", @style = "height:75px" })
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="col-md-3 col-sm-3 col-xs-12"></div>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @*change by nurul req mas calvin 17/1/2019 -- @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", maxlength = 30 })*@
-                                                @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
-                                            </div>
-                                        </div>
+                                        @*//CHANGE BY NURUL 10/9/2019, buat preview nama barang*@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Sort1, "Kategori Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -251,16 +285,16 @@
                                             </div>
                                         </div>
                                         @*<div class="form-group">
-                                                @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-2 col-sm-2 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
-                                                </div>
-                                            </div>
-                                            <br />
-                                            <div class="text-left">
-                                                <h5>Maximum Stok adalah quantity maksimal yang boleh ada di gudang.</h5>
-                                            </div>
-                                            <br />*@
+            @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-2 col-sm-2 col-xs-12">
+                @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
+            </div>
+        </div>
+        <br />
+        <div class="text-left">
+            <h5>Maximum Stok adalah quantity maksimal yang boleh ada di gudang.</h5>
+        </div>
+        <br />*@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
