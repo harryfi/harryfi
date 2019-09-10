@@ -1680,7 +1680,7 @@ namespace MasterOnline.Controllers
                         myData += "\"minimumStock\": null, ";
                         myData += "\"price\": " + data.Price + ", ";
                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                                                                                //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
+                                                                              //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                         myData += "\"buyable\": " + data.display + ", ";
                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                         myData += "},";
@@ -2179,11 +2179,15 @@ namespace MasterOnline.Controllers
 
                                     foreach (var item in listBrg.content)
                                     {
+                                        ret.totalData += 1;
                                         //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
                                         //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
-                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                        //change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
+                                        //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.productItemCode.ToUpper())).FirstOrDefault();
+                                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper().Contains(item.gdnSku.ToUpper())).FirstOrDefault();
+                                        //end change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
@@ -2365,14 +2369,19 @@ namespace MasterOnline.Controllers
                                 numVarian++;
                             }
                         }
-                        ret.totalData += 1;//add 18 Juli 2019, show total record
+                        //remark 30 agustus 2019, pindah ke getproduct untuk hitung record barang indak dan non varian
+                        //ret.totalData += 1;//add 18 Juli 2019, show total record
+                        //remark 30 agustus 2019, pindah ke getproduct untuk hitung record barang indak dan non varian
                         if (numVarian > 1)
                         {
                             ret.totalData = numVarian;//add 18 Juli 2019, show total record
                             //remove bussiness partner code from productsku -> max length < 20
                             string productSku = result.value.productSku;
                             var splitSku = productSku.Split('-');
-                            string prdCd = result.value.productCode;
+                            //change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
+                            //string prdCd = result.value.productCode;
+                            string prdCd = result.value.gdnSku;
+                            //end change 9/9/19, cek gudang sku karena productitemcode bisa duplikat
                             kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
                             //cek brg induk di db
                             var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP.Contains(prdCd) && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
@@ -2403,7 +2412,7 @@ namespace MasterOnline.Controllers
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
                         //change 25 juli 2019, tukar harga jual dgn harga promo
                         //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
-                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '"+ unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
+                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].salePrice + " , " + result.value.items[0].prices[0].price;
                         //end change 25 juli 2019, tukar harga jual dgn harga promo
                         //change 21/8/2019, barang varian ambil 1 gambar saja
                         if (numVarian > 1)
@@ -3465,13 +3474,17 @@ namespace MasterOnline.Controllers
 
             string desc = result.value.description;
             string categoryCode = result.value.categoryCode.ToString();
+            string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
             //string merchantSku = result.value.items[0].merchantSku.ToString();
             //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += "('" + kdBrg + "' , '' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+            //change 9/9/19, add unique selling point
+            //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
+            //end change 9/9/19, add unique selling point
             sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
             //add kode brg induk dan type brg
             sSQL += ", '' , '4'";
