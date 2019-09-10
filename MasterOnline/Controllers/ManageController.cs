@@ -2081,7 +2081,7 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             string sSQLSelect = "";
-            sSQLSelect += "select c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, sum(a.netto) nilai ";
+            sSQLSelect += "select c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, isnull(sum(a.netto), 0) nilai ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(*) AS JUMLAH FROM ARF01C ";
             string sSQL2 = "";
