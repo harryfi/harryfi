@@ -1368,9 +1368,9 @@
                                 var ANAME = item["ANAME" + (i + 1)];
                                 var AINPUT_TYPE = item["AINPUT_TYPE" + (i + 1)];
                                 var AMANDATORY = item["AMANDATORY" + (i + 1)];
+                                var setCKEditor = false;
                                 if (ANAME != null) {
                                     if (ANAME != "") {
-                                        var setCKEditor = false;
                                         //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
                                         //if (ANAME != "quantity") {
 
@@ -1436,7 +1436,6 @@
 
 
                                         if (loop == 0) {
-
                                             loop = 1;
                                         }
                                         else if (loop == 1) {
@@ -1444,6 +1443,7 @@
                                             if(setCKEditor){
                                                 initCKEditor();
                                                 CKEDITOR.instances[fieldAVALUE_ID].setData(adaValue);
+                                                setCKEditor = false;
                                             }
                                             fieldAVALUE = "";
                                             loop = 0;
