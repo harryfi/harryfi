@@ -1362,13 +1362,16 @@
                     var SelectList = [];
                     $.each(data,
                         function (i, item) {
+                            var setCKEditor = false;
+                            var CKEditorInstanceName = "";
+                            var CKEditorAdaValue = "";
+
                             for (var i = 0; i < 50; i++) {
                                 var ALABEL = item["ALABEL" + (i + 1)];
                                 var ATYPE = item["ATYPE" + (i + 1)];
                                 var ANAME = item["ANAME" + (i + 1)];
                                 var AINPUT_TYPE = item["AINPUT_TYPE" + (i + 1)];
                                 var AMANDATORY = item["AMANDATORY" + (i + 1)];
-                                var setCKEditor = false;
                                 if (ANAME != null) {
                                     if (ANAME != "") {
                                         //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
@@ -1426,6 +1429,8 @@
                                                     //fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + removeTag(adaValue) + '"></div>';
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" rows="2" style="resize: none; width:100%;">' + (adaValue) + '</textarea></div>';
                                                     setCKEditor = true;
+                                                    CKEditorInstanceName = fieldAVALUE_ID;
+                                                    CKEditorAdaValue = adaValue;
                                                 } else {
                                                     fieldAVALUE += '<div class="col-md-4 form-group"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control removeHTMLTag" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                                 }
@@ -1442,8 +1447,10 @@
                                             $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
                                             if(setCKEditor){
                                                 initCKEditor();
-                                                CKEDITOR.instances[fieldAVALUE_ID].setData(adaValue);
+                                                CKEDITOR.instances[CKEditorInstanceName].setData(CKEditorAdaValue);
                                                 setCKEditor = false;
+                                                CKEditorInstanceName = "";
+                                                CKEditorAdaValue = "";
                                             }
                                             fieldAVALUE = "";
                                             loop = 0;

@@ -3209,8 +3209,13 @@ namespace MasterOnline.Controllers
             //end add by calvin 10 mei 2019
 
             //add by calvin 10 september 2019
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
-            HttpBody.description = HttpBody.description.Replace("<li>", "").Replace("</li>", "\r\n ");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+            
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
 
