@@ -3208,6 +3208,12 @@ namespace MasterOnline.Controllers
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
 
+            //add by calvin 10 september 2019
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<li>", "").Replace("</li>", "\r\n ");
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by calvin 10 september 2019
+
             //add by calvin 1 mei 2019
             var qty_stock = new StokControllerJob(dbPathEra, username).GetQOHSTF08A(brg, "ALL");
             if (qty_stock > 0)
