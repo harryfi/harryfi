@@ -5397,6 +5397,15 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                $beforeState.brutto = $('#Pesanan_BRUTO').val();
+                                $beforeState.netto = $('#Pesanan_NETTO').val();
+                                $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
+                                $beforeState.ppn = $('#Pesanan_PPN').val();
+                                $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
+                                $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
                                     $('#Pesanan_BRUTO').val(convertToRupiah(0));
