@@ -958,6 +958,8 @@ namespace MasterOnline.Controllers
                                                 eraDB.SaveChanges();
                                                 if (ret.lastRow[file_index] == 0)
                                                     ret.lastRow[file_index] = worksheet.Dimension.End.Row;
+
+                                                var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
                                             }
                                             else
                                             {
