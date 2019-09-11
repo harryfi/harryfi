@@ -24396,7 +24396,14 @@ namespace MasterOnline.Controllers
                                                 #region attribute mp
                                                 dupeStf02h.ACODE_1 = stf02h_induk.ACODE_1;
                                                 dupeStf02h.ANAME_1 = stf02h_induk.ANAME_1;
-                                                dupeStf02h.AVALUE_1 = stf02h_induk.AVALUE_1;
+                                                if (dupeStf02h.ACODE_1 == "short_description" && dupeStf02h.ANAME_1 == "Short Description")
+                                                {
+                                                    dupeStf02h.AVALUE_1 = HttpUtility.HtmlDecode(stf02h_induk.AVALUE_1);
+                                                }
+                                                else
+                                                {
+                                                    dupeStf02h.AVALUE_1 = stf02h_induk.AVALUE_1;
+                                                }
                                                 dupeStf02h.ACODE_2 = stf02h_induk.ACODE_2;
                                                 dupeStf02h.ANAME_2 = stf02h_induk.ANAME_2;
                                                 dupeStf02h.AVALUE_2 = stf02h_induk.AVALUE_2;
@@ -24670,7 +24677,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                     brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                                     brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                                     brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -24858,7 +24872,14 @@ namespace MasterOnline.Controllers
                                 #region attribute mp
                                 brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                 brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                                brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                {
+                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                }
+                                else
+                                {
+                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                }
                                 brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                                 brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                                 brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -25138,7 +25159,14 @@ namespace MasterOnline.Controllers
                             #region attribute mp
                             brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                             brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                            brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                            {
+                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                            }
+                            else
+                            {
+                                brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                            }
                             brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                             brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                             brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -25587,7 +25615,14 @@ namespace MasterOnline.Controllers
                     #region attribute mp
                     brgMp.ACODE_1 = tempBrg.ACODE_1;
                     brgMp.ANAME_1 = tempBrg.ANAME_1;
-                    brgMp.AVALUE_1 = tempBrg.AVALUE_1;
+                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                    {
+                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrg.AVALUE_1);
+                    }
+                    else
+                    {
+                        brgMp.AVALUE_1 = tempBrg.AVALUE_1;
+                    }
                     brgMp.ACODE_2 = tempBrg.ACODE_2;
                     brgMp.ANAME_2 = tempBrg.ANAME_2;
                     brgMp.AVALUE_2 = tempBrg.AVALUE_2;
@@ -26028,7 +26063,14 @@ namespace MasterOnline.Controllers
                                             #region attribute mp
                                             brgMp.ACODE_1 = item.ACODE_1;
                                             brgMp.ANAME_1 = item.ANAME_1;
-                                            brgMp.AVALUE_1 = item.AVALUE_1;
+                                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                            {
+                                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                            }
+                                            else
+                                            {
+                                                brgMp.AVALUE_1 = item.AVALUE_1;
+                                            }
                                             brgMp.ACODE_2 = item.ACODE_2;
                                             brgMp.ANAME_2 = item.ANAME_2;
                                             brgMp.AVALUE_2 = item.AVALUE_2;
@@ -26240,7 +26282,14 @@ namespace MasterOnline.Controllers
                                         #region attribute mp
                                         brgMp.ACODE_1 = item.ACODE_1;
                                         brgMp.ANAME_1 = item.ANAME_1;
-                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                        if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                        {
+                                            brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                        }
+                                        else
+                                        {
+                                            brgMp.AVALUE_1 = item.AVALUE_1;
+                                        }
                                         brgMp.ACODE_2 = item.ACODE_2;
                                         brgMp.ANAME_2 = item.ANAME_2;
                                         brgMp.AVALUE_2 = item.AVALUE_2;
@@ -26624,7 +26673,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
-                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = item.ACODE_2;
                                     brgMp.ANAME_2 = item.ANAME_2;
                                     brgMp.AVALUE_2 = item.AVALUE_2;
@@ -27670,7 +27726,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
-                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = item.ACODE_2;
                                     brgMp.ANAME_2 = item.ANAME_2;
                                     brgMp.AVALUE_2 = item.AVALUE_2;
@@ -27819,6 +27882,12 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    //add by calvin 11 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                    #endregion
                                     if (customer.NAMA == "7")
                                     {
                                         //merek
@@ -27863,7 +27932,14 @@ namespace MasterOnline.Controllers
                                 #region attribute mp
                                 brgMp.ACODE_1 = item.ACODE_1;
                                 brgMp.ANAME_1 = item.ANAME_1;
-                                brgMp.AVALUE_1 = item.AVALUE_1;
+                                if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                {
+                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                }
+                                else
+                                {
+                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                }
                                 brgMp.ACODE_2 = item.ACODE_2;
                                 brgMp.ANAME_2 = item.ANAME_2;
                                 brgMp.AVALUE_2 = item.AVALUE_2;
@@ -28012,6 +28088,12 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = item.ANAME_50;
                                 brgMp.AVALUE_50 = item.AVALUE_50;
                                 #endregion
+                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                                brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                #endregion
                                 if (customer.NAMA == "7")
                                 {
                                     //merek
@@ -28152,7 +28234,14 @@ namespace MasterOnline.Controllers
                             #region attribute mp
                             brgMp.ACODE_1 = item.ACODE_1;
                             brgMp.ANAME_1 = item.ANAME_1;
-                            brgMp.AVALUE_1 = item.AVALUE_1;
+                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                            {
+                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                            }
+                            else
+                            {
+                                brgMp.AVALUE_1 = item.AVALUE_1;
+                            }
                             brgMp.ACODE_2 = item.ACODE_2;
                             brgMp.ANAME_2 = item.ANAME_2;
                             brgMp.AVALUE_2 = item.AVALUE_2;
@@ -28300,6 +28389,12 @@ namespace MasterOnline.Controllers
                             brgMp.ACODE_50 = item.ACODE_50;
                             brgMp.ANAME_50 = item.ANAME_50;
                             brgMp.AVALUE_50 = item.AVALUE_50;
+                            #endregion
+                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                             #endregion
                             if (customer.NAMA == "7")
                             {
