@@ -1038,7 +1038,7 @@ namespace MasterOnline.Controllers
             string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
             sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01B WHERE TGL_INPUT >= '" + tempDrtgl + "' AND TGL_INPUT <= '" + tempSdtgl + "' AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
             //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
-            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '03' ORDER BY SUM_QTY DESC ";
+            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyInPesanan)
             {
@@ -1369,7 +1369,7 @@ namespace MasterOnline.Controllers
             sSql1 += "		GROUP BY B.BRG)A ";
             sSql1 += "	GROUP BY BRG  ";
             sSql1 += "	) A  ";
-            sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '03' ";
+            sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
             sSql1 += ") A  ";
             sSql1 += "left join  ";
             sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "')B ";
