@@ -1,0 +1,81 @@
+﻿@{
+    ViewBag.Title = "Prompt Brand Lazada";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+<style>
+    
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+</style>
+<div>
+    <div class="row">
+        <div class="col-lg-4 col-sm-6">
+            <div class="input-group">
+                <input id="search_prompt" type="text" class="form-control" placeholder="Pencarian">
+                <span class="input-group-btn">
+                    <button type="button" id="search_prompt_btn" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 5px;">
+        <div class="col-sm-12" id="divPartial">
+            @*@Html.Partial("TablePromptBrandLazada")*@
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        refreshTablePrompt();
+    });
+
+    $('#search_prompt').keypress(function (e) {
+        var key = e.which;
+        if (key == 13)// the enter key code
+        {
+            refreshTablePrompt();
+            return false;
+        }
+    });
+    $('#search_prompt_btn').click(function () {
+        refreshTablePrompt();
+    });
+
+    function refreshTablePrompt() {
+        var $link = '@Html.Raw(Url.Action("RefreshBrandLazada", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+        $link = $link.replace("replaceSearch", $('#search_prompt').val());
+        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                //$('#divPartial').hide();
+                $('#loading_prompt').show();
+            },
+            success: function (response) {
+                $('#divPartial').html(response);
+                $('#loading_prompt').hide();
+                //$('#divPartial').show();
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function pilihPrompt($value,$name) {
+        self.window.close();
+        window.onunload = refreshTextBox;
+        function refreshTextBox() {
+            window.opener.afterPromptBrandLazada($value, $name);
+        }
+    }
+</script>

@@ -1362,6 +1362,74 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+
+
+        public class BrandsLazada
+        {
+            public string code { get; set; }
+            public BrandsData[] data { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class BrandsData
+        {
+            public string name { get; set; }
+            public string brand_id { get; set; }
+            public string global_identifier { get; set; }
+            public string name_en { get; set; }
+        }
+
+        public BindingBase GetBrand(string cust, string accessToken, int offset)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/brands/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("offset", Convert.ToString( offset));
+            request.AddApiParameter("limit", "1000");
+
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindBrands = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(BrandsLazada)) as BrandsLazada;
+                if (bindBrands != null)
+                {
+                    var tempBrandLzd = MoDbContext.BrandLazada.Select(p=>p.brand_id).ToList();
+                    List<BRAND_LAZADA> inputBatch = new List<BRAND_LAZADA>();
+                    foreach (BrandsData data in bindBrands.data)
+                    {
+                        if (!tempBrandLzd.Contains(data.brand_id))
+                        {
+                            var newBrand = new BRAND_LAZADA();
+                            newBrand.brand_id = data.brand_id;
+                            newBrand.name = data.name;
+                            newBrand.global_identifier = data.global_identifier;
+                            newBrand.name_en = data.name_en;
+
+                            inputBatch.Add(newBrand);
+                        }
+                    }
+                    if (inputBatch.Count > 0)
+                    {
+                        MoDbContext.BrandLazada.AddRange(inputBatch);
+                        MoDbContext.SaveChanges();
+                    }
+                    if (bindBrands.data.Count() == 1000)
+                    {
+                        GetBrand(cust, accessToken, offset + 1000);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+            }
+            return ret;
+        }
+
         public BindingBase GetShipment(string cust, string accessToken)
         {
             var ret = new BindingBase();

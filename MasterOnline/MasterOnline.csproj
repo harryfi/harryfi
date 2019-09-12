@@ -706,6 +706,7 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
+    <Compile Include="Models\BRAND_LAZADA.cs" />
     <Compile Include="Models\CATEGORY_BUKALAPAK.cs" />
     <Compile Include="Models\CATEGORY_JDID.cs" />
     <Compile Include="Models\CATEGORY_TOKPED.cs" />
@@ -6126,6 +6127,8 @@
     <Content Include="Views\Manage\TableKirimPartial.cshtml" />
     <Content Include="Views\Manage\BarangKirimPartial.cshtml" />
     <Content Include="Views\Manage\CetakPengiriman.cshtml" />
+    <Content Include="Views\Manage\PromptBrandLazada.cshtml" />
+    <Content Include="Views\Manage\TablePromptBrandLazada.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

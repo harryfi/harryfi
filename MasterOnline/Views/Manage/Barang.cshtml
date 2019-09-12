@@ -3937,7 +3937,7 @@
                                     IsValid = false;
                                 }
                             });
-                            
+
                             if (!IsValid) {
                                 switch (listMarket[i].NAMA) {
                                     case "17":
@@ -3958,7 +3958,7 @@
                                     case "19":
                                         errorJDID = 1;
                                         break;
-                                }   
+                                }
                             }
                         }
                     }
@@ -3971,9 +3971,9 @@
 
             var valid = validateForm();
             var valid2 = cekValidasi();
-            
 
-            
+
+
             if (!valid || !valid2) { $(btnClicked).attr("disabled", false); }
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
@@ -4314,7 +4314,7 @@
                     disableFotoProdukSection();
                     //GetStrukturVariant();
                     //GetDetailBarangVariant();
-                    
+
                     $('#simpan_btn').hide();
                     $('#next_btn').show();
                     $('#div_info_harga_variant').show();
@@ -4473,6 +4473,25 @@
             $('#ListHargaJualPermarket_' + PromptPickupPointBlibliTextBox + '__PICKUP_POINT').val(val);
         }
         //END ADD BY CALVIN 8 JULY 2018, PROMPT
+        //ADD BY CALVIN 11 SEPTEMBER 2019, PROMPT LAZADA BRAND
+        var PromptBrandLazadaTextBox = "";
+        function PromptBrandLazada(i, r) {
+            PromptBrandLazadaTextBox = i;
+            showPromptBrandLazadaTextBoxWindow(r);
+        }
+
+        function showPromptBrandLazadaTextBoxWindow(val) {
+            var $link = '@Url.Action("PromptBrandLazada", "Manage",new { merchant_code = "replaceKodeMerchant"})';
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandLazada(val,name) {
+            $('#Brand' + PromptBrandLazadaTextBox + 'Lazada').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrandLazadaTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandLazadaTextBox + '__ANAME_38').val(name);
+        }
+        //END ADD BY CALVIN 11 SEPTEMBER 2019, PROMPT LAZADA BRAND
+
         function ConvertToAngkaRupiah(source) {
             if (source.value == '') {
                 source.value = 0;
@@ -4524,8 +4543,8 @@
                 url: link,
                 success: function (response) {
                     if (response.Errors == null) {
-                        
-                    } else {               
+
+                    } else {
                         $('#cbxStf02Type').prop('checked', false);
                         //checkbox on click event
                         var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
