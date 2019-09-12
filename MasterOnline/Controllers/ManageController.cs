@@ -18507,6 +18507,33 @@ namespace MasterOnline.Controllers
             //    username = "Calvintes"
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
+
+            //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
+            //if (listBLIShop.Count > 0)
+            //{
+            //    //remark by calvin 1 april 2019
+            //    //var BliApi = new BlibliController();
+            //    foreach (ARF01 tblCustomer in listBLIShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //        {
+            //            BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+            //            {
+            //                API_client_username = tblCustomer.API_CLIENT_U,
+            //                API_client_password = tblCustomer.API_CLIENT_P,
+            //                API_secret_key = tblCustomer.API_KEY,
+            //                mta_username_email_merchant = tblCustomer.EMAIL,
+            //                mta_password_password_merchant = tblCustomer.PASSWORD,
+            //                merchant_code = tblCustomer.Sort1_Cust,
+            //                token = tblCustomer.TOKEN,
+            //                idmarket = tblCustomer.RecNum.Value,
+            //                DatabasePathErasoft = dbPathEra,
+            //                username = "ctes"
+            //            };
+            //            await new BlibliControllerJob().GetQueueFeedDetail(data, null);
+            //        }
+            //    }
+            //}
             return View();
         }
 
@@ -24369,7 +24396,14 @@ namespace MasterOnline.Controllers
                                                 #region attribute mp
                                                 dupeStf02h.ACODE_1 = stf02h_induk.ACODE_1;
                                                 dupeStf02h.ANAME_1 = stf02h_induk.ANAME_1;
-                                                dupeStf02h.AVALUE_1 = stf02h_induk.AVALUE_1;
+                                                if (dupeStf02h.ACODE_1 == "short_description" && dupeStf02h.ANAME_1 == "Short Description")
+                                                {
+                                                    dupeStf02h.AVALUE_1 = HttpUtility.HtmlDecode(stf02h_induk.AVALUE_1);
+                                                }
+                                                else
+                                                {
+                                                    dupeStf02h.AVALUE_1 = stf02h_induk.AVALUE_1;
+                                                }
                                                 dupeStf02h.ACODE_2 = stf02h_induk.ACODE_2;
                                                 dupeStf02h.ANAME_2 = stf02h_induk.ANAME_2;
                                                 dupeStf02h.AVALUE_2 = stf02h_induk.AVALUE_2;
@@ -24518,6 +24552,8 @@ namespace MasterOnline.Controllers
                                                 dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                                 dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
                                                 #endregion
+                                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                                dupeStf02h.AVALUE_39 = HttpUtility.HtmlEncode(stf02h_induk.AVALUE_39);
                                                 dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                                 dupeStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                                 dupeStf02h.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -24641,7 +24677,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                     brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                                     brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                                     brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -24790,6 +24833,8 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                     brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                     #endregion
+                                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -24827,7 +24872,14 @@ namespace MasterOnline.Controllers
                                 #region attribute mp
                                 brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                 brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                                brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                {
+                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                                }
+                                else
+                                {
+                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                }
                                 brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                                 brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                                 brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -24976,6 +25028,8 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                 #endregion
+                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                 brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                 brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -25105,7 +25159,14 @@ namespace MasterOnline.Controllers
                             #region attribute mp
                             brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                             brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                            brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                            {
+                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(data.TempBrg.AVALUE_1);
+                            }
+                            else
+                            {
+                                brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                            }
                             brgMp.ACODE_2 = data.TempBrg.ACODE_2;
                             brgMp.ANAME_2 = data.TempBrg.ANAME_2;
                             brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
@@ -25254,6 +25315,8 @@ namespace MasterOnline.Controllers
                             brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                             brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                             #endregion
+                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                             brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -25552,7 +25615,14 @@ namespace MasterOnline.Controllers
                     #region attribute mp
                     brgMp.ACODE_1 = tempBrg.ACODE_1;
                     brgMp.ANAME_1 = tempBrg.ANAME_1;
-                    brgMp.AVALUE_1 = tempBrg.AVALUE_1;
+                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                    {
+                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(tempBrg.AVALUE_1);
+                    }
+                    else
+                    {
+                        brgMp.AVALUE_1 = tempBrg.AVALUE_1;
+                    }
                     brgMp.ACODE_2 = tempBrg.ACODE_2;
                     brgMp.ANAME_2 = tempBrg.ANAME_2;
                     brgMp.AVALUE_2 = tempBrg.AVALUE_2;
@@ -25701,6 +25771,8 @@ namespace MasterOnline.Controllers
                     brgMp.ANAME_50 = tempBrg.ANAME_50;
                     brgMp.AVALUE_50 = tempBrg.AVALUE_50;
                     #endregion
+                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -25991,7 +26063,14 @@ namespace MasterOnline.Controllers
                                             #region attribute mp
                                             brgMp.ACODE_1 = item.ACODE_1;
                                             brgMp.ANAME_1 = item.ANAME_1;
-                                            brgMp.AVALUE_1 = item.AVALUE_1;
+                                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                            {
+                                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                            }
+                                            else
+                                            {
+                                                brgMp.AVALUE_1 = item.AVALUE_1;
+                                            }
                                             brgMp.ACODE_2 = item.ACODE_2;
                                             brgMp.ANAME_2 = item.ANAME_2;
                                             brgMp.AVALUE_2 = item.AVALUE_2;
@@ -26140,6 +26219,12 @@ namespace MasterOnline.Controllers
                                             brgMp.ANAME_50 = item.ANAME_50;
                                             brgMp.AVALUE_50 = item.AVALUE_50;
                                             #endregion
+                                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
+                                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                            #endregion
                                             if (customer.NAMA == "7")
                                             {
                                                 //merek
@@ -26197,7 +26282,14 @@ namespace MasterOnline.Controllers
                                         #region attribute mp
                                         brgMp.ACODE_1 = item.ACODE_1;
                                         brgMp.ANAME_1 = item.ANAME_1;
-                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                        if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                        {
+                                            brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                        }
+                                        else
+                                        {
+                                            brgMp.AVALUE_1 = item.AVALUE_1;
+                                        }
                                         brgMp.ACODE_2 = item.ACODE_2;
                                         brgMp.ANAME_2 = item.ANAME_2;
                                         brgMp.AVALUE_2 = item.AVALUE_2;
@@ -26347,6 +26439,8 @@ namespace MasterOnline.Controllers
                                         brgMp.AVALUE_50 = item.AVALUE_50;
                                         #endregion
 
+                                        //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                        brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                         brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                         brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                         brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -26579,7 +26673,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
-                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = item.ACODE_2;
                                     brgMp.ANAME_2 = item.ANAME_2;
                                     brgMp.AVALUE_2 = item.AVALUE_2;
@@ -26728,6 +26829,8 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
@@ -27623,7 +27726,14 @@ namespace MasterOnline.Controllers
                                     #region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
-                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                    if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                    {
+                                        brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                    }
+                                    else
+                                    {
+                                        brgMp.AVALUE_1 = item.AVALUE_1;
+                                    }
                                     brgMp.ACODE_2 = item.ACODE_2;
                                     brgMp.ANAME_2 = item.ANAME_2;
                                     brgMp.AVALUE_2 = item.AVALUE_2;
@@ -27772,6 +27882,12 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    //add by calvin 11 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                    brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                                    brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                    brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                    brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                    #endregion
                                     if (customer.NAMA == "7")
                                     {
                                         //merek
@@ -27816,7 +27932,14 @@ namespace MasterOnline.Controllers
                                 #region attribute mp
                                 brgMp.ACODE_1 = item.ACODE_1;
                                 brgMp.ANAME_1 = item.ANAME_1;
-                                brgMp.AVALUE_1 = item.AVALUE_1;
+                                if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                                {
+                                    brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                                }
+                                else
+                                {
+                                    brgMp.AVALUE_1 = item.AVALUE_1;
+                                }
                                 brgMp.ACODE_2 = item.ACODE_2;
                                 brgMp.ANAME_2 = item.ANAME_2;
                                 brgMp.AVALUE_2 = item.AVALUE_2;
@@ -27965,6 +28088,12 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = item.ANAME_50;
                                 brgMp.AVALUE_50 = item.AVALUE_50;
                                 #endregion
+                                //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                                brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                                brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                                brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                                brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                #endregion
                                 if (customer.NAMA == "7")
                                 {
                                     //merek
@@ -28105,7 +28234,14 @@ namespace MasterOnline.Controllers
                             #region attribute mp
                             brgMp.ACODE_1 = item.ACODE_1;
                             brgMp.ANAME_1 = item.ANAME_1;
-                            brgMp.AVALUE_1 = item.AVALUE_1;
+                            if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
+                            {
+                                brgMp.AVALUE_1 = HttpUtility.HtmlDecode(item.AVALUE_1);
+                            }
+                            else
+                            {
+                                brgMp.AVALUE_1 = item.AVALUE_1;
+                            }
                             brgMp.ACODE_2 = item.ACODE_2;
                             brgMp.ANAME_2 = item.ANAME_2;
                             brgMp.AVALUE_2 = item.AVALUE_2;
@@ -28253,6 +28389,12 @@ namespace MasterOnline.Controllers
                             brgMp.ACODE_50 = item.ACODE_50;
                             brgMp.ANAME_50 = item.ANAME_50;
                             brgMp.AVALUE_50 = item.AVALUE_50;
+                            #endregion
+                            //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
+                            brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
+                            brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
+                            brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                            brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
                             #endregion
                             if (customer.NAMA == "7")
                             {

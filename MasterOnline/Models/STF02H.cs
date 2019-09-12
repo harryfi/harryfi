@@ -1,6 +1,7 @@
 namespace MasterOnline
 {
     using System;
+    using System.Web.Mvc;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -69,6 +70,7 @@ namespace MasterOnline
         public string ANAME_1 { get; set; }
 
         //[StringLength(250)]
+        [AllowHtml] // short description lazada
         public string AVALUE_1 { get; set; }
 
         [StringLength(50)]
@@ -411,6 +413,7 @@ namespace MasterOnline
         public string ANAME_39 { get; set; }
 
         //[StringLength(250)]
+        [AllowHtml]//uniquesellingpoint blibli
         public string AVALUE_39 { get; set; }
 
         [StringLength(50)]

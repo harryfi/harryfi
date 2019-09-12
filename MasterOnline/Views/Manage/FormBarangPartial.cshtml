@@ -72,15 +72,27 @@
         vertical-align: middle;
     }
 </style>
+<script src="~/Scripts/ckeditor/ckeditor.js"></script>
 <script type="text/javascript">
     @{
         var model_listhargajualpermarketview = Model.ListHargaJualPermarketView;
     }
     var model_listhargajualpermarketview = @Html.Raw(Json.Encode(model_listhargajualpermarketview));
+    
+    function initCKEditor(){
+        $('.make_ckeditor').each(function (i, item) {
+            if ($('#cke_' + item.id).length == 0) {
+                CKEDITOR.replace(item.id);
+            }
+        });
+    }
 
     $(document).ready(function () {
         Initialize();
         initRequired();
+
+        initCKEditor();
+
         $(function () {
             $('#setting-detail-market-tabs a:first').tab('show');
         });
@@ -298,7 +310,7 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control", required = "required", minlength = 30 })
+                                                @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control make_ckeditor", required = "required", minlength = 30 })
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -857,10 +869,10 @@
                                                                                             @*@Html.TextArea("UniqueSellingPoint" + i + "Blibli", "", new { @style = "resize: none; width:max;", @class = "form-control form-group", data_valid_toggle_required = "1", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39 })*@
                                                                                             @{
                                                                                                 string idUniqueSellingPoint = "ListHargaJualPermarket_" + i + "__AVALUE_39";
-                                                                                                string ValueUniqueSellingPoint = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39;
+                                                                                                string ValueUniqueSellingPoint = HttpUtility.HtmlDecode(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_39);
                                                                                                 string nameUniqueSellingPoint = "ListHargaJualPermarket[" + i + "].AVALUE_39";
                                                                                             }
-                                                                                            <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control removeHTMLTag" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
+                                                                                            <textarea cols="20" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required." class="form-control make_ckeditor" id="@idUniqueSellingPoint" name="@nameUniqueSellingPoint" rows="2" style="resize: none; width:100%;">@ValueUniqueSellingPoint</textarea>
                                                                                             @*</div>*@
                                                                                         </div>
                                                                                     </div>

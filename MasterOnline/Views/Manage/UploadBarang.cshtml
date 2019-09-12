@@ -945,11 +945,11 @@
                 });
             }
         }
-        function removeTag(html) {
-            var tmp = document.createElement("DIV");
-            tmp.innerHTML = html;
-            return tmp.textContent || tmp.innerText || "";
-        }
+        //function removeTag(html) {
+        //    var tmp = document.createElement("DIV");
+        //    tmp.innerHTML = html;
+        //    return tmp.textContent || tmp.innerText || "";
+        //}
 
         function GenerateTokped() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
@@ -1608,8 +1608,10 @@
                 $('#Stf02_STN2').val(data.STN2);
                 $('#Stf02_MINI').val(data.MINI);
                 $('#Stf02_MAXI').val(data.MAXI);
-                if (data.Deskripsi != '')
-                    $('#Stf02_Deskripsi').val(removeTag(data.Deskripsi));
+                if (data.Deskripsi != '') {
+                    $('#Stf02_Deskripsi').val(data.Deskripsi);
+                    CKEDITOR.instances['Stf02_Deskripsi'].setData(data.Deskripsi);
+                }
                 $('#Stf02_BERAT').val(data.BERAT);
                 $('#Stf02_PANJANG').val(data.PANJANG);
                 $('#Stf02_LEBAR').val(data.LEBAR);

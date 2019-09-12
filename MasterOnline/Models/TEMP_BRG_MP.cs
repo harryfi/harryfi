@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Mvc;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -401,6 +402,7 @@ namespace MasterOnline.Models
         public string ANAME_39 { get; set; }
 
         //[StringLength(250)]
+        [AllowHtml]
         public string AVALUE_39 { get; set; }
 
         [StringLength(50)]
