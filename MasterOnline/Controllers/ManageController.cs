@@ -8031,6 +8031,34 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult PromptBrandLazada(string merchant_code)
+        {
+            try
+            {
+                return View("PromptBrandLazada");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
+        public ActionResult RefreshBrandLazada(int? page, string search = "") {
+
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+
+            var BrandLazada = (from p in MoDbContext.BrandLazada
+                               where p.name.Contains(search)
+                               orderby p.name
+                               select p);
+            var PromptModel = BrandLazada.Skip(pagenumber * 5).Take(5).ToList();
+
+            IPagedList<BRAND_LAZADA> pageOrders = new StaticPagedList<BRAND_LAZADA>(PromptModel, pagenumber + 1, 5, BrandLazada.Count());
+            return PartialView("TablePromptBrandLazada", pageOrders);
+        }
 
         protected JsonResult JsonErrorMessage(string message)
         {
@@ -18479,33 +18507,6 @@ namespace MasterOnline.Controllers
             //    username = "Calvintes"
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
-
-            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
-            if (listBLIShop.Count > 0)
-            {
-                //remark by calvin 1 april 2019
-                //var BliApi = new BlibliController();
-                foreach (ARF01 tblCustomer in listBLIShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                    {
-                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
-                        {
-                            API_client_username = tblCustomer.API_CLIENT_U,
-                            API_client_password = tblCustomer.API_CLIENT_P,
-                            API_secret_key = tblCustomer.API_KEY,
-                            mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD,
-                            merchant_code = tblCustomer.Sort1_Cust,
-                            token = tblCustomer.TOKEN,
-                            idmarket = tblCustomer.RecNum.Value,
-                            DatabasePathErasoft = dbPathEra,
-                            username = "ctes"
-                        };
-                        await new BlibliControllerJob().GetQueueFeedDetail(data, null);
-                    }
-                }
-            }
             return View();
         }
 
@@ -24520,6 +24521,16 @@ namespace MasterOnline.Controllers
                                                 dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                                 dupeStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                                 dupeStf02h.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                                if (customer.NAMA == "7")
+                                                {
+                                                    //merek
+                                                    var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                                    if (getKodeMerk != null)
+                                                    {
+                                                        dupeStf02h.ANAME_38 = data.TempBrg.MEREK;
+                                                        dupeStf02h.AVALUE_38 = getKodeMerk.brand_id;
+                                                    }
+                                                }
                                                 ErasoftDbContext.STF02H.Add(dupeStf02h);
                                                 if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
                                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
@@ -24782,6 +24793,16 @@ namespace MasterOnline.Controllers
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                    if (customer.NAMA == "7")
+                                    {
+                                        //merek
+                                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                        if (getKodeMerk != null)
+                                        {
+                                            brgMp.ANAME_38 = data.TempBrg.MEREK;
+                                            brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                        }
+                                    }
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
@@ -24958,6 +24979,16 @@ namespace MasterOnline.Controllers
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                 brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                 brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                if (customer.NAMA == "7")
+                                {
+                                    //merek
+                                    var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                    if (getKodeMerk != null)
+                                    {
+                                        brgMp.ANAME_38 = data.TempBrg.MEREK;
+                                        brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                    }
+                                }
                                 ErasoftDbContext.STF02H.Add(brgMp);
                                 ErasoftDbContext.SaveChanges();
 
@@ -25226,6 +25257,16 @@ namespace MasterOnline.Controllers
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                             brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                            if (customer.NAMA == "7")
+                            {
+                                //merek
+                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == data.TempBrg.MEREK).FirstOrDefault();
+                                if (getKodeMerk != null)
+                                {
+                                    brgMp.ANAME_38 = data.TempBrg.MEREK;
+                                    brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                }
+                            }
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
 
@@ -25663,6 +25704,16 @@ namespace MasterOnline.Controllers
                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                    if (customer.NAMA == "7")
+                    {
+                        //merek
+                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == tempBrg.MEREK).FirstOrDefault();
+                        if (getKodeMerk != null)
+                        {
+                            brgMp.ANAME_38 = tempBrg.MEREK;
+                            brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                        }
+                    }
                     if (insertSTF02h)
                         eraDB.STF02H.Add(brgMp);
                     eraDB.SaveChanges();
@@ -26089,6 +26140,16 @@ namespace MasterOnline.Controllers
                                             brgMp.ANAME_50 = item.ANAME_50;
                                             brgMp.AVALUE_50 = item.AVALUE_50;
                                             #endregion
+                                            if (customer.NAMA == "7")
+                                            {
+                                                //merek
+                                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                                if (getKodeMerk != null)
+                                                {
+                                                    brgMp.ANAME_38 = item.MEREK;
+                                                    brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                                }
+                                            }
                                             eraDB.SaveChanges();
                                             listBrgSuccess.Add(item.BRG_MP);
 
@@ -26289,6 +26350,16 @@ namespace MasterOnline.Controllers
                                         brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                         brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                         brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                        if (customer.NAMA == "7")
+                                        {
+                                            //merek
+                                            var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                            if (getKodeMerk != null)
+                                            {
+                                                brgMp.ANAME_38 = item.MEREK;
+                                                brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                            }
+                                        }
                                         eraDB.STF02H.Add(brgMp);
                                         eraDB.SaveChanges();
                                         listBrgSuccess.Add(item.BRG_MP);
@@ -26660,6 +26731,16 @@ namespace MasterOnline.Controllers
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
+                                    if (customer.NAMA == "7")
+                                    {
+                                        //merek
+                                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                        if (getKodeMerk != null)
+                                        {
+                                            brgMp.ANAME_38 = item.MEREK;
+                                            brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                        }
+                                    }
                                     eraDB.STF02H.Add(brgMp);
 
                                     //change 17 juni 2019, handle gagal save
@@ -27691,6 +27772,16 @@ namespace MasterOnline.Controllers
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
                                     #endregion
+                                    if (customer.NAMA == "7")
+                                    {
+                                        //merek
+                                        var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                        if (getKodeMerk != null)
+                                        {
+                                            brgMp.ANAME_38 = item.MEREK;
+                                            brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                        }
+                                    }
                                     ErasoftDbContext.SaveChanges();
                                     listBrgSuccess.Add(item.BRG_MP);
                                     listKodeSudahDiproses.Add(item.SELLER_SKU);
@@ -27874,6 +27965,16 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = item.ANAME_50;
                                 brgMp.AVALUE_50 = item.AVALUE_50;
                                 #endregion
+                                if (customer.NAMA == "7")
+                                {
+                                    //merek
+                                    var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                    if (getKodeMerk != null)
+                                    {
+                                        brgMp.ANAME_38 = item.MEREK;
+                                        brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                    }
+                                }
                                 ErasoftDbContext.STF02H.Add(brgMp);
                                 ErasoftDbContext.SaveChanges();
                                 listBrgSuccess.Add(item.BRG_MP);
@@ -28153,6 +28254,16 @@ namespace MasterOnline.Controllers
                             brgMp.ANAME_50 = item.ANAME_50;
                             brgMp.AVALUE_50 = item.AVALUE_50;
                             #endregion
+                            if (customer.NAMA == "7")
+                            {
+                                //merek
+                                var getKodeMerk = MoDbContext.BrandLazada.Where(p => p.name == item.MEREK).FirstOrDefault();
+                                if (getKodeMerk != null)
+                                {
+                                    brgMp.ANAME_38 = item.MEREK;
+                                    brgMp.AVALUE_38 = getKodeMerk.brand_id;
+                                }
+                            }
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
                             listBrgSuccess.Add(item.BRG_MP);

@@ -985,6 +985,31 @@
                                                                                 <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @Html.Label("Brand *", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                    <div class="input-group text">
+                                                                                        <table>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    @Html.TextBox("Brand" + i + "Lazada", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <span class="input-group-btn">
+                                                                                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrandLazada(@i,@($"(\"{listMarket[i].CUST}\")"))">
+                                                                                                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                        </button>
+                                                                                                    </span>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </table>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>
