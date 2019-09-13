@@ -125,24 +125,24 @@ namespace MasterOnline.Controllers
 
             var selectedMonth = (selDate != "" ? DateTime.ParseExact(selDate, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
+//            var vm = new DashboardViewModel()
+//            {
+//                ListPesanan = ErasoftDbContext.SOT01A.Where(p => 0 == 1).ToList(),
+//                ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => 0 == 1).ToList(),
+//                ListFaktur = ErasoftDbContext.SIT01A.Where(p => 0 == 1).ToList(),
+//                ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => 0 == 1).ToList(),
+//                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+//                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" && 0 == 1).ToList(),
+//                ListAkunMarketplace = ErasoftDbContext.ARF01.Where(p => 0 == 1).ToList(),
+//                ListMarket = MoDbContext.Marketplaces.Where(p => 0 == 1).ToList(),
+//                ListBarangUntukCekQty = ErasoftDbContext.STF08A.Where(p => 0 == 1).ToList(),
+//                ListStok = ErasoftDbContext.STT01B.Where(p => 0 == 1).ToList()
+//            };
+//#else
             var vm = new DashboardViewModel()
             {
-                ListPesanan = ErasoftDbContext.SOT01A.Where(p => 0 == 1).ToList(),
-                ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => 0 == 1).ToList(),
-                ListFaktur = ErasoftDbContext.SIT01A.Where(p => 0 == 1).ToList(),
-                ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => 0 == 1).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3" && 0 == 1).ToList(),
-                ListAkunMarketplace = ErasoftDbContext.ARF01.Where(p => 0 == 1).ToList(),
-                ListMarket = MoDbContext.Marketplaces.Where(p => 0 == 1).ToList(),
-                ListBarangUntukCekQty = ErasoftDbContext.STF08A.Where(p => 0 == 1).ToList(),
-                ListStok = ErasoftDbContext.STT01B.Where(p => 0 == 1).ToList()
-            };
-#else
-            var vm = new DashboardViewModel()
-            {
-                ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year).ToList(),
+                ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
@@ -153,8 +153,8 @@ namespace MasterOnline.Controllers
                 //end remark by calvin 8 juli 2019
                 //ListStok = ErasoftDbContext.STT01B.ToList()
             };
-#endif
-            var listNoPesanan = vm.ListPesanan.Select(p => p.NO_BUKTI).ToList();
+//#endif
+            var listNoPesanan = vm.ListPesanan.Where(p => (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04")).Select(p => p.NO_BUKTI).ToList();
             vm.ListPesananDetail = ErasoftDbContext.SOT01B.Where(p => listNoPesanan.Contains(p.NO_BUKTI)).ToList();
             var listNoFaktur = vm.ListFaktur.Select(p => p.NO_BUKTI).ToList();
             vm.ListFakturDetail = ErasoftDbContext.SIT01B.Where(p => listNoFaktur.Contains(p.NO_BUKTI)).ToList();
@@ -235,7 +235,7 @@ namespace MasterOnline.Controllers
             //    }
             //}
             string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01B WHERE MONTH(TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(TGL_INPUT) <= " + (selectedMonth).ToString() + " AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY BRG ";
             sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyInPesanan)
@@ -269,7 +269,7 @@ namespace MasterOnline.Controllers
             //    }
             //}
             sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
-            sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01B WHERE MONTH(TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(TGL_INPUT) <= " + (selectedMonth).ToString() + " AND BRG <> 'NOT_FOUND' ";
+            sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
             sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = ''";
             var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyNotInPesanan)
