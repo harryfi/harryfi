@@ -1991,7 +1991,7 @@ namespace MasterOnline.Controllers
             {
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
             };
-
+        
             return View(vm);
         }
 
@@ -2043,24 +2043,59 @@ namespace MasterOnline.Controllers
         //add by nurul 30/4/2019
         public ActionResult RefreshTableBuyer(int? page, string search = "")
         {
+            //change 5/9/2019 by Tri, sort berdasarkan frekuensi beli
+            //int pagenumber = (page ?? 1) - 1;
+            //ViewData["searchParam"] = search;
+            //ViewData["LastPage"] = page;
+            ////change by calvin 22 april 2019
+            ////var barangVm = new BarangViewModel()
+            ////{
+            //////change by nurul 18/1/2019 -- ListStf02S = ErasoftDbContext.STF02.ToList(),
+            ////ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+            ////};
+            //var arf01c = (from p in ErasoftDbContext.ARF01C
+            //              where (p.NAMA.Contains(search) || p.EMAIL.Contains(search))
+            //              orderby p.BUYER_CODE
+            //              select p);
+
+            //var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            ////var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            //var totalCount = arf01c.Count();
+            //if (minimal_harus_ada_item_untuk_current_page > totalCount)
+            //{
+            //    pagenumber = pagenumber - 1;
+            //    //if (pagenumber == 0)
+            //    //{
+            //    //    pagenumber = 1;
+            //    //}
+            //}
+
+            //var ListArf01c = arf01c.Skip(pagenumber * 10).Take(10).ToList();
+            ////var totalCount = arf01c.Count();
+            ////end change by calvin 22 april 2019
+
+            //IPagedList<ARF01C> pageOrders = new StaticPagedList<ARF01C>(ListArf01c, pagenumber + 1, 10, totalCount);
+            ////return PartialView("TableBarang1Partial", barangVm);
+            //return PartialView("TableBuyerPartial", pageOrders);
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
-            //change by calvin 22 april 2019
-            //var barangVm = new BarangViewModel()
-            //{
-            ////change by nurul 18/1/2019 -- ListStf02S = ErasoftDbContext.STF02.ToList(),
-            //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
-            //};
-            var arf01c = (from p in ErasoftDbContext.ARF01C
-                          where (p.NAMA.Contains(search) || p.EMAIL.Contains(search))
-                          orderby p.BUYER_CODE
-                          select p);
+            string sSQLSelect = "";
+            sSQLSelect += "select c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, isnull(sum(a.netto), 0) nilai ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(*) AS JUMLAH FROM ARF01C ";
+            string sSQL2 = "";
+            sSQL2 += "from arf01c c left join sot01a a on c.buyer_code = a.pemesan ";
+            if (search != "")
+            {
+                sSQL2 += "WHERE (NAMA LIKE '%" + search + "%' OR EMAIL LIKE '%" + search + "%' ) ";
+                sSQLCount += "WHERE (NAMA LIKE '%" + search + "%' OR EMAIL LIKE '%" + search + "%' ) ";
+            }
+            sSQL2 += "group by c.buyer_code, nama, KODEPROV, KODEKABKOT, email, tlp, pemesan, c.recnum ";
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
-            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
-            var totalCount = arf01c.Count();
-            if (minimal_harus_ada_item_untuk_current_page > totalCount)
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
                 pagenumber = pagenumber - 1;
                 //if (pagenumber == 0)
@@ -2069,13 +2104,17 @@ namespace MasterOnline.Controllers
                 //}
             }
 
-            var ListArf01c = arf01c.Skip(pagenumber * 10).Take(10).ToList();
-            //var totalCount = arf01c.Count();
-            //end change by calvin 22 april 2019
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "order by sum(a.netto) desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            IPagedList<ARF01C> pageOrders = new StaticPagedList<ARF01C>(ListArf01c, pagenumber + 1, 10, totalCount);
-            //return PartialView("TableBarang1Partial", barangVm);
+            var listPembeli = ErasoftDbContext.Database.SqlQuery<mdlPembeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPembeli> pageOrders = new StaticPagedList<mdlPembeli>(listPembeli, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableBuyerPartial", pageOrders);
+            //end change 5/9/2019 by Tri, sort berdasarkan frekuensi beli
         }
         //end add by nurul 30/4/2019
 
