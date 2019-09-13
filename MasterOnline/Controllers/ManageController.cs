@@ -297,6 +297,18 @@ namespace MasterOnline.Controllers
             public string NOBUK { get; set; }
             public double NETTO { get; set; }
         }
+        public class SUM_Netto
+        {
+            public double TOTAL_NETTO { get; set; }
+        }
+        public class COUNT_List
+        {
+            public int COUNT_TRANSAKSI { get; set; }
+        }
+        public class CEK_NULL
+        {
+            public int JUMLAH { get; set; }
+        }
         public ActionResult RefreshDashboardLine(string tgl)
         {
             var selectedDate = (tgl != "" ? DateTime.ParseExact(tgl, "dd/MM/yyyy",
@@ -307,12 +319,6 @@ namespace MasterOnline.Controllers
 
             var vm = new DashboardViewModel()
             {
-                //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year).ToList(),
-                //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
-                //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                //ListFaktur = ErasoftDbContext.SIT01A.ToList(),
-                //ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
-                //ListMarket = MoDbContext.Marketplaces.ToList(),
             };
 
             string[] minggu1 = { "01", "02", "03", "04", "05", "06", "07" };
@@ -320,7 +326,6 @@ namespace MasterOnline.Controllers
             string[] minggu3 = { "15", "16", "17", "18", "19", "20", "21" };
             string[] minggu4 = { "22", "23", "24", "25", "26", "27", "28" };
             List<string> minggu5 = new List<string>();
-            //var firstDayOfMonth = new DateTime(selectedDate.Year, selectedDate.Month, 1);
             var lastday = new DateTime(selectedDate.Year, selectedDate.Month, 1).AddMonths(1).AddDays(-1);
             if (Convert.ToInt32(lastday.Day) > 28)
             {
@@ -330,51 +335,6 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            //var mingguKe = "";
-            //for(int i = 0; i < minggu1.Count(); i++)
-            //{
-            //    if(Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu1[i]))
-            //    {
-            //        mingguKe = "1";
-            //    }
-            //}
-            //for (int i = 0; i < minggu2.Count(); i++)
-            //{
-            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu2[i]))
-            //    {
-            //        mingguKe = "2";
-            //    }
-            //}
-            //for (int i = 0; i < minggu3.Count(); i++)
-            //{
-            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu3[i]))
-            //    {
-            //        mingguKe = "3";
-            //    }
-            //}
-            //for (int i = 0; i < minggu4.Count(); i++)
-            //{
-            //    if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu4[i]))
-            //    {
-            //        mingguKe = "4";
-            //    }
-            //}
-            //if (minggu5.Count > 0)
-            //{
-            //    for (int i = 0; i < minggu5.Count(); i++)
-            //    {
-            //        if (Convert.ToInt32(selectedDate.Day) == Convert.ToInt32(minggu5[i]))
-            //        {
-            //            mingguKe = "5";
-            //        }
-            //    }
-            //}
-
-            //remark by nurul 24/7/2019, jika 1 minggu nya dimulai dr minggu sampai sabtu, ga tergantung tgl 1
-            //var sSql2 = "SELECT DATEADD(ww, DATEDIFF(ww, 5, '2019-07-31'), 5)--end week";
-            //var sSql3 = "SELECT DATEPART(WEEK, DAY('2019-07-31')) --get minggu keberapa bulan ini";
-            //var sSql4 = "select DATEADD(month,datediff(month,0,'2019-07-31'),0) --FIRST DATE ON MONTH YYYY-MM-DD TIME ";
-            //var sSql5 = "SELECT dateadd(month,1+datediff(month,0,'2019-07-12'),-1) --LAST DATE ON MONTH YYYY-MM-DD TIME ";
             bool isSunday = selectedDate.DayOfWeek == 0;
             var dayOfweek = isSunday == false ? (int)selectedDate.DayOfWeek : 7;
             DateTime startWk = selectedDate.AddDays(((int)(dayOfweek) * -1) + 1);
@@ -384,20 +344,31 @@ namespace MasterOnline.Controllers
                 endday.Add(startWk.AddDays(i).Date);
             }
             #region pesanan
-            //var x = System.Globalization.CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(selectedDate, System.Globalization.CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Sunday);
-            var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
-            if (pesananTahunIni.Count() > 0)
+
+            //change by nurul 11/9/2019, tuning 
+            //var pesananTahunIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year).ToList();
+            string ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' ";
+            var cekpesananTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if(cekpesananTahunIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
-                    //var NilaiPesanan = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
+                    //var cekjumlahPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Count();
+                    //var NilaiPesanan = pesananTahunIni.Where(a => a.TGL.Value.Month == i).Sum(p => p.NETTO);
+
+                    string SSQL1 = "";
+                    SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
+                    var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    string SSQL2 = "";
+                    SSQL2 += "SELECT COUNT(RECNUM) AS COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
+                    var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
                     vm.ListdashboardPesananTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahPesanan.ToString(),
-                        Nilai = NilaiPesanan.ToString()
+                        Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                        Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                     });
                 }
             }
@@ -415,169 +386,128 @@ namespace MasterOnline.Controllers
             }
             for (int i = 0; i < endday.Count(); i++)
             {
-                //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
-                //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                //var sSQLPesanan = "SELECT A.NO_BUKTI,A.RECNUM, A.NETTO FROM (SELECT NO_BUKTI, RECNUM, NETTO FROM SOT01A WHERE YEAR(TGL) = '2019' AND MONTH(TGL) = '7' AND DAY(TGL) = '1' )A";
-                var sSQLPesanan = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' )A";
-                var ListPesananMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLPesanan).ToList();
-                var cekjumlahpesanan = ListPesananMingguini.Count();
-                var NilaiPesanan = ListPesananMingguini.Sum(a => a.NETTO);
-                //var cekjumlahpesanan1 = pesananTahunIni.Where(b => b.TGL.Value.Year == endday[i].Year && b.TGL.Value.Month == endday[i].Month && b.TGL.Value.Day <= endday[i].Day && b.TGL.Value.Day >= endday[i].Day).Count();
-                //var NilaiPesanan1 = pesananTahunIni.Where(a => a.TGL.Value.Year == endday[i].Year && a.TGL.Value.Month == endday[i].Month && a.TGL.Value.Day >= endday[i].Day && a.TGL.Value.Day <= endday[i].Day).Sum(a => a.NETTO);
+                //CHANGE BY NURUL 11/9/2019, TUNING 
+                //var sSQLPesanan = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' )A";
+                //var ListPesananMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLPesanan).ToList();
+                //var cekjumlahpesanan = ListPesananMingguini.Count();
+                //var NilaiPesanan = ListPesananMingguini.Sum(a => a.NETTO);
+
+                string SSQL3 = "";
+                SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "'";
+                var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                string SSQL4 = "";
+                SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "'";
+                var cekjumlahpesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
+
                 vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
-                    Jumlah = cekjumlahpesanan.ToString(),
-                    Nilai = NilaiPesanan.ToString()
+                    Jumlah = cekjumlahpesanan.COUNT_TRANSAKSI.ToString(),
+                    Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                 });
             }
-            //if(mingguKe == "1")
-            //{
-            //    for (int i = 0; i < minggu1.Count(); i++)
-            //    {
-            //        var getDate = minggu1[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu1[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu1[i])).Count();
-            //        var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu1[i])).Sum(a => a.NETTO);
-            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahpesanan.ToString(),
-            //            Nilai = NilaiPesanan.ToString()
-            //        });
-            //    }
-            //}else if(mingguKe == "2")
-            //{
-            //    for (int i = 0; i < minggu2.Count(); i++)
-            //    {
-            //        var getDate = minggu2[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu2[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu2[i])).Count();
-            //        var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu2[i])).Sum(a => a.NETTO);
-            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahpesanan.ToString(),
-            //            Nilai = NilaiPesanan.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "3")
-            //{
-            //    for (int i = 0; i < minggu3.Count(); i++)
-            //    {
-            //        var getDate = minggu3[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu3[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu3[i])).Count();
-            //        var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu3[i])).Sum(a => a.NETTO);
-            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahpesanan.ToString(),
-            //            Nilai = NilaiPesanan.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "4")
-            //{
-            //    for (int i = 0; i < minggu4.Count(); i++)
-            //    {
-            //        var getDate = minggu4[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu4[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu4[i])).Count();
-            //        var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu4[i])).Sum(a => a.NETTO);
-            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahpesanan.ToString(),
-            //            Nilai = NilaiPesanan.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "5")
-            //{
-            //    for (int i = 0; i < minggu5.Count(); i++)
-            //    {
-            //        var getDate = minggu5[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahpesanan = vm.ListPesanan.Where(b => b.TGL.Value.Year == selectedDate.Year && b.TGL.Value.Month == selectedMonth && b.TGL.Value.Day <= Convert.ToInt32(minggu5[i]) && b.TGL.Value.Day >= Convert.ToInt32(minggu5[i])).Count();
-            //        var NilaiPesanan = vm.ListPesanan.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5[i]) && a.TGL.Value.Day <= Convert.ToInt32(minggu5[i])).Sum(a => a.NETTO);
-            //        vm.ListdashboardPesananMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahpesanan.ToString(),
-            //            Nilai = NilaiPesanan.ToString()
-            //        });
-            //    }
-            //}
-            var pesananBulanIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
-            if (pesananBulanIni.Count() > 0)
+
+            //var pesananBulanIni = ErasoftDbContext.SOT01A.Where(a => a.TGL.Value.Year == selectedDate.Year && a.TGL.Value.Month == selectedMonth).ToList();
+            ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' ";
+            var cekpesananBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if (cekpesananBulanIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 6; i++)
                 {
                     if (i == 1)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                        //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "'";
+                        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "'";
+                        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             //No = "MingguKe-" + i,
                             No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = NilaiPesanan.ToString()
+                            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 2)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                        //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "'";
+                        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "'";
+                        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = NilaiPesanan.ToString()
+                            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 3)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                        //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "'";
+                        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "'";
+                        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = NilaiPesanan.ToString()
+                            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 4)
                     {
-                        var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                        var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                        //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "'";
+                        var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "'";
+                        var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahPesanan.ToString(),
-                            Nilai = NilaiPesanan.ToString()
+                            Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 5)
                     {
                         if (minggu5.Count() > 0)
                         {
-                            var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                            var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            //var cekjumlahPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                            //var NilaiPesanan = pesananBulanIni.Where(a => a.TGL.Value.Month == selectedMonth && a.TGL.Value.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Value.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            string SSQL5 = "";
+                            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "'";
+                            var NilaiPesanan = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                            string SSQL6 = "";
+                            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SOT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "'";
+                            var cekjumlahPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                             vm.ListdashboardPesananBulanan.Add(new DashboardBulananModel()
                             {
                                 No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                                Jumlah = cekjumlahPesanan.ToString(),
-                                Nilai = NilaiPesanan.ToString()
+                                Jumlah = cekjumlahPesanan.COUNT_TRANSAKSI.ToString(),
+                                Nilai = NilaiPesanan.TOTAL_NETTO.ToString()
                             });
                         }
                     }
@@ -641,19 +571,29 @@ namespace MasterOnline.Controllers
 
             #endregion
             #region faktur
-            var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
-            if (fakturTahunIni.Count() > 0)
+            //var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
+            ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' ";
+            var cekfakturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if(cekfakturTahunIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
-                    //var NilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+                    //var cekjumlahFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //var NilaiFaktur = fakturTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+
+                    string SSQL1 = "";
+                    SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
+                    var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    string SSQL2 = "";
+                    SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '2' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
+                    var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
                     vm.ListdashboardFakturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahFaktur.ToString(),
-                        Nilai = NilaiFaktur.ToString()
+                        Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                        Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                     });
                 }
             }
@@ -671,168 +611,125 @@ namespace MasterOnline.Controllers
             }
             for (int i = 0; i < endday.Count(); i++)
             {
-                //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
-                //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                var sSQLFaktur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2' )A";
-                var ListFakturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLFaktur).ToList();
-                var cekjumlahFaktur = ListFakturMingguini.Count();
-                var NilaiFaktur = ListFakturMingguini.Sum(a => a.NETTO);
-                //var cekjumlahFaktur1 = fakturTahunIni.Where(b => b.TGL.Year == endday[i].Year && b.TGL.Month == endday[i].Month && b.TGL.Day <= endday[i].Day && b.TGL.Day >= endday[i].Day && b.JENIS_FORM == "2").Count();
-                //var NilaiFaktur1 = fakturTahunIni.Where(a => a.TGL.Year == endday[i].Year && a.TGL.Month == endday[i].Month && a.TGL.Day >= endday[i].Day && a.TGL.Day <= endday[i].Day && a.JENIS_FORM == "2").Sum(a => a.NETTO);
+                //var sSQLFaktur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2' )A";
+                //var ListFakturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLFaktur).ToList();
+                //var cekjumlahFaktur = ListFakturMingguini.Count();
+                //var NilaiFaktur = ListFakturMingguini.Sum(a => a.NETTO);
+                string SSQL3 = "";
+                SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
+                var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                string SSQL4 = "";
+                SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '2'";
+                var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
+
                 vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
-                    Jumlah = cekjumlahFaktur.ToString(),
-                    Nilai = NilaiFaktur.ToString()
+                    Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                    Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                 });
             }
-            //if (mingguKe == "1")
-            //{
-            //    for (int i = 0; i < minggu1.Count(); i++)
-            //    {
-            //        var getDate = minggu1[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu1[i]) && b.TGL.Day >= Convert.ToInt32(minggu1[i]) && b.JENIS_FORM == "2").Count();
-            //        var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1[i]) && a.TGL.Day <= Convert.ToInt32(minggu1[i]) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
-            //        vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahFaktur.ToString(),
-            //            Nilai = NilaiFaktur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "2")
-            //{
-            //    for (int i = 0; i < minggu2.Count(); i++)
-            //    {
-            //        var getDate = minggu2[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu2[i]) && b.TGL.Day >= Convert.ToInt32(minggu2[i]) && b.JENIS_FORM == "2").Count();
-            //        var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2[i]) && a.TGL.Day <= Convert.ToInt32(minggu2[i]) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
-            //        vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahFaktur.ToString(),
-            //            Nilai = NilaiFaktur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "3")
-            //{
-            //    for (int i = 0; i < minggu3.Count(); i++)
-            //    {
-            //        var getDate = minggu3[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu3[i]) && b.TGL.Day >= Convert.ToInt32(minggu3[i]) && b.JENIS_FORM == "2").Count();
-            //        var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3[i]) && a.TGL.Day <= Convert.ToInt32(minggu3[i]) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
-            //        vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahFaktur.ToString(),
-            //            Nilai = NilaiFaktur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "4")
-            //{
-            //    for (int i = 0; i < minggu4.Count(); i++)
-            //    {
-            //        var getDate = minggu4[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu4[i]) && b.TGL.Day >= Convert.ToInt32(minggu4[i]) && b.JENIS_FORM == "2").Count();
-            //        var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4[i]) && a.TGL.Day <= Convert.ToInt32(minggu4[i]) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
-            //        vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahFaktur.ToString(),
-            //            Nilai = NilaiFaktur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "5")
-            //{
-            //    for (int i = 0; i < minggu5.Count(); i++)
-            //    {
-            //        var getDate = minggu5[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahFaktur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu5[i]) && b.TGL.Day >= Convert.ToInt32(minggu5[i]) && b.JENIS_FORM == "2").Count();
-            //        var NilaiFaktur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5[i]) && a.TGL.Day <= Convert.ToInt32(minggu5[i]) && a.JENIS_FORM == "2").Sum(a => a.NETTO);
-            //        vm.ListdashboardFakturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahFaktur.ToString(),
-            //            Nilai = NilaiFaktur.ToString()
-            //        });
-            //    }
-            //}
-            var fakturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
-            if (fakturBulanIni.Count() > 0)
+
+            //var fakturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "2").ToList();
+            ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '2' ";
+            var cekfakturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if (cekfakturBulanIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 6; i++)
                 {
                     if (i == 1)
                     {
-                        var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                        var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                        //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
+                        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '2'";
+                        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahFaktur.ToString(),
-                            Nilai = NilaiFaktur.ToString()
+                            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 2)
                     {
-                        var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                        var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                        //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
+                        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '2'";
+                        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahFaktur.ToString(),
-                            Nilai = NilaiFaktur.ToString()
+                            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 3)
                     {
-                        var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                        var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                        //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
+                        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '2'";
+                        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahFaktur.ToString(),
-                            Nilai = NilaiFaktur.ToString()
+                            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 4)
                     {
-                        var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                        var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                        //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
+                        var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '2'";
+                        var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahFaktur.ToString(),
-                            Nilai = NilaiFaktur.ToString()
+                            Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 5)
                     {
                         if (minggu5.Count() > 0)
                         {
-                            var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                            var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            //var cekjumlahFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                            //var NilaiFaktur = fakturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            string SSQL5 = "";
+                            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
+                            var NilaiFaktur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                            string SSQL6 = "";
+                            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '2'";
+                            var cekjumlahFaktur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                             vm.ListdashboardFakturBulanan.Add(new DashboardBulananModel()
                             {
                                 No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                                Jumlah = cekjumlahFaktur.ToString(),
-                                Nilai = NilaiFaktur.ToString()
+                                Jumlah = cekjumlahFaktur.COUNT_TRANSAKSI.ToString(),
+                                Nilai = NilaiFaktur.TOTAL_NETTO.ToString()
                             });
                         }
                     }
@@ -896,19 +793,29 @@ namespace MasterOnline.Controllers
 
             #endregion
             #region retur
-            var returTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
-            if (returTahunIni.Count() > 0)
+            //var returTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "3").ToList();
+            ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '3' ";
+            var cekreturTahunIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if(cekreturTahunIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 13; i++)
                 {
-                    var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
-                    //var NilaiRetur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO))}";
-                    var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+                    //var cekjumlahRetur = returTahunIni.Where(a => a.TGL.Month == i).Count();
+                    //var NilaiRetur = returTahunIni.Where(a => a.TGL.Month == i).Sum(p => p.NETTO);
+
+                    string SSQL1 = "";
+                    SSQL1 += "SELECT ISNULL(SUM(NETTO),0) TOTAL_NETTO FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + "";
+                    var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL1).Single();
+                    string SSQL2 = "";
+                    SSQL2 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE JENIS_FORM = '3' AND YEAR(TGL) = " + selectedDate.Year + " AND MONTH(TGL) = " + i + " ";
+                    var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL2).Single();
+
                     vm.ListdashboardReturTahunan.Add(new DashboardTahunanModel()
                     {
                         No = CultureInfo.CurrentUICulture.DateTimeFormat.MonthNames[i - 1],
-                        Jumlah = cekjumlahRetur.ToString(),
-                        Nilai = NilaiRetur.ToString()
+                        Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                        Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                     });
                 }
             }
@@ -926,168 +833,125 @@ namespace MasterOnline.Controllers
             }
             for (int i = 0; i < endday.Count(); i++)
             {
-                //var getDate = Convert.ToString(endday[i].Day) + '/' + selectedMonth + '/' + selectedDate.Year;
-                //var getdate = Convert.ToDateTime(getDate);
                 var getdate = endday[i].ToString("dd/M/yyyy", CultureInfo.InvariantCulture);
                 var dayName = endday[i].DayOfWeek;
-                var sSQLRetur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3' )A";
-                var ListReturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLRetur).ToList();
-                var cekjumlahRetur = ListReturMingguini.Count();
-                var NilaiRetur = ListReturMingguini.Sum(a => a.NETTO);
-                //var cekjumlahRetur1 = returTahunIni.Where(b => b.TGL.Year == endday[i].Year && b.TGL.Month == endday[i].Month && b.TGL.Day <= endday[i].Day && b.TGL.Day >= endday[i].Day && b.JENIS_FORM == "3").Count();
-                //var NilaiRetur1 = returTahunIni.Where(a => a.TGL.Year == endday[i].Year && a.TGL.Month == endday[i].Month && a.TGL.Day >= endday[i].Day && a.TGL.Day <= endday[i].Day && a.JENIS_FORM == "3").Sum(a => a.NETTO);
+                //var sSQLRetur = "SELECT A.NOBUK, A.NETTO FROM (SELECT NO_BUKTI AS NOBUK, NETTO AS NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3' )A";
+                //var ListReturMingguini = ErasoftDbContext.Database.SqlQuery<listDataLine>(sSQLRetur).ToList();
+                //var cekjumlahRetur = ListReturMingguini.Count();
+                //var NilaiRetur = ListReturMingguini.Sum(a => a.NETTO);
+                string SSQL3 = "";
+                SSQL3 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
+                var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL3).Single();
+                string SSQL4 = "";
+                SSQL4 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + endday[i].Year + "' AND MONTH(TGL) = '" + endday[i].Month + "' AND DAY(TGL) = '" + endday[i].Day + "' AND JENIS_FORM = '3'";
+                var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL4).Single();
+
                 vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
                 {
                     No = dayName.ToString() + " " + getdate,
-                    Jumlah = cekjumlahRetur.ToString(),
-                    Nilai = NilaiRetur.ToString()
+                    Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                    Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                 });
             }
-            //if (mingguKe == "1")
-            //{
-            //    for (int i = 0; i < minggu1.Count(); i++)
-            //    {
-            //        var getDate = minggu1[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu1[i]) && b.TGL.Day >= Convert.ToInt32(minggu1[i]) && b.JENIS_FORM == "3").Count();
-            //        var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1[i]) && a.TGL.Day <= Convert.ToInt32(minggu1[i]) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
-            //        vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahRetur.ToString(),
-            //            Nilai = NilaiRetur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "2")
-            //{
-            //    for (int i = 0; i < minggu2.Count(); i++)
-            //    {
-            //        var getDate = minggu2[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu2[i]) && b.TGL.Day >= Convert.ToInt32(minggu2[i]) && b.JENIS_FORM == "3").Count();
-            //        var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2[i]) && a.TGL.Day <= Convert.ToInt32(minggu2[i]) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
-            //        vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahRetur.ToString(),
-            //            Nilai = NilaiRetur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "3")
-            //{
-            //    for (int i = 0; i < minggu3.Count(); i++)
-            //    {
-            //        var getDate = minggu3[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu3[i]) && b.TGL.Day >= Convert.ToInt32(minggu3[i]) && b.JENIS_FORM == "3").Count();
-            //        var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3[i]) && a.TGL.Day <= Convert.ToInt32(minggu3[i]) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
-            //        vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahRetur.ToString(),
-            //            Nilai = NilaiRetur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "4")
-            //{
-            //    for (int i = 0; i < minggu4.Count(); i++)
-            //    {
-            //        var getDate = minggu4[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu4[i]) && b.TGL.Day >= Convert.ToInt32(minggu4[i]) && b.JENIS_FORM == "3").Count();
-            //        var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4[i]) && a.TGL.Day <= Convert.ToInt32(minggu4[i]) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
-            //        vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahRetur.ToString(),
-            //            Nilai = NilaiRetur.ToString()
-            //        });
-            //    }
-            //}
-            //else if (mingguKe == "5")
-            //{
-            //    for (int i = 0; i < minggu5.Count(); i++)
-            //    {
-            //        var getDate = minggu5[i] + '/' + selectedMonth + '/' + selectedDate.Year;
-            //        var getdate = Convert.ToDateTime(getDate);
-            //        var dayName = getdate.DayOfWeek;
-            //        var cekjumlahRetur = vm.ListFaktur.Where(b => b.TGL.Year == selectedDate.Year && b.TGL.Month == selectedMonth && b.TGL.Day <= Convert.ToInt32(minggu5[i]) && b.TGL.Day >= Convert.ToInt32(minggu5[i]) && b.JENIS_FORM == "3").Count();
-            //        var NilaiRetur = vm.ListFaktur.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5[i]) && a.TGL.Day <= Convert.ToInt32(minggu5[i]) && a.JENIS_FORM == "3").Sum(a => a.NETTO);
-            //        vm.ListdashboardReturMingguan.Add(new DashboardMingguanModel()
-            //        {
-            //            No = dayName.ToString(),
-            //            Jumlah = cekjumlahRetur.ToString(),
-            //            Nilai = NilaiRetur.ToString()
-            //        });
-            //    }
-            //}
-            var ReturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
-            if (ReturBulanIni.Count() > 0)
+
+            //var ReturBulanIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.TGL.Month == selectedMonth && a.JENIS_FORM == "3").ToList();
+            ssql = "";
+            ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND JENIS_FORM = '3' ";
+            var cekReturBulanIni = ErasoftDbContext.Database.SqlQuery<CEK_NULL>(ssql).Single();
+            if (cekReturBulanIni.JUMLAH > 0)
             {
                 for (int i = 1; i < 6; i++)
                 {
                     if (i == 1)
                     {
-                        var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
-                        var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Count();
+                        //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu1.First()) && a.TGL.Day <= Convert.ToInt32(minggu1.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
+                        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu1.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu1.Last()) + "' AND JENIS_FORM = '3'";
+                        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu1.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu1.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahRetur.ToString(),
-                            Nilai = NilaiRetur.ToString()
+                            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 2)
                     {
-                        var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
-                        var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Count();
+                        //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu2.First()) && a.TGL.Day <= Convert.ToInt32(minggu2.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
+                        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu2.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu2.Last()) + "' AND JENIS_FORM = '3'";
+                        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu2.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu2.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahRetur.ToString(),
-                            Nilai = NilaiRetur.ToString()
+                            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 3)
                     {
-                        var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
-                        var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Count();
+                        //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu3.First()) && a.TGL.Day <= Convert.ToInt32(minggu3.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
+                        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu3.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu3.Last()) + "' AND JENIS_FORM = '3'";
+                        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu3.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu3.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahRetur.ToString(),
-                            Nilai = NilaiRetur.ToString()
+                            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 4)
                     {
-                        var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
-                        var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Count();
+                        //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu4.First()) && a.TGL.Day <= Convert.ToInt32(minggu4.Last())).Sum(a => a.NETTO);
+                        string SSQL5 = "";
+                        SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
+                        var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                        string SSQL6 = "";
+                        SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu4.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu4.Last()) + "' AND JENIS_FORM = '3'";
+                        var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                         vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                         {
                             No = minggu4.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu4.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                            Jumlah = cekjumlahRetur.ToString(),
-                            Nilai = NilaiRetur.ToString()
+                            Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                            Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                         });
                     }
                     else if (i == 5)
                     {
                         if (minggu5.Count() > 0)
                         {
-                            var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
-                            var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            //var cekjumlahRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Count();
+                            //var NilaiRetur = ReturBulanIni.Where(a => a.TGL.Month == selectedMonth && a.TGL.Day >= Convert.ToInt32(minggu5.First()) && a.TGL.Day <= Convert.ToInt32(minggu5.Last())).Sum(a => a.NETTO);
+                            string SSQL5 = "";
+                            SSQL5 += "SELECT ISNULL(SUM(NETTO),0) AS TOTAL_NETTO FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
+                            var NilaiRetur = ErasoftDbContext.Database.SqlQuery<SUM_Netto>(SSQL5).Single();
+                            string SSQL6 = "";
+                            SSQL6 += "SELECT COUNT(RECNUM) COUNT_TRANSAKSI FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND MONTH(TGL) = '" + selectedMonth + "' AND DAY(TGL) >= '" + Convert.ToInt32(minggu5.First()) + "' AND DAY(TGL) <= '" + Convert.ToInt32(minggu5.Last()) + "' AND JENIS_FORM = '3'";
+                            var cekjumlahRetur = ErasoftDbContext.Database.SqlQuery<COUNT_List>(SSQL6).Single();
+
                             vm.ListdashboardReturBulanan.Add(new DashboardBulananModel()
                             {
                                 No = minggu5.First() + "/" + selectedMonth + "/" + selectedDate.Year + " - " + minggu5.Last() + "/" + selectedMonth + "/" + selectedDate.Year,
-                                Jumlah = cekjumlahRetur.ToString(),
-                                Nilai = NilaiRetur.ToString()
+                                Jumlah = cekjumlahRetur.COUNT_TRANSAKSI.ToString(),
+                                Nilai = NilaiRetur.TOTAL_NETTO.ToString()
                             });
                         }
                     }
@@ -1212,7 +1076,12 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableDashboardBarangLakuPartial", vm);
         }
-
+        public class listFaktur
+        {
+            public string Market { get; set; }
+            public int Jumlah { get; set; }
+            public double Nilai { get; set; }
+        }
         public ActionResult RefreshDashboardFakturPartial(string drTgl, string sdTgl)
         {
 
@@ -1220,33 +1089,58 @@ namespace MasterOnline.Controllers
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
             var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+            //change by nurul 13/9/2019, tuning
+            //var vm = new DashboardViewModel()
+            //{
+            //    //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL >= Drtgl && p.TGL <= Sdtgl).ToList(),
+            //    //ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
+            //    //ListMarket = MoDbContext.Marketplaces.ToList(),
+            //};
+            //if (vm.ListAkunMarketplace.Count > 0)
+            //{
+            //    foreach (var marketplace in vm.ListAkunMarketplace)
+            //    {
+            //        var idMarket = Convert.ToInt32(marketplace.NAMA);
+            //        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+            //        var jmlFaktur = vm.ListFaktur?
+            //            .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
+            //        //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
+            //        var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
 
+            //        vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
+            //        {
+            //            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+            //            JumlahFaktur = jmlFaktur.ToString(),
+            //            NilaiFaktur = Convert.ToString(nilaiFaktur)
+            //        });
+            //    }
+            //}
+
+            string sSql = "";
+            sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
+            sSql += "FROM SIT01A SI LEFT JOIN ARF01 AR ON SI.CUST = AR.CUST LEFT JOIN ";
+            sSql += "MO..MARKETPLACE MO ON AR.NAMA = MO.IDMARKET ";
+            sSql += "WHERE TGL >= '" + tempDrtgl + "' AND TGL <= '" + tempSdtgl + "' ";
+            sSql += "GROUP BY SI.CUST, MO.NAMAMARKET, AR.PERSO ";
+            var ListFakturPerMarket = ErasoftDbContext.Database.SqlQuery<listFaktur>(sSql).ToList();
             var vm = new DashboardViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL >= Drtgl && p.TGL <= Sdtgl).ToList(),
-                ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
-                ListMarket = MoDbContext.Marketplaces.ToList(),
             };
-            if (vm.ListAkunMarketplace.Count > 0)
+            if(ListFakturPerMarket.Count() > 0)
             {
-                foreach (var marketplace in vm.ListAkunMarketplace)
+                foreach (var faktur in ListFakturPerMarket)
                 {
-                    var idMarket = Convert.ToInt32(marketplace.NAMA);
-                    var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
-                    var jmlFaktur = vm.ListFaktur?
-                        .Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Count();
-                    //var nilaiFaktur = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO))}";
-                    var nilaiFaktur = vm.ListFaktur?.Where(p => p.CUST == marketplace.CUST && p.TGL >= Drtgl && p.TGL <= Sdtgl).Sum(p => p.NETTO);
-
                     vm.ListFakturPerMarketplace.Add(new FakturPerMarketplaceModel()
                     {
-                        NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
-                        JumlahFaktur = jmlFaktur.ToString(),
-                        NilaiFaktur = Convert.ToString(nilaiFaktur)
+                        NamaMarket = faktur.Market,
+                        JumlahFaktur = faktur.Jumlah.ToString(),
+                        NilaiFaktur = Convert.ToString(faktur.Nilai)
                     });
                 }
             }
-
+            //end change by nurul 13/9/2019, tuning
             return PartialView("TableDashboardFakturPartial", vm);
         }
 
