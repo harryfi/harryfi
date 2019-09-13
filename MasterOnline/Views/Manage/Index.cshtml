@@ -1767,7 +1767,6 @@
                         $('#DrTanggal3').val($('#DrTanggal3').val());
                         $('#DrTanggal3').datepicker('hide');
                         RefreshTableDashboardBarangTidakLaku();
-                        //TableDashboardBarangTidakLakuPartial
                     });
                     $('#SdTanggal3').datepicker({
                         format: 'dd/mm/yyyy',
@@ -9820,33 +9819,7 @@
                         $('#table-barang-minstok-partial').show();
                     } else {
                         alert(response.Errors);
-                        var c = new Date();
-                        c.setMonth(c.getMonth() - 1);
-                        $('#DrTanggal2').datepicker({
-                            format: 'dd/mm/yyyy',
-                            language: 'id'
-                        }).datepicker('setDate', c);
-                        //$('#DrTanggal2').datepicker({
-                        //    format: 'dd/mm/yyyy',
-                        //    language: 'id'
-                        //}).change(function () {
-                        //    $('#DrTanggal2').val($('#DrTanggal2').val());
-                        //    $('#DrTanggal2').datepicker('hide');
-                        //    //RefreshTableDashboardBarangMinStok();
-                        //});
-                        $('#SdTanggal2').datepicker({
-                            format: 'dd/mm/yyyy',
-                            language: 'id'
-                        }).datepicker('setDate', '0');
-                        //$('#SdTanggal2').datepicker({
-                        //    format: 'dd/mm/yyyy',
-                        //    language: 'id'
-                        //}).change(function () {
-                        //    $('#SdTanggal2').val($('#SdTanggal2').val());
-                        //    $('#SdTanggal2').datepicker('hide');
-                        //    //RefreshTableDashboardBarangMinStok();
-                        //});
-                        //RefreshTableDashboardBarangMinStok();
+                        $('#loading_barang_minstok').hide();
                     }
                 },
                 error: function (xhr, status, error) {
