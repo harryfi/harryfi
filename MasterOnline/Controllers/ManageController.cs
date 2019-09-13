@@ -26224,7 +26224,6 @@ namespace MasterOnline.Controllers
                                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                             brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                             brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
-                                            #endregion
                                             if (customer.NAMA == "7")
                                             {
                                                 //merek
@@ -27887,7 +27886,6 @@ namespace MasterOnline.Controllers
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                     brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                     brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
-                                    #endregion
                                     if (customer.NAMA == "7")
                                     {
                                         //merek
@@ -28093,7 +28091,6 @@ namespace MasterOnline.Controllers
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                                 brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                                 brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
-                                #endregion
                                 if (customer.NAMA == "7")
                                 {
                                     //merek
@@ -28395,7 +28392,6 @@ namespace MasterOnline.Controllers
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
                             brgMp.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
                             brgMp.LINK_ERROR = "0;Sinkronisasi Produk;;";
-                            #endregion
                             if (customer.NAMA == "7")
                             {
                                 //merek

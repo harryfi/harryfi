@@ -3474,7 +3474,6 @@ namespace MasterOnline.Controllers
             string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string categoryCode = result.value.categoryCode.ToString();
-            string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`');
             //string merchantSku = result.value.items[0].merchantSku.ToString();
             //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
             //sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
