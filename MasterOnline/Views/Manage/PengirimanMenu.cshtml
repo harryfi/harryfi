@@ -940,8 +940,9 @@
             $('#PESANAN').style.width = "400px";
         }
 
-        function cetakKirim(kirimId) {
-            $('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
+        function cetakKirim(kirimId, nobuk) {
+            //$('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
+            $('#cetakfaktur_label').text(nobuk);
             $('#modalPrintOption').modal('show');
 
             $('#btn-print-kirim').off('click').on('click', function() {

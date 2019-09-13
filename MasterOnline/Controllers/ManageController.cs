@@ -30817,8 +30817,8 @@ namespace MasterOnline.Controllers
                 var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
                 var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                 var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
-                var getKurir = Convert.ToInt32(kirimInDb.KURIR);
-                var kurir = MoDbContext.Ekspedisi.Single(a => a.RecNum == getKurir).NamaEkspedisi;
+                //var getKurir = Convert.ToInt32(kirimInDb.KURIR);
+                //var kurir = MoDbContext.Ekspedisi.Single(a => a.RecNum == getKurir).NamaEkspedisi;
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = kirimInDb,
@@ -30827,11 +30827,11 @@ namespace MasterOnline.Controllers
                     NamaPerusahaan = namaPT,
                     AlamatToko = alamat,
                     TlpToko = tlp,
-                    NamaKurir = kurir
+                    NamaKurir = kirimInDb.NAMA_EKSPEDISI
                 };
                 return View(vm);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("NotFoundPage");
             }
@@ -31003,7 +31003,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetEkspedisiKirim()
         {
             var ssQl = "";
-            ssQl = "select distinct SHIPMENT from sot01a where isnull(shipment, '') <> '' and shipment <> 'replaceDeliveryProv'";
+            ssQl = "select distinct SHIPMENT from sot01a where isnull(shipment, '') <> '' and shipment <> 'replaceDeliveryProv' and status_transaksi = '03'";
             var listEkspedisi = ErasoftDbContext.Database.SqlQuery<listKurir>(ssQl).ToList();
 
             return Json(listEkspedisi, JsonRequestBehavior.AllowGet);
