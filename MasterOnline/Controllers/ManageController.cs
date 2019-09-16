@@ -2603,7 +2603,15 @@ namespace MasterOnline.Controllers
                 custInDb.TLP = customer.Customers.TLP;
                 //add by Tri, add api key
                 custInDb.API_KEY = customer.Customers.API_KEY;
-                custInDb.Sort1_Cust = customer.Customers.Sort1_Cust;
+
+                //change by calvin 16 september 2019. jika shopee jgn ubah sort1_cust
+                //custInDb.Sort1_Cust = customer.Customers.Sort1_Cust;
+                if (customer.Customers.NAMA != "17")
+                {
+                    custInDb.Sort1_Cust = customer.Customers.Sort1_Cust;
+                }
+                //end change by calvin 16 september 2019
+
                 kdCustomer = custInDb.CUST;
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
