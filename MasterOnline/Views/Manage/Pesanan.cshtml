@@ -1580,11 +1580,13 @@
                                     </button>*@
 
                             </div>
-                            <div class="pull-right">
-                                <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
-                                </button>
-                            </div>
+                            @* remark 16/9/19, function pindah ke modal ubah status *@
+                            @*<div class="pull-right">
+                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+                                    </button>
+                                </div>*@
+                            @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                         <div class="col-lg-1 col-sm-1">
@@ -2747,9 +2749,15 @@
                 </div>
             </div>
             <br />
-            <div class="modal-footer right">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+            <div class="modal-footer">
+                <div class="left">
+                    <input id="ckPackinglist" checked type="checkbox"/>Buat Packing List
+                </div>
+                <div class="right">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -7513,7 +7521,7 @@
                             $('#shopee-resi-non-integrated-section').show();
                             $('#btn-resi-shopee-manual').show();
                         }
-                        //end add 3/9/2019 handle create manual pesanan shopee  
+                        //end add 3/9/2019 handle create manual pesanan shopee
                     }
                 },
                 error: function(xhr) {
