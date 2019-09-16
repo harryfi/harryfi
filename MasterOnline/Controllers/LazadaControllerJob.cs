@@ -306,7 +306,7 @@ namespace MasterOnline.Controllers
             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             
             //xmlString += "<brand>No Brand</brand>";
-            xmlString += "<brand><![CDATA[" + stf02h.AVALUE_38 + "]]></brand>";
+            xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
             
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
@@ -758,7 +758,7 @@ namespace MasterOnline.Controllers
             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             
             //xmlString += "<brand>No Brand</brand>";
-            xmlString += "<brand><![CDATA[" + stf02h.AVALUE_38 + "]]></brand>";
+            xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
