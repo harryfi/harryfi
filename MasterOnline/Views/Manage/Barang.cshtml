@@ -943,8 +943,12 @@
                     e.stopPropagation();
                 });
 
-            $('#foto_produk_1, #foto_produk_2, #foto_produk_3').hide();
-            $('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3').hide();
+            //change 6/9/2019, 5 gambar
+            //$('#foto_produk_1, #foto_produk_2, #foto_produk_3').hide();
+            //$('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3').hide();
+            $('#foto_produk_1, #foto_produk_2, #foto_produk_3, #foto_produk_4, #foto_produk_5').hide();
+            $('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3, #btn_hapus_4, #btn_hapus_5').hide();
+            //end change 6/9/2019, 5 gambar
 
             $('#btn_hapus_1').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';

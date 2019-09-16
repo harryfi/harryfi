@@ -1642,7 +1642,7 @@ namespace MasterOnline.Controllers
 
                         ret.status = 1;
                         //ret.recordCount = recordCount;
-                        ret.totalData += result.data.Count();//add 18 Juli 2019, show total record
+                        //ret.totalData += result.data.Count();//add 18 Juli 2019, show total record
                         List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
                         var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
                         var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
@@ -1652,6 +1652,7 @@ namespace MasterOnline.Controllers
                             brgMp = Convert.ToString(item.product_id);
                             if (item.status.ToUpper() != "DELETE")
                             {
+                                ret.totalData++;//add 18 Juli 2019, show total record
                                 var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
                                 //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
                                 var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();

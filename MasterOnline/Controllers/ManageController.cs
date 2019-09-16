@@ -6427,7 +6427,7 @@ namespace MasterOnline.Controllers
                         //add 6/9/2019, 5 gambar
                         case 4:
                             barangInDb.LINK_GAMBAR_4 = null;
-                            barangInDb.SIZE_GAMBAR_5 = null;
+                            barangInDb.SIZE_GAMBAR_4 = null;
                             break;
                         case 5:
                             barangInDb.LINK_GAMBAR_5 = null;
@@ -6679,6 +6679,16 @@ namespace MasterOnline.Controllers
                                                         hargaPerMarket.ACODE_48 = idGambar;
                                                         hargaPerMarket.AVALUE_48 = extra_image.Value;
                                                         break;
+                                                    //add 13/9/2019, 5 gambar
+                                                    case 4:
+                                                        hargaPerMarket.SIZE_GAMBAR_4 = idGambar;
+                                                        hargaPerMarket.LINK_GAMBAR_4 = extra_image.Value;
+                                                        break;
+                                                    case 5:
+                                                        hargaPerMarket.SIZE_GAMBAR_5 = idGambar;
+                                                        hargaPerMarket.LINK_GAMBAR_5 = extra_image.Value;
+                                                        break;
+                                                   //end add 13/9/2019, 5 gambar
                                                 }
                                             }
                                         }
@@ -6713,7 +6723,7 @@ namespace MasterOnline.Controllers
                         {
                             var file = Request.Files[i];
 
-                            if (file != null && file.ContentLength > 0)
+                            if (file != null && file.ContentLength > 0 && Request.Files.GetKey(i).Contains("foto_produk"))
                             {
                                 //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
                                 ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
@@ -7022,6 +7032,16 @@ namespace MasterOnline.Controllers
                                                             dataBaru.ACODE_48 = idGambar;
                                                             dataBaru.AVALUE_48 = extra_image.Value;
                                                             break;
+                                                        //add 13/9/2019, 5 gambar
+                                                        case 4:
+                                                            dataBaru.SIZE_GAMBAR_4 = idGambar;
+                                                            dataBaru.LINK_GAMBAR_4 = extra_image.Value;
+                                                            break;
+                                                        case 5:
+                                                            dataBaru.SIZE_GAMBAR_5 = idGambar;
+                                                            dataBaru.LINK_GAMBAR_5 = extra_image.Value;
+                                                            break;
+                                                            //end add 13/9/2019, 5 gambar
                                                     }
                                                 }
                                             }
@@ -7235,6 +7255,16 @@ namespace MasterOnline.Controllers
                                                             dataHarga.ACODE_48 = idGambar;
                                                             dataHarga.AVALUE_48 = extra_image.Value;
                                                             break;
+                                                        //add 13/9/2019, 5 gambar
+                                                        case 4:
+                                                            dataHarga.SIZE_GAMBAR_4 = idGambar;
+                                                            dataHarga.LINK_GAMBAR_4 = extra_image.Value;
+                                                            break;
+                                                        case 5:
+                                                            dataHarga.SIZE_GAMBAR_5 = idGambar;
+                                                            dataHarga.LINK_GAMBAR_5 = extra_image.Value;
+                                                            break;
+                                                            //end add 13/9/2019, 5 gambar
                                                     }
                                                 }
                                             }
@@ -7260,7 +7290,7 @@ namespace MasterOnline.Controllers
                             {
                                 var file = Request.Files[i];
 
-                                if (file != null && file.ContentLength > 0)
+                                if (file != null && file.ContentLength > 0 && Request.Files.GetKey(i).Contains("foto_produk"))
                                 {
                                     //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
                                     ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
@@ -7820,11 +7850,14 @@ namespace MasterOnline.Controllers
 
                     if (Request.Files.Count > 0)
                     {
-                        for (int i = 0; i < 3; i++)
+                        //change 13/9/19, 5 gambar
+                        //for (int i = 0; i < 3; i++)
+                        for (int i = 0; i < Request.Files.Count; i++)
+                        //end change 13/9/19, 5 gambar
                         {
                             var file = Request.Files[i];
 
-                            if (file != null && file.ContentLength > 0)
+                            if (file != null && file.ContentLength > 0 && Request.Files.GetKey(i).Contains("foto_produk"))
                             {
                                 //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
                                 ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
@@ -7857,6 +7890,16 @@ namespace MasterOnline.Controllers
                                         dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
                                         dataBarang.Stf02.Sort7 = Convert.ToString(file.ContentLength);
                                         break;
+                                    //add 13/9/19, 5 gambar
+                                    case 3:
+                                        dataBarang.Stf02.LINK_GAMBAR_4 = image.data.link_l;
+                                        dataBarang.Stf02.SIZE_GAMBAR_4 = Convert.ToString(file.ContentLength);
+                                        break;
+                                    case 4:
+                                        dataBarang.Stf02.LINK_GAMBAR_5 = image.data.link_l;
+                                        dataBarang.Stf02.SIZE_GAMBAR_5 = Convert.ToString(file.ContentLength);
+                                        break;
+                                   //end add 13/9/19, 5 gambar
                                 }
                             }
                         }
@@ -7875,6 +7918,14 @@ namespace MasterOnline.Controllers
                             case 2:
                                 imgPath[2] = dataBarang.Stf02.LINK_GAMBAR_3;
                                 break;
+                            //add 13/9/19, 5 gambar
+                            case 3:
+                                imgPath[3] = dataBarang.Stf02.LINK_GAMBAR_4;
+                                break;
+                            case 4:
+                                imgPath[4] = dataBarang.Stf02.LINK_GAMBAR_5;
+                                break;
+                                //end add 13/9/19, 5 gambar
                         }
                     }
 
@@ -8225,6 +8276,16 @@ namespace MasterOnline.Controllers
                                             barangInDb.LINK_GAMBAR_3 = image.data.link_l;
                                             barangInDb.Sort7 = Convert.ToString(file.ContentLength);
                                             break;
+                                        //add 13/9/19, 5 gambar
+                                        case 3:
+                                            barangInDb.LINK_GAMBAR_4 = image.data.link_l;
+                                            barangInDb.SIZE_GAMBAR_4 = Convert.ToString(file.ContentLength);
+                                            break;
+                                        case 4:
+                                            barangInDb.LINK_GAMBAR_5 = image.data.link_l;
+                                            barangInDb.SIZE_GAMBAR_5 = Convert.ToString(file.ContentLength);
+                                            break;
+                                            //end add 13/9/19, 5 gambar
                                     }
                                 }
                             }
@@ -8243,6 +8304,14 @@ namespace MasterOnline.Controllers
                                 case 2:
                                     imgPath[2] = barangInDb.LINK_GAMBAR_3;
                                     break;
+                                //add 13/9/19, 5 gambar
+                                case 3:
+                                    imgPath[3] = barangInDb.LINK_GAMBAR_4;
+                                    break;
+                                case 4:
+                                    imgPath[4] = barangInDb.LINK_GAMBAR_5;
+                                    break;
+                                    //end add 13/9/19, 5 gambar
                             }
                         }
                         //end add by calvin
@@ -11122,11 +11191,13 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateGambarVariantBarang()
         {
             bool first = true;
-            int i = 0;//add 6/9/2019, barang varian 2 gambar
+            //int i = 0;//add 6/9/2019, barang varian 2 gambar
             Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
             foreach (var item in Request.Files.AllKeys)
             {
-                int stf02_id = Convert.ToInt32(item);
+                var itemId = item.Split('_');
+                //int stf02_id = Convert.ToInt32(item);
+                int stf02_id = Convert.ToInt32(itemId[0]);
                 var itemVar = ErasoftDbContext.STF02.Where(p => p.ID == stf02_id).SingleOrDefault();
                 if (itemVar != null)
                 {
@@ -11139,11 +11210,11 @@ namespace MasterOnline.Controllers
                             ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
                             //change 6/9/2019, barang varian 2 gambar
                             //itemVar.LINK_GAMBAR_1 = image.data.link_l;
-                            if (i == 0)
+                            if (itemId.Length == 1)
                             {
                                 itemVar.LINK_GAMBAR_1 = image.data.link_l;
                             }
-                            else if (i == 1)
+                            else if (itemId.Length > 1)
                             {
                                 itemVar.LINK_GAMBAR_2 = image.data.link_l;
                             }
@@ -11154,11 +11225,11 @@ namespace MasterOnline.Controllers
                         {
                             //change 6/9/2019, barang varian 2 gambar
                             //itemVar.LINK_GAMBAR_1 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
-                            if (i == 0)
+                            if (itemId.Length == 1)
                             {
                                 itemVar.LINK_GAMBAR_1 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                             }
-                            else if (i == 1)
+                            else if (itemId.Length > 1)
                             {
                                 itemVar.LINK_GAMBAR_2 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                             }
@@ -11168,11 +11239,11 @@ namespace MasterOnline.Controllers
                         //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                         //change 6/9/2019, barang varian 2 gambar
                         //itemVar.Sort5 = Convert.ToString(file.ContentLength);
-                        if (i == 0)
+                        if (itemId.Length == 1)
                         {
                             itemVar.Sort5 = Convert.ToString(file.ContentLength);
                         }
-                        else if (i == 1)
+                        else if (itemId.Length > 1)
                         {
                             itemVar.Sort6 = Convert.ToString(file.ContentLength);
                         }
@@ -11180,7 +11251,7 @@ namespace MasterOnline.Controllers
 
                         //change 6/9/2019, barang varian 2 gambar
                         //if (first)
-                        if (i == 0)
+                        if (itemId.Length == 1)
                         //end change 6/9/2019, barang varian 2 gambar
                         {
                             var itemInduk = ErasoftDbContext.STF02.Where(p => p.BRG == itemVar.PART).SingleOrDefault();
@@ -11194,7 +11265,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //add 6/9/2019, barang varian 2 gambar
-                        else if (i == 1)
+                        else if (itemId.Length > 1)
                         {
                             var itemInduk = ErasoftDbContext.STF02.Where(p => p.BRG == itemVar.PART).SingleOrDefault();
                             if (itemInduk != null)
@@ -11211,7 +11282,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
                 first = false;
-                i++;//add 6/9/2019, barang varian 2 gambar
+                //i++;//add 6/9/2019, barang varian 2 gambar
             }
             return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
         }
@@ -11339,10 +11410,12 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateGambarVariantBlibli()
         {
             Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
-            int i = 0;//add 6/9/2019, barang varian 2 gambar
+            //int i = 0;//add 6/9/2019, barang varian 2 gambar
             foreach (var item in Request.Files.AllKeys)
             {
-                int stf02h_recnum = Convert.ToInt32(item);
+                var itemId = item.Split('_');
+                //int stf02h_recnum = Convert.ToInt32(item);
+                int stf02h_recnum = Convert.ToInt32(itemId[0]);
                 var itemVar = ErasoftDbContext.STF02H.Where(p => p.RecNum == stf02h_recnum).SingleOrDefault();
                 if (itemVar != null)
                 {
@@ -11355,11 +11428,11 @@ namespace MasterOnline.Controllers
                             ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
                             //change 6/9/2019, barang varian 2 gambar
                             //itemVar.AVALUE_50 = image.data.link_l;
-                            if (i == 0)
+                            if (itemId.Length == 1)
                             {
                                 itemVar.AVALUE_50 = image.data.link_l;
                             }
-                            else if (i == 1)
+                            else if (itemId.Length > 1)
                             {
                                 itemVar.AVALUE_49 = image.data.link_l;
                             }
@@ -11370,11 +11443,11 @@ namespace MasterOnline.Controllers
                         {
                             //change 6/9/2019, barang varian 2 gambar
                             //itemVar.AVALUE_50 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
-                            if (i == 0)
+                            if (itemId.Length == 1)
                             {
                                 itemVar.AVALUE_50 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                             }
-                            else if (i == 1)
+                            else if (itemId.Length > 1)
                             {
                                 itemVar.AVALUE_49 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                             }
@@ -11383,11 +11456,11 @@ namespace MasterOnline.Controllers
 
                         //change 6/9/2019, barang varian 2 gambar
                         //itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
-                        if (i == 0)
+                        if (itemId.Length == 1)
                         {
                             itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
                         }
-                        else if (i == 1)
+                        else if (itemId.Length > 1)
                         {
                             itemVar.ACODE_49 = Convert.ToString(file.ContentLength);
                         }
@@ -11395,7 +11468,7 @@ namespace MasterOnline.Controllers
                     }
                     ErasoftDbContext.SaveChanges();
                 }
-                i++;//add 6/9/2019, barang varian 2 gambar
+                //i++;//add 6/9/2019, barang varian 2 gambar
             }
             return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
         }
@@ -32319,6 +32392,8 @@ namespace MasterOnline.Controllers
                         retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
                         retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                         retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+                        retBarang.LINK_GAMBAR_4 = tempBrg.IMAGE4;
+                        retBarang.LINK_GAMBAR_5 = tempBrg.IMAGE5;
                         retBarang.TYPE = tempBrg.TYPE;
                         //add 14 juni 2019, kategori dan merek dari transfer excel
                         if (!string.IsNullOrEmpty(tempBrg.AVALUE_40))//kategori mo di avalue_40
@@ -32386,6 +32461,8 @@ namespace MasterOnline.Controllers
                     retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
                     retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                     retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+                    retBarang.LINK_GAMBAR_4 = tempBrg.IMAGE4;
+                    retBarang.LINK_GAMBAR_5 = tempBrg.IMAGE5;
                     retBarang.TYPE = tempBrg.TYPE;
                     //add 14 juni 2019, kategori dan merek dari transfer excel
                     if (!string.IsNullOrEmpty(tempBrg.AVALUE_40))//kategori mo di avalue_40

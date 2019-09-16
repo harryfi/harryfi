@@ -1624,6 +1624,10 @@
                     $('#hidden_url_gambar_2').val(data.LINK_GAMBAR_2);
                 if (data.LINK_GAMBAR_3 != '')
                     $('#hidden_url_gambar_3').val(data.LINK_GAMBAR_3);
+                if (data.LINK_GAMBAR_4 != '')
+                    $('#hidden_url_gambar_4').val(data.LINK_GAMBAR_4);
+                if (data.LINK_GAMBAR_5 != '')
+                    $('#hidden_url_gambar_5').val(data.LINK_GAMBAR_5);
                 getFotoProduk();
                 if (data.Sort1 != null) {
                     //$('#KATEGORI')[0].selectize.setValue(data.Sort1, true);
@@ -1692,6 +1696,32 @@
                 //$('#btn_hapus_3').show();
             } else {
                 $('#box_upload_3').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_4').val() != "") {
+                $('#box_upload_4').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_4').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_2 span').hide();
+                //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_4').css({
+                    'background-image': '',
+                });
+            }
+
+            if ($('#hidden_url_gambar_5').val() != "") {
+                $('#box_upload_5').css({
+                    'background-image': 'url("' + $('#hidden_url_gambar_5').val() + '")',
+                    'background-size': 'cover'
+                });
+                //$('#box_upload_3 span').hide();
+                //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_5').css({
                     'background-image': '',
                 });
             }

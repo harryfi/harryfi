@@ -397,7 +397,7 @@
                                             </div>
                                             <div class="col-md-4 foto_produk_section">
                                                 <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_5">Hapus</button>
-                                                <div class="box_upload" id="foto_produk_5">
+                                                <div class="box_upload" id="box_upload_5">
                                                     <span class="box_upload_placeholder">Tambah Gambar</span>
                                                     <input type='file' id='foto_produk_5' name="foto_produk_5" accept=".jpg" />
                                                     <input type="hidden" id="hidden_url_gambar_5" value="@(Model.Stf02?.LINK_GAMBAR_5)" />
@@ -780,7 +780,7 @@
                                                                                         </div>
                                                                                         <div class="x_content">
                                                                                             <div class="row">
-                                                                                                <div class="col-md-4 foto_produk_section_blibli">
+                                                                                                <div class="col-md-2 foto_produk_section_blibli">
                                                                                                     <div class="box_upload_blibli" data-barang-level="1" data-barang-id="@recnumArf01" id="box_upload_blibli_1_@recnumArf01">
                                                                                                         <span class="box_upload_placeholder">Tambah Gambar</span>
                                                                                                         <input type='file' id='foto_produk_blibli_1_@recnumArf01' data-barang-level="1" data-barang-id="@recnumArf01" class="foto_produk_blibli" accept=".jpg" />
@@ -790,7 +790,7 @@
                                                                                                         <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_blibli" data-barang-level="1" data-barang-id="@recnumArf01" id="btn_hapus_blibli_1_@recnumArf01">Hapus</button>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                <div class="col-md-4 foto_produk_section_blibli">
+                                                                                                <div class="col-md-2 foto_produk_section_blibli">
                                                                                                     <div class="box_upload_blibli" data-barang-level="2" data-barang-id="@recnumArf01" id="box_upload_blibli_2_@recnumArf01">
                                                                                                         <span class="box_upload_placeholder">Tambah Gambar</span>
                                                                                                         <input type='file' id='foto_produk_blibli_2_@recnumArf01' data-barang-level="2" data-barang-id="@recnumArf01" class="foto_produk_blibli" accept=".jpg" />
@@ -800,7 +800,7 @@
                                                                                                         <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_blibli" data-barang-level="2" data-barang-id="@recnumArf01" id="btn_hapus_blibli_2_@recnumArf01">Hapus</button>
                                                                                                     </div>
                                                                                                 </div>
-                                                                                                <div class="col-md-4 foto_produk_section_blibli">
+                                                                                                <div class="col-md-2 foto_produk_section_blibli">
                                                                                                     <div class="box_upload_blibli" data-barang-level="3" data-barang-id="@recnumArf01" id="box_upload_blibli_3_@recnumArf01">
                                                                                                         <span class="box_upload_placeholder">Tambah Gambar</span>
                                                                                                         <input type='file' id='foto_produk_blibli_3_@recnumArf01' data-barang-level="3" data-barang-id="@recnumArf01" class="foto_produk_blibli" accept=".jpg" />
@@ -808,6 +808,26 @@
                                                                                                     </div>
                                                                                                     <div style="width:100%;text-align:center">
                                                                                                         <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_blibli" data-barang-level="3" data-barang-id="@recnumArf01" id="btn_hapus_blibli_3_@recnumArf01">Hapus</button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-2 foto_produk_section_blibli">
+                                                                                                    <div class="box_upload_blibli" data-barang-level="4" data-barang-id="@recnumArf01" id="box_upload_blibli_4_@recnumArf01">
+                                                                                                        <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                                                        <input type='file' id='foto_produk_blibli_4_@recnumArf01' data-barang-level="4" data-barang-id="@recnumArf01" class="foto_produk_blibli" accept=".jpg" />
+                                                                                                        <input type="hidden" id="hidden_url_gambar_blibli_4_@recnumArf01" data-barang-level="4" data-barang-id="@recnumArf01" class="hidden_url_gambar_blibli" value="@(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.LINK_GAMBAR_4)" />
+                                                                                                    </div>
+                                                                                                    <div style="width:100%;text-align:center">
+                                                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_blibli" data-barang-level="4" data-barang-id="@recnumArf01" id="btn_hapus_blibli_4_@recnumArf01">Hapus</button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div class="col-md-2 foto_produk_section_blibli">
+                                                                                                    <div class="box_upload_blibli" data-barang-level="5" data-barang-id="@recnumArf01" id="box_upload_blibli_5_@recnumArf01">
+                                                                                                        <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                                                        <input type='file' id='foto_produk_blibli_5_@recnumArf01' data-barang-level="5" data-barang-id="@recnumArf01" class="foto_produk_blibli" accept=".jpg" />
+                                                                                                        <input type="hidden" id="hidden_url_gambar_blibli_5_@recnumArf01" data-barang-level="5" data-barang-id="@recnumArf01" class="hidden_url_gambar_blibli" value="@(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.LINK_GAMBAR_5)" />
+                                                                                                    </div>
+                                                                                                    <div style="width:100%;text-align:center">
+                                                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_blibli" data-barang-level="5" data-barang-id="@recnumArf01" id="btn_hapus_blibli_5_@recnumArf01">Hapus</button>
                                                                                                     </div>
                                                                                                 </div>
                                                                                             </div>

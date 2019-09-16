@@ -407,16 +407,18 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             string brand = "OEM";
             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, AVALUE_45,";
+            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE, AVALUE_45,";
             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
             sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30) VALUES ";
 
             string namaBrg = barang_name.Replace('\'', '`');
-            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+            string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
             urlImage = "";
             urlImage2 = "";
             urlImage3 = "";
+            urlImage4 = "";
+            urlImage5 = "";
             sellerSku = sellerSku.ToString().Replace("\'", "\'\'");
 
             //change by calvin 16 september 2019
@@ -459,7 +461,8 @@ namespace MasterOnline.Controllers
                 {
                     urlImage = detailBrg.item.images[0];
                     //change 21/8/2019, barang varian ambil 1 gambar saja
-                    if (typeBrg != 2)
+                    //if (typeBrg != 2)
+                    if (typeBrg == 0)
                     {
                         if (detailBrg.item.images.Count() >= 2)
                         {
@@ -467,6 +470,16 @@ namespace MasterOnline.Controllers
                             if (detailBrg.item.images.Count() >= 3)
                             {
                                 urlImage3 = detailBrg.item.images[2];
+                                //add 16/9/19, 5 gambar
+                                if (detailBrg.item.images.Count() >= 4)
+                                {
+                                    urlImage4 = detailBrg.item.images[3];
+                                    if (detailBrg.item.images.Count() >= 5)
+                                    {
+                                        urlImage5 = detailBrg.item.images[4];
+                                    }
+                                }
+                                //end add 16/9/19, 5 gambar
                             }
                         }
                     }
@@ -476,7 +489,7 @@ namespace MasterOnline.Controllers
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += detailBrg.item.weight * 1000 + "," + detailBrg.item.package_length + "," + detailBrg.item.package_width + "," + detailBrg.item.package_height + ", '";
             sSQL += cust + "' , '" + detailBrg.item.description.Replace('\'', '`') + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
-            sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+            sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
             //add kode brg induk dan type brg
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             //end add kode brg induk dan type brg

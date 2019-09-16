@@ -2304,16 +2304,18 @@ namespace MasterOnline.Controllers
                         //var c = HttpUtility.HtmlDecode(a);
                         string IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.ToString();
                         string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-                        sSQL += "Deskripsi, AVALUE_39, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE,";
+                        sSQL += "Deskripsi, AVALUE_39, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE,";
                         sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                         sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
                         sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30) VALUES ";
 
                         string namaBrg = result.value.items[0].itemName;
-                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
                         urlImage = "";
                         urlImage2 = "";
                         urlImage3 = "";
+                        urlImage4 = "";
+                        urlImage5 = "";
                         namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
                         //change by calvin 16 september 2019
@@ -2356,6 +2358,16 @@ namespace MasterOnline.Controllers
                                 if (result.value.items[0].images.Count >= 3)
                                 {
                                     urlImage3 = result.value.items[0].images[2].locationPath;
+                                    //add 16/9/19, 5 gambar
+                                    if (result.value.items[0].images.Count >= 4)
+                                    {
+                                        urlImage4 = result.value.items[0].images[3].locationPath;
+                                        if (result.value.items[0].images.Count >= 5)
+                                        {
+                                            urlImage5 = result.value.items[0].images[4].locationPath;
+                                        }
+                                    }
+                                    //end add 16/9/19, 5 gambar
                                 }
                             }
                         }
@@ -2400,7 +2412,10 @@ namespace MasterOnline.Controllers
                             if (brgIndukinDB == null && tempBrgIndukinDB == null)
                             {
                                 insertParent = true;
-                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3, iden);
+                                //change 16/9/19, brg induk ambil 1 gambar
+                                //sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3, iden);
+                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, "", "", iden);
+                                //end change 16/9/19, brg induk ambil 1 gambar
                             }
                             else if (brgIndukinDB != null)
                             {
@@ -2425,11 +2440,11 @@ namespace MasterOnline.Controllers
                         //change 21/8/2019, barang varian ambil 1 gambar saja
                         if (numVarian > 1)
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , ''";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , '', '', ''";
                         }
                         else
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
                         }
                         //end change 21/8/2019, barang varian ambil 1 gambar saja
                         //add kode brg induk dan type brg
@@ -3499,7 +3514,7 @@ namespace MasterOnline.Controllers
             //sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , '" + unqsellpoint + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].salePrice;
             //end change 9/9/19, add unique selling point
-            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "', '', ''";
             //add kode brg induk dan type brg
             sSQL += ", '' , '4'";
             //end add kode brg induk dan type brg
