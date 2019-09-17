@@ -1036,7 +1036,7 @@ namespace MasterOnline.Controllers
             };
 
             string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
             //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
             sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
@@ -8443,7 +8443,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult GetStrukturVar(string kode, string brg)
         {
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == kode);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == kode);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new BarangStrukturVarViewModel()
             {
@@ -8494,7 +8494,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string lazada_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList();
 
@@ -9565,7 +9565,7 @@ namespace MasterOnline.Controllers
             Dictionary<string, string> MapNamaVariasi = new Dictionary<string, string>();
             var STF02_Induk = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             if (STF02_Induk != null)
             {
@@ -9892,7 +9892,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult AutoloadVariantBarang(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, List<VariationCodeInput> kode_custom)
         {
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
 
             var vmError = new MasterStrukturVarViewModel()
@@ -10281,7 +10281,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult SaveMappingVarShopee(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopee)
         {
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             #region Create Ulang STF02I
@@ -10400,7 +10400,7 @@ namespace MasterOnline.Controllers
         public ActionResult SaveMappingVarTokped(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp tokped)
         {
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             #region Create Ulang STF02I
@@ -10520,7 +10520,7 @@ namespace MasterOnline.Controllers
         public ActionResult SaveMappingVarBlibli(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp blibli)
         {
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             #region Create Ulang STF02I
@@ -10640,7 +10640,7 @@ namespace MasterOnline.Controllers
         public ActionResult SaveMappingVarLazada(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp lazada)
         {
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             #region Create Ulang STF02I
@@ -10759,7 +10759,7 @@ namespace MasterOnline.Controllers
         }
         public ActionResult EditStrukturVar(int? recNum)
         {
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.RecNum == recNum);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new MasterStrukturVarViewModel()
             {
@@ -10805,7 +10805,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult UpdateStrukturVar(int? recNum, string JUDUL_VAR_1, string JUDUL_VAR_2, string JUDUL_VAR_3)
         {
-            var kategori = ErasoftDbContext.STF02E.SingleOrDefault(k => k.RecNum == recNum);
+            var kategori = ErasoftDbContext.STF02E.SingleOrDefault(k => k.LEVEL == "1" && k.RecNum == recNum);
             if (kategori != null)
             {
                 List<STF20> batchNewStf20 = new List<STF20>();
@@ -10946,7 +10946,7 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
             }
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == data.CATEGORY_MO);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == data.CATEGORY_MO);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new MasterStrukturVarViewModel()
             {
@@ -10999,7 +10999,7 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
             }
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum.Value);
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.RecNum == recNum.Value);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new MasterStrukturVarViewModel()
             {
@@ -27937,7 +27937,7 @@ namespace MasterOnline.Controllers
             var tempBrgInduktemp = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == customer.RecNum).ToList();
             var stf02htemp = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
             var kategori = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1"));
-            var merek = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1"));
+            var merek = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2"));
             var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
             foreach (var item in dataBrg)
             {
