@@ -347,7 +347,7 @@
                         $('#close-editor').click();
                         $("html, body").animate({ scrolltop: 0 }, "slow");
                         $('#loading_spinner').hide();
-                        refreshtablegudang();
+                        refreshTableGudang();
                     } else {
                         alert(response.Errors);
                         
@@ -382,7 +382,7 @@
                     $('#Gudang_Kode_Gudang').val(response.Gudang.Kode_Gudang).attr('disabled', 'disabled');
                     $('#Gudang_Nama_Gudang').val(response.Gudang.Nama_Gudang);
                     //add by nurul 26/4/2019
-                    if (response.Gudang.KD_HARGA_JUAL == "0" || response.Gudang.KD_HARGA_JUAL == " " || response.Gudang.KD_HARGA_JUAL == null) {
+                    if (response.Gudang.KD_HARGA_JUAL == "0" || response.Gudang.KD_HARGA_JUAL == "" || response.Gudang.KD_HARGA_JUAL == " " || response.Gudang.KD_HARGA_JUAL == null) {
                         $('#linkMP').attr('checked', true);
                     } else {
                         $('#linkMP').attr('checked', false);
