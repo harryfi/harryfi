@@ -2315,30 +2315,38 @@ namespace MasterOnline.Controllers
                         urlImage2 = "";
                         urlImage3 = "";
                         namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
-                        if (namaBrg.Length > 30)
-                        {
-                            nama = namaBrg.Substring(0, 30);
-                            if (namaBrg.Length > 285)
-                            {
-                                //change by calvin 15 januari 2019
-                                //nama2 = namaBrg.Substring(30, 30);
-                                //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                nama2 = namaBrg.Substring(30, 255);
-                                nama3 = "";
-                                //end change by calvin 15 januari 2019
-                            }
-                            else
-                            {
-                                nama2 = namaBrg.Substring(30);
-                                nama3 = "";
-                            }
-                        }
-                        else
-                        {
-                            nama = namaBrg;
-                            nama2 = "";
-                            nama3 = "";
-                        }
+
+                        //change by calvin 16 september 2019
+                        //if (namaBrg.Length > 30)
+                        //{
+                        //    nama = namaBrg.Substring(0, 30);
+                        //    if (namaBrg.Length > 285)
+                        //    {
+                        //        //change by calvin 15 januari 2019
+                        //        //nama2 = namaBrg.Substring(30, 30);
+                        //        //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                        //        nama2 = namaBrg.Substring(30, 255);
+                        //        nama3 = "";
+                        //        //end change by calvin 15 januari 2019
+                        //    }
+                        //    else
+                        //    {
+                        //        nama2 = namaBrg.Substring(30);
+                        //        nama3 = "";
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    nama = namaBrg;
+                        //    nama2 = "";
+                        //    nama3 = "";
+                        //}
+                        var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+                        nama = splitItemName[0];
+                        nama2 = splitItemName[1];
+                        nama3 = "";
+                        //end change by calvin 16 september 2019
+
                         if (result.value.items[0].images != null)
                         {
                             urlImage = result.value.items[0].images[0].locationPath;
@@ -3447,30 +3455,37 @@ namespace MasterOnline.Controllers
             string namaBrg = result.value.productName;
             string nama, nama2, nama3;
 
-            if (namaBrg.Length > 30)
-            {
-                nama = namaBrg.Substring(0, 30);
-                if (namaBrg.Length > 285)
-                {
-                    //change by calvin 15 januari 2019
-                    //nama2 = namaBrg.Substring(30, 30);
-                    //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                    nama2 = namaBrg.Substring(30, 255);
-                    nama3 = "";
-                    //end change by calvin 15 januari 2019
-                }
-                else
-                {
-                    nama2 = namaBrg.Substring(30);
-                    nama3 = "";
-                }
-            }
-            else
-            {
-                nama = namaBrg;
-                nama2 = "";
-                nama3 = "";
-            }
+            //change by calvin 16 september 2019
+            //if (namaBrg.Length > 30)
+            //{
+            //    nama = namaBrg.Substring(0, 30);
+            //    if (namaBrg.Length > 285)
+            //    {
+            //        //change by calvin 15 januari 2019
+            //        //nama2 = namaBrg.Substring(30, 30);
+            //        //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+            //        nama2 = namaBrg.Substring(30, 255);
+            //        nama3 = "";
+            //        //end change by calvin 15 januari 2019
+            //    }
+            //    else
+            //    {
+            //        nama2 = namaBrg.Substring(30);
+            //        nama3 = "";
+            //    }
+            //}
+            //else
+            //{
+            //    nama = namaBrg;
+            //    nama2 = "";
+            //    nama3 = "";
+            //}
+            var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+            nama = splitItemName[0];
+            nama2 = splitItemName[1];
+            nama3 = "";
+            //end change by calvin 16 september 2019
+
             string unqsellpoint = Convert.ToString(result.value.uniqueSellingPoint).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
             string categoryCode = result.value.categoryCode.ToString();
