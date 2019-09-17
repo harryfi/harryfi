@@ -6327,6 +6327,8 @@
     <Content Include="Views\Manage\TableKirimPartial.cshtml" />
     <Content Include="Views\Manage\BarangKirimPartial.cshtml" />
     <Content Include="Views\Manage\CetakPengiriman.cshtml" />
+    <Content Include="Views\Manage\TableDashboardBarangMinStokPartial.cshtml" />
+    <Content Include="Views\Manage\TableDashboardBarangTidakLakuPartial.cshtml" />
     <Content Include="Views\Manage\PromptBrandLazada.cshtml" />
     <Content Include="Views\Manage\TablePromptBrandLazada.cshtml" />
   </ItemGroup>

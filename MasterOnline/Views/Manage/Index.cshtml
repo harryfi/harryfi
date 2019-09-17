@@ -1633,6 +1633,10 @@
                 success: function (response) {
                     $('#dashboard_page').html(response);
 
+                    //add by nurul 6/9/2019
+                    $('#periode_tdklaku').hide();
+                    //end add by nurul 6/9/2019
+
                     if ($selectedDate !== '' && $selectedDate !== moment(new Date()).format("DD/MM/YYYY")) {
                         $('.date_label').text('Tanggal ' + $selectedDate);
                     }
@@ -1724,6 +1728,60 @@
                     RefreshTableDashboardFaktur();
                     //end region faktur
                     //end add by nurul 4/7/2019
+
+                    //add by nurul 2/9/2019
+                    $('#DrTanggal2').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', c);
+                    $('#DrTanggal2').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal2').val($('#DrTanggal2').val());
+                        $('#DrTanggal2').datepicker('hide');
+                        RefreshTableDashboardBarangMinStok();
+                    });
+                    $('#SdTanggal2').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal2').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal2').val($('#SdTanggal2').val());
+                        $('#SdTanggal2').datepicker('hide');
+                        RefreshTableDashboardBarangMinStok();
+                    });
+                    RefreshTableDashboardBarangMinStok();
+
+                    $('#DrTanggal3').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', c);
+                    $('#DrTanggal3').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal3').val($('#DrTanggal3').val());
+                        $('#DrTanggal3').datepicker('hide');
+                        RefreshTableDashboardBarangTidakLaku();
+                    });
+                    $('#SdTanggal3').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal3').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal3').val($('#SdTanggal3').val());
+                        $('#SdTanggal3').datepicker('hide');
+                        RefreshTableDashboardBarangTidakLaku();
+                    });
+                    RefreshTableDashboardBarangTidakLaku();
+                    //end add by nurul 2/9/2019
                                         
                     $('#loading_spinner').hide();
                 },
@@ -9731,5 +9789,75 @@
             }
         }
         //end add by nurul 12/7/2019
+
+        //add by nurul 2/9/2019
+        function RefreshTableDashboardBarangMinStok() {
+            var $Drtgl = "";
+            if ($('#DrTanggal2').val() != undefined) {
+                $Drtgl = $('#DrTanggal2').val();
+            }
+            var $Sdtgl = "";
+            if ($('#SdTanggal2').val() != undefined) {
+                $Sdtgl = $('#SdTanggal2').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardBarangMinStok", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl);
+            link = link.replace("replaceSdtgl", $Sdtgl);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-minstok-partial').hide();
+                    $('#loading_barang_minstok').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#table-barang-minstok-partial').html(response);
+
+                        $('#loading_barang_minstok').hide();
+                        $('#table-barang-minstok-partial').show();
+                    } else {
+                        alert(response.Errors);
+                        $('#loading_barang_minstok').hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function RefreshTableDashboardBarangTidakLaku() {
+            var $Drtgl = "";
+            if ($('#DrTanggal3').val() != undefined) {
+                $Drtgl = $('#DrTanggal3').val();
+            }
+            var $Sdtgl = "";
+            if ($('#SdTanggal3').val() != undefined) {
+                $Sdtgl = $('#SdTanggal3').val();
+            }
+            var link = '@Html.Raw(Url.Action("RefreshDashboardBarangTidaklaku", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", $Drtgl);
+            link = link.replace("replaceSdtgl", $Sdtgl);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-tidaklaku-partial').hide();
+                    $('#loading_barang_tidaklaku').show();
+                },
+                success: function (response) {
+                    $('#table-barang-tidaklaku-partial').html(response);
+                    
+                    $('#loading_barang_tidaklaku').hide();
+                    $('#table-barang-tidaklaku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 2/9/2019
     </script>
 }

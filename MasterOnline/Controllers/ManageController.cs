@@ -1018,7 +1018,7 @@ namespace MasterOnline.Controllers
             return PartialView("TableDashboardLinePartial", vm);
         }
         //end add by nurul 12/7/2019
-
+                
         public ActionResult RefreshDashboardBaranglakuPartial(string drTgl, string sdTgl)
         {
 
@@ -1026,8 +1026,8 @@ namespace MasterOnline.Controllers
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-3));
             var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
                 System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
-            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd");
-            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd");
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
 
             var vm = new DashboardViewModel()
             {
@@ -1036,10 +1036,9 @@ namespace MasterOnline.Controllers
             };
 
             string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-            //sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01B WHERE TGL_INPUT >= '" + tempDrtgl + "' AND TGL_INPUT <= '" + tempSdtgl + "' AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
-            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' ";
-            sSQL += "AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
-            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE TYPE ='3' ORDER BY SUM_QTY DESC ";
+            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.TGL_INPUT >= '" + tempDrtgl + "' AND B.TGL_INPUT <= '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND BRG <> 'NOT_FOUND' GROUP BY BRG ";
+            //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG ORDER BY SUM_QTY DESC ";
+            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ORDER BY SUM_QTY DESC ";
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
             foreach (var item in ListBarangAndQtyInPesanan)
             {
@@ -1145,6 +1144,257 @@ namespace MasterOnline.Controllers
             //end change by nurul 13/9/2019, tuning
             return PartialView("TableDashboardFakturPartial", vm);
         }
+
+        //add by nurul 2/9/2019
+        public class listBrgMinStok
+        {
+            public string JENIS { get; set; }
+            public string BRG { get; set; }
+            public string NAMA { get; set; }
+            public double QOH { get; set; }
+            public double QOO { get; set; }
+            public double SISA { get; set; }
+            public double MINI { get; set; }
+            public double QTY_JUAL { get; set; }
+            public double SELISIH { get; set; }
+        }
+        public ActionResult RefreshDashboardBarangMinStok(string drTgl, string sdTgl)
+        {
+
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            var vmError = new DashboardViewModel() { };
+
+            if (Convert.ToDateTime(drTgl) > Convert.ToDateTime(sdTgl))
+            {
+                vmError.Errors.Add("Dari Tanggal tidak boleh lebih besar dari S/d Tanggal !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (Convert.ToDateTime(drTgl).Year != Convert.ToDateTime(sdTgl).Year)
+            {
+                vmError.Errors.Add("Dari Tanggal dan S/d Tanggal harus dalam tahun yang sama !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+
+            var vm = new DashboardViewModel()
+            {
+            };
+
+            string sSql1 = "";
+            //sSql1 += "SELECT A.BRG, A.NAMA, CONVERT(NVARCHAR,A.QOH) QOH, CONVERT(NVARCHAR,A.QOO) QOO , CONVERT(NVARCHAR,A.SISA) SISA, CONVERT(NVARCHAR,A.MINI) MINI, CONVERT(NVARCHAR,D.QTY) QTY_JUAL FROM  ";
+            //sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            //sSql1 += "INNER JOIN ";
+            //sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
+            //sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            //sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            //sSql1 += "	FROM ( ";
+            //sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            //sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            //sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            //sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            //sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            //sSql1 += "		GROUP BY BRG ";
+            //sSql1 += "		UNION ALL ";
+            //sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            //sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            //sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            //sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            //sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            //sSql1 += "		GROUP BY B.BRG)A ";
+            //sSql1 += "	GROUP BY BRG ";
+            //sSql1 += "	) A ";
+            //sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG ";
+            //sSql1 += ") A ";
+            //sSql1 += "ON A.BRG=B.BRG ";
+            //sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            //sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ";
+            //sSql1 += "ON A.BRG=D.BRG ";
+            //sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            //sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
+            //sSql1 += "ORDER BY D.QTY DESC, (A.SISA - A.MINI) ASC ";
+            //sSql1 += "OFFSET 0 ROWS ";
+            //sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+
+            sSql1 += "SELECT JENIS, BRG, NAMA, QOH, QOO , SISA, MINI, QTY_JUAL, (SISA - MINI) AS SELISIH FROM ";
+            sSql1 += "( ";
+            //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
+            sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM ";
+            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "INNER JOIN ";
+            sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
+            sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "	FROM ( ";
+            sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            //sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		WHERE        STF08A.TAHUN = YEAR('" + tempDrtgl + "') AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		GROUP BY BRG ";
+            sSql1 += "		UNION ALL ";
+            sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "		GROUP BY B.BRG)A ";
+            sSql1 += "	GROUP BY BRG ";
+            sSql1 += "	) A ";
+            sSql1 += "INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
+            sSql1 += ") A ";
+            sSql1 += "ON A.BRG=B.BRG ";
+            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
+
+            sSql1 += "UNION ALL ";
+            //2. KALAU YANG PERTAMA KURANG DR 10 RECORD, MAKA CARI YANG BARANG NYA TIDAK ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK 
+            sSql1 += "SELECT 'TIDAK ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, ISNULL(D.QTY,0) QTY_JUAL FROM  ";
+            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "INNER JOIN ";
+            sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
+            sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "	FROM ( ";
+            sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            //sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		WHERE        STF08A.TAHUN = YEAR('" + tempDrtgl + "') AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		GROUP BY BRG ";
+            sSql1 += "		UNION ALL ";
+            sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "		GROUP BY B.BRG)A ";
+            sSql1 += "	GROUP BY BRG ";
+            sSql1 += "	) A ";
+            sSql1 += "INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
+            sSql1 += ") A ";
+            sSql1 += "ON A.BRG=B.BRG ";
+            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG = D.BRG ";
+            sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL NOT BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "AND A.BRG NOT IN ( ";
+            sSql1 += "      SELECT A.BRG FROM  ";
+            sSql1 += "      (SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "      INNER JOIN ";
+            sSql1 += "      (SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
+            sSql1 += "      	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "      	FROM ( ";
+            sSql1 += "      		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                               - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "      		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                               STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            //sSql1 += "      		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "      		WHERE        STF08A.TAHUN = YEAR('" + tempDrtgl + "') AND STF18.QOH_SALES = 0 ";
+            sSql1 += "      		GROUP BY BRG ";
+            sSql1 += "      		UNION ALL ";
+            sSql1 += "      		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "      		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                               SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                               SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "      		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "      		GROUP BY B.BRG)A ";
+            sSql1 += "      	GROUP BY BRG) A ";
+            sSql1 += "      INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3')A ON A.BRG=B.BRG ";
+            sSql1 += "      LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "      WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "      GROUP BY A.BRG ";
+            sSql1 += ") ";
+            sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
+            sSql1 += ")A ";
+            //DI UNION ALL ORDER BY QTY_JUAL DESC, SELISIH (SISA-MIN) ASC, TAKE 10
+            sSql1 += "ORDER BY JENIS ASC, QTY_JUAL DESC, SELISIH ASC ";
+            sSql1 += "OFFSET 0 ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListBarangMinStokInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
+            foreach (var item in ListBarangMinStokInPesanan)
+            {
+                vm.ListBarangMiniStok.Add(new PenjualanBarang
+                {
+                    KodeBrg = item.BRG,
+                    NamaBrg = item.NAMA,
+                    QtySales = Convert.ToDouble(item.QTY_JUAL),
+                    Qty = Convert.ToDouble(item.SISA),
+                    Min = Convert.ToDouble(item.MINI)
+                });
+            }
+
+            return PartialView("TableDashboardBarangMinStokPartial", vm);
+        }
+        public ActionResult RefreshDashboardBarangTidaklaku(string drTgl, string sdTgl)
+        {
+
+            var Drtgl = (drTgl != "" ? DateTime.ParseExact(drTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today.AddMonths(-1));
+            var Sdtgl = (sdTgl != "" ? DateTime.ParseExact(sdTgl, "dd/MM/yyyy",
+                System.Globalization.CultureInfo.InvariantCulture) : DateTime.Today);
+            var tempDrtgl = Drtgl.ToString("yyyy-MM-dd") + " 00:00:00.000";
+            var tempSdtgl = Sdtgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
+
+            var vm = new DashboardViewModel()
+            {
+            };
+
+            string sSql1 = "";
+            sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
+            sSql1 += "(SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
+            sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSql1 += "	FROM (";
+            sSql1 += "		SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSql1 += "                         - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSql1 += "		FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            sSql1 += "		WHERE        STF08A.TAHUN = YEAR(SYSDATETIME()) AND STF18.QOH_SALES = 0 ";
+            sSql1 += "		GROUP BY BRG ";
+            sSql1 += "		UNION ALL ";
+            sSql1 += "		SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSql1 += "		FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSql1 += "                         SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSql1 += "                         SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSql1 += "		WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSql1 += "		GROUP BY B.BRG)A ";
+            sSql1 += "	GROUP BY BRG  ";
+            sSql1 += "	) A  ";
+            sSql1 += "LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
+            sSql1 += ") A  ";
+            sSql1 += "left join  ";
+            sSql1 += "(SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
+            sSql1 += "ON B.BRG=A.BRG ";
+            sSql1 += "WHERE ISNULL(B.BRG, '') = '' ";
+            sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA ";
+            sSql1 += "ORDER BY A.SISA DESC , A.QOH DESC ";
+            sSql1 += "OFFSET 0 ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListBarangTidakLakuInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgMinStok>(sSql1).ToList();
+            foreach (var item in ListBarangTidakLakuInPesanan)
+            {
+                vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                {
+                    KodeBrg = item.BRG,
+                    NamaBrg = item.NAMA,
+                    Qoh = Convert.ToDouble(item.QOH),
+                    Qty = Convert.ToDouble(item.SISA)
+                });
+            }
+
+            return PartialView("TableDashboardBarangTidaklakuPartial", vm);
+        }
+        //end add by nurul 2/9/2019
 
         // =============================================== Dashboard (END)
 
@@ -2920,6 +3170,18 @@ namespace MasterOnline.Controllers
             public string NAMA { get; set; }
             public double QTY { get; set; }
         }
+        public class listBrgNotInPesanan
+        {
+            public string BRG { get; set; }
+            public string NAMA { get; set; }
+            public string NAMA2 { get; set; }
+            public double HJUAL { get; set; }
+            public int ID { get; set; }
+            public string KET_SORT1 { get; set; }
+            public string KET_SORT2 { get; set; }
+            public string LINK_GAMBAR_1 { get; set; }
+            public double QOH { get; set; }
+        }
         public ActionResult RefreshTableBarangTidakLaku(string param, int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
@@ -3020,40 +3282,74 @@ namespace MasterOnline.Controllers
 
             //add by calvin 24 mei 2019
             //note by calvin 24 mei 2019 : hanya cari dari pesanan, confirm by pak dani
+
+            //change by nurul 4/9/2019, order by qoh desc
+            string sSql = "";
+            sSql += "select * from ( ";
+            sSql += "	select st.brg, ";
+            sSql += "   st2.NAMA, st2.NAMA2, ISNULL(SUM(ISNULL(st2.HJUAL, 0)), 0) HJUAL, ISNULL(SUM(ISNULL(st2.ID, 0)), 0) ID, st2.KET_SORT1, st2.KET_SORT2, st2.LINK_GAMBAR_1, ";
+            sSql += "	ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) QOH ";
+            sSql += "	from stf08a st inner join stf18 gd on st.gd = gd.kode_gudang and gd.QOH_SALES=0 ";
+            //sSql += "	--AND LTRIM(RTRIM(ISNULL(gd.kd_harga_jual,''))) IN ('','0') -- hanya gudang link ke marketplace";
+            sSql += "	left join ( ";
+            sSql += "		select distinct sob.brg ";
+            sSql += "		from sot01a soa inner join sot01b sob on soa.no_bukti = sob.no_bukti ";
+            sSql += "		where soa.tgl between '" + drtanggal + "' and '" + sdtanggal + "' and soa.status_transaksi not in ('11') ";
+            sSql += "		group by sob.brg ";
+            sSql += "   )so on 	st.brg = so.brg ";
+            sSql += "   inner join stf02 st2 on st.brg = st2.brg";
+            sSql += "	where isnull(so.brg ,'') = ''";
+            if(search != "")
+            {
+                sSql += "and st2.NAMA LIKE '%" + search + "%' OR st.BRG LIKE '%" + search + "%'";
+            }
+            sSql += "	group by st.brg, st2.NAMA, st2.NAMA2, st2.HJUAL, st2.ID, st2.KET_SORT1, st2.KET_SORT2, st2.LINK_GAMBAR_1 ";
+            sSql += ") a order by qoh desc, brg asc ";
+            string sSql1 = "";
+            sSql1 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSql1 += "FETCH NEXT 10 ROWS ONLY; ";
+
+
             var result = new List<TableMenuBarang1PartialViewModel>();
             var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>("SELECT BRG, NAMA, QTY FROM ( SELECT B.BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2,'') AS NAMA, SUM(B.QTY) QTY FROM SOT01A (nolock) A INNER JOIN SOT01B (nolock) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN STF02 (nolock) C ON B.BRG = C.BRG WHERE A.TGL between '" + drtanggal + "' AND '" + sdtanggal + "' GROUP BY B.BRG,C.NAMA,C.NAMA2 ) A WHERE A.NAMA LIKE '%" + search + "%' OR A.BRG LIKE '%" + search + "%' ORDER BY QTY ASC").ToList();
-            var listBarangInPesanan = ListBarangAndQtyInPesanan.Select(p => p.BRG).ToList();
-            var totalCountInPesanan = listBarangInPesanan.Count();
+            //var listBarangInPesanan = ListBarangAndQtyInPesanan.Select(p => p.BRG).ToList();
+            //var totalCountInPesanan = listBarangInPesanan.Count();
+            var totalCountInPesanan = ListBarangAndQtyInPesanan.Count();
             var totalCount0Pesanan = 0;
 
             #region cari yang 0 pesanannya
             {
-                var Stf02S = (from p in ErasoftDbContext.STF02
-                              where
-                              (
-                                (p.TYPE == "3")
-                                &&
-                                ((p.NAMA + " " + (p.NAMA2 ?? "")).Contains(search) || p.BRG.Contains(search))
-                              //&&
-                              //!listBarangInPesanan.Contains(p.BRG)
-                              )
-                              orderby p.NAMA
-                              select new { p.BRG, p.NAMA, p.NAMA2, p.HJUAL, p.ID, p.KET_SORT1, p.KET_SORT2, p.LINK_GAMBAR_1 });
-                var sudahFilter = Stf02S.ToList().Where(p => !listBarangInPesanan.Contains(p.BRG)).OrderBy(p => p.NAMA).ToList();
-                var ListStf02S = sudahFilter.Skip(pagenumber * 10).Take(10).ToList();
-                totalCount0Pesanan = sudahFilter.Count();
+                //var Stf02S = (from p in ErasoftDbContext.STF02
+                //              where
+                //              (
+                //                (p.TYPE == "3")
+                //                &&
+                //                ((p.NAMA + " " + (p.NAMA2 ?? "")).Contains(search) || p.BRG.Contains(search))
+                //              //&&
+                //              //!listBarangInPesanan.Contains(p.BRG)
+                //              )
+                //              orderby p.NAMA
+                //              select new { p.BRG, p.NAMA, p.NAMA2, p.HJUAL, p.ID, p.KET_SORT1, p.KET_SORT2, p.LINK_GAMBAR_1 });
+                //var sudahFilter = Stf02S.ToList().Where(p => !listBarangInPesanan.Contains(p.BRG)).OrderBy(p => p.NAMA).ToList();
+                //var ListStf02S = sudahFilter.Skip(pagenumber * 10).Take(10).ToList();
+                //totalCount0Pesanan = sudahFilter.Count();
 
-                if (ListStf02S.Count() > 0)
+
+                var listBrgNotInPesanan = ErasoftDbContext.Database.SqlQuery<listBrgNotInPesanan>(sSql).ToList();
+                var ListBrg10 = ErasoftDbContext.Database.SqlQuery<listBrgNotInPesanan>(sSql + sSql1).ToList();
+                totalCount0Pesanan = listBrgNotInPesanan.Count();
+
+                if (ListBrg10.Count() > 0)
                 {
                     string kodeBarang = "";
-                    foreach (var item in ListStf02S)
+                    foreach (var item in ListBrg10)
                     {
                         kodeBarang += "'" + item.BRG + "'" + ",";
                     }
                     kodeBarang = kodeBarang.Substring(0, kodeBarang.Length - 1);
                     var listQOH_QOO = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM] WHERE BRG IN (" + kodeBarang + ")").ToList();
 
-                    foreach (var item in ListStf02S)
+                    foreach (var item in ListBrg10)
                     {
                         var resultItem = new TableMenuBarang1PartialViewModel()
                         {
@@ -3083,7 +3379,48 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                //if (ListStf02S.Count() > 0)
+                //{
+                //    string kodeBarang = "";
+                //    foreach (var item in ListStf02S)
+                //    {
+                //        kodeBarang += "'" + item.BRG + "'" + ",";
+                //    }
+                //    kodeBarang = kodeBarang.Substring(0, kodeBarang.Length - 1);
+                //    var listQOH_QOO = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM] WHERE BRG IN (" + kodeBarang + ")").ToList();
+
+                //    foreach (var item in ListStf02S)
+                //    {
+                //        var resultItem = new TableMenuBarang1PartialViewModel()
+                //        {
+                //            BRG = item.BRG,
+                //            HJUAL = item.HJUAL,
+                //            ID = item.ID,
+                //            KET_SORT1 = item.KET_SORT1,
+                //            KET_SORT2 = item.KET_SORT2,
+                //            LINK_GAMBAR_1 = item.LINK_GAMBAR_1,
+                //            NAMA = item.NAMA,
+                //            NAMA2 = item.NAMA2,
+                //            QOH = 0,
+                //            QOO = 0,
+                //            QtySales = 0
+                //        };
+                //        var getQOH = listQOH_QOO.Where(p => p.BRG == item.BRG && p.JENIS == "QOH").FirstOrDefault();
+                //        if (getQOH != null)
+                //        {
+                //            resultItem.QOH = getQOH.JUMLAH;
+                //        }
+                //        var getQOO = listQOH_QOO.Where(p => p.BRG == item.BRG && p.JENIS == "QOO").FirstOrDefault();
+                //        if (getQOO != null)
+                //        {
+                //            resultItem.QOO = getQOO.JUMLAH;
+                //        }
+                //        result.Add(resultItem);
+                //    }
+                //}
+
             }
+            //end change by nurul 4/9/2019, order by qoh desc
             #endregion
             var jumlahResult0Pesanan = result.Count();
             if (jumlahResult0Pesanan < 10)
@@ -3147,7 +3484,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            
             IPagedList<TableMenuBarang1PartialViewModel> pageOrders = new StaticPagedList<TableMenuBarang1PartialViewModel>(result, pagenumber + 1, 10, totalCountInPesanan + totalCount0Pesanan);
+            
             return PartialView("TableBarangTidakLakuPartial", pageOrders);
             //end add by calvin 24 mei 2019
         }
