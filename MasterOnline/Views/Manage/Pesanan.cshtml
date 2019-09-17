@@ -5922,14 +5922,15 @@
                     get_selected.push($(item).attr("data-recnum"));
                 });
             }
-
+            var pList = $('#ckPackinglist').is(":checked");
             var link = '@Url.Action("UbahStatusPesananPacking", "Manage")';
 
             $.ajax({
                 type: "POST",
                 url: link,
 
-                data: JSON.stringify(get_selected),
+                //data: JSON.stringify(get_selected),
+                data: JSON.stringify({ get_selected: get_selected, packinglist: pList }),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
                 success: function(response) {

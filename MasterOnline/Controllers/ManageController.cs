@@ -14720,10 +14720,10 @@ namespace MasterOnline.Controllers
 
             return new EmptyResult();
         }
-        public ActionResult UbahStatusPesananPacking(string[] get_selected)
+        public ActionResult UbahStatusPesananPacking(string[] get_selected, bool packinglist)
         {
             List<String> listError = new List<String>();
-
+            var listRecnumPackinglist = new List<string>();
             for (int i = 0; i < get_selected.Length; i++)
             {
                 if (!string.IsNullOrEmpty(get_selected[i]))
@@ -14850,7 +14850,17 @@ namespace MasterOnline.Controllers
                                 GenerateFaktur(rec, pesananInDb.USER_NAME);
                             }
                             //end add by nurul 5/9/2019
+
+                            //add by Tri 16/9/2019, packing list
+                            if (packinglist)
+                            {
+                                listRecnumPackinglist.Add(get_selected[i]);
+                            }
+                            //end add by Tri 16/9/2019, packing list
+
                         }
+                       
+
                     }
                     //}
                     //else
@@ -14884,6 +14894,12 @@ namespace MasterOnline.Controllers
                     //}
                 }
             }
+            //add by Tri 16/9/2019, packing list
+            if (packinglist && listRecnumPackinglist.Count > 0)
+            {
+                ProsesPesananToPackingList(listRecnumPackinglist);
+            }
+            //end add by Tri 16/9/2019, packing list
 
             if (listError.Count() > 0)
             {
@@ -30760,7 +30776,8 @@ namespace MasterOnline.Controllers
                     newSot03c.NO_BUKTI = nobuk;
                     newSot03c.NO_PESANAN = data.NO_BUKTI;
                     newSot03c.BRG = data.BRG;
-                    newSot03c.QTY = data.QTY_N == 0 ? Convert.ToInt32(data.QTY) : Convert.ToInt32(data.QTY_N);
+                    //newSot03c.QTY = data.QTY_N == 0 ? Convert.ToInt32(data.QTY) : Convert.ToInt32(data.QTY_N);
+                    newSot03c.QTY = Convert.ToInt32(data.QTY_N);
                     newSot03c.USERNAME = usernameLogin;
                     newSot03c.TGL_INPUT = tglInput;
 
@@ -30856,21 +30873,22 @@ namespace MasterOnline.Controllers
         }
 
 
-        public ActionResult ProsesPesananToPackingList(string[] rows_selected)
+        public PesananViewModel ProsesPesananToPackingList(/*string[] rows_selected*/List<string> rows_selected)
         {
             var vmError = new PesananViewModel() { };
             if (rows_selected == null)
             {
-               
+
 
                 vmError.Errors.Add("Silahkan pilih pesanan yang akan masuk packing list !");
-                return Json(vmError, JsonRequestBehavior.AllowGet);
+                //return Json(vmError, JsonRequestBehavior.AllowGet);
+                return vmError;
             }
             var listPackinglistinDB = ErasoftDbContext.SOT03B.Select(m => m.NO_PESANAN).ToList();
             var listorder = new List<SOT01A>();
             var listBuyer = new List<ARF01C>();
             var listPesanan = new List<string>();
-            for (int i = 0; i < rows_selected.Length; i++)
+            for (int i = 0; i < rows_selected.Count; i++)
             {
                 if (!string.IsNullOrEmpty(rows_selected[i]))
                 {
@@ -30932,7 +30950,8 @@ namespace MasterOnline.Controllers
 
                 ProsesDetailPackinglist(newPackinglist.NO_BUKTI);
                 vmError.selectRec = newPackinglist.NO_BUKTI;
-                return Json(vmError, JsonRequestBehavior.AllowGet);
+                //return Json(vmError, JsonRequestBehavior.AllowGet);
+                return vmError;
                 //var vm = new PackingListViewModel()
                 //{
 
@@ -30958,8 +30977,9 @@ namespace MasterOnline.Controllers
 
                 //return View("FormPackinglistPartial", vm);
             }
-
-            return JsonErrorMessage("Pesanan yang ada pilih sudah masuk Packing List");
+            vmError.Errors.Add("Pesanan yang ada pilih sudah masuk Packing List");
+            //return JsonErrorMessage("Pesanan yang ada pilih sudah masuk Packing List");
+            return vmError;
         }
 
         //end add by Tri 30-08-2019, picking list
