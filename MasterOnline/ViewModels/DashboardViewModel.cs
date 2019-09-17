@@ -8,11 +8,14 @@ namespace MasterOnline.ViewModels
 {
     public class DashboardViewModel
     {
-        public List<SOT01A> ListPesanan { get; set; } = new List<SOT01A>();
-        public List<SOT01B> ListPesananDetail { get; set; } = new List<SOT01B>();
-        public List<SIT01A> ListFaktur { get; set; } = new List<SIT01A>();
-        public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
-        public List<STF02> ListBarang { get; set; } = new List<STF02>();
+        //remark by calvin 17 september 2019
+        //public List<SOT01A> ListPesanan { get; set; } = new List<SOT01A>();
+        //public List<SOT01B> ListPesananDetail { get; set; } = new List<SOT01B>();
+        //public List<SIT01A> ListFaktur { get; set; } = new List<SIT01A>();
+        //public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        //public List<STF02> ListBarang { get; set; } = new List<STF02>();
+        //end remark by calvin 17 september 2019
+
         public List<ARF01> ListAkunMarketplace { get; set; } = new List<ARF01>();
         public List<Marketplace> ListMarket { get; set; } = new List<Marketplace>();
         public List<STF08A> ListBarangUntukCekQty { get; set; } = new List<STF08A>();
@@ -39,6 +42,7 @@ namespace MasterOnline.ViewModels
         public List<FakturPerMarketplaceModel> ListFakturPerMarketplace { get; set; } = new List<FakturPerMarketplaceModel>();
         //end add by nurul 5/7/2019
 
+        public int? listBarangCount { get; set; }
         public int? JumlahPesananHariIni { get; set; }
         public double? NilaiPesananHariIni { get; set; }
         public int? JumlahPesananBulanIni { get; set; }
