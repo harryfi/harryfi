@@ -643,10 +643,12 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                @if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+@*@if (Model?.ListBarang != null)*@
+                @if (Model?.listBarangCount > 0)
                 {
                     <p>
-                        <span class="block_subtitle">Inventory</span>: @(Model.ListBarang.Count > 0 ? Model.ListBarang.Count.ToString() : "0") SKU
+                        @*<span class="block_subtitle">Inventory</span>: @(Model.ListBarang.Count > 0 ? Model.ListBarang.Count.ToString() : "0") SKU*@
+                        <span class="block_subtitle">Inventory</span>: @( Model.listBarangCount.Value ) SKU
                     </p>
                     <p>
                         <span class="block_subtitle">Barang Tak Laku (3 Bulan Terakhir)</span>: @(Model?.ListBarangTidakLaku?.Count > 0 ? Model?.ListBarangTidakLaku?.Count.ToString() : "0") SKU
