@@ -30572,7 +30572,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdatePackinglist(UpdateData dataUpdate)
         {
             var packinglistInDb = ErasoftDbContext.SOT03A.Single(p => p.RecNum == dataUpdate.RecNumPackinglist);
-            packinglistInDb.TGL = DateTime.ParseExact(dataUpdate.TGL, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            packinglistInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
             ErasoftDbContext.SaveChanges();
 

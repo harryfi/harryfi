@@ -490,7 +490,14 @@
                 $('#packingList_TGL').val($('#packingList_TGL').val().split(' ')[0]);
                 $('#TGL').val($('#packingList_TGL').val());
             } else {
-                $('#packingList_TGL').val($('#TGL_MULAI').val());
+                var today = new Date();
+                var m = today.getMonth() + 1;
+                if (m <= 9) {
+                    m = "0" + m;
+                }
+                var date = today.getDate() + '/' + m + '/' + today.getFullYear();
+                $('#packingList_TGL').val(date);
+                $('#TGL').val($('#packingList_TGL').val());
             }
 
             //if ($('#Promosi_TGL_AKHIR').val() != '') {
@@ -524,7 +531,7 @@
                     data: JSON.stringify({
                         RecNumPackinglist: $('#packingList_RecNum').val(),
                         NO_BUKTI: $('#packingList_NO_BUKTI').val(),
-                        TGL: $('#packingList_TGL').val()
+                        Tgl: $('#packingList_TGL').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
