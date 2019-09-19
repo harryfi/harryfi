@@ -7891,6 +7891,13 @@
                             $('#modal-status-multi-packing-body').html(response);
                             $('#datatable_ubahstatus_packing').show();
                             $('#loading_ubahstatus_packing').hide();
+                            //add by 19/9/19 by Tri
+                            if ($('#createPackinglist').val() == 1) {
+                                $('#ckPackinglist').prop('checked', true);
+                            } else {
+                                $('#ckPackinglist').prop('checked', false);
+                            }
+                            //end add by 19/9/19 by Tri
                         } else {
                             $('#modalUbahStatusMultiPacking').modal('hide');
                             $('#datatable_ubahstatus_packing').show();

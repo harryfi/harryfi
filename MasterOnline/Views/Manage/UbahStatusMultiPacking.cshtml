@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @model MasterOnline.ViewModels.PesananViewModel
 
+@Html.HiddenFor(m => m.createPackinglist)
 
 <table class="table table-striped table-bordered" id="datatable_ubahstatus_packing">
     <thead>
@@ -56,7 +57,7 @@
                 <td>
                     @(buyer == null ? "" : buyer.NAMA)
                 </td>
-                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
             </tr>
         }
     </tbody>

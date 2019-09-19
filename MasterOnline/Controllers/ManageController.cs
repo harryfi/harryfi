@@ -14723,7 +14723,10 @@ namespace MasterOnline.Controllers
         public ActionResult UbahStatusPesananPacking(string[] get_selected, bool packinglist)
         {
             List<String> listError = new List<String>();
+            //add 19/9/2019, packing list
             var listRecnumPackinglist = new List<string>();
+            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET TITIPAN = " + (packinglist ? "1" : "0"));
+            //end add 19/9/2019, packing list
             for (int i = 0; i < get_selected.Length; i++)
             {
                 if (!string.IsNullOrEmpty(get_selected[i]))
@@ -15432,6 +15435,9 @@ namespace MasterOnline.Controllers
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
+            //add by Tri 19/9/19
+            vm.createPackinglist = ErasoftDbContext.SIFSYS.FirstOrDefault().TITIPAN;
+            //end add by Tri 19/9/19
             return PartialView("UbahStatusMultiPacking", vm);
         }
 
