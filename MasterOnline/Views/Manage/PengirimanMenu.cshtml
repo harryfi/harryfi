@@ -133,7 +133,6 @@
                     @using (Html.BeginForm("SaveKirim", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-kirim" }))
                     {
                         <div id="form-partial">
-                            @*@Html.Partial("BarangStokPartial")*@
                         </div>
                     }
                 </div>
@@ -328,7 +327,7 @@
                     $('#modalTutupEditor').modal('show');
                 } else {
                     $modeEdit = 0;
-                    $('input, select, .btn-danger').each(function () {
+                    $('input, select').each(function () {
                         $(this).removeAttr('disabled');
                     });
                     $('.kirim_table_section').show();
@@ -356,7 +355,7 @@
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
             $modeEdit = 0;
-            $('input, select, .btn-danger').each(function () {
+            $('input, select').each(function () {
                 $(this).removeAttr('disabled');
             });
             $('.kirim_table_section').show();
@@ -530,6 +529,7 @@
                                         $('#PengirimanDetail_KOTA').val(item.KOTA);
                                         $('#PengirimanDetail_PROPINSI').val(item.PROPINSI);
                                         $('#PengirimanDetail_KODE_POS').val(item.KODE_POS);
+                                        $($trElement + ' .kurir-detail').html(item.NAMAKURIR);
 
                                         return;
                                     }
@@ -592,9 +592,10 @@
                     $('#close-editor')[0].disabled = false;
 
                     $('#form-partial').html(response);
-                    $('input, select, .btn-danger').each(function () {
+                    $('input, select').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
+
                     //getDetailKirim();
                     refreshInputan();
                     getDataPesanan();
@@ -655,6 +656,19 @@
         }
 
         function refreshInputan() {
+            $('#DrTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#SdTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#FromCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#ToCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            
             var d = new Date();
                     //d.setMonth(d.getMonth() - 3);
                     $('#DrTanggal').datepicker({
@@ -784,16 +798,20 @@
                     $('#Pengiriman_NAMA_KURIR').val() != '' &&
                     $('#timepicker1').val() != ''
                 ) {
+
                     $('#PengirimanDetail_PESANAN').val($('#PESANAN').selectivity('val'));
                     $('#PengirimanDetail_NAMA_MARKET').val($('tr[data-kirim-id="0"] .mp-detail').text());
                     $('#PengirimanDetail_NAMA_PEMBELI').val($('tr[data-kirim-id="0"] .buyer-detail').text());
                     $('#PengirimanDetail_ALAMAT_KIRIM').val($('tr[data-kirim-id="0"] .al-detail').text());
-
+                    $('input, select').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveKirim", "Manage")',
                         data: $('#form-kirim').serialize(),
                         beforeSend: function () {
+                            
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
@@ -801,7 +819,7 @@
                                 $('#close-editor')[0].disabled = false;
                                 $modeEdit = 1;
                                 $('#form-partial').html(response);
-                                $('input, select, .btn-danger').each(function () {
+                                $('input, select').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
                                 //getDetailKirim();
@@ -905,8 +923,10 @@
                     $.each(data,
                         function(i, item) {
                             listEkspedisi[i] = {
-                                id: item.SHIPMENT,
-                                text: item.SHIPMENT
+                                //id: item.SHIPMENT,
+                                //text: item.SHIPMENT
+                                id: item.RecNum,
+                                text: item.NamaEkspedisi
                             };
                         });
 
@@ -996,11 +1016,11 @@
                     var $jumlahDetail = res;
                     if ($jumlahDetail == 0) {
                         //$("#btn-autoload-row").show();
-                        $('input, select, .btn-danger').each(function () {
+                        $('input, select').each(function () {
                             $(this).removeAttr('disabled');
                         });
                     } else {
-                        $('input, select, .btn-danger').each(function () {
+                        $('input, select').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
                         //$("#btn-autoload-row").hide();
@@ -1024,6 +1044,9 @@
                 link = link.replace("replacesdTgl", $('#SdTanggal').val());
                 link = link.replace("replacedrCust", $('#FromCust').val());
                 link = link.replace("replacesdCust", $('#ToCust').val());
+                $('input, select').each(function () {
+                    $(this).removeAttr('disabled');
+                });
                 $.ajax({
                         type: "POST",
                         url: link,
@@ -1042,7 +1065,7 @@
                                 getExpedisi();
                                 getTanggal();
                                 //$('#loading_spinner').hide();
-                                $('input, select, .btn-danger').each(function () {
+                                $('input, select').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
                                 //$(' select,  ').each(function () {

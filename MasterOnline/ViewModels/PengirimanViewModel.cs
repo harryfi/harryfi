@@ -32,6 +32,15 @@ namespace MasterOnline.ViewModels
         public string DRCUST { get; set; }
         public string SDCUST { get; set; }  
         public string USERNAME { get; set; }
-        
+
+        //add by nurul 16/9/2019, tambah cek shipment dr list pesanan sit04b
+        public List<ShipmentOfKirim> Shipment { get; set; } = new List<ShipmentOfKirim>();
+        //end add by nurul 16/9/2019
+    }
+
+    public class ShipmentOfKirim
+    {
+        public string SHIPMENT { get; set; }
+        public string NO_BUKTI { get; set; }
     }
 }
