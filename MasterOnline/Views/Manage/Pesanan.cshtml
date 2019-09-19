@@ -2794,6 +2794,9 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var $modeEditPesanan = 0;
+        var $modeEditDibayar = 0;
+        var $modeEditSelesai = 0;
         var get_selected = [];
         var bukti = "";
         var fktur = "";
@@ -3318,6 +3321,9 @@
                     refreshForm1();
                     $modeEdit = 0;
                     $modeEditDetail = 0;
+                    $modeEditPesanan = 0;
+                    $modeEditDibayar = 0;
+                    $modeEditSelesai = 0;
                     $beforeState = {
                         brutto: 0,
                         netto: 0,
@@ -3347,6 +3353,9 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $modeEditPesanan = 0;
+                $modeEditDibayar = 0;
+                $modeEditSelesai = 0;
                 $beforeState = {
                     brutto: 0,
                     netto: 0,
@@ -3376,6 +3385,9 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $modeEditPesanan = 0;
+                $modeEditDibayar = 0;
+                $modeEditSelesai = 0;
                 $beforeState = {
                     brutto: 0,
                     netto: 0,
@@ -3668,6 +3680,9 @@
             //add by nurul 1/11/2018
             $modeEdit = 0;
             $modeEditDetail = 0;
+            $modeEditPesanan = 0;
+            $modeEditDibayar = 0;
+            $modeEditSelesai = 0;
             $beforeState = {
                 brutto: 0,
                 netto: 0,
@@ -4539,51 +4554,33 @@
         //add by nurul 7 agustus 2019
         function hitungUlangBruto() {
             $total_bruto_barang = 0;
-            //$('.netto-barang').each(function () {
-            //if ($modeEditDetail == 1) {
-            //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-            //        if ($(this).attr("data-issaved") == "1") {
-            //            $total_bruto_barang += convertToAngka($(this).text());
-            //        }
-            //    });
-            //} else if ($modeEditDetail == 0) {
-            //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-            //    if ($(this).attr("data-issaved") == "0") {
-            //        $total_bruto_barang += convertToAngka($(this).text());
-            //    }
-            //    });
-            //}
-            if ($modeEditDetail == 1) {
-                $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-                    $total_bruto_barang += convertToAngka($(this).text());
-                });
-            } else if ($modeEditDetail == 0) {
-                $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+            if ($modeEditSelesai == 1) {
+                    $('tr[data-pesanan-selesai-id!="0"] .netto-barang').each(function () {
+                        $total_bruto_barang += convertToAngka($(this).text());
+                    });
+            } else if ($modeEditDibayar == 1) {
+                $('tr[data-pesanan-dibayar-id!="0"] .netto-barang').each(function () {
                     $total_bruto_barang += convertToAngka($(this).text());
                 });
             }
+            else  {
+                if ($modeEditDetail == 1) {
+                    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+                        if ($(this).attr("data-issaved") == "1") {
+                            $total_bruto_barang += convertToAngka($(this).text());
+                        }
+                    });
+                } else if ($modeEditDetail == 0) {
+                    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+                            if ($(this).attr("data-issaved") != undefined) {
+                                $total_bruto_barang += convertToAngka($(this).text());
+                            }
+                    });
+                }
+            }
+
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
-        //function hitungUlangBrutoEdit() {
-        //    $total_bruto_barang = 0;
-        //    //$('.netto-barang').each(function () {
-        //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-        //        if ($(this).attr("data-issaved") == "1") {
-        //            $total_bruto_barang += convertToAngka($(this).text());
-        //        }
-        //    });
-        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
-        //}
-        //function hitungUlangBrutoNew() {
-        //    $total_bruto_barang = 0;
-        //    //$('.netto-barang').each(function () {
-        //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-        //        if ($(this).attr("data-issaved") == "0") {
-        //            $total_bruto_barang += convertToAngka($(this).text());
-        //        }
-        //    });
-        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
-        //}
         //end add by nurul 7 agustus 2019
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
@@ -5399,6 +5396,15 @@
                                     '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="" style="text-align:right">');
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                $beforeState.brutto = $('#Pesanan_BRUTO').val();
+                                $beforeState.netto = $('#Pesanan_NETTO').val();
+                                $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
+                                $beforeState.ppn = $('#Pesanan_PPN').val();
+                                $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
+                                $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
 
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
@@ -6831,7 +6837,7 @@
                         //samakan dengan function lihatPesananSudahDibayar onSuccess
                         //add by nurul 1/11/2018
                         $modeEdit = 1;
-                        $modeEditDetail = 0;
+                        $modeEditDibayar = 1;
                         //end add
                         $('#form-partial-sudah-dibayar').html(response);
                         $('#see_tgl_pesanan').removeAttr('style');
@@ -8223,7 +8229,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 0;
+                    $modeEditSelesai = 1;
                     //end add
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8275,7 +8281,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 0;
+                    $modeEditDibayar = 1;
                     //end add
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8414,6 +8420,7 @@
                     $('#Pesanan_EXPEDISI').val() != '' &&
                     $('#Pesanan_NAMAPEMESAN').val() != ''
                 ) {
+                    $modeEditDetail = 0;
                     refreshNetto();
                     var tgl = $('#Pesanan_TGL').val();
                     $('#PesananDetail_TGL_INPUT').val(tgl);

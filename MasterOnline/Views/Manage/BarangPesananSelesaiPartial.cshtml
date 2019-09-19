@@ -317,7 +317,7 @@
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
         <div class="hscroll table-responsive">
-            <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
+            <table id="table_tambah_pesanan_selesai" class="table table-bordered" role="grid">
                 <thead>
                     <tr>
                         <th width="100">Kode Brg</th>
@@ -339,7 +339,7 @@
                     }
                     @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
-                        <tr data-barang-id="brg-@pesanan.NO_URUT">
+                        <tr data-barang-selesai-id="brg-@pesanan.NO_URUT">
                             @{
                                 var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
                                 var stnBarang = barang == null ? "" : barang.STN2;

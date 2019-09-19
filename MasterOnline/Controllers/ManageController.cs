@@ -12187,7 +12187,11 @@ namespace MasterOnline.Controllers
 
                 fakturInDb.NETTO = dataVm.Faktur.NETTO;
                 fakturInDb.BRUTO = dataVm.Faktur.BRUTO;
-                fakturInDb.DISCOUNT = dataVm.Faktur.DISCOUNT;
+                //change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC dan tambah ongkos kirim 
+                //fakturInDb.DISCOUNT = dataVm.Faktur.DISCOUNT;
+                fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                //end change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC 
                 fakturInDb.PPN = dataVm.Faktur.PPN;
                 fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
 
@@ -14396,7 +14400,10 @@ namespace MasterOnline.Controllers
 
                 pesananInDb.NETTO = dataVm.Pesanan.NETTO;
                 pesananInDb.BRUTO = dataVm.Pesanan.BRUTO;
-                pesananInDb.DISCOUNT = dataVm.Pesanan.DISCOUNT;
+                //change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
+                //pesananInDb.DISCOUNT = dataVm.Pesanan.DISCOUNT;
+                pesananInDb.NILAI_DISC = dataVm.Pesanan.NILAI_DISC;
+                //end change by nurul 6/9/2019, save disc di nilai_disc ngikutin di form
                 pesananInDb.PPN = dataVm.Pesanan.PPN;
                 pesananInDb.NILAI_PPN = dataVm.Pesanan.NILAI_PPN;
                 pesananInDb.ONGKOS_KIRIM = dataVm.Pesanan.ONGKOS_KIRIM;
