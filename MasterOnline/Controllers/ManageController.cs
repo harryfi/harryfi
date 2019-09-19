@@ -28959,6 +28959,17 @@ namespace MasterOnline.Controllers
                             {
                                 data.Stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE3, "uploaded-image").data.link_l;
                             }
+                            //add 19/9/19, 5 gambar
+                            if (!string.IsNullOrEmpty(data.TempBrg.IMAGE4))
+                            {
+                                data.Stf02.LINK_GAMBAR_4 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE4, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(data.TempBrg.IMAGE5))
+                            {
+                                data.Stf02.LINK_GAMBAR_5 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE5, "uploaded-image").data.link_l;
+                            }
+                            //end add 19/9/19, 5 gambar
+
                             if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))
                                 data.Stf02.PART = data.TempBrg.KODE_BRG_INDUK;
                             //change by Tri 11 Feb 2019, handle brg tokped
@@ -29392,14 +29403,16 @@ namespace MasterOnline.Controllers
                         {
                             stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE, "uploaded-image").data.link_l;
                         }
-                        if (!string.IsNullOrEmpty(tempBrg.IMAGE2))
-                        {
-                            stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE2, "uploaded-image").data.link_l;
-                        }
-                        if (!string.IsNullOrEmpty(tempBrg.IMAGE3))
-                        {
-                            stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE3, "uploaded-image").data.link_l;
-                        }
+                        //remark 19/9/19, barang induk ambil 1 gambar saja
+                        //if (!string.IsNullOrEmpty(tempBrg.IMAGE2))
+                        //{
+                        //    stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE2, "uploaded-image").data.link_l;
+                        //}
+                        //if (!string.IsNullOrEmpty(tempBrg.IMAGE3))
+                        //{
+                        //    stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE3, "uploaded-image").data.link_l;
+                        //}
+                        //end remark 19/9/19, barang induk ambil 1 gambar saja
 
                         eraDB.STF02.Add(stf02);
 
