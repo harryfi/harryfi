@@ -30893,7 +30893,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(rows_selected[i]))
                 {
                     Int32 row = Convert.ToInt32(rows_selected[i]);
-                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "02").FirstOrDefault();
+                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "03").FirstOrDefault();
                     if (xx != null)
                     {
                         if (!listPackinglistinDB.Contains(xx.NO_BUKTI))
