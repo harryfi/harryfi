@@ -3909,6 +3909,13 @@ namespace MasterOnline.Controllers
                 {
                     if (brg.skus[i].Images[0] != null)
                         urlImage = brg.skus[i].Images[0];
+                    //add 19/9/19, varian ambil 2 barang
+                    if(typeBrg == 2)
+                    {
+                        if (brg.skus[i].Images[1] != null)
+                            urlImage2 = brg.skus[i].Images[1];
+                    }
+                    //end add 19/9/19, varian ambil 2 barang
                     //change 21/8/2019, barang varian ambil 1 gambar saja
                     //if (typeBrg != 2)
                     if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1

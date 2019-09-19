@@ -2440,7 +2440,10 @@ namespace MasterOnline.Controllers
                         //change 21/8/2019, barang varian ambil 1 gambar saja
                         if (numVarian > 1)
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , '', '', ''";
+                            //change 19/9/19, varian ambil 2 barang
+                            //sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , '', '', ''";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "', '', '', ''";
+                            //end change 19/9/19, varian ambil 2 barang
                         }
                         else
                         {
