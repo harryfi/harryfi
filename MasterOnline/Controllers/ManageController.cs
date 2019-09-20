@@ -22276,7 +22276,10 @@ namespace MasterOnline.Controllers
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
                 var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
-
+                //add by Tri, 20/9/19
+                if (lastRecnumARF01C == null)
+                    lastRecnumARF01C = 0;
+                //end add by Tri, 20/9/19
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
                 var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
                 var listBRGItem = listItem.Select(p => p.BRG).ToList();
@@ -22964,7 +22967,10 @@ namespace MasterOnline.Controllers
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
                 var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
-
+                //add by Tri, 20/9/19
+                if (lastRecnumARF01C == null)
+                    lastRecnumARF01C = 0;
+                //end add by Tri, 20/9/19
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
                 var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
                 var listBRGItem = listItem.Select(p => p.BRG).ToList();
