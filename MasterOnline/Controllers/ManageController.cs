@@ -2601,7 +2601,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new BuyerViewModel()
             {
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                //remark 17/9/2019 by Tri, tuning
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                //end remark 17/9/2019 by Tri, tuning
             };
         
             return View(vm);
@@ -2891,7 +2893,9 @@ namespace MasterOnline.Controllers
                 var buyerVm = new BuyerViewModel()
                 {
                     Pembeli = ErasoftDbContext.ARF01C.Single(c => c.RecNum == recNum),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                    //remark 17/9/2019 by Tri, tuning
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                    //end remark 17/9/2019 by Tri, tuning
                 };
 
                 return Json(buyerVm, JsonRequestBehavior.AllowGet);
