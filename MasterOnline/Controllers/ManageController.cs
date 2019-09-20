@@ -30540,7 +30540,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataPesananPackinglist(string nobuk)
         {
             var listPesanan = new List<SOT03B>();
-            var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET WHERE A.STATUS_TRANSAKSI = '02'");
+            var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A INNER JOIN ARF01 B ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET INNER JOIN SOT01B  D ON A.NO_BUKTI = D.NO_BUKTI WHERE A.STATUS_TRANSAKSI = '02' AND D.QTY_N > 0");
             var listPesanandiPackinglist = new List<SOT03B>();
             //if (!string.IsNullOrEmpty(nobuk))
             //{
