@@ -678,14 +678,14 @@ namespace MasterOnline.Controllers
             {
                 var adaMinggu5 = minggu5.Count() > 0;
                 ssql = "";
-                ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year +"-"+ selectedMonth +"-"+ minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
+                ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
                 ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
                 ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
                 ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SOT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')" + System.Environment.NewLine;
-                
+
                 if (adaMinggu5)
                 {
                     ssql += "UNION ALL" + System.Environment.NewLine;
@@ -756,7 +756,7 @@ namespace MasterOnline.Controllers
             #endregion
             #region faktur
             //var fakturTahunIni = ErasoftDbContext.SIT01A.Where(a => a.TGL.Year == selectedDate.Year && a.JENIS_FORM == "2").ToList();
-            
+
             //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
             //ssql = "";
             //ssql += "SELECT COUNT(RECNUM) JUMLAH FROM SIT01A WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' ";
@@ -823,7 +823,7 @@ namespace MasterOnline.Controllers
                 }
             }
             //END CHANGE BY CALVIN 18 SEPTEMBER 2019
-            
+
             //CHANGE BY CALVIN 18 SEPTEMBER 2019, TUNING
             //for (int i = 0; i < endday.Count(); i++)
             //{
@@ -1484,7 +1484,7 @@ namespace MasterOnline.Controllers
             return PartialView("TableDashboardLinePartial", vm);
         }
         //end add by nurul 12/7/2019
-                
+
         public ActionResult RefreshDashboardBaranglakuPartial(string drTgl, string sdTgl)
         {
 
@@ -1595,7 +1595,7 @@ namespace MasterOnline.Controllers
             var vm = new DashboardViewModel()
             {
             };
-            if(ListFakturPerMarket.Count() > 0)
+            if (ListFakturPerMarket.Count() > 0)
             {
                 foreach (var faktur in ListFakturPerMarket)
                 {
@@ -2603,7 +2603,7 @@ namespace MasterOnline.Controllers
             {
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
             };
-        
+
             return View(vm);
         }
 
@@ -3765,7 +3765,7 @@ namespace MasterOnline.Controllers
             sSql += "   )so on 	st.brg = so.brg ";
             sSql += "   inner join stf02 st2 on st.brg = st2.brg";
             sSql += "	where isnull(so.brg ,'') = ''";
-            if(search != "")
+            if (search != "")
             {
                 sSql += "and st2.NAMA LIKE '%" + search + "%' OR st.BRG LIKE '%" + search + "%'";
             }
@@ -3950,9 +3950,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            
+
             IPagedList<TableMenuBarang1PartialViewModel> pageOrders = new StaticPagedList<TableMenuBarang1PartialViewModel>(result, pagenumber + 1, 10, totalCountInPesanan + totalCount0Pesanan);
-            
+
             return PartialView("TableBarangTidakLakuPartial", pageOrders);
             //end add by calvin 24 mei 2019
         }
@@ -7991,42 +7991,40 @@ namespace MasterOnline.Controllers
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
 
-                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
-                                            {
-                                                kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                                nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
-                                                berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                                Keterangan = dataBarang.Stf02.Deskripsi,
-                                                Qty = "0",
-                                                MinQty = "0",
-                                                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
-                                                IDMarket = tblCustomer.RecNum.ToString(),
-                                                Length = Convert.ToString(dataBarang.Stf02.PANJANG),
-                                                Width = Convert.ToString(dataBarang.Stf02.LEBAR),
-                                                Height = Convert.ToString(dataBarang.Stf02.TINGGI),
-                                                type = Convert.ToString(dataBarang.Stf02.TYPE),
-                                                dataBarangInDb = barangInDb
-                                            };
+                                            //BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
+                                            //{
+                                            //    kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
+                                            //    nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
+                                            //    berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                            //    Keterangan = dataBarang.Stf02.Deskripsi,
+                                            //    Qty = "0",
+                                            //    MinQty = "0",
+                                            //    PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
+                                            //    IDMarket = tblCustomer.RecNum.ToString(),
+                                            //    Length = Convert.ToString(dataBarang.Stf02.PANJANG),
+                                            //    Width = Convert.ToString(dataBarang.Stf02.LEBAR),
+                                            //    Height = Convert.ToString(dataBarang.Stf02.TINGGI),
+                                            //    type = Convert.ToString(dataBarang.Stf02.TYPE),
+                                            //    dataBarangInDb = barangInDb
+                                            //};
 
-                                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = barangInDb.HJUAL.ToString();
-                                            data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                                            data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
+                                            //data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                                            //data.Price = barangInDb.HJUAL.ToString();
+                                            //data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                            //data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
 
-                                            data.display = display ? "true" : "false";
+                                            //data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
-                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data).Wait());
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                            Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null).Wait());
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
 #endif
                                         }
                                         //new BlibliController().GetQueueFeedDetail(iden, null);
@@ -8114,41 +8112,39 @@ namespace MasterOnline.Controllers
                                                         username = usernameLogin
                                                     };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                                    BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
-                                                    {
-                                                        kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                                        nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
-                                                        berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                                        Keterangan = dataBarang.Stf02.Deskripsi,
-                                                        Qty = "0",
-                                                        MinQty = "0",
-                                                        PickupPoint = stf02h.PICKUP_POINT,
-                                                        IDMarket = tblCustomer.RecNum.ToString(),
-                                                        Length = Convert.ToString(dataBarang.Stf02.PANJANG),
-                                                        Width = Convert.ToString(dataBarang.Stf02.LEBAR),
-                                                        Height = Convert.ToString(dataBarang.Stf02.TINGGI),
-                                                        type = Convert.ToString(dataBarang.Stf02.TYPE),
-                                                        dataBarangInDb = barangInDb
-                                                    };
-                                                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
-                                                    data.MarketPrice = Convert.ToString(stf02h.HJUAL);
-                                                    data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
+                                                    //BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
+                                                    //{
+                                                    //    kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
+                                                    //    nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
+                                                    //    berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                                    //    Keterangan = dataBarang.Stf02.Deskripsi,
+                                                    //    Qty = "0",
+                                                    //    MinQty = "0",
+                                                    //    PickupPoint = stf02h.PICKUP_POINT,
+                                                    //    IDMarket = tblCustomer.RecNum.ToString(),
+                                                    //    Length = Convert.ToString(dataBarang.Stf02.PANJANG),
+                                                    //    Width = Convert.ToString(dataBarang.Stf02.LEBAR),
+                                                    //    Height = Convert.ToString(dataBarang.Stf02.TINGGI),
+                                                    //    type = Convert.ToString(dataBarang.Stf02.TYPE),
+                                                    //    dataBarangInDb = barangInDb
+                                                    //};
+                                                    //data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                                                    //data.Price = Convert.ToString(barangInDb.HJUAL);
+                                                    //data.MarketPrice = Convert.ToString(stf02h.HJUAL);
+                                                    //data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
 
-                                                    data.display = display ? "true" : "false";
+                                                    //data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG;
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null).Wait());
-                                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                    //var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null).Wait());
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif
                                                     #endregion
                                                 }
@@ -8791,7 +8787,8 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult RefreshBrandLazada(int? page, string search = "") {
+        public ActionResult RefreshBrandLazada(int? page, string search = "")
+        {
 
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -8806,6 +8803,120 @@ namespace MasterOnline.Controllers
 
             IPagedList<BRAND_LAZADA> pageOrders = new StaticPagedList<BRAND_LAZADA>(PromptModel, pagenumber + 1, 5, BrandLazada.Count());
             return PartialView("TablePromptBrandLazada", pageOrders);
+        }
+
+        public ActionResult PromptBrandBlibli(string merchant_code, string category)
+        {
+            try
+            {
+                ViewData["cust"] = merchant_code;
+                ViewData["category"] = category;
+                return View("PromptBrandBlibli");
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        public static long CurrentTimeMillis()
+        {
+            //        return (long)DateTime.Now.ToUniversalTime().Subtract(
+            //new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //).TotalMilliseconds;
+            return (long)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+        private string CreateToken(string urlBlili, string secretMTA)
+        {
+            secretMTA = secretMTA ?? "";
+            var encoding = new System.Text.ASCIIEncoding();
+            byte[] keyByte = encoding.GetBytes(secretMTA);
+            byte[] messageBytes = encoding.GetBytes(urlBlili);
+            using (var hmacsha256 = new System.Security.Cryptography.HMACSHA256(keyByte))
+            {
+                byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+                return Convert.ToBase64String(hashmessage);
+                //return BitConverter.ToString(hashmessage).Replace("-", "").ToLower();
+
+            }
+        }
+
+        public async Task<ActionResult> RefreshBrandBlibli(string category, string cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["cust"] = cust;
+            ViewData["category"] = category;
+            var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
+            if (marketPlace != null)
+            {
+                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData
+                {
+                    merchant_code = marketPlace.Sort1_Cust,
+                    API_client_password = marketPlace.API_CLIENT_P,
+                    API_client_username = marketPlace.API_CLIENT_U,
+                    API_secret_key = marketPlace.API_KEY,
+                    token = marketPlace.TOKEN,
+                    mta_username_email_merchant = marketPlace.EMAIL,
+                    mta_password_password_merchant = marketPlace.PASSWORD,
+                    idmarket = marketPlace.RecNum.Value
+                };
+
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+
+                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
+
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+
+                System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+                string responseFromServer = "";
+                try
+                {
+                    using (System.Net.WebResponse response = myReq.GetResponse())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                if (responseFromServer != "")
+                {
+                    var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrand)) as BlibliBrand;
+                    var list_value = new List<BRAND_BLIBLI>();
+                    foreach (var item in ret.value)
+                    {
+                        list_value.Add(new BRAND_BLIBLI() {
+                            brand_id = item,
+                            name = item
+                        });
+                    }
+                    IPagedList<BRAND_BLIBLI> pageOrders = new StaticPagedList<BRAND_BLIBLI>(list_value, pagenumber + 1, 10, 10);
+                    return PartialView("TablePromptBrandBlibli", pageOrders);
+                }
+            }
+            
+            return PartialView("TablePromptBrandBlibli");
         }
 
         protected JsonResult JsonErrorMessage(string message)
@@ -16392,7 +16503,8 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                if (pesananInDb.TRACKING_SHIPMENT.Contains("[;]")) {
+                if (pesananInDb.TRACKING_SHIPMENT.Contains("[;]"))
+                {
                     parameters = "AUTO_SHOPEE";
                 }
             }
@@ -19280,7 +19392,8 @@ namespace MasterOnline.Controllers
                             DatabasePathErasoft = dbPathEra,
                             username = "ctes"
                         };
-                        var feed = new BlibliControllerJob.BlibliQueueFeedData() {
+                        var feed = new BlibliControllerJob.BlibliQueueFeedData()
+                        {
                             log_request_id = "1567580263937",
                             request_id = "527d8321-d09f-4c96-aea9-be6ff97e3c25"
                         };
@@ -30270,7 +30383,7 @@ namespace MasterOnline.Controllers
             string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
             Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
-            
+
             return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
         //end add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
@@ -30296,5 +30409,16 @@ namespace MasterOnline.Controllers
         public string KOTA { get; set; }
         public string PROPINSI { get; set; }
         public string KODE_POS { get; set; }
+    }
+
+
+    public class BlibliBrand
+    {
+        public object requestId { get; set; }
+        public object headers { get; set; }
+        public object errorMessage { get; set; }
+        public object errorCode { get; set; }
+        public bool success { get; set; }
+        public List<string> value { get; set; }
     }
 }
