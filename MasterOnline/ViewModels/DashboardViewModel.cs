@@ -59,5 +59,10 @@ namespace MasterOnline.ViewModels
         //add by nurul 9/9/2019
         public List<string> Errors { get; set; } = new List<string>();
         //end add by nurul 9/9/2019
+
+        //add by nurul 19/9/2019
+        public int? BarangTidakLakuCount { get; set; }
+        public int? BarangDibawahMinStokCount { get; set; }
+        //end add by nurul 19/9/2019
     }
 }

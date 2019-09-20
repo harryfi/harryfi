@@ -276,20 +276,23 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
-            sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY BRG ";
-            sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE TYPE ='3' ORDER BY SUM_QTY DESC ";
-            var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
-            foreach (var item in ListBarangAndQtyInPesanan)
-            {
-                vm.ListBarangLaku.Add(new PenjualanBarang
-                {
-                    KodeBrg = item.BRG,
-                    NamaBrg = item.NAMA,
-                    Qty = item.QTY,
-                    Laku = true
-                });
-            }
+
+            //remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
+            //string sSQL = "SELECT TOP 10 A.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2,'') AS NAMA,A.SUM_QTY AS QTY FROM ( ";
+            //sSQL += "SELECT BRG, SUM(QTY)SUM_QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY BRG ";
+            //sSQL += ") A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE TYPE ='3' ORDER BY SUM_QTY DESC ";
+            //var ListBarangAndQtyInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+            //foreach (var item in ListBarangAndQtyInPesanan)
+            //{
+            //    vm.ListBarangLaku.Add(new PenjualanBarang
+            //    {
+            //        KodeBrg = item.BRG,
+            //        NamaBrg = item.NAMA,
+            //        Qty = item.QTY,
+            //        Laku = true
+            //    });
+            //}
+            //end remark by nurul 20/9/2019 -- sudah tidak dipakai, karna udh pake pie chart 
 
             //end change by calvin 8 juli 2019
 
@@ -310,21 +313,59 @@ namespace MasterOnline.Controllers
             //        });
             //    }
             //}
-            sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
-            sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
-            sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = '' AND TYPE ='3'";
-            var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
-            foreach (var item in ListBarangAndQtyNotInPesanan)
-            {
-                vm.ListBarangTidakLaku.Add(new PenjualanBarang
-                {
-                    KodeBrg = item.BRG,
-                    NamaBrg = item.NAMA,
-                    Qty = item.QTY,
-                    Laku = false
-                });
-            }
+            //CHANGE BY NURUL 19/9/2019, UBAH QUERY 
+            //sSQL = "SELECT B.BRG,B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA,ISNULL(A.QTY,0) AS QTY FROM( ";
+            //sSQL += "SELECT DISTINCT BRG, QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI=B.NO_BUKTI WHERE MONTH(B.TGL_INPUT) >= " + (selectedMonth - 3).ToString() + " AND MONTH(B.TGL_INPUT) <= " + (selectedMonth).ToString() + " AND B.BRG <> 'NOT_FOUND' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') ";
+            //sSQL += ") A RIGHT JOIN STF02 B ON A.BRG = B.BRG WHERE ISNULL(A.BRG, '') = '' AND TYPE ='3'";
+            //var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<listQtyPesanan>(sSQL).ToList();
+            //foreach (var item in ListBarangAndQtyNotInPesanan)
+            //{
+            //    vm.ListBarangTidakLaku.Add(new PenjualanBarang
+            //    {
+            //        KodeBrg = item.BRG,
+            //        NamaBrg = item.NAMA,
+            //        Qty = item.QTY,
+            //        Laku = false
+            //    });
+            //}            
             //end change by calvin 8 juli 2019
+            string sSQL = "select COUNT(ID) AS COUNT_TRANSAKSI from (";
+            sSQL += "select distinct A.brg,A.id from stf02 A LEFT join (";
+            sSQL += "SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+            sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-3)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
+            sSQL += ")B on A.brg=B.brg WHERE ISNULL(B.BRG, '') = '' AND A.TYPE='3')A";
+            var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
+            vm.BarangTidakLakuCount = ListBarangAndQtyNotInPesanan.COUNT_TRANSAKSI;
+            //END CHANGE BY NURUL 19/9/2019 
+
+            //add by nurul 20/9/2019, tambah query get count barang minimum stok 
+            sSQL = "SELECT COUNT(BRG) AS COUNT_TRANSAKSI FROM ( ";
+            sSQL += "SELECT DISTINCT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI FROM ( ";
+            sSQL += "SELECT A.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ( ";
+            sSQL += "SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
+            sSQL += "SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
+            sSQL += "FROM ( ";
+            sSQL += "	SELECT        'QOH' AS JENIS, BRG, JUMLAH = ISNULL(SUM(QAWAL + (QM1 + QM2 + QM3 + QM4 + QM5 + QM6 + QM7 + QM8 + QM9 + QM10 + QM11 + QM12) ";
+            sSQL += "	    - (QK1 + QK2 + QK3 + QK4 + QK5 + QK6 + QK7 + QK8 + QK9 + QK10 + QK11 + QK12)), 0) ";
+            sSQL += "	FROM            STF08A(NOLOCK) INNER JOIN ";
+            sSQL += "		STF18(NOLOCK) ON STF08A.GD = STF18.KODE_GUDANG ";
+            sSQL += "	WHERE        STF08A.TAHUN = YEAR('" + (selectedDate).ToString("yyyy-MM-dd") + "') AND STF18.QOH_SALES = 0 ";
+            sSQL += "	GROUP BY BRG ";
+            sSQL += "	UNION ALL ";
+            sSQL += "	SELECT        'QOO' AS JENIS, B.BRG, JUMLAH = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            sSQL += "	FROM            SOT01A A(NOLOCK) INNER JOIN ";
+            sSQL += "		SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN ";
+            sSQL += "		SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSQL += "	WHERE        A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
+            sSQL += "	GROUP BY B.BRG)A ";
+            sSQL += "GROUP BY BRG ";
+            sSQL += ")A ";
+            sSQL += "INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' )A ";
+            sSQL += "WHERE A.SISA <= A.MINI ";
+            sSQL += ")A ";
+            var ListBarangMinStok = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
+            vm.BarangDibawahMinStokCount = ListBarangMinStok.COUNT_TRANSAKSI;
+            //end add by nurul 20/9/2019
 
             return PartialView(vm);
         }
