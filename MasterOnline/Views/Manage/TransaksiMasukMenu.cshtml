@@ -1268,9 +1268,61 @@
             });
         }
 
+        //add by nurul 20/9/2019
+        function validasiTambahan() {
+            var $isValid = true;
+            var $Gd = $('#GUDANG');
+            var $this = $('tr[data-stok-id="0"] .qty-barang');
+            var $total = $('tr[data-stok-id="0"] .netto-barang');
+            if ($Gd.val() == "-" || $Gd.val() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $('tr[data-stok-id="0"] .gd-barang').parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    } else {
+                        $('tr[data-stok-id="0"] .gd-barang').closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else if ($this.text().trim() == "0" || $this.text().trim() == "") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            }
+            else if (convertToAngka($total.text()) == 0 || convertToAngka($total.text()) == "") {
+                if (!$total.closest('div').find('.text-danger').length) {
+                    if ($total.closest('div').hasClass('input-group')) {
+                        $total.parent().parent().append('<span class="text-danger">total tidak boleh 0!</span>');
+                    } else {
+                        $total.closest('div').append('<span class="text-danger">total tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            }
+            else {
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                } else if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                } else if ($total.closest('div').find('.text-danger').length) {
+                    $total.closest('div').find('.text-danger').remove();
+                }
+            }
+
+            return $isValid;
+
+        }
+        //end add by nurul 20/9/2019
+
         function simpanbrg($id) {
             if (!validateForm()) return false;
-
+            //add by nurul 20/9/2019
+            if (!validasiTambahan()) return false;
+            //end add nurul 20/9/2019
             if ($id == 'brg-0') {
                 if ($('#Stok_Tgl').val() != "") {
                     $.ajax({
