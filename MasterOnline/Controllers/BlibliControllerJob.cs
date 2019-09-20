@@ -5972,6 +5972,31 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
         {
+            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeProduk && p.IDMARKET == arf01.RecNum).FirstOrDefault();
+            var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == kodeProduk);
+            data = new BlibliControllerJob.BlibliProductData
+            {
+                kode = barangInDb.BRG,
+                nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
+                berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                Keterangan = barangInDb.Deskripsi,
+                Qty = "0",
+                MinQty = "0",
+                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == arf01.RecNum).PICKUP_POINT.ToString(),
+                IDMarket = arf01.RecNum.ToString(),
+                Length = Convert.ToString(barangInDb.PANJANG),
+                Width = Convert.ToString(barangInDb.LEBAR),
+                Height = Convert.ToString(barangInDb.TINGGI),
+                dataBarangInDb = barangInDb
+            };
+            data.Brand = stf02h.AVALUE_38;
+            data.Price = barangInDb.HJUAL.ToString();
+            data.MarketPrice = stf02h.HJUAL.ToString();
+            data.CategoryCode = stf02h.CATEGORY_CODE.ToString();
+
+            data.display = stf02h.DISPLAY ? "true" : "false";
+
             //if merchant code diisi. barulah upload produk
             string ret = "";
 
@@ -6026,8 +6051,6 @@ namespace MasterOnline.Controllers
             //DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
             //DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
 
-            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.dataBarangInDb.BRG && p.IDMARKET == arf01.RecNum).FirstOrDefault();
             var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == data.CategoryCode).FirstOrDefault();
             var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
 

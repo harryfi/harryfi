@@ -16,4 +16,9 @@ namespace MasterOnline.Models
         public string global_identifier { get; set; }
         public string name_en { get; set; }
     }
+    public class BRAND_BLIBLI
+    {
+        public string brand_id { get; set; }
+        public string name { get; set; }
+    }
 }

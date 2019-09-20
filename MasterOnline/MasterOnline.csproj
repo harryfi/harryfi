@@ -6331,6 +6331,8 @@
     <Content Include="Views\Manage\TableDashboardBarangTidakLakuPartial.cshtml" />
     <Content Include="Views\Manage\PromptBrandLazada.cshtml" />
     <Content Include="Views\Manage\TablePromptBrandLazada.cshtml" />
+    <Content Include="Views\Manage\PromptBrandBlibli.cshtml" />
+    <Content Include="Views\Manage\TablePromptBrandBlibli.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
