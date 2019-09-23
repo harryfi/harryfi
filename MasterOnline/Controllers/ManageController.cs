@@ -146,7 +146,7 @@ namespace MasterOnline.Controllers
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year).ToList(),
                 ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                listBarangCount = ErasoftDbContext.STF02.Count(),
+                listBarangCount = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Count(),
                 ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
                 ListMarket = MoDbContext.Marketplaces.ToList(),
                 //remark by calvin 8 juli 2019
@@ -187,7 +187,7 @@ namespace MasterOnline.Controllers
             //vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.NETTO);
 
             var ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.TGL.Value.Month == selectedMonth && p.TGL.Value.Year == selectedDate.Year && (p.STATUS_TRANSAKSI == "0" || p.STATUS_TRANSAKSI == "01" || p.STATUS_TRANSAKSI == "02" || p.STATUS_TRANSAKSI == "03" || p.STATUS_TRANSAKSI == "04"));
-            var ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year);
+            var ListFaktur = ErasoftDbContext.SIT01A.Where(p => p.TGL.Month == selectedMonth && p.TGL.Year == selectedDate.Year && p.STATUS == "1");
 
             // Pesanan
             vm.JumlahPesananHariIni = ListPesanan.Where(p => System.Data.Entity.DbFunctions.TruncateTime(p.TGL.Value) == selectedDate).Count();
@@ -332,7 +332,7 @@ namespace MasterOnline.Controllers
             string sSQL = "select COUNT(ID) AS COUNT_TRANSAKSI from (";
             sSQL += "select distinct A.brg,A.id from stf02 A LEFT join (";
             sSQL += "SELECT DISTINCT BRG FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
-            sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-3)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
+            sSQL += "WHERE A.TGL >= '" + (selectedDate.AddMonths(-1)).ToString("yyyy-MM-dd") + "' AND A.TGL <= '" + (selectedDate).ToString("yyyy-MM-dd") + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.BRG <> 'NOT_FOUND' ";
             sSQL += ")B on A.brg=B.brg WHERE ISNULL(B.BRG, '') = '' AND A.TYPE='3')A";
             var ListBarangAndQtyNotInPesanan = ErasoftDbContext.Database.SqlQuery<COUNT_List>(sSQL).Single();
             vm.BarangTidakLakuCount = ListBarangAndQtyNotInPesanan.COUNT_TRANSAKSI;
@@ -838,7 +838,7 @@ namespace MasterOnline.Controllers
             //}
             {
                 ssql = "";
-                ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' GROUP BY MONTH(TGL)";
+                ssql = "SELECT MONTH(TGL) BULAN, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE YEAR(TGL) = '" + selectedDate.Year + "' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY MONTH(TGL)";
                 var dsBulanan = EDB.GetDataSet("CString", "BULANAN", ssql);
                 for (int i = 1; i < 13; i++)
                 {
@@ -892,7 +892,7 @@ namespace MasterOnline.Controllers
                 var firstDateOfWeek = endday.First();
                 var lastDateOfWeek = endday.Last();
                 ssql = "";
-                ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
+                ssql = "SELECT YEAR(TGL) TAHUN, MONTH(TGL) BULAN, DAY(TGL) HARI, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + firstDateOfWeek.ToString("yyyy-MM-dd") + " 00:00:00.000' AND TGL <= '" + lastDateOfWeek.ToString("yyyy-MM-dd") + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1' GROUP BY YEAR(TGL),MONTH(TGL),DAY(TGL)";
                 var dsTuning = EDB.GetDataSet("CString", "HARIAN", ssql);
                 for (int i = 0; i < endday.Count(); i++)
                 {
@@ -1083,18 +1083,18 @@ namespace MasterOnline.Controllers
             {
                 var adaMinggu5 = minggu5.Count() > 0;
                 ssql = "";
-                ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2'" + System.Environment.NewLine;
+                ssql += "SELECT '1' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu1.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
-                ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2'" + System.Environment.NewLine;
+                ssql += "SELECT '2' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu2.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
-                ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2'" + System.Environment.NewLine;
+                ssql += "SELECT '3' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu3.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                 ssql += "UNION ALL" + System.Environment.NewLine;
-                ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2'" + System.Environment.NewLine;
+                ssql += "SELECT '4' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu4.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
 
                 if (adaMinggu5)
                 {
                     ssql += "UNION ALL" + System.Environment.NewLine;
-                    ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2'" + System.Environment.NewLine;
+                    ssql += "SELECT '5' MINGGU, COUNT(RECNUM) AS COUNT_TRANSAKSI, ISNULL(SUM(ISNULL(NETTO,0)),0) TOTAL_NETTO FROM SIT01A (NOLOCK) WHERE TGL >= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.First() + " 00:00:00.000' AND TGL <= '" + selectedDate.Year + "-" + selectedMonth + "-" + minggu5.Last() + " 23:59:59.999' AND JENIS_FORM = '2' AND STATUS = '1'" + System.Environment.NewLine;
                 }
 
                 var dsTuning = EDB.GetDataSet("CString", "TUNING", ssql);
@@ -1630,7 +1630,7 @@ namespace MasterOnline.Controllers
             sSql += "SELECT SI.CUST,(ISNULL(MO.NAMAMARKET,'')  + ' (' + ISNULL(AR.PERSO,'') + ')') Market, SUM(SI.NETTO) AS Nilai, COUNT(SI.RECNUM) AS Jumlah ";
             sSql += "FROM SIT01A SI LEFT JOIN ARF01 AR ON SI.CUST = AR.CUST LEFT JOIN ";
             sSql += "MO..MARKETPLACE MO ON AR.NAMA = MO.IDMARKET ";
-            sSql += "WHERE TGL >= '" + tempDrtgl + "' AND TGL <= '" + tempSdtgl + "' ";
+            sSql += "WHERE TGL >= '" + tempDrtgl + "' AND TGL <= '" + tempSdtgl + "' AND SI.STATUS = '1' ";
             sSql += "GROUP BY SI.CUST, MO.NAMAMARKET, AR.PERSO ";
             var ListFakturPerMarket = ErasoftDbContext.Database.SqlQuery<listFaktur>(sSql).ToList();
             var vm = new DashboardViewModel()
@@ -1756,7 +1756,7 @@ namespace MasterOnline.Controllers
             sSql1 += "INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
             sSql1 += ") A ";
             sSql1 += "ON A.BRG=B.BRG ";
-            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
@@ -1788,7 +1788,7 @@ namespace MasterOnline.Controllers
             sSql1 += "INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
             sSql1 += ") A ";
             sSql1 += "ON A.BRG=B.BRG ";
-            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG = D.BRG ";
             sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL NOT BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "AND A.BRG NOT IN ( ";
@@ -1814,7 +1814,7 @@ namespace MasterOnline.Controllers
             sSql1 += "      		GROUP BY B.BRG)A ";
             sSql1 += "      	GROUP BY BRG) A ";
             sSql1 += "      INNER JOIN STF02 B ON A.BRG = B.BRG WHERE B.TYPE = '3')A ON A.BRG=B.BRG ";
-            sSql1 += "      LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_BUKTI ";
+            sSql1 += "      LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "      WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "      GROUP BY A.BRG ";
