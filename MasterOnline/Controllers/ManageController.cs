@@ -3174,7 +3174,7 @@ namespace MasterOnline.Controllers
                 //    ErasoftDbContext.STF02H.Add(dataHarga);
                 //}
                 string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display)";
-                sSQL += "select brg, " + cust.RecNum + ", '" + cust.PERSO + "', 'auto_create_pelanggan', 0, 0  from stf02";
+                sSQL += "select brg, " + cust.RecNum + ", '" + cust.PERSO + "', 'auto_create_pelanggan', 0, 0  from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket=" + cust.RecNum + " where isnull(b.idmarket,0)=0";
                 EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                 //end tuning 10 Maret 2019
             }
@@ -3244,6 +3244,12 @@ namespace MasterOnline.Controllers
                     custInDb.REFRESH_TOKEN = "";
                 }
                 //END ADD BY CALVIN 21 MEI 2019
+                
+                //add by calvin 23 september 2019, untuk cek apakah ada barang yg belum digenerate
+                string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display)";
+                sSQL += "select brg, " + custInDb.RecNum + ", '" + custInDb.PERSO + "', 'auto_create_pelanggan', 0, 0  from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket=" + custInDb.RecNum + " where isnull(b.idmarket,0)=0";
+                EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                //end add by calvin 23 september 2019, untuk cek apakah ada barang yg belum digenerate
             }
 
             ErasoftDbContext.SaveChanges();
