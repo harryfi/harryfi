@@ -3186,7 +3186,7 @@ namespace MasterOnline.Controllers
                 var vmError = new CustomerViewModel() { };
 
                 //var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum).ToList();
-                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum && a.NAMA != "18").ToList();
+                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum && a.NAMA != "18" ).ToList();
                 int nm = Convert.ToInt32(customer.Customers.NAMA);
                 var getMP = MoDbContext.Marketplaces.SingleOrDefault(a => a.IdMarket == nm).NamaMarket;
                 if (cekEmailMP.Count > 0)
@@ -3196,7 +3196,7 @@ namespace MasterOnline.Controllers
                 }
                 //end add by nurul 14/1/2019
                 //add by nurul, tambah validasi duplikat nama akun jika offline
-                var cekNamaAkunOffline = ErasoftDbContext.ARF01.Where(a => a.PERSO == customer.Customers.PERSO && a.NAMA == customer.Customers.NAMA && a.NAMA == "18").ToList();
+                var cekNamaAkunOffline = ErasoftDbContext.ARF01.Where(a => a.PERSO == customer.Customers.PERSO && a.NAMA == customer.Customers.NAMA && a.NAMA == "18" && a.RecNum != customer.Customers.RecNum).ToList();
                 if (cekNamaAkunOffline.Count > 0)
                 {
                     //if (cekNamaAkunOffline.Where(a => a.NAMA == customer.Customers.NAMA).Count() > 0)
