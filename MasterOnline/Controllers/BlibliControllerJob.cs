@@ -5972,6 +5972,9 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
         {
+            var token = SetupContext(iden);
+            iden.token = token;
+            
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
             var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeProduk && p.IDMARKET == arf01.RecNum).FirstOrDefault();
             var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == kodeProduk);
@@ -6000,8 +6003,6 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah upload produk
             string ret = "";
 
-            var token = SetupContext(iden);
-            iden.token = token;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
