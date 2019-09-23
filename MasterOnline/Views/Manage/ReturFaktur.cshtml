@@ -1099,7 +1099,7 @@
 
         function getFaktur(baru = true) {
             var $link = '@Url.Action("GetFakturByMarketplace", "Manage", new { kodeMarket = "replaceKodeMarket" })';
-            $link = $link.replace("replaceKodeMarket", $('#Faktur_CUST').val());
+            $link = $link.replace("replaceKodeMarket", encodeURIComponent($('#Faktur_CUST').val()));
 
             $.ajax({
                 type: "GET",
@@ -1334,7 +1334,7 @@
         }
         function lihatFaktur(idFaktur) {
             var link = '@Url.Action("EditReturFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -1370,7 +1370,7 @@
 
         function editFaktur1(idFaktur) {
             var link = '@Url.Action("EditReturFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -1420,7 +1420,7 @@
         function deleteFaktur() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteReturFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(this.$idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -1504,9 +1504,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableRetur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1528,7 +1528,7 @@
         }
         function searchTableFaktur1(){
             var $link = '@Html.Raw(Url.Action("RefreshTableRetur1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
 
             $.ajax({
                 type: "GET",
@@ -1586,7 +1586,7 @@
         function getDataReturFaktur() {
             //var id = $('#NOBUK_FAKTUR').val();
             var link = '@Url.Action("GetReturFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", $('#NOBUK_FAKTUR').val());
+            link = link.replace("replaceId", encodeURIComponent($('#NOBUK_FAKTUR').val()));
 
             $.ajax({
                 type: "GET",
@@ -1619,7 +1619,7 @@
             if ($btnEdit.hasClass('glyphicon-pencil')) {
                 //add by nurul 19/11/2018
                 var link = '@Url.Action("GetRecnumReturFaktur", "Manage", new { noUrut = "replaceBrgId" })';
-                link = link.replace("replaceBrgId", $idBarang);
+                link = link.replace("replaceBrgId", encodeURIComponent($idBarang));
 
                 $.ajax({
                     type: "GET",
@@ -1630,9 +1630,9 @@
 
 
                 var link = '@Url.Action("GetQtyReturFaktur", "Manage", new { param = "replaceId;replaceBrg;replaceBrgId" })';
-                link = link.replace("replaceId", $('#Faktur_NO_REF').val());
-                link = link.replace("replaceBrg", $($tr + ' .kode-barang').text());
-                link = link.replace("replaceBrgId", $noUrut);
+                        link = link.replace("replaceId", encodeURIComponent($('#Faktur_NO_REF').val()));
+                        link = link.replace("replaceBrg", encodeURIComponent($($tr + ' .kode-barang').text()));
+                        link = link.replace("replaceBrgId", encodeURIComponent($noUrut));
 
                 $.ajax({
                     type: "GET",
@@ -1777,7 +1777,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangReturFaktur", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",

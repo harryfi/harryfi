@@ -288,7 +288,7 @@
         }
         function editStruktur(rec) {
             var link = '@Url.Action("EditStrukturVar", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", rec);
+            link = link.replace("replaceId", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -466,7 +466,7 @@
         }
         function editKategori(rec) {
             var link = '@Url.Action("EditKategori", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", rec);
+            link = link.replace("replaceId", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -494,7 +494,7 @@
 
         function deleteKat() {
             var link = '@Url.Action("DeleteKategori", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", this.$recNumber);
+            link = link.replace("replaceId", encodeURIComponent(this.$recNumber));
 
             $.ajax({
                 type: "GET",

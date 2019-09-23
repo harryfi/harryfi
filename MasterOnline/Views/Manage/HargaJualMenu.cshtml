@@ -404,9 +404,9 @@
 
         function saveHargaJualBaruBlibli() {
             var link = '@Html.Raw(Url.Action("UbahHargaJualBlibli", "Manage", new { recNum = "replaceRecNum", hargaJualPromosiBaru = "replaceHargaPromosiBaru", hargaJualIndukBaru = "replaceHargaBaru" }))';
-            link = link.replace("replaceRecNum", $recNum);
-            link = link.replace("replaceHargaBaru", $('#HJUALBARUBlibli').val());
-            link = link.replace("replaceHargaPromosiBaru", $('#HJUALPROMOSIBARUBlibli').val());
+            link = link.replace("replaceRecNum", encodeURIComponent($recNum));
+            link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARUBlibli').val()));
+            link = link.replace("replaceHargaPromosiBaru", encodeURIComponent($('#HJUALPROMOSIBARUBlibli').val()));
 
             $.ajax({
                 type: "GET",
@@ -442,8 +442,8 @@
 
         function saveHargaJualBaru() {
             var link = '@Html.Raw(Url.Action("UbahHargaJual", "Manage", new { recNum = "replaceRecNum", hargaJualBaru = "replaceHargaBaru" }))';
-            link = link.replace("replaceRecNum", $recNum);
-            link = link.replace("replaceHargaBaru", $('#HJUALBARU').val());
+            link = link.replace("replaceRecNum", encodeURIComponent($recNum));
+            link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU').val()));
 
             $.ajax({
                 type: "GET",
@@ -507,8 +507,8 @@
         //add by nurul 13/6/2019
         function refreshTableHargaJual() {
             var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hargaJual').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -530,7 +530,7 @@
         }
         function searchTableHargaJual(){
             var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hargaJual').val()));
 
             $.ajax({
                 type: "GET",

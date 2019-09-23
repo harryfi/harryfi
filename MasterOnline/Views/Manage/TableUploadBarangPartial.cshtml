@@ -160,7 +160,7 @@
             if (this.href != "") {
                 var link = this.href;
                 link += "&cust=replaceCust";
-                link = link.replace("replaceCust", $('#promptHiddenField').val());
+                link = link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
 
                 $.ajax({
                     //url: this.href,

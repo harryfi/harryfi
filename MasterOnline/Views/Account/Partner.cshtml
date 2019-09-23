@@ -484,7 +484,7 @@
 
         function cekEmail($this) {
             var link = '@Url.Action("CekEmailPartner", "Account", new { emailPengguna = "replaceEmail" })';
-            link = link.replace("replaceEmail", $this.val());
+            link = link.replace("replaceEmail", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",
@@ -507,7 +507,7 @@
 
         function cekNoHp($this) {
             var link = '@Url.Action("CekHpPartner", "Account", new { noHp = "replaceNoHp" })';
-            link = link.replace("replaceNoHp", $this.val());
+            link = link.replace("replaceNoHp", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",
@@ -530,7 +530,7 @@
 
         function cekKodeRefPilihan($this) {
             var link = '@Url.Action("CekKodeRefPartner", "Account", new { kodeRef = "replaceKodeRef" })';
-            link = link.replace("replaceKodeRef", $this.val());
+            link = link.replace("replaceKodeRef", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",

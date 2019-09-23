@@ -634,7 +634,7 @@
 
         function searchTableBarang() {
             var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { search = "replaceSearch" }))';
-            link = link.replace("replaceSearch", $('#search_barang').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
 
             $.ajax({
                 type: "GET",
@@ -656,8 +656,8 @@
 
         function refreshTableBarang() {
             var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            link = link.replace("replaceSearch", $('#search_barang').val());
-            link = link.replace("replaceLastPage", $('#txt_last_page_tmb1p').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tmb1p').val()));
 
             $.ajax({
                 type: "GET",
@@ -679,7 +679,7 @@
 
         function searchTableBarangKosong() {
             var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { search = "replaceSearch" }))';
-            link = link.replace("replaceSearch", $('#search_kosong').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_kosong').val()));
 
             $.ajax({
                 type: "GET",
@@ -700,8 +700,8 @@
         }
         function refreshTableBarangKosong() {
             var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            link = link.replace("replaceSearch", $('#search_kosong').val());
-            link = link.replace("replaceLastPage", $('#txt_last_page_tbkp').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_kosong').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbkp').val()));
 
             $.ajax({
                 type: "GET",
@@ -724,9 +724,9 @@
         function searchTableBarangTidakLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
             var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
-            link = link.replace("replaceSearch", $('#search_tidaklaku').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_tidaklaku').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal').val()));
 
             $.ajax({
                 type: "GET",
@@ -748,10 +748,10 @@
         function refreshTableBarangTidakLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
             var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
-            link = link.replace("replaceSearch", $('#search_tidaklaku').val());
-            link = link.replace("replaceLastPage", $('#txt_last_page_tbtlp').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_tidaklaku').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbtlp').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal').val()));
 
             $.ajax({
                 type: "GET",
@@ -774,9 +774,9 @@
         function searchTablePalingLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
             var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
-            link = link.replace("replaceSearch", $('#search_palinglaku').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal1').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal1').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_palinglaku').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal1').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal1').val()));
 
             $.ajax({
                 type: "GET",
@@ -798,10 +798,10 @@
         function refreshTablePalingLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage")'; 'change by nurul 15/1/2019*@
             var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
-            link = link.replace("replaceSearch", $('#search_palinglaku').val());
-            link = link.replace("replaceLastPage", $('#txt_last_page_tbpl').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal1').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal1').val());
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_palinglaku').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbpl').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal1').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal1').val()));
 
             $.ajax({
                 type: "GET",
@@ -822,11 +822,11 @@
         }
 
         function searchTableMinimumStok() {
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
-            link = link.replace("replaceSearch", $('#search_minimumstok').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal2').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal2').val());
-            link = link.replace("replaceOrder", $('#Order').val());
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
+            link = link.replace("replaceOrder", encodeURIComponent($('#Order').val()));
             $.ajax({
                 type: "GET",
                 url: link,
@@ -847,12 +847,12 @@
         function refreshTableMinimumStok() {
             //change by nurul 6/5/2019
             @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order ="replaceOrder" }))';
-            link = link.replace("replaceSearch", $('#search_minimumstok').val());
-            link = link.replace("replaceLastPage", $('#txt_last_page_tbms').val());
-            link = link.replace("replacedrtgl", $('#DrTanggal2').val());
-            link = link.replace("replacesdtgl", $('#SdTanggal2').val());
-            link = link.replace("replaceOrder", $('#Order').val());
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
+            link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbms').val()));
+            link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
+            link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
+            link = link.replace("replaceOrder", encodeURIComponent($('#Order').val()));
             //end add by nurul 6/5/2019
 
             $.ajax({

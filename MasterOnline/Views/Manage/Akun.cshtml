@@ -1064,7 +1064,7 @@
 
         function editUser(userId) {
             var link = '@Url.Action("EditUser", "Manage", new { userId = "replaceId" })';
-            link = link.replace("replaceId", userId);
+            link = link.replace("replaceId", encodeURIComponent(userId));
 
             $.ajax({
                 type: "GET",
@@ -1090,7 +1090,7 @@
 
         function deleteUser() {
             var link = '@Url.Action("DeleteUser", "Manage", new { userId = "replaceId" })';
-            link = link.replace("replaceId", this.$userId);
+            link = link.replace("replaceId", encodeURIComponent(this.$userId));
 
             $.ajax({
                 type: "GET",
@@ -1108,7 +1108,7 @@
 
         function cekJumlahUser() {
             var link = '@Url.Action("CekJumlahUser", "Manage", new {accId = "replaceUname"})';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",

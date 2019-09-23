@@ -1154,7 +1154,7 @@
             $href = window.location.href.split('home')[1];
             if ($href != "") {
                 var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
-                link = link.replace("replaceUname", '@(accId)');
+                link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
                 $.ajax({
                     type: "GET",
@@ -1622,7 +1622,7 @@
             var monthName = moment($selectedMonth).locale('id').format("MMMM");
 
             var link = '@Url.Action("DashboardPartial", "Manage", new { selDate = "replaceDate" })';
-            link = link.replace("replaceDate", $selectedDate);
+            link = link.replace("replaceDate", encodeURIComponent($selectedDate));
 
             $.ajax({
                 type: "GET",
@@ -1935,7 +1935,7 @@
         //end add by nurul 22/2/2019
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
@@ -1969,7 +1969,7 @@
                 $tgl = $('#TGL').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardLine", "Manage", new { tgl = "replaceTgl" }))';
-            link = link.replace("replaceTgl", $tgl);
+            link = link.replace("replaceTgl", encodeURIComponent($tgl));
             $.ajax({
                 type: "POST",
                 url: link,
@@ -5754,8 +5754,8 @@
                 $Sdtgl = $('#SdTanggal').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardBaranglakuPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
-            link = link.replace("replaceDrtgl", $Drtgl);
-            link = link.replace("replaceSdtgl", $Sdtgl);
+            link = link.replace("replaceDrtgl", encodeURIComponent($Drtgl));
+            link = link.replace("replaceSdtgl", encodeURIComponent($Sdtgl));
 
             $.ajax({
                 type: "GET",
@@ -5892,8 +5892,8 @@
                 $Sdtgl1 = $('#SdTanggal1').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardFakturPartial", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
-            link = link.replace("replaceDrtgl", $Drtgl1);
-            link = link.replace("replaceSdtgl", $Sdtgl1);
+            link = link.replace("replaceDrtgl", encodeURIComponent($Drtgl1));
+            link = link.replace("replaceSdtgl", encodeURIComponent($Sdtgl1));
 
             $.ajax({
                 type: "GET",
@@ -6030,7 +6030,7 @@
                 $tgl = $('#TGL').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardLine", "Manage", new { tgl = "replaceTgl" }))';
-            link = link.replace("replaceTgl", $tgl);
+            link = link.replace("replaceTgl", encodeURIComponent($tgl));
             $.ajax({
                 type: "POST",
                 url: link,
@@ -9801,8 +9801,8 @@
                 $Sdtgl = $('#SdTanggal2').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardBarangMinStok", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
-            link = link.replace("replaceDrtgl", $Drtgl);
-            link = link.replace("replaceSdtgl", $Sdtgl);
+            link = link.replace("replaceDrtgl", encodeURIComponent($Drtgl));
+            link = link.replace("replaceSdtgl", encodeURIComponent($Sdtgl));
 
             $.ajax({
                 type: "GET",
@@ -9837,8 +9837,8 @@
                 $Sdtgl = $('#SdTanggal3').val();
             }
             var link = '@Html.Raw(Url.Action("RefreshDashboardBarangTidaklaku", "Manage", new { drTgl = "replaceDrtgl", sdTgl = "replaceSdtgl" }))';
-            link = link.replace("replaceDrtgl", $Drtgl);
-            link = link.replace("replaceSdtgl", $Sdtgl);
+            link = link.replace("replaceDrtgl", encodeURIComponent($Drtgl));
+            link = link.replace("replaceSdtgl", encodeURIComponent($Sdtgl));
 
             $.ajax({
                 type: "GET",

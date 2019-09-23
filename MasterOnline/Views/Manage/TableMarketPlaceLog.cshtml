@@ -35,7 +35,7 @@
         retryid.attr("disabled", true);
 
         var link = '@Url.Action("RequeueFailedJobLog", "Manage", new { nourut = "replaceNoUrut" })';
-        link = link.replace("replaceNoUrut", jobid);
+        link = link.replace("replaceNoUrut", encodeURIComponent(jobid));
 
         $.ajax({
             type: "POST",

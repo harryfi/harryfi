@@ -147,10 +147,10 @@
 
             function refreshTablePromptBarang() {
                 var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Manage", new { cust = "replaceCust", typeBrg = "replaceType", page = "replaceLastPage", search = "replaceSearch" }))';
-                $link = $link.replace("replaceCust", $('#txt_Cust').val());
-                $link = $link.replace("replaceType", $('#txt_Type').val());
-                $link = $link.replace("replaceSearch", $('#search_promptbarang').val());
-                $link = $link.replace("replaceLastPage", $('#txt_last_page_1').val());
+                $link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
+                $link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptbarang').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
 
             $.ajax({
                 type: "GET",
@@ -175,9 +175,9 @@
             function searchTablePromptBarang() {
 
                 var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Manage", new { cust = "replaceCust", search = "replaceNama", typeBrg= "replaceType" }))';
-                $link = $link.replace("replaceCust", $('#txt_Cust').val());
-                $link = $link.replace("replaceNama", $('#search_promptbarang').val());
-                $link = $link.replace("replaceType", $('#txt_Type').val());
+                $link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
+                $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptbarang').val()));
+                $link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
                 //$link = $link.replace("replaceUlang", "1");
 
                 $.ajax({

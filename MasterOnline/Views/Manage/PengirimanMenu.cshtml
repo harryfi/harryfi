@@ -504,7 +504,7 @@
 
         function editKirim(idKirim) {
             var link = '@Url.Action("EditKirim", "Manage", new { kirimId = "replaceId" })';
-            link = link.replace("replaceId", idKirim);
+            link = link.replace("replaceId", encodeURIComponent(idKirim));
 
             $.ajax({
                 type: "GET",
@@ -533,8 +533,8 @@
 
         function refreshTableKirim() {
             var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_kirim').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -556,7 +556,7 @@
         }
         function searchTableKirim(){
             var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_kirim').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
 
             $.ajax({
                 type: "GET",
@@ -606,7 +606,7 @@
 
         function deleteKirim() {
             var link = '@Url.Action("DeleteKirim", "Manage", new { kirimId = "replaceId" })';
-            link = link.replace("replaceId", this.$idKirim);
+            link = link.replace("replaceId", encodeURIComponent(this.$idKirim));
 
             $.ajax({
                 type: "GET",
@@ -634,7 +634,7 @@
 
         function deleteDetail() {
             var link = '@Url.Action("DeleteDetailKirim", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",

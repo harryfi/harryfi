@@ -1448,7 +1448,7 @@
             @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
             link = link.replace("replaceUname", '@(username)');*@
             var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { accId = "replaceUname" })';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",
@@ -1757,7 +1757,7 @@
             @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
             link = link.replace("replaceUname", '@(username)');*@
             var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { accId = "replaceUname" })';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",
@@ -2079,7 +2079,7 @@
 
         function loadDataKabupatenKota(kdProv) {
             var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
-            link = link.replace("replaceId", kdProv);
+            link = link.replace("replaceId", encodeURIComponent(kdProv));
 
             $.ajax({
                 type: "GET",
@@ -2129,7 +2129,7 @@
 
         function editcustomer(customerId) {
             var link = '@Url.Action("EditCustomer", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", customerId);
+            link = link.replace("replaceId", encodeURIComponent(customerId));
 
             $.ajax({
                 type: "GET",
@@ -2559,7 +2559,7 @@
 
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
@@ -2615,7 +2615,7 @@
         function GenerateLazadaCode(kdCust) {
             //alert(kdCust);
             var link = '@Url.Action("LazadaUrl", "Lazada", new { cust = "replaceCust" })';
-            link = link.replace("replaceCust", kdCust);
+            link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({
                 type: "GET",
@@ -2660,7 +2660,7 @@
         function GetShopeeShopId(kdCust) {
             //alert(kdCust);
             var link = '@Url.Action("ShopeeUrl", "Shopee", new { cust = "replaceCust" })';
-            link = link.replace("replaceCust", kdCust);
+            link = link.replace("replaceCust", encodeURIComponent(kdCust));
 
             $.ajax({
                 type: "GET",
@@ -2690,7 +2690,7 @@
         function deletecustomer() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteCustomer", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", this.$customerId);
+            link = link.replace("replaceId", encodeURIComponent(this.$customerId));
 
             $.ajax({
                 type: "GET",
@@ -2811,9 +2811,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableCustomer", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_customer').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_customer').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -2835,7 +2835,7 @@
         }
         function searchTableCustomer(){
             var $link = '@Html.Raw(Url.Action("RefreshTableCustomer", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_customer').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_customer').val()));
 
             $.ajax({
                 type: "GET",

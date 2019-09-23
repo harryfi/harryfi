@@ -1016,7 +1016,7 @@
 
         function simpaneditdetail(id, bayar, pot, $btnEdit, $potInitialSpan, $potInputBox, $bayarInitialSpan, $bayarInputBox) {
             var link = '@Url.Action("SaveEditDetail", "Manage")';
-            link += '?bukti=' + $("#Piutang_BUKTI").val() + '&no=' + id + '&bayar=' + bayar + '&pot=' + pot;
+            link += '?bukti=' + encodeURIComponent($("#Piutang_BUKTI").val()) + '&no=' + encodeURIComponent(id) + '&bayar=' + encodeURIComponent(bayar) + '&pot=' + encodeURIComponent(pot);
 
             $.ajax({
                 type: "GET",
@@ -1116,7 +1116,7 @@
                 });
             } else {
                 var $link = '@Url.Action("GetFakturBelumLunas", "Manage", new { noCust = "replaceId" })';
-                $link = $link.replace("replaceId", $customerId);
+                $link = $link.replace("replaceId", encodeURIComponent($customerId));
 
                 $.ajax({
                     type: "GET",
@@ -1216,7 +1216,7 @@
         }
         function lihatPiutang(idPiutang) {
             var link = '@Url.Action("EditBayarPiutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idPiutang);
+            link = link.replace("replaceId", encodeURIComponent(idPiutang));
 
             $.ajax({
                 type: "GET",
@@ -1245,7 +1245,7 @@
         }
         function editPiutang1(idPiutang) {
             var link = '@Url.Action("EditBayarPiutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idPiutang);
+            link = link.replace("replaceId", encodeURIComponent(idPiutang));
 
             $.ajax({
                 type: "GET",
@@ -1276,7 +1276,7 @@
         function deletePiutang() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idPiutang);
+            link = link.replace("replaceId", encodeURIComponent(this.$idPiutang));
 
             $.ajax({
                 type: "GET",
@@ -1305,7 +1305,7 @@
 
         function deleteDetail() {
             var link = '@Url.Action("DeleteDetailBayarPiutang", "Manage", new { noUrut = "replaceFakId" })';
-            link = link.replace("replaceFakId", this.$fak);
+            link = link.replace("replaceFakId", encodeURIComponent(this.$fak));
 
             $.ajax({
                 type: "GET",
@@ -1370,9 +1370,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableBayarPiutang1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_piutang').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1394,7 +1394,7 @@
         }
         function searchTablePiutang1(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBayarPiutang1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_piutang').val()));
 
             $.ajax({
                 type: "GET",
