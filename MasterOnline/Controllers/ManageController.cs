@@ -8024,7 +8024,7 @@ namespace MasterOnline.Controllers
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif
                                         }
                                         //new BlibliController().GetQueueFeedDetail(iden, null);
@@ -8213,41 +8213,38 @@ namespace MasterOnline.Controllers
                                                 username = usernameLogin
                                             };
                                             //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
-                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
-                                            {
-                                                kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
-                                                nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
-                                                berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                                Keterangan = barangInDb.Deskripsi,
-                                                Qty = "0",
-                                                MinQty = "0",
-                                                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
-                                                IDMarket = tblCustomer.RecNum.ToString(),
-                                                Length = Convert.ToString(barangInDb.PANJANG),
-                                                Width = Convert.ToString(barangInDb.LEBAR),
-                                                Height = Convert.ToString(barangInDb.TINGGI),
-                                                dataBarangInDb = barangInDb
-                                            };
-                                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = barangInDb.HJUAL.ToString();
-                                            data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                                            data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
-
-                                            data.display = display ? "true" : "false";
+//                                            BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
+//                                            {
+//                                                kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
+//                                                nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
+//                                                berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+//                                                Keterangan = barangInDb.Deskripsi,
+//                                                Qty = "0",
+//                                                MinQty = "0",
+//                                                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
+//                                                IDMarket = tblCustomer.RecNum.ToString(),
+//                                                Length = Convert.ToString(barangInDb.PANJANG),
+//                                                Width = Convert.ToString(barangInDb.LEBAR),
+//                                                Height = Convert.ToString(barangInDb.TINGGI),
+//                                                dataBarangInDb = barangInDb
+//                                            };
+//                                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
+//                                            data.Price = barangInDb.HJUAL.ToString();
+//                                            data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+//                                            data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
+//
+//                                            data.display = display ? "true" : "false";
                                             //BlibliController bliAPI = new BlibliController();
                                             //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-
-                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                            string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
-                                            //Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data)).Wait();
-                                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                            Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null)).Wait();
 #else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                            clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif
                                         }
                                         //new BlibliController().GetQueueFeedDetail(iden, null);
@@ -8336,40 +8333,38 @@ namespace MasterOnline.Controllers
                                                     };
                                                     //end change by calvin 9 juni 2019, ganti jadi pakai hangfire
 
-                                                    BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
-                                                    {
-                                                        kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
-                                                        nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
-                                                        berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                                        Keterangan = barangInDb.Deskripsi,
-                                                        Qty = "0",
-                                                        MinQty = "0",
-                                                        PickupPoint = stf02h.PICKUP_POINT,
-                                                        IDMarket = tblCustomer.RecNum.ToString(),
-                                                        Length = Convert.ToString(barangInDb.PANJANG),
-                                                        Width = Convert.ToString(barangInDb.LEBAR),
-                                                        Height = Convert.ToString(barangInDb.TINGGI),
-                                                        dataBarangInDb = barangInDb
-                                                    };
-                                                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
-                                                    data.MarketPrice = Convert.ToString(stf02h.HJUAL);
-                                                    data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
-
-                                                    data.display = display ? "true" : "false";
+//                                                    BlibliControllerJob.BlibliProductData data = new BlibliControllerJob.BlibliProductData
+//                                                    {
+//                                                        kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG,
+//                                                        nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
+//                                                        berat = (barangInDb.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+//                                                        Keterangan = barangInDb.Deskripsi,
+//                                                        Qty = "0",
+//                                                        MinQty = "0",
+//                                                        PickupPoint = stf02h.PICKUP_POINT,
+//                                                        IDMarket = tblCustomer.RecNum.ToString(),
+//                                                        Length = Convert.ToString(barangInDb.PANJANG),
+//                                                        Width = Convert.ToString(barangInDb.LEBAR),
+//                                                        Height = Convert.ToString(barangInDb.TINGGI),
+//                                                        dataBarangInDb = barangInDb
+//                                                    };
+//                                                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
+//                                                    data.Price = Convert.ToString(barangInDb.HJUAL);
+//                                                    data.MarketPrice = Convert.ToString(stf02h.HJUAL);
+//                                                    data.CategoryCode = Convert.ToString(stf02h.CATEGORY_CODE);
+//
+//                                                    data.display = display ? "true" : "false";
                                                     //BlibliController bliAPI = new BlibliController();
                                                     //Task.Run(() => bliAPI.CreateProduct(iden, data).Wait());
-                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data.kode + "'";
+                                                    string data_kode = string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG;
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + data_kode + "'";
                                                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null).Wait());
-                                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                                    //var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    //clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    Task.Run(() => new BlibliControllerJob().CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null).Wait());
 #else
                                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data.kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, data, null));
+                                                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.CreateProduct(dbPathEra, data_kode, tblCustomer.CUST, "Barang", "Buat Produk", iden, null, null));
 #endif
                                                     #endregion
                                                 }
