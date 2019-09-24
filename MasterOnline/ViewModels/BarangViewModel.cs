@@ -32,6 +32,10 @@ namespace MasterOnline.ViewModels
 
         public double QtySales { get; set; }
 
+        //ADD BY NURUL 23/9/2019
+        public double SELISIH { get; set; }
+        //END ADD BY NURUL 23/9/2019
+
     }
 
     public class BarangViewModel

@@ -459,13 +459,13 @@
         $(document).ready(function () {
             var d = new Date();
             d.setMonth(d.getMonth() - 3);
+            var e = new Date();
+            e.setMonth(e.getMonth() - 1);
             //tidaklaku-tab
-            var f = new Date();
-            f.setMonth(f.getMonth() - 1);
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', f);
+            }).datepicker('setDate', e);
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
@@ -515,7 +515,7 @@
             $('#DrTanggal2').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d)
+            }).datepicker('setDate', e)
             $('#DrTanggal2').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'

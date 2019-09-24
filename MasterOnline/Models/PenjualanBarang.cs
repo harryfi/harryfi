@@ -20,5 +20,9 @@ namespace MasterOnline.Models
         public double Qoo { get; set; }
         //add by nurul 12/4/2019
         public double QtySales { get; set; }
+
+        //add by nurul 23/9/2019
+        public double Selisih { get; set; }
+        //end add by nurul 23/9/2019
     }
 }

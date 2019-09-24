@@ -72,11 +72,14 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Jual</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Terjual</th>
                 @*add by nurul 16/11/2018*@
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok Minimum</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
-                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Siap Jual</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok Minimum</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Selisih</th>
+
+                @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>*@
+
                 @*end add by nurul*@
 
             </tr>
@@ -96,25 +99,26 @@
                 //{
                 //    QOO = getQOO.JUMLAH;
                 //}
-                <tr>
-                    @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
-                    <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
-                    <td>@barang.BRG</td>
-                    <td>@barang.NAMA @barang.NAMA2</td>
-                    <td>@barang.KET_SORT1</td>
-                    <td>@barang.KET_SORT2</td>
-                    @*<td>@barang.ISI</td>
-                        <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
-                    <td>@barang.QtySales</td>
-                    @*add by nurul 16/11/2018*@
-                    <td>@barang.MIN</td>
-                    <td>@barang.QOH</td>
-                    <td>@barang.QOO</td>
-                    <td>@(barang.QOH - barang.QOO)</td>
-                    @*end add by nurul*@
+            <tr>
+                @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
+                <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
+                <td>@barang.BRG</td>
+                <td>@barang.NAMA</td>
+                <td>@barang.KET_SORT1</td>
+                <td>@barang.KET_SORT2</td>
+                @*<td>@barang.ISI</td>
+        <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
+                <td>@barang.QtySales</td>
+                @*add by nurul 16/11/2018*@
+                <td>@barang.QOH</td>
+                <td>@barang.QOO</td>
+                <td>@(barang.QOH - barang.QOO)</td>
+                <td>@barang.MIN</td>
+                <td>@barang.SELISIH</td>
+                @*end add by nurul*@
 
-                </tr>
+            </tr>
             }
         </tbody>
     </table>
