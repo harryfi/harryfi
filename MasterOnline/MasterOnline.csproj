@@ -6322,7 +6322,6 @@
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
-    <Content Include="Views\Manage\Pengiriman.cshtml" />
     <Content Include="Views\Manage\PengirimanMenu.cshtml" />
     <Content Include="Views\Manage\TableKirimPartial.cshtml" />
     <Content Include="Views\Manage\BarangKirimPartial.cshtml" />
