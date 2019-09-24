@@ -304,10 +304,10 @@ namespace MasterOnline.Controllers
             xmlString += "<Attributes><name>" + XmlEscape(data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2)) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
-            
+
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
-            
+
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
 
@@ -318,7 +318,7 @@ namespace MasterOnline.Controllers
             //    xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
             //    xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
             //}
-            Dictionary <string, string> lzdAttrWithVal = new Dictionary<string, string>();
+            Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
             Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
             for (int i = 1; i <= 50; i++)
             {
@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
                             //}
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                             xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
-                            
+
                             foreach (var attribute in KombinasiAttribute)
                             {
                                 if (attribute.Value == item.BRG)
@@ -756,7 +756,7 @@ namespace MasterOnline.Controllers
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
-            
+
             //xmlString += "<brand>No Brand</brand>";
             xmlString += "<brand><![CDATA[" + stf02h.ANAME_38 + "]]></brand>";
 
@@ -1776,6 +1776,7 @@ namespace MasterOnline.Controllers
                         {
                             var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
                             bool adaInsert = false;
+                            bool adaInsertPembeli = false;
 
                             string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
                             insertQ += ",[DELIVERY_INFO],[PRICE],[GIFT_OPTION],[GIFT_MESSAGE],[VOUCHER_CODE],[CREATED_AT],[UPDATED_AT],[BILLING_FIRSTNAME],[BILLING_LASTNAME]";
@@ -1796,9 +1797,12 @@ namespace MasterOnline.Controllers
                             foreach (Order order in bindOrder.data.orders)
                             {
                                 bool doInsert = true;
+                                bool doInsertPembeli = true;
+                                var pembeliInDB = new ARF01C();
                                 if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing" || order.statuses[0].ToString() == "canceled"))
                                 {
                                     doInsert = false;
+                                    doInsertPembeli = false;
                                     if (order.statuses[0].ToString() == "pending")
                                     {
                                         //tidak perlu insert karena pesanan sudah ada di MO pada saat statusnya masih unpaid, update status transaksi jadi 01 dan bila perlu update juga ongkir dll
@@ -1808,10 +1812,31 @@ namespace MasterOnline.Controllers
                                     {
                                         var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
                                     }
+
+                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                    {
+                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                        if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                        {
+                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                            if (pembeliInDB != null)
+                                            {
+                                                var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                            }
+                                            else
+                                            {
+                                                InsertPembeli(order, connIDARF01C);
+                                                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+
+                                            }
+                                        }
+                                    }
                                 }
                                 //add 19 Feb 2019
                                 else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
                                 {
+                                    doInsertPembeli = false;
                                     if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
                                     {
                                         //tidak ubah status menjadi selesai jika belum diisi faktur
@@ -1825,6 +1850,24 @@ namespace MasterOnline.Controllers
                                     {
                                         //tidak diinput jika order sudah selesai sebelum masuk MO
                                         doInsert = false;
+                                    }
+                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                    {
+                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                        if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                        {
+                                            pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                            if (pembeliInDB != null)
+                                            {
+                                                var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                            }
+                                            else
+                                            {
+                                                InsertPembeli(order, connIDARF01C);
+                                                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                            }
+                                        }
                                     }
                                 }
                                 //end add 19 Feb 2019
@@ -1891,6 +1934,51 @@ namespace MasterOnline.Controllers
                                     insertQ += "','" + order.address_shipping.post_code + "','" + order.address_shipping.country.Replace('\'', '`') + "','" + order.national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
                                     insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + order.tax_code + "','" + order.branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
 
+                                    //remark by Tri 24/9/2019, pindah insert pembeli
+                                    //var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
+                                    //var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+
+                                    //var kabKot = "3174";//set default value jika tidak ada di db
+                                    //var prov = "31";//set default value jika tidak ada di db
+
+                                    //if (tblProv.Tables[0].Rows.Count > 0)
+                                    //    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                    //if (tblKabKot.Tables[0].Rows.Count > 0)
+                                    //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                    //insertPembeli += "('" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+                                    //insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    ////change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
+                                    ////insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+                                    ////end change by calvin 12 desember 2018
+                                    //remark by Tri 24/9/2019, pindah insert pembeli
+
+                                    //change 12 Maret 2019, handle record > 100
+                                    //listOrderId += order.order_id;
+                                    listOrderId.Add(order.order_id);
+                                    //end change 12 Maret 2019, handle record > 100
+
+                                    insertQ += " , ";
+                                    //insertPembeli += " , ";//remark by Tri 24/9/2019, pindah insert pembeli
+
+                                    //if (i < bindOrder.data.orders.Count)
+                                    //{
+                                    //remark 12 Maret 2019, handle record > 100
+                                    //listOrderId += ",";
+                                    //remark 12 Maret 2019, handle record > 100
+                                    //}
+                                    //else
+                                    //{
+                                    //    listOrderId += "]";
+                                    //}
+                                    //i = i + 1;
+                                    if (!OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                        jmlhNewOrder++;
+                                }
+                                if (doInsertPembeli && !string.IsNullOrEmpty(order.address_billing.phone))
+                                {
+                                    adaInsertPembeli = true;
                                     var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
                                     var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
 
@@ -1908,62 +1996,72 @@ namespace MasterOnline.Controllers
                                     //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
                                     insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
                                     //end change by calvin 12 desember 2018
-
-                                    //change 12 Maret 2019, handle record > 100
-                                    //listOrderId += order.order_id;
-                                    listOrderId.Add(order.order_id);
-                                    //end change 12 Maret 2019, handle record > 100
-
-                                    insertQ += " , ";
                                     insertPembeli += " , ";
 
-                                    //if (i < bindOrder.data.orders.Count)
-                                    //{
-                                    //remark 12 Maret 2019, handle record > 100
-                                    //listOrderId += ",";
-                                    //remark 12 Maret 2019, handle record > 100
-                                    //}
-                                    //else
-                                    //{
-                                    //    listOrderId += "]";
-                                    //}
-                                    //i = i + 1;
-                                    if (!OrderNoInDb.Contains(Convert.ToString(order.order_id)))
-                                        jmlhNewOrder++;
                                 }
                             }
-                            if (adaInsert)
+                            //change by Tri 24/9/2019
+                            //if (adaInsert)
+                            if (adaInsert || adaInsertPembeli)
+                            //end change by Tri 24/9/2019
                             {
-                                insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                                SqlCommand CommandSQL = new SqlCommand();
 
                                 insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
-                                a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                if (adaInsertPembeli)
+                                {
+                                    var aa = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                                }
+
+                                insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                                if (adaInsert)
+                                {
+                                    var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                                    CommandSQL = new SqlCommand();
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
+
+                                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                }
+
 
                                 ret.status = 1;
                                 //ret.message = a.ToString();
 
-                                SqlCommand CommandSQL = new SqlCommand();
+                                //SqlCommand CommandSQL = new SqlCommand();
 
-                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
-                                EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                                //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
 
-                                CommandSQL = new SqlCommand();
-                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
-                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
-                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
-                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
+                                //CommandSQL = new SqlCommand();
+                                //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                                //CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                //CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                //CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                                //CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                //CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
-                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
 
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
@@ -2009,6 +2107,35 @@ namespace MasterOnline.Controllers
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
+        }
+        private void InsertPembeli(Order order, string connIDARF01C)
+        {
+            var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
+            var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+
+            var kabKot = "3174";//set default value jika tidak ada di db
+            var prov = "31";//set default value jika tidak ada di db
+
+            if (tblProv.Tables[0].Rows.Count > 0)
+                prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+            if (tblKabKot.Tables[0].Rows.Count > 0)
+                kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+            insertPembeli += "('" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+            insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+            //change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
+            //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+            //end change by calvin 12 desember 2018
+
+            SqlCommand CommandSQL = new SqlCommand();
+            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
         }
 
         [AutomaticRetry(Attempts = 2)]
