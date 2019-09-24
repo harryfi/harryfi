@@ -490,68 +490,73 @@
         }
 
         function getDataPesanan() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetDataPesanan", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKodePesanan = [];
+            if ($('#Pengiriman_NAMA_EKSPEDISI').val() != '') {
+                var link = '@Url.Action("GetDataPesanan", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", $('#Pengiriman_NAMA_EKSPEDISI').val());
+                $.ajax({
+                    type: "GET",
+                    //url: '@Url.Action("GetDataPesanan", "Manage")',
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listKodePesanan = [];
 
-                    $.each(data,
-                        function (i, item) {
+                        $.each(data,
+                            function (i, item) {
 
-                            listKodePesanan[i] = {
-                                id: item.PESANAN,
-                                text: item.PESANAN
-                            };
+                                listKodePesanan[i] = {
+                                    id: item.PESANAN,
+                                    text: item.PESANAN
+                                };
+                            });
+
+                        $('#PESANAN').selectivity({
+                            allowClear: true,
+                            items: listKodePesanan,
+                            placeholder: 'Harap pilih'
+                        }).change(function () {
+                            var val = $(this).selectivity('value');
+                            var $trId = $(this).closest('tr').attr('data-kirim-id');
+                            var $trElement = 'tr[data-kirim-id="' + $trId + '"]';
+
+                            if (val != null) {
+                                $.each(data,
+                                    function (i, item) {
+                                        if (item.PESANAN == val) {
+                                            $($trElement + ' .mp-detail ').html(item.NAMA_MARKET + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
+                                            $($trElement + ' .buyer-detail').html(item.NAMA_PEMBELI + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
+                                            $($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
+
+                                            $('#PengirimanDetail_MARKETPLACE').val(item.MARKETPLACE);
+                                            $('#PengirimanDetail_PEMBELI').val(item.PEMBELI);
+                                            $('#PengirimanDetail_KOTA').val(item.KOTA);
+                                            $('#PengirimanDetail_PROPINSI').val(item.PROPINSI);
+                                            $('#PengirimanDetail_KODE_POS').val(item.KODE_POS);
+                                            $($trElement + ' .kurir-detail').html(item.NAMAKURIR);
+
+                                            return;
+                                        }
+                                    });
+
+                                $($trElement + ' .btn-primary').removeAttr('disabled');
+                                offTab();
+                            } else {
+                                $($trElement + ' .mp-detail').text('-');
+                                $($trElement + ' .buyer-detail').text('-');
+                                $($trElement + ' .al-detail').text('-');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                onTab();
+                            }
+
                         });
-
-                    $('#PESANAN').selectivity({
-                        allowClear: true,
-                        items: listKodePesanan,
-                        placeholder: 'Harap pilih'
-                    }).change(function () {
-                        var val = $(this).selectivity('value');
-                        var $trId = $(this).closest('tr').attr('data-kirim-id');
-                        var $trElement = 'tr[data-kirim-id="' + $trId + '"]';
-
-                        if (val != null) {
-                            $.each(data,
-                                function (i, item) {
-                                    if (item.PESANAN == val) {
-                                        $($trElement + ' .mp-detail ').html(item.NAMA_MARKET + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
-                                        $($trElement + ' .buyer-detail').html(item.NAMA_PEMBELI + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
-                                        $($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
-
-                                        $('#PengirimanDetail_MARKETPLACE').val(item.MARKETPLACE);
-                                        $('#PengirimanDetail_PEMBELI').val(item.PEMBELI);
-                                        $('#PengirimanDetail_KOTA').val(item.KOTA);
-                                        $('#PengirimanDetail_PROPINSI').val(item.PROPINSI);
-                                        $('#PengirimanDetail_KODE_POS').val(item.KODE_POS);
-                                        $($trElement + ' .kurir-detail').html(item.NAMAKURIR);
-
-                                        return;
-                                    }
-                                });
-
-                            $($trElement + ' .btn-primary').removeAttr('disabled');
-                            offTab();
-                        } else {
-                            $($trElement + ' .mp-detail').text('-');
-                            $($trElement + ' .buyer-detail').text('-');
-                            $($trElement + ' .al-detail').text('-');
-
-                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
-                            onTab();
-                        }
-
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
         }
 
         function offTab() {
@@ -598,7 +603,7 @@
 
                     //getDetailKirim();
                     refreshInputan();
-                    getDataPesanan();
+                    //getDataPesanan();
                     getExpedisi();
                     $('#loading_spinner').hide();
                 },
@@ -718,7 +723,7 @@
                     $('.kirim_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
-                    getDataPesanan();
+                    //getDataPesanan();
                     getExpedisi();
                     $('#loading_spinner').hide();
                 },
@@ -777,7 +782,7 @@
                         //});
                         getDetailKirim()
                         refreshInputan();
-                        getDataPesanan();
+                        //getDataPesanan();
                         getExpedisi();
                     } else {
                         alert(response.Errors[0]);
@@ -824,7 +829,7 @@
                                 });
                                 //getDetailKirim();
                                 refreshInputan();
-                                getDataPesanan();
+                                //getDataPesanan();
                                 getExpedisi();
                                 getTanggal();
                                 $('#loading_spinner').hide();
@@ -942,6 +947,7 @@
                             } else {
                                 $("#Pengiriman_KURIR").val(value).trigger('change');
                                 $('#Pengiriman_NAMA_EKSPEDISI').val($("#EXPEDISI option:selected").text());
+                                getDataPesanan();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }

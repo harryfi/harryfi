@@ -277,6 +277,7 @@
                                     <th>Marketplace</th>
                                     <th>Pembeli</th>
                                     <th>Alamat</th>
+                                    <th>Kurir</th>
                                 </tr>
                                 @*</thead>*@
                                 <tbody id="barang-faktur">
@@ -287,6 +288,7 @@
                                         //var discTotal = fakturDetail.NILAI_DISC ?? 0;
                                         //var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
                                         //var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                        var kurir = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == KirimDetail.PESANAN)?.SHIPMENT;
                                         <tr>
                                             <td>
                                                 @KirimDetail.PESANAN
@@ -299,6 +301,9 @@
                                             </td>
                                             <td >
                                                 @KirimDetail.ALAMAT_KIRIM @KirimDetail.KOTA @KirimDetail.PROPINSI @KirimDetail.KODE_POS
+                                            </td>
+                                            <td>
+                                                @kurir
                                             </td>
                                         </tr>
                                     }

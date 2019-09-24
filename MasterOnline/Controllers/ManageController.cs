@@ -30494,9 +30494,23 @@ namespace MasterOnline.Controllers
 
         //add by nurul 19/8/2019, tambah form pengiriman 
         // =============================================== Bagian Pengiriman (START)
-
+        [HttpGet]
         public ActionResult GetDataPesanan(string code)
         {
+            //add by nurul 16/9/2019
+            var nmKurir = "";
+            bool adaGO = false;
+            adaGO = code.ToUpper().Contains("GO");
+            if (adaGO)
+            {
+                nmKurir = "go";
+            }
+            else
+            {
+                string[] kataAwal = code.Split(' ');
+                nmKurir = kataAwal.First();
+            }
+            //end add by nurul 16/9/2019
             string sSQL = "";
             sSQL += "select a.no_bukti AS PESANAN, ";
             sSQL += "isnull(a.CUST,'') AS MARKETPLACE, ";
@@ -30507,15 +30521,29 @@ namespace MasterOnline.Controllers
             sSQL += "isnull(a.kota, '') AS KOTA, isnull(a.propinsi, '') AS PROPINSI, isnull(a.kode_pos, '') AS KODE_POS, ";
             sSQL += "isnull(a.SHIPMENT,'') AS NAMAKURIR ";
             sSQL += "from sot01a a ";
-            sSQL += "left join arf01 b on a.cust=b.cust ";
+            sSQL += "inner join arf01 b on a.cust=b.cust ";
             sSQL += "left join MO.dbo.marketplace c on b.nama = c.idmarket ";
             sSQL += "left join (select distinct pesanan from sit04a e inner join sit04b f on e.no_bukti=f.no_bukti)d on a.no_bukti=d.pesanan ";
-            sSQL += "where isnull(d.pesanan, '')='' and a.status_transaksi='03' ";
+            sSQL += "where isnull(d.pesanan, '')='' and a.status_transaksi='03' and a.shipment like '%" + nmKurir + "%' ";
             var listPesananBlmKirim = ErasoftDbContext.Database.SqlQuery<smolSOT01A>(sSQL).ToList();
 
             return Json(listPesananBlmKirim, JsonRequestBehavior.AllowGet);
 
         }
+
+        //[HttpGet]
+        //public ActionResult GetDataPesanan(string code)
+        //{
+        //    //var listBarang = ErasoftDbContext.STF02.ToList();
+        //    var listBarang = (from a in ErasoftDbContext.STF02
+        //                      join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
+        //                      join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
+        //                      //change by nurul 21/1/2019 -- where c.CUST == code
+        //                      where c.CUST == code && a.TYPE == "3"
+        //                      select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+        //    return Json(listBarang, JsonRequestBehavior.AllowGet);
+        //}
 
         public ActionResult PengirimanMenu()
         {
@@ -30701,37 +30729,52 @@ namespace MasterOnline.Controllers
                 return View("Error");
             }
         }
-
+        public class Shipments
+        {
+            public string SHIPMENT { get; set; }
+            public string NO_BUKTI { get; set; }
+        }
         public ActionResult EditKirim(int? kirimId)
         {
             try
             {
                 var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.RECNUM == kirimId);
                 var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
-                string ordersn = "";
-                foreach (var item in listPesanan)
-                {
-                    if (item == listPesanan.Last())
+                
+                    string ordersn = "";
+                    foreach (var item in listPesanan)
                     {
-                        ordersn = ordersn + "'" + item + "'";
+                        if (item == listPesanan.Last())
+                        {
+                            ordersn = ordersn + "'" + item + "'";
+                        }
+                        else
+                        {
+                            ordersn = ordersn + "'" + item + "',";
+                        }
                     }
-                    else
-                    {
-                        ordersn = ordersn + "'" + item + "',";
-                    }
-                }
-                string ssql = "";
-                ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";                
-                var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
-
+                
+                    
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = kirimInDb,
                     ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
                     ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
                     //Shipment = ErasoftDbContext.SOT01A.Where(a => listPesanan.Contains(a.NO_BUKTI)).Select(a => a.SHIPMENT).ToList()
-                    Shipment = listShipment
+
                 };
+                if (listPesanan.Count() != 0)
+                {
+                    string ssql = "";
+                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
+                    foreach (var item in listShipment) {
+                        vm.Shipment.Add(new ShipmentOfKirim() {
+                            SHIPMENT = item.SHIPMENT,
+                            NO_BUKTI = item.NO_BUKTI
+                        });
+                    }
+                }
 
                 return PartialView("BarangKirimPartial", vm);
             }
@@ -30796,16 +30839,28 @@ namespace MasterOnline.Controllers
                         ordersn = ordersn + "'" + item + "',";
                     }
                 }
-                string ssql = "";
-                ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
-                var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = ErasoftDbContext.SIT04A.Single(a => a.NO_BUKTI == kirimInDb.NO_BUKTI),
                     ListPengiriman = ErasoftDbContext.SIT04A.ToList(),
                     ListPengirimanDetail = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).ToList(),
-                    Shipment = listShipment
+                    //Shipment = listShipment
                 };
+
+                if (listPesanan.Count() != 0)
+                {
+                    string ssql = "";
+                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                    var listShipment = ErasoftDbContext.Database.SqlQuery<ShipmentOfKirim>(ssql).ToList();
+                    foreach (var item in listShipment)
+                    {
+                        vm.Shipment.Add(new ShipmentOfKirim()
+                        {
+                            SHIPMENT = item.SHIPMENT,
+                            NO_BUKTI = item.NO_BUKTI
+                        });
+                    }
+                }
 
                 return PartialView("BarangKirimPartial", vm);
             }
@@ -30873,6 +30928,12 @@ namespace MasterOnline.Controllers
                 var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
                 //var getKurir = Convert.ToInt32(kirimInDb.KURIR);
                 //var kurir = MoDbContext.Ekspedisi.Single(a => a.RecNum == getKurir).NamaEkspedisi;
+                //var ListKirimDetail = ErasoftDbContext.SIT04B.Where(pd => pd.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).ToList();
+                //var listPesananInKirimDetail = ListKirimDetail.Select(p => p.PESANAN).ToList();
+                //var kirimInDb = ErasoftDbContext.SIT04A.Single(p => p.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI);
+                var listPesanan = ErasoftDbContext.SIT04B.Where(a => a.NO_BUKTI == kirimInDb.NO_BUKTI).Select(a => a.PESANAN).ToList();
+                
+
                 var vm = new PengirimanViewModel()
                 {
                     Pengiriman = kirimInDb,
@@ -30883,6 +30944,34 @@ namespace MasterOnline.Controllers
                     TlpToko = tlp,
                     NamaKurir = kirimInDb.NAMA_EKSPEDISI
                 };
+
+                if(listPesanan.Count() != 0)
+                {
+                    string ordersn = "";
+                    foreach (var item in listPesanan)
+                    {
+                        if (item == listPesanan.Last())
+                        {
+                            ordersn = ordersn + "'" + item + "'";
+                        }
+                        else
+                        {
+                            ordersn = ordersn + "'" + item + "',";
+                        }
+                    }
+                    string ssql = "";
+                    ssql += "SELECT SHIPMENT, NO_BUKTI FROM SOT01A WHERE NO_BUKTI IN (" + ordersn + ")";
+                    var listShipment = ErasoftDbContext.Database.SqlQuery<Shipments>(ssql).ToList();
+                    foreach (var item in listShipment)
+                    {
+                        vm.Shipment.Add(new ShipmentOfKirim()
+                        {
+                            SHIPMENT = item.SHIPMENT,
+                            NO_BUKTI = item.NO_BUKTI
+                        });
+                    }
+                }
+
                 return View(vm);
             }
             catch (Exception ex)
@@ -30962,15 +31051,15 @@ namespace MasterOnline.Controllers
             sSql += "isnull(a.kota, '') AS KOTA, isnull(a.propinsi, '') AS PROPINSI, isnull(a.kode_pos, '') AS KODE_POS ";
             sSql += "FROM SOT01A a ";
             sSql += "INNER JOIN ARF01 b on a.cust = b.cust ";
-            sSql += "LEFT JOIN MO.dbo.MARKETPLACE c on b.nama = c.idmarket "; 
-            sSql += "LEFT JOIN(SELECT DISTINCT PESANAN FROM SIT04A e INNER JOIN SIT04B f on e.no_bukti= f.no_bukti)d on a.no_bukti = d.pesanan "; 
-            sSql += "WHERE isnull(d.pesanan, '')= '' and a.status_transaksi = '03' "; 
-            sSql += "AND a.TGL BETWEEN '" + drTgl.ToString("yyyy-MM-dd") + " 00:00:00.000" + "' AND '" + sdTgl.ToString("yyyy-MM-dd") + " 23:59:59.999" + "' "; 
+            sSql += "LEFT JOIN MO.dbo.MARKETPLACE c on b.nama = c.idmarket ";
+            sSql += "LEFT JOIN(SELECT DISTINCT PESANAN FROM SIT04A e INNER JOIN SIT04B f on e.no_bukti= f.no_bukti)d on a.no_bukti = d.pesanan ";
+            sSql += "WHERE isnull(d.pesanan, '')= '' and a.status_transaksi = '03' ";
+            sSql += "AND a.TGL BETWEEN '" + drTgl.ToString("yyyy-MM-dd") + " 00:00:00.000" + "' AND '" + sdTgl.ToString("yyyy-MM-dd") + " 23:59:59.999" + "' ";
             sSql += "AND a.CUST BETWEEN '" + drCust + "' AND '" + sdCust + "' ";
             //sSql += "AND a.SHIPMENT = '" + dataVm.Pengiriman.NAMA_EKSPEDISI + "'";
             sSql += "AND a.SHIPMENT like '%" + nmKurir + "%'";
             var cekPesanan = ErasoftDbContext.Database.SqlQuery<smolSOT01A>(sSql).ToList();
-            if(cekPesanan.Count() == 0)
+            if (cekPesanan.Count() == 0)
             {
                 vmError.Errors.Add("Pesanan tidak ditemukan");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -30978,7 +31067,7 @@ namespace MasterOnline.Controllers
 
             for (int i = 0; i < cekPesanan.Count(); i++)
             {
-                if(cekPesanan[i].NAMA_MARKET == " ()")
+                if (cekPesanan[i].NAMA_MARKET == " ()")
                 {
                     vmError.Errors.Add("Marketplace tidak ditemukan");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -31017,7 +31106,7 @@ namespace MasterOnline.Controllers
 
                 dataVm.Pengiriman.NO_BUKTI = noKirim;
                 dataVm.Pengiriman.JAM_KIRIM = jamkirim;
-                
+
                 ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
 
             }
@@ -31031,7 +31120,7 @@ namespace MasterOnline.Controllers
                 kirimInDb.NAMA_KURIR = dataVm.Pengiriman.NAMA_KURIR;
                 kirimInDb.NAMA_EKSPEDISI = dataVm.Pengiriman.NAMA_EKSPEDISI;
                 kirimInDb.JAM_KIRIM = jamkirim;
-                
+
             }
 
             ErasoftDbContext.SaveChanges();
@@ -31040,7 +31129,7 @@ namespace MasterOnline.Controllers
             var spSdTgl = sdTgl.ToString("yyyy-MM-dd") + " 23:59:59.999";
             var spTglInput = dataVm.PengirimanDetail.TGL_INPUT?.ToString("yyyy-MM-dd");
             var spJamKirim = jamkirim?.ToString("yyyy-MM-dd HH:mm");
-            
+
             SqlCommand CommandSQL = new SqlCommand();
             CommandSQL.Parameters.Add("@NOBUK", SqlDbType.VarChar, 10).Value = dataVm.Pengiriman.NO_BUKTI;
 
@@ -31067,7 +31156,7 @@ namespace MasterOnline.Controllers
             {
                 if (item == listPesananInKirimDetail.Last())
                 {
-                    ordersn = ordersn + "'" + item + "'" ;
+                    ordersn = ordersn + "'" + item + "'";
                 }
                 else
                 {
@@ -31718,5 +31807,5 @@ namespace MasterOnline.Controllers
     {
         public string SHIPMENT { get; set; }
     }
-    
+
 }
