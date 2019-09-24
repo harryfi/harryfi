@@ -4184,6 +4184,15 @@
                                 $('#gudang-select').hide();
                                 $('#gudang-kode').show();
 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                $beforeState.brutto = $('#Faktur_BRUTO').val();
+                                $beforeState.netto = $('#Faktur_NETTO').val();
+                                $beforeState.ndisc = $('#Faktur_NILAI_DISC').val();
+                                $beforeState.ppn = $('#Faktur_PPN').val();
+                                $beforeState.nppn = $('#Faktur_NILAI_PPN').val();
+                                $beforeState.ongkir = $('#Faktur_MATERAI').val();
+                                //END ADD BY NURUL 11/9/2019
+
                                 if ($('#Faktur_RecNum').val() == null) {
                                     $('#Faktur_NETTO').val(convertToRupiah(0));
                                     $('#Faktur_BRUTO').val(convertToRupiah(0));
