@@ -19401,37 +19401,62 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
-            if (listBLIShop.Count > 0)
-            {
-                //remark by calvin 1 april 2019
-                //var BliApi = new BlibliController();
-                foreach (ARF01 tblCustomer in listBLIShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                    {
-                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
-                        {
-                            API_client_username = tblCustomer.API_CLIENT_U,
-                            API_client_password = tblCustomer.API_CLIENT_P,
-                            API_secret_key = tblCustomer.API_KEY,
-                            mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD,
-                            merchant_code = tblCustomer.Sort1_Cust,
-                            token = tblCustomer.TOKEN,
-                            idmarket = tblCustomer.RecNum.Value,
-                            DatabasePathErasoft = dbPathEra,
-                            username = "ctes"
-                        };
-                        var feed = new BlibliControllerJob.BlibliQueueFeedData()
-                        {
-                            log_request_id = "1567580263937",
-                            request_id = "527d8321-d09f-4c96-aea9-be6ff97e3c25"
-                        };
-                        await new BlibliControllerJob().GetQueueFeedDetail(data, feed);
-                    }
-                }
-            }
+//            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
+//            if (listBLIShop.Count > 0)
+//            {
+//                //remark by calvin 1 april 2019
+//                //var BliApi = new BlibliController();
+//                foreach (ARF01 tblCustomer in listBLIShop)
+//                {
+//                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+//                    {
+//                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
+//                        {
+//                            API_client_username = tblCustomer.API_CLIENT_U,
+//                            API_client_password = tblCustomer.API_CLIENT_P,
+//                            API_secret_key = tblCustomer.API_KEY,
+//                            mta_username_email_merchant = tblCustomer.EMAIL,
+//                            mta_password_password_merchant = tblCustomer.PASSWORD,
+//                            merchant_code = tblCustomer.Sort1_Cust,
+//                            token = tblCustomer.TOKEN,
+//                            idmarket = tblCustomer.RecNum.Value,
+//                            DatabasePathErasoft = dbPathEra,
+//                            username = "ctes"
+//                        };
+//                        var feed = new BlibliControllerJob.BlibliQueueFeedData()
+//                        {
+//                            log_request_id = "1567580263937",
+//                            request_id = "527d8321-d09f-4c96-aea9-be6ff97e3c25"
+//                        };
+//                        await new BlibliControllerJob().GetQueueFeedDetail(data, feed);
+//                    }
+//                }
+//            }
+
+            #region fix pemesan null di pesanan shopee
+//            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+//            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+//            if (listShopeeShop.Count > 0)
+//            {
+//                //var shopeeApi = new ShopeeController();
+//                foreach (ARF01 tblCustomer in listShopeeShop)
+//                {
+//                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
+//                    iden.merchant_code = tblCustomer.Sort1_Cust;
+//                    iden.DatabasePathErasoft = dbPathEra;
+//                    iden.username = "Calvin Support";
+//
+//                    string connId_JobId = "";
+//                    var getOrderPemesanKosong = ErasoftDbContext.SOT01A.Where(p => (p.PEMESAN ?? "") == "").Select(p => p.NO_REFERENSI).ToList();
+//                    
+//                    var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
+//                    for (int i = 0; i < paging; i++)
+//                    {
+//                        await new ShopeeControllerJob().FixPemesanNullSOT01A(iden,getOrderPemesanKosong.Take(50).Skip(i * 50).ToArray(),tblCustomer.CUST,tblCustomer.NAMA);
+//                    }
+//                }
+//            }
+            #endregion
 #endif
 
             return View();
