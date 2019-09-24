@@ -24365,6 +24365,65 @@ namespace MasterOnline.Controllers
             return PartialView("TablePromosiPartial", pageOrders);
         }
 
+        //add by Tri, 24/9/19
+        public ActionResult RefreshTableBarangPromosi(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA_PROMOSI AS NAMA_PROMO, ISNULL(C.NamaMarket,'') AS NAMAMARKET, A.TGL_MULAI AS TGL_MULAI, A.TGL_AKHIR AS TGL_AKHIR, ";
+            sSQLSelect += "D.HARGA_NORMAL, D.HARGA_PROMOSI AS HARGA_PROMO, D.PERSEN_PROMOSI AS PERSEN_PROMO, D.KODE_BRG AS BRG, (E.NAMA + ' ' + ISNULL(E.NAMA2, '')) NAMA_BARANG ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PROMOSIS A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.NAMA_MARKET = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "INNER JOIN DETAILPROMOSIS D ON A.RECNUM = D.RECNUMPROMOSI ";
+            sSQL2 += "INNER JOIN STF02 E ON D.KODE_BRG = E.BRG ";
+            if (search != "")
+            {
+                var listSearchWord = search.Split(' ');
+                if(listSearchWord.Count() == 1)
+                {
+                    sSQL2 += "WHERE ((E.NAMA + ' ' + ISNULL(E.NAMA2, '')) LIKE '%" + search + "%') ";
+                }
+                else
+                {
+                    sSQL2 += "WHERE (";
+                    foreach(var w in listSearchWord)
+                    {
+                        sSQL2 += " (E.NAMA + ' ' + ISNULL(E.NAMA2, '')) LIKE '%" + w + "%' AND";
+                    }
+                    sSQL2 = sSQL2.Substring(0, sSQL2.Length - 4) + ") ";
+                }
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                //if (pagenumber == 0)
+                //{
+                //    pagenumber = 1;
+                //}
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL_AKHIR DESC, NAMA_BARANG ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<mdlPromosiBarng>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPromosiBarng> pageOrders = new StaticPagedList<mdlPromosiBarng>(listPromosi, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TabelPromosiPerBarang", pageOrders);
+        }
+        //end add by Tri, 24/9/19
+
         public ActionResult EditPromosi(int? orderId)
         {
             var promosiInDb = ErasoftDbContext.PROMOSI.Single(p => p.RecNum == orderId);
