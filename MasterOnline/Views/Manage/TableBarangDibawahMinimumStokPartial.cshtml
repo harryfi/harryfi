@@ -148,10 +148,10 @@
             $('#tabelbarangminimumstokpartialpager').on('click', 'a', function () {
                 if (this.href != "") {
                     var link = this.href;
-                    link += "&param=replacedrtgl;replacesdtgl";
+                    link += "&param=replacedrtgl;replacesdtgl&order=replaceOrder";
                     link = link.replace("replacedrtgl", $('#DrTanggal2').val());
                     link = link.replace("replacesdtgl", $('#SdTanggal2').val());
-
+                    link = link.replace("replaceOrder", $('#Order').val());
                     $.ajax({
                         url: link,
                         type: 'GET',
