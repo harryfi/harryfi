@@ -7215,7 +7215,11 @@ namespace MasterOnline.Controllers
 
                     var client = new BackgroundJobClient(sqlStorage);
                     //INSERT QUEUE FEED
+#if (DEBUG || Debug_AWS)
+                    await CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis));
+#else
                     client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_1(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
+#endif
                     //client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, kodeProduk, log_CUST, "Barang", "Buat Produk (Tahap 2 / 3)", iden, Convert.ToString(data.kode), Convert.ToString(result.value.queueFeedId), Convert.ToString(milis)));
                 }
                 else
@@ -7267,7 +7271,12 @@ namespace MasterOnline.Controllers
                         var client = new BackgroundJobClient(sqlStorage);
 
                         //INSERT QUEUE FEED
-                        client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, namaPemesan, log_CUST, "Barang", "Buat Produk (Tahap 3 / 3)", iden, (data_kode), (result_value_queueFeedId), milis));
+                        
+#if (DEBUG || Debug_AWS)
+                        await CreateProductSuccess_2(dbPathEra, namaPemesan, log_CUST, "Barang", "Buat Produk (Tahap 3 / 3)", iden, (data_kode), (result_value_queueFeedId), milis);
+#else
+                    client.Enqueue<BlibliControllerJob>(x => x.CreateProductSuccess_2(dbPathEra, namaPemesan, log_CUST, "Barang", "Buat Produk (Tahap 3 / 3)", iden, (data_kode), (result_value_queueFeedId), milis));
+#endif
                     }
                     else
                     {

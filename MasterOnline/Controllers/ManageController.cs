@@ -6387,7 +6387,7 @@ namespace MasterOnline.Controllers
                             barangInDb.LINK_GAMBAR_5 = null;
                             barangInDb.SIZE_GAMBAR_5 = null;
                             break;
-                        //end add 6/9/2019, 5 gambar
+                            //end add 6/9/2019, 5 gambar
                     }
 
                     ErasoftDbContext.SaveChanges();
@@ -6688,7 +6688,7 @@ namespace MasterOnline.Controllers
                                                         hargaPerMarket.SIZE_GAMBAR_5 = idGambar;
                                                         hargaPerMarket.LINK_GAMBAR_5 = extra_image.Value;
                                                         break;
-                                                   //end add 13/9/2019, 5 gambar
+                                                        //end add 13/9/2019, 5 gambar
                                                 }
                                             }
                                         }
@@ -6765,7 +6765,7 @@ namespace MasterOnline.Controllers
                                         dataBarang.Stf02.LINK_GAMBAR_5 = image.data.link_l;
                                         dataBarang.Stf02.SIZE_GAMBAR_5 = Convert.ToString(file.ContentLength);
                                         break;
-                                    //end add 6/9/2019, 5 gambar
+                                        //end add 6/9/2019, 5 gambar
                                 }
                             }
                         }
@@ -7349,10 +7349,10 @@ namespace MasterOnline.Controllers
                                     break;
                                 //add 6/9/2019, 5 gambar
                                 case 3:
-                                    imgPath[3] = dataBarang.Stf02.LINK_GAMBAR_4;
+                                    imgPath[3] = barangInDb.LINK_GAMBAR_4;
                                     break;
                                 case 4:
-                                    imgPath[4] = dataBarang.Stf02.LINK_GAMBAR_5;
+                                    imgPath[4] = barangInDb.LINK_GAMBAR_5;
                                     break;
                                     //end add 6/9/2019, 5 gambar
                             }
@@ -7899,7 +7899,7 @@ namespace MasterOnline.Controllers
                                         dataBarang.Stf02.LINK_GAMBAR_5 = image.data.link_l;
                                         dataBarang.Stf02.SIZE_GAMBAR_5 = Convert.ToString(file.ContentLength);
                                         break;
-                                   //end add 13/9/19, 5 gambar
+                                        //end add 13/9/19, 5 gambar
                                 }
                             }
                         }
@@ -8664,9 +8664,12 @@ namespace MasterOnline.Controllers
                     var sqlStorage = new SqlServerStorage(EDBConnID);
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //var result = lzdApi.CreateProduct(dataLazada);
+#if (DEBUG || Debug_AWS)
+                    var test = new LazadaControllerJob();
+                    test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
+#else
                     clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
-                    //var test = new LazadaControllerJob();
-                    //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
+#endif
                 }
                 else if (mode == 2)
                 {
@@ -8960,9 +8963,13 @@ namespace MasterOnline.Controllers
                                                 DatabasePathErasoft = dbPathEra,
                                                 username = usernameLogin
                                             };
+#if (DEBUG || Debug_AWS)
+                                            Task.Run(() => new ShopeeControllerJob().CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+#else
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                             clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
                                         }
                                     }
                                 }
@@ -16620,7 +16627,7 @@ namespace MasterOnline.Controllers
                             //end add by Tri 16/9/2019, packing list
 
                         }
-                       
+
 
                     }
                     //}
