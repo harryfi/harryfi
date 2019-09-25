@@ -18974,7 +18974,10 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.Ket = "";
                 dataVm.Stok.ST_Posting = "";
                 dataVm.Stok.MK = "M";
-                dataVm.Stok.JTran = "M";
+                //change by nurul 24/9/2019, permintaan pak dani
+                //dataVm.Stok.JTran = "M";
+                dataVm.Stok.JTran = "sa";
+                //end change by nurul 24/9/2019, permintaan pak dani
                 dataVm.Stok.Ref = "";
                 dataVm.Stok.WORK_CENTER = "";
                 dataVm.Stok.KLINE = "";
@@ -19008,7 +19011,10 @@ namespace MasterOnline.Controllers
                     dataVm.BarangStok.Dr_Gd = "";
                     dataVm.BarangStok.WO = "";
                     dataVm.BarangStok.Rak = "";
-                    dataVm.BarangStok.JTran = "M";
+                    //change by nurul 24/9/2019, permintaan pak dani
+                    //dataVm.BarangStok.JTran = "M";
+                    dataVm.BarangStok.JTran = "sa";
+                    //end change by nurul 24/9/2019, permintaan pak dani
                     dataVm.BarangStok.KLINK = "";
                     dataVm.BarangStok.NO_WO = "";
                     dataVm.BarangStok.KET = "";
@@ -19034,7 +19040,10 @@ namespace MasterOnline.Controllers
                     dataVm.BarangStok.Dr_Gd = "";
                     dataVm.BarangStok.WO = "";
                     dataVm.BarangStok.Rak = "";
-                    dataVm.BarangStok.JTran = "M";
+                    //change by nurul 24/9/2019, permintaan pak dani
+                    //dataVm.BarangStok.JTran = "M";
+                    dataVm.BarangStok.JTran = "sa";
+                    //change by nurul 24/9/2019, permintaan pak dani
                     dataVm.BarangStok.KLINK = "";
                     dataVm.BarangStok.NO_WO = "";
                     dataVm.BarangStok.KET = "";
