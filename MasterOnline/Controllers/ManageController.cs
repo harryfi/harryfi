@@ -12324,6 +12324,50 @@ namespace MasterOnline.Controllers
                 //end change by nurul 6/9/2019, samain dg form faktur pakenya NILAI_DISC 
                 fakturInDb.PPN = dataVm.Faktur.PPN;
                 fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
+                //add 25/9/2019 by Tri, fix nilai null
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_1)))
+                {
+                    dataVm.FakturDetail.NILAI_DISC_1 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_2)))
+                {
+                    dataVm.FakturDetail.NILAI_DISC_2 = 0;
+                }
+                dataVm.FakturDetail.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
+
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_KIRIM)))
+                {
+                    dataVm.FakturDetail.QTY_KIRIM = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_RETUR)))
+                {
+                    dataVm.FakturDetail.QTY_RETUR = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_3)))
+                {
+                    dataVm.FakturDetail.DISCOUNT_3 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_4)))
+                {
+                    dataVm.FakturDetail.DISCOUNT_4 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_5)))
+                {
+                    dataVm.FakturDetail.DISCOUNT_5 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_3)))
+                {
+                    dataVm.FakturDetail.NILAI_DISC_3 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_4)))
+                {
+                    dataVm.FakturDetail.NILAI_DISC_4 = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_5)))
+                {
+                    dataVm.FakturDetail.NILAI_DISC_5 = 0;
+                }
+                //end add 25/9/2019 by Tri, fix nilai null
 
                 dataVm.FakturDetail.NO_BUKTI = dataVm.Faktur.NO_BUKTI;
                 dataVm.FakturDetail.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
