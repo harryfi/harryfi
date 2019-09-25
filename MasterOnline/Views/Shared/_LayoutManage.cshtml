@@ -52,7 +52,7 @@
         //end add by nurul 26/7/2019
     }
 
-    var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
     var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
     var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 }
