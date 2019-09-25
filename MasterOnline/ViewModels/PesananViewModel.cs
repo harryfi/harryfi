@@ -32,5 +32,8 @@ namespace MasterOnline.ViewModels
         public SIFSY DataUsaha { get; set; } = new SIFSY();
         public string alamatPenerima { get; set; }
         //end add by nurul 10/4/2019
+        //add by Tri 19/9/19
+        public int createPackinglist { get; set; }
+        //end add by Tri 19/9/19
     }
 }

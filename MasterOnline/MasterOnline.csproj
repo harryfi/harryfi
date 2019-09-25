@@ -715,6 +715,7 @@
     <Compile Include="Models\DashboardTahunanModel.cs" />
     <Compile Include="Models\MenuAccount.cs" />
     <Compile Include="Models\DashboardMingguanModel.cs" />
+    <Compile Include="Models\PickingListDBClass.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />
@@ -1050,6 +1051,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />
     <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
@@ -6332,6 +6334,10 @@
     <Content Include="Views\Manage\TablePromptBrandLazada.cshtml" />
     <Content Include="Views\Manage\PromptBrandBlibli.cshtml" />
     <Content Include="Views\Manage\TablePromptBrandBlibli.cshtml" />
+    <Content Include="Views\Manage\PickingList.cshtml" />
+    <Content Include="Views\Manage\TablePackinglistPartialView.cshtml" />
+    <Content Include="Views\Manage\FormPackinglistPartial.cshtml" />
+    <Content Include="Views\Manage\LihatRekapPackinglist.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

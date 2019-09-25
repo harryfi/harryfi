@@ -56,5 +56,12 @@ namespace MasterOnline.Models
         public string NamaKurir { get; set; }
         public string jamKirim { get; set; }
         //end add by nurul 20/8/2019
+
+        //add by Tri 3/9/2019, packing list
+        public int? RecNumPackinglist { get; set; }
+        public string NO_BUKTI { get; set; }
+        //public string TGL { get; set; }
+        //end add by Tri 3/9/2019, packing list
+
     }
 }
