@@ -1580,6 +1580,13 @@
                                     </button>*@
 
                             </div>
+                            @* remark 16/9/19, function pindah ke modal ubah status *@
+                            @*<div class="pull-right">
+                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+                                    </button>
+                                </div>*@
+                            @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                         <div class="col-lg-1 col-sm-1">
@@ -2742,9 +2749,15 @@
                 </div>
             </div>
             <br />
-            <div class="modal-footer right">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+            <div class="modal-footer">
+                <div class="left">
+                    <input id="ckPackinglist" checked type="checkbox"/>Buat Packing List
+                </div>
+                <div class="right">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -2794,6 +2807,9 @@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var $modeEditPesanan = 0;
+        var $modeEditDibayar = 0;
+        var $modeEditSelesai = 0;
         var get_selected = [];
         var bukti = "";
         var fktur = "";
@@ -3318,6 +3334,9 @@
                     refreshForm1();
                     $modeEdit = 0;
                     $modeEditDetail = 0;
+                    $modeEditPesanan = 0;
+                    $modeEditDibayar = 0;
+                    $modeEditSelesai = 0;
                     $beforeState = {
                         brutto: 0,
                         netto: 0,
@@ -3347,6 +3366,9 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $modeEditPesanan = 0;
+                $modeEditDibayar = 0;
+                $modeEditSelesai = 0;
                 $beforeState = {
                     brutto: 0,
                     netto: 0,
@@ -3376,6 +3398,9 @@
                 refreshForm1();
                 $modeEdit = 0;
                 $modeEditDetail = 0;
+                $modeEditPesanan = 0;
+                $modeEditDibayar = 0;
+                $modeEditSelesai = 0;
                 $beforeState = {
                     brutto: 0,
                     netto: 0,
@@ -3668,6 +3693,9 @@
             //add by nurul 1/11/2018
             $modeEdit = 0;
             $modeEditDetail = 0;
+            $modeEditPesanan = 0;
+            $modeEditDibayar = 0;
+            $modeEditSelesai = 0;
             $beforeState = {
                 brutto: 0,
                 netto: 0,
@@ -4539,51 +4567,33 @@
         //add by nurul 7 agustus 2019
         function hitungUlangBruto() {
             $total_bruto_barang = 0;
-            //$('.netto-barang').each(function () {
-            //if ($modeEditDetail == 1) {
-            //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-            //        if ($(this).attr("data-issaved") == "1") {
-            //            $total_bruto_barang += convertToAngka($(this).text());
-            //        }
-            //    });
-            //} else if ($modeEditDetail == 0) {
-            //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-            //    if ($(this).attr("data-issaved") == "0") {
-            //        $total_bruto_barang += convertToAngka($(this).text());
-            //    }
-            //    });
-            //}
-            if ($modeEditDetail == 1) {
-                $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-                    $total_bruto_barang += convertToAngka($(this).text());
-                });
-            } else if ($modeEditDetail == 0) {
-                $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+            if ($modeEditSelesai == 1) {
+                    $('tr[data-pesanan-selesai-id!="0"] .netto-barang').each(function () {
+                        $total_bruto_barang += convertToAngka($(this).text());
+                    });
+            } else if ($modeEditDibayar == 1) {
+                $('tr[data-pesanan-dibayar-id!="0"] .netto-barang').each(function () {
                     $total_bruto_barang += convertToAngka($(this).text());
                 });
             }
+            else  {
+                if ($modeEditDetail == 1) {
+                    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
+                        if ($(this).attr("data-issaved") == "1") {
+                            $total_bruto_barang += convertToAngka($(this).text());
+                        }
+                    });
+                } else if ($modeEditDetail == 0) {
+                    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
+                            if ($(this).attr("data-issaved") != undefined) {
+                                $total_bruto_barang += convertToAngka($(this).text());
+                            }
+                    });
+                }
+            }
+
             $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
         }
-        //function hitungUlangBrutoEdit() {
-        //    $total_bruto_barang = 0;
-        //    //$('.netto-barang').each(function () {
-        //    $('tr[data-pesanan-id!="0"] .netto-barang').each(function () {
-        //        if ($(this).attr("data-issaved") == "1") {
-        //            $total_bruto_barang += convertToAngka($(this).text());
-        //        }
-        //    });
-        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
-        //}
-        //function hitungUlangBrutoNew() {
-        //    $total_bruto_barang = 0;
-        //    //$('.netto-barang').each(function () {
-        //    $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-        //        if ($(this).attr("data-issaved") == "0") {
-        //            $total_bruto_barang += convertToAngka($(this).text());
-        //        }
-        //    });
-        //    $('#Pesanan_BRUTO').val(convertToRupiah($total_bruto_barang));
-        //}
         //end add by nurul 7 agustus 2019
         function refreshNettoBarang($trId) {
             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
@@ -5400,6 +5410,15 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                $beforeState.brutto = $('#Pesanan_BRUTO').val();
+                                $beforeState.netto = $('#Pesanan_NETTO').val();
+                                $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
+                                $beforeState.ppn = $('#Pesanan_PPN').val();
+                                $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
+                                $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
                                     $('#Pesanan_BRUTO').val(convertToRupiah(0));
@@ -5903,14 +5922,15 @@
                     get_selected.push($(item).attr("data-recnum"));
                 });
             }
-
+            var pList = $('#ckPackinglist').is(":checked");
             var link = '@Url.Action("UbahStatusPesananPacking", "Manage")';
 
             $.ajax({
                 type: "POST",
                 url: link,
 
-                data: JSON.stringify(get_selected),
+                //data: JSON.stringify(get_selected),
+                data: JSON.stringify({ get_selected: get_selected, packinglist: pList }),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
                 success: function(response) {
@@ -6831,7 +6851,7 @@
                         //samakan dengan function lihatPesananSudahDibayar onSuccess
                         //add by nurul 1/11/2018
                         $modeEdit = 1;
-                        $modeEditDetail = 0;
+                        $modeEditDibayar = 1;
                         //end add
                         $('#form-partial-sudah-dibayar').html(response);
                         $('#see_tgl_pesanan').removeAttr('style');
@@ -7502,7 +7522,7 @@
                             $('#shopee-resi-non-integrated-section').show();
                             $('#btn-resi-shopee-manual').show();
                         }
-                        //end add 3/9/2019 handle create manual pesanan shopee  
+                        //end add 3/9/2019 handle create manual pesanan shopee
                     }
                 },
                 error: function(xhr) {
@@ -7744,6 +7764,62 @@
             }
 
         }
+        //add by Tri 10/9/2019, proses packing list
+        function packinglistpesanan() {
+            var rows_selected = [];
+            if ($TabAktif == 2) {
+                $('.checkbox_gntstatus_packing').each(function (i, item) {
+                    //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
+                    //    rows_selected.push($(item).attr("data-recnum"));
+                    //} else
+                    if ($(item).is(":checked")) {
+                        rows_selected.push($(item).attr("data-recnum"));
+                    }
+                });
+                var link = '@Url.Action("ProsesPesananToPackingList", "Manage")';
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    beforeSend: function () {
+                        $('#datatable_ubahstatus_packing').hide();
+                        $('#loading_ubahstatus_packing').show();
+                    },
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: JSON.stringify(rows_selected),
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    success: function (response) {
+                        if (response.selectRec != null) {
+                            //var w = window.open();
+                            //$(w.document.body).html(response);
+                            var link = '@Url.Action("Packinglist", "Manage")';
+                            link += "?nobuk=" + response.selectRec;
+                            var win = encodeURIComponent(window.open(link, '_blank'));
+                            if (win) {
+                                win.focus();
+                            } else {
+                                alert('Please allow popups for this website');
+                            }
+                            $('#datatable_ubahstatus_packing').show();
+                            $('#loading_ubahstatus_packing').hide();
+                        } else {
+                            //$('#modalUbahStatusMultiPacking').modal('hide');
+                            $('#datatable_ubahstatus_packing').show();
+                            $('#loading_ubahstatus_packing').hide();
+                            alert(response.Errors[0]);
+
+                        }
+                    },
+                    error: function (errMsg) {
+                        $('#loading_ubahstatus_packing').hide();
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        alert(errMsg);
+                    },
+                });
+            }
+        }
+        //end add by Tri 10/9/2019, proses packing list
 
         //add by nurul 14/3/2019
         function passRecStatusMultiDibayar() {
@@ -7815,6 +7891,13 @@
                             $('#modal-status-multi-packing-body').html(response);
                             $('#datatable_ubahstatus_packing').show();
                             $('#loading_ubahstatus_packing').hide();
+                            //add by 19/9/19 by Tri
+                            if ($('#createPackinglist').val() == 1) {
+                                $('#ckPackinglist').prop('checked', true);
+                            } else {
+                                $('#ckPackinglist').prop('checked', false);
+                            }
+                            //end add by 19/9/19 by Tri
                         } else {
                             $('#modalUbahStatusMultiPacking').modal('hide');
                             $('#datatable_ubahstatus_packing').show();
@@ -8223,7 +8306,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 0;
+                    $modeEditSelesai = 1;
                     //end add
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8275,7 +8358,7 @@
                 success: function (response) {
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
-                    $modeEditDetail = 0;
+                    $modeEditDibayar = 1;
                     //end add
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
@@ -8414,6 +8497,7 @@
                     $('#Pesanan_EXPEDISI').val() != '' &&
                     $('#Pesanan_NAMAPEMESAN').val() != ''
                 ) {
+                    $modeEditDetail = 0;
                     refreshNetto();
                     var tgl = $('#Pesanan_TGL').val();
                     $('#PesananDetail_TGL_INPUT').val(tgl);

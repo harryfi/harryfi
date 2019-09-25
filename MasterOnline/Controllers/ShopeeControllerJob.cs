@@ -2019,6 +2019,114 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> FixPemesanNullSOT01A(ShopeeAPIData iden, string[] ordersn_list, string CUST, string NAMA_CUST)
+        {
+            SetupContext(iden);
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                var connIdARF01C = Guid.NewGuid().ToString();
+                TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
+                List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                var kabKot = "3174";
+                var prov = "31";
+
+                foreach (var order in result.orders)
+                {
+                    string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+
+                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                        ((nama ?? "").Replace("'", "`")),
+                        ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        ((order.recipient_address.phone ?? "").Replace("'", "`")),
+                        (NAMA_CUST.Replace(',', '.')),
+                        ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                        (username),
+                        ((order.recipient_address.zipcode ?? "").Replace("'", "`")),
+                        kabKot,
+                        prov,
+                        connIdARF01C
+                        );
+                }
+                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                using (SqlCommand CommandSQL = new SqlCommand())
+                {
+                    //call sp to insert buyer data
+                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                };
+
+                string updateSOT01A = "";
+                foreach (var order in result.orders)
+                {
+                    try
+                    {
+                        updateSOT01A += "UPDATE SOT01A SET PEMESAN = (SELECT TOP 1 BUYER_CODE FROM ARF01C WHERE TLP = '"+ order.recipient_address.phone +"' AND EMAIL = '') WHERE CUST='"+ CUST +"' AND NO_REFERENSI = '"+ order.ordersn +"';";
+                    }
+                    catch (Exception ex3)
+                    {
+
+                    }
+                }
+
+                if (updateSOT01A != "")
+                {
+                    EDB.ExecuteSQL("Constring", CommandType.Text, updateSOT01A);
+                }
+            }
+            return ret;
+        }
+        
         public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
         {
             int MOPartnerID = 841371;
@@ -3503,11 +3611,15 @@ namespace MasterOnline.Controllers
                     //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
                     //}
                     //await UpdateTierVariationIndex(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
+#if Debug_AWS
+                    await UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
+#else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
+#endif
                 }
             }
 
@@ -3602,11 +3714,15 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
                 if (resServer.item_id == item_id)
                 {
+#if Debug_AWS
+                    await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+#else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
+#endif
                 }
             }
 
@@ -3674,11 +3790,15 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.variation_id_list != null)
                 {
+#if Debug_AWS
+                    await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, null, null);
+#else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, null, null));
+#endif
                 }
             }
 
@@ -3928,11 +4048,16 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+#if Debug_AWS
+                    await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+#else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation,currentLog));
+#endif
+
                 }
             }
 

@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @using PagedList.Mvc
 @using MasterOnline.Models
-@model PagedList.IPagedList<BRAND_LAZADA>
+@model PagedList.IPagedList<BRAND_BLIBLI>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -55,7 +55,7 @@
         {
                 <tr>
                     <td class="edit-hapus-col">
-                        <button class="btn btn-primary" onclick="pilihPrompt('@item.brand_id','@item.name_en')">
+                        <button class="btn btn-primary" onclick="pilihPrompt('@item.name','@item.name')">
                             <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                         </button>
                     </td>
@@ -68,8 +68,10 @@
 @if (Model.PageCount > 1)
 {
     <div id="tabelpromptpartialpager" class="pager">
-        @Html.PagedListPager(Model, page => Url.Action("RefreshBrandLazada", new
+        @Html.PagedListPager(Model, page => Url.Action("RefreshBrandBlibli", new
    {
+       category = ViewData["category"],
+       cust = ViewData["cust"],
        page,
        search = ViewData["searchParam"]
    }),

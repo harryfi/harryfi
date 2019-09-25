@@ -1,0 +1,1058 @@
+﻿@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.PackingListViewModel
+@{
+    ViewBag.Title = "Laporan Packing List";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var context_ = new MoDbContext();
+
+}
+@section styles
+{
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        #statusBorder {
+            position: relative;
+            height: 5px;
+            width: 100px;
+            border: solid 1px gray;
+            display: none;
+        }
+
+        #statusFill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            background-color: Blue;
+            height: 5px;
+        }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+        #Stf02_Deskripsi {
+            resize: vertical;
+            height: 100px;
+            max-height: 150px;
+        }
+
+        .satuan {
+            text-align: left !important;
+            font-size: 10px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .foto_produk_section {
+            padding: 10px;
+        }
+
+            .foto_produk_section > .box_upload {
+                width: 250px;
+                height: 250px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                margin: 0 auto;
+                cursor: pointer;
+            }
+
+        .box_upload > .box_upload_placeholder {
+            color: #ccc;
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .btn_hapus_foto_produk {
+            position: absolute;
+            bottom: 15px;
+            left: 48px;
+        }
+
+        /* =============== Checkbox ================ */
+
+        /* Customize the label (the container) */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+}
+<div class="row" id="packinglist_section">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="row packinglist_table_section">
+            <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                <div class="input-group">
+                    <input id="search_packinglist" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" id="search_packinglist_click" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>*@
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row packinglist_table_section" style="margin-top: 5px;">
+            <div class="col-sm-12 addpixel" id="table-packinglist-partial">
+                @*@Html.Partial("TablePromosiPartial")*@
+            </div>
+        </div>
+        <div class="row packinglist_editor_section" style="display: none;">
+            <div class="col-lg-12 modalresponsive">
+                <div class="page-editor">
+                    <h2 class="editor-title">Packing List</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor-1" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    @using (Html.BeginForm("SavePackinglist", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-packinglist" }))
+                    {
+                        <div id="form-partial">
+                            @*@Html.Partial("BarangPromosiPartial")*@
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusPackinglist" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus packing list ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="DeletePackinglist();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusPesanan" tabindex="-1" role="dialog" aria-labelledby="konfHapusPesananLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfHapusPesananLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus pesanan ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deletePesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrint" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalphapusp">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalPrintLabel">Print Packing List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <input type="radio" name="printType" value="0" checked/>Rekap per Barang<br />
+                    <input type="radio" name="printType" value="1" />Detail per Pesanan<br />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-success" onclick="printRekap();">Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+
+    <script type="text/javascript">
+        var $modeEdit = 0; // 0 new, 1 edit
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
+
+        $(document).ready(function () {
+            refreshTablePackinglist1();
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
+            var tableSiapProses = $('#datatable_siapproses').DataTable({
+                columnDefs: [{
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets: 0
+                }],
+                select: {
+                    style: 'os',
+                    selector: 'td:first-child'
+                }
+            });
+
+            $('#search_siapproses').keyup(function () {
+                tableSiapProses.search($(this).val()).draw();
+            });
+
+            $('#packinglist-tab').click(function () {
+                refreshTablePackinglist1();
+                $('#tambah_packinglist').show();
+                $('#refresh_packinglist').show();
+            });
+
+            //Initialize();
+            //add by nurul 12/2/2019
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
+
+            $('#search_packinglist').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePackinglist1();
+                    return false;
+                }
+            });
+            $('#search_packinglist_click').click(function () {
+                searchTablePackinglist1();
+            });
+
+            $('#tambah_packinglist').on('click', function () {
+                $modeEdit = 0;
+                refreshForm1();
+            });
+
+            $('#close-editor-1').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $modeEdit = 0;
+                    refreshTablePackinglist1();
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.packinglist_editor_section').hide();
+                    $('.packinglist_table_section').show();
+                    $('.btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
+
+            var query = window.location.search.substring(1);
+            var qs = parse_query_string(query);
+            //alert(qs.nobuk);
+            if (qs.nobuk != undefined) {
+                editPackinglist1(qs.nobuk);
+            }
+        });
+
+        function parse_query_string(query) {
+            var vars = query.split("&");
+            var query_string = {};
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                var key = decodeURIComponent(pair[0]);
+                var value = decodeURIComponent(pair[1]);
+                // If first entry with this name
+                if (typeof query_string[key] === "undefined") {
+                    query_string[key] = decodeURIComponent(value);
+                    // If second entry with this name
+                } else if (typeof query_string[key] === "string") {
+                    var arr = [query_string[key], decodeURIComponent(value)];
+                    query_string[key] = arr;
+                    // If third or later entry with this name
+                } else {
+                    query_string[key].push(decodeURIComponent(value));
+                }
+            }
+            return query_string;
+        }
+
+        function refreshInputan() {
+            //add by nurul 19/12/2018 ngatur width barang
+            $(window).on('resize', function () {
+                //var win = $(this); //this = window
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 135px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $(window).scroll(function () {
+                //var scrollTop = $(window).scrollTop();
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 135px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            //$('#BRG').click(function () {
+            //    var checkExist = setInterval(function () {
+            //        //if ($('.selectivity-dropdown').length) {
+            //        //    $('html, body').animate({ scrollTop: '-=10px' }, 500);
+            //        //    clearInterval(checkExist);
+            //        //}
+            //        if (window.pageYOffset == 0) {
+            //            $('html, body').animate({ scrollTop: '+=1px' }, 500);
+            //            clearInterval(checkExist);
+            //        } else {
+            //            $('html, body').animate({ scrollTop: '-=1px' }, 500);
+            //            clearInterval(checkExist);
+            //        }
+            //    }, 100);
+            //});
+
+            //$('body').click(function () {
+            //    $('#BRG').css('max-width', '135px').attr('style', 'width: 135px !important');
+            //});
+            //end add
+
+            if ($('#packingList_TGL').val() != '') {
+                $('#packingList_TGL').val($('#packingList_TGL').val().split(' ')[0]);
+                $('#TGL').val($('#packingList_TGL').val());
+            } else {
+                var today = new Date();
+                var m = today.getMonth() + 1;
+                if (m <= 9) {
+                    m = "0" + m;
+                }
+                var date = today.getDate() + '/' + m + '/' + today.getFullYear();
+                $('#packingList_TGL').val(date);
+                $('#TGL').val($('#packingList_TGL').val());
+            }
+
+            //if ($('#Promosi_TGL_AKHIR').val() != '') {
+            //    $('#Promosi_TGL_AKHIR').val($('#Promosi_TGL_AKHIR').val().split(' ')[0]);
+            //    $('#TGL_AKHIR').val($('#Promosi_TGL_AKHIR').val());
+            //} else {
+            //    $('#Promosi_TGL_AKHIR').val($('#TGL_AKHIR').val());
+            //}
+
+            $("input.num-only").on('keydown',
+                function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $('#btn-simpan-perubahan').click(function () {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdatePackinglist", "Manage")',
+                    data: JSON.stringify({
+                        RecNumPackinglist: $('#packingList_RecNum').val(),
+                        NO_BUKTI: $('#packingList_NO_BUKTI').val(),
+                        Tgl: $('#packingList_TGL').val()
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function () {
+                        alert('Data packing list berhasil di-update');
+                        //change by calvin 7 juni 2018
+                        //$this.hide();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end change by calvin 7 juni 2018
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            });
+        }
+
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            $modeEdit = 0;
+            refreshTablePackinglist1();
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('.packinglist_editor_section').hide();
+            $('.packinglist_table_section').show();
+            $('.btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+        }
+
+        function Initialize() {
+            $('#search_packinglist').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePackinglist1();
+                    return false;
+                }
+            });
+            $('#search_packinglist_click').click(function () {
+                searchTablePackinglist1();
+            });
+
+
+            if ($('.message-error').text() !== '') {
+                //$('#tambah_promosi').click();
+                $('.packinglist_table_section').hide();
+                $('.packinglist_editor_section').show();
+            }
+
+            $('#table_tambah_packinglist > tbody > tr > td.editable-kode').prop('contentEditable', true);
+
+        }
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }
+
+        function refreshTablePackinglist1($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else {
+                if ($('#txt_last_page').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page').val();
+                }
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackinglist", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_packinglist').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-packinglist-partial').hide();
+                    $('#loading_packinglist_tab').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist-partial').html(response);
+                    $('#loading_packinglist_tab').hide();
+                    $('#table-packinglist-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePackinglist1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackinglist", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_packinglist').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_packinglist_click')[0].disabled = true;
+                    $('#loading_packinglist_tab').show();
+                },
+                success: function (response) {
+                    $('#search_packinglist_click')[0].disabled = false;
+                    $('#table-packinglist-partial').html(response);
+                    $('#loading_packinglist_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_packinglist_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshForm1() {
+            var link = '@Url.Action("RefreshPackinglistForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('.packinglist_table_section').hide();
+                    $('.packinglist_editor_section').show();
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    //getMarketplace();
+                    GetDataPesananPackinglist();
+                    $('#loading_spinner').hide();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function editPackinglist1(idPackinglist) {
+            var link = '@Url.Action("EditPackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", idPackinglist);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    GetDataPesananPackinglist();
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+
+                    //END ADD
+                    //$('#tambah_promosi').click();
+                    $('.packinglist_table_section').hide();
+                    $('.packinglist_editor_section').show();
+
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function getTanggal() {
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    $('#packingList_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    $('#btn-simpan-perubahan-row').show();
+                });
+
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    $('#packingList_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    $('#btn-simpan-perubahan-row').show();
+                });
+
+            }
+        }
+
+        function GetDataPesananPackinglist() {
+            var link = '@Url.Action("GetDataPesananPackinglist", "Manage", new { nobuk = "replaceId"})';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+            //link += "&cust=" + $('#Promosi_NAMA_MARKET').val();
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listPesanan = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            ////add by nurul 31/1/2019
+                            //var nama2 = "";
+                            //if (item.NAMA2 != null && item.NAMA2 != "null") {
+                            //    nama2 = item.NAMA2;
+                            //}
+                            ////end add by nurul 31/1/2019
+                            listPesanan[i] = {
+                                id: item.NO_PESANAN,
+                                //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                //text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
+                                text: item.NO_PESANAN
+                            };
+                        });
+
+                    $('#PESANAN').selectivity({
+                        allowClear: true,
+                        items: listPesanan,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var val = $(this).selectivity('value');
+                        var $trId = $(this).closest('tr').attr('data-packing-id');
+                        var $trElement = 'tr[data-packing-id="' + $trId + '"]';
+
+                        if (val != null) {
+                            $.each(data,
+                                function (i, item) {
+                                    if (item.NO_PESANAN === val) {
+                                        //if (item.NAMA2 == null)
+                                        //    $($trElement + ' .nama-barang').text(item.NAMA + " ");
+                                        //else
+                                        //    $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
+
+                                        //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field HARGA_NORMAL must be a number." data-val-required="The HARGA_NORMAL field is required." id="PromosiDetail_HARGA_NORMAL" name="PromosiDetail.HARGA_NORMAL" type="hidden" value="">');
+                                        $($trElement + ' .tgl-pesanan').text(ToJavaScriptDate(item.TGL_PESANAN) + " ");
+                                        $($trElement + ' .pembeli-pesanan').text(item.PEMBELI + " ");
+                                        $($trElement + ' .marketplace-pesanan').text(item.MARKETPLACE + " ");
+                                        return;
+                                    }
+                                });
+
+                            $($trElement + ' .btn-primary').removeAttr('disabled');
+                            offTab();
+                            modeEditTd();
+                        } else {
+                            $($trElement + ' .tgl-pesanan').text('');
+                            $($trElement + ' .pembeli-pesanan').text('');
+                            $($trElement + ' .marketplace-pesanan').text('');
+                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                            onTab();
+                            modeEditOff();
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function modeEditTd() {
+
+        }
+
+        function modeEditOff() {
+            $('#table_tambah_packinglist > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_packinglist > tbody > tr > td.editable').prop('onclick', null).off('click');
+            //$('.harga-promosi-barang').removeClass('editable');
+            //$('.persen-promosi-barang').removeClass('editable');
+            //$('.batas-pembelanjaan').removeClass('editable');
+        }
+
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }
+
+        function ToJavaScriptDate(value) {
+            var pattern = /Date\(([^)]+)\)/;
+            var results = pattern.exec(value);
+            var dt = new Date(parseFloat(results[1]));
+            return dt.getDate() + "/" + (dt.getMonth() + 1) + "/" +dt.getFullYear();
+        }
+
+        function DataIsValid() {
+            if ($('#TGL').val() == '') {
+                alert('Anda belum memilih tanggal packing list');
+                //addError($('#TGL'), 'Anda belum memilih tanggal packing list.');
+                return false;
+            }
+            return true;
+        }
+
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
+
+        function simpanpesanan($id) {
+            if (!validateForm() || !DataIsValid()) return false;
+            //if (!validateForm()) return false;
+            if ($id == 'pesanan-0') {
+                //if ($('#Promosi_TGL_MULAI').val() != '' &&
+                //    $('#Promosi_TGL_AKHIR').val() != '' &&
+                //    $('#Promosi_NAMA_MARKET').val() != '' &&
+                //    $('#Promosi_NAMA_PROMOSI').val() != ''
+                //) {
+                //$('#detailPackingList_NO_BUKTI').val($('#packingList_NO_BUKTI').val());
+                $('#detailPackingList_NO_PESANAN').val($('#PESANAN').selectivity('val'));
+                $('#detailPackingList_TGL_PESANAN').val($('tr[data-packing-id="0"] .tgl-pesanan').text());
+                $('#detailPackingList_PEMBELI').val($('tr[data-packing-id="0"] .pembeli-pesanan').text());
+                $('#detailPackingList_MARKETPLACE').val($('tr[data-packing-id="0"] .marketplace-pesanan').text());
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SavePackinglist", "Manage")',
+                        data: $('#form-packinglist').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                //add by nurul 3/1/2019
+                                $modeEdit = 1;
+                                //end add
+                                $('#form-partial').html(response);
+                                refreshInputan();
+                                getTanggal();
+                                GetDataPesananPackinglist();
+                                //getMarketplace();
+                                //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                                $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                //END ADD
+                                //$('#btnPrint').prop('disabled', true);
+                            } else {
+                                console.log(response.Errors);
+                                alert(response.Errors[0]);
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
+                            console.log(xhr);
+                        }
+                    });
+            //}
+            //else {
+            //        alert('Silakan isi semua field terlebih dahulu!');
+            //    }
+            }
+        }
+
+        var $nobukPacking = "";
+
+        function pass(nobuk) {
+            this.$nobukPacking = nobuk;
+        }
+
+        function DeletePackinglist() {
+            var $savePage = $('#txt_last_page').val();
+            var link = '@Url.Action("DeletePackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", this.$nobukPacking);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-packinglist-partial').html(response);
+                    //Initialize();
+                    refreshTablePackinglist1($savePage);
+                    $('#loading_spinner').hide();
+                    $('#konfHapusPackinglist').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        var $kode = '';
+
+        function passKodeInDb($kd) {
+            this.$kode = $kd;
+        }
+
+        function deletePesanan() {
+            var link = '@Url.Action("DeletePesananPackinglist", "Manage", new { noUrut = "replaceId" })';
+            link = link.replace("replaceId", this.$kode);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    GetDataPesananPackinglist();
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    //END ADD
+                    //alert('Pesanan berhasil dihapus.\nSilahkan lakukan proses ulang.');
+                    //$('#btnPrint').prop('disabled', true);
+                    $('#konfHapusPesanan').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function prosesDetail() {
+            var link = '@Url.Action("ProsesDetailPackinglist", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors != null) {
+                        alert(response.Errors[0]);
+                    } else {
+                        $modeEdit = 1;
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        getTanggal();
+                        GetDataPesananPackinglist();
+                        //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                        $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                            .css('cursor', 'not-allowed');
+                        alert('Proses Rekap Barang telah selesai.');
+                        $('#btnPrint').prop('disabled', false);
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+
+        }
+
+        function printRekap() {
+            var link = '@Url.Action("LihatRekapPackingList", "Manage", new {nobuk = "replaceId" })';
+            link = link.replace("replaceId", $('#packingList_NO_BUKTI').val());
+            link += "&mode=" + $('input[name="printType"]:checked').val();
+            var win = encodeURIComponent(window.open(link, '_blank'));
+            if (win) {
+                $('#modalPrint').modal('hide');
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }
+        }
+
+    </script>
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

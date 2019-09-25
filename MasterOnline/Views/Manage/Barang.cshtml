@@ -3980,7 +3980,7 @@
         function simpanBarang1(btnClicked) {
             $(btnClicked).attr("disabled", true);
             toggleRequiredDetailPerMarketplace();
-            
+
             getValueFromCKEditor();
 
             var valid = validateForm();
@@ -4513,6 +4513,34 @@
             $('#ListHargaJualPermarket_' + PromptBrandLazadaTextBox + '__ANAME_38').val(name);
         }
         //END ADD BY CALVIN 11 SEPTEMBER 2019, PROMPT LAZADA BRAND
+        //ADD BY CALVIN 20 SEPTEMBER 2019, PROMPT LAZADA BLIBLI
+        var PromptBrandBlibliTextBox = "";
+        function PromptBrandBlibli(i, r) {
+            PromptBrandBlibliTextBox = i;
+            debugger;
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrandBlibliTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori blibli terlebih dahulu.');
+            }
+        }
+
+        function showPromptBrandBlibliTextBoxWindow(valueCategory, val) {
+            var $link = '@Html.Raw(Url.Action("PromptBrandBlibli", "Manage", new { merchant_code = "replaceKodeMerchant", category = "replaceCategory" }))';
+
+            $link = $link.replace("replaceCategory", valueCategory);
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrandBlibli(val,name) {
+            $('#Brand' + PromptBrandBlibliTextBox + 'Blibli').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrandBlibliTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrandBlibliTextBox + '__ANAME_38').val(name);
+        }
+        //END ADD BY CALVIN 20 SEPTEMBER 2019, PROMPT LAZADA BLIBLI
 
         function ConvertToAngkaRupiah(source) {
             if (source.value == '') {
