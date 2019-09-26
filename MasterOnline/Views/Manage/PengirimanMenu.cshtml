@@ -1057,7 +1057,6 @@
 
             if ($('#DrTanggal').val() != null &&
                 $('#SdTanggal').val() != '' &&
-                //$('#FromCust').val() != '' &&
                 $('#ToCust').val() != '') {
 
                 var link = '@Url.Action("SaveAutoloadKirim", "Manage", new { param = "replacedrTgl;replacesdTgl;replacedrCust;replacesdCust"})';
@@ -1082,21 +1081,16 @@
 
                                 $modeEdit = 1;
                                 $('#form-partial').html(response);
-                                //getDataPesanan();
                                 getExpedisi();
                                 getTanggal();
-                                //$('#loading_spinner').hide();
                                 $('input, select').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
-                                //$(' select,  ').each(function () {
-                                //    $(this).attr('disabled', 'disabled');
-                                //});
 
                                 $('tr[data-kirim-id="0"]').hide();
                                 $("#konfAutoload").modal('hide');
                                 $('#btn-simpan-perubahan-row').hide();
-                                $("#btn-autoload-row").hide();
+                                $("#btn-autoload-row").show();
                                 $('#loading_spinner').hide();
 
                             } else {
