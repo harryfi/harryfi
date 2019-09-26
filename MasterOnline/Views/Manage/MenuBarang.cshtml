@@ -460,10 +460,12 @@
             var d = new Date();
             d.setMonth(d.getMonth() - 3);
             //tidaklaku-tab
+            var f = new Date();
+            f.setMonth(f.getMonth() - 1);
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', f);
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
