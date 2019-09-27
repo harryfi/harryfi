@@ -2198,9 +2198,9 @@ namespace MasterOnline.Controllers
                             insertQ += ",[SHIPPING_POSTCODE],[SHIPPING_COUNTRY],[NATIONAL_REGISTRASION_NUM],[ITEM_COUNT],[PROMISED_SHIPPING_TIME],[EXTRA_ATTRIBUTES],[STATUSES]";
                             insertQ += ",[VOUCHER],[SHIPPING_FEE],[TAXCODE],[BRANCH_NUMBER],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
 
-                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+                            //string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                            //insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                            //insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
 
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
@@ -2292,20 +2292,20 @@ namespace MasterOnline.Controllers
                                     var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
                                     var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
 
-                                    var kabKot = "3174";//set default value jika tidak ada di db
-                                    var prov = "31";//set default value jika tidak ada di db
+                                    //var kabKot = "3174";//set default value jika tidak ada di db
+                                    //var prov = "31";//set default value jika tidak ada di db
 
-                                    if (tblProv.Tables[0].Rows.Count > 0)
-                                        prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
-                                    if (tblKabKot.Tables[0].Rows.Count > 0)
-                                        kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+                                    //if (tblProv.Tables[0].Rows.Count > 0)
+                                    //    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                    //if (tblKabKot.Tables[0].Rows.Count > 0)
+                                    //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                                    insertPembeli += "('" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
-                                    insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    //change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
-                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
-                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
-                                    //end change by calvin 12 desember 2018
+                                    //insertPembeli += "('" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+                                    //insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    ////change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
+                                    ////insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+                                    ////end change by calvin 12 desember 2018
 
                                     //change 12 Maret 2019, handle record > 100
                                     //listOrderId += order.order_id;
@@ -2313,7 +2313,7 @@ namespace MasterOnline.Controllers
                                     //end change 12 Maret 2019, handle record > 100
 
                                     insertQ += " , ";
-                                    insertPembeli += " , ";
+                                    //insertPembeli += " , ";
 
                                     //if (i < bindOrder.data.orders.Count)
                                     //{
@@ -2335,8 +2335,8 @@ namespace MasterOnline.Controllers
                                 insertQ = insertQ.Substring(0, insertQ.Length - 2);
                                 var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
 
-                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
-                                a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                                //insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                                //a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
 
                                 ret.status = 1;
                                 //ret.message = a.ToString();
