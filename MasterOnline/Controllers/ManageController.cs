@@ -3654,12 +3654,13 @@ namespace MasterOnline.Controllers
             SSQL += "	B.BRG, ISNULL(B.NAMA,'') NAMA, ISNULL(B.NAMA2,'') NAMA2, B.HJUAL, B.ID, B.KET_SORT1, B.KET_SORT2, B.LINK_GAMBAR_1 ";
             SSQL += "FROM [QOH_QOO_ALL_ITEM] A ";
             SSQL += "INNER JOIN STF02 B ON A.BRG=B.BRG ";
-            SSQL += "WHERE A.JENIS='QOH' AND A.JUMLAH <= 0 AND B.TYPE='3' ";
+            SSQL += "WHERE B.TYPE='3' ";
             SSQL += "GROUP BY B.BRG,B.NAMA,B.NAMA2, B.HJUAL, B.ID, B.KET_SORT1, B.KET_SORT2, B.LINK_GAMBAR_1 ";
             SSQL += ")A ";
+            SSQL += "WHERE QOH <= 0 ";
             if (search != "")
             {
-                SSQL += "WHERE BRG LIKE '%" + search + "%' OR (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) LIKE '%" + search + "%' OR KET_SORT1 LIKE '%" + search + "%' OR KET_SORT2 LIKE '%" + search + "%' ";
+                SSQL += "AND BRG LIKE '%" + search + "%' OR (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) LIKE '%" + search + "%' OR KET_SORT1 LIKE '%" + search + "%' OR KET_SORT2 LIKE '%" + search + "%' ";
             }
             SSQL3 += "ORDER BY (QOH-QOO) ASC, BRG ASC ";
             SSQL3 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
