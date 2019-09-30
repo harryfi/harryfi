@@ -341,6 +341,7 @@
 
             $('#tambah_promosi').on('click', function () {
                 $modeEdit = 0;
+                $('#barang-tab').addClass('disabled-tab');
                 refreshForm1();
             });
 
@@ -350,6 +351,11 @@
                 } else {
                     $modeEdit = 0;
                     refreshTablePromosi1();
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
                     $('input, select, .btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
@@ -1101,7 +1107,7 @@
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
                     $('.promosi_editor_section').show();
-
+                    $('#barang-tab').addClass('disabled-tab');
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1261,7 +1267,7 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableBarangPromosi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_promosi').val());
+            $link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
             $link = $link.replace("replaceLastPage", $tpPage);
 
