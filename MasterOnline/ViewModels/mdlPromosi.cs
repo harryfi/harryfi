@@ -53,4 +53,12 @@ namespace MasterOnline
     }
     //add by Tri, 24/9/19
 
+
+    public class mdlPackinglist
+    {
+        public int? RECNUM { get; set; }
+        public string NO_BUKTI { get; set; }
+        public DateTime? TGL { get; set; }
+
+    }
 }

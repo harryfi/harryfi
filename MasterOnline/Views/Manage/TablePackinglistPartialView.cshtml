@@ -1,6 +1,6 @@
 ﻿@using PagedList.Mvc
 @using MasterOnline.Models
-@model PagedList.IPagedList<SOT03A>
+@model PagedList.IPagedList<mdlPackinglist>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -50,7 +50,7 @@
     }
 </style>
 <div id="loading_promosi_tab">
-    <div id="loading_promosi_tab_image">
+    <div id="loading_packinglist_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
 </div>
@@ -95,7 +95,7 @@
     @* add by nurul 13/6/2019, paging *@
     @if (Model.PageCount > 1)
     {
-        <div id="tabelpromosipartialpager" class="pager">
+        <div id="tabelpackinglistpartialpager" class="pager">
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackinglist", new
             {
                 page,
@@ -116,18 +116,18 @@
 </div>
 <script type="text/javascript">
     $(function () {
-        $('#tabelpromosipartialpager').on('click', 'a', function () {
+        $('#tabelpackinglistpartialpager').on('click', 'a', function () {
             if (this.href != "") {
                 $.ajax({
                     url: this.href,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
-                        $('#loading_promosi_tab').show();
+                        $('#loading_packinglist_tab_image').show();
                     },
                     success: function (response) {
-                        $('#table-promosi-partial').html(response);
-                        $('#loading_promosi_tab').hide();
+                        $('#table-packinglist-partial').html(response);
+                        $('#loading_packinglist_tab_image').hide();
                     }
                 });
             }

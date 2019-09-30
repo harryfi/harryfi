@@ -30808,7 +30808,7 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             string sSQLSelect = "";
-            sSQLSelect += "SELECT * ";
+            sSQLSelect += "SELECT RECNUM, NO_BUKTI, TGL ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -30836,10 +30836,10 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var listPackinglist = ErasoftDbContext.Database.SqlQuery<SOT03A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var listPackinglist = ErasoftDbContext.Database.SqlQuery<mdlPackinglist>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<SOT03A> pagePackinglist = new StaticPagedList<SOT03A>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlPackinglist> pagePackinglist = new StaticPagedList<mdlPackinglist>(listPackinglist, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TablePackinglistPartialView", pagePackinglist);
         }
 
