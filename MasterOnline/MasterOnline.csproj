@@ -6338,6 +6338,7 @@
     <Content Include="Views\Manage\TablePackinglistPartialView.cshtml" />
     <Content Include="Views\Manage\FormPackinglistPartial.cshtml" />
     <Content Include="Views\Manage\LihatRekapPackinglist.cshtml" />
+    <Content Include="Views\Manage\TabelPromosiPerBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

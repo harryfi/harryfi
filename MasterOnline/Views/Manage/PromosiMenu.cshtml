@@ -13,6 +13,36 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        #statusBorder {
+            position: relative;
+            height: 5px;
+            width: 100px;
+            border: solid 1px gray;
+            display: none;
+        }
+
+        #statusFill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0px;
+            background-color: Blue;
+            height: 5px;
+        }
+
         .input-group {
             margin-bottom: 0;
         }
@@ -58,38 +88,85 @@
                 width: 100%;
             }
         }
-         
     </style>
 }
 
-<div class="row" id="promosi_section">
+<div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-        <div class="row promosi_table_section">
-            <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
-                <div class="input-group">
-                    <input id="search_promosi" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_promosi_click" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
+        @*<div class="row promosi_table_section">
+                <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                    <div class="input-group">
+                        <input id="search_promosi" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_promosi_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-sm-6">
+                    <div class="pull-right">
+                        <button class="btn btn-primary btn_tambah_data" id="tambah_promosi">Tambah Baru</button>
+                    </div>
+                </div>
+            </div>*@
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li class="active">
+                    <a href="#tab_content1" id="promosi-tab" role="tab" data-toggle="tab" aria-expanded="true">Promosi</a>
+                </li>
+                <li>
+                    <a href="#tab_content2" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
+                </li>
+            </ul>
+        </div>
+        <div id="myTabContent" class="tab-content">
+            <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
+                <div class="row promosi_table_section">
+                    <div class="col-lg-4 col-sm-6" style="margin-top:7px;">
+                        <div class="input-group">
+                            <input id="search_promosi" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_promosi_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-sm-6" style="margin-top:7px;">
+                        <div class="pull-right">
+                            <button class="btn btn-primary btn_tambah_data" id="tambah_promosi">Tambah Baru</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row promosi_table_section" style="margin-top: 5px;">
+                    <div class="col-sm-12 addpixel" id="table-promosi-partial">
+                        @*@Html.Partial("TablePromosiPartial")*@
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-8 col-sm-6">
-                <div class="pull-right">
-                    @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
-                    <button class="btn btn-primary btn_tambah_data" id="tambah_promosi">Tambah Baru</button>
+            <div role="tabpanel" class="tab-pane fade in" id="tab_content2" aria-labelledby="barang-tab">
+                <div class="row promosi_table_section">
+                    <div class="col-lg-4 col-sm-6" style="margin-top:7px;">
+                        <div class="input-group">
+                            <input id="search_barang_promosi" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_barang_promosi_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row promosi_table_section" style="margin-top: 5px;">
+                    <div class="col-sm-12 addpixel" id="table-barang-promosi-partial">
+                        @*@Html.Partial("TablePromosiPartial")*@
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row promosi_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12 addpixel" id="table-promosi-partial">
-                @*@Html.Partial("TablePromosiPartial")*@
-            </div>
-        </div>
-        <div class="row promosi_editor_section" style="display: none;">
+
+        <div class="row promosi_editor_section" style="display: none;background-color:white;">
             <div class="col-lg-12 modalresponsive">
                 <div class="page-editor">
                     <h2 class="editor-title">Promosi</h2>
@@ -195,7 +272,7 @@
         //add by nurul 12/2/2019
         var $page = window.text;
             //end add by nurul 12/2/2019
-
+        var $TabAktif = 0;
         $(document).ready(function () {
             refreshTablePromosi1();
             //add by nurul 12/2/2019
@@ -218,11 +295,18 @@
             });
 
             $('#promosi-tab').click(function () {
+                $TabAktif = 0;
                 refreshTablePromosi1();
                 $('#tambah_promosi').show();
                 $('#refresh_promosi').show();
             });
 
+            $('#barang-tab').click(function () {
+                $TabAktif = 1;
+                refreshTablePromosi2();
+                $('#tambah_promosi').show();
+                $('#refresh_promosi').show();
+            });
             //Initialize();
             //add by nurul 12/2/2019
             //$('#datatable').on('page.dt', function () {
@@ -243,8 +327,21 @@
                 searchTablePromosi1();
             });
 
+            $('#search_barang_promosi').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromosi2();
+                    return false;
+                }
+            });
+            $('#search_barang_promosi_click').click(function () {
+                searchTablePromosi2();
+            });
+
             $('#tambah_promosi').on('click', function () {
                 $modeEdit = 0;
+                $('#barang-tab').addClass('disabled-tab');
                 refreshForm1();
             });
 
@@ -254,6 +351,11 @@
                 } else {
                     $modeEdit = 0;
                     refreshTablePromosi1();
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
                     $('input, select, .btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
@@ -798,7 +900,7 @@
                                 if ($('.selectivity-single-selected-item-remove')[0] != undefined) {
                                     $('.selectivity-single-selected-item-remove')[0].click();//remove selected brg
                                 }
-                                
+
                                 if ($("#CUSTOMER").children("option").filter(":selected").text().includes("Lazada (")) {
                                     $("#div_text").show();
                                 } else {
@@ -1005,7 +1107,7 @@
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
                     $('.promosi_editor_section').show();
-
+                    $('#barang-tab').addClass('disabled-tab');
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1137,6 +1239,7 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
+                    $('#table-barang-promosi-partial').hide();
                     $('#table-promosi-partial').hide();
                     $('#loading_promosi_tab').show();
                 },
@@ -1151,6 +1254,43 @@
                 }
             });
         }
+        
+        function refreshTablePromosi2($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page2').val();
+            } else {
+                if ($('#txt_last_page2').val() == undefined) {
+                    $tpPage = $savePage;
+                } else {
+                    $tpPage = $('#txt_last_page2').val();
+                }
+            }
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangPromosi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
+            //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceLastPage", $tpPage);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-promosi-partial').hide();
+                    $('#table-barang-promosi-partial').hide();
+                    $('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-promosi-partial').html(response);
+                    $('#loading_promosi_tab').hide();
+                    $('#table-barang-promosi-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
         function searchTablePromosi1(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_promosi').val());
@@ -1169,6 +1309,29 @@
                 },
                 error: function (xhr, status, error) {
                     $('#search_promosi_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        
+        function searchTablePromosi2(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarangPromosi", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_barang_promosi').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_barang_promosi_click')[0].disabled = true;
+                    $('#loading_promosi_tab').show();
+                },
+                success: function (response) {
+                    $('#search_barang_promosi_click')[0].disabled = false;
+                    $('#table-barang-promosi-partial').html(response);
+                    $('#loading_promosi_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_barang_promosi_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1192,7 +1355,7 @@
                     getMarketplace();
                     //getDataBarang();
                     $('#loading_spinner').hide();
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1218,7 +1381,7 @@
                     //if (dtMonth < 10) {
                     //    bln = '0' + dtMonth;
                     //} else {
-                    //    bln += dtMonth; 
+                    //    bln += dtMonth;
                     //}
                     if ($('#TGL_MULAI').val() != (day + '/' + bln + '/' + new Date().getFullYear())) {
                         alert('Tanggal Mulai untuk promo marketplace Lazada harus di set hari ini.');
@@ -1248,8 +1411,12 @@
                     $('#PromosiDetail_HARGA_NORMAL').val(convertToAngka($('tr[data-promosi-id="0"] .harga-barang').text()));
                     $('#PromosiDetail_HARGA_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .harga-promosi-barang').text()));
                     $('#PromosiDetail_PERSEN_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .persen-promosi-barang').text()));
-                    $('#PromosiDetail_MAX_QTY').val(convertToAngka($('tr[data-promosi-id="0"] .batas-pembelanjaan').text()));
+                $('#PromosiDetail_MAX_QTY').val(convertToAngka($('tr[data-promosi-id="0"] .batas-pembelanjaan').text()));
 
+                if (convertToAngka($('tr[data-promosi-id="0"] .persen-promosi-barang').text()) <= 0) {
+                    alert('Harga promosi harus lebih kecil dari harga normal');
+                    return false;
+                }
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SavePromosi", "Manage")',
