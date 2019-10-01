@@ -1819,7 +1819,7 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-                
+
                 string[] ordersn_list = listOrder.orders.Where(p => p.order_status == stat.ToString()).Select(p => p.ordersn).ToArray();
                 string ordersn = "";
                 foreach (var item in ordersn_list)
@@ -2051,7 +2051,7 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            
+
             myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
@@ -2113,7 +2113,7 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
-                        updateSOT01A += "UPDATE SOT01A SET PEMESAN = (SELECT TOP 1 BUYER_CODE FROM ARF01C WHERE TLP = '"+ order.recipient_address.phone +"' AND EMAIL = '') WHERE CUST='"+ CUST +"' AND NO_REFERENSI = '"+ order.ordersn +"';";
+                        updateSOT01A += "UPDATE SOT01A SET PEMESAN = (SELECT TOP 1 BUYER_CODE FROM ARF01C WHERE TLP = '" + order.recipient_address.phone + "' AND EMAIL = '') WHERE CUST='" + CUST + "' AND NO_REFERENSI = '" + order.ordersn + "';";
                     }
                     catch (Exception ex3)
                     {
@@ -2128,7 +2128,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        
+
         public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST, StatusOrder stat)
         {
             int MOPartnerID = 841371;
@@ -3325,7 +3325,7 @@ namespace MasterOnline.Controllers
             HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
-            
+
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
 
@@ -3336,19 +3336,21 @@ namespace MasterOnline.Controllers
                 HttpBody.stock = Convert.ToInt32(qty_stock);
             }
             //end add by calvin 1 mei 2019
-
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
-            //add 6/9/2019, 5 gambar
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
-                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
-                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
-            //end add 6/9/2019, 5 gambar
+            if (brgInDb.TYPE == "3")
+            {
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+                //add 6/9/2019, 5 gambar
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
+                //end add 6/9/2019, 5 gambar
+            }
             if (brgInDb.TYPE == "4")
             {
                 var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
@@ -3365,6 +3367,12 @@ namespace MasterOnline.Controllers
                         byteGambarUploaded.Add(item.Sort5);
                         if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
                             HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                    }
+                    if (!byteGambarUploaded.Contains(item.Sort6))
+                    {
+                        byteGambarUploaded.Add(item.Sort6);
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
                     }
                     //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                 }
@@ -3466,10 +3474,11 @@ namespace MasterOnline.Controllers
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var client = new BackgroundJobClient(sqlStorage);
-                                
+
                                 //delay 1 menit, karena API shopee ada delay saat create barang.
                                 //client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
-                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
+                                //client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
+                                await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -3499,7 +3508,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Berhasil. Link Produk Gagal.")]
@@ -3536,19 +3545,19 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
+            }
             if (currentLog != null)
             {
                 manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
@@ -3812,7 +3821,7 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Gagal.")]
@@ -3865,6 +3874,8 @@ namespace MasterOnline.Controllers
                 ShopeeTierVariation tier2 = new ShopeeTierVariation();
                 List<string> tier1_options = new List<string>();
                 List<string> tier2_options = new List<string>();
+                //List<string> tier1_images = new List<string>();
+                //List<string> tier2_images = new List<string>();
                 foreach (var item in ListVariant.OrderBy(p => p.ID))
                 {
                     var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
@@ -3973,16 +3984,38 @@ namespace MasterOnline.Controllers
                         }
                         mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
                         variation.Add(adaVariant);
+
+                        //if (mapIndexVariasi1.ContainsKey(nama_var1))
+                        //{
+                        //    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        //        //tier1_images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                        //        tier1_images.Add(item.LINK_GAMBAR_1);
+                        //    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        //        //tier1_images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                        //        tier1_images.Add(item.LINK_GAMBAR_2);
+                        //}
+                        //if (mapIndexVariasi2.ContainsKey(nama_var2))
+                        //{
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        //    //tier1_images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                        //    tier2_images.Add(item.LINK_GAMBAR_1);
+                        //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        //    //tier1_images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                        //    tier2_images.Add(item.LINK_GAMBAR_2);
+                        //}
                     }
                 }
                 if (!string.IsNullOrWhiteSpace(tier1.name))
                 {
                     tier1.options = tier1_options.ToArray();
+                    //tier1.images_url = new string[1];
+                    //tier1.images_url[0] = "";
                     tier_variation.Add(tier1);
                 }
                 if (!string.IsNullOrWhiteSpace(tier2.name))
                 {
                     tier2.options = tier2_options.ToArray();
+                    //tier2.images_url = tier2_images.ToArray();
                     tier_variation.Add(tier2);
                 }
             }
@@ -4046,6 +4079,9 @@ namespace MasterOnline.Controllers
                             //ErasoftDbContext.SaveChanges();
                             string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
                             var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+
+                            var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
+                            await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
                         }
 
                         if (currentLog != null)
@@ -4063,7 +4099,7 @@ namespace MasterOnline.Controllers
                     var sqlStorage = new SqlServerStorage(EDBConnID);
 
                     var client = new BackgroundJobClient(sqlStorage);
-                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation,currentLog));
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
 #endif
 
                 }
@@ -4427,11 +4463,17 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                 imagess.Add(brgInDb.LINK_GAMBAR_1);
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                imagess.Add(brgInDb.LINK_GAMBAR_2);
-            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                imagess.Add(brgInDb.LINK_GAMBAR_3);
-
+            if (brgInDb.TYPE == "3")
+            {
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                    imagess.Add(brgInDb.LINK_GAMBAR_2);
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                    imagess.Add(brgInDb.LINK_GAMBAR_3);
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                    imagess.Add(brgInDb.LINK_GAMBAR_4);
+                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                    imagess.Add(brgInDb.LINK_GAMBAR_5);
+            }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
             {
@@ -6060,6 +6102,7 @@ namespace MasterOnline.Controllers
         {
             public string name { get; set; }
             public string[] options { get; set; }
+            //public string[] images_url { get; set; }
         }
         public class ShopeeVariation
         {
