@@ -5972,6 +5972,9 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Gagal.")]
         public async Task<string> CreateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, PerformContext context)
         {
+            var token = SetupContext(iden);
+            iden.token = token;
+            
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
             var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == kodeProduk && p.IDMARKET == arf01.RecNum).FirstOrDefault();
             var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.BRG == kodeProduk);
@@ -5990,6 +5993,7 @@ namespace MasterOnline.Controllers
                 Height = Convert.ToString(barangInDb.TINGGI),
                 dataBarangInDb = barangInDb
             };
+            data.type = barangInDb.TYPE;//add by Tri 27/9/2019
             data.Brand = stf02h.AVALUE_38;
             data.Price = barangInDb.HJUAL.ToString();
             data.MarketPrice = stf02h.HJUAL.ToString();
@@ -6000,8 +6004,6 @@ namespace MasterOnline.Controllers
             //if merchant code diisi. barulah upload produk
             string ret = "";
 
-            var token = SetupContext(iden);
-            iden.token = token;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -6589,9 +6591,11 @@ namespace MasterOnline.Controllers
             //myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/createProduct", iden.API_secret_key);
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/createProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
-
+#if (DEBUG || Debug_AWS)
+            string jobId = "";
+#else
             string jobId = context.BackgroundJob.Id;
-
+#endif
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = milis.ToString(),
@@ -7200,7 +7204,7 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters[1].Value = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1);
                             oCommand.ExecuteNonQuery();
 
-                            #region Create Log Error khusus create barang
+#region Create Log Error khusus create barang
                             string subjectDescription = Convert.ToString(getLogMarketplace.REQUEST_ATTRIBUTE_1).Replace("'", "`");
                             string CUST = Convert.ToString(getLogMarketplace.CUST); //mengambil Cust
                             string ActionCategory = Convert.ToString("Barang"); //mengambil Kategori
@@ -7241,7 +7245,7 @@ namespace MasterOnline.Controllers
                             string Link_Error = jobId + ";" + ActionName + ";Create Product " + subjectDescription + " ke Blibli Berhasil, tetapi Rejected by Blibli;" + exceptionMessage.Replace("'", "`");
                             sSQL += "LINK_ERROR = '" + Link_Error + "' FROM STF02H S INNER JOIN ARF01 A ON S.IDMARKET = A.RECNUM AND A.CUST = '" + CUST + "' WHERE S.BRG = '" + subjectDescription + "' ";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
-                            #endregion
+#endregion
                         }
                     }
                 }

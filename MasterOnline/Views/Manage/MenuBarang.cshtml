@@ -330,7 +330,18 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-8">
+                        @*//ADD BY NURUL 25/9/2019*@
+                        <div class="col-md-2">
+                            @Html.Label("", "Urut Berdasarkan")
+                            <div class="input-group text">
+                                <select class="form-control" id="Order" name="Order" required="required">
+                                    <option value="1">Qty Terjual</option>
+                                    <option value="2">Qty Siap Jual</option>
+                                </select>
+                            </div>
+                        </div>
+                        @*//END ADD BY NURUL 25/9/2019*@
+                        <div class="col-md-6">
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
@@ -459,11 +470,13 @@
         $(document).ready(function () {
             var d = new Date();
             d.setMonth(d.getMonth() - 3);
+            var e = new Date();
+            e.setMonth(e.getMonth() - 1);
             //tidaklaku-tab
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', e);
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
@@ -513,7 +526,7 @@
             $('#DrTanggal2').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d)
+            }).datepicker('setDate', e)
             $('#DrTanggal2').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
@@ -608,10 +621,15 @@
                 searchTableMinimumStok();
             });
             $('#minimumstok-tab').click(function () {
+                $('#Order').val("1");
                 refreshTableMinimumStok();
             });
 
             $('#barang-tab').click();
+
+            $('#Order').change(function () {
+                refreshTableMinimumStok();
+            });
         });
 
         function searchTableBarang() {
@@ -804,11 +822,11 @@
         }
 
         function searchTableMinimumStok() {
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
             link = link.replace("replaceSearch", $('#search_minimumstok').val());
             link = link.replace("replacedrtgl", $('#DrTanggal2').val());
             link = link.replace("replacesdtgl", $('#SdTanggal2').val());
-
+            link = link.replace("replaceOrder", $('#Order').val());
             $.ajax({
                 type: "GET",
                 url: link,
@@ -829,11 +847,12 @@
         function refreshTableMinimumStok() {
             //change by nurul 6/5/2019
             @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order ="replaceOrder" }))';
             link = link.replace("replaceSearch", $('#search_minimumstok').val());
             link = link.replace("replaceLastPage", $('#txt_last_page_tbms').val());
             link = link.replace("replacedrtgl", $('#DrTanggal2').val());
             link = link.replace("replacesdtgl", $('#SdTanggal2').val());
+            link = link.replace("replaceOrder", $('#Order').val());
             //end add by nurul 6/5/2019
 
             $.ajax({

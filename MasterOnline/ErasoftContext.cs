@@ -448,6 +448,12 @@ namespace MasterOnline
         public virtual DbSet<SIT04B> SIT04B { get; set; }
         //end add by nurul 20/8/2019
 
+        //add by Tri 20/8/2019
+        public virtual DbSet<SOT03A> SOT03A { get; set; }
+        public virtual DbSet<SOT03B> SOT03B { get; set; }
+        public virtual DbSet<SOT03C> SOT03C { get; set; }
+        //end add by Tri 20/8/2019
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

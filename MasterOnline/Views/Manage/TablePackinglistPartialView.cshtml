@@ -1,0 +1,138 @@
+﻿@using PagedList.Mvc
+@using MasterOnline.Models
+@model PagedList.IPagedList<mdlPackinglist>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+}
+<style>
+    #loading_promosi_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_promosi_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    @@media screen and (max-width: 445px) {
+        .brgtblpromo {
+            width: 66%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .brgtblpromo {
+            width: 55%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .brgtblpromo {
+            width: 47%;
+        }
+    }
+</style>
+<div id="loading_promosi_tab">
+    <div id="loading_packinglist_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<div class="hscroll table-responsive brgtblpromo">
+    <table class="table table-striped table-bordered table-hover">
+        @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
+        <thead>
+            <tr role="row">
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nomor Bukti</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">Tanggal</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px;">Edit</th>
+                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
+            </tr>
+        </thead>
+        <tbody>
+            @*@foreach (var promosi in Model.ListPromosi)*@
+            @foreach (var packingList in Model)
+            {
+                <tr>
+                    <td>@packingList.NO_BUKTI</td>
+                    <td>
+                        @if(@packingList.TGL.HasValue){
+                        @packingList.TGL.Value.ToString("dd/MM/yyyy")
+                        }
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-primary" onclick="editPackinglist1('@packingList.NO_BUKTI')">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPackinglist" onclick="pass('@packingList.NO_BUKTI')">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @* add by nurul 13/6/2019, paging *@
+    @if (Model.PageCount > 1)
+    {
+        <div id="tabelpackinglistpartialpager" class="pager">
+            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackinglist", new
+            {
+                page,
+                search = ViewData["searchParam"]
+            }),
+                      new PagedListRenderOptions
+                      {
+                          LinkToFirstPageFormat = "<<",
+                          LinkToPreviousPageFormat = "prev",
+                          LinkToNextPageFormat = "next",
+                          LinkToLastPageFormat = ">>",
+                          DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                      })
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#tabelpackinglistpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_packinglist_tab_image').show();
+                    },
+                    success: function (response) {
+                        $('#table-packinglist-partial').html(response);
+                        $('#loading_packinglist_tab_image').hide();
+                    }
+                });
+            }
+            return false;
+
+        });
+    });
+</script>

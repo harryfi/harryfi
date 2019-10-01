@@ -591,6 +591,7 @@
                 </div>
                 <div class="row" id="table-barang-minstok-partial"></div>
             </div>
+            <div>* Urut berdasarkan Qty Terjual paling banyak</div>
         </div>
     </div>
     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -651,10 +652,12 @@
                         <span class="block_subtitle">Inventory</span>: @( Model.listBarangCount.Value ) SKU
                     </p>
                     <p>
-                        <span class="block_subtitle">Barang Tak Laku (3 Bulan Terakhir)</span>: @(Model?.ListBarangTidakLaku?.Count > 0 ? Model?.ListBarangTidakLaku?.Count.ToString() : "0") SKU
+                        @*<span class="block_subtitle">Barang Tak Laku (3 Bulan Terakhir)</span>: @(Model?.ListBarangTidakLaku?.Count > 0 ? Model?.ListBarangTidakLaku?.Count.ToString() : "0") SKU*@
+                        <span class="block_subtitle">Barang Tak Laku (1 Bulan Terakhir)</span>: @(Model?.BarangTidakLakuCount.Value ) SKU
                     </p>
                     <p>
-                        <span class="block_subtitle">Barang Kurang dari Minimum Stok</span>: @(listBarangMiniStok.Count > 0 ? listBarangMiniStok.Count.ToString() : "0") SKU
+                        @*<span class="block_subtitle">Barang Kurang dari Minimum Stok</span>: @(listBarangMiniStok.Count > 0 ? listBarangMiniStok.Count.ToString() : "0") SKU*@
+                        <span class="block_subtitle">Barang Kurang dari Minimum Stok</span>: @(Model?.BarangDibawahMinStokCount.Value ) SKU
                     </p>
                 }
                 else

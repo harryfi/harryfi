@@ -840,7 +840,7 @@
                                             $($trElement + ' .nama-barang').text(item.NAMA + " ");
                                         }
                                         $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field Satuan must be a string with a maximum length of 10." data-val-length-max="10" id="BarangStok_Satuan" name="BarangStok.Satuan" type="hidden" value="">');
-                                        $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
+                                        //$($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
                                         return;
                                     }
                                 });
@@ -1229,6 +1229,9 @@
             var $isValid = true;
             var $Gd = $('#GUDANG');
             var $this = $('tr[data-stok-id="0"] .qty-barang');
+            //add by nurul 19/9/2019
+            var $total = $('tr[data-stok-id="0"] .netto-barang');
+            //end add by nurul 19/9/2019
             if ($Gd.val() == "-" || $Gd.val() == "") {
                 if (!$Gd.closest('div').find('.text-danger').length) {
                     if ($Gd.closest('div').hasClass('input-group')) {
@@ -1247,11 +1250,26 @@
                     }
                     $isValid = false;
                 }
-            } else {
+            }
+            //add by nurul 19/9/2019
+            else if (convertToAngka($total.text()) == 0 || convertToAngka($total.text()) == "") {
+                if (!$total.closest('div').find('.text-danger').length) {
+                    if ($total.closest('div').hasClass('input-group')) {
+                        $total.parent().parent().append('<span class="text-danger">total tidak boleh 0!</span>');
+                    } else {
+                        $total.closest('div').append('<span class="text-danger">total tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            }
+            //end add by nurul 19/9/2019
+            else {
                 if ($Gd.closest('div').find('.text-danger').length) {
                     $Gd.closest('div').find('.text-danger').remove();
                 } else if ($this.closest('div').find('.text-danger').length) {
                     $this.closest('div').find('.text-danger').remove();
+                } else if ($total.closest('div').find('.text-danger').length) {
+                    $total.closest('div').find('.text-danger').remove();
                 }
             }
 
