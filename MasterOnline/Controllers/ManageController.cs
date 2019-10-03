@@ -17337,8 +17337,12 @@ namespace MasterOnline.Controllers
                             {
                                 dataVm.Faktur.N_KOMISI = 0;
                             }
-#endregion
+                            #endregion
 
+                            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.TOTAL_TITIPAN)))
+                            {
+                                dataVm.Faktur.TOTAL_TITIPAN = 0;
+                            }
                             ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
                             ErasoftDbContext.SaveChanges();
 
@@ -17714,6 +17718,10 @@ namespace MasterOnline.Controllers
                     }
                     #endregion
 
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.TOTAL_TITIPAN)))
+                    {
+                        dataVm.Faktur.TOTAL_TITIPAN = 0;
+                    }
                     ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
                     ErasoftDbContext.SaveChanges();
 
