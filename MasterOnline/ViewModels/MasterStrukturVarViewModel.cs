@@ -37,5 +37,6 @@ namespace MasterOnline.ViewModels
         public IList<STF02> VariantMO { get; set; }
         public IList<STF02H> VariantMO_H { get; set; }
         public IList<ARF01> ListMarket { get; set; } = new List<ARF01>();
+        public STF02 gambarInduk { get; set; }
     }
 }

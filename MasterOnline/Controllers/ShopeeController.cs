@@ -461,8 +461,8 @@ namespace MasterOnline.Controllers
                 {
                     urlImage = detailBrg.item.images[0];
                     //change 21/8/2019, barang varian ambil 1 gambar saja
-                    //if (typeBrg != 2)
-                    if (typeBrg == 0)
+                    if (typeBrg != 2)
+                    //if (typeBrg == 0)
                     {
                         if (detailBrg.item.images.Count() >= 2)
                         {

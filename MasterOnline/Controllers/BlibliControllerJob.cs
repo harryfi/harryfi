@@ -6961,60 +6961,62 @@ namespace MasterOnline.Controllers
                     {
                         image_id = var_item.Sort5;
                     }
-
-                    if (!uploadedImageID.Contains(image_id))
+                    if (!string.IsNullOrWhiteSpace(image_id))
                     {
-                        using (var client = new HttpClient())
+                        if (!uploadedImageID.Contains(image_id))
                         {
-                            string url = var_stf02h_item.AVALUE_50;
-                            if (string.IsNullOrWhiteSpace(url))
+                            using (var client = new HttpClient())
                             {
-                                url = var_item.LINK_GAMBAR_1;
-                            }
-                            //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
-                            var bytes = await client.GetByteArrayAsync(url);
-
-                            //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            using (var stream = new MemoryStream(bytes, true))
-                            {
-                                var img = Image.FromStream(stream);
-                                float newResolution = img.Height;
-                                if (img.Width < newResolution)
+                                string url = var_stf02h_item.AVALUE_50;
+                                if (string.IsNullOrWhiteSpace(url))
                                 {
-                                    newResolution = img.Width;
+                                    url = var_item.LINK_GAMBAR_1;
                                 }
-                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+                                //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                                var bytes = await client.GetByteArrayAsync(url);
 
-                                //change by calvin 1 maret 2019
-                                //ImageConverter _imageConverter = new ImageConverter();
-                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
-                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                                System.Drawing.Imaging.Encoder myEncoder =
-                                    System.Drawing.Imaging.Encoder.Quality;
-                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
-
-                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
-                                myEncoderParameters.Param[0] = myEncoderParameter;
-
-                                var resizedStream = new System.IO.MemoryStream();
-                                resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
-                                resizedStream.Position = 0;
-                                byte[] resizedByteArr = resizedStream.ToArray();
-                                //end change by calvin 1 maret 2019
-                                resizedStream.Dispose();
-
-                                //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                if (string.IsNullOrWhiteSpace(image_id))
+                                //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                using (var stream = new MemoryStream(bytes, true))
                                 {
-                                    image_id = Convert.ToString(bytes.Length);
-                                }
-                                if (!uploadedImageID.Contains(image_id))
-                                {
-                                    uploadedImageID.Add(image_id);
-                                    images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    var img = Image.FromStream(stream);
+                                    float newResolution = img.Height;
+                                    if (img.Width < newResolution)
+                                    {
+                                        newResolution = img.Width;
+                                    }
+                                    var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                    //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                    //change by calvin 1 maret 2019
+                                    //ImageConverter _imageConverter = new ImageConverter();
+                                    //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                    System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                    System.Drawing.Imaging.Encoder myEncoder =
+                                        System.Drawing.Imaging.Encoder.Quality;
+                                    System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                    System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                    var resizedStream = new System.IO.MemoryStream();
+                                    resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                                    resizedStream.Position = 0;
+                                    byte[] resizedByteArr = resizedStream.ToArray();
+                                    //end change by calvin 1 maret 2019
+                                    resizedStream.Dispose();
+
+                                    //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    if (string.IsNullOrWhiteSpace(image_id))
+                                    {
+                                        image_id = Convert.ToString(bytes.Length);
+                                    }
+                                    if (!uploadedImageID.Contains(image_id))
+                                    {
+                                        uploadedImageID.Add(image_id);
+                                        images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                        images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    }
                                 }
                             }
                         }
@@ -7025,60 +7027,62 @@ namespace MasterOnline.Controllers
                     {
                         image_id = var_item.Sort6;
                     }
-
-                    if (!uploadedImageID.Contains(image_id))
+                    if (!string.IsNullOrWhiteSpace(image_id))
                     {
-                        using (var client = new HttpClient())
+                        if (!uploadedImageID.Contains(image_id))
                         {
-                            string url = var_stf02h_item.AVALUE_49;
-                            if (string.IsNullOrWhiteSpace(url))
+                            using (var client = new HttpClient())
                             {
-                                url = var_item.LINK_GAMBAR_2;
-                            }
-                            //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
-                            var bytes = await client.GetByteArrayAsync(url);
-
-                            //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            using (var stream = new MemoryStream(bytes, true))
-                            {
-                                var img = Image.FromStream(stream);
-                                float newResolution = img.Height;
-                                if (img.Width < newResolution)
+                                string url = var_stf02h_item.AVALUE_49;
+                                if (string.IsNullOrWhiteSpace(url))
                                 {
-                                    newResolution = img.Width;
+                                    url = var_item.LINK_GAMBAR_2;
                                 }
-                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+                                //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                                var bytes = await client.GetByteArrayAsync(url);
 
-                                //change by calvin 1 maret 2019
-                                //ImageConverter _imageConverter = new ImageConverter();
-                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
-                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                                System.Drawing.Imaging.Encoder myEncoder =
-                                    System.Drawing.Imaging.Encoder.Quality;
-                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
-
-                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
-                                myEncoderParameters.Param[0] = myEncoderParameter;
-
-                                var resizedStream = new System.IO.MemoryStream();
-                                resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
-                                resizedStream.Position = 0;
-                                byte[] resizedByteArr = resizedStream.ToArray();
-                                //end change by calvin 1 maret 2019
-                                resizedStream.Dispose();
-
-                                //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                if (string.IsNullOrWhiteSpace(image_id))
+                                //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                using (var stream = new MemoryStream(bytes, true))
                                 {
-                                    image_id = Convert.ToString(bytes.Length);
-                                }
-                                if (!uploadedImageID.Contains(image_id))
-                                {
-                                    uploadedImageID.Add(image_id);
-                                    images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    var img = Image.FromStream(stream);
+                                    float newResolution = img.Height;
+                                    if (img.Width < newResolution)
+                                    {
+                                        newResolution = img.Width;
+                                    }
+                                    var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                    //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                    //change by calvin 1 maret 2019
+                                    //ImageConverter _imageConverter = new ImageConverter();
+                                    //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                    System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                    System.Drawing.Imaging.Encoder myEncoder =
+                                        System.Drawing.Imaging.Encoder.Quality;
+                                    System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                    System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                    myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                    var resizedStream = new System.IO.MemoryStream();
+                                    resizedImage.Save(resizedStream, jpgEncoder, myEncoderParameters);
+                                    resizedStream.Position = 0;
+                                    byte[] resizedByteArr = resizedStream.ToArray();
+                                    //end change by calvin 1 maret 2019
+                                    resizedStream.Dispose();
+
+                                    //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    if (string.IsNullOrWhiteSpace(image_id))
+                                    {
+                                        image_id = Convert.ToString(bytes.Length);
+                                    }
+                                    if (!uploadedImageID.Contains(image_id))
+                                    {
+                                        uploadedImageID.Add(image_id);
+                                        images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                        images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    }
                                 }
                             }
                         }
