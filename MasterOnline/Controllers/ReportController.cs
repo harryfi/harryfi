@@ -629,6 +629,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( BRG like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( BRG like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and BRG like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and BRG like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and (ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'')) like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT BRG AS KODE, ISNULL(NAMA,'') + ' ' + ISNULL(NAMA2,'') AS NAMA  ";
                 string sSQLCount = "";
@@ -638,7 +676,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "WHERE TYPE = '3'";
                 if (search != "")
                 {
-                    sSQL2 += "AND (BRG LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ' ' + ISNULL(NAMA2, '')) LIKE '%" + search + "%' ) ";
+                    //sSQL2 += "AND (BRG LIKE '%" + search + "%' OR (ISNULL(NAMA, '') + ' ' + ISNULL(NAMA2, '')) LIKE '%" + search + "%' ) ";
+                    sSQL2 += " and ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY NAMA ASC, BRG ASC ";
@@ -665,6 +704,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( BUYER_CODE like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( BUYER_CODE like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and BUYER_CODE like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and BUYER_CODE like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT BUYER_CODE AS KODE, ISNULL(NAMA,'') AS NAMA  ";
                 string sSQLCount = "";
@@ -673,7 +750,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "FROM ARF01C ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (BUYER_CODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    //sSQL2 += " WHERE (BUYER_CODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " where ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY NAMA ASC, BUYER_CODE ASC ";
@@ -700,6 +778,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( A.CUST like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( (ISNULL(C.NamaMarket,'') + ' - ' + ISNULL(A.PERSO,'')) like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( A.CUST like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( (ISNULL(C.NamaMarket,'') + ' - ' + ISNULL(A.PERSO,'')) like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and A.CUST like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and (ISNULL(C.NamaMarket,'') + ' - ' + ISNULL(A.PERSO,'')) like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and A.CUST like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and (ISNULL(C.NamaMarket,'') + ' - ' + ISNULL(A.PERSO,'')) like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, ISNULL(A.PERSO,'') AS PERSO ";
                 string sSQLCount = "";
@@ -709,7 +825,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON A.NAMA = C.IdMarket ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (A.CUST LIKE '%" + search + "%' OR ISNULL(C.NamaMarket, '') LIKE '%" + search + "%' OR ISNULL(A.PERSO, '') LIKE '%" + search + "%' ) ";
+                    //sSQL2 += " WHERE (A.CUST LIKE '%" + search + "%' OR ISNULL(C.NamaMarket, '') LIKE '%" + search + "%' OR ISNULL(A.PERSO, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " where ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.CUST ASC ";
@@ -736,6 +853,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( KODE_GUDANG like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( ISNULL(NAMA_GUDANG,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( KODE_GUDANG like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( ISNULL(NAMA_GUDANG,'') like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and KODE_GUDANG like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and ISNULL(NAMA_GUDANG,'') like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and KODE_GUDANG like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and ISNULL(NAMA_GUDANG,'') like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT KODE_GUDANG AS KODE, ISNULL(NAMA_GUDANG,'') AS NAMA  ";
                 string sSQLCount = "";
@@ -744,7 +899,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "FROM STF18 ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (KODE_GUDANG LIKE '%" + search + "%' OR ISNULL(NAMA_GUDANG, '') LIKE '%" + search + "%' ) ";
+                    //sSQL2 += " WHERE (KODE_GUDANG LIKE '%" + search + "%' OR ISNULL(NAMA_GUDANG, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " where ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY KODE_GUDANG ASC ";
@@ -771,6 +927,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( KODE like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( KODE like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and KODE like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and KODE like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT KODE AS KODE, ISNULL(NAMA,'') AS NAMA  ";
                 string sSQLCount = "";
@@ -779,7 +973,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "FROM GLFREK ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (KODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    //sSQL2 += " WHERE (KODE LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " where ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY KODE ASC ";
@@ -806,6 +1001,44 @@ namespace MasterOnline.Controllers
                 ViewData["searchParam"] = search;
                 ViewData["LastPage"] = page;
 
+                //ADD BY NURUL 3/10/2019
+                string[] getkata = search.Split(' ');
+                string sSQLkode = "";
+                string sSQLnama = "";
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (getkata.Length == 1)
+                            {
+                                sSQLkode += "( SUPP like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                if (getkata[i] == getkata.First())
+                                {
+                                    sSQLkode += " ( SUPP like '%" + getkata[i] + "%'";
+                                    sSQLnama += " ( ISNULL(NAMA,'') like '%" + getkata[i] + "%'";
+                                }
+                                else if (getkata[i] == getkata.Last())
+                                {
+                                    sSQLkode += " and SUPP like '%" + getkata[i] + "%' )";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' )";
+                                }
+                                else
+                                {
+                                    sSQLkode += " and SUPP like '%" + getkata[i] + "%' ";
+                                    sSQLnama += " and ISNULL(NAMA,'') like '%" + getkata[i] + "%' ";
+                                }
+                            }
+                        }
+                    }
+                }
+                //END ADD BY NURUL 3/10/2019
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT SUPP AS KODE, ISNULL(NAMA,'') AS NAMA  ";
                 string sSQLCount = "";
@@ -814,7 +1047,8 @@ namespace MasterOnline.Controllers
                 sSQL2 += "FROM APF01 ";
                 if (search != "")
                 {
-                    sSQL2 += " WHERE (SUPP LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    //sSQL2 += " WHERE (SUPP LIKE '%" + search + "%' OR ISNULL(NAMA, '') LIKE '%" + search + "%' ) ";
+                    sSQL2 += " where ( " + sSQLkode + " or " + sSQLnama + " ) ";
                 }
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY NAMA ASC, SUPP ASC ";

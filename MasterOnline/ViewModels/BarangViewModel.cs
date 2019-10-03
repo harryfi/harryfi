@@ -34,6 +34,7 @@ namespace MasterOnline.ViewModels
 
         //ADD BY NURUL 23/9/2019
         public double SELISIH { get; set; }
+        public string JENIS { get; set; }        
         //END ADD BY NURUL 23/9/2019
 
     }
