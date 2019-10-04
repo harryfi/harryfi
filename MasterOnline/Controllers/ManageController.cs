@@ -13296,9 +13296,13 @@ namespace MasterOnline.Controllers
                 var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == barangFakturInDb.NO_BUKTI && p.JENIS_FORM == "2");
 
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
-                fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
-                //change by nurul 8/10/2018  fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                //change by nurul 2/10/2019
+                //fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
+                ////change by nurul 8/10/2018  fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                //fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+                fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
                 fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+                //end change by nurul 2/10/2019
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
@@ -13349,8 +13353,8 @@ namespace MasterOnline.Controllers
                 //end add by calvin, validasi QOH
 
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
-                fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
-                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
+                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
@@ -14309,7 +14313,7 @@ namespace MasterOnline.Controllers
 
                 invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
                 //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
-                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
                 invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
 
@@ -14349,7 +14353,7 @@ namespace MasterOnline.Controllers
 
                 invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
                 //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
-                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
                 invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
 
@@ -16622,9 +16626,14 @@ namespace MasterOnline.Controllers
                 var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
 
                 pesananInDb.BRUTO -= barangPesananInDb.HARGA;
-                pesananInDb.NILAI_PPN = Math.Ceiling(pesananInDb.PPN * pesananInDb.BRUTO / 100);
-                pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.DISCOUNT + pesananInDb.NILAI_PPN +
+                //change by nurul 2/10/2019
+                //pesananInDb.NILAI_PPN = Math.Ceiling(pesananInDb.PPN * pesananInDb.BRUTO / 100);
+                //pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.DISCOUNT + pesananInDb.NILAI_PPN +
+                //                    pesananInDb.ONGKOS_KIRIM;
+                pesananInDb.NILAI_PPN = Math.Ceiling(pesananInDb.PPN * (pesananInDb.BRUTO - pesananInDb.NILAI_DISC) / 100);
+                pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN +
                                     pesananInDb.ONGKOS_KIRIM;
+                //change by nurul 2/9/2019
 
                 ErasoftDbContext.SOT01B.Remove(barangPesananInDb);
                 ErasoftDbContext.SaveChanges();
@@ -17197,7 +17206,10 @@ namespace MasterOnline.Controllers
                                 pesanan_bruto += harga;
                             }
 
-                            pesanan_nilai_ppn = (pesananInDb.PPN * pesanan_bruto) / 100;
+                            //change by nurul 1/10/2019, nilai ppn = ((bruto - nilai disc)*ppn)/100
+                            //pesanan_nilai_ppn = (pesananInDb.PPN * pesanan_bruto) / 100;
+                            pesanan_nilai_ppn = ((pesanan_bruto - pesananInDb.NILAI_DISC) * pesananInDb.PPN) / 100;
+                            //end change by nurul 1/10/2019, nilai ppn = ((bruto - nilai disc)*ppn)/100
 
                             pesanan_netto = pesanan_bruto - pesananInDb.NILAI_DISC + pesanan_nilai_ppn + pesananInDb.ONGKOS_KIRIM;
 #endregion
@@ -17576,7 +17588,10 @@ namespace MasterOnline.Controllers
                         pesanan_bruto += harga;
                     }
 
-                    pesanan_nilai_ppn = (pesananInDb.PPN * pesanan_bruto) / 100;
+                    //change by nurul 1/10/2019, nilai ppn = ((bruto - nilai disc)*ppn)/100
+                    //pesanan_nilai_ppn = (pesananInDb.PPN * pesanan_bruto) / 100;
+                    pesanan_nilai_ppn = ((pesanan_bruto - pesananInDb.NILAI_DISC) * pesananInDb.PPN) / 100;
+                    //end change by nurul 1/10/2019, nilai ppn = ((bruto - nilai disc)*ppn)/100
 
                     pesanan_netto = pesanan_bruto - pesananInDb.NILAI_DISC + pesanan_nilai_ppn + pesananInDb.ONGKOS_KIRIM;
                     #endregion
