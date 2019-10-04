@@ -2469,9 +2469,12 @@ namespace MasterOnline.Controllers
                                 if (bindOrder.data.statuses[0].ToLower() == "canceled")
                                 //end change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
                                 {
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+
                                     if (rowAffected > 0)
                                     {
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') WHERE STATUS <> '2'");
+
                                         var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                            join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                            where a.NO_REFERENSI == bindOrder.data.order_id
