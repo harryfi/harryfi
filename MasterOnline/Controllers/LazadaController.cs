@@ -3848,33 +3848,41 @@ namespace MasterOnline.Controllers
                 urlImage = "";
                 urlImage2 = "";
                 urlImage3 = "";
-                if (namaBrg.Length > 30)
-                {
-                    nama = namaBrg.Substring(0, 30);
-                    //change by calvin 15 januari 2019
-                    //if (namaBrg.Length > 60)
-                    //{
-                    //    nama2 = namaBrg.Substring(30, 30);
-                    //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                    //}
-                    if (namaBrg.Length > 285)
-                    {
-                        nama2 = namaBrg.Substring(30, 255);
-                        nama3 = "";
-                    }
-                    //end change by calvin 15 januari 2019
-                    else
-                    {
-                        nama2 = namaBrg.Substring(30);
-                        nama3 = "";
-                    }
-                }
-                else
-                {
-                    nama = namaBrg;
-                    nama2 = "";
-                    nama3 = "";
-                }
+
+                //change by calvin 16 september 2019
+                //if (namaBrg.Length > 30)
+                //{
+                //    nama = namaBrg.Substring(0, 30);
+                //    //change by calvin 15 januari 2019
+                //    //if (namaBrg.Length > 60)
+                //    //{
+                //    //    nama2 = namaBrg.Substring(30, 30);
+                //    //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                //    //}
+                //    if (namaBrg.Length > 285)
+                //    {
+                //        nama2 = namaBrg.Substring(30, 255);
+                //        nama3 = "";
+                //    }
+                //    //end change by calvin 15 januari 2019
+                //    else
+                //    {
+                //        nama2 = namaBrg.Substring(30);
+                //        nama3 = "";
+                //    }
+                //}
+                //else
+                //{
+                //    nama = namaBrg;
+                //    nama2 = "";
+                //    nama3 = "";
+                //}
+                var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+                nama = splitItemName[0];
+                nama2 = splitItemName[1];
+                nama3 = "";
+                //end change by calvin 16 september 2019
+
                 string categoryCode = brg.primary_category;
                 //if (namaBrg.Length > 30)
                 //{

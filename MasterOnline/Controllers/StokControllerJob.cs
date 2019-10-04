@@ -207,7 +207,35 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             dbPathEra = DatabasePathErasoft;
         }
+        public string[] SplitItemName(string name) {
+            var result = new string[2];
+            var length_nama = name.Length;
+            if (length_nama > 285)
+            {
+                length_nama = 285;
+            }
+            if (length_nama > 30)
+            {
+                int lastIndexOfSpaceIn30 = name.Substring(0, 30).LastIndexOf(' ');
+                if (lastIndexOfSpaceIn30 < 0 || lastIndexOfSpaceIn30 == 29)
+                {
+                    result[0] = name.Substring(0, 30).Trim();
+                    result[1] = name.Substring(30, length_nama - 30).Trim();
+                }
+                else
+                {
+                    result[0] = name.Substring(0, lastIndexOfSpaceIn30).Trim();
+                    result[1] = name.Substring(lastIndexOfSpaceIn30, length_nama - lastIndexOfSpaceIn30).Trim();
+                }
+            }
+            else
+            {
+                result[0] = name;
+                result[1] = "";
+            }
 
+            return result;
+        }
         public string RemoveSpecialCharacters(string str)
         {
             StringBuilder sb = new StringBuilder();

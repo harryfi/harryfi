@@ -613,7 +613,11 @@ namespace MasterOnline.Controllers
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
 
-                    string sSQL = "select brg, nama + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
+                    //change by calvin 16 september 2019
+                    //string sSQL = "select brg, nama + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
+                    string sSQL = "select brg, nama + ' ' + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
+                    //end change by calvin 16 september 2019
+
                     var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
 
                     if (dsBarang.Tables[0].Rows.Count > 0)
