@@ -2473,7 +2473,7 @@ namespace MasterOnline.Controllers
 
                                     if (rowAffected > 0)
                                     {
-                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') WHERE STATUS <> '2'");
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') AND STATUS <> '2'");
 
                                         var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                            join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI

@@ -1833,7 +1833,7 @@ namespace MasterOnline.Controllers
                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
                     if (rowAffected > 0)
                     {
-                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + ordersn + "') WHERE STATUS <> '2'");
+                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + ordersn + "') AND STATUS <> '2'");
 
                         new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                     }
