@@ -15003,7 +15003,8 @@ namespace MasterOnline.Controllers
             List<String> listError = new List<String>();
             //add 19/9/2019, packing list
             var listRecnumPackinglist = new List<string>();
-            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET TITIPAN = " + (packinglist ? "1" : "0"));
+            //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET TITIPAN = " + (packinglist ? "1" : "0"));
+            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET EDIT_BONUS = " + (packinglist ? "1" : "0"));
             //end add 19/9/2019, packing list
             for (int i = 0; i < get_selected.Length; i++)
             {
@@ -15715,7 +15716,8 @@ namespace MasterOnline.Controllers
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
             //add by Tri 19/9/19
-            vm.createPackinglist = ErasoftDbContext.SIFSYS.FirstOrDefault().TITIPAN;
+            //vm.createPackinglist = ErasoftDbContext.SIFSYS.FirstOrDefault().TITIPAN;
+            vm.createPackinglist = Convert.ToInt32(ErasoftDbContext.SIFSYS.FirstOrDefault().EDIT_BONUS);
             //end add by Tri 19/9/19
             return PartialView("UbahStatusMultiPacking", vm);
         }
