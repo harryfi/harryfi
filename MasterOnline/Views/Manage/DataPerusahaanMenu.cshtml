@@ -359,8 +359,8 @@
 
             $('#btn_hapus_logo').click(function () {
                 var $link = '@Html.Raw(Url.Action("DeleteLogoPerusahaan", "Manage", new { namaPT = "replaceNama", uname = "replaceUsername" }))';
-                $link = $link.replace("replaceNama", $('#DataUsaha_NAMA_PT').val());
-                $link = $link.replace("replaceUsername", $('#DataUsaha_USERNAME').val());
+                $link = $link.replace("replaceNama", encodeURIComponent($('#DataUsaha_NAMA_PT').val()));
+                $link = $link.replace("replaceUsername", encodeURIComponent($('#DataUsaha_USERNAME').val()));
 
                 $.ajax({
                     url: $link,
@@ -379,7 +379,7 @@
                 return;
             });
 
-            var $linkLogo = '/Content/Logo_Perusahaan/LogoUsaha-' + $('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val() + '.jpg';
+            var $linkLogo = '/Content/Logo_Perusahaan/LogoUsaha-' + encodeURIComponent($('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val()) + '.jpg';
 
             $.ajax({
                 url: $linkLogo,
@@ -493,7 +493,7 @@
 
         function getDataPengusaha() {
             var link = '@Url.Action("GetDataPengusaha", "Manage", new { userId = "replaceUserId" })';
-            link = link.replace("replaceUserId", '@userId');
+            link = link.replace("replaceUserId", encodeURIComponent('@userId'));
 
             $.ajax({
                 type: "GET",
@@ -510,7 +510,7 @@
 
         function loadDataKabupatenKota(kdProv) {
             var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
-            link = link.replace("replaceId", kdProv);
+            link = link.replace("replaceId", encodeURIComponent(kdProv));
 
             $.ajax({
                 type: "GET",

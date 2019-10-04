@@ -3026,7 +3026,7 @@
         function LazadaGetLabel() {
             var link = '@Url.Action("LazadaLabel", "Manage", new { recnum = "replaceRecNum" })';
             //link += '?code=' + kode + '&bulan=' + bln;
-            link = link.replace("replaceRecNum", this.$recResi);
+            link = link.replace("replaceRecNum", encodeURIComponent(this.$recResi));
             $.ajax({
                 type: "GET",
                 url: link,
@@ -3057,8 +3057,8 @@
         function LazadaGetResi() {
             var link = '@Url.Action("LazadaGetResi", "Manage", new { recnum = "replaceRecNum" })';
             //link += '?code=' + kode + '&bulan=' + bln;
-            link = link.replace("replaceRecNum", this.$recResi);
-            link += '&DeliveryProvider=' + $('#txtShipment').val();
+            link = link.replace("replaceRecNum", encodeURIComponent(this.$recResi));
+            link += '&DeliveryProvider=' + encodeURIComponent($('#txtShipment').val());
             $.ajax({
                 type: "GET",
                 url: link,
@@ -3450,7 +3450,7 @@
                     //end add by calvin 17 desember 2018
 
                     var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
-                    link = link.replace("replaceNoBuk", $nobukPesanan);
+                    link = link.replace("replaceNoBuk", encodeURIComponent($nobukPesanan));
 
                     $.ajax({
                         type: "GET",
@@ -3644,7 +3644,7 @@
 
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
@@ -3958,7 +3958,7 @@
                     //end add by calvin 17 desember 2018
 
                     var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
-                    link = link.replace("replaceNoBuk", $nobukPesanan);
+                    link = link.replace("replaceNoBuk", encodeURIComponent($nobukPesanan));
 
                     $.ajax({
                         type: "GET",
@@ -4027,7 +4027,7 @@
             @*var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {uname = "replaceUname"})';
             link = link.replace("replaceUname", '@(username)');*@
             var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",
@@ -5203,7 +5203,7 @@
             var link = '';
 
             link = '@Url.Action("GetPembeliPesanan", "Manage", new { kode = "replaceKode" })';
-            link = link.replace("replaceKode", $('#Pesanan_PEMESAN').val());
+            link = link.replace("replaceKode", encodeURIComponent($('#Pesanan_PEMESAN').val()));
 
             $.ajax({
                 type: "GET",
@@ -5316,7 +5316,7 @@
         function getDataBarang() {
             if ($('#Pesanan_CUST').val() != '') {
                 var link = '@Url.Action("GetDataBarangPesanan", "Manage", new {code = "replaceCode"})';
-                link = link.replace("replaceCode", $('#Pesanan_CUST').val());
+                link = link.replace("replaceCode", encodeURIComponent($('#Pesanan_CUST').val()));
 
                 $.ajax({
                     type: "GET",
@@ -5492,7 +5492,7 @@
 
         function editPesanan1(idPesanan) {
             var link = '@Url.Action("EditPesanan", "Manage", new {orderId = "replaceId"})';
-            link = link.replace("replaceId", idPesanan);
+            link = link.replace("replaceId", encodeURIComponent(idPesanan));
 
 
             $.ajax({
@@ -5558,7 +5558,7 @@
         //add by nurul 22/1/2019
         function LihatPesanan1(idPesanan) {
             var link = '@Url.Action("EditPesanan", "Manage", new {orderId = "replaceId"})';
-            link = link.replace("replaceId", idPesanan);
+            link = link.replace("replaceId", encodeURIComponent(idPesanan));
             $.ajax({
                 type: "GET",
                 url: link,
@@ -5666,7 +5666,7 @@
 
         function deletePesanan() {
             var link = '@Url.Action("DeletePesanan", "Manage", new {orderId = "replaceId"})';
-            link = link.replace("replaceId", this.$idPesanan);
+            link = link.replace("replaceId", encodeURIComponent(this.$idPesanan));
 
             $.ajax({
                 type: "GET",
@@ -5692,7 +5692,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangPesanan", "Manage", new {noUrut = "replaceBrgId"})';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",
@@ -5807,8 +5807,8 @@
         function refreshTablePesanan() {
             //var link = '@Url.Action("RefreshTablePesanan", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pesanan').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page_1').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pesanan').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
 
             $.ajax({
                 type: "GET",
@@ -5839,7 +5839,7 @@
         }
         function searchTablePesanan(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pesanan').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pesanan').val()));
 
             $.ajax({
                 type: "GET",
@@ -6023,8 +6023,8 @@
         function RefreshPesananDibayarMarketplace() {
             //var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshPesananDibayarMarketplace", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page_2').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_2').val()));
 
             $.ajax({
                 type: "GET",
@@ -6156,10 +6156,10 @@
             }
             //var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_2').val());
-            $link = $link.replace("replaceLastPage", $setPage);
-            $link = $link.replace("replaceLastTake", $('#TakeRecordDibayar').val());
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDibayar').val()));
 
             $.ajax({
                 type: "GET",
@@ -6221,8 +6221,8 @@
         }
         function searchTablePesananSudahDibayar(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
-            $link = $link.replace("replaceLastTake", $('#TakeRecordDibayar').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDibayar').val()));
 
             $.ajax({
                 type: "GET",
@@ -6352,10 +6352,10 @@
             }
             //var link = '@Url.Action("RefreshTablePesananSiapKirim", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_sedangproses').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sedangproses').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_3').val());
-            $link = $link.replace("replaceLastPage", $setPage);
-            $link = $link.replace("replaceLastTake", $('#TakeRecordPacking').val());
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
 
             $.ajax({
                 type: "GET",
@@ -6403,8 +6403,8 @@
         }
         function searchTablePesananPacking(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_sedangproses').val());
-            $link = $link.replace("replaceLastTake", $('#TakeRecordPacking').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sedangproses').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
 
             $.ajax({
                 type: "GET",
@@ -6498,10 +6498,10 @@
             }
             //var link = '@Url.Action("RefreshTablePesananSudahKirim", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_sudahkirim').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudahkirim').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_4').val());
-            $link = $link.replace("replaceLastPage", $setPage);
-            $link = $link.replace("replaceLastTake", $('#TakeRecordInvoicing').val());
+            $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
 
             $.ajax({
                 type: "GET",
@@ -6549,8 +6549,8 @@
         }
         function searchTablePesananInvoicing(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_sudahkirim').val());
-            $link = $link.replace("replaceLastTake", $('#TakeRecordInvoicing').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudahkirim').val()));
+            $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
 
             $.ajax({
                 type: "GET",
@@ -6634,8 +6634,8 @@
         function refreshTableSelesai() {
             //var link = '@Url.Action("RefreshTablePesananSelesai", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_selesai').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page_5').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_selesai').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_5').val()));
 
             $.ajax({
                 type: "GET",
@@ -6658,7 +6658,7 @@
         }
         function searchTablePesananSelesai(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_selesai').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_selesai').val()));
 
             $.ajax({
                 type: "GET",
@@ -6717,8 +6717,8 @@
         function refreshTableCancel() {
             //var link = '@Url.Action("RefreshTablePesananCancel", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_cancel').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page_6').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_6').val()));
 
             $.ajax({
                 type: "GET",
@@ -6741,7 +6741,7 @@
         }
         function searchTablePesananCancel(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_cancel').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
 
             $.ajax({
                 type: "GET",
@@ -6809,7 +6809,7 @@
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFound", "Manage", new {recNum = "replaceRecNum"})';
-            link = link.replace("replaceRecNum", rec);
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -6834,7 +6834,7 @@
         function updateNotFound(sot01b_nourut,stf02h_recnum,kode){
             if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
                 var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
-                link = link.replace("replaceNoUrut", sot01b_nourut + ';' + stf02h_recnum);
+                link = link.replace("replaceNoUrut", encodeURIComponent(sot01b_nourut + ';' + stf02h_recnum));
 
                 $.ajax({
                     type: "POST",
@@ -6888,7 +6888,7 @@
         function getBarangForGudangQty(nobuk, rec) {
             $recnumSOPacking = rec;
             var link = '@Url.Action("RefreshGudangQtyPesanan", "Manage", new {noBuk = "replaceNoBuk"})';
-            link = link.replace("replaceNoBuk", nobuk);
+            link = link.replace("replaceNoBuk", encodeURIComponent(nobuk));
 
             $.ajax({
                 type: "GET",
@@ -7071,9 +7071,9 @@
 
                 var link =
                     '@Html.Raw(Url.Action("SaveGudangQty", "Manage", new {recNum = "replaceRecNum", gd = "replaceGudang", qty = "replaceQty"}))';
-                link = link.replace("replaceRecNum", $recNum);
-                link = link.replace("replaceGudang", $('#Gudang-' + $recNum).val());
-                link = link.replace("replaceQty", $('#Qty-' + $recNum).val());
+                link = link.replace("replaceRecNum", encodeURIComponent($recNum));
+                link = link.replace("replaceGudang", encodeURIComponent($('#Gudang-' + $recNum).val()));
+                link = link.replace("replaceQty", encodeURIComponent($('#Qty-' + $recNum).val()));
 
                 $.ajax({
                     type: "GET",
@@ -7210,7 +7210,7 @@
 
         function getResi(rec) {
             var link = '@Url.Action("GetResi", "Manage", new {recNum = "replaceRecNum"})';
-            link = link.replace("replaceRecNum", rec);
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -7242,7 +7242,7 @@
             $('#btn-resi-tokped-pickup').hide();
 
             var link = '@Url.Action("GetResiTokped", "Manage", new {recNum = "replaceRecNum"})';
-            link = link.replace("replaceRecNum", rec);
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -7307,7 +7307,7 @@
             $('#btn-resi-shopee-manual').hide(); //add 3/9/2019
 
             var link = '@Url.Action("GetResiShopee", "Manage", new {recNum = "replaceRecNum"})';
-            link = link.replace("replaceRecNum", rec);
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -7337,7 +7337,7 @@
                                     $('#shopee-resi-dropoff-branch').append(nextselect);
 
                                     var link = '@Html.Raw(Url.Action("GetShopeeDropoffBranch", "Manage", new { recNum = "replaceCode" }))';
-                                    link = link.replace("replaceCode", window.$recResiShopee);
+                                    link = link.replace("replaceCode", encodeURIComponent(window.$recResiShopee));
 
                                     $.ajax({
                                         type: "GET",
@@ -7371,7 +7371,7 @@
                                     $('#shopee-resi-pickup-address').append(nextselect);
 
                                     var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
-                                    link = link.replace("replaceCode", window.$recResiShopee);
+                                    link = link.replace("replaceCode", encodeURIComponent(window.$recResiShopee));
 
                                     $.ajax({
                                         type: "GET",
@@ -7431,7 +7431,7 @@
                                         $('#shopee-resi-dropoff-branch').append(nextselect);
 
                                         var link = '@Html.Raw(Url.Action("GetShopeeDropoffBranch", "Manage", new { recNum = "replaceCode" }))';
-                                        link = link.replace("replaceCode", window.$recResiShopee);
+                                        link = link.replace("replaceCode", encodeURIComponent(window.$recResiShopee));
 
                                         $.ajax({
                                             type: "GET",
@@ -7464,7 +7464,7 @@
                                         $('#shopee-resi-pickup-address').append(nextselect);
 
                                         var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
-                                        link = link.replace("replaceCode", window.$recResiShopee);
+                                        link = link.replace("replaceCode", encodeURIComponent(window.$recResiShopee));
 
                                         $.ajax({
                                             type: "GET",
@@ -7533,8 +7533,8 @@
 
         function getShopeePickupTime(address_id,time_value){
             var link = '@Html.Raw(Url.Action("GetShopeePickupTime", "Manage", new { recNum = "replaceCode", address_id = "replaceAddressId" }))';
-            link = link.replace("replaceCode", window.$recResiShopee);
-            link = link.replace("replaceAddressId", address_id);
+            link = link.replace("replaceCode", encodeURIComponent(window.$recResiShopee));
+            link = link.replace("replaceAddressId", encodeURIComponent(address_id));
 
             $.ajax({
                 type: "GET",
@@ -7589,19 +7589,19 @@
                 //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi"}))';
                 var link =
                     '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv" }))';
-                link = link.replace("replaceRecNum", this.$recResi);
-                link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
+                link = link.replace("replaceRecNum", encodeURIComponent(this.$recResi));
+                link = link.replace("replaceResi", encodeURIComponent($('#Pesanan_TRACKING_SHIPMENT').val()));
                 if (document.getElementById("txtShipment") != null) {
                     link = link.replace("replaceDeliveryProv",
-                        $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());
+                        $('#txtShipment').val() == undefined ? '' : encodeURIComponent($('#txtShipment').val()));
                 } else if (document.getElementById("txtShipmentBL") != null) {
                     link = link.replace("replaceDeliveryProv",
-                        $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
+                        $('#txtShipmentBL').val() == undefined ? '' : encodeURIComponent($('#txtShipmentBL').val()));
                 }
                 //add by Tri 3/9/2019, kurir untuk mp lain
                 else if (document.getElementById("resi_kurir") != null) {
                     link = link.replace("replaceDeliveryProv",
-                        $('#resi_kurir').val() == undefined ? '' : $('#resi_kurir').val());
+                        $('#resi_kurir').val() == undefined ? '' : encodeURIComponent($('#resi_kurir').val()));
                 }
                 //end add by Tri 3/9/2019, kurir untuk mp lain
                 //link = link.replace("replaceTypeDelivery", $('#TypePengiriman').val());
@@ -7630,7 +7630,7 @@
             var ret = true;
             var link = '@Html.Raw(Url.Action("SaveResiTokped", "Manage", new { recNum = "replaceRecNum" }))';
 
-            link = link.replace("replaceRecNum", window.$recResiTokped);
+            link = link.replace("replaceRecNum", encodeURIComponent(window.$recResiTokped));
 
             $.ajax({
                 type: "GET",
@@ -7708,8 +7708,8 @@
                     nTrackNo = "replacenTrackNo"
                 }))';
 
-                link = link.replace("replaceRecNum", window.$recResiShopee);
-                link = link.replace("replaceMetode", metode);
+                link = link.replace("replaceRecNum", encodeURIComponent(window.$recResiShopee));
+                link = link.replace("replaceMetode", encodeURIComponent(metode));
 
                 var replacedBranchValue = $('#select-shopee-resi-dropoff-branch').val();
                 if (replacedBranchValue == undefined) {
@@ -7723,14 +7723,14 @@
                 if (replacepTimeValue == undefined) {
                     replacepTimeValue = "";
                 }
-                link = link.replace("replacedBranch", replacedBranchValue);
-                link = link.replace("replacedSender", $('#shopee-resi-dropoff-sender-real-name').val());
-                link = link.replace("replacedTrackNo", $('#shopee-resi-dropoff-tracking-no').val());
+                link = link.replace("replacedBranch", encodeURIComponent(replacedBranchValue));
+                link = link.replace("replacedSender", encodeURIComponent($('#shopee-resi-dropoff-sender-real-name').val()));
+                link = link.replace("replacedTrackNo", encodeURIComponent($('#shopee-resi-dropoff-tracking-no').val()));
 
-                link = link.replace("replacepAddress", replacepAddressValue);
-                link = link.replace("replacepTime", replacepTimeValue);
+                link = link.replace("replacepAddress", encodeURIComponent(replacepAddressValue));
+                link = link.replace("replacepTime", encodeURIComponent(replacepTimeValue));
 
-                link = link.replace("replacenTrackNo", $('#shopee-resi-non-integrated-tracking-no').val());
+                link = link.replace("replacenTrackNo", encodeURIComponent($('#shopee-resi-non-integrated-tracking-no').val()));
 
                 $.ajax({
                     type: "GET",
@@ -8000,8 +8000,8 @@
 
             var link =
                 '@Html.Raw(Url.Action("UbahStatusPesanan", "Manage", new {recNum = "replaceRecNum", tipeStatus = "replaceStatus"}))';
-            link = link.replace("replaceRecNum", this.$recPesanan);
-            link = link.replace("replaceStatus", this.$statusPesanan);
+            link = link.replace("replaceRecNum", encodeURIComponent(this.$recPesanan));
+            link = link.replace("replaceStatus", encodeURIComponent(this.$statusPesanan));
 
             $.ajax({
                 type: "GET",
@@ -8065,7 +8065,7 @@
             }
 
             var link = '@Url.Action("GenerateFakturMulti", "Manage", new { uname = "replaceUname" })';
-            link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
+            link = link.replace("replaceUname", encodeURIComponent($('#Pesanan_USER_NAME').val()));
 
 
             $.ajax({
@@ -8104,8 +8104,8 @@
         function buatFaktur(rec) {
             var link =
                 '@Html.Raw(Url.Action("GenerateFaktur", "Manage", new {recNumPesanan = "replaceRecNum", uname = "replaceUname"}))';
-            link = link.replace("replaceRecNum", rec);
-            link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
+            link = link.replace("replaceUname", encodeURIComponent($('#Pesanan_USER_NAME').val()));
 
             $.ajax({
                 type: "GET",
@@ -8295,7 +8295,7 @@
 
         function lihatPesanan(idPesanan) {
             var link = '@Url.Action("LihatPesanan", "Manage", new {orderId = "replaceId"})';
-            link = link.replace("replaceId", idPesanan);
+            link = link.replace("replaceId", encodeURIComponent(idPesanan));
 
             $.ajax({
                 type: "GET",
@@ -8348,7 +8348,7 @@
 
         function lihatPesananSudahDibayar(idPesanan) {
             var link = '@Url.Action("LihatPesanan", "Manage", new {orderId = "replaceId"})';
-            link = link.replace("replaceId", idPesanan);
+            link = link.replace("replaceId", encodeURIComponent(idPesanan));
             $.ajax({
                 type: "GET",
                 url: link,
@@ -8601,7 +8601,7 @@
             //var $form = $(btnClicked).parents('form');
             //var $formData = new FormData($('form')[0]);
             var link = '@Url.Action("SaveStatusUpdate", "Manage", new { status = "replaceSt"})';
-            link = link.replace("replaceSt", $('#DataUsaha_JtranRetur').val());
+            link = link.replace("replaceSt", encodeURIComponent($('#DataUsaha_JtranRetur').val()));
 
             $.ajax({
                 type: "POST",

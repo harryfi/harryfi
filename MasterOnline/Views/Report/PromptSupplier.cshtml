@@ -79,8 +79,8 @@
 
         function refreshTablePromptSupplier() {
             var $link = '@Html.Raw(Url.Action("TablePromptSupplierPartial", "Report", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_promptsupplier').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page_1').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptsupplier').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
 
             $.ajax({
                 type: "GET",
@@ -104,7 +104,7 @@
 
         function searchTablePromptSupplier() {
             var $link = '@Html.Raw(Url.Action("TablePromptSupplierPartial", "Report", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_promptsupplier').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptsupplier').val()));
 
             $.ajax({
                     url: $link,

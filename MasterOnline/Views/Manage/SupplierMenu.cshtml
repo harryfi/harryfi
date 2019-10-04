@@ -529,7 +529,7 @@
 
         function loadDataKabupatenKota(kdProv) {
             var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
-            link = link.replace("replaceId", kdProv);
+            link = link.replace("replaceId", encodeURIComponent(kdProv));
 
             $.ajax({
                 type: "GET",
@@ -656,7 +656,7 @@
 
         function editSupplier(supplierId) {
             var link = '@Url.Action("EditSupplier", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", supplierId);
+            link = link.replace("replaceId", encodeURIComponent(supplierId));
 
             $.ajax({
                 type: "GET",
@@ -704,7 +704,7 @@
 
         function deleteSupplier() {
             var link = '@Url.Action("DeleteSupplier", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", this.$supplierId);
+            link = link.replace("replaceId", encodeURIComponent(this.$supplierId));
 
             $.ajax({
                 type: "GET",
@@ -770,8 +770,8 @@
         function refreshTableSupp() {
             //var link = '@Url.Action("RefreshTableSupplier", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTableSupplier", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_supplier').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_supplier').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -792,7 +792,7 @@
         }
         function searchTableSupp(){
             var $link = '@Html.Raw(Url.Action("RefreshTableSupplier", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_supplier').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_supplier').val()));
 
             $.ajax({
                 type: "GET",

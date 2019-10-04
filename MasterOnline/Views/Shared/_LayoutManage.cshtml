@@ -704,7 +704,7 @@
             retryid.attr("disabled", true);
 
             var link = '@Url.Action("RequeueFailedJob", "Manage", new { nourut = "replaceNoUrut" })';
-            link = link.replace("replaceNoUrut", jobid);
+            link = link.replace("replaceNoUrut", encodeURIComponent(jobid));
 
             $.ajax({
                 type: "POST",
@@ -1131,7 +1131,7 @@
                 link = '@Url.Action("CekKodePembeli", "Manage", new { kode = "replaceKode" })';
             }
 
-            link = link.replace("replaceKode", $this.val());
+            link = link.replace("replaceKode", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",
@@ -1155,8 +1155,8 @@
             var link = '';
 
             link = '@Url.Action("replaceUrl", "Manage", new { kode = "replaceKode" })';
-            link = link.replace("replaceUrl", $urlAction);
-            link = link.replace("replaceKode", $this.val());
+            link = link.replace("replaceUrl", encodeURIComponent($urlAction));
+            link = link.replace("replaceKode", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",

@@ -774,7 +774,7 @@
                 });
             } else {
                 var $link = '@Url.Action("GetInvoiceBelumLunas", "Manage", new { noSupp = "replaceId" })';
-                $link = $link.replace("replaceId", $supplierId);
+                $link = $link.replace("replaceId", encodeURIComponent($supplierId));
 
                 $.ajax({
                     type: "GET",
@@ -874,7 +874,7 @@
         }
         function lihatHutang(idHutang) {
             var link = '@Url.Action("EditBayarHutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idHutang);
+            link = link.replace("replaceId", encodeURIComponent(idHutang));
 
             $.ajax({
                 type: "GET",
@@ -900,7 +900,7 @@
         }
         function editHutang1(idHutang) {
             var link = '@Url.Action("EditBayarHutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idHutang);
+            link = link.replace("replaceId", encodeURIComponent(idHutang));
 
             $.ajax({
                 type: "GET",
@@ -933,7 +933,7 @@
         function deleteHutang() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteBayarHutang", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idHutang);
+            link = link.replace("replaceId", encodeURIComponent(this.$idHutang));
 
             $.ajax({
                 type: "GET",
@@ -967,7 +967,7 @@
 
         function deleteDetail() {
             var link = '@Url.Action("DeleteDetailBayarHutang", "Manage", new { noUrut = "replaceInvId" })';
-            link = link.replace("replaceInvId", this.$inv);
+            link = link.replace("replaceInvId", encodeURIComponent(this.$inv));
 
             $.ajax({
                 type: "GET",
@@ -1036,9 +1036,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableBayarHutang1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_hutang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hutang').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1060,7 +1060,7 @@
         }
         function searchTableHutang1(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBayarHutang1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_hutang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hutang').val()));
 
             $.ajax({
                 type: "GET",
@@ -1195,7 +1195,7 @@
                 alert("Transaksi ini sudah dilakukan transfer antar bank");
             } else {
                 var link = '@Url.Action("GetDataTransfer", "BCA")';
-                link += "?nobuk=" + noBuk;
+                link += "?nobuk=" + encodeURIComponent(noBuk);
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -1226,7 +1226,7 @@
         function TransferBCA(sNoBuk, sSupp, sAmount, sRekNo, sCorpID) {
             //var link = '@Url.Action("TransferBCA", "Manage", new { amount = "replaceAmount", corpId = "replaceCorpID", formRek = "replaceRek", reffID = "replaceNoBuk", supp = "replaceSupp" })';
             var link = '@Url.Action("TransferBCA", "BCA")';
-            link = link + "?amount=" + sAmount + "&corpId=" + sCorpID + "&formRek=" + sRekNo + "&reffID=" + sNoBuk +"&supp=" + sSupp;
+            link = link + "?amount=" + encodeURIComponent(sAmount) + "&corpId=" + encodeURIComponent(sCorpID) + "&formRek=" + encodeURIComponent(sRekNo) + "&reffID=" + encodeURIComponent(sNoBuk) + "&supp=" + encodeURIComponent(sSupp);
             //link = link.replace("replaceAmount", sAmount);
             //link = link.replace("replaceCorpID", sCorpID);
             //link = link.replace("replaceRek", sRekNo);

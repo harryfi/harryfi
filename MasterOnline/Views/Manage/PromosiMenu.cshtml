@@ -973,8 +973,8 @@
 
         function getDataBarang() {
             var link = '@Url.Action("GetDataBarangPromosi2", "Manage", new { promoId = "replaceId"})';
-            link = link.replace("replaceId", $('#Promosi_RecNum').val());
-            link += "&cust=" + $('#Promosi_NAMA_MARKET').val();
+            link = link.replace("replaceId", encodeURIComponent($('#Promosi_RecNum').val()));
+            link += "&cust=" + encodeURIComponent($('#Promosi_NAMA_MARKET').val());
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1080,7 +1080,7 @@
 
         function editPromosi1(idPromosi) {
             var link = '@Url.Action("EditPromosi", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idPromosi);
+            link = link.replace("replaceId", encodeURIComponent(idPromosi));
 
             $.ajax({
                 type: "GET",
@@ -1123,7 +1123,7 @@
         function deletePromosi() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeletePromosi", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idPromosi);
+            link = link.replace("replaceId", encodeURIComponent(this.$idPromosi));
 
             $.ajax({
                 type: "GET",
@@ -1152,7 +1152,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangPromosi", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",
@@ -1231,9 +1231,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_promosi').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promosi').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1293,7 +1293,7 @@
 
         function searchTablePromosi1(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePromosi", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_promosi').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promosi').val()));
 
             $.ajax({
                 type: "GET",

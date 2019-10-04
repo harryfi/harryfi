@@ -1027,7 +1027,7 @@
         }
         function lihatStok(idStok) {
             var link = '@Url.Action("EditTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
-            link = link.replace("replaceId", idStok);
+            link = link.replace("replaceId", encodeURIComponent(idStok));
 
             $.ajax({
                 type: "GET",
@@ -1059,7 +1059,7 @@
         }
         function editStok(idStok) {
             var link = '@Url.Action("EditTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
-            link = link.replace("replaceId", idStok);
+            link = link.replace("replaceId", encodeURIComponent(idStok));
 
             $.ajax({
                 type: "GET",
@@ -1126,9 +1126,9 @@
             }
             //var link = '@Url.Action("RefreshTableTransaksiMasuk", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiMasuk", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_stok').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1150,7 +1150,7 @@
         }
         function searchTableStok(){
             var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiMasuk", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_stok').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
 
             $.ajax({
                 type: "GET",
@@ -1205,7 +1205,7 @@
         function deleteStok() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
-            link = link.replace("replaceId", this.$idStok);
+            link = link.replace("replaceId", encodeURIComponent(this.$idStok));
             
             $.ajax({
                 type: "GET",
@@ -1238,7 +1238,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangTransaksiMasuk", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",

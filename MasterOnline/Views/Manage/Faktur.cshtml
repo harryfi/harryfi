@@ -1943,7 +1943,7 @@
                             }
 
                             var link = '@Url.Action("ListImportFaktur", "Manage")';
-                            link += '?cust=' + $("#CUSTOMER_UPLOAD_FAKTUR_CUST_BL").val();
+                            link += '?cust=' + encodeURIComponent($("#CUSTOMER_UPLOAD_FAKTUR_CUST_BL").val());
 
                             $.ajax({
                                 cache: false,
@@ -2344,7 +2344,7 @@
 
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
@@ -2403,8 +2403,8 @@
         }*@
         function refreshTableFakturLunas() {
             var $link = '@Html.Raw(Url.Action("RefreshTableFakturLunas", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur_lunas').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page2').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_lunas').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page2').val()));
 
             $.ajax({
                 type: "GET",
@@ -2426,7 +2426,7 @@
         }
         function searchTableFakturLunas(){
             var $link = '@Html.Raw(Url.Action("RefreshTableFakturLunas", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur_lunas').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_lunas').val()));
 
             $.ajax({
                 type: "GET",
@@ -2479,9 +2479,9 @@
         }*@
         function refreshTableFakturTempo() {
             var $link = '@Html.Raw(Url.Action("RefreshTableFakturTempo", "Manage", new { tgl = "replacetgl", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replacetgl", $('#Tanggal').val());
-            $link = $link.replace("replaceSearch", $('#search_faktur_tempo').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page3').val());
+            $link = $link.replace("replacetgl", encodeURIComponent($('#Tanggal').val()));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_tempo').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page3').val()));
 
             $.ajax({
                 type: "GET",
@@ -2503,8 +2503,8 @@
         }
         function searchTableFakturTempo(){
             var $link = '@Html.Raw(Url.Action("RefreshTableFakturTempo", "Manage", new { tgl = "replacetgl", search = "replaceSearch" }))';
-            $link = $link.replace("replacetgl", $('#Tanggal').val());
-            $link = $link.replace("replaceSearch", $('#search_faktur_tempo').val());
+            $link = $link.replace("replacetgl", encodeURIComponent($('#Tanggal').val()));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur_tempo').val()));
 
             $.ajax({
                 type: "GET",
@@ -2530,7 +2530,7 @@
             @*var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {uname = "replaceUname"})';
             link = link.replace("replaceUname", '@(username)');*@
             var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",
@@ -2951,7 +2951,7 @@
 
         function lihatFaktur(idFaktur) {
             var link = '@Url.Action("EditFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -3263,7 +3263,7 @@
 
             $('#lihat-pembeli').click(function () {
                 var $link = '@Url.Action("EditPembeliPopup", "Manage", new { kodePembeli = "replaceId" })';
-                $link = $link.replace("replaceId", $('#Faktur_PEMESAN').val());
+                $link = $link.replace("replaceId", encodeURIComponent($('#Faktur_PEMESAN').val()));
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
 
@@ -3846,7 +3846,7 @@
                             }
 
                             var link = '@Url.Action("ListImportFaktur", "Manage")';
-                            link += '?cust=' + $("#CUSTOMER_UPLOAD_FAKTUR_CUST").val();
+                            link += '?cust=' + encodeURIComponent($("#CUSTOMER_UPLOAD_FAKTUR_CUST").val());
 
                             $.ajax({
                                 cache: false,
@@ -3961,7 +3961,7 @@
             if ($('#FakturDetail_BRG').val() != '') {
 
                 var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';
-                link = link.replace("replaceId", $('#FakturDetail_BRG').val());
+                link = link.replace("replaceId", encodeURIComponent($('#FakturDetail_BRG').val()));
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -4091,7 +4091,7 @@
             //add by nurul 1/10/1018
             if ($('#Faktur_CUST').val() != '') {
                 var link = '@Url.Action("GetDataBarangPesanan", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $('#Faktur_CUST').val());
+                link = link.replace("replaceCode", encodeURIComponent($('#Faktur_CUST').val()));
                 //end add
                 $.ajax({
                     type: "GET",
@@ -4269,7 +4269,7 @@
 
         function editFaktur1(idFaktur) {
             var link = '@Url.Action("EditFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -4338,7 +4338,7 @@
         function deleteFaktur() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteFaktur", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idFaktur);
+            link = link.replace("replaceId", encodeURIComponent(this.$idFaktur));
 
             $.ajax({
                 type: "GET",
@@ -4378,7 +4378,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangFaktur", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",
@@ -4471,9 +4471,9 @@
             }
             //end add by nurul 27/6/2019
             var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -4496,7 +4496,7 @@
         }
         function searchTableFaktur1(){
             var $link = '@Html.Raw(Url.Action("RefreshTableFaktur1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_faktur').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_faktur').val()));
 
             $.ajax({
                 type: "GET",
@@ -4826,7 +4826,7 @@
             var link = '';
 
             link = '@Url.Action("GetPembeliPesanan", "Manage", new { kode = "replaceKode" })';
-            link = link.replace("replaceKode", $('#Faktur_PEMESAN').val());
+            link = link.replace("replaceKode", encodeURIComponent($('#Faktur_PEMESAN').val()));
 
             $.ajax({
                 type: "GET",
@@ -4854,7 +4854,7 @@
 
         function fillModalFixNotFound(rec) {
             var link = '@Url.Action("FillModalFixNotFoundFaktur", "Manage", new {recNum = "replaceRecNum"})';
-            link = link.replace("replaceRecNum", rec);
+            link = link.replace("replaceRecNum", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -4873,7 +4873,7 @@
         function updateNotFound(sit01b_nourut,stf02h_recnum,kode){
             if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
                 var link = '@Url.Action("UpdateFixNotFoundFaktur", "Manage", new { nourut = "replaceNoUrut" })';
-                link = link.replace("replaceNoUrut", sit01b_nourut + ';' + stf02h_recnum);
+                link = link.replace("replaceNoUrut", encodeURIComponent(sit01b_nourut + ';' + stf02h_recnum));
 
                 $.ajax({
                     type: "POST",
@@ -4996,7 +4996,7 @@
                 var tlp = 0;
                 if ($('#LayoutSize').val() == "1") {
                     var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
-                    link = link.replace('replaceNoBuk', nobuk);
+                    link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));
 
                     if ($("#ctk_faktur").is(":checked") == true) {
                         faktur = 1;
@@ -5021,7 +5021,7 @@
                     //add by nurul 2/5/2019
                 } else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
-                    link = link.replace('replaceNoBuk', nobuk);
+                    link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));
 
                     if ($('[name="ctk_A5"]:radio:checked').val() == "1") {
                         faktur = 1;

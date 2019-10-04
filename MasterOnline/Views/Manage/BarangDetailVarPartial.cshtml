@@ -99,7 +99,7 @@
             $('#btn_hapus_var_' + data_barang_id).hide();
             $('#btn_hapus_var_' + data_barang_id).off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", data_barang_kode);
+                $link = $link.replace("replaceKode", encodeURIComponent(data_barang_kode));
                 $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({
@@ -190,7 +190,7 @@
             $('#btn_hapus_var_blibli_' + data_barang_id).hide();
             $('#btn_hapus_var_blibli_' + data_barang_id).off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBliVar", "Manage", new { recnum = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", data_barang_id);
+                $link = $link.replace("replaceKode", encodeURIComponent(data_barang_id));
                 $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({

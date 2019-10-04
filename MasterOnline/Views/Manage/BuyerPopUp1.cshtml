@@ -476,7 +476,7 @@
 
         function loadDataKabupatenKota(kdProv) {
             var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
-            link = link.replace("replaceId", kdProv);
+            link = link.replace("replaceId", encodeURIComponent(kdProv));
 
             $.ajax({
                 type: "GET",
@@ -526,7 +526,7 @@
 
         function editPembeli(pembeliId) {
             var link = '@Url.Action("EditPembeli", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", pembeliId);
+            link = link.replace("replaceId", encodeURIComponent(pembeliId));
 
             $.ajax({
                 type: "GET",
@@ -562,7 +562,7 @@
 
         function deletePembeli() {
             var link = '@Url.Action("DeletePembeli", "Manage", new { buyerId = "replaceId" })';
-            link = link.replace("replaceId", this.$pembeliId);
+            link = link.replace("replaceId", encodeURIComponent(this.$pembeliId));
 
             $.ajax({
                 type: "GET",
@@ -633,8 +633,8 @@
         //add by nurul 30/4/2019
         function refreshTableBuyer() {
             var $link = '@Html.Raw(Url.Action("RefreshTableBuyerPopUp", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pembeli').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -655,7 +655,7 @@
         }
         function searchTableBuyer(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBuyerPopUp", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pembeli').val()));
 
             $.ajax({
                 type: "GET",

@@ -1116,7 +1116,7 @@
 
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",

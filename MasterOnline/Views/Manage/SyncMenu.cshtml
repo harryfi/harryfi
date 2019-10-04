@@ -378,7 +378,7 @@
                     //}
                 }
             });
-            link += '?cust=' + listCust;
+            link += '?cust=' + encodeURIComponent(listCust);
             $.ajax({
                 type: "GET",
                 url: link,
@@ -510,7 +510,7 @@
         //get data barang with record
         function GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
-            link += '?cust=' + cust + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL + '&totalData=' + totalData;
+            link += '?cust=' + encodeURIComponent(cust) + '&page=' + encodeURIComponent(page) + '&recordCount=' + encodeURIComponent(recordCount) + '&statBL=' + encodeURIComponent(statBL) + '&totalData=' + encodeURIComponent(totalData);
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -639,7 +639,7 @@
 
         function exportExcel(cust) {
             var link = '@Html.Raw(Url.Action("SQLtoExcel", "TransferExcel"))';
-            link += "?cust=" + cust;
+            link += "?cust=" + encodeURIComponent(cust);
 
             $.ajax({
                 type: "GET",
@@ -787,7 +787,7 @@
                 //$('#konfSyncAll').modal('hide');
                 //$('#btnSelesai').prop('disabled', true);
                 var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
-                link = link.replace("replaceId", rows_selected[0]);
+                link = link.replace("replaceId", encodeURIComponent(rows_selected[0]));
                 var maxPage = "";
                 var dataPerPage = 0;
                 $.ajax({
@@ -843,7 +843,7 @@
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
 
             var link = '@Url.Action("UploadItemByCust", "Manage")';
-            link += "?cust=" + rows_selected[0] + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync + '&namaFileLog=' + namaFileLog;
+            link += "?cust=" + encodeURIComponent(rows_selected[0]) + /*"&page=" + currentPage +*/ "&dataPerPage=" + encodeURIComponent(dataPerPage) + "&skipDataError=" + encodeURIComponent(failedToSync) + '&namaFileLog=' + encodeURIComponent(namaFileLog);
 
             $.ajax({
                 type: "GET",

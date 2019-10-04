@@ -106,7 +106,7 @@
 
     function searchTableLog() {
         var $link = '@Html.Raw(Url.Action("RefreshTableLog", "Manage", new { search = "replaceSearch" }))';
-        $link = $link.replace("replaceSearch", $('#search_api_log').val());
+        $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
 
         $.ajax({
             type: "GET",
@@ -129,8 +129,8 @@
     }
     function refreshTableLog() {
         var $link = '@Html.Raw(Url.Action("RefreshTableLog", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-        $link = $link.replace("replaceSearch", $('#search_api_log').val());
-        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+        $link = $link.replace("replaceSearch", encodeURIComponent($('#search_api_log').val()));
+        $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
         $.ajax({
             type: "GET",

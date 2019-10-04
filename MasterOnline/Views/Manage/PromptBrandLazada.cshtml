@@ -50,8 +50,8 @@
 
     function refreshTablePrompt() {
         var $link = '@Html.Raw(Url.Action("RefreshBrandLazada", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-        $link = $link.replace("replaceSearch", $('#search_prompt').val());
-        $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+        $link = $link.replace("replaceSearch", encodeURIComponent($('#search_prompt').val()));
+        $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
         $.ajax({
             type: "GET",

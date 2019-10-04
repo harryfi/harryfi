@@ -145,7 +145,7 @@
 
             if ($('#selectJudulVariantTokpedLv1').length > 0 || $('#selectJudulVariantTokpedLv2').length > 0 || $('#selectJudulVariantTokpedLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeTokped", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val());
+                link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val()));
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -297,7 +297,7 @@
         var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
 
         var link = '@Url.Action("GetAttributeOptTokped", "Manage", new { code = "replaceCode" })';
-        link = link.replace("replaceCode", variant_id + ';' + unit_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val());
+        link = link.replace("replaceCode", encodeURIComponent(variant_id + ';' + unit_id + ';' + $(fieldCategoryCode).val() + ';' + $('#txtTokpedMarketRecnumFound').val()));
         $.ajax({
             type: "GET",
             url: link,
@@ -369,7 +369,7 @@
 
             if ($('#selectJudulVariantBlibliLv1').length > 0 || $('#selectJudulVariantBlibliLv2').length > 0 || $('#selectJudulVariantBlibliLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeBlibliVar", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $(fieldCategoryCode).val() + ';' + $('#txtBlibliMarketRecnumFound').val());
+                link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val() + ';' + $('#txtBlibliMarketRecnumFound').val()));
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -570,7 +570,7 @@
 
             if ($('#selectJudulVariantLazadaLv1').length > 0 || $('#selectJudulVariantLazadaLv2').length > 0 || $('#selectJudulVariantLazadaLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeLazadaVar", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $(fieldCategoryCode).val());
+                link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val()));
                 $.ajax({
                     type: "GET",
                     url: link,
@@ -712,7 +712,7 @@
         $('#txtKodeKategoriLazada').val($(fieldCategoryCode).val());
 
         var link = '@Url.Action("GetAttributeOptLazadaVar", "Manage", new { code = "replaceCode" })';
-        link = link.replace("replaceCode", variant_id + ';' + $('#txtKodeKategoriLazada').val());
+        link = link.replace("replaceCode", encodeURIComponent(variant_id + ';' + $('#txtKodeKategoriLazada').val()));
         //$('#txtKodeKategoriLazada').val($(fieldCategoryCode).val());
 
         $.ajax({
@@ -817,7 +817,7 @@
 
             if ($('#selectJudulVariantJdidLv1').length > 0 || $('#selectJudulVariantJdidLv2').length > 0 || $('#selectJudulVariantJdidLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeJdidVar", "Manage", new { code = "replaceCode" })';
-                link = link.replace("replaceCode", $(fieldCategoryCode).val() + ';' + $('#txtJdidMarketRecnumFound').val());
+                link = link.replace("replaceCode", encodeURIComponent($(fieldCategoryCode).val() + ';' + $('#txtJdidMarketRecnumFound').val()));
                 $.ajax({
                     type: "GET",
                     url: link,

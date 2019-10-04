@@ -277,8 +277,8 @@
         //add by nurul 23/8/2019
         function getFirstLastMonth() {
             var $link = '@Html.Raw(Url.Action("getFirstLastMonth", "Manage", new { bulan = "replaceBulan", tahun = "replaceTahun" }))';
-            $link = $link.replace("replaceBulan", $('#Bulan').val());
-            $link = $link.replace("replaceTahun", $('#Tahun').val());
+            $link = $link.replace("replaceBulan", encodeURIComponent($('#Bulan').val()));
+            $link = $link.replace("replaceTahun", encodeURIComponent($('#Tahun').val()));
 
             $.ajax({
                 type: "GET",
