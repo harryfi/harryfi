@@ -20496,29 +20496,29 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLnama += " ( NCUST like '%" + getkata[i] + "%' )";
-                            sSQLkode += " ( FAKTUR like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( NETTO like '%" + getkata[i] + "%' )";
+                            sSQLnama += " ( (ISNULL(C.NAMAMARKET,'') + ' (' + A.CUST + ')') like '%" + getkata[i] + "%' )";
+                            sSQLkode += " ( A.FAKTUR like '%" + getkata[i] + "%' )";
+                            sSQLnetto += " ( A.TOTAL like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First())
                             {
-                                sSQLnama += " ( NCUST like '%" + getkata[i] + "%'";
-                                sSQLkode += " ( FAKTUR like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnama += " ( (ISNULL(C.NAMAMARKET,'') + ' (' + A.CUST + ')') like '%" + getkata[i] + "%'";
+                                sSQLkode += " ( A.FAKTUR like '%" + getkata[i] + "%'";
+                                sSQLnetto += " ( A.TOTAL like '%" + getkata[i] + "%' ";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
-                                sSQLnama += " and NCUST like '%" + getkata[i] + "%' )";
-                                sSQLkode += " and FAKTUR like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " ( NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnama += " and (ISNULL(C.NAMAMARKET,'') + ' (' + A.CUST + ')') like '%" + getkata[i] + "%' )";
+                                sSQLkode += " and A.FAKTUR like '%" + getkata[i] + "%' )";
+                                sSQLnetto += " and A.TOTAL like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
-                                sSQLnama += " and NCUST like '%" + getkata[i] + "%' ";
-                                sSQLkode += " and FAKTUR like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " ( NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnama += " and (ISNULL(C.NAMAMARKET,'') + ' (' + A.CUST + ')') like '%" + getkata[i] + "%' ";
+                                sSQLkode += " and A.FAKTUR like '%" + getkata[i] + "%' ";
+                                sSQLnetto += " and A.TOTAL like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -20581,7 +20581,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY TGL DESC, FAKTUR DESC ";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.FAKTUR DESC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
