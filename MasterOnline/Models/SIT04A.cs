@@ -17,8 +17,11 @@ namespace MasterOnline
         [Required]
         public DateTime? TGL_KIRIM { get; set; }
 
-        [StringLength(10)]
+        [StringLength(50)]
         public string KURIR { get; set; }
+
+        [StringLength(50)]
+        public string NAMA_EKSPEDISI { get; set; }
 
         [StringLength(50)]
         public string NAMA_KURIR { get; set; }

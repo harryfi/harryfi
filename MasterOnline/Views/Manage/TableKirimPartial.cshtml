@@ -57,7 +57,7 @@
         <tr>
             <td>@kirim.NO_BUKTI</td>
             <td>@(kirim.TGL_KIRIM?.ToString("dd/MM/yyyy")) @(kirim.JAM_KIRIM?.ToString("HH:mm"))</td>
-            <td>@kirim.KURIR</td>
+            <td>@kirim.NAMA_EKSPEDISI</td>
             <td>@kirim.NAMA_KURIR</td>
 
             <td class="edit-hapus-col">
@@ -71,7 +71,7 @@
                 </button>
             </td>
             <td class="edit-hapus-col">
-                <button class="btn btn-primary cetak" data-nobuk="@kirim.NO_BUKTI" onclick="cetakKirim('@(kirim.RECNUM)')">
+                <button class="btn btn-primary cetak" data-nobuk="@kirim.NO_BUKTI" onclick="cetakKirim('@(kirim.RECNUM)', '@(kirim.NO_BUKTI)')">
                     <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
                 </button>
             </td>

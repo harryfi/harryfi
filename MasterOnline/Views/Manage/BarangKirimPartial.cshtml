@@ -34,7 +34,7 @@
                 @Html.HiddenFor(m => m.Pengiriman.NO_BUKTI)
                 @if (Model.Pengiriman != null)
                 {
-                    <input type="text" value="@Model.Pengiriman.NO_BUKTI" disabled class="form-control" />
+                    <input id="NOBUK_KIRIM" type="text" value="@Model.Pengiriman.NO_BUKTI" disabled class="form-control" />
                 }
                 else
                 {
@@ -70,6 +70,7 @@
                 @*@Html.HiddenFor(m => m.Pengiriman.NAMAPENGIRIM)
                     @Html.HiddenFor(m => m.Pengiriman.EXPEDISI)*@
                 @Html.HiddenFor(m => m.Pengiriman.KURIR)
+                @Html.HiddenFor(m => m.Pengiriman.NAMA_EKSPEDISI)
                 <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
             </div>
         </div>
@@ -94,6 +95,36 @@
             </div>
         </div>
     </div>
+
+    @*//add btn autoload*@
+    <div id="btn-autoload-row" class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <button id="btn-autoload" type="button" onclick="validasiAutoload()" class="btn btn-primary btn-block">Autoload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="btn-print-row" class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <button id="btn btn-primary btn-block cetak" type="button" onclick="validasiCetak('@(Model?.Pengiriman?.RECNUM)')" class="btn btn-primary btn-block">
+                        Print <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*//end add btn autoload*@
+
     @if (Model?.Pengiriman?.RECNUM != null)
     {
         <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
@@ -124,6 +155,7 @@
                     <th width="80">Marketplace</th>
                     <th width="100">Pembeli</th>
                     <th width="275">Alamat</th>
+                    <th width="100">Kurir</th>
                     <th width="30">Simpan</th>
                     <th width="30">Hapus</th>
                 </tr>
@@ -135,6 +167,9 @@
                 @foreach (var kirim in Model.ListPengirimanDetail.Where(pb => pb.NO_BUKTI == Model?.Pengiriman?.NO_BUKTI).ToList())
                 {
                     <tr data-barang-id="detail-@kirim.NO_URUT">
+                        @{ 
+                            var kurirDetail = Model?.Shipment?.SingleOrDefault(a => a.NO_BUKTI == kirim.PESANAN).SHIPMENT;
+                        }
                         <td>
                             @kirim.PESANAN
                         </td>
@@ -147,24 +182,9 @@
                         <td class="al-detail">
                             @kirim.ALAMAT_KIRIM @kirim.KOTA @kirim.PROPINSI @kirim.KODE_POS
                         </td>
-                        @*<td class="nama-barang">
-                                @listBarang.Single(b => b.BRG == stok.Kobar).NAMA @listBarang.Single(b => b.BRG == stok.Kobar).NAMA2
-                            </td>
-                            <td class="stn-barang">
-                                @(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
-                            </td>
-                            <td class="harga-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
-                            </td>
-                            <td class="gd-barang">
-                                @stok.Ke_Gd
-                            </td>
-                            <td class="qty-barang">
-                                @stok.Qty
-                            </td>
-                            <td class="netto-barang" style="text-align:right">
-                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
-                            </td>*@
+                        <td class="kurir-detail">
+                            @kurirDetail
+                        </td>
                         <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
@@ -202,6 +222,9 @@
                             -
                             @Html.HiddenFor(m => m.PengirimanDetail.ALAMAT_KIRIM)
 
+                        </td>
+                        <td class="kurir-detail">
+                            -
                         </td>
                         @*<td class="stn-barang">
             -
