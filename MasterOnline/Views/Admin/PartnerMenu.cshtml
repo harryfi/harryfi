@@ -466,7 +466,7 @@
                 //    table.search($(this).val()).draw();
                 //});
                 refreshTablePartner();
-                $('#search_gudang').keypress(function (e) {
+                $('#search_partner').keypress(function (e) {
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
@@ -474,7 +474,7 @@
                         return false;
                     }
                 });
-                $('#search_gudang_click').click(function () {
+                $('#search_partner_click').click(function () {
                     searchTablePartner();
                 });
                 
@@ -703,10 +703,6 @@
 
         //add by nurul 4/10/2019
         function refreshTablePartner() {
-            //if ($('#txt_last_page').val() == undefined) {
-            //    //document.getElementById("txt_last_page").value = 0;
-            //    $('#txt_last_page').val(0);
-            //}
             var $link = '@Html.Raw(Url.Action("RefreshTablePartner", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", $('#search_partner').val());
             $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
@@ -751,73 +747,6 @@
             });
         }
 
-        //function Initialize() {
-
-        //    $('#search_partner').keypress(function (e) {
-        //        var key = e.which;
-        //        if (key == 13)// the enter key code
-        //        {
-        //            searchTablePartner();
-        //            return false;
-        //        }
-        //    });
-        //    $('#search_partner_click').click(function () {
-        //        searchTablePartner();
-        //    });
-
-        //    $('#tambah_gudang').on('click', function () {
-        //        $('.gudang_table_section').hide();
-        //        $('.gudang_editor_section').show();
-        //        $("#Gudang_Kode_Gudang").keydown(
-        //            function () {
-        //                validateInput($(this), 'HURUFANGKA');
-        //            });
-
-        //        $("#Gudang_Nama_Gudang").keydown(
-        //            function () {
-        //                validateInput($(this), 'HURUFANGKA');
-        //            });
-        //    });
-
-        //    $('#close-editor').on('click', function () {
-        //        $('.gudang_table_section').show();
-        //        $('.gudang_editor_section').hide();
-        //        $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID').val("");
-        //        $('#Gudang_Kode_Gudang').removeAttr('disabled');
-        //        resetError();
-        //        $(".checkbox_linkMP").attr('disabled', 'disabled');
-        //    });
-
-        //    if ($('.message-error').text() !== '') {
-        //        $('#tambah_gudang').click();
-        //    }
-
-        //    $('#Gudang_Kode_Gudang').on('change blur',
-        //        function () {
-        //            if (!$(this).is(':disabled')) {
-        //                cekKode($(this), 'gd');
-        //            }
-        //        });
-        //    $('#Gudang_Nama_Gudang').on('change blur',
-        //        function () {
-        //            if (!$(this).is(':disabled') && $(this).val() != "") {
-        //                cekField($(this), 'CekNmGudang', 'Nama Gudang ini sudah digunakan!');
-        //            }
-        //        });
-
-        //    $("#Gudang_Kode_Gudang").keydown(
-        //        function () {
-        //            validateInput($(this), 'HURUFANGKA');
-        //        });
-
-        //    $("#Gudang_Nama_Gudang").keydown(
-        //        function () {
-        //            validateInput($(this), 'HURUFANGKA');
-        //        });
-        //    $(".checkbox_linkMP").attr('disabled', 'disabled');
-
-        //    refreshTablePartner();
-        //}
         //end add by nurul 4/10/2019
     </script>
 }

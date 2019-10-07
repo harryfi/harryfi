@@ -1477,7 +1477,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM partner ";
             if (search != "")
             {
-                sSQL2 += " AND ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
+                sSQL2 += " WHERE ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -2224,7 +2224,7 @@ namespace MasterOnline.Controllers
             sSQL2 += "FROM partner ";
             if (search != "")
             {
-                sSQL2 += " AND ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
+                sSQL2 += " WHERE ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;

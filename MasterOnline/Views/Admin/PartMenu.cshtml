@@ -178,7 +178,7 @@
         $(document).on('ready',
             function () {
                 refreshTablePartner();
-                $('#search_gudang').keypress(function (e) {
+                $('#search_partner').keypress(function (e) {
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
@@ -186,7 +186,7 @@
                         return false;
                     }
                 });
-                $('#search_gudang_click').click(function () {
+                $('#search_partner_click').click(function () {
                     searchTablePartner();
                 });
 
