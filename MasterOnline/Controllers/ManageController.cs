@@ -17302,7 +17302,7 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
                                 sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
                                 sSQLpembeli += "( A.NAMAPEMESAN like '%" + getkata[i] + "%'";
                                 sSQLfaktur += " ( D.NO_BUKTI like '%" + getkata[i] + "%' ";
                             }
@@ -17310,7 +17310,7 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
                                 sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
                                 sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
                                 sSQLfaktur += " and D.NO_BUKTI like '%" + getkata[i] + "%' )";
                             }
@@ -17318,7 +17318,7 @@ namespace MasterOnline.Controllers
                             {
                                 sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
                                 sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
                                 sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
                                 sSQLfaktur += " and D.NO_BUKTI like '%" + getkata[i] + "%' ";
                             }
@@ -21025,24 +21025,24 @@ namespace MasterOnline.Controllers
                         if (getkata.Length == 1)
                         {
                             //sSQLnama += " ( NCUST like '%" + getkata[i] + "%' )";
-                            sSQLkode += " ( FAKTUR like '%" + getkata[i] + "%' )";
+                            sSQLkode += " ( NOBUK like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First())
                             {
                                 //sSQLnama += " ( NCUST like '%" + getkata[i] + "%'";
-                                sSQLkode += " ( FAKTUR like '%" + getkata[i] + "%'";
+                                sSQLkode += " ( NOBUK like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
                                 //sSQLnama += " and NCUST like '%" + getkata[i] + "%' )";
-                                sSQLkode += " and FAKTUR like '%" + getkata[i] + "%' )";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
                                 //sSQLnama += " and NCUST like '%" + getkata[i] + "%' ";
-                                sSQLkode += " and FAKTUR like '%" + getkata[i] + "%' ";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -22962,21 +22962,21 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                            sSQLkode += "( NOBUK like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First())
                             {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
+                                sSQLkode += " ( NOBUK like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -23438,21 +23438,21 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                            sSQLkode += "( NOBUK like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First())
                             {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
+                                sSQLkode += " ( NOBUK like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
@@ -23847,21 +23847,21 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                            sSQLkode += "( NOBUK like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First())
                             {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
+                                sSQLkode += " ( NOBUK like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
