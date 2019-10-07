@@ -1397,7 +1397,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new PartnerViewModel()
             {
-                ListPartner = MoDbContext.Partner.ToList()
+                ListPartner = MoDbContext.Partner.OrderByDescending(a => a.TGL_DAFTAR).ToList()
             };
 
             return View(vm);
@@ -1405,16 +1405,124 @@ namespace MasterOnline.Controllers
 
         //add by nurul 15/2/2019
         // =============================================== Menu Partner
+        //add by nurul 4/10/2019
+        public class getTotalCount
+        {
+            public int JUMLAH { get; set; }
+        }
+        public ActionResult RefreshTablePartner(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLemail = "";
+            string sSQLhp = "";
+            string sSQLtipe = "";
+            string sSQLref = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLnama += "( Username like '%" + getkata[i] + "%' )";
+                            sSQLemail += " ( Email like '%" + getkata[i] + "%' )";
+                            sSQLhp += " ( NoHp like '%" + getkata[i] + "%' )";
+                            sSQLtipe += " ( NamaTipe like '%" + getkata[i] + "%' )";
+                            sSQLref += " ( isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLnama += " ( Username like '%" + getkata[i] + "%'";
+                                sSQLemail += " ( Email like '%" + getkata[i] + "%'";
+                                sSQLhp += " ( NoHp like '%" + getkata[i] + "%'";
+                                sSQLtipe += "( NamaTipe like '%" + getkata[i] + "%'";
+                                sSQLref += " ( isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' ";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLnama += " and Username like '%" + getkata[i] + "%' )";
+                                sSQLemail += " and Email like '%" + getkata[i] + "%' )";
+                                sSQLhp += " and NoHp like '%" + getkata[i] + "%' )";
+                                sSQLtipe += " and NamaTipe like '%" + getkata[i] + "%' )";
+                                sSQLref += " and isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLnama += " and Username like '%" + getkata[i] + "%' ";
+                                sSQLemail += " and Email like '%" + getkata[i] + "%' ";
+                                sSQLhp += " and NoHp like '%" + getkata[i] + "%' ";
+                                sSQLtipe += " and NamaTipe like '%" + getkata[i] + "%' ";
+                                sSQLref += " and isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+            //var partners = (from p in MoDbContext.Partner
+            //             where (p.Username.Contains(search) || p.Email.Contains(search))
+            //             orderby p.TGL_DAFTAR descending
+            //             select p);
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(partnerid) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM partner ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR DESC, Username asc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var Listpartners = MoDbContext.Database.SqlQuery<mdlPartner>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlPartner> pageOrders = new StaticPagedList<mdlPartner>(Listpartners, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePartnerPartial", pageOrders);
+        }
+        //end add by nurul 4/10/2019
+
         public ActionResult EditKomisi(int? partnerid)
         {
-            var vm = new PartnerViewModel()
+            //var vm = new PartnerViewModel()
+            //{
+            //    partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
+            //};
+
+            //ViewData["Editing"] = 1;
+
+            //return View("PartnerMenu", vm);
+            try
             {
-                partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
-            };
 
-            ViewData["Editing"] = 1;
+                var vm = new PartnerViewModel()
+                {
+                    partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
+                };
 
-            return View("PartnerMenu", vm);
+                return PartialView("DetailPartnerPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
         }
 
         [HttpPost]
@@ -1453,17 +1561,31 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            return RedirectToAction("PartnerMenu");
+            var dm = new PartnerViewModel()
+            {
+                partner= MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == vm.partner.PartnerId)
+            };
+
+            return PartialView("DetailPartnerPartial", dm);
         }
         // =============================================== Menu Partner (END)
         //end add by nurul 15/2/2019
 
         // =============================================== Menu-menu pada halaman admin (END)
 
-        public async Task<ActionResult> ChangeStatusPartner(string partnerid)
+        public async Task<ActionResult> ChangeStatusPartner(PartnerViewModel dataVm)
         {
-            var partnerId = Convert.ToInt64(partnerid);
+            var partnerId = Convert.ToInt64(dataVm.partner.PartnerId);
             var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            if (partnerInDb.Status == dataVm.partner.Status)
+            {
+                var Tempvm = new PartnerViewModel()
+                {
+                    partner = MoDbContext.Partner.SingleOrDefault(a => a.PartnerId == partnerId),
+                };
+
+                return PartialView("DetailPartnerPartial", Tempvm);
+            }
             if (partnerInDb.Status && !partnerInDb.StatusSetuju)
                 partnerInDb.StatusSetuju = true;
             else
@@ -2034,10 +2156,109 @@ namespace MasterOnline.Controllers
 
             return View(vm);
         }
-        public async Task<ActionResult> ChangeStatusPart(string partnerid)
+
+        public ActionResult RefreshTablePart(int? page, string search = "")
         {
-            var partnerId = Convert.ToInt64(partnerid);
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string[] getkata = search.Split(' ');
+            string sSQLnama = "";
+            string sSQLemail = "";
+            string sSQLhp = "";
+            string sSQLtipe = "";
+            string sSQLref = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLnama += "( Username like '%" + getkata[i] + "%' )";
+                            sSQLemail += " ( Email like '%" + getkata[i] + "%' )";
+                            sSQLhp += " ( NoHp like '%" + getkata[i] + "%' )";
+                            sSQLtipe += " ( NamaTipe like '%" + getkata[i] + "%' )";
+                            sSQLref += " ( isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLnama += " ( Username like '%" + getkata[i] + "%'";
+                                sSQLemail += " ( Email like '%" + getkata[i] + "%'";
+                                sSQLhp += " ( NoHp like '%" + getkata[i] + "%'";
+                                sSQLtipe += "( NamaTipe like '%" + getkata[i] + "%'";
+                                sSQLref += " ( isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' ";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLnama += " and Username like '%" + getkata[i] + "%' )";
+                                sSQLemail += " and Email like '%" + getkata[i] + "%' )";
+                                sSQLhp += " and NoHp like '%" + getkata[i] + "%' )";
+                                sSQLtipe += " and NamaTipe like '%" + getkata[i] + "%' )";
+                                sSQLref += " and isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLnama += " and Username like '%" + getkata[i] + "%' ";
+                                sSQLemail += " and Email like '%" + getkata[i] + "%' ";
+                                sSQLhp += " and NoHp like '%" + getkata[i] + "%' ";
+                                sSQLtipe += " and NamaTipe like '%" + getkata[i] + "%' ";
+                                sSQLref += " and isnull(KodeRefPilihan,'') like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+            //var partners = (from p in MoDbContext.Partner
+            //             where (p.Username.Contains(search) || p.Email.Contains(search))
+            //             orderby p.TGL_DAFTAR descending
+            //             select p);
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(partnerid) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM partner ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLnama + " or " + sSQLemail + " or " + sSQLhp + " or " + sSQLtipe + " or " + sSQLref + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL_DAFTAR DESC, Username asc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var Listpartners = MoDbContext.Database.SqlQuery<mdlPartner>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlPartner> pageOrders = new StaticPagedList<mdlPartner>(Listpartners, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePartPartial", pageOrders);
+        }
+        //end add by nurul 4/10/2019
+
+        public async Task<ActionResult> ChangeStatusPart(PartnerViewModel dataVm)
+        {
+            var partnerId = Convert.ToInt64(dataVm.partner.PartnerId);
             var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            if (partnerInDb.Status == dataVm.partner.Status)
+            {
+                var Tempvm = new PartnerViewModel()
+                {
+                    partner = MoDbContext.Partner.SingleOrDefault(a => a.PartnerId == partnerId),
+                };
+
+                return PartialView("DetailPartPartial", Tempvm);
+            }
             if (partnerInDb.Status && !partnerInDb.StatusSetuju)
                 partnerInDb.StatusSetuju = true;
             else
@@ -2107,14 +2328,20 @@ namespace MasterOnline.Controllers
         }
         public ActionResult EditKomisiCS(int? partnerid)
         {
-            var vm = new PartnerViewModel()
+            try
             {
-                partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
-            };
 
-            ViewData["Editing"] = 1;
+                var vm = new PartnerViewModel()
+                {
+                    partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
+                };
 
-            return View("PartMenu", vm);
+                return PartialView("DetailPartPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
         }
 
         [HttpPost]
@@ -2149,7 +2376,12 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            return RedirectToAction("PartMenu");
+            var dm = new PartnerViewModel()
+            {
+                partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == vm.partner.PartnerId)
+            };
+
+            return PartialView("DetailPartnerPartial", dm);
         }
         // =============================================== Menu Partner (END)
 

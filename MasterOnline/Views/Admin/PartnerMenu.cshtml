@@ -1,20 +1,22 @@
-﻿@using System.Globalization
+﻿@using PagedList
+
+@using System.Globalization
 @model MasterOnline.ViewModels.PartnerViewModel
 @{
     ViewBag.Title = "Partner";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 
-    var editMode = 0;
+    //var editMode = 0;
 
-    if (ViewData["Editing"] != null)
-    {
-        editMode = (int)ViewData["Editing"];
-    }
+    //if (ViewData["Editing"] != null)
+    //{
+    //    editMode = (int)ViewData["Editing"];
+    //}
 }
 
 @section styles
 {
-    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />*@
 
     <style>
         .user-link {
@@ -62,13 +64,44 @@
 
 <div class="row" id="akun-section">
     <div class="col-lg-12 col-md-12">
-        @*<div class="row user_table_section">*@
         <div class="row partner_table_section">
+            <div class="row">
+                <div class="col-lg-12">
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="input-group">
+                        <input id="search_partner" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_partner_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="table-partner-partial" class="col-lg-12">
+                </div>
+            </div>
+        </div>
+        @*<div class="row partner_table_section">
             <div class="col-lg-4 col-sm-6">
                 <div class="input-group">
-                    <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
+                    <input id="search_partner" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_partner_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -82,140 +115,122 @@
                 </div>
             </div>
         </div>
-        @*<div class="row user_table_section">*@
         <div class="row partner_table_section">
-            <div class="col-sm-12">
-                @if (ViewData["SuccessMessage"] != null)
+            <div id="table-partner-partial" class="col-lg-12">
+            </div>
+            @*<div class="col-sm-12">
+            @if (ViewData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    @ViewData["SuccessMessage"].ToString()
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+            @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+            {
+                foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                 {
-                    <div class="alert alert-success">
-                        @ViewData["SuccessMessage"].ToString()
+                    <div class="alert alert-danger">
+                        @modelError.ErrorMessage
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                 }
-                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                {
-                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+            }
+            <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                <thead>
+                    <tr role="row">
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="2" style="width: 50px; ">Komisi Sales</th>
+
+                        <th style="border-bottom:unset"></th>
+                        <th style="border-bottom:unset"></th>
+
+                    </tr>
+                    <tr>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Nama Lengkap</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 50px;border-top:unset">Email</th>
+                        <th class="sorting_desc text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Tgl. Daftar</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">No. HP</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Tipe Partner</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Kode Referral</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Status Persetujuan</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Status Approval</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" width="50%" style="border-right:none; max-width:90px">Silver</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" width="50%" style="border-right:none; max-width:90px">Gold</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Komisi Support</th>
+                        <th class=" text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;border-top:unset">Edit Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null)
                     {
-                        <div class="alert alert-danger">
-                            @modelError.ErrorMessage
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    }
-                }
-                <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
-                    <thead>
-                        <tr role="row">
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="2" style="width: 50px; ">Komisi Sales</th>
-
-                            <th style="border-bottom:unset"></th>
-                            <th style="border-bottom:unset"></th>
-
-                        </tr>
-                        <tr>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Nama Lengkap</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 50px;border-top:unset">Email</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Tgl. Daftar</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">No. HP</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Tipe Partner</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Kode Referral</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Status Persetujuan</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Status Approval</th>
-                            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;border-top:unset">Ubah Approval</th>*@
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" width="50%" style="border-right:none; max-width:90px">Silver</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" width="50%" style="border-right:none; max-width:90px">Gold</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;border-top:unset">Komisi Support</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;border-top:unset">Edit Detail</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null)
+                        foreach (var partner in Model?.ListPartner)
                         {
-                            foreach (var partner in Model?.ListPartner)
+                            var Koderef = "-";
+                            if (partner.KodeRefPilihan != null || partner.KodeRefPilihan != "")
                             {
-                                var Koderef = "-";
-                                if (partner.KodeRefPilihan != null || partner.KodeRefPilihan != "")
-                                {
-                                    Koderef = partner.KodeRefPilihan;
-                                }
-                                <tr>
-                                    <td class="text-center">@partner.Username</td>
-                                    <td class="text-center">@partner.Email</td>
-                                    <td class="text-center">@(partner.TGL_DAFTAR?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@partner.NoHp</td>
-                                    <td class="text-center">@partner.NamaTipe</td>
-                                    @*add by nurul 14/2/2019*@
-                                    <td class="text-center">@Koderef</td>
-                                    @*end add by nurul 14/2/2019*@
-                                    <td class="text-center">
-                                        @if (partner.StatusSetuju)
-                                        {
-                                            @("Setuju")
-                                        }
-                                        else
-                                        {
-                                            @("Tidak Setuju")
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        @if (partner.Status)
-                                        {
-                                            @("Aktif")
-                                        }
-                                        else
-                                        {
-                                            @("Tidak Aktif")
-                                        }
-                                    </td>
-                                    @*<td class="edit-hapus-col">
-                                            @{
-                                                var status = 0;
-
-                                                if (partner.Status)
-                                                {
-                                                    status = 1;
-                                                }
-                                            }
-
-                                            <button class="btn btn-primary" data-toggle="modal" data-target="#konfUbahStatus" onclick="passId(@partner.PartnerId, @status, '@partner.Username')">
-                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                            </button>
-                                        </td>*@
-                                    @*add by nurul 14/2/2019*@
-                                    <td class="text-center">
-                                        @partner.komisi_subscribe
-                                    </td>
-                                    <td class="text-center">
-                                        @partner.komisi_subscribe_gold
-                                    </td>
-                                    <td class="text-center">
-                                        @partner.komisi_support
-                                    </td>
-                                    <td class="edit-hapus-col">
-                                        <button class="btn btn-primary" onclick="editKomisi(@partner.PartnerId)">
-                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                        </button>
-                                    </td>
-                                    @*end add by nurul 14/2/2019*@
-                                </tr>
-
+                                Koderef = partner.KodeRefPilihan;
                             }
+                            <tr>
+                                <td class="text-center">@partner.Username</td>
+                                <td class="text-center">@partner.Email</td>
+                                <td class="text-center">@(partner.TGL_DAFTAR)</td>
+                                <td class="text-center">@partner.NoHp</td>
+                                <td class="text-center">@partner.NamaTipe</td>
+                                <td class="text-center">@Koderef</td>
+                                <td class="text-center">
+                                    @if (partner.StatusSetuju)
+                                    {
+                                        @("Setuju")
+                                    }
+                                    else
+                                    {
+                                        @("Tidak Setuju")
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (partner.Status)
+                                    {
+                                        @("Aktif")
+                                    }
+                                    else
+                                    {
+                                        @("Tidak Aktif")
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @partner.komisi_subscribe
+                                </td>
+                                <td class="text-center">
+                                    @partner.komisi_subscribe_gold
+                                </td>
+                                <td class="text-center">
+                                    @partner.komisi_support
+                                </td>
+                                <td class="edit-hapus-col">
+                                    <button class="btn btn-primary" onclick="editKomisi(@partner.PartnerId)">
+                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                    </button>
+                                </td>
+                            </tr>
+
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
+        </div>*@
         @*add by nurul 15/2/2019*@
         <div class="row partner_editor_section" style="display: none;">
             <div class="col-lg-12">
@@ -252,159 +267,153 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveKomisi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveKomisi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-partner" }))
                                         {
-                                            @Html.AntiForgeryToken()
-                                            @Html.HiddenFor(m => m.partner.PartnerId)
-                                            var setStatus = "";
-                                            var status1 = Model.partner.Status;
-                                            if (status1)
-                                            {
-                                                setStatus = "Aktif";
-                                            }
-                                            else
-                                            {
-                                                setStatus = "Tidak Aktif";
-                                            }
-                                            var setSetuju = "";
-                                            var status2 = Model.partner.StatusSetuju;
-                                            if (status2)
-                                            {
-                                                setSetuju = "Setuju";
-                                            }
-                                            else
-                                            {
-                                                setSetuju = "Tidak Setuju";
-                                            }
-                                            <div id="hidden_partner">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.PartnerId, "PartnerID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.PartnerId, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.Email, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.Username, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.partner?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
-                                                        @*@Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })*@
-                                                        @*<div class="box_upload" id="box_upload_logo">
-                                                                <span class="box_upload_placeholder"></span>
-                                                                <input type='file' id='PhotoKtpUrl' name="PhotoKtpUrl" accept=".jpg" />
-                                                            </div>*@
-                                                        @if (!String.IsNullOrWhiteSpace(Model.partner.PhotoKtpUrl))
-                                                        {
-                                                            <img src="@Url.Content(Model.partner.PhotoKtpUrl)" width="65%" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <img src="~/Content/Images/no-img-market.jpg" />
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.NamaTipe, "Nama Tipe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.NamaTipe, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => setSetuju, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @*@Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })*@
-                                                        @Html.DropDownListFor(m => m.partner.Status, new List<SelectListItem>()
-                                                    {
-                                                        new SelectListItem()
-                                                        {
-                                                            Text = @"Tidak Aktif",
-                                                            Value = "false",
-                                                        },
-                                                        new SelectListItem()
-                                                        {
-                                                            Text = @"Aktif",
-                                                            Value = "true"
-                                                        }
-                                                    }, new { @class = "form-control" })
-                                                    </div>
-                                                </div>
+                                            <div id="form-partial"></div>
+                                                @*@Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.partner.PartnerId)
+                var setStatus = "";
+                var status1 = Model.partner.Status;
+                if (status1)
+                {
+                    setStatus = "Aktif";
+                }
+                else
+                {
+                    setStatus = "Tidak Aktif";
+                }
+                var setSetuju = "";
+                var status2 = Model.partner.StatusSetuju;
+                if (status2)
+                {
+                    setSetuju = "Setuju";
+                }
+                else
+                {
+                    setSetuju = "Tidak Setuju";
+                }
+                <div id="hidden_partner">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.PartnerId, "PartnerID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.PartnerId, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.Email, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.Username, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.partner?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
+                            @if (!String.IsNullOrWhiteSpace(Model.partner.PhotoKtpUrl))
+                            {
+                                <img src="@Url.Content(Model.partner.PhotoKtpUrl)" width="65%" />
+                            }
+                            else
+                            {
+                                <img src="~/Content/Images/no-img-market.jpg" />
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.NamaTipe, "Nama Tipe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.NamaTipe, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => setSetuju, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.partner.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.DropDownListFor(m => m.partner.Status, new List<SelectListItem>()
+                        {
+                            new SelectListItem()
+                            {
+                                Text = @"Tidak Aktif",
+                                Value = "false",
+                            },
+                            new SelectListItem()
+                            {
+                                Text = @"Aktif",
+                                Value = "true"
+                            }
+                        }, new { @class = "form-control" })
+                        </div>
+                    </div>
 
 
-                                                <div id="photo_base">
-                                                    <div class="form-group">
-                                                        @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            @Html.TextBoxFor(m => m.partner.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.LabelFor(m => m.partner.TipePartner, "Tipe Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            @Html.TextBoxFor(m => m.partner.TipePartner, new { @class = "form-control", @ReadOnly = true })
-                                                        </div>
-                                                    </div>
-                                                </div>
+                    <div id="photo_base">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(m => m.partner.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.partner.TipePartner, "Tipe Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                @Html.TextBoxFor(m => m.partner.TipePartner, new { @class = "form-control", @ReadOnly = true })
+                            </div>
+                        </div>
+                    </div>
 
-                                            </div>
+                </div>
 
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.partner.komisi_subscribe, "Komisi Subscribe Silver", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.partner.komisi_subscribe, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
-                                                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.partner.komisi_subscribe, "Komisi Subscribe Silver", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        @Html.TextBoxFor(m => m.partner.komisi_subscribe, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.partner.komisi_subscribe_gold, "Komisi Subscribe Gold", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        @Html.TextBoxFor(m => m.partner.komisi_subscribe_gold, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.partner.komisi_support, "Komisi Support", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        @Html.TextBoxFor(m => m.partner.komisi_support, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
+                    </div>
+                </div>
+                <hr />
+                <button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanKomisi(this , '@Model.partner.PartnerId');">Simpan</button>*@
+                                                }
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.partner.komisi_subscribe_gold, "Komisi Subscribe Gold", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.partner.komisi_subscribe_gold, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.partner.komisi_support, "Komisi Support", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.partner.komisi_support, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
-                                                </div>
-                                            </div>
-                                            <hr />
-                                            @*<button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>*@
-                                            <button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanKomisi(this , '@Model.partner.PartnerId');">Simpan</button>
-                                        }
-                                    </div>
-                                </div>
+                                        </div>
                             </div>
                         </div>
                     </div>
@@ -437,9 +446,9 @@
 
 @section scripts
 {
-    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
-    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
+    @*<script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>*@
+    @*<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>*@
+    @*<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>*@
     <script type="text/javascript">
         var $partnerId = 0;
         var $status = 0;
@@ -447,32 +456,53 @@
         $(document).on('ready',
             function () {
                 //var table = $('#datatable').DataTable();
-                var table = $('#datatable').DataTable({
-                    "order": [[2, "desc"], [0, "asc"]], //or asc
-                    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
-                    destroy: true,
+                //var table = $('#datatable').DataTable({
+                //    //"order": [[2, "desc"], [0, "asc"]], //or asc
+                //    //"columnDefs": [{ "targets": 2, "type": "date-eu" }],
+                //    //destroy: true,
+
+                //});
+                //$('#search_user').keyup(function () {
+                //    table.search($(this).val()).draw();
+                //});
+                refreshTablePartner();
+                $('#search_gudang').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTablePartner();
+                        return false;
+                    }
                 });
-                $('#search_user').keyup(function () {
-                    table.search($(this).val()).draw();
+                $('#search_gudang_click').click(function () {
+                    searchTablePartner();
                 });
+                
 
                 //add by nurul 15/2/2019
                 $('button>.close-btn').on('click', function () {
-                    $('.partner_table_section').toggle('display');
-                    $('.partner_editor_section').toggle('display');
+                    //$('.partner_table_section').toggle('display');
+                    //$('.partner_editor_section').toggle('display');
+                    $('.partner_table_section').show();
+                    $('.partner_editor_section').hide();
                     //$('#hidden_partner').hide()
-                    $('#photo_base').hide()
+                    $('#photo_base').hide();
                 });
 
-                if ($('.message-error').text() !== '' || @editMode === 1) {
-                    $('.partner_table_section').toggle('display');
-                    $('.partner_editor_section').toggle('display');
+                if ($('.message-error').text() !== '' ) {
+                    //$('.partner_table_section').toggle('display');
+                    //$('.partner_editor_section').toggle('display');
+                    $('.partner_table_section').hide();
+                    $('.partner_editor_section').show();
                     //$('#hidden_partner').hide()
-                    $('#photo_base').hide()
+                    $('#photo_base').hide();
                 }
 
                 $('.close-btn').click(function() {
-                    location.href = '@Url.Action("PartnerMenu")';
+                    //location.href = '@Url.Action("PartnerMenu")';
+                    refreshTablePartner();
+                    $('.partner_table_section').show();
+                    $('.partner_editor_section').hide();
                 });
 
                 $('#partner_komisi_subscribe').change(function () {
@@ -554,7 +584,26 @@
             var link = '@Url.Action("EditKomisi", "Admin", new { partnerId = "replaceId" })';
             link = link.replace("replaceId", $Id);
 
-            location.href = link;
+            //location.href = link;
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                },
+                success: function (response) {
+                    
+                    $('.partner_table_section').hide();
+                    $('.partner_editor_section').show();
+                    
+
+                    $('#form-partial').html(response);
+                    $('#photo_base').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
 
         }
 
@@ -588,13 +637,16 @@
 
 
             var $form = $(btnClicked).parents('form');
-
-            var link = '@Url.Action("ChangeStatusPartner", "Admin", new { partnerid = "replaceId" })';
-            link = link.replace("replaceId", $ID);
+            
+            //var link = '@Url.Action("ChangeStatusPartner", "Admin", new { partnerid = "replaceId", status = "replaceStatus" })';
+            //link = link.replace("replaceId", $ID);
+            //link = link.replace("replaceStatus", $('#partner_Status').val());
 
             $.ajax({
                 type: "GET",
-                url: link,
+                //url: link,
+                url: '@Url.Action("ChangeStatusPartner", "Admin")',
+                data: $('#form-partner').serialize(),
                 success: function (res) {
                 $.ajax({
                 type: "POST",
@@ -606,6 +658,7 @@
                             $('#form-partial').html(response);
                             $('.subs_table_section').hide();
                             $('.payment_editor_section').show();
+                            $('#photo_base').hide();
 
                             $('#KODESUBS').val($('#Payment_TipeSubs').val());
                             $('#ACCOUNT').val($('#Payment_Email').val());
@@ -647,5 +700,124 @@
 
         }
         //end add by nurul 15/2/2019
+
+        //add by nurul 4/10/2019
+        function refreshTablePartner() {
+            //if ($('#txt_last_page').val() == undefined) {
+            //    //document.getElementById("txt_last_page").value = 0;
+            //    $('#txt_last_page').val(0);
+            //}
+            var $link = '@Html.Raw(Url.Action("RefreshTablePartner", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_partner').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-partner-partial').hide();
+                    $('#loading_partner_tab').show();
+                },
+                success: function (response) {
+                    $('#table-partner-partial').html(response);
+                    $('#loading_partner_tab').hide();
+                    $('#table-partner-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePartner(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePartner", "Admin", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_partner').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_partner_click')[0].disabled = true;
+                    $('#loading_partner_tab').show();
+                },
+                success: function (response) {
+                    $('#search_partner_click')[0].disabled = false;
+                    $('#table-partner-partial').html(response);
+                    $('#loading_partner_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_partner_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        //function Initialize() {
+
+        //    $('#search_partner').keypress(function (e) {
+        //        var key = e.which;
+        //        if (key == 13)// the enter key code
+        //        {
+        //            searchTablePartner();
+        //            return false;
+        //        }
+        //    });
+        //    $('#search_partner_click').click(function () {
+        //        searchTablePartner();
+        //    });
+
+        //    $('#tambah_gudang').on('click', function () {
+        //        $('.gudang_table_section').hide();
+        //        $('.gudang_editor_section').show();
+        //        $("#Gudang_Kode_Gudang").keydown(
+        //            function () {
+        //                validateInput($(this), 'HURUFANGKA');
+        //            });
+
+        //        $("#Gudang_Nama_Gudang").keydown(
+        //            function () {
+        //                validateInput($(this), 'HURUFANGKA');
+        //            });
+        //    });
+
+        //    $('#close-editor').on('click', function () {
+        //        $('.gudang_table_section').show();
+        //        $('.gudang_editor_section').hide();
+        //        $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID').val("");
+        //        $('#Gudang_Kode_Gudang').removeAttr('disabled');
+        //        resetError();
+        //        $(".checkbox_linkMP").attr('disabled', 'disabled');
+        //    });
+
+        //    if ($('.message-error').text() !== '') {
+        //        $('#tambah_gudang').click();
+        //    }
+
+        //    $('#Gudang_Kode_Gudang').on('change blur',
+        //        function () {
+        //            if (!$(this).is(':disabled')) {
+        //                cekKode($(this), 'gd');
+        //            }
+        //        });
+        //    $('#Gudang_Nama_Gudang').on('change blur',
+        //        function () {
+        //            if (!$(this).is(':disabled') && $(this).val() != "") {
+        //                cekField($(this), 'CekNmGudang', 'Nama Gudang ini sudah digunakan!');
+        //            }
+        //        });
+
+        //    $("#Gudang_Kode_Gudang").keydown(
+        //        function () {
+        //            validateInput($(this), 'HURUFANGKA');
+        //        });
+
+        //    $("#Gudang_Nama_Gudang").keydown(
+        //        function () {
+        //            validateInput($(this), 'HURUFANGKA');
+        //        });
+        //    $(".checkbox_linkMP").attr('disabled', 'disabled');
+
+        //    refreshTablePartner();
+        //}
+        //end add by nurul 4/10/2019
     </script>
 }
