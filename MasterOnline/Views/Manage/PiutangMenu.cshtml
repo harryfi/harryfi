@@ -423,8 +423,10 @@
                                 $("#Piutang_TERM").val(null).change();
                             } else {
                                 $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
                                 if ($objSup[0] != null) {
-                                    $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    //$("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
                                     $("#Piutang_TERM").val($objSup[0].term).change();
                                 }
                             }
@@ -594,8 +596,10 @@
                                 $("#Piutang_TERM").val(null).change();
                             } else {
                                 $("#Piutang_CUST").val($val);
+                                var cust30 = $objSup[0].text.substring(0, 30);
                                 if ($objSup[0] != null) {
-                                    $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    //$("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    $("#Piutang_NCUST, #CUSTNAME").val(cust30);
                                     $("#Piutang_TERM").val($objSup[0].term).change();
                                 }
                             }

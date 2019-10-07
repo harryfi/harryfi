@@ -380,8 +380,10 @@
                                 $("#Hutang_TERM").val(null).change();
                             } else {
                                 $("#Hutang_SUPP").val($val);
+                                var supp30 = $objSup[0].text.substring(0, 30);
                                 if ($objSup[0] != null) {
-                                    $("#Hutang_NSUPP, #SUPPNAME").val($objSup[0].text);
+                                    //$("#Hutang_NSUPP, #SUPPNAME").val($objSup[0].text);
+                                    $("#Hutang_NSUPP, #SUPPNAME").val(supp30);
                                     $("#Hutang_TERM").val($objSup[0].term).change();
                                 }
                             }

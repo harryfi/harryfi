@@ -18777,11 +18777,13 @@ namespace MasterOnline.Controllers
             //var ListApt01a = Apt01a.Skip(pagenumber * 10).Take(10).ToList();
             //var totalCount = Apt01a.Count();
             string sSQLSelect = "";
-            sSQLSelect += "SELECT * ";
+            //sSQLSelect += "SELECT * ";
+            sSQLSelect += "SELECT A.INV AS NO_BUKTI, A.TGL, A.SUPP AS KODE, ISNULL(B.NAMA,'') AS NAMA, A.JTGL, A.RECNUM, A.TOTAL, A.POSTING ";
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM APT01A ";
+            sSQL2 += "FROM APT01A A ";
+            sSQL2 += "LEFT JOIN APF01 B ON A.SUPP=B.SUPP ";
             sSQL2 += "WHERE RANGKA = '1' ";
             if (search != "")
             {
@@ -18804,10 +18806,10 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var ListAPt01a = ErasoftDbContext.Database.SqlQuery<APT01A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var ListAPt01a = ErasoftDbContext.Database.SqlQuery<mdlSaldoAwal>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<APT01A> pageOrders = new StaticPagedList<APT01A>(ListAPt01a, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlSaldoAwal> pageOrders = new StaticPagedList<mdlSaldoAwal>(ListAPt01a, pagenumber + 1, 10, totalCount.JUMLAH);
 
             //IPagedList<APT01A> pageOrders = new StaticPagedList<APT01A>(ListApt01a, pagenumber + 1, 10, totalCount);
             return PartialView("TableHutangPartial", pageOrders);
@@ -18980,11 +18982,14 @@ namespace MasterOnline.Controllers
             //var ListArt01a = Art01a.Skip(pagenumber * 10).Take(10).ToList();
             //var totalCount = Art01a.Count();
             string sSQLSelect = "";
-            sSQLSelect += "SELECT * ";
+            //sSQLSelect += "SELECT * ";
+            sSQLSelect += "SELECT A.FAKTUR AS NO_BUKTI, A.TGL, A.CUST AS KODE, (ISNULL(C.NAMAMARKET,'')) AS NAMA, A.JTGL, A.RECNUM, A.TOTAL, A.POST ";
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM ART01A ";
+            sSQL2 += "FROM ART01A A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO..MARKETPLACE C ON B.NAMA = C.IDMARKET ";
             sSQL2 += "WHERE RANGKA = '1' ";
             if (search != "")
             {
@@ -19007,10 +19012,10 @@ namespace MasterOnline.Controllers
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            var ListArt01a = ErasoftDbContext.Database.SqlQuery<ART01A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var ListArt01a = ErasoftDbContext.Database.SqlQuery<mdlSaldoAwal>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            IPagedList<ART01A> pageOrders = new StaticPagedList<ART01A>(ListArt01a, pagenumber + 1, 10, totalCount.JUMLAH);
+            IPagedList<mdlSaldoAwal> pageOrders = new StaticPagedList<mdlSaldoAwal>(ListArt01a, pagenumber + 1, 10, totalCount.JUMLAH);
 
             //IPagedList<ART01A> pageOrders = new StaticPagedList<ART01A>(ListArt01a, pagenumber + 1, 10, totalCount);
             return PartialView("TablePiutangPartial", pageOrders);

@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @*@model MasterOnline.ViewModels.SaHutangViewModel*@
 @using PagedList.Mvc
-@model PagedList.IPagedList<APT01A>
+@model PagedList.IPagedList<mdlSaldoAwal>
 @{
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
@@ -59,9 +59,9 @@
             @foreach (var hutang in Model)
             {
                 <tr>
-                    <td>@hutang.INV</td>
+                    <td>@hutang.NO_BUKTI</td>
                     <td>@(hutang.TGL?.ToString("dd/MM/yyyy"))</td>
-                    <td>@hutang.NSUPP (@hutang.SUPP)</td>
+                    <td>@hutang.NAMA (@hutang.KODE)</td>
                     <td>@(hutang.JTGL?.ToString("dd/MM/yyyy"))</td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TOTAL)</td>
                     @if (Convert.ToString(hutang.POSTING) == "Y")
