@@ -627,11 +627,29 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderList(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
-            //if merchant code diisi. barulah GetOrderList
-            var token = SetupContext(iden);
-            iden.token = token;
+            if (!string.IsNullOrEmpty(iden.merchant_code)) {
+                var token = SetupContext(iden);
+                iden.token = token;
+                int page = 0;
+                var more = true;
 
+                while (more)
+                {
+                    int count = await GetOrderListWithPage(iden, stat, connId, CUST, NAMA_CUST, page);
+                    page++;
+                    if (count < 10) {
+                        more = false;
+                    }
+                }
+            }
+            
             string ret = "";
+            return ret;
+        }
+
+        public async Task<int> GetOrderListWithPage(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST, int page)
+        {
+            int count = 0;
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -667,7 +685,7 @@ namespace MasterOnline.Controllers
                                                                  //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -711,6 +729,7 @@ namespace MasterOnline.Controllers
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrder)) as BlibliGetOrder;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
+                    count = result.content.Count();
                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     if (result.content.Count() > 0)
                     {
@@ -789,7 +808,7 @@ namespace MasterOnline.Controllers
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
-            return ret;
+            return count;
         }
 
         public async Task<string> GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string connId, string CUST, string NAMA_CUST)
