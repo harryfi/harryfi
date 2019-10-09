@@ -5201,6 +5201,135 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> CekBrutoOrderCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+            //string connID = Guid.NewGuid().ToString();
+            string connID = "FixBruto";
+            SetupContext(iden);
+
+            long seconds = CurrentTimeSecond();
+            long timestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-23).ToUnixTimeSeconds();
+            long timestampTo = (long)DateTimeOffset.UtcNow.AddDays(-21).ToUnixTimeSeconds();
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/get";
+
+            ShopeeGetOrderByStatusData HttpBody = new ShopeeGetOrderByStatusData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                pagination_offset = page,
+                pagination_entries_per_page = 50,
+                create_time_from = timestampFrom,
+                create_time_to = timestampTo,
+                order_status = stat.ToString()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //}
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
+                if (stat == StatusOrder.COMPLETED)
+                {
+                    string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
+                    ////add by calvin 4 maret 2019, filter
+                    //var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+                    //var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
+                    ////end add by calvin
+                    //var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
+                    //if (filtered.Count() > 0)
+                    //{
+                    foreach (var item in ordersn_list)
+                    {
+                        if (item == "190917235708RJN")
+                        {
+                            await GetOrderDetails(iden, ordersn_list.Where(p=> p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
+                        }
+                    }
+                    //jmlhNewOrder = filtered.Count();
+                    //}
+
+                    ////add by calvin 29 mei 2019
+                    //if (stat == StatusOrder.READY_TO_SHIP)
+                    //{
+                    //    string ordersn = "";
+                    //    var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
+                    //    foreach (var item in filteredSudahAda)
+                    //    {
+                    //        ordersn = ordersn + "'" + item + "',";
+                    //    }
+                    //    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                    //    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                    //    if (rowAffected > 0)
+                    //    {
+                    //        jmlhPesananDibayar += rowAffected;
+                    //    }
+                    //}
+                    ////end add by calvin 29 mei 2019
+
+                    if (listOrder.more)
+                    {
+                        await CekBrutoOrderCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
+                    }
+                    else
+                    {
+                        //if (jmlhNewOrder > 0)
+                        //{
+                        //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Shopee.");
+                        //    new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                        //}
+                        //if (jmlhPesananDibayar > 0)
+                        //{
+                        //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari Shopee.");
+                        //}
+                    }
+                }
+                //}
+                //catch (Exception ex2)
+                //{
+                //}
+            }
+            return ret;
+        }
+
         public async Task<string> Template(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
