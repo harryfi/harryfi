@@ -51,6 +51,9 @@ namespace MasterOnline
         public DateTime? TGLKIRIM { get; set; }
         //end add by nurul 23/8/2019
 
+        public string STATUS_FAKTUR { get; set; }
+        public string FKT_RETUR { get; set; }
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }
