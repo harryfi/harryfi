@@ -12276,7 +12276,7 @@ namespace MasterOnline.Controllers
                 VariantMO_H = VariantMO_H,
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList()
             };
-
+            vm.gambarInduk = ErasoftDbContext.STF02.Where(m => m.BRG == brg).FirstOrDefault();
             return PartialView("BarangDetailVarPartial", vm);
         }
 
