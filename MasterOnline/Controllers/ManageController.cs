@@ -2917,9 +2917,9 @@ namespace MasterOnline.Controllers
                             sSQLnama += " ( nama like '%" + getkata[i] + "%' )";
                             sSQLkode += " ( c.buyer_code like '%" + getkata[i] + "%' )";
                             sSQLprov += " ( NamaProv like '%" + getkata[i] + "%' )";
-                            sSQLkota += " ( NamaKabKot like '%" + getkata[i] + "%' )"; 
-                            sSQLemail += " ( email like '%" + getkata[i] + "%' )"; 
-                            sSQLtlp += " ( tlp like '%" + getkata[i] + "%' )"; 
+                            sSQLkota += " ( NamaKabKot like '%" + getkata[i] + "%' )";
+                            sSQLemail += " ( email like '%" + getkata[i] + "%' )";
+                            sSQLtlp += " ( tlp like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
@@ -2959,35 +2959,51 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             string sSQLSelect = "";
-            sSQLSelect += "select c.buyer_code, nama, C.KODEPROV, NamaProv AS PROV, C.KODEKABKOT, NamaKabKot AS KABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, isnull(sum(a.netto), 0) nilai ";
+            //sSQLSelect += "select c.buyer_code, nama, C.KODEPROV, NamaProv AS PROV, C.KODEKABKOT, NamaKabKot AS KABKOT, email, tlp, c.recnum, count(a.pemesan) frekuensi, isnull(sum(a.netto), 0) nilai ";
+            sSQLSelect += "select c.buyer_code, nama, C.KODEPROV, NamaProv AS PROV, C.KODEKABKOT, NamaKabKot AS KABKOT, email, tlp, c.recnum, COUNT(PEMESAN) FREKUENSI, ISNULL(SUM(NILAI), 0) NILAI ";
             string sSQLCount = "";
-            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH FROM ( ";
+            //sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH FROM ( ";
+            sSQLCount += "SELECT COUNT(distinct c.buyer_code) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "from arf01c c left join sot01a a on c.buyer_code = a.pemesan ";
-            sSQL2 += "left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV ";
-            sSQL2 += "left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT ";
+            //sSQL2 += "from arf01c c left join sot01a a on c.buyer_code = a.pemesan ";
+            //sSQL2 += "left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV ";
+            //sSQL2 += "left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT ";
+            string sSQL4 = "FROM ARF01C C LEFT JOIN ( ";
+            sSQL4 += "SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.NETTO, ISNULL(A.NETTO, 0)) NILAI ";
+            sSQL4 += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
+            sSQL4 += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' ";
+            sSQL4 += ") AS QRY ON C.BUYER_CODE = QRY.PEMESAN ";
+            sSQL4 += "left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV ";
+            sSQL4 += "left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT ";
+            sSQL2 += sSQL4;
+            sSQLCount += sSQL4;
+
             if (search != "")
             {
                 sSQL2 += "WHERE ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLprov + " or " + sSQLkota + " or " + sSQLemail + " or " + sSQLtlp + " ) ";
+                sSQLCount += "WHERE ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLprov + " or " + sSQLkota + " or " + sSQLemail + " or " + sSQLtlp + " ) ";
             }
             sSQL2 += "group by c.buyer_code, nama, C.KODEPROV, NamaProv , C.KODEKABKOT, NamaKabKot , email, tlp, pemesan, c.recnum ";
             string SSQL3 = ")A";
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + SSQL3).Single();
+            //var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + SSQL3).Single();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount).Single();
+
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
                 pagenumber = pagenumber - 1;
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "order by sum(a.netto) desc ";
+            //sSQLSelect2 += "order by sum(a.netto) desc ";
+            sSQLSelect2 += "order by sum(QRY.NILAI) desc ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listPembeli = ErasoftDbContext.Database.SqlQuery<mdlPembeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             IPagedList<mdlPembeli> pageOrders = new StaticPagedList<mdlPembeli>(listPembeli, pagenumber + 1, 10, totalCount.JUMLAH);
-      
+
             //end change by nurul 26/9/2019, contain search 
 
             return PartialView("TableBuyerPartial", pageOrders);
