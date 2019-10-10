@@ -1051,6 +1051,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\mdlSaldoAwal.cs" />
     <Compile Include="ViewModels\mdlPartner.cs" />
     <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />

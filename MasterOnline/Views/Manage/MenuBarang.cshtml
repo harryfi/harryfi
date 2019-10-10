@@ -822,11 +822,11 @@
         }
 
         function searchTableMinimumStok() {
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
             link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
-            link = link.replace("replaceOrder", encodeURIComponent($('#Order').val()));
+            link = link.replace("replaceOrder", $('#Order').val());
             $.ajax({
                 type: "GET",
                 url: link,
@@ -847,12 +847,12 @@
         function refreshTableMinimumStok() {
             //change by nurul 6/5/2019
             @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
-            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl", order = "replaceOrder" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_minimumstok').val()));
             link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tbms').val()));
             link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal2').val()));
             link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal2').val()));
-            link = link.replace("replaceOrder", encodeURIComponent($('#Order').val()));
+            link = link.replace("replaceOrder", $('#Order').val());
             //end add by nurul 6/5/2019
 
             $.ajax({
