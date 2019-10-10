@@ -837,9 +837,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("01.AWKR00.00.3m");
-                    listBrg.Add("01.AWKR00.00.6m");
-                    listBrg.Add("01.AWKR00.00.9m");
+                    listBrg.Add("01.JRB00.02.9m");
                 }
 
                 foreach (string kdBrg in listBrg)
@@ -1128,6 +1126,13 @@ namespace MasterOnline.Controllers
         public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+            var dsArf01 = EDB.GetDataSet("sConn", "ARF01", "SELECT STATUS_API FROM ARF01 WHERE CUST='" + log_CUST + "'");
+            if (dsArf01.Tables[0].Rows.Count > 1) {
+                if (Convert.ToString(dsArf01.Tables[0].Rows[0]["STATUS_API"]) == "2") {
+                    throw new Exception("Link ke marketplace Lazada Expired. lakukan Link Ulang di menu Link ke Marketplace.");
+                }
+            }
+
             string urlLazada = "https://api.lazada.co.id/rest";
             string eraAppKey = "101775";
             string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";

@@ -5675,6 +5675,363 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        public async Task<int> FixOrderBlibliWithPage(BlibliAPIData iden, string CUST, string NAMA_CUST, string datefrom, string dateto, int page) {
+            int count = 0;
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                                                                 //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
+            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?orderBy=statusFPUpdatedTimestamp&sortBy=asc&page=" + page + "&size=100&requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=D&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(Convert.ToDateTime(datefrom).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(Convert.ToDateTime(dateto).ToString("yyyy-MM-dd HH:mm:ss"));
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrder)) as BlibliGetOrder;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    count = result.content.Count();
+                    if (result.content.Count() > 0)
+                    {
+                        foreach (var item in result.content)
+                        {
+                            await FixOrderGetOrderDetail(iden, item.orderNo, item.orderItemNo, CUST, NAMA_CUST);
+                        }
+                    }
+                }
+            }
+            return count;
+        }
+
+        public async Task<string> FixOrderBlibli(BlibliAPIData iden, string CUST, string NAMA_CUST, string datefrom, string dateto)
+        {
+            if (!string.IsNullOrEmpty(iden.merchant_code))
+            {
+                var token = SetupContext(iden);
+                iden.token = token;
+                int page = 0;
+                var more = true;
+
+                while (more)
+                {
+                    int count = await FixOrderBlibliWithPage(iden, CUST, NAMA_CUST, datefrom, dateto, page);
+                    page++;
+                    if (count < 100)
+                    {
+                        more = false;
+                    }
+                }
+            }
+
+            string ret = "";
+            return ret;
+        }
+
+        public async Task<string> FixOrderGetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string CUST, string NAMA_CUST)
+        {
+            string connId = "fix_blibli";
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                                                                 //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/orderDetail";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&orderNo=" + orderNo + "&orderItemNo=" + orderItemNo + "&channelId=MasterOnline";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (responseFromServer != null)
+            {
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrderDetail)) as BlibliGetOrderDetail;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    //INSERT TEMP ORDER
+                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                    {
+                        oConnection.Open();
+                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                        //{
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL_FIX] WHERE CUST = '" + CUST + "'";
+                            oCommand.ExecuteNonQuery();
+                            //oCommand.Transaction = oTransaction;
+                            oCommand.CommandType = CommandType.Text;
+                            string sSQL = "INSERT INTO [TEMP_BLI_ORDERDETAIL_FIX] (";
+                            sSQL += "[CUST],[NAMA_CUST],[CONN_ID],";
+                            sSQL += "[orderNo],[orderItemNo],[qty],[orderDate],[autoCancelDate],";
+                            sSQL += "[productName],[productItemName],[productPrice],[total],[itemWeightInKg],";
+                            sSQL += "[custName],[orderStatus],[orderStatusString],[customerAddress],[customerEmail],";
+                            sSQL += "[logisticsService],[currentLogisticService],[pickupPoint],[gdnSku],[gdnItemSku],";
+                            sSQL += "[merchantSku],[totalWeight],[merchantDeliveryType],[awbNumber],[awbStatus],";
+                            sSQL += "[shippingAddress],[shippingCity],[shippingSubDistrict],[shippingDistrict],[shippingProvince],";
+                            sSQL += "[shippingZipCode],[shippingCost],[shippingMobile],[shippingInsuredAmount],[startOperationalTime],";
+                            sSQL += "[endOperationalTime],[issuer],[refundResolution],[unFullFillReason],[unFullFillQty],";
+                            sSQL += "[productTypeCode],[productTypeName],[custNote],[shippingRecipientName],[logisticsProductCode],";
+                            sSQL += "[logisticsProductName],[logisticsOptionCode],[logisticsOptionName],";
+                            sSQL += "[destinationLongitude],[destinationLatitude]";
+                            sSQL += ") VALUES (";
+                            sSQL += "@CUST,@NAMA_CUST,@CONN_ID,";
+                            sSQL += "@orderNo,@orderItemNo,@qty,@orderDate,@autoCancelDate,";
+                            sSQL += "@productName,@productItemName,@productPrice,@total,@itemWeightInKg,";
+                            sSQL += "@custName,@orderStatus,@orderStatusString,@customerAddress,@customerEmail,";
+                            sSQL += "@logisticsService,@currentLogisticService,@pickupPoint,@gdnSku,@gdnItemSku,";
+                            sSQL += "@merchantSku,@totalWeight,@merchantDeliveryType,@awbNumber,@awbStatus,";
+                            sSQL += "@shippingStreetAddress,@shippingCity,@shippingSubDistrict,@shippingDistrict,@shippingProvince,";
+                            sSQL += "@shippingZipCode,@shippingCost,@shippingMobile,@shippingInsuredAmount,@startOperationalTime,";
+                            sSQL += "@endOperationalTime,@issuer,@refundResolution,@unFullFillReason,@unFullFillQuantity,";
+                            sSQL += "@productTypeCode,@productTypeName,@custNote,@shippingRecipientName,@logisticsProductCode,";
+                            sSQL += "@logisticsProductName,@logisticsOptionCode,@logisticsOptionName,";
+                            sSQL += "@destinationLongitude,@destinationLatitude";
+                            sSQL += ")";
+                            oCommand.CommandText = sSQL;
+
+                            oCommand.Parameters.Add(new SqlParameter("@CUST", SqlDbType.NVarChar, 10));
+                            oCommand.Parameters.Add(new SqlParameter("@NAMA_CUST", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@CONN_ID", SqlDbType.NVarChar, 100));
+
+                            oCommand.Parameters.Add(new SqlParameter("@orderNo", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@orderItemNo", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@qty", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@orderDate", SqlDbType.DateTime));
+                            oCommand.Parameters.Add(new SqlParameter("@autoCancelDate", SqlDbType.DateTime));
+
+                            oCommand.Parameters.Add(new SqlParameter("@productName", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@productItemName", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@productPrice", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@total", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@itemWeightInKg", SqlDbType.Float));
+
+                            oCommand.Parameters.Add(new SqlParameter("@custName", SqlDbType.NVarChar, 250));
+                            oCommand.Parameters.Add(new SqlParameter("@orderStatus", SqlDbType.NVarChar, 10));
+                            oCommand.Parameters.Add(new SqlParameter("@orderStatusString", SqlDbType.NVarChar, 250));
+                            oCommand.Parameters.Add(new SqlParameter("@customerAddress", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@customerEmail", SqlDbType.NVarChar, 250));
+
+                            oCommand.Parameters.Add(new SqlParameter("@logisticsService", SqlDbType.NVarChar, 250));
+                            oCommand.Parameters.Add(new SqlParameter("@currentLogisticService", SqlDbType.NVarChar, 250));
+                            oCommand.Parameters.Add(new SqlParameter("@pickupPoint", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@gdnSku", SqlDbType.NVarChar, 100));
+                            oCommand.Parameters.Add(new SqlParameter("@gdnItemSku", SqlDbType.NVarChar, 100));
+
+                            oCommand.Parameters.Add(new SqlParameter("@merchantSku", SqlDbType.NVarChar, 100));
+                            oCommand.Parameters.Add(new SqlParameter("@totalWeight", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@merchantDeliveryType", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@awbNumber", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@awbStatus", SqlDbType.NVarChar, 50));
+
+                            oCommand.Parameters.Add(new SqlParameter("@shippingStreetAddress", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingCity", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingSubDistrict", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingDistrict", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingProvince", SqlDbType.NVarChar, 200));
+
+                            oCommand.Parameters.Add(new SqlParameter("@shippingZipCode", SqlDbType.NVarChar, 10));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingCost", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingMobile", SqlDbType.NVarChar, 100));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingInsuredAmount", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@startOperationalTime", SqlDbType.NVarChar, 200));
+
+                            oCommand.Parameters.Add(new SqlParameter("@endOperationalTime", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@issuer", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@refundResolution", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@unFullFillReason", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@unFullFillQuantity", SqlDbType.Float));
+
+                            oCommand.Parameters.Add(new SqlParameter("@productTypeCode", SqlDbType.NVarChar, 10));
+                            oCommand.Parameters.Add(new SqlParameter("@productTypeName", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@custNote", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingRecipientName", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@logisticsProductCode", SqlDbType.NVarChar, 50));
+
+                            oCommand.Parameters.Add(new SqlParameter("@logisticsProductName", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@logisticsOptionCode", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@logisticsOptionName", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@destinationLongitude", SqlDbType.NVarChar, 200));
+                            oCommand.Parameters.Add(new SqlParameter("@destinationLatitude", SqlDbType.NVarChar, 200));
+
+                            try
+                            {
+                                oCommand.Parameters[0].Value = CUST;
+                                oCommand.Parameters[1].Value = NAMA_CUST;
+                                oCommand.Parameters[2].Value = connId;
+
+                                oCommand.Parameters["@orderNo"].Value = result.value.orderNo;
+                                oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo;
+                                oCommand.Parameters["@qty"].Value = result.value.qty;
+                                oCommand.Parameters["@orderDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate).UtcDateTime.AddHours(7);
+                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
+
+                                oCommand.Parameters["@productName"].Value = result.value.productName;
+                                oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
+                                oCommand.Parameters["@productPrice"].Value = result.value.productPrice;
+                                oCommand.Parameters["@total"].Value = result.value.total;
+                                oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg;
+
+                                oCommand.Parameters["@custName"].Value = result.value.custName;
+                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString != null ? result.value.orderStatusString : "";
+                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress : "";
+                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail != null ? result.value.customerEmail : "";
+
+                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService != null ? result.value.logisticsService : "";
+                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService != null ? result.value.currentLogisticService : "";
+                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint != null ? result.value.pickupPoint : "";
+                                oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku;
+                                oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku;
+
+                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku != null ? result.value.merchantSku : "";
+                                oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight;
+                                oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType;
+                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber != null ? result.value.awbNumber : "";
+                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus != null ? result.value.awbStatus : "";
+
+                                oCommand.Parameters["@shippingStreetAddress"].Value = result.value.shippingStreetAddress;
+                                oCommand.Parameters["@shippingCity"].Value = result.value.shippingCity;
+                                oCommand.Parameters["@shippingSubDistrict"].Value = result.value.shippingSubDistrict;
+                                oCommand.Parameters["@shippingDistrict"].Value = result.value.shippingSubDistrict;
+                                oCommand.Parameters["@shippingProvince"].Value = result.value.shippingProvince;
+
+                                oCommand.Parameters["@shippingZipCode"].Value = result.value.shippingZipCode;
+                                oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost;
+                                oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile;
+                                oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount;
+                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime != null ? result.value.startOperationalTime : "";
+
+                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime != null ? result.value.endOperationalTime : "";
+                                oCommand.Parameters["@issuer"].Value = result.value.issuer != null ? result.value.issuer : "";
+                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution != null ? result.value.refundResolution : "";
+                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason != null ? result.value.unFullFillReason : "";
+                                oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity != null ? result.value.unFullFillQuantity : 0;
+
+                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode != null ? result.value.productTypeCode : "";
+                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName != null ? result.value.productTypeName : "";
+                                oCommand.Parameters["@custNote"].Value = result.value.custNote != null ? result.value.custNote : "";
+                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName != null ? result.value.shippingRecipientName : "";
+                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode != null ? result.value.logisticsProductCode : "";
+
+                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName != null ? result.value.logisticsProductName : "";
+                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode != null ? result.value.logisticsOptionCode : "";
+                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName != null ? result.value.logisticsOptionName : "";
+                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude;
+                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude;
+
+                                if (oCommand.ExecuteNonQuery() == 1)
+                                {
+                                    //var connIdARF01C = Guid.NewGuid().ToString();
+
+                                    //var kabKot = "3174";
+                                    //var prov = "31";
+
+                                    //string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                    //insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                    //insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                    //insertPembeli += "('" + result.value.custName + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    //insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode + "', '" + result.value.customerEmail + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                                    //EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                                    SqlCommand CommandSQL = new SqlCommand();
+                                    ////call sp to insert buyer data
+                                    //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                    //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                                    //EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+
+                                    CommandSQL = new SqlCommand();
+                                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 1;
+                                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                                    EDB.ExecuteSQL("Con", "FixOrderBlibli", CommandSQL);
+
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
+                    //currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+
         private string CreateToken(string urlBlili, string secretMTA)
         {
             secretMTA = secretMTA ?? "";
