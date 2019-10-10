@@ -1733,8 +1733,8 @@ namespace MasterOnline.Controllers
             //change by calvin 19 nov 2018
             //request.AddFileParameter("image", new FileItem(imagePath));
             var req = System.Net.WebRequest.Create(imagePath);
-            System.IO.Stream stream = req.GetResponse().GetResponseStream();
-            request.AddFileParameter("image", new FileItem("image", stream));
+                System.IO.Stream stream = req.GetResponse().GetResponseStream();
+                request.AddFileParameter("image", new FileItem("image", stream));
             //end change by calvin 19 nov 2018
             try
             {

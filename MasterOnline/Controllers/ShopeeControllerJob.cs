@@ -3477,8 +3477,8 @@ namespace MasterOnline.Controllers
 
                                 //delay 1 menit, karena API shopee ada delay saat create barang.
                                 //client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
-                                //client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
-                                await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
+                                client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
+                                //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -4086,7 +4086,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-#if Debug_AWS
+#if  (DEBUG || Debug_AWS)
                     await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -4431,7 +4431,7 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
-
+            SetupContext(iden);
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
             if (brgInDb == null)
                 return "invalid passing data";
@@ -4457,8 +4457,8 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                 imagess.Add(brgInDb.LINK_GAMBAR_1);
-            if (brgInDb.TYPE == "3")
-            {
+            //if (brgInDb.TYPE == "3")
+            //{
                 if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
                     imagess.Add(brgInDb.LINK_GAMBAR_2);
                 if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
@@ -4467,6 +4467,17 @@ namespace MasterOnline.Controllers
                     imagess.Add(brgInDb.LINK_GAMBAR_4);
                 if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                     imagess.Add(brgInDb.LINK_GAMBAR_5);
+            //}
+            if(brgInDb.TYPE == "4")
+            {
+                var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
+                foreach (var brgVar in brgVarian)
+                {
+                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_1))
+                        imagess.Add(brgVar.LINK_GAMBAR_1);
+                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_2))
+                        imagess.Add(brgVar.LINK_GAMBAR_2);
+                }
             }
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
