@@ -12828,6 +12828,10 @@ namespace MasterOnline.Controllers
                 {
                     dataVm.Faktur.N_KOMISI = 0;
                 }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.TOTAL_TITIPAN)))
+                {
+                    dataVm.Faktur.TOTAL_TITIPAN = 0;
+                }
                 #endregion
 
                 dataVm.FakturDetail.NO_BUKTI = noOrder;
@@ -12874,7 +12878,7 @@ namespace MasterOnline.Controllers
                 {
                     dataVm.FakturDetail.NILAI_DISC_5 = 0;
                 }
-
+                
                 ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
                 ErasoftDbContext.SaveChanges();
 
@@ -23428,7 +23432,8 @@ namespace MasterOnline.Controllers
                                 N_UCAPAN = "-",
                                 SUPP = "-",
                                 KOMISI = 0,
-                                N_KOMISI = 0
+                                N_KOMISI = 0,
+                                TOTAL_TITIPAN = 0
                             };
                             newFakturs.Add(newfaktur);
                             //ErasoftDbContext.SIT01A.Add(newfaktur);
@@ -24108,7 +24113,7 @@ namespace MasterOnline.Controllers
                                 SUPP = "-",
                                 KOMISI = 0,
                                 N_KOMISI = 0,
-
+                                TOTAL_TITIPAN = 0
                             };
                             //if (newFakturs.Where(m => m.NO_REF == faktur_invoice).ToList().Count() == 0)
                             //{
@@ -24566,7 +24571,8 @@ namespace MasterOnline.Controllers
                                 N_UCAPAN = "-",
                                 SUPP = "-",
                                 KOMISI = 0,
-                                N_KOMISI = 0
+                                N_KOMISI = 0,
+                                TOTAL_TITIPAN = 0
                             };
                             newFakturs.Add(newfaktur);
                         }
