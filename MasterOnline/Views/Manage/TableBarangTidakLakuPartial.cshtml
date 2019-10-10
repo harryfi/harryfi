@@ -143,8 +143,8 @@
                 if (this.href != "") {
                     var link = this.href;
                     link += "&param=replacedrtgl;replacesdtgl";
-                    link = link.replace("replacedrtgl", $('#DrTanggal').val());
-                    link = link.replace("replacesdtgl", $('#SdTanggal').val());
+                    link = link.replace("replacedrtgl", encodeURIComponent($('#DrTanggal').val()));
+                    link = link.replace("replacesdtgl", encodeURIComponent($('#SdTanggal').val()));
 
                     $.ajax({
                         url: link,

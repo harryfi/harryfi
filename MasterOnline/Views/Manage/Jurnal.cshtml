@@ -918,7 +918,7 @@
         }
         function lihatJurnal(idJurnal) {
             var link = '@Url.Action("EditJurnal", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idJurnal);
+            link = link.replace("replaceId", encodeURIComponent(idJurnal));
 
             $.ajax({
                 type: "GET",
@@ -944,7 +944,7 @@
         }
         function editJurnal1(idJurnal) {
             var link = '@Url.Action("EditJurnal", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idJurnal);
+            link = link.replace("replaceId", encodeURIComponent(idJurnal));
 
             $.ajax({
                 type: "GET",
@@ -972,7 +972,7 @@
         function deleteJurnal() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteJurnal", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idJurnal);
+            link = link.replace("replaceId", encodeURIComponent(this.$idJurnal));
 
             $.ajax({
                 type: "GET",
@@ -1001,7 +1001,7 @@
 
         function deleteDetail() {
             var link = '@Url.Action("DeleteRekeningJurnal", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$rek);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$rek));
 
             $.ajax({
                 type: "GET",
@@ -1065,9 +1065,9 @@
             }
             //end add by nurul 27/6/2019
             var $link = '@Html.Raw(Url.Action("RefreshTableJurnal1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_jurnal').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_jurnal').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -1089,7 +1089,7 @@
         }
         function searchTableJurnal(){
             var $link = '@Html.Raw(Url.Action("RefreshTableJurnal1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_jurnal').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_jurnal').val()));
 
             $.ajax({
                 type: "GET",
@@ -1117,7 +1117,7 @@
             if (ans == true) {
                 pass($('#Jurnal_RecNum').val());
                 var link = '@Url.Action("DeleteJurnal", "Manage", new { orderId = "replaceId" })';
-                link = link.replace("replaceId", this.$idJurnal);
+                link = link.replace("replaceId", encodeURIComponent(this.$idJurnal));
 
                 $.ajax({
                     type: "GET",

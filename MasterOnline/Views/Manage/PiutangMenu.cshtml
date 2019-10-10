@@ -620,8 +620,8 @@
             function refreshTablePiutang() {
                 //var link = '@Url.Action("RefreshTablePiutang", "Manage")';
                 var $link = '@Html.Raw(Url.Action("RefreshTablePiutang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-                $link = $link.replace("replaceSearch", $('#search_piutang').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_piutang').val()));
+                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
                 $.ajax({
                     type: "GET",
@@ -658,7 +658,7 @@
         }
         function searchTablePiutang(){
             var $link = '@Html.Raw(Url.Action("RefreshTablePiutang", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_piutang').val()));
 
             $.ajax({
                 type: "GET",
@@ -704,7 +704,7 @@
 
             function lihatPiutang(piutangId) {
                 var link = '@Url.Action("EditPiutang", "Manage", new { recNum = "replaceId" })';
-                link = link.replace("replaceId", piutangId);
+                link = link.replace("replaceId", encodeURIComponent(piutangId));
 
                 $.ajax({
                     type: "GET",
@@ -758,7 +758,7 @@
 
             function editPiutang(piutangId) {
                 var link = '@Url.Action("EditPiutang", "Manage", new { recNum = "replaceId" })';
-                link = link.replace("replaceId", piutangId);
+                link = link.replace("replaceId", encodeURIComponent(piutangId));
 
                 $.ajax({
                     type: "GET",
@@ -810,7 +810,7 @@
 
             function deletePiutang() {
                 var link = '@Url.Action("DeletePiutang", "Manage", new { recNum = "replaceId" })';
-                link = link.replace("replaceId", this.$piutangId);
+                link = link.replace("replaceId", encodeURIComponent(this.$piutangId));
 
                 $.ajax({
                     type: "GET",

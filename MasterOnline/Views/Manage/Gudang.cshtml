@@ -365,7 +365,7 @@
 
         function editGudang(idGud) {
             var link = '@Url.Action("EditGudang", "Manage", new { gudangId = "replaceId" })';
-            link = link.replace("replaceId", idGud);
+            link = link.replace("replaceId", encodeURIComponent(idGud));
 
             $.ajax({
                 type: "GET",
@@ -403,7 +403,7 @@
 
         function deleteKat() {
             var link = '@Url.Action("DeleteGudang", "Manage", new { gudangId = "replaceId" })';
-            link = link.replace("replaceId", this.$gudangId);
+            link = link.replace("replaceId", encodeURIComponent(this.$gudangId));
 
             $.ajax({
                 type: "GET",
@@ -468,8 +468,8 @@
         function refreshTableGudang() {
             //var link = '@Url.Action("RefreshTableGudang", "Manage")';
             var $link = '@Html.Raw(Url.Action("RefreshTableGudang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_gudang').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_gudang').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -491,7 +491,7 @@
         }
         function searchTableGudang(){
             var $link = '@Html.Raw(Url.Action("RefreshTableGudang", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_gudang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_gudang').val()));
 
             $.ajax({
                 type: "GET",

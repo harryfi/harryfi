@@ -1986,7 +1986,7 @@
 
         function snapMidtrans(kode, bln) {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+            link += '?code=' + encodeURIComponent(kode) + '&bulan=' + encodeURIComponent(bln) + '&accId=0' + '&accCount=' + encodeURIComponent($('#txtJmlUser')[0].innerText);
 
             $.ajax({
                 type: "GET",
@@ -2290,7 +2290,7 @@
 
             $('#lihat-pembeli').click(function () {
                 var $link = '@Url.Action("EditPembeliPopup", "Manage", new { recNum = "replaceId" })';
-                $link = $link.replace("replaceId", $('#Invoice_NAMA').val());
+                $link = $link.replace("replaceId", encodeURIComponent($('#Invoice_NAMA').val()));
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
         }
@@ -3192,7 +3192,7 @@
             @*var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {uname = "replaceUname"})';
             link = link.replace("replaceUname", '@(username)');*@
             var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
-            link = link.replace("replaceUname", '@(accId)');
+            link = link.replace("replaceUname", encodeURIComponent('@(accId)'));
 
             $.ajax({
                 type: "GET",
@@ -3539,7 +3539,7 @@
         }
         function lihatInvoice(idInvoice) {
             var link = '@Url.Action("EditInvoice", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idInvoice);
+            link = link.replace("replaceId", encodeURIComponent(idInvoice));
 
             $.ajax({
                 type: "GET",
@@ -3613,7 +3613,7 @@
         }
         function editInvoice1(idInvoice) {
             var link = '@Url.Action("EditInvoice", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", idInvoice);
+            link = link.replace("replaceId", encodeURIComponent(idInvoice));
 
             $.ajax({
                 type: "GET",
@@ -3684,7 +3684,7 @@
         function deleteInvoice() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteInvoice", "Manage", new { orderId = "replaceId" })';
-            link = link.replace("replaceId", this.$idInvoice);
+            link = link.replace("replaceId", encodeURIComponent(this.$idInvoice));
 
             $.ajax({
                 type: "GET",
@@ -3724,7 +3724,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangInvoice", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",
@@ -3826,9 +3826,9 @@
                 }
             }
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoice1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_invoice').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page').val());
-            $link = $link.replace("replaceLastPage", $tpPage);
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
 
             $.ajax({
                 type: "GET",
@@ -3851,7 +3851,7 @@
         }
         function searchTableInvoice1(){
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoice1", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_invoice').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice').val()));
 
             $.ajax({
                 type: "GET",
@@ -3899,8 +3899,8 @@
         }*@
         function refreshTableInvoiceLunas() {
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoiceLunas", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_invoice_lunas').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page2').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice_lunas').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page2').val()));
 
             $.ajax({
                 type: "GET",
@@ -3923,7 +3923,7 @@
         }
         function searchTableInvoiceLunas(){
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoiceLunas", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_invoice_lunas').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice_lunas').val()));
 
             $.ajax({
                 type: "GET",
@@ -3973,9 +3973,9 @@
         }*@
         function refreshTableInvoiceTempo() {
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoiceTempo", "Manage", new { tgl = "replacetgl", page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replacetgl", $('#Tanggal').val());
-            $link = $link.replace("replaceSearch", $('#search_invoice_tempo').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page3').val());
+            $link = $link.replace("replacetgl", encodeURIComponent($('#Tanggal').val()));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice_tempo').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page3').val()));
 
             $.ajax({
                 type: "GET",
@@ -3998,8 +3998,8 @@
         }
         function searchTableInvoiceTempo(){
             var $link = '@Html.Raw(Url.Action("RefreshTableInvoiceTempo", "Manage", new { tgl = "replacetgl", search = "replaceSearch" }))';
-            $link = $link.replace("replacetgl", $('#Tanggal').val());
-            $link = $link.replace("replaceSearch", $('#search_invoice_tempo').val());
+            $link = $link.replace("replacetgl", encodeURIComponent($('#Tanggal').val()));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_invoice_tempo').val()));
 
             $.ajax({
                 type: "GET",

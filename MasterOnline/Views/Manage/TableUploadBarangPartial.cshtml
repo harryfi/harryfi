@@ -111,7 +111,7 @@
                         @(NamaMarket + " (" + namaToko + ")")
                     </td>*@
                 <td>@barang.BRG_MP</td>
-                <td>@barang.NAMA@barang.NAMA2</td>
+                <td>@barang.NAMA @barang.NAMA2</td>
                 <td>@barang.MEREK</td>
                 <td>@barang.CATEGORY_NAME</td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
@@ -160,7 +160,7 @@
             if (this.href != "") {
                 var link = this.href;
                 link += "&cust=replaceCust";
-                link = link.replace("replaceCust", $('#promptHiddenField').val());
+                link = link.replace("replaceCust", encodeURIComponent($('#promptHiddenField').val()));
 
                 $.ajax({
                     //url: this.href,

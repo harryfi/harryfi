@@ -72,6 +72,18 @@
             color: orange;
             font-weight: bold;
         }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
 }
 <div class="row" id="kirim-section">
@@ -121,7 +133,6 @@
                     @using (Html.BeginForm("SaveKirim", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-kirim" }))
                     {
                         <div id="form-partial">
-                            @*@Html.Partial("BarangStokPartial")*@
                         </div>
                     }
                 </div>
@@ -210,6 +221,67 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="konfAutoload" tabindex="-1" role="dialog" aria-labelledby="konfirmasiAutoload">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content center " style="width:450px; margin-left:75px; margin-right:75px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiAutoload">Autoload Pengiriman</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("", "Dari Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @Html.Label("", "S/d Tanggal")
+                        <div class="input-group date">
+                            @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.Label("", "Dari Marketplace")
+                        <div class="input-group text">
+                            @Html.TextBox("FromCust", "", new { @class = "form-control", @MaxLength = "10" })
+                            <span class="input-group-btn">
+                                <button id="prompt-daricustomer" class="btn btn-default" type="button" style="height: 34px;">
+                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        @Html.Label("", "Sampai Marketplace")
+                        <div class="input-group text">
+                            @Html.TextBox("ToCust", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+                            <span class="input-group-btn">
+                                <button id="prompt-sdcustomer" class="btn btn-default" type="button" style="height: 34px;">
+                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-success" onclick="autoloadKirim();">Autoload</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
@@ -227,6 +299,7 @@
 
         $(document).ready(function () {
             refreshTableKirim();
+
             $page = 0;
             var tableSiapProses = $('#datatable_siapproses').DataTable({
                 columnDefs: [{
@@ -254,7 +327,7 @@
                     $('#modalTutupEditor').modal('show');
                 } else {
                     $modeEdit = 0;
-                    $('input, select, .btn-danger').each(function () {
+                    $('input, select').each(function () {
                         $(this).removeAttr('disabled');
                     });
                     $('.kirim_table_section').show();
@@ -262,9 +335,6 @@
                     $('#form-partial').html('');
                     refreshTableKirim();
                 }
-
-
-
             });
 
 
@@ -285,7 +355,7 @@
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
             $modeEdit = 0;
-            $('input, select, .btn-danger').each(function () {
+            $('input, select').each(function () {
                 $(this).removeAttr('disabled');
             });
             $('.kirim_table_section').show();
@@ -400,8 +470,9 @@
                         NoBuktiKirim: $('#Pengiriman_NO_BUKTI').val(),
                         TglKirim: $('#Pengiriman_TGL_KIRIM').val(),
                         Kurir: $('#Pengiriman_KURIR').val(),
+                        Ekspedisi: $('#Pengiriman_NAMA_EKSPEDISI').val(),
                         NamaKurir: $('#Pengiriman_NAMA_KURIR').val(),
-                        jamKirim: $('#Pengiriman_TGL_KIRIM').val() + ' ' + $('#timepicker1').val()
+                        jamKirim: $('#timepicker1').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -417,69 +488,75 @@
             });
 
         }
-        
+
         function getDataPesanan() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetDataPesanan", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKodePesanan = [];
+            if ($('#Pengiriman_NAMA_EKSPEDISI').val() != '') {
+                var link = '@Url.Action("GetDataPesanan", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", $('#Pengiriman_NAMA_EKSPEDISI').val());
+                $.ajax({
+                    type: "GET",
+                    //url: '@Url.Action("GetDataPesanan", "Manage")',
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listKodePesanan = [];
 
-                    $.each(data,
-                        function (i, item) {
+                        $.each(data,
+                            function (i, item) {
 
-                            listKodePesanan[i] = {
-                                id: item.PESANAN,
-                                text: item.PESANAN
-                            };
+                                listKodePesanan[i] = {
+                                    id: item.PESANAN,
+                                    text: item.PESANAN
+                                };
+                            });
+
+                        $('#PESANAN').selectivity({
+                            allowClear: true,
+                            items: listKodePesanan,
+                            placeholder: 'Harap pilih'
+                        }).change(function () {
+                            var val = $(this).selectivity('value');
+                            var $trId = $(this).closest('tr').attr('data-kirim-id');
+                            var $trElement = 'tr[data-kirim-id="' + $trId + '"]';
+
+                            if (val != null) {
+                                $.each(data,
+                                    function (i, item) {
+                                        if (item.PESANAN == val) {
+                                            $($trElement + ' .mp-detail ').html(item.NAMA_MARKET + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
+                                            $($trElement + ' .buyer-detail').html(item.NAMA_PEMBELI + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
+                                            $($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
+
+                                            $('#PengirimanDetail_MARKETPLACE').val(item.MARKETPLACE);
+                                            $('#PengirimanDetail_PEMBELI').val(item.PEMBELI);
+                                            $('#PengirimanDetail_KOTA').val(item.KOTA);
+                                            $('#PengirimanDetail_PROPINSI').val(item.PROPINSI);
+                                            $('#PengirimanDetail_KODE_POS').val(item.KODE_POS);
+                                            $($trElement + ' .kurir-detail').html(item.NAMAKURIR);
+
+                                            return;
+                                        }
+                                    });
+
+                                $($trElement + ' .btn-primary').removeAttr('disabled');
+                                offTab();
+                            } else {
+                                $($trElement + ' .mp-detail').text('-');
+                                $($trElement + ' .buyer-detail').text('-');
+                                $($trElement + ' .al-detail').text('-');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                onTab();
+                            }
+
                         });
-
-                    $('#PESANAN').selectivity({
-                        allowClear: true,
-                        items: listKodePesanan,
-                        placeholder: 'Harap pilih'
-                    }).change(function () {
-                        var val = $(this).selectivity('value');
-                        var $trId = $(this).closest('tr').attr('data-kirim-id');
-                        var $trElement = 'tr[data-kirim-id="' + $trId + '"]';
-
-                        if (val != null) {
-                            $.each(data,
-                                function (i, item) {
-                                    if (item.PESANAN == val) {
-                                        $($trElement + ' .mp-detail ').html(item.NAMA_MARKET + '<input data-val="true" data-val-length="The field NAMA Marketplace must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_MARKET" name="PengirimanDetail.NAMA_MARKET" type="hidden" value="">');
-                                        $($trElement + ' .buyer-detail').html(item.NAMA_PEMBELI + '<input data-val="true" data-val-length="The field NAMA Pembeli must be a string with a maximum length of 10." data-val-length-max="10" id="PengirimanDetail_NAMA_PEMBELI" name="PengirimanDetail.NAMA_PEMBELI" type="hidden" value="">');
-                                        $($trElement + ' .al-detail').html(item.ALAMAT + '<input data-val="true" data-val-length="The field Alamat KIRIM must be a string with a maximum length of 250." data-val-length-max="250" id="PengirimanDetail_ALAMAT_KIRIM" name="PengirimanDetail.ALAMAT_KIRIM" type="hidden" value="">');
-
-                                        $('#PengirimanDetail_MARKETPLACE').val(item.MARKETPLACE);
-                                        $('#PengirimanDetail_PEMBELI').val(item.PEMBELI);
-                                        $('#PengirimanDetail_KOTA').val(item.KOTA);
-                                        $('#PengirimanDetail_PROPINSI').val(item.PROPINSI);
-                                        $('#PengirimanDetail_KODE_POS').val(item.KODE_POS);
-
-                                        return;
-                                    }
-                                });
-
-                            $($trElement + ' .btn-primary').removeAttr('disabled');
-                            offTab();
-                        } else {
-                            $($trElement + ' .mp-detail').text('-');
-                            $($trElement + ' .buyer-detail').text('-');
-                            $($trElement + ' .al-detail').text('-');
-
-                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
-                            onTab();
-                        }
-
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
         }
 
         function offTab() {
@@ -495,7 +572,7 @@
                 if (objEvent.keyCode == 9) { }
             });
         }
-        
+
         var $idKirim = "";
 
         function undeleteable() {
@@ -504,7 +581,7 @@
 
         function editKirim(idKirim) {
             var link = '@Url.Action("EditKirim", "Manage", new { kirimId = "replaceId" })';
-            link = link.replace("replaceId", idKirim);
+            link = link.replace("replaceId", encodeURIComponent(idKirim));
 
             $.ajax({
                 type: "GET",
@@ -520,7 +597,13 @@
                     $('#close-editor')[0].disabled = false;
 
                     $('#form-partial').html(response);
-                    getDataPesanan();
+                    $('input, select').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+
+                    getDetailKirim();
+                    refreshInputan();
+                    //getDataPesanan();
                     getExpedisi();
                     $('#loading_spinner').hide();
                 },
@@ -533,8 +616,8 @@
 
         function refreshTableKirim() {
             var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_kirim').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -556,7 +639,7 @@
         }
         function searchTableKirim(){
             var $link = '@Html.Raw(Url.Action("RefreshTableKirim", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_kirim').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_kirim').val()));
 
             $.ajax({
                 type: "GET",
@@ -577,6 +660,55 @@
             });
         }
 
+        function refreshInputan() {
+            $('#DrTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#SdTanggal').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#FromCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('#ToCust').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            
+            var d = new Date();
+                    //d.setMonth(d.getMonth() - 3);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', d);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#DrTanggal').val($('#DrTanggal').val());
+                        $('#DrTanggal').datepicker('hide');
+                    });
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0');
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        $('#SdTanggal').val($('#SdTanggal').val());
+                        $('#SdTanggal').datepicker('hide');
+                        });
+            $('#prompt-daricustomer').click(function () {
+                promptCust = "1";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdcustomer').click(function () {
+                promptCust = "2";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+                    });
+        }
         function refresh() {
             var link = '@Url.Action("RefreshKirimForm", "Manage")';
 
@@ -590,7 +722,9 @@
                     $('.kirim_table_section').hide();
                     $('.kirim_editor_section').show();
                     $('#form-partial').html(response);
-                    getDataPesanan();
+                    $('#btn-print-row').hide();
+                    refreshInputan();
+                    //getDataPesanan();
                     getExpedisi();
                     $('#loading_spinner').hide();
                 },
@@ -606,7 +740,7 @@
 
         function deleteKirim() {
             var link = '@Url.Action("DeleteKirim", "Manage", new { kirimId = "replaceId" })';
-            link = link.replace("replaceId", this.$idKirim);
+            link = link.replace("replaceId", encodeURIComponent(this.$idKirim));
 
             $.ajax({
                 type: "GET",
@@ -634,7 +768,7 @@
 
         function deleteDetail() {
             var link = '@Url.Action("DeleteDetailKirim", "Manage", new { noUrut = "replaceBrgId" })';
-            link = link.replace("replaceBrgId", this.$brg);
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
 
             $.ajax({
                 type: "GET",
@@ -644,7 +778,12 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#form-partial').html(response);
-                        getDataPesanan();
+                        //$('input, select, .btn-danger').each(function () {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                        getDetailKirim()
+                        refreshInputan();
+                        //getDataPesanan();
                         getExpedisi();
                     } else {
                         alert(response.Errors[0]);
@@ -656,7 +795,7 @@
                 }
             });
         }
-        
+
         function simpandetail($id) {
             if (!validateForm()) return false;
             if ($id == 'detail-0') {
@@ -665,16 +804,20 @@
                     $('#Pengiriman_NAMA_KURIR').val() != '' &&
                     $('#timepicker1').val() != ''
                 ) {
+
                     $('#PengirimanDetail_PESANAN').val($('#PESANAN').selectivity('val'));
                     $('#PengirimanDetail_NAMA_MARKET').val($('tr[data-kirim-id="0"] .mp-detail').text());
                     $('#PengirimanDetail_NAMA_PEMBELI').val($('tr[data-kirim-id="0"] .buyer-detail').text());
                     $('#PengirimanDetail_ALAMAT_KIRIM').val($('tr[data-kirim-id="0"] .al-detail').text());
-
+                    $('input, select').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveKirim", "Manage")',
                         data: $('#form-kirim').serialize(),
                         beforeSend: function () {
+                            
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
@@ -682,7 +825,12 @@
                                 $('#close-editor')[0].disabled = false;
                                 $modeEdit = 1;
                                 $('#form-partial').html(response);
-                                getDataPesanan();
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                //getDetailKirim();
+                                refreshInputan();
+                                //getDataPesanan();
                                 getExpedisi();
                                 getTanggal();
                                 $('#loading_spinner').hide();
@@ -772,7 +920,7 @@
         function getExpedisi() {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("GetEkspedisi", "Manage")',
+                url: '@Url.Action("GetEkspedisiKirim", "Manage")',
                 contentType: 'application/json',
                 cache: false,
                 success: function(data) {
@@ -781,6 +929,8 @@
                     $.each(data,
                         function(i, item) {
                             listEkspedisi[i] = {
+                                //id: item.SHIPMENT,
+                                //text: item.SHIPMENT
                                 id: item.RecNum,
                                 text: item.NamaEkspedisi
                             };
@@ -797,6 +947,8 @@
                                 $("#Pengiriman_KURIR").val(null);
                             } else {
                                 $("#Pengiriman_KURIR").val(value).trigger('change');
+                                $('#Pengiriman_NAMA_EKSPEDISI').val($("#EXPEDISI option:selected").text());
+                                getDataPesanan();
                             }
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -815,11 +967,24 @@
             $('#PESANAN').style.width = "400px";
         }
 
-        function cetakKirim(kirimId) {
-            $('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
+        function validasiCetak(kirimId) {
+            var link = '@Url.Action("CetakPengiriman", "Manage", new { KirimId = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', kirimId);
+
+                var win = encodeURIComponent(window.open(link , '_blank'));
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+        }
+
+        function cetakKirim(kirimId, nobuk) {
+            //$('#cetakfaktur_label').text($('.cetak').attr("data-nobuk"));
+            $('#cetakfaktur_label').text(nobuk);
             $('#modalPrintOption').modal('show');
 
-            $('#btn-print-kirim').off('click').on('click', function() {
+            $('#btn-print-kirim').on('click', function() {
 
                 var link = '@Url.Action("CetakPengiriman", "Manage", new { KirimId = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', kirimId);
@@ -832,6 +997,121 @@
                     alert('Please allow popups for this website');
                 }
             });
+        }
+
+        function afterPromptCustomer(cust) {
+            if (promptCust == "1") {
+                $('#FromCust').val(cust);
+            }
+            else if (promptCust == "2") {
+                $('#ToCust').val(cust);
+            }
+            promptCust = "";
+        }
+
+        function validasiAutoload() {
+            if ($('#Pengiriman_TGL_KIRIM').val() != null &&
+                $('#Pengiriman_KURIR').val() != '' &&
+                $('#Pengiriman_NAMA_KURIR').val() != '' &&
+                $('#timepicker1').val() != '') {
+                $("#konfAutoload").modal('show');
+                refreshInputan();
+            } else {
+                alert('Silahkan isi semua field terlebih dulu !');
+
+            }
+        }
+
+        function getDetailKirim() {
+            var link = '@Url.Action("GetDetailKirim", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", $('#NOBUK_KIRIM').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (res) {
+                    var $jumlahDetail = res;
+                    if ($jumlahDetail == 0) {
+                        //$("#btn-autoload-row").show();
+                        $('input, select').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('#btn-print-row').hide();
+                    } else {
+                        $('input, select').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('#btn-print-row').show();
+                        //$("#btn-autoload-row").hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function autoloadKirim() {
+
+            if ($('#DrTanggal').val() != null &&
+                $('#SdTanggal').val() != '' &&
+                $('#ToCust').val() != '') {
+
+                var link = '@Url.Action("SaveAutoloadKirim", "Manage", new { param = "replacedrTgl;replacesdTgl;replacedrCust;replacesdCust"})';
+                link = link.replace("replacedrTgl", $('#DrTanggal').val());
+                link = link.replace("replacesdTgl", $('#SdTanggal').val());
+                link = link.replace("replacedrCust", $('#FromCust').val());
+                link = link.replace("replacesdCust", $('#ToCust').val());
+                $('input, select').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                $.ajax({
+                        type: "POST",
+                        url: link,
+                        data: $('#form-kirim').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $('.kirim_table_section').hide();
+                                $('.kirim_editor_section').show();
+
+                                $modeEdit = 1;
+                                $('#form-partial').html(response);
+                                getExpedisi();
+                                getTanggal();
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+
+                                $('tr[data-kirim-id="0"]').hide();
+                                $("#konfAutoload").modal('hide');
+                                $('#btn-simpan-perubahan-row').hide();
+                                $("#btn-autoload-row").show();
+                                $('#loading_spinner').hide();
+
+                            } else {
+                                if (response.Errors[0] == "") {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                } else {
+                                    alert(response.Errors[0]);
+                                }
+                                $('#loading_spinner').hide();
+                            }
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                        }
+                });
+
+            } else {
+                alert('Silakan isi semua field terlebih dahulu!');
+
+            }
         }
 
     </script>

@@ -319,7 +319,7 @@
 
         function editRekening(rekeningId) {
             var link = '@Url.Action("EditRekening", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", rekeningId);
+            link = link.replace("replaceId", encodeURIComponent(rekeningId));
 
             $.ajax({
                 type: "GET",
@@ -353,7 +353,7 @@
 
         function deleteRekening() {
             var link = '@Url.Action("DeleteRekening", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", this.$rekeningId);
+            link = link.replace("replaceId", encodeURIComponent(this.$rekeningId));
 
             $.ajax({
                 type: "GET",

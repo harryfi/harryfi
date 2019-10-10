@@ -552,7 +552,7 @@
         });
         function searchTableBarang(){
             var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_barang').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
 
             $.ajax({
                 type: "GET",
@@ -576,8 +576,8 @@
         }
         function refreshTableBarang() {
             var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_barang').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -948,7 +948,7 @@
 
             $('#btn_hapus_1').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
+                $link = $link.replace("replaceKode", encodeURIComponent($('#Stf02_BRG').val()));
                 $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({
@@ -975,8 +975,8 @@
 
             $('#btn_hapus_2').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 1);
+                $link = $link.replace("replaceKode", encodeURIComponent($('#Stf02_BRG').val()));
+                $link = $link.replace("replaceUrutan", 2);
 
                 $.ajax({
                     url: $link,
@@ -1002,8 +1002,8 @@
 
             $('#btn_hapus_3').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 1);
+                $link = $link.replace("replaceKode", encodeURIComponent($('#Stf02_BRG').val()));
+                $link = $link.replace("replaceUrutan", 3);
 
                 $.ajax({
                     url: $link,
@@ -1212,7 +1212,7 @@
         }
         function FuncGetKategoriLazadaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriLazadaByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -1301,7 +1301,7 @@
         }
         function getKategoriSelanjutnyaLazada(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriLazadaByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Lazada_"+ next +"_" + listMarketRecNum;
             var categoryLazadaSelanjutnya =  '#category_lazada_selanjutnya_' + listMarketRecNum;
@@ -1341,7 +1341,7 @@
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             var link = '@Url.Action("GetAttributeLazada", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             $.ajax({
                 type: "GET",
@@ -1489,8 +1489,8 @@
         }
         function getAttributeOptionLazada(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE, categoryCode){
             var link = '@Url.Action("GetAttributeOptLazada", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", ANAME);
-            link += "&kategoryCode=" + categoryCode;
+            link = link.replace("replaceCode", encodeURIComponent(ANAME));
+            link += "&kategoryCode=" + encodeURIComponent(categoryCode);
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1611,7 +1611,7 @@
         }
         function FuncGetKategoriJDByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriJDByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -1700,7 +1700,7 @@
         }
         function getKategoriSelanjutnyaJD(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriJDByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_JD_"+ next +"_" + listMarketRecNum;
             var categoryJDSelanjutnya =  '#category_JD_selanjutnya_' + listMarketRecNum;
@@ -1740,8 +1740,8 @@
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             var link = '@Url.Action("GetAttributeJD", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
-            link += "&cust=" + listMarketRecNum;
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
+            link += "&cust=" + encodeURIComponent(listMarketRecNum);
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1864,9 +1864,9 @@
         }
         function getAttributeOptionJD(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, listmarket_i, categoryCode){
             var link = '@Url.Action("GetAttributeOptJD", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", ACODE);
-            link += "&kategoryCode=" + categoryCode;
-            link += "&cust=" + listMarketRecNum;
+            link = link.replace("replaceCode", encodeURIComponent(ACODE));
+            link += "&kategoryCode=" + encodeURIComponent(categoryCode);
+            link += "&cust=" + encodeURIComponent(listMarketRecNum);
             $.ajax({
                 type: "GET",
                 url: link,
@@ -2000,7 +2000,7 @@
         }
         function FuncGetKategoriBukalapakByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriBukalapakByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -2089,7 +2089,7 @@
         }
         function getKategoriSelanjutnyaBukalapak(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriBukalapakByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Bukalapak_"+ next +"_" + listMarketRecNum;
             var categoryBukalapakSelanjutnya =  '#category_bukalapak_selanjutnya_' + listMarketRecNum;
@@ -2129,7 +2129,7 @@
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             var link = '@Url.Action("GetAttributeBukalapak", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             $.ajax({
                 type: "GET",
@@ -2253,8 +2253,8 @@
         }
         function getAttributeOptionBukalapak(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE, categoryCode){
             var link = '@Url.Action("GetAttributeOptBukalapak", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", ANAME);
-            link += "&kategoryCode=" + categoryCode;
+            link = link.replace("replaceCode", encodeURIComponent(ANAME));
+            link += "&kategoryCode=" + encodeURIComponent(categoryCode);
             $.ajax({
                 type: "GET",
                 url: link,
@@ -2375,7 +2375,7 @@
         }
         function FuncGetKategoriBlibliByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -2409,7 +2409,7 @@
         }
         function FuncGetKategoriBlibliByCode(selectCategoryBlibliID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryBlibliSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
             var link = '@Url.Action("GetKategoriBlibliByCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", listMarket_i_Kode);
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
@@ -2463,7 +2463,7 @@
         }
         function getKategoriSelanjutnyaBlibli(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriBlibliByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Blibli_"+ next +"_" + listMarketRecNum;
             var categoryBlibliSelanjutnya =  '#category_blibli_selanjutnya_' + listMarketRecNum;
@@ -2506,7 +2506,7 @@
             @*var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", categoryCode);*@
             var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode + ';' + listMarketRecNum);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode + ';' + listMarketRecNum));
 
             $.ajax({
                 type: "GET",
@@ -2739,7 +2739,7 @@
         }
         function FuncGetKategoriEleveniaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriEleveniaByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -2773,7 +2773,7 @@
         }
         function FuncGetKategoriEleveniaByCode(selectCategoryEleveniaID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryEleveniaSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
             var link = '@Url.Action("GetKategoriEleveniaByCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", listMarket_i_Kode);
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryEleveniaID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
@@ -2827,7 +2827,7 @@
         }
         function getKategoriSelanjutnyaElevenia(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriEleveniaByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Elevenia_"+ next +"_" + listMarketRecNum;
             var categoryEleveniaSelanjutnya =  '#category_elevenia_selanjutnya_' + listMarketRecNum;
@@ -2867,7 +2867,7 @@
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             var link = '@Url.Action("GetAttributeElevenia", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             $.ajax({
                 type: "GET",
@@ -3035,7 +3035,7 @@
         }
         function FuncGetKategoriShopeeByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriShopeeByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -3069,7 +3069,7 @@
         }
         function FuncGetKategoriShopeeByCode(selectCategoryShopeeID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryShopeeSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
             var link = '@Url.Action("GetKategoriShopeeByCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", listMarket_i_Kode);
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryShopeeID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
@@ -3127,7 +3127,7 @@
         }
         function getKategoriSelanjutnyaShopee(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriShopeeByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Shopee_"+ next +"_" + listMarketRecNum;
             var categoryShopeeSelanjutnya =  '#category_shopee_selanjutnya_' + listMarketRecNum;
@@ -3170,7 +3170,7 @@
             link = link.replace("replaceCode", categoryCode);*@
 
             var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode + ';' + listMarketRecNum);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode + ';' + listMarketRecNum));
 
             $.ajax({
                 type: "GET",
@@ -3428,7 +3428,7 @@
         }
         function FuncGetKategoriTokpedByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var link = '@Url.Action("GetKategoriTokpedByChildCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", fieldCategoryCodeValue);
+            link = link.replace("replaceCode", encodeURIComponent(fieldCategoryCodeValue));
 
             $.ajax({
                 type: "GET",
@@ -3459,7 +3459,7 @@
         }
         function FuncGetKategoriTokpedByCode(selectCategoryTokpedID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryTokpedSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
             var link = '@Url.Action("GetKategoriTokpedByCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", listMarket_i_Kode);
+            link = link.replace("replaceCode", encodeURIComponent(listMarket_i_Kode));
 
             //buat select pertama
             var nextselect = '<select id="'+ selectCategoryTokpedID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
@@ -3516,7 +3516,7 @@
         }
         function getKategoriSelanjutnyaTokped(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
             var link = '@Url.Action("GetKategoriTokpedByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", encodeURIComponent(categoryCode));
 
             var nextselectID = "Category_Tokped_"+ next +"_" + listMarketRecNum;
             var categoryTokpedSelanjutnya =  '#category_tokped_selanjutnya_' + listMarketRecNum;
@@ -4265,7 +4265,7 @@
         var model_listhargajualpermarketview = "";
         function editBarang(idBarang) {
             var link = '@Url.Action("EditBarang", "Manage", new { barangId = "replaceId" })';
-            link = link.replace("replaceId", idBarang);
+            link = link.replace("replaceId", encodeURIComponent(idBarang));
 
             $.ajax({
                 type: "GET",
@@ -4413,7 +4413,7 @@
 
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarang", "Manage", new { barangId = "replaceId" })';
-            link = link.replace("replaceId", this.$idBarang);
+            link = link.replace("replaceId", encodeURIComponent(this.$idBarang));
 
             $.ajax({
                 type: "GET",
@@ -4454,7 +4454,7 @@
 
         function showPromptDeliveryTempEleveniaTextBoxWindow(val) {
             var $link = '@Url.Action("PromptDeliveryTempElevenia", "Manage",new { recnum = "replaceRecnum"})';
-            $link = $link.replace("replaceRecnum", val);
+            $link = $link.replace("replaceRecnum", encodeURIComponent(val));
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptDelTempEl(val) {
@@ -4470,7 +4470,7 @@
 
         function showPromptEtalaseTokpedTextBoxWindow(val) {
             var $link = '@Url.Action("PromptEtalaseTokped", "Manage",new { recnum = "replaceRecnum"})';
-            $link = $link.replace("replaceRecnum", val);
+            $link = $link.replace("replaceRecnum", encodeURIComponent(val));
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptEtalaseTokped(val) {
@@ -4487,7 +4487,7 @@
 
         function showPromptPickupPointBlibliTextBoxWindow(val) {
             var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { merchant_code = "replaceKodeMerchant"})';
-            $link = $link.replace("replaceKodeMerchant", val);
+            $link = $link.replace("replaceKodeMerchant", encodeURIComponent(val));
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptPickupPointBlibli(val) {
@@ -4504,7 +4504,7 @@
 
         function showPromptBrandLazadaTextBoxWindow(val) {
             var $link = '@Url.Action("PromptBrandLazada", "Manage",new { merchant_code = "replaceKodeMerchant"})';
-            $link = $link.replace("replaceKodeMerchant", val);
+            $link = $link.replace("replaceKodeMerchant", encodeURIComponent(val));
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptBrandLazada(val,name) {
@@ -4584,9 +4584,9 @@
         //add by Tri, validasi ubah brg non varian menjadi varian
         function validateCkVarian(value) {
             if (value) {
-                $('#Stf02_BRG').val();
+                //$('#Stf02_BRG').val();
                 var link = '@Url.Action("ValidateCkVarian", "Manage", new { brg = "replaceId" })';
-                link = link.replace("replaceId", $('#Stf02_BRG').val());
+                link = link.replace("replaceId", encodeURIComponent($('#Stf02_BRG').val()));
 
             $.ajax({
                 type: "GET",

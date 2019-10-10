@@ -304,7 +304,7 @@
 
         function loadDataKabupatenKota(kdProv) {
             var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
-            link = link.replace("replaceId", kdProv);
+            link = link.replace("replaceId", encodeURIComponent(kdProv));
 
             $.ajax({
                 type: "GET",

@@ -90,7 +90,7 @@
             if (this.href != "") {
                 var link = this.href;
                 link += "&search=replaceSearch";
-                link = link.replace("replaceSearch", $('#search_promptrek').val());
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_promptrek').val()));
 
                 $.ajax({
                     url: link,

@@ -575,7 +575,7 @@
 
         function cekEmail($this) {
             var link = '@Url.Action("CekEmailPengguna", "Account", new { emailPengguna = "replaceEmail" })';
-            link = link.replace("replaceEmail", $this.val());
+            link = link.replace("replaceEmail", encodeURIComponent($this.val()));
 
             $.ajax({
                 type: "GET",

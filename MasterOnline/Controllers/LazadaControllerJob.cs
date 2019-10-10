@@ -1732,12 +1732,32 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrders(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+
+            while (more)
+            {
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page);
+                page++;
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+            return ret;
+        }
+
+        public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
+        {
+            var ret = new BindingBase();
             ret.status = 0;
+            ret.recordCount = 0;
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
             string connectionID = Guid.NewGuid().ToString();
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
-            SetupContext(dbPathEra, uname);
+            //SetupContext(dbPathEra, uname);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -1755,7 +1775,8 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
             request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
             request.AddApiParameter("sort_direction", "DESC");
-            request.AddApiParameter("offset", "0");
+            //request.AddApiParameter("offset", "0");
+            request.AddApiParameter("offset", (page * 100).ToString());
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "updated_at");
             try
@@ -1774,6 +1795,7 @@ namespace MasterOnline.Controllers
 
                         if (bindOrder.data.orders.Count > 0)
                         {
+                            ret.recordCount = bindOrder.data.orders.Count;
                             var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
                             bool adaInsert = false;
                             bool adaInsertPembeli = false;
@@ -2144,12 +2166,31 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
+            SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+
+            while (more)
+            {
+                var count = GetOrdersUnpaidWithPage(cust, accessToken, dbPathEra, uname, page);
+                page++;
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+            return ret;
+        }
+        public BindingBase GetOrdersUnpaidWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
+        {
+            var ret = new BindingBase();
             ret.status = 0;
+            ret.recordCount = 0;
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
             string connectionID = Guid.NewGuid().ToString();
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
-            SetupContext(dbPathEra, uname);
+            //SetupContext(dbPathEra, uname);
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -2167,7 +2208,8 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
             request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
             request.AddApiParameter("sort_direction", "DESC");
-            request.AddApiParameter("offset", "0");
+            //request.AddApiParameter("offset", "0");
+            request.AddApiParameter("offset", (page * 100).ToString());
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "updated_at");
             request.AddApiParameter("status", "unpaid");
@@ -2187,6 +2229,7 @@ namespace MasterOnline.Controllers
 
                         if (bindOrder.data.orders.Count > 0)
                         {
+                            ret.recordCount = bindOrder.data.orders.Count;
                             var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
                             bool adaInsert = false;
 
@@ -2469,9 +2512,12 @@ namespace MasterOnline.Controllers
                                 if (bindOrder.data.statuses[0].ToLower() == "canceled")
                                 //end change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
                                 {
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+
                                     if (rowAffected > 0)
                                     {
+                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') AND STATUS <> '2'");
+
                                         var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                            join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
                                                            where a.NO_REFERENSI == bindOrder.data.order_id

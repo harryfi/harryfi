@@ -1051,6 +1051,7 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\mdlPartner.cs" />
     <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />
@@ -6339,6 +6340,10 @@
     <Content Include="Views\Manage\FormPackinglistPartial.cshtml" />
     <Content Include="Views\Manage\LihatRekapPackinglist.cshtml" />
     <Content Include="Views\Manage\TabelPromosiPerBarang.cshtml" />
+    <Content Include="Views\Admin\TablePartnerPartial.cshtml" />
+    <Content Include="Views\Admin\DetailPartnerPartial.cshtml" />
+    <Content Include="Views\Admin\TablePartPartial.cshtml" />
+    <Content Include="Views\Admin\DetailPartPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

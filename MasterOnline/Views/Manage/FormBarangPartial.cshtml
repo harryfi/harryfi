@@ -105,9 +105,9 @@
             $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).hide();
             $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBlibli", "Manage", new { brg = "replaceBrg", recnum = "replaceKode", urutan = "replaceUrutan" }))';
-                $link = $link.replace("replaceBrg", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceKode", data_barang_id);
-                $link = $link.replace("replaceUrutan", data_barang_level);
+                $link = $link.replace("replaceBrg", encodeURIComponent($('#Stf02_BRG').val()));
+                $link = $link.replace("replaceKode", encodeURIComponent(data_barang_id));
+                $link = $link.replace("replaceUrutan", encodeURIComponent(data_barang_level));
 
                 $.ajax({
                     url: $link,

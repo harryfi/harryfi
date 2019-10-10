@@ -300,8 +300,8 @@
             @*link = '@Url.Action("replaceUrl", "Manage", new { ket = "replaceKet", kode = "replaceKode" })';*@
             link = '@Url.Action("replaceUrl", "Manage", new { param = "replaceKet;replaceKode" })';
             link = link.replace("replaceUrl", $urlAction);
-            link = link.replace("replaceKet", $ket.val());
-            link = link.replace("replaceKode", $kodemerk.val());
+            link = link.replace("replaceKet", encodeURIComponent($ket.val()));
+            link = link.replace("replaceKode", encodeURIComponent($kodemerk.val()));
 
             $.ajax({
                 type: "GET",
@@ -362,7 +362,7 @@
 
         function editMerk(rec) {
             var link = '@Url.Action("EditMerk", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", rec);
+            link = link.replace("replaceId", encodeURIComponent(rec));
 
             $.ajax({
                 type: "GET",
@@ -394,7 +394,7 @@
 
         function deleteMerk() {
             var link = '@Url.Action("DeleteMerk", "Manage", new { recNum = "replaceId" })';
-            link = link.replace("replaceId", this.$recNum);
+            link = link.replace("replaceId", encodeURIComponent(this.$recNum));
 
             $.ajax({
                 type: "GET",
@@ -426,8 +426,8 @@
             //    }
             //}
             var $link = '@Html.Raw(Url.Action("RefreshTableMerk", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_merk_input').val());
-            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_merk_input').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
 
             $.ajax({
                 type: "GET",
@@ -449,7 +449,7 @@
         }
         function searchTableMerk(){
             var $link = '@Html.Raw(Url.Action("RefreshTableMerk", "Manage", new { search = "replaceSearch" }))';
-            $link = $link.replace("replaceSearch", $('#search_merk_input').val());
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_merk_input').val()));
 
             $.ajax({
                 type: "GET",
