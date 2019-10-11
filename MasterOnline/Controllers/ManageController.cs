@@ -2970,8 +2970,8 @@ namespace MasterOnline.Controllers
             //sSQL2 += "left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT ";
             string sSQL4 = "FROM ARF01C C LEFT JOIN ( ";
             sSQL4 += "SELECT ISNULL(A.PEMESAN, ISNULL(B.PEMESAN, '')) PEMESAN, ISNULL(B.BRUTO, ISNULL(A.BRUTO, 0)) NILAI ";
-            sSQL4 += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
-            sSQL4 += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' ";
+            sSQL4 += "FROM SOT01A A FULL OUTER JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO LEFT JOIN SIT01A  R ON B.NO_BUKTI = R.NO_REF AND R.JENIS_FORM = '3' WHERE ISNULL(A.STATUS_TRANSAKSI, '') <> '0' ";
+            sSQL4 += "AND ISNULL(A.STATUS_TRANSAKSI, '') <> '11' AND ISNULL(B.JENIS_FORM, '2') = '2' AND ISNULL(B.STATUS, '') <> '2' AND ISNULL(R.NO_BUKTI, '') = '' ";
             sSQL4 += ") AS QRY ON C.BUYER_CODE = QRY.PEMESAN ";
             sSQL4 += "left join mo..Provinsi prov on prov.KodeProv=c.KODEPROV ";
             sSQL4 += "left join mo..KabupatenKota kab on kab.KodeKabKot = c.KODEKABKOT ";
