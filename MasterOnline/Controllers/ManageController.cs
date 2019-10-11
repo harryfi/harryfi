@@ -17583,8 +17583,8 @@ namespace MasterOnline.Controllers
                             dataVm.Faktur.AL2 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL2;
                             dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL3;
                             //change by nurul 11/10/2019, req pak dani 
-                            //dataVm.Faktur.TGL = DateTime.Now;
-                            dataVm.Faktur.TGL = pesananInDb.TGL.Value;
+                            dataVm.Faktur.TGL = DateTime.Now;
+                            //dataVm.Faktur.TGL = pesananInDb.TGL.Value;
                             //end change by nurul 11/10/2019, req pak dani 
                             dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
                             dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
@@ -17968,8 +17968,8 @@ namespace MasterOnline.Controllers
                     dataVm.Faktur.AL2 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL2;
                     dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL3;
                     //change by nurul 11/10/2019, req pak dani 
-                    //dataVm.Faktur.TGL = DateTime.Now;
-                    dataVm.Faktur.TGL = pesananInDb.TGL.Value;
+                    dataVm.Faktur.TGL = DateTime.Now;
+                    //dataVm.Faktur.TGL = pesananInDb.TGL.Value;
                     //end change by nurul 11/10/2019, req pak dani 
                     dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
                     dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
