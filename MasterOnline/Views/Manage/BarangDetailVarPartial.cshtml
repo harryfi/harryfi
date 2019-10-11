@@ -794,10 +794,10 @@
             listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
         });
 
-        $('.foto_produk_var_blibli_2').each(function (i, item) {
-            var data_barang_id = $(item).attr("data-barang-id");
-            listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
-        });
+        //$('.foto_produk_var_blibli_2').each(function (i, item) {
+        //    var data_barang_id = $(item).attr("data-barang-id");
+        //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
+        //});
 
         $.ajax({
             type: "POST",
@@ -837,10 +837,10 @@
                     listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
                 });
 
-                $('.foto_produk_var_2').each(function (i, item) {
-                    var data_barang_id = $(item).attr("data-barang-id");
-                    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
-                });
+                //$('.foto_produk_var_2').each(function (i, item) {
+                //    var data_barang_id = $(item).attr("data-barang-id");
+                //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
+                //});
 
                 $.ajax({
                     type: "POST",
@@ -1088,7 +1088,7 @@
                                                             <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
                                                         </div>
                                                     </td>
-                                                    <td style="padding-left:5px;">
+                                                    <td style="padding-left:5px;display:none;">
                                                         @* add 6/9/2019, barang varian 2 gambar *@
                                                         <div class="foto_produk_section">
                                                             <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
@@ -1161,7 +1161,7 @@
                                                                         <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
                                                                     </div>
                                                                 </td>
-                                                                <td style="padding-left:5px;">
+                                                                <td style="padding-left:5px;display:none;">
                                                                     @* add 6/9/2019, barang varian 2 gambar *@
                                                                     <div class="foto_produk_section">
                                                                         <div class="box_upload_var_blibli_2" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli2_@VarStf02H.RecNum">

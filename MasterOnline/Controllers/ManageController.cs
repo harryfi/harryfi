@@ -11230,7 +11230,7 @@ namespace MasterOnline.Controllers
                                 //itemVar.LINK_GAMBAR_2 = image.data.link_l;
                                 if (itemVar.TYPE == "3")
                                 {
-                                    itemVar.LINK_GAMBAR_2 = image.data.link_l;
+                                    //itemVar.LINK_GAMBAR_2 = image.data.link_l;
                                 }
                                 else
                                 {
@@ -11271,7 +11271,7 @@ namespace MasterOnline.Controllers
                                 //itemVar.LINK_GAMBAR_2 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                                 if (itemVar.TYPE == "3")
                                 {
-                                    itemVar.LINK_GAMBAR_2 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                                    //itemVar.LINK_GAMBAR_2 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                                 }
                                 else
                                 {
@@ -11311,7 +11311,7 @@ namespace MasterOnline.Controllers
                             //itemVar.Sort6 = Convert.ToString(file.ContentLength);
                             if (itemVar.TYPE == "3")
                             {
-                                itemVar.Sort6 = Convert.ToString(file.ContentLength);
+                                //itemVar.Sort6 = Convert.ToString(file.ContentLength);
                             }
                             else
                             {
@@ -11520,10 +11520,10 @@ namespace MasterOnline.Controllers
                             {
                                 itemVar.AVALUE_50 = image.data.link_l;
                             }
-                            else if (itemId.Length > 1)
-                            {
-                                itemVar.AVALUE_49 = image.data.link_l;
-                            }
+                            //else if (itemId.Length > 1)
+                            //{
+                            //    itemVar.AVALUE_49 = image.data.link_l;
+                            //}
                             same_uploaded.Add(file.ContentLength, image.data.link_l);
                             //end change 6/9/2019, barang varian 2 gambar
                         }
@@ -11535,10 +11535,10 @@ namespace MasterOnline.Controllers
                             {
                                 itemVar.AVALUE_50 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                             }
-                            else if (itemId.Length > 1)
-                            {
-                                itemVar.AVALUE_49 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
-                            }
+                            //else if (itemId.Length > 1)
+                            //{
+                            //    itemVar.AVALUE_49 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                            //}
                             //end change 6/9/2019, barang varian 2 gambar
                         }
 
@@ -11548,10 +11548,10 @@ namespace MasterOnline.Controllers
                         {
                             itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
                         }
-                        else if (itemId.Length > 1)
-                        {
-                            itemVar.ACODE_49 = Convert.ToString(file.ContentLength);
-                        }
+                        //else if (itemId.Length > 1)
+                        //{
+                        //    itemVar.ACODE_49 = Convert.ToString(file.ContentLength);
+                        //}
                         //end change 6/9/2019, barang varian 2 gambar
                     }
                     ErasoftDbContext.SaveChanges();

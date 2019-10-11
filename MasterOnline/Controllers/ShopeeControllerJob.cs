@@ -3336,47 +3336,155 @@ namespace MasterOnline.Controllers
                 HttpBody.stock = Convert.ToInt32(qty_stock);
             }
             //end add by calvin 1 mei 2019
-            //if (brgInDb.TYPE == "3")
-            //{
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
-                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
-                //add 6/9/2019, 5 gambar
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
-                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
-                    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
-            //end add 6/9/2019, 5 gambar
-            //}
+            int jmlPic = 0;
+            //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            List<string> byteGambarUploaded = new List<string>();
+            //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+
+            if (jmlPic < 9)
+            {
+                if (!byteGambarUploaded.Contains(brgInDb.Sort5))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+                    {
+                        HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
+                        jmlPic++;
+                        byteGambarUploaded.Add(brgInDb.Sort5);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                if (!byteGambarUploaded.Contains(brgInDb.Sort6))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                    {
+                        HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
+                        jmlPic++;
+                        byteGambarUploaded.Add(brgInDb.Sort6);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                if (!byteGambarUploaded.Contains(brgInDb.Sort7))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                    {
+                        HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+                        jmlPic++;
+                        byteGambarUploaded.Add(brgInDb.Sort7);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_4))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                    {
+                        HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
+                        jmlPic++;
+                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_4);
+                    }
+                }
+            }
+            if (jmlPic < 9)
+            {
+                if (!byteGambarUploaded.Contains(brgInDb.SIZE_GAMBAR_5))
+                {
+                    if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                    {
+                        HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
+                        jmlPic++;
+                        byteGambarUploaded.Add(brgInDb.SIZE_GAMBAR_5);
+                    }
+                }
+            }
             if (brgInDb.TYPE == "4")
             {
                 var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
                 var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
-                //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-                List<string> byteGambarUploaded = new List<string>();
-                //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+
                 foreach (var item in ListVariant)
                 {
-                    List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
-                    //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
-                    if (!byteGambarUploaded.Contains(item.Sort5))
+                    if (jmlPic < 9)
                     {
-                        byteGambarUploaded.Add(item.Sort5);
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
-                    }
-                    if (!byteGambarUploaded.Contains(item.Sort6))
-                    {
-                        byteGambarUploaded.Add(item.Sort6);
-                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
+                        //List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
+                        //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                        if (!byteGambarUploaded.Contains(item.Sort5))
+                        {
+                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                            {
+                                HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                                jmlPic++;
+                                byteGambarUploaded.Add(item.Sort5);
+                            }
+                        }
                     }
                     //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                 }
+                //foreach (var item in ListVariant)
+                //{
+                //    if (jmlPic < 9)
+                //    {
+                //        //List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
+                //        //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                //        if (!byteGambarUploaded.Contains(item.Sort6))
+                //        {
+                //            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                //            {
+                //                HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
+                //                jmlPic++;
+                //                byteGambarUploaded.Add(item.Sort6);
+                //            }
+                //        }
+                //    }
+                //    //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                //}
             }
+
+            //if (brgInDb.TYPE == "3")
+            //{
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+            //    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+            //    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+            //    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+            ////add 6/9/2019, 5 gambar
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+            //    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_4 });
+            //if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+            //    HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_5 });
+            //end add 6/9/2019, 5 gambar
+            //}
+            //if (brgInDb.TYPE == "4")
+            //{
+            //    var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+            //    var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
+            //    //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            //    List<string> byteGambarUploaded = new List<string>();
+            //    //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            //    foreach (var item in ListVariant)
+            //    {
+            //        List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
+            //        //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            //        if (!byteGambarUploaded.Contains(item.Sort5))
+            //        {
+            //            byteGambarUploaded.Add(item.Sort5);
+            //            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+            //                HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+            //        }
+            //        if (!byteGambarUploaded.Contains(item.Sort6))
+            //        {
+            //            byteGambarUploaded.Add(item.Sort6);
+            //            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+            //                HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
+            //        }
+            //        //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+            //    }
+            //}
             try
             {
                 for (int i = 1; i <= 30; i++)
@@ -3477,8 +3585,11 @@ namespace MasterOnline.Controllers
 
                                 //delay 1 menit, karena API shopee ada delay saat create barang.
                                 //client.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog));
+#if (DEBUG || Debug_AWS)
+                                await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
+#else
                                 client.Schedule<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog), TimeSpan.FromSeconds(30));
-                                //await InitTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Buat Variasi Produk", iden, brgInDb, resServer.item_id, marketplace, currentLog);
+#endif
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -4459,16 +4570,16 @@ namespace MasterOnline.Controllers
                 imagess.Add(brgInDb.LINK_GAMBAR_1);
             //if (brgInDb.TYPE == "3")
             //{
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
-                    imagess.Add(brgInDb.LINK_GAMBAR_2);
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
-                    imagess.Add(brgInDb.LINK_GAMBAR_3);
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
-                    imagess.Add(brgInDb.LINK_GAMBAR_4);
-                if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
-                    imagess.Add(brgInDb.LINK_GAMBAR_5);
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                imagess.Add(brgInDb.LINK_GAMBAR_2);
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                imagess.Add(brgInDb.LINK_GAMBAR_3);
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_4))
+                imagess.Add(brgInDb.LINK_GAMBAR_4);
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
+                imagess.Add(brgInDb.LINK_GAMBAR_5);
             //}
-            if(brgInDb.TYPE == "4")
+            if (brgInDb.TYPE == "4")
             {
                 var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
                 foreach (var brgVar in brgVarian)

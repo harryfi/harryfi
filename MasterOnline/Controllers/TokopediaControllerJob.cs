@@ -866,17 +866,17 @@ namespace MasterOnline.Controllers
                                 newOpt.image.Add(gambarVariant);
 
                                 #region 6/9/2019, barang varian 2 gambar
-                                if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
-                                {
-                                    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
-                                    {
-                                        file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
-                                        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
-                                        x = 128,
-                                        y = 128
-                                    };
-                                    newOpt.image.Add(gambarVariant);
-                                }
+                                //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
+                                //{
+                                //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
+                                //    {
+                                //        file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
+                                //        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
+                                //        x = 128,
+                                //        y = 128
+                                //    };
+                                //    newOpt.image.Add(gambarVariant);
+                                //}
                                 #endregion
 
                                 newVariasi.opt.Add(newOpt);
@@ -891,25 +891,25 @@ namespace MasterOnline.Controllers
                                     });
 
                                     #region 6/9/2019, barang varian 2 gambar
-                                    //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
+                                    ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
+                                    ////{
+                                    ////    newDataProduct.images.Add(new CreateProduct_Images()
+                                    ////    {
+                                    ////        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                    ////        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                    ////        image_description = ""
+                                    ////    });
+                                    ////}
+
+                                    //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                     //{
                                     //    newDataProduct.images.Add(new CreateProduct_Images()
                                     //    {
-                                    //        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
-                                    //        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                    //        image_file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
+                                    //        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
                                     //        image_description = ""
                                     //    });
                                     //}
-
-                                    if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
-                                    {
-                                        newDataProduct.images.Add(new CreateProduct_Images()
-                                        {
-                                            image_file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
-                                            image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
-                                            image_description = ""
-                                        });
-                                    }
                                     #endregion
                                 }
                             }
@@ -970,17 +970,17 @@ namespace MasterOnline.Controllers
                                 newOpt.image.Add(gambarVariant);
 
                                 #region 6/9/2019, barang varian 2 gambar
-                                if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
-                                {
-                                    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
-                                    {
-                                        file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
-                                        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
-                                        x = 128,
-                                        y = 128
-                                    };
-                                    newOpt.image.Add(gambarVariant);
-                                }
+                                //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
+                                //{
+                                //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
+                                //    {
+                                //        file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
+                                //        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
+                                //        x = 128,
+                                //        y = 128
+                                //    };
+                                //    newOpt.image.Add(gambarVariant);
+                                //}
                                 #endregion
 
                                 newVariasi.opt.Add(newOpt);
@@ -994,25 +994,25 @@ namespace MasterOnline.Controllers
                                         image_description = ""
                                     });
                                     #region 6/9/2019, barang varian 2 gambar
-                                    //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
+                                    ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
+                                    ////{
+                                    ////    newDataProduct.images.Add(new CreateProduct_Images()
+                                    ////    {
+                                    ////        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                    ////        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                    ////        image_description = ""
+                                    ////    });
+                                    ////}
+
+                                    //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                     //{
                                     //    newDataProduct.images.Add(new CreateProduct_Images()
                                     //    {
-                                    //        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
-                                    //        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                    //        image_file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
+                                    //        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
                                     //        image_description = ""
                                     //    });
                                     //}
-
-                                    if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
-                                    {
-                                        newDataProduct.images.Add(new CreateProduct_Images()
-                                        {
-                                            image_file_name = "Image2 " + Convert.ToString(fe_record.RECNUM),
-                                            image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2,
-                                            image_description = ""
-                                        });
-                                    }
                                     #endregion
                                 }
                             }
