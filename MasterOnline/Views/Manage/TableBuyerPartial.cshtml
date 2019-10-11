@@ -59,8 +59,8 @@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Alamat</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">No. HP</th>
-            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Total Pesanan</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;text-align:right">Nilai Pesanan</th>*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Total Pesanan</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;text-align:right">Nilai Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
         </tr>
@@ -70,38 +70,40 @@
         @foreach (var pembeli in Model)
         {
             //add by nurul 6/3/2019
-            var isiprov = "";
-            var isikota = "";
-            if (pembeli?.KODEPROV != null)
-            {
-                isiprov = prov.SingleOrDefault(a => a.KodeProv == pembeli.KODEPROV).NamaProv;
-            }
-            if (pembeli?.KODEKABKOT != null)
-            {
-                isikota = kota.SingleOrDefault(a => a.KodeKabKot == pembeli.KODEKABKOT).NamaKabKot;
-            }
+            //var isiprov = "";
+            //var isikota = "";
+            //if (pembeli?.KODEPROV != null)
+            //{
+            //    isiprov = prov.SingleOrDefault(a => a.KodeProv == pembeli.KODEPROV).NamaProv;
+            //}
+            //if (pembeli?.KODEKABKOT != null)
+            //{
+            //    isikota = kota.SingleOrDefault(a => a.KodeKabKot == pembeli.KODEKABKOT).NamaKabKot;
+            //}
             //end add by nurul 6/3/2019
-            <tr>
-                <td>@pembeli.BUYER_CODE</td>
-                <td>@pembeli.NAMA</td>
-                <td class="text-center">@isiprov</td>
-                <td class="text-center">@isikota</td>
-                <td>@pembeli.EMAIL</td>
-                @*<td>@pembeli.AL</td>*@
-                <td>@pembeli.TLP</td>
-                @*<td>@pembeli.FREKUENSI</td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pembeli.NILAI)</td>*@
-                <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="editPembeli(@pembeli.RecNum)">
-                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                    </button>
-                </td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPembeli" onclick="pass(@pembeli.RecNum, '@pembeli.NAMA (@pembeli.BUYER_CODE)')">
-                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                    </button>
-                </td>
-            </tr>
+        <tr>
+            <td>@pembeli.BUYER_CODE</td>
+            <td>@pembeli.NAMA</td>
+            @*<td class="text-center">@isiprov</td>
+        <td class="text-center">@isikota</td>*@
+            <td class="text-center">@pembeli.PROV</td>
+            <td class="text-center">@pembeli.KABKOT</td>
+            <td>@pembeli.EMAIL</td>
+            @*<td>@pembeli.AL</td>*@
+            <td>@pembeli.TLP</td>
+            <td>@pembeli.FREKUENSI</td>
+        <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pembeli.NILAI)</td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-primary" onclick="editPembeli(@pembeli.RecNum)">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPembeli" onclick="pass(@pembeli.RecNum, '@pembeli.NAMA (@pembeli.BUYER_CODE)')">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
