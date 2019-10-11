@@ -33,6 +33,10 @@ namespace MasterOnline
         public string TLP { get; set; }
         public int FREKUENSI { get; set; }
         public double NILAI { get; set; }
+        //add by nurul 26/9/2019
+        public string PROV { get; set; }
+        public string KABKOT { get; set; }
+        //end add by nurul 26/9/2019
     }
     //end add 5/9/2019 by Tri, model untuk master pembeli
 
