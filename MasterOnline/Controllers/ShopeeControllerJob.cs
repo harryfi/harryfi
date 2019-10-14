@@ -4112,7 +4112,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrWhiteSpace(tier1.name))
                 {
                     tier1.options = tier1_options.ToArray();
-                    //tier1.images_url = tier1_images.ToArray();
+                    tier1.images_url = tier1_images.ToArray();
                     //tier1.images_url = new string[1];
                     //tier1.images_url[0] = "";
                     tier_variation.Add(tier1);
@@ -4120,7 +4120,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrWhiteSpace(tier2.name))
                 {
                     tier2.options = tier2_options.ToArray();
-                    //tier2.images_url = tier2_images.ToArray();
+                    //tier2.images_url = new string[0];
                     tier_variation.Add(tier2);
                 }
             }
@@ -4128,6 +4128,7 @@ namespace MasterOnline.Controllers
             HttpBody.tier_variation = tier_variation.ToArray();
 
             string myData = JsonConvert.SerializeObject(HttpBody);
+            myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
@@ -6218,7 +6219,7 @@ namespace MasterOnline.Controllers
         {
             public string name { get; set; }
             public string[] options { get; set; }
-            //public string[] images_url { get; set; }
+            public string[] images_url { get; set; }
         }
         public class ShopeeVariation
         {
