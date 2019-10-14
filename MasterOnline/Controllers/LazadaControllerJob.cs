@@ -1832,7 +1832,8 @@ namespace MasterOnline.Controllers
                                     }
                                     if (order.statuses[0].ToString() == "canceled")
                                     {
-                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
+                                        //remark by nurul 10/10/2019, dijalanin di GetOrdersCancelled
+                                        //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
                                     }
 
                                     if (!string.IsNullOrEmpty(order.address_billing.phone))
@@ -2479,7 +2480,10 @@ namespace MasterOnline.Controllers
             //pesanan baru yang unpaid
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
-                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
+                                   //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
+                                       //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
+                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11"
+                                   //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
                                    select new { a.NO_REFERENSI }).ToList();
             var connIDStok = Guid.NewGuid().ToString();
             foreach (var order in orderUnpaidList)
