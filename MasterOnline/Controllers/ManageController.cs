@@ -13710,7 +13710,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -13718,7 +13718,9 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI ";
-            sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            //sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            sSQL2 += "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI ";
+            sSQL2 += "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR ";
             sSQL2 += "WHERE A.JENIS_FORM = '2' ";
             if (search != "")
             {
@@ -13731,10 +13733,6 @@ namespace MasterOnline.Controllers
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
                 pagenumber = pagenumber - 1;
-                //if (pagenumber == 0)
-                //{
-                //    pagenumber = 1;
-                //}
             }
 
             string sSQLSelect2 = "";
@@ -14025,14 +14023,15 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM SIT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
-            sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            //sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            sSQL2 += "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI ";
             sSQL2 += "WHERE A.JENIS_FORM = '3' ";
             if (search != "")
             {
@@ -14128,12 +14127,13 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN, A.REF AS REFERENSI ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN, A.REF AS REFERENSI ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM PBT01A A ";
-            sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            //sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            sSQL2 += "LEFT JOIN (SELECT DISTINCT INV FROM PBT01A A INNER JOIN APT03B B ON A.INV = B.NINV)E ON A.INV = E.INV ";
             sSQL2 += "WHERE A.JENISFORM = '2' ";
             if (search != "")
             {
@@ -14146,10 +14146,6 @@ namespace MasterOnline.Controllers
             if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
             {
                 pagenumber = pagenumber - 1;
-                //if (pagenumber == 0)
-                //{
-                //    pagenumber = 1;
-                //}
             }
 
             string sSQLSelect2 = "";
@@ -15058,12 +15054,13 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM PBT01A A ";
-            sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            //sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            sSQL2 += "LEFT JOIN (SELECT DISTINCT INV FROM PBT01A A INNER JOIN APT03B B ON A.INV = B.NINV)E ON A.INV = E.INV ";
             sSQL2 += "WHERE A.JENISFORM = '1' ";
             if (search != "")
             {
