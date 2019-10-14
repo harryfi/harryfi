@@ -1127,7 +1127,7 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
             var dsArf01 = EDB.GetDataSet("sConn", "ARF01", "SELECT STATUS_API FROM ARF01 WHERE CUST='" + log_CUST + "'");
-            if (dsArf01.Tables[0].Rows.Count > 1) {
+            if (dsArf01.Tables[0].Rows.Count > 0) {
                 if (Convert.ToString(dsArf01.Tables[0].Rows[0]["STATUS_API"]) == "2") {
                     throw new Exception("Link ke marketplace Lazada Expired. lakukan Link Ulang di menu Link ke Marketplace.");
                 }
