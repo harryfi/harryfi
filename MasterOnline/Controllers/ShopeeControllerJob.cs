@@ -3739,7 +3739,7 @@ namespace MasterOnline.Controllers
                     //    await AddVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
                     //}
                     //await UpdateTierVariationIndex(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
-#if Debug_AWS
+#if (Debug_AWS || DEBUG)
                     await UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -3748,6 +3748,18 @@ namespace MasterOnline.Controllers
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
 #endif
+                }
+                else //update image only
+                {
+//#if (Debug_AWS || DEBUG)
+                    await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
+//#else
+//                    string EDBConnID = EDB.GetConnectionString("ConnId");
+//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                    var client = new BackgroundJobClient(sqlStorage);
+//                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
+//#endif
                 }
             }
 
@@ -3772,10 +3784,10 @@ namespace MasterOnline.Controllers
 
         }
 
-        public class ShopeeUpdateTierVariationResult
+        public class ShopeeUpdateTierVariationResult : ShopeeError
         {
             public long item_id { get; set; }
-            public string request_id { get; set; }
+            //public string request_id { get; set; }
         }
 
         [AutomaticRetry(Attempts = 2)]
@@ -3803,6 +3815,7 @@ namespace MasterOnline.Controllers
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
+            myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
@@ -3840,10 +3853,12 @@ namespace MasterOnline.Controllers
             {
                 //AddTierVariation
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
-                if (resServer.item_id == item_id)
+                if (string.IsNullOrEmpty(resServer.error))
                 {
-#if Debug_AWS
-                    await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    if (resServer.item_id == item_id)
+                    {
+#if (Debug_AWS || DEBUG)
+                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -3851,6 +3866,90 @@ namespace MasterOnline.Controllers
                     var client = new BackgroundJobClient(sqlStorage);
                     client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
 #endif
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("1_create_product")]
+        //[NotifyOnFailed("Update Variasi Product {obj} ke Shopee Gagal.")]
+        public async Task<string> UpdateImageTierVariationList(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation, List<ShopeeVariation> MOVariation)
+        {
+            //Use this api to update tier-variation list or upload variation image of a tier-variation item
+            string ret = "";
+            string brg = brgInDb.BRG;
+            SetupContext(iden);
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update_list";
+
+            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
+            {
+                partner_id = MOPartnerID,
+                item_id = item_id,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                tier_variation = tier_variation.ToArray(),
+                timestamp = seconds,
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+            myData = myData.Replace(",\"images_url\":null", " ");//remove images_url from tier 2
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+
+            if (responseFromServer != null)
+            {
+                //AddTierVariation
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
+                if (string.IsNullOrEmpty(resServer.error))
+                {
+//                    if (resServer.item_id == item_id)
+//                    {
+//#if (Debug_AWS || DEBUG)
+//                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+//#else
+//                    string EDBConnID = EDB.GetConnectionString("ConnId");
+//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                    var client = new BackgroundJobClient(sqlStorage);
+//                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
+//#endif
+                    //}
                 }
             }
 
@@ -3918,7 +4017,7 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.variation_id_list != null)
                 {
-#if Debug_AWS
+#if (Debug_AWS || DEBUG)
                     await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, null, null);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
