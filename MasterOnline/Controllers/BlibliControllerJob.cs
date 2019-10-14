@@ -7367,6 +7367,8 @@ namespace MasterOnline.Controllers
                     {
                         if (listBrg.content.Count() > 0)
                         {
+                            List<string> itemUpdateStok = new List<string>();
+
                             //product lolos qc dengan status active
                             foreach (var item in listBrg.content)
                             {
@@ -7389,7 +7391,11 @@ namespace MasterOnline.Controllers
                                         oCommand.ExecuteNonQuery();
                                     }
                                 }
+                                itemUpdateStok.Add(item.merchantSku);
                             }
+
+                            new ManageController().updateStockMarketPlace(itemUpdateStok, "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+
                             string STF02_BRG = kodeInduk;
 
                             var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
