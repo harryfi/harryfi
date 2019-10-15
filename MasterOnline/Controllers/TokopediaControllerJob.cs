@@ -419,6 +419,59 @@ namespace MasterOnline.Controllers
                     etalase_name = ""
                 };
 
+                //add 15/10/2019, selalu set gambar induk
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_1
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_2
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_3
+                    });
+                }
+                //add 15/10/2019, 5 gambar
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_4
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_5
+                    });
+                }
+                //end add 15/10/2019, 5 gambar
+                //end add 15/10/2019, selalu set gambar induk
+
                 if (brg_stf02.TYPE == "4") // punya variasi
                 {
                     CreateProduct_Product_Variant product_variant = new CreateProduct_Product_Variant()
@@ -605,38 +658,59 @@ namespace MasterOnline.Controllers
 
                     newDataProduct.product_variant = product_variant;
                 }
-                else if (brg_stf02.TYPE == "3")
-                {
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_1
-                        });
-                    }
+                //else if (brg_stf02.TYPE == "3")
+                //{
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_1
+                //        });
+                //    }
 
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_2
-                        });
-                    }
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_2
+                //        });
+                //    }
 
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_3
-                        });
-                    }
-                }
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_3
+                //        });
+                //    }
+                //    //add 15/10/2019, 5 gambar
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_4
+                //        });
+                //    }
+
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_5
+                //        });
+                //    }
+                //    //end add 15/10/2019, 5 gambar
+                //}
                 newData.products.Add(newDataProduct);
 
                 string myData = JsonConvert.SerializeObject(newData);
@@ -796,6 +870,59 @@ namespace MasterOnline.Controllers
                     etalase_id = etalase_id,
                     etalase_name = ""
                 };
+
+                //add 15/10/2019, selalu isi gambar induk
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_1
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_2
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_3
+                    });
+                }
+                //add 6/9/2019, 5 gambar
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_4
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
+                {
+                    newDataProduct.images.Add(new CreateProduct_Images()
+                    {
+                        image_description = "",
+                        image_file_name = "",
+                        image_file_path = brg_stf02.LINK_GAMBAR_5
+                    });
+                }
+                //end add 6/9/2019, 5 gambar
+                //end add 15/20/2019, selalu isi gambar induk
 
                 if (brg_stf02.TYPE == "4") // punya variasi
                 {
@@ -1096,59 +1223,59 @@ namespace MasterOnline.Controllers
 
                     newDataProduct.product_variant = product_variant;
                 }
-                else if (brg_stf02.TYPE == "3")
-                {
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_1
-                        });
-                    }
+                //else if (brg_stf02.TYPE == "3")
+                //{
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_1
+                //        });
+                //    }
 
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_2
-                        });
-                    }
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_2
+                //        });
+                //    }
 
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_3
-                        });
-                    }
-                    //add 6/9/2019, 5 gambar
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_4
-                        });
-                    }
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_3
+                //        });
+                //    }
+                //    //add 6/9/2019, 5 gambar
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_4
+                //        });
+                //    }
 
-                    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
-                    {
-                        newDataProduct.images.Add(new CreateProduct_Images()
-                        {
-                            image_description = "",
-                            image_file_name = "",
-                            image_file_path = brg_stf02.LINK_GAMBAR_5
-                        });
-                    }
-                    //end add 6/9/2019, 5 gambar
-                }
+                //    if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
+                //    {
+                //        newDataProduct.images.Add(new CreateProduct_Images()
+                //        {
+                //            image_description = "",
+                //            image_file_name = "",
+                //            image_file_path = brg_stf02.LINK_GAMBAR_5
+                //        });
+                //    }
+                //    //end add 6/9/2019, 5 gambar
+                //}
                 newData.products.Add(newDataProduct);
 
                 string myData = JsonConvert.SerializeObject(newData);
