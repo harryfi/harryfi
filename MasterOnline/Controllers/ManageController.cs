@@ -25269,6 +25269,7 @@ namespace MasterOnline.Controllers
                                     };
                                     if (!string.IsNullOrEmpty(a.Status))
                                     {
+                                        //if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak")
                                         if (a.Status == "Diterima & Selesai" || a.Status == "Diproses Pelapak" || a.Status == "Driver menuju lokasi Pelapak")
                                         {
                                             records.Add(a);
@@ -25753,9 +25754,15 @@ namespace MasterOnline.Controllers
                             DISC_TITIPAN = 0,
                             BRG = string.IsNullOrWhiteSpace(faktur.SKU) ? "no_sku_bl_" + DateTime.Now.ToString("yyyyMMddHHmmss") : faktur.SKU,
                             SATUAN = "2",
-                            H_SATUAN = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            //change 15/10/2019, harga produk sudah dikalikan dengan qty
+                            //H_SATUAN = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            H_SATUAN = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")) / Convert.ToDouble(faktur.JumlahProduk),
+                            //end change 15/10/2019, harga produk sudah dikalikan dengan qty
                             QTY = Convert.ToDouble(faktur.JumlahProduk),
-                            HARGA = Convert.ToDouble(faktur.JumlahProduk) * Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            //change 15/10/2019, harga produk sudah dikalikan dengan qty
+                            //HARGA = Convert.ToDouble(faktur.JumlahProduk) * Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            HARGA = Convert.ToDouble(faktur.HargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            //end change 15/10/2019, harga produk sudah dikalikan dengan qty
                             QTY_KIRIM = 0,
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
