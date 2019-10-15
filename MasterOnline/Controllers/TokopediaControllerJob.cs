@@ -75,9 +75,28 @@ namespace MasterOnline.Controllers
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
             {
-               var tokenRet = GetToken(data);
+                var tokenRet = GetToken(data);
 
                 ret = tokenRet.access_token;
+            }
+            else
+            {
+                //stop recurring job karena arf01 not found
+                string EDBConnID = EDB.GetConnectionString("ConnID");
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var client = new BackgroundJobClient(sqlStorage);
+                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                string connId_JobId = "";
+                string dbPathEra = data.DatabasePathErasoft;
+
+                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(data.idmarket);
+                recurJobM.RemoveIfExists(connId_JobId);
+
+                connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(data.idmarket);
+                recurJobM.RemoveIfExists(connId_JobId);
+
+                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(data.idmarket);
+                recurJobM.RemoveIfExists(connId_JobId);
             }
             return ret;
         }
@@ -1913,6 +1932,83 @@ namespace MasterOnline.Controllers
                 //end add by calvin 1 april 2019
             }
             return ret;
+        }
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
+        {
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            long milis = CurrentTimeMillis();
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            int rowCount = 0;
+
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                var orderCancel = result.data.Where(p => p.order_status == 0).ToList();
+                var orderRefund = result.data.Where(p => p.order_status == 800).ToList();
+                var orderRollback = result.data.Where(p => p.order_status == 801).ToList();
+
+                var connIdARF01C = Guid.NewGuid().ToString();
+                rowCount = result.data.Count();
+
+                string ordersn = "";
+                foreach (var item in orderCancel)
+                {
+                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                }
+                foreach (var item in orderRefund)
+                {
+                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                }
+                foreach (var item in orderRollback)
+                {
+                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                }
+
+                if (ordersn != "")
+                {
+                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                    
+                    jmlhOrder = jmlhOrder + rowAffected;
+                }
+            }
+            if (rowCount > 99)
+            {
+                await GetOrderListCancel(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder);
+            }
+            else
+            {
+                if (jmlhOrder > 0)
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Tokopedia dibatalkan.");
+                }
+            }
+            return "";
         }
 
         public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)

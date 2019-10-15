@@ -265,6 +265,121 @@ namespace MasterOnline.Controllers
             dbPathEra = DatabasePathErasoft;
             username = uname;
         }
+
+        public int PesananBatal(string ordersn) {
+            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS = '2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND JENIS_FORM='2'");
+            
+            var dsFakturRetur = new DataSet();
+            dsFakturRetur = EDB.GetDataSet("MOConnectionString", "CREATE_RETUR", "SELECT SI.* FROM SIT01A SI LEFT JOIN SIT01A RT ON SI.NO_BUKTI = RT.NO_REF AND SI.JENIS_FORM = '2' AND RT.JENIS_FORM = '3' WHERE SI.NO_REF IN (" + ordersn + ") AND SI.STATUS <> '2' AND SI.ST_POSTING = 'Y' AND SI.JENIS_FORM='2' AND ISNULL(RT.NO_BUKTI,'') = ''");
+            if (dsFakturRetur.Tables[0].Rows.Count > 0) {
+                var digitAkhir = "";
+                var noOrder = "";
+                var lastRecNum = 0;
+                var lastDigitSIT01A = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+
+                if (lastDigitSIT01A == null)
+                {
+                    digitAkhir = "000001";
+                    noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                }
+                else {
+                    lastRecNum = lastDigitSIT01A.RecNum.Value;
+                    lastRecNum++;
+
+                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                }
+
+                for (int i = 0; i < dsFakturRetur.Tables[0].Rows.Count; i++)
+                {
+                    var created = 0;
+                    var newRetur = new SIT01A()
+                    {
+                        NO_BUKTI = noOrder,
+                        NO_REF = Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["NO_BUKTI"]),
+                        JENIS_FORM = "3",
+                        TGL = DateTime.Now,
+                        NO_F_PAJAK = "",
+                        APPROVAL = Convert.ToBoolean(dsFakturRetur.Tables[0].Rows[i]["APPROVAL"]),
+                        BATAL = Convert.ToBoolean(dsFakturRetur.Tables[0].Rows[i]["BATAL"]),
+                        CUST_QQ = Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["CUST_QQ"]),
+                        JAMKIRIM = Convert.ToDateTime(dsFakturRetur.Tables[0].Rows[i]["JAMKIRIM"]),
+                        BRUTO = 0,
+                        DISCOUNT = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["DISCOUNT"]),
+                        NILAI_DISC = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["NILAI_DISC"]),
+                        NETTO = 0,
+                        PPN = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["PPN"]),
+                        NILAI_PPN = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["NILAI_PPN"]),
+                        KIRIM_PENUH = false,
+                        MATERAI = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["MATERAI"]),
+                        RETUR_PENUH = false,
+                        TERM = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["TERM"]),
+                        PPN_ditangguhkan = Convert.ToBoolean(dsFakturRetur.Tables[0].Rows[i]["PPN_ditangguhkan"]),
+                        TGL_JT_TEMPO = Convert.ToDateTime(dsFakturRetur.Tables[0].Rows[i]["TGL_JT_TEMPO"]),
+                        SJ_ADA_FAKTUR = false,
+                        NILAI_ANGKUTAN = Convert.ToDouble(dsFakturRetur.Tables[0].Rows[i]["NILAI_ANGKUTAN"]),
+                        JENIS_RETUR = "2",
+                        STATUS = "1",
+                        ST_POSTING = "T",
+                        VLT = "IDR",
+                        NO_FA_OUTLET = "-",
+                        NO_LPB = "-",
+                        GROUP_LIMIT = "-",
+                        KODE_ANGKUTAN = "-",
+                        JENIS_MOBIL = "-",
+                        NAMA_CUST = "-",
+                        TUKAR = 1,
+                        TUKAR_PPN = 1,
+                        SOPIR = "-",
+                        KET = "-",
+                        PPNBM = 0,
+                        KODE_SALES = "-",
+                        KODE_WIL = "-",
+                        U_MUKA = 0,
+                        U_MUKA_FA = 0,
+                        JTRAN = "SI",
+                        JENIS = "1",
+                        TGLINPUT = DateTime.Now,
+                        NILAI_PPNBM = 0,
+                        PEMESAN = Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["PEMESAN"]),
+                        NAMAPEMESAN = Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["NAMAPEMESAN"]),
+                        CUST = Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["CUST"])
+                    };
+
+                    var CustInDb = ErasoftDbContext.ARF01.SingleOrDefault(p => p.CUST == Convert.ToString(dsFakturRetur.Tables[0].Rows[i]["CUST"]));
+                    if (CustInDb != null)
+                    {
+                        newRetur.NAMA_CUST = CustInDb.NAMA;
+                        newRetur.AL = CustInDb.AL;
+                        newRetur.AL2 = CustInDb.AL2;
+                        newRetur.AL3 = CustInDb.AL3;
+                    }
+
+                    newRetur.PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(dsFakturRetur.Tables[0].Rows[i]["TGL"]).ToString("MM"));
+                    newRetur.PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(dsFakturRetur.Tables[0].Rows[i]["TGL"]).ToString("yyyy").Substring(2, 2));
+                    ErasoftDbContext.SIT01A.Add(newRetur);
+                    created = ErasoftDbContext.SaveChanges();
+
+                    if (created > 0)
+                        {
+                            object[] spParams = {
+                            new SqlParameter("@NOBUK",newRetur.NO_BUKTI),
+                            new SqlParameter("@NO_REF",newRetur.NO_REF)
+                        };
+                        ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PENJUALAN] @NOBUK, @NO_REF", spParams);
+                    }
+
+                    lastRecNum++;
+                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                }
+            }
+
+            return rowAffected;
+        }
+
         public class BliBliToken
         {
             public string access_token { get; set; }
