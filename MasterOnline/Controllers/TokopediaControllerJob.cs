@@ -81,22 +81,29 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                //stop recurring job karena arf01 not found
-                string EDBConnID = EDB.GetConnectionString("ConnID");
-                var sqlStorage = new SqlServerStorage(EDBConnID);
-                var client = new BackgroundJobClient(sqlStorage);
-                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
-                string connId_JobId = "";
-                string dbPathEra = data.DatabasePathErasoft;
+                try
+                {
+                    //stop recurring job karena arf01 not found
+                    string EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var client = new BackgroundJobClient(sqlStorage);
+                    RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                    string connId_JobId = "";
+                    string dbPathEra = data.DatabasePathErasoft;
 
-                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(data.idmarket);
-                recurJobM.RemoveIfExists(connId_JobId);
+                    connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(data.idmarket);
+                    recurJobM.RemoveIfExists(connId_JobId);
 
-                connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(data.idmarket);
-                recurJobM.RemoveIfExists(connId_JobId);
+                    connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(data.idmarket);
+                    recurJobM.RemoveIfExists(connId_JobId);
 
-                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(data.idmarket);
-                recurJobM.RemoveIfExists(connId_JobId);
+                    connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(data.idmarket);
+                    recurJobM.RemoveIfExists(connId_JobId);
+                }
+                catch (Exception ex)
+                {
+                    
+                }
             }
             return ret;
         }
