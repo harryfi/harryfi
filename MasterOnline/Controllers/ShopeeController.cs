@@ -172,8 +172,14 @@ namespace MasterOnline.Controllers
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     //add 13 Feb 2019, tuning
-                    var stf02h_local = ErasoftDbContext.STF02H.Select(p => new stf02h_local { BRG = p.BRG, BRG_MP = p.BRG_MP }).Where(m => m.IDMARKET == IdMarket).ToList();
-                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Select(p=> new tempBrg_local { BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
+
+
+                    //var stf02h_local = ErasoftDbContext.STF02H.Select(p => new stf02h_local { BRG = p.BRG, BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
+                    //var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Select(p=> new tempBrg_local { BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
+
+                    var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                    var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
                     if (listBrg.items != null)
