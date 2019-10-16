@@ -237,7 +237,7 @@
                                        accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             </div>
                             <div class="col-md-4">
-                                <button type="button" class="btn btn-primary" onclick="uploadExcelSAS();" data-style="expand-right">
+                                <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
                                     <span>Upload</span>
                                 </button>
                             </div>
@@ -427,6 +427,8 @@
             }
             else
             {
+                $('#btnUploadExcelSAS').attr('disabled', 'disabled');
+
                 var formdata = new FormData(); //FormData object
                 var fileInput = document.getElementById('file_upload_excel');
                 //Iterating through each files selected in fileInput
@@ -447,6 +449,8 @@
                     success: function (response) {
                         if (response.Errors.length == 0) {
                             $('#loading_upload').hide();
+                            $('#btnUploadExcelSAS').removeAttr('disabled');
+
                             //rows_selected = response.cust;
                             //listCustomerUploaded = response.namaCust;
                             alert('Proses upload dan input Saldo awal stok sudah selesai.');
@@ -460,11 +464,13 @@
                             document.getElementById("file_upload_excel").value = "";
                             //document.getElementById('lblListError').innerText = err;
                             $('#loading_upload').hide();
+                            $('#btnUploadExcelSAS').removeAttr('disabled');
                         }
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
                         $('#loading_upload').hide();
+                        $('#btnUploadExcelSAS').removeAttr('disabled');
                     }
                 });
             }
