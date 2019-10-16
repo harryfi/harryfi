@@ -21148,8 +21148,8 @@ namespace MasterOnline.Controllers
                 {
                     ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
 
                 return PartialView("BarangStokPartial", vm);
@@ -21165,17 +21165,22 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokInDb = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.ID == stokId);
+                
+                var ListStokDetail = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList();
+                var listBarangInStokDetail = ListStokDetail.Select(p => p.Kobar).ToList();
 
                 var vm = new StokViewModel()
                 {
                     Stok = stokInDb,
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
-                    ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
+                    //ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
+                    //ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == dataVm.Stok.Nobuk).ToList(),
+                    ListBarangStok = ListStokDetail,
                     //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListGudang = ErasoftDbContext.STF18.ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInStokDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
-
+                
                 return PartialView("BarangStokPartial", vm);
             }
             catch (Exception)
