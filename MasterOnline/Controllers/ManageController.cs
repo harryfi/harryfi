@@ -3453,7 +3453,7 @@ namespace MasterOnline.Controllers
                 //    ErasoftDbContext.STF02H.Add(dataHarga);
                 //}
                 string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display)";
-                sSQL += "select brg, " + cust.RecNum + ", '" + cust.PERSO + "', 'auto_create_pelanggan', 0, 0  from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket=" + cust.RecNum + " where isnull(b.idmarket,0)=0";
+                sSQL += "select a.brg, " + cust.RecNum + ", '" + cust.PERSO + "', 'auto_create_pelanggan', 0, 0  from stf02 a left join stf02h b on a.brg = b.brg and b.idmarket=" + cust.RecNum + " where isnull(b.idmarket,0)=0";
                 EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                 //end tuning 10 Maret 2019
             }
