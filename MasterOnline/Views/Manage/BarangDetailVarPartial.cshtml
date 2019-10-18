@@ -2,18 +2,18 @@
 @using MasterOnline.ViewModels
 @model MasterOnline.ViewModels.BarangDetailVarViewModel
 @{
-//var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-//var username = "";
-//var context = new MoDbContext();
-//if (dataSession?.User != null)
-//{
-//    var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-//    username = context.Account.Single(a => a.AccountId == accId).Username;
-//}
-//else
-//{
-//    username = dataSession?.Account.Username;
-//}
+    //var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    //var username = "";
+    //var context = new MoDbContext();
+    //if (dataSession?.User != null)
+    //{
+    //    var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+    //    username = context.Account.Single(a => a.AccountId == accId).Username;
+    //}
+    //else
+    //{
+    //    username = dataSession?.Account.Username;
+    //}
 }
 @Html.AntiForgeryToken()
 <style>
@@ -34,7 +34,27 @@
             cursor: pointer;
         }
 
+        .foto_produk_section > .box_upload_var_2 {
+            width: 100px;
+            height: 100px;
+            border: dashed 1.5px #bbb;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            background-image: url('');
+            text-align: center;
+            display: table;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
     .box_upload_var > .box_upload_placeholder {
+        color: #ccc;
+        font-size: 20px;
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .box_upload_var_2 > .box_upload_placeholder {
         color: #ccc;
         font-size: 20px;
         display: table-cell;
@@ -54,6 +74,19 @@
         cursor: pointer;
     }
 
+    .foto_produk_section > .box_upload_var_blibli_2 {
+        width: 100px;
+        height: 100px;
+        border: dashed 1.5px #bbb;
+        border-radius: 10px;
+        background-color: #f7f7f7;
+        background-image: url('');
+        text-align: center;
+        display: table;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+
     .box_upload_var_blibli > .box_upload_placeholder {
         color: #ccc;
         font-size: 20px;
@@ -61,6 +94,12 @@
         vertical-align: middle;
     }
 
+    .box_upload_var_blibli_2 > .box_upload_placeholder {
+        color: #ccc;
+        font-size: 20px;
+        display: table-cell;
+        vertical-align: middle;
+    }
     /*.btn_hapus_foto_produk_var {
         position: absolute;
         bottom: 15px;
@@ -125,6 +164,38 @@
             });
         });
 
+         $('.btn_hapus_foto_produk_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_var2_' + data_barang_id).hide();
+            $('#btn_hapus_var2_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", data_barang_kode);
+                $link = $link.replace("replaceUrutan", 2);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_var2_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_var2_' + data_barang_id).val(null);
+                        $('#box_upload_var2_' + data_barang_id).css('background-image', '');
+                        $('#box_upload_var2_' + data_barang_id + ' span').show();
+                        $('#btn_hapus_var2_' + data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
         $('.foto_produk_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $('#foto_produk_var_' + data_barang_id).hide();
@@ -148,10 +219,40 @@
             });
         });
 
+        $('.foto_produk_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_var2_' + data_barang_id).hide();
+            $('#foto_produk_var2_' + data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImageVar) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_var2_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_var2_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_var2_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
         $('.box_upload_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $(item).off('click').on('click', function () {
                 $('#foto_produk_var_' + data_barang_id).click();
+            });
+        });
+
+        $('.box_upload_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_var2_' + data_barang_id).click();
             });
         });
 
@@ -216,6 +317,38 @@
             });
         });
 
+        $('.btn_hapus_foto_produk_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+            $('#btn_hapus_var_blibli2_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBliVar", "Manage", new { recnum = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", data_barang_id);
+                $link = $link.replace("replaceUrutan", 2);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_var_blibli2_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_var_blibli2_' + data_barang_id).val(null);
+                        $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', '');
+                        $('#box_upload_var_blibli2_' + data_barang_id + ' span').show();
+                        $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
         $('.foto_produk_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $('#foto_produk_var_blibli_' + data_barang_id).hide();
@@ -239,6 +372,29 @@
             });
         });
 
+        $('.foto_produk_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_var_blibli2_' + data_barang_id).hide();
+            $('#foto_produk_var_blibli2_' + data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImageVar) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_var_blibli2_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_var_blibli2_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
         $('.box_upload_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             $(item).off('click').on('click', function () {
@@ -246,7 +402,263 @@
             });
         });
 
+        $('.box_upload_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_var_blibli2_' + data_barang_id).click();
+            });
+        });
+
         getFotoProdukBlibliVariant();
+
+        //add by Tri 2 oct 2019, gambar induk di form barang varian
+        $('#foto_produk_induk_1, #foto_produk_induk_2, #foto_produk_induk_3, #foto_produk_induk_4, #foto_produk_induk_5').hide();
+        $('#btn_hapus_induk_1, #btn_hapus_induk_2, #btn_hapus_induk_3, #btn_hapus_induk_4, #btn_hapus_induk_5').hide();
+
+        $('#btn_hapus_induk_1').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
+            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+                $link = $link.replace("replaceUrutan", 1);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_induk_1').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_induk_1').val(null);
+                        $('#box_upload_induk_1').css('background-image', '');
+                        $('#box_upload_induk_1 span').show();
+                        $('#btn_hapus_induk_1').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        $('#btn_hapus_induk_2').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
+            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+                $link = $link.replace("replaceUrutan", 2);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_induk_2').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_induk_2').val(null);
+                        $('#box_upload_induk_2').css('background-image', '');
+                        $('#box_upload_induk_2 span').show();
+                        $('#btn_hapus_induk_2').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        $('#btn_hapus_induk_3').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
+            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+                $link = $link.replace("replaceUrutan", 3);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_induk_3').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_induk_3').val(null);
+                        $('#box_upload_induk_3').css('background-image', '');
+                        $('#box_upload_induk_3 span').show();
+                        $('#btn_hapus_induk_3').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        $('#btn_hapus_induk_4').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
+            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+                $link = $link.replace("replaceUrutan", 4);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_induk_4').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_induk_4').val(null);
+                        $('#box_upload_induk_4').css('background-image', '');
+                        $('#box_upload_induk_4 span').show();
+                        $('#btn_hapus_induk_4').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        $('#btn_hapus_induk_5').off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
+            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+                $link = $link.replace("replaceUrutan", 5);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_induk_5').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_induk_5').val(null);
+                        $('#box_upload_induk_5').css('background-image', '');
+                        $('#box_upload_induk_5 span').show();
+                        $('#btn_hapus_induk_5').hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+        });
+
+        $('#foto_produk_induk_1').off('change').on('change', function () {
+            var file = this.files[0];
+            var fileType = file["type"];
+            if ($.inArray(fileType, validImageVar) < 0) {
+                alert('Hanya boleh file berformat .jpg!');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $('#box_upload_induk_1').css('background-image', 'url("' + reader.result + '")')
+                    .css('background-size', 'cover');
+                $('#box_upload_induk_1 span').hide();
+                $('#btn_hapus_induk_1').show();
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+        $('#foto_produk_induk_2').off('change').on('change', function () {
+            var file = this.files[0];
+            var fileType = file["type"];
+            if ($.inArray(fileType, validImageVar) < 0) {
+                alert('Hanya boleh file berformat .jpg!');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $('#box_upload_induk_2').css('background-image', 'url("' + reader.result + '")')
+                    .css('background-size', 'cover');
+                $('#box_upload_induk_2 span').hide();
+                $('#btn_hapus_induk_2').show();
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+        $('#foto_produk_induk_3').off('change').on('change', function () {
+            var file = this.files[0];
+            var fileType = file["type"];
+            if ($.inArray(fileType, validImageVar) < 0) {
+                alert('Hanya boleh file berformat .jpg!');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $('#box_upload_induk_3').css('background-image', 'url("' + reader.result + '")')
+                    .css('background-size', 'cover');
+                $('#box_upload_induk_3 span').hide();
+                $('#btn_hapus_induk_3').show();
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+        $('#foto_produk_induk_4').off('change').on('change', function () {
+            var file = this.files[0];
+            var fileType = file["type"];
+            if ($.inArray(fileType, validImageVar) < 0) {
+                alert('Hanya boleh file berformat .jpg!');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $('#box_upload_induk_4').css('background-image', 'url("' + reader.result + '")')
+                    .css('background-size', 'cover');
+                $('#box_upload_induk_4 span').hide();
+                $('#btn_hapus_induk_4').show();
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+        $('#foto_produk_induk_5').off('change').on('change', function () {
+            var file = this.files[0];
+            var fileType = file["type"];
+            if ($.inArray(fileType, validImageVar) < 0) {
+                alert('Hanya boleh file berformat .jpg!');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                $('#box_upload_induk_5').css('background-image', 'url("' + reader.result + '")')
+                    .css('background-size', 'cover');
+                $('#box_upload_induk_5 span').hide();
+                $('#btn_hapus_induk_5').show();
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+        $('#box_upload_induk_1').off('click').on('click', function () {
+            $('#foto_produk_induk_1').click();
+        });
+
+        $('#box_upload_induk_2').off('click').on('click', function () {
+            $('#foto_produk_induk_2').click();
+        });
+
+        $('#box_upload_induk_3').off('click').on('click', function () {
+            $('#foto_produk_induk_3').click();
+        });
+        
+        $('#box_upload_induk_4').off('click').on('click', function () {
+            $('#foto_produk_induk_4').click();
+        });
+
+        $('#box_upload_induk_5').off('click').on('click', function () {
+            $('#foto_produk_induk_5').click();
+        });
+
+        getFotoProdukInduk();
+        //end add by Tri 2 oct 2019, gambar induk di form barang varian
+
     });
 
     function getFotoProdukVariant() {
@@ -265,6 +677,25 @@
                 });
                 $('#box_upload_var_' + data_barang_id + ' span').hide();
                 $('#btn_hapus_var_' + data_barang_id).show();
+            }
+
+        });
+
+        $('.hidden_url_gambar_var_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+
+            $('#foto_produk_var2_' + data_barang_id).val(null);
+            $('#box_upload_var2_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var2_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var2_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var2_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var2_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var2_' + data_barang_id).show();
             }
 
         });
@@ -288,6 +719,71 @@
                 $('#btn_hapus_var_blibli_' + data_barang_id).show();
             }
         });
+
+        $('.hidden_url_gambar_var_blibli_2').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+
+            $('#foto_produk_var_blibli2_' + data_barang_id).val(null);
+            $('#box_upload_var_blibli2_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var_blibli2_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var_blibli2_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var_blibli2_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var_blibli2_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var_blibli2_' + data_barang_id).show();
+            }
+        });
+    }
+
+    function getFotoProdukInduk() {
+        if ($('#hidden_url_gambar_induk_1').val() != "") {
+            $('#box_upload_induk_1').css({
+                'background-image': 'url("' + $('#hidden_url_gambar_induk_1').val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_induk_1 span').hide();
+            $('#btn_hapus_induk_1').show();
+        }
+
+        if ($('#hidden_url_gambar_induk_2').val() != "") {
+            $('#box_upload_induk_2').css({
+                'background-image': 'url("' + $('#hidden_url_gambar_induk_2').val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_induk_2 span').hide();
+            $('#btn_hapus_induk_2').show();
+        }
+
+        if ($('#hidden_url_gambar_induk_3').val() != "") {
+            $('#box_upload_induk_3').css({
+                'background-image': 'url("' + $('#hidden_url_gambar_induk_3').val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_induk_3 span').hide();
+            $('#btn_hapus_induk_3').show();
+        }
+
+        if ($('#hidden_url_gambar_induk_4').val() != "") {
+            $('#box_upload_induk_4').css({
+                'background-image': 'url("' + $('#hidden_url_gambar_induk_4').val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_induk_4 span').hide();
+            $('#btn_hapus_induk_4').show();
+        }
+
+        if ($('#hidden_url_gambar_induk_5').val() != "") {
+            $('#box_upload_induk_5').css({
+                'background-image': 'url("' + $('#hidden_url_gambar_induk_5').val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_induk_5 span').hide();
+            $('#btn_hapus_induk_5').show();
+        }
     }
 
     function UpdateGambarVariantBarangBlibli() {
@@ -297,6 +793,11 @@
             var data_barang_id = $(item).attr("data-barang-id");
             listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
         });
+
+        //$('.foto_produk_var_blibli_2').each(function (i, item) {
+        //    var data_barang_id = $(item).attr("data-barang-id");
+        //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
+        //});
 
         $.ajax({
             type: "POST",
@@ -321,13 +822,25 @@
             message_validasi_simpanBarangVariant = "";
 
             if (validasi_simpanBarangVariant) {
-
+                var idBarang = $('#gambarInduk_ID').val();
                 var listGambarVariant = new FormData();
+
+                var index_gambar = 1;
+                $('.foto_produk_induk').each(function (i, item) {
+                    var data_barang_id = $(item).attr("data-barang-id");
+                    listGambarVariant.append(data_barang_id + '_' + index_gambar, $(item)[0].files[0]);
+                    index_gambar = index_gambar + 1;
+                });
 
                 $('.foto_produk_var').each(function (i, item) {
                     var data_barang_id = $(item).attr("data-barang-id");
                     listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
                 });
+
+                //$('.foto_produk_var_2').each(function (i, item) {
+                //    var data_barang_id = $(item).attr("data-barang-id");
+                //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
+                //});
 
                 $.ajax({
                     type: "POST",
@@ -488,6 +1001,65 @@
         <div class="tab-content">
             <div id="masteronline_detail_tab_variant_2" class="tab-pane fade in active">
                 <div class="row" style="padding-top:10px">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="x_panel" id="upload-foto-section">
+                                <div class="x_title">
+                                    <h2 style="font-size: 16px">Foto Produk Induk</h2>
+                                    <ul class="nav navbar-right panel_toolbox">
+                                        <li>
+                                            <a class="collapse-link" id="collapse-link-upload-foto-section"><i class="fa fa-chevron-up"></i></a>
+                                        </li>
+                                    </ul>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="x_content">
+                                    <div class="row">
+                                        <div class="col-md-2 foto_produk_section" style="text-align:center;">
+                                            <div class="box_upload_var" id="box_upload_induk_1">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_induk_1' data-barang-id="@(Model.gambarInduk?.ID)" name="foto_produk_induk_1" class="foto_produk_induk" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_induk_1" value="@(Model.gambarInduk?.LINK_GAMBAR_1)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" id="btn_hapus_induk_1">Hapus</button>
+                                        </div>
+                                        <div class="col-md-2 foto_produk_section" style="text-align:center;">
+                                            <div class="box_upload_var" id="box_upload_induk_2">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_induk_2' data-barang-id="@(Model.gambarInduk?.ID)" name="foto_produk_induk_2" class="foto_produk_induk" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_induk_2" value="@(Model.gambarInduk?.LINK_GAMBAR_2)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" id="btn_hapus_induk_2">Hapus</button>
+                                        </div>
+                                        <div class="col-md-2 foto_produk_section" style="text-align:center;">
+                                            <div class="box_upload_var" id="box_upload_induk_3">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_induk_3' data-barang-id="@(Model.gambarInduk?.ID)" name="foto_produk_induk_3" class="foto_produk_induk" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_induk_3" value="@(Model.gambarInduk?.LINK_GAMBAR_3)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" id="btn_hapus_induk_3">Hapus</button>
+                                        </div>
+                                        <div class="col-md-2 foto_produk_section" style="text-align:center;">
+                                            <div class="box_upload_var" id="box_upload_induk_4">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_induk_4' data-barang-id="@(Model.gambarInduk?.ID)" name="foto_produk_induk_4" class="foto_produk_induk" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_induk_4" value="@(Model.gambarInduk?.LINK_GAMBAR_4)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" id="btn_hapus_induk_4">Hapus</button>
+                                        </div>
+                                        <div class="col-md-2 foto_produk_section" style="text-align:center;">
+                                            <div class="box_upload_var" id="box_upload_induk_5">
+                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                <input type='file' id='foto_produk_induk_5' data-barang-id="@(Model.gambarInduk?.ID)" name="foto_produk_induk_5" class="foto_produk_induk" accept=".jpg" />
+                                                <input type="hidden" id="hidden_url_gambar_induk_5" value="@(Model.gambarInduk?.LINK_GAMBAR_5)" />
+                                            </div>
+                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" id="btn_hapus_induk_5">Hapus</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <table id="datatable_detail_var_mo" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                             <thead>
@@ -504,15 +1076,32 @@
                                         <td>@barang.BRG</td>
                                         <td>@barang.NAMA @barang.NAMA2</td>
                                         <td class="text-center">
-                                            <div class="foto_produk_section">
-                                                <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
-                                                    <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                    <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
-                                                    <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
-                                                </div>
-                                                <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
-                                            </div>
-                                        </td>
+                                            <table style="margin:auto;">
+                                                <tr>
+                                                    <td style="padding-right:5px;">
+                                                        <div class="foto_produk_section">
+                                                            <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
+                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
+                                                                <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
+                                                            </div>
+                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                                        </div>
+                                                    </td>
+                                                    <td style="padding-left:5px;display:none;">
+                                                        @* add 6/9/2019, barang varian 2 gambar *@
+                                                        <div class="foto_produk_section">
+                                                            <div class="box_upload_var_2" data-barang-id="@barang.ID" id="box_upload_var2_@barang.ID">
+                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                <input type='file' id='foto_produk_var2_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var_2" accept=".jpg" />
+                                                                <input type="hidden" id="hidden_url_gambar_var2_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var_2" value="@(barang.LINK_GAMBAR_2)" />
+                                                            </div>
+                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var2_@barang.ID">Hapus</button>
+                                                        </div>
+                                                        @* end add 6/9/2019, barang varian 2 gambar *@
+                                                    </td>
+                                                </tr>
+                                            </table>
                                     </tr>
                                 }
                             </tbody>
@@ -560,15 +1149,35 @@
                                                         @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
                                                     </td>
                                                     <td class="text-center">
-                                                        <div class="foto_produk_section">
-                                                            <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
-                                                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                                                <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg" />
-                                                                <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
-                                                            </div>
-                                                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
-                                                        </div>
+                                                        <table style="margin:auto;">
+                                                            <tr>
+                                                                <td style="padding-right:5px;">
+                                                                    <div class="foto_produk_section">
+                                                                        <div class="box_upload_var_blibli" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli_@VarStf02H.RecNum">
+                                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                            <input type='file' id='foto_produk_var_blibli_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli" accept=".jpg" />
+                                                                            <input type="hidden" id="hidden_url_gambar_var_blibli_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli" value="@(VarStf02H.AVALUE_50)" />
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli_@VarStf02H.RecNum">Hapus</button>
+                                                                    </div>
+                                                                </td>
+                                                                <td style="padding-left:5px;display:none;">
+                                                                    @* add 6/9/2019, barang varian 2 gambar *@
+                                                                    <div class="foto_produk_section">
+                                                                        <div class="box_upload_var_blibli_2" data-barang-id="@VarStf02H.RecNum" id="box_upload_var_blibli2_@VarStf02H.RecNum">
+                                                                            <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                                            <input type='file' id='foto_produk_var_blibli2_@VarStf02H.RecNum' data-barang-id="@VarStf02H.RecNum" class="foto_produk_var_blibli_2" accept=".jpg" />
+                                                                            <input type="hidden" id="hidden_url_gambar_var_blibli2_@VarStf02H.RecNum" data-barang-id="@VarStf02H.RecNum" class="hidden_url_gambar_var_blibli_2" value="@(VarStf02H.AVALUE_49)" />
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var_blibli_2" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@VarStf02H.RecNum" id="btn_hapus_var_blibli2_@VarStf02H.RecNum">Hapus</button>
+                                                                    </div>
+                                                                    @* end add 6/9/2019, barang varian 2 gambar *@
+                                                                </td>
+                                                            </tr>
+                                                        </table>
                                                     </td>
+
+
                                                     <td>
                                                         @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
                                                         {
@@ -775,11 +1384,11 @@
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                            {
-                                <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                            }
-                            else
-                            {*@
+                                    {
+                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                    }
+                                    else
+                                    {*@
                                 <table id="datatable_detail_var_jdid" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                     <thead>
                                         <tr role="row">

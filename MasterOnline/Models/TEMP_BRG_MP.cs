@@ -522,6 +522,10 @@ namespace MasterOnline.Models
 
         public string IMAGE3 { get; set; }
 
+        public string IMAGE4 { get; set; }
+
+        public string IMAGE5 { get; set; }
+
         [StringLength(50)]
         public string SELLER_SKU { get; set; }
 

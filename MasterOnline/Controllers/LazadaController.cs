@@ -770,6 +770,12 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
                 if (!string.IsNullOrEmpty(data.imageUrl3))
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                //add 6/9/2019, 5 gambar
+                if (!string.IsNullOrEmpty(data.imageUrl4))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl4 + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl5))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl5 + "]]></Image>";
+                //end add 6/9/2019, 5 gambar
                 xmlString += "</Images>";
 
 
@@ -902,15 +908,17 @@ namespace MasterOnline.Controllers
                                     xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
                                 }
                             }
+                            // 6/9/2019, 2 gambar untuk varian
                             //remark by calvin 19 agustus 2019
-                            //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                            //{
-                            //    var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
-                            //    if (uploadImg.status == 1)
-                            //    {
-                            //        xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
-                            //    }
-                            //}
+                            if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                            {
+                                var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                                if (uploadImg.status == 1)
+                                {
+                                    xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                                }
+                            }
+                            // 6/9/2019, 2 gambar untuk varian
                             //if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
                             //{
                             //    var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
@@ -1725,8 +1733,8 @@ namespace MasterOnline.Controllers
             //change by calvin 19 nov 2018
             //request.AddFileParameter("image", new FileItem(imagePath));
             var req = System.Net.WebRequest.Create(imagePath);
-            System.IO.Stream stream = req.GetResponse().GetResponseStream();
-            request.AddFileParameter("image", new FileItem("image", stream));
+                System.IO.Stream stream = req.GetResponse().GetResponseStream();
+                request.AddFileParameter("image", new FileItem("image", stream));
             //end change by calvin 19 nov 2018
             try
             {
@@ -2780,7 +2788,7 @@ namespace MasterOnline.Controllers
                                 ret.nextPage = 1;
                             }
                             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
-                            sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, DeliveryTempElevenia, PICKUP_POINT,";
+                            sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, IMAGE4, IMAGE5, KODE_BRG_INDUK, TYPE, DeliveryTempElevenia, PICKUP_POINT,";
                             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
                             sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30, ";
@@ -3844,10 +3852,12 @@ namespace MasterOnline.Controllers
                 }
                 namaBrg = namaBrg.Replace('\'', '`');//add by Tri 8 Juli 2019, replace petik pada nama barang
 
-                string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                string nama, nama2, nama3, urlImage, urlImage2, urlImage3, urlImage4, urlImage5;
                 urlImage = "";
                 urlImage2 = "";
                 urlImage3 = "";
+                urlImage4 = "";
+                urlImage5 = "";
 
                 //change by calvin 16 september 2019
                 //if (namaBrg.Length > 30)
@@ -3899,13 +3909,25 @@ namespace MasterOnline.Controllers
                 {
                     if (brg.skus[i].Images[0] != null)
                         urlImage = brg.skus[i].Images[0];
+                    //add 19/9/19, varian ambil 2 barang
+                    //if(typeBrg == 2)
+                    //{
+                    //    if (brg.skus[i].Images[1] != null)
+                    //        urlImage2 = brg.skus[i].Images[1];
+                    //}
+                    //end add 19/9/19, varian ambil 2 barang
                     //change 21/8/2019, barang varian ambil 1 gambar saja
-                    if (typeBrg != 2)
+                    //if (typeBrg != 2)
+                    if (typeBrg == 0)// ubah jd gambar non varian yg ambil gambar > 1
                     {
                         if (brg.skus[i].Images[1] != null)
                             urlImage2 = brg.skus[i].Images[1];
                         if (brg.skus[i].Images[2] != null)
                             urlImage3 = brg.skus[i].Images[2];
+                        if (brg.skus[i].Images[3] != null)
+                            urlImage4 = brg.skus[i].Images[3];
+                        if (brg.skus[i].Images[4] != null)
+                            urlImage5 = brg.skus[i].Images[4];
                     }
                     //end change 21/8/2019, barang varian ambil 1 gambar saja
                 }
@@ -3933,7 +3955,7 @@ namespace MasterOnline.Controllers
                 sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
                 sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
                 sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
-                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
                 var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
                 //bool getAttr = true;

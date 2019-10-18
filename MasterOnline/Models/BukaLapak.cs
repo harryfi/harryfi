@@ -35,6 +35,12 @@ namespace MasterOnline.Models
         public string appsecret { get; set; }
         public string idMarket { get; set; }
         public bool activeProd { get; set; }
+        //add 6/9/2019, 5 gambar
+        public string imageUrl4 { get; set; }
+        public string imageUrl5 { get; set; }
+        public string imageId4 { get; set; }
+        public string imageId5 { get; set; }
+        //end add 6/9/2019, 5 gambar
     }
     public class BindingBase
     {
