@@ -25184,7 +25184,7 @@ namespace MasterOnline.Controllers
                         sSQL += "WHERE C.NO_REF IN (";
                         foreach (var faktur in newFakturs)
                         {
-                            sSQL += faktur.NO_REF + " , ";
+                            sSQL += "'" + faktur.NO_REF + "' , ";
                         }
                         sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
 
@@ -25899,7 +25899,7 @@ namespace MasterOnline.Controllers
                         sSQL += "WHERE C.NO_REF IN (";
                         foreach (var faktur in newFakturs)
                         {
-                            sSQL += faktur.NO_REF + " , ";                            
+                            sSQL += "'" + faktur.NO_REF + "' , ";                            
                         }
                         sSQL = sSQL.Substring(0, sSQL.Length -2) + ")";
 
@@ -26366,7 +26366,7 @@ namespace MasterOnline.Controllers
                         sSQL += "WHERE C.NO_REF IN (";
                         foreach (var faktur in newFakturs)
                         {
-                            sSQL += faktur.NO_REF + " , ";
+                            sSQL += "'" + faktur.NO_REF + "' , ";
                         }
                         sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
 
