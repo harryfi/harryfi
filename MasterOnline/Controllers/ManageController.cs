@@ -25123,8 +25123,10 @@ namespace MasterOnline.Controllers
                     lastRecnumARF01C = 0;
                 //end add by Tri, 20/9/19
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
-                var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-                var listBRGItem = listItem.Select(p => p.BRG).ToList();
+                //change 18/10/2019, tuning
+                //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
                 var digitAkhir = "";
@@ -25222,7 +25224,10 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    if (listItem.Where(p => p.BRG == faktur.StockKeepingUnitSKU).Count() > 0)
+                                    //change 18/10/2019, tuning
+                                    //if (listItem.Where(p => p.BRG == faktur.StockKeepingUnitSKU).Count() > 0)
+                                    if (listBRGItem.Contains(faktur.StockKeepingUnitSKU))
+                                    //end change 18/10/2019, tuning
                                     {
                                         string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
                                         sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
@@ -25234,8 +25239,11 @@ namespace MasterOnline.Controllers
                                         if (berhasilinsert > 0)
                                         {
                                             barangFakturLolosValidasi = true;
-                                            listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
-                                            listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            //change 18/10/2019, tuning
+                                            //listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
+                                            //listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                                            //end change 18/10/2019, tuning
                                             listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
                                         }
                                     }
@@ -25530,6 +25538,23 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
 
                         transaction.Commit();
+
+                        //add 18/10/2019, hitung ulang bruto,netto
+                        string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C INNER JOIN ( ";
+                        sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                        sSQL += "FROM SIT01A A INNER JOIN SIT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+                        sSQL += "GROUP BY A.NO_BUKTI ";
+                        sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                        sSQL += "WHERE C.NO_REF IN (";
+                        foreach (var faktur in newFakturs)
+                        {
+                            sSQL += "'" + faktur.NO_REF + "' , ";
+                        }
+                        sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+
+                        var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        //end add 18/10/2019, hitung ulang bruto,netto
+
                     }
                     catch (Exception ex)
                     {
@@ -25816,8 +25841,10 @@ namespace MasterOnline.Controllers
                     lastRecnumARF01C = 0;
                 //end add by Tri, 20/9/19
                 //var listItem = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019
-                var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-                var listBRGItem = listItem.Select(p => p.BRG).ToList();
+                //change 18/10/2019, tuning
+                //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
                 var digitAkhir = "";
@@ -25909,7 +25936,10 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    if (listItem.Where(p => p.BRG == faktur.SKU).Count() > 0)
+                                    //change 18/10/2019, tuning
+                                    //if (listItem.Where(p => p.BRG == faktur.SKU).Count() > 0)
+                                    if (listBRGItem.Contains(faktur.SKU))
+                                    //end change 18/10/2019, tuning
                                     {
                                         string sSQL = "insert into stf02h(brg, idmarket, akunmarket, username, hjual, display) ";
                                         sSQL += "select a.brg, '" + market.RecNum + "', '" + market.PERSO + "', 'auto_create_pelanggan', 0, 0 ";
@@ -25921,8 +25951,11 @@ namespace MasterOnline.Controllers
                                         if (berhasilinsert > 0)
                                         {
                                             barangFakturLolosValidasi = true;
-                                            listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
-                                            listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            //change 18/10/2019, tuning
+                                            //listItem = ErasoftDbContext.STF02.AsNoTracking().Where(a => a.TYPE == "3").ToList();
+                                            //listBRGItem = listItem.Select(p => p.BRG).ToList();
+                                            listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                                            //end change 18/10/2019, tuning
                                             listSTF02H = ErasoftDbContext.STF02H.AsNoTracking().Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
                                         }
                                     }
@@ -26220,6 +26253,23 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
 
                         transaction.Commit();
+
+                        //add 18/10/2019, hitung ulang bruto,netto
+                        string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C INNER JOIN ( ";
+                        sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                        sSQL += "FROM SIT01A A INNER JOIN SIT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+                        sSQL += "GROUP BY A.NO_BUKTI ";
+                        sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                        sSQL += "WHERE C.NO_REF IN (";
+                        foreach (var faktur in newFakturs)
+                        {
+                            sSQL += "'" + faktur.NO_REF + "' , ";                            
+                        }
+                        sSQL = sSQL.Substring(0, sSQL.Length -2) + ")";
+
+                        var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        //end add 18/10/2019, hitung ulang bruto,netto
+
                     }
                     catch (Exception ex)
                     {
@@ -26368,8 +26418,11 @@ namespace MasterOnline.Controllers
                 var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
 
                 //var listItem = ErasoftDbContext.STF02.ToList();
-                var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
-                var listBRGItem = listItem.Select(p => p.BRG).ToList();
+                //change 18/10/2019, tuning
+                //var listItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+                //var listBRGItem = listItem.Select(p => p.BRG).ToList();
+                var listBRGItem = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").Select(p => p.BRG).ToList();
+                //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
                 var digitAkhir = "";
@@ -26667,6 +26720,23 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
 
                         transaction.Commit();
+
+                        //add 18/10/2019, hitung ulang bruto,netto
+                        string sSQL = "UPDATE C SET BRUTO = QRY.NILAI, NETTO = (QRY.NILAI + C.MATERAI - C.DISCOUNT) FROM SIT01A C INNER JOIN ( ";
+                        sSQL += "SELECT A.NO_BUKTI, SUM(B.HARGA) NILAI ";
+                        sSQL += "FROM SIT01A A INNER JOIN SIT01B B ON A.NO_BUKTI = B.NO_BUKTI ";
+                        sSQL += "GROUP BY A.NO_BUKTI ";
+                        sSQL += ") QRY ON C.NO_BUKTI = QRY.NO_BUKTI ";
+                        sSQL += "WHERE C.NO_REF IN (";
+                        foreach (var faktur in newFakturs)
+                        {
+                            sSQL += "'" + faktur.NO_REF + "' , ";
+                        }
+                        sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
+
+                        var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        //end add 18/10/2019, hitung ulang bruto,netto
+
                     }
                     catch (Exception ex)
                     {
