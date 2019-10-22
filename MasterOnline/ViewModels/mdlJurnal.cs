@@ -27,6 +27,14 @@ namespace MasterOnline
         public double DEBET { get; set; }
         public double KREDIT { get; set; }
         public short LKS { get; set; }
-        
+
+    }
+    public class PackingPerMP
+    {
+        public string no_bukti { get; set; }
+        public string no_referensi { get; set; }
+        public string nama_pemesan { get; set; }
+        public string kurir { get; set; }
+        public string jumlah_item { get; set; }
     }
 }

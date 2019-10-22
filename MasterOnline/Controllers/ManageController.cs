@@ -21907,13 +21907,17 @@ namespace MasterOnline.Controllers
             //        iden.DatabasePathErasoft = dbPathEra;
             //        iden.username = "Calvin Support";
 
+            //        //var getOrderJOB = ErasoftDbContext.SOT01A.Where(p => (p.NO_REFERENSI ?? "") == "19102215547FMSP").Select(p => p.NO_REFERENSI).ToList();
+            //        List<string> getOrderJOB = new List<string>();
+            //        getOrderJOB.Add("19102215547FMSP");
+            //        await new ShopeeControllerJob().GetAirwayBills(iden, getOrderJOB.ToArray());
             //        //string connId_JobId = "";
             //        //var getOrderPemesanKosong = ErasoftDbContext.SOT01A.Where(p => (p.PEMESAN ?? "") == "").Select(p => p.NO_REFERENSI).ToList();
 
             //        //var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
             //        //for (int i = 0; i < paging; i++)
             //        //{
-            //        await new ShopeeControllerJob().CekBrutoOrderCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+            //        //await new ShopeeControllerJob().CekBrutoOrderCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
             //        //}
             //    }
             //}
@@ -34705,6 +34709,97 @@ namespace MasterOnline.Controllers
 
         //end add by Tri 30-08-2019, picking list
 
+        public ActionResult RefreshTablePackingPesananTokped(string bukti, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tableBukti"] = bukti;
+
+            string cust = "";
+            var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
+            foreach (var item in listAkunTokped)
+            {
+                cust += item + "','";
+            }
+
+            string[] getkata = search.Split(' ');
+            string sSQL_No_Bukti = "";
+            string sSQL_No_Ref = "";
+            string sSQL_Pembeli = "";
+            string sSQL_Shipment = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQL_No_Bukti += " ( A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                            sSQL_No_Ref+= " ( A.NO_REFERENSI like '%" + getkata[i] + "%' )";
+                            sSQL_Pembeli += " ( B.PEMBELI like '%" + getkata[i] + "%' )";
+                            sSQL_Shipment += " ( A.SHIPMENT like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQL_No_Bukti += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                                sSQL_No_Ref += " ( A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                                sSQL_Pembeli += " ( B.PEMBELI like '%" + getkata[i] + "%' ";
+                                sSQL_Shipment += " ( A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQL_No_Bukti += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
+                                sSQL_No_Ref += " and A.NO_REFERENSI like '%" + getkata[i] + "%' )";
+                                sSQL_Pembeli += " and B.PEMBELI like '%" + getkata[i] + "%' )";
+                                sSQL_Shipment += " and A.SHIPMENT like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQL_No_Bukti += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                                sSQL_No_Ref += " and A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+                                sSQL_Pembeli += " and B.PEMBELI like '%" + getkata[i] + "%' ";
+                                sSQL_Shipment += " and A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '"+ bukti + "' AND A.CUST IN ('" + cust + "') ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQL_No_Bukti + " or " + sSQL_No_Ref + " or " + sSQL_Pembeli + " or " + sSQL_Shipment + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            var pageContent = ListStt01a;
+
+            IPagedList<PackingPerMP> pageOrders = new StaticPagedList<PackingPerMP>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("PackingListTokped", pageOrders);
+        }
 
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
