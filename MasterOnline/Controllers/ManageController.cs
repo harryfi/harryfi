@@ -3022,17 +3022,18 @@ namespace MasterOnline.Controllers
 
             if (dataBuyer.Pembeli.RecNum == null)
             {
-                var listPembeli = ErasoftDbContext.ARF01C.OrderBy(m => m.RecNum).ToList();
+                //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(m => m.RecNum).ToList();
+                var listPembeli = ErasoftDbContext.ARF01C.OrderByDescending(m => m.RecNum).FirstOrDefault();
                 var noPembeli = "";
 
-                if (listPembeli.Count == 0)
+                if (listPembeli == null)
                 {
                     noPembeli = "000001";
                     ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ARF01C, RESEED, 0)");
                 }
                 else
                 {
-                    var lastRecNum = listPembeli.Last().RecNum;
+                    var lastRecNum = listPembeli.RecNum;
                     lastRecNum++;
 
                     noPembeli = lastRecNum.ToString().PadLeft(6, '0');
@@ -13546,11 +13547,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Faktur.RecNum == null)
             {
-                var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                //var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noOrder = "";
 
-                if (listFakturInDb.Count == 0)
+                if (listFakturInDb == null)
                 {
                     digitAkhir = "000001";
                     noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -13558,7 +13560,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listFakturInDb.Last().RecNum;
+                    //var lastRecNum = listFakturInDb.Last().RecNum;
+                    var lastRecNum = listFakturInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -13831,11 +13834,12 @@ namespace MasterOnline.Controllers
                 var cekREf = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_REF == dataVm.Faktur.NO_REF);
                 if (cekREf == null)
                 {
-                    var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                    //var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                    var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                     var digitAkhir = "";
                     var noOrder = "";
 
-                    if (listFakturInDb.Count == 0)
+                    if (listFakturInDb == null)
                     {
                         digitAkhir = "000001";
                         noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -13843,7 +13847,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var lastRecNum = listFakturInDb.Last().RecNum;
+                        //var lastRecNum = listFakturInDb.Last().RecNum;
+                        var lastRecNum = listFakturInDb.RecNum;
                         lastRecNum++;
 
                         digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -14530,13 +14535,13 @@ namespace MasterOnline.Controllers
             {
                 var vm = new FakturViewModel()
                 {
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
-                    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                    ListNFaktur = ErasoftDbContext.ART03B.ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
+                    ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    //ListNFaktur = ErasoftDbContext.ART03B.ToList()
                 };
 
                 return PartialView("BarangFakturPartial", vm);
@@ -14553,12 +14558,12 @@ namespace MasterOnline.Controllers
             {
                 var vm = new FakturViewModel()
                 {
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
-                    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
+                    ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
                 return PartialView("BarangReturPartial", vm);
@@ -15051,11 +15056,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Invoice.RecNum == null)
             {
-                var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noOrder = "";
 
-                if (listInvoiceInDb.Count == 0)
+                if (listInvoiceInDb == null)
                 {
                     digitAkhir = "000001";
                     noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -15063,7 +15069,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listInvoiceInDb.Last().RecNum;
+                    //var lastRecNum = listInvoiceInDb.Last().RecNum;
+                    var lastRecNum = listInvoiceInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -15155,11 +15162,12 @@ namespace MasterOnline.Controllers
                 var cekREf = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.REF == dataVm.Invoice.REF);
                 if (cekREf == null)
                 {
-                    var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                    //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                    var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                     var digitAkhir = "";
                     var noOrder = "";
 
-                    if (listInvoiceInDb.Count == 0)
+                    if (listInvoiceInDb == null)
                     {
                         digitAkhir = "000001";
                         noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -15167,7 +15175,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var lastRecNum = listInvoiceInDb.Last().RecNum;
+                        //var lastRecNum = listInvoiceInDb.Last().RecNum;
+                        var lastRecNum = listInvoiceInDb.RecNum;
                         lastRecNum++;
 
                         digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -15656,12 +15665,12 @@ namespace MasterOnline.Controllers
             {
                 var vm = new InvoiceViewModel()
                 {
-                    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
-                    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                    //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
+                    ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
                 return PartialView("BarangInvoicePartial", vm);
@@ -15678,12 +15687,12 @@ namespace MasterOnline.Controllers
             {
                 var vm = new InvoiceViewModel()
                 {
-                    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
-                    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                    //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
+                    ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    //ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
                 return PartialView("BarangReturInvoicePartial", vm);
@@ -16338,11 +16347,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Pesanan.RecNum == null)
             {
-                var listPesananInDb = ErasoftDbContext.SOT01A.OrderBy(p => p.RecNum).ToList();
+                //var listPesananInDb = ErasoftDbContext.SOT01A.OrderBy(p => p.RecNum).ToList();
+                var listPesananInDb = ErasoftDbContext.SOT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noOrder = "";
 
-                if (listPesananInDb.Count == 0)
+                if (listPesananInDb == null)
                 {
                     digitAkhir = "000001";
                     noOrder = $"SO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -16350,7 +16360,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listPesananInDb.Last().RecNum;
+                    //var lastRecNum = listPesananInDb.Last().RecNum;
+                    var lastRecNum = listPesananInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -20522,11 +20533,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Hutang.RECNUM == null)
             {
-                var listPesananInDb = ErasoftDbContext.APT01A.OrderBy(p => p.RECNUM).ToList();
+                //var listPesananInDb = ErasoftDbContext.APT01A.OrderBy(p => p.RECNUM).ToList();
+                var listPesananInDb = ErasoftDbContext.APT01A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
                 var digitAkhir = "";
                 var noHutang = "";
 
-                if (listPesananInDb.Count == 0)
+                if (listPesananInDb == null)
                 {
                     digitAkhir = "000001";
                     noHutang = $"AP{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -20534,7 +20546,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listPesananInDb.Last().RECNUM;
+                    var lastRecNum = listPesananInDb.RECNUM;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -20781,11 +20793,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Piutang.RecNum == null)
             {
-                var listPiutangInDb = ErasoftDbContext.ART01A.OrderBy(p => p.RecNum).ToList();
+                //var listPiutangInDb = ErasoftDbContext.ART01A.OrderBy(p => p.RecNum).ToList();
+                var listPiutangInDb = ErasoftDbContext.ART01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noHutang = "";
 
-                if (listPiutangInDb.Count == 0)
+                if (listPiutangInDb == null)
                 {
                     digitAkhir = "000001";
                     noHutang = $"AR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -20793,7 +20806,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listPiutangInDb.Last().RecNum;
+                    var lastRecNum = listPiutangInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -21226,11 +21239,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
                 var digitAkhir = "";
                 var noStok = "";
 
-                if (listStokInDb.Count == 0)
+                if (listStokInDb == null)
                 {
                     digitAkhir = "000001";
                     noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -21238,8 +21252,9 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listStokInDb.Last().ID;
-                    var lastKode = listStokInDb.Last().Nobuk;
+                    //var lastRecNum = listStokInDb.Last().ID;
+                    var lastRecNum = listStokInDb.ID;
+                    var lastKode = listStokInDb.Nobuk;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -22338,11 +22353,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Piutang.RecNum == null)
             {
-                var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderBy(p => p.RecNum).ToList();
+                //var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderBy(p => p.RecNum).ToList();
+                var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noOrder = "";
 
-                if (listBayarPiutangInDb.Count == 0)
+                if (listBayarPiutangInDb == null)
                 {
                     digitAkhir = "000001";
                     noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -22350,7 +22366,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listBayarPiutangInDb.Last().RecNum;
+                    var lastRecNum = listBayarPiutangInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -22776,11 +22792,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Hutang.RecNum == null)
             {
-                var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderBy(p => p.RecNum).ToList();
+                //var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderBy(p => p.RecNum).ToList();
+                var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
                 var digitAkhir = "";
                 var noOrder = "";
 
-                if (listBayarHutangInDb.Count == 0)
+                if (listBayarHutangInDb == null)
                 {
                     digitAkhir = "000001";
                     noOrder = $"DR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -22788,7 +22805,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listBayarHutangInDb.Last().RecNum;
+                    var lastRecNum = listBayarHutangInDb.RecNum;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -23260,11 +23277,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
                 var digitAkhir = "";
                 var noStok = "";
 
-                if (listStokInDb.Count == 0)
+                if (listStokInDb == null)
                 {
                     digitAkhir = "000001";
                     noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -23272,8 +23290,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listStokInDb.Last().ID;
-                    var lastKode = listStokInDb.Last().Nobuk;
+                    var lastRecNum = listStokInDb.ID;
+                    var lastKode = listStokInDb.Nobuk;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -23701,11 +23719,12 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
                 var digitAkhir = "";
                 var noStok = "";
 
-                if (listStokInDb.Count == 0)
+                if (listStokInDb == null)
                 {
                     digitAkhir = "000001";
                     noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -23713,8 +23732,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listStokInDb.Last().ID;
-                    var lastKode = listStokInDb.Last().Nobuk;
+                    var lastRecNum = listStokInDb.ID;
+                    var lastKode = listStokInDb.Nobuk;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -24133,11 +24152,12 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
-                var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
                 var digitAkhir = "";
                 var noStok = "";
 
-                if (listStokInDb.Count == 0)
+                if (listStokInDb == null)
                 {
                     digitAkhir = "000001";
                     noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -24145,8 +24165,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listStokInDb.Last().ID;
-                    var lastKode = listStokInDb.Last().Nobuk;
+                    var lastRecNum = listStokInDb.ID;
+                    var lastKode = listStokInDb.Nobuk;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -33279,11 +33299,11 @@ namespace MasterOnline.Controllers
                 dataVm.Pengiriman.JAM_KIRIM = jamkirim;
                 if (dataVm.Pengiriman.RECNUM == null)
                 {
-                    var listKirimInDb = ErasoftDbContext.SIT04A.OrderBy(p => p.RECNUM).ToList();
+                    var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
                     var digitAkhir = "";
                     var noKirim = "";
 
-                    if (listKirimInDb.Count == 0)
+                    if (listKirimInDb == null)
                     {
                         digitAkhir = "000001";
                         noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -33291,8 +33311,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var lastRecNum = listKirimInDb.Last().RECNUM;
-                        var lastKode = listKirimInDb.Last().NO_BUKTI;
+                        var lastRecNum = listKirimInDb.RECNUM;
+                        var lastKode = listKirimInDb.NO_BUKTI;
                         lastRecNum++;
 
                         digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -33789,11 +33809,11 @@ namespace MasterOnline.Controllers
             DateTime? jamkirim = Convert.ToDateTime(dataVm.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy") + ' ' + dataVm.Pengiriman.JAM_KIRIM?.ToString("HH:mm"));
             if (dataVm.Pengiriman.RECNUM == null)
             {
-                var listKirimInDb = ErasoftDbContext.SIT04A.OrderBy(p => p.RECNUM).ToList();
+                var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
                 var digitAkhir = "";
                 var noKirim = "";
 
-                if (listKirimInDb.Count == 0)
+                if (listKirimInDb == null)
                 {
                     digitAkhir = "000001";
                     noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
@@ -33801,8 +33821,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var lastRecNum = listKirimInDb.Last().RECNUM;
-                    var lastKode = listKirimInDb.Last().NO_BUKTI;
+                    var lastRecNum = listKirimInDb.RECNUM;
+                    var lastKode = listKirimInDb.NO_BUKTI;
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
