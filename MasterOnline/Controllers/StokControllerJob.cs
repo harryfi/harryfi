@@ -190,9 +190,9 @@ namespace MasterOnline.Controllers
     public class StokControllerJob : Controller
     {
         private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);//string auth = Base64Encode();
-        private MoDbContext MoDbContext { get; set; }
-        private ErasoftContext ErasoftDbContext { get; set; }
-        private DatabaseSQL EDB;
+        //private MoDbContext MoDbContext { get; set; }
+        //private ErasoftContext ErasoftDbContext { get; set; }
+        //private DatabaseSQL EDB;
         private string username;
         private string dbPathEra;
         public StokControllerJob()
@@ -259,14 +259,15 @@ namespace MasterOnline.Controllers
 
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
-            MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
-            EDB = new DatabaseSQL(DatabasePathErasoft);
             dbPathEra = DatabasePathErasoft;
             username = uname;
         }
 
         public int PesananBatal(string ordersn) {
+
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+
             var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS = '2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND JENIS_FORM='2'");
             
@@ -393,9 +394,7 @@ namespace MasterOnline.Controllers
         protected string SetupContextBlibli(string DatabasePathErasoft, string uname, BlibliAPIData data)
         {
             string ret = "";
-            MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
-            EDB = new DatabaseSQL(DatabasePathErasoft);
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             dbPathEra = DatabasePathErasoft;
             username = uname;
 
@@ -498,9 +497,7 @@ namespace MasterOnline.Controllers
         {
 
             string ret = "";
-            MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
-            EDB = new DatabaseSQL(DatabasePathErasoft);
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             dbPathEra = DatabasePathErasoft;
             username = uname;
 
@@ -572,43 +569,43 @@ namespace MasterOnline.Controllers
                             REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
                             REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
                         };
-                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
-                        ErasoftDbContext.SaveChanges();
+                        db.API_LOG_MARKETPLACE.Add(apiLog);
+                        db.SaveChanges();
                     }
                     break;
                 case api_status.Success:
                     {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        var apiLogInDb = db.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
                         if (apiLogInDb != null)
                         {
                             apiLogInDb.REQUEST_STATUS = "Success";
                             apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
                             apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                            ErasoftDbContext.SaveChanges();
+                            db.SaveChanges();
                         }
                     }
                     break;
                 case api_status.Failed:
                     {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        var apiLogInDb = db.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
                         if (apiLogInDb != null)
                         {
                             apiLogInDb.REQUEST_STATUS = "Failed";
                             apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
                             apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                            ErasoftDbContext.SaveChanges();
+                            db.SaveChanges();
                         }
                     }
                     break;
                 case api_status.Exception:
                     {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        var apiLogInDb = db.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
                         if (apiLogInDb != null)
                         {
                             apiLogInDb.REQUEST_STATUS = "Failed";
                             apiLogInDb.REQUEST_RESULT = "Exception";
                             apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                            ErasoftDbContext.SaveChanges();
+                            db.SaveChanges();
                         }
                     }
                     break;
@@ -630,6 +627,7 @@ namespace MasterOnline.Controllers
 
         public double GetQOHSTF08A(string Barang, string Gudang)
         {
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             double qtyOnHand = 0d;
             {
                 object[] spParams = {
@@ -688,7 +686,9 @@ namespace MasterOnline.Controllers
         public void updateStockMarketPlace_ForItemInSTF08A(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
             var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
             bool doAPI = false;
             if (DataUsaha != null)
@@ -917,6 +917,9 @@ namespace MasterOnline.Controllers
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
 
             var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
             bool doAPI = false;
@@ -930,13 +933,13 @@ namespace MasterOnline.Controllers
             if (doAPI)
             {
                 var Marketplaces = MoDbContext.Marketplaces;
-                var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
-                var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
-                var kdBli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
-                var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
-                var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
-                var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
-                var kdJD = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket;
+                var kdBL = 8;
+                var kdLazada = 7;
+                var kdBli = 16;
+                var kdElevenia = 9;
+                var kdShopee = 17;
+                var kdTokped = 15;
+                var kdJD = 19;
 
                 string EDBConnID = EDB.GetConnectionString("ConnId");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1158,6 +1161,9 @@ namespace MasterOnline.Controllers
         public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string log_CUST, string log_ActionCategory, string log_ActionName, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
 
             var qtyOnHand = GetQOHSTF08A(brg, "ALL");
             //add by calvin 17 juni 2019
@@ -1241,6 +1247,10 @@ namespace MasterOnline.Controllers
         public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+
             var dsArf01 = EDB.GetDataSet("sConn", "ARF01", "SELECT STATUS_API FROM ARF01 WHERE CUST='" + log_CUST + "'");
             if (dsArf01.Tables[0].Rows.Count > 0) {
                 if (Convert.ToString(dsArf01.Tables[0].Rows[0]["STATUS_API"]) == "2") {
@@ -1351,6 +1361,9 @@ namespace MasterOnline.Controllers
         public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
             //add by calvin 17 juni 2019
@@ -1526,8 +1539,10 @@ namespace MasterOnline.Controllers
         public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
         {
             string ret = "";
-            string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
-            iden.token = newToken;
+
+            SetupContext(DatabasePathErasoft, uname);
+            //string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
+            //iden.token = newToken;
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
 

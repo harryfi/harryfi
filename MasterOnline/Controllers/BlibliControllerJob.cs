@@ -7449,10 +7449,17 @@ namespace MasterOnline.Controllers
                                 {
                                     List<string> merchantskus = new List<string>();
                                     merchantskus.Add(kodeProduk);
+                                    
+#if (DEBUG || Debug_AWS)
+                                    await CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId);
+#else
                                     string EDBConnID = EDB.GetConnectionString("ConnId");
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var client = new BackgroundJobClient(sqlStorage);
                                     client.Enqueue<BlibliControllerJob>(x => x.CekProductActive(DatabasePathErasoft, kodeProduk, log_CUST, "Barang", "Cek Active/Reject", iden, kodeProduk, merchantskus, log_CUST, requestID, api_log_requestId));
+#endif
+
+
                                 }
                             }
                         }
@@ -7594,8 +7601,31 @@ namespace MasterOnline.Controllers
                                 itemUpdateStok.Add(item.merchantSku);
                             }
 
-                            new ManageController().updateStockMarketPlace(itemUpdateStok, "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                            #region update stok
+                            string ConnId = "[BLI_QC][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]";
+                            string sSQLValues = "";
 
+                            foreach (var item in itemUpdateStok)
+                            {
+                                sSQLValues = sSQLValues + "('" + item + "', '" + ConnId + "'),";
+                            }
+                            if (sSQLValues != "")
+                            {
+                                sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues;
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+
+                                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, "BlibliActive");
+                            }
+                            #endregion
                             string STF02_BRG = kodeInduk;
 
                             var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
