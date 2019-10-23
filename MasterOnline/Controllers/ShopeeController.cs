@@ -172,8 +172,14 @@ namespace MasterOnline.Controllers
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     //add 13 Feb 2019, tuning
-                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
-                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+
+
+                    //var stf02h_local = ErasoftDbContext.STF02H.Select(p => new stf02h_local { BRG = p.BRG, BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
+                    //var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Select(p=> new tempBrg_local { BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
+
+                    var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                    var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
                     if (listBrg.items != null)
@@ -236,7 +242,21 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, long item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
+
+        public class stf02h_local {
+            public string BRG { get; set; }
+            public string BRG_MP { get; set; }
+            public int IDMARKET { get; set; }
+        }
+        public class tempBrg_local
+        {
+            //public string BRG { get; set; }
+            public string BRG_MP { get; set; }
+            public int IDMARKET { get; set; }
+
+        }
+
+        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, long item_id, List<tempBrg_local> tempBrg_local, List<stf02h_local> stf02h_local, int IdMarket)
         {
             //    int MOPartnerID = 841371;
             //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
