@@ -808,6 +808,7 @@
                 $.ajax({
                     type: "GET",
                     url: link,
+                    timeout: 0,                    
                     beforeSend: function () {
                         //$('#datatable').hide();
                         $('#table-upload-barang-partial').hide();
