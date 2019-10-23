@@ -177,8 +177,8 @@ namespace MasterOnline.Controllers
                     //var stf02h_local = ErasoftDbContext.STF02H.Select(p => new stf02h_local { BRG = p.BRG, BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
                     //var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Select(p=> new tempBrg_local { BRG_MP = p.BRG_MP, IDMARKET = p.IDMARKET }).Where(m => m.IDMARKET == IdMarket).ToList();
 
-                    var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
-                    var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                    //var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                    //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
 
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
@@ -201,14 +201,14 @@ namespace MasterOnline.Controllers
                                 //change 13 Feb 2019, tuning
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
                                 //end change 13 Feb 2019, tuning
 
                                 if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
                                 {
                                     //var getDetailResult = await GetItemDetail(iden, item.item_id);
-                                    var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
+                                    var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
                                     ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
                                     if (getDetailResult.exception == 1)
                                         ret.exception = 1;
@@ -356,8 +356,10 @@ namespace MasterOnline.Controllers
 
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
-                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                //var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                //var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
                                 if (tempbrginDB == null && brgInDB == null)
                                 {
                                     //ret.recordCount++;
@@ -383,8 +385,10 @@ namespace MasterOnline.Controllers
                                     string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
                                     //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                                     //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                                    tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                                    brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    //brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                    brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         //ret.recordCount++;
