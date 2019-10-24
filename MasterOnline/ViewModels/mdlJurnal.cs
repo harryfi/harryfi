@@ -31,10 +31,11 @@ namespace MasterOnline
     }
     public class PackingPerMP
     {
+        public string CUST { get; set; }
         public string no_bukti { get; set; }
         public string no_referensi { get; set; }
         public string nama_pemesan { get; set; }
         public string kurir { get; set; }
-        public string jumlah_item { get; set; }
+        public int jumlah_item { get; set; }
     }
 }

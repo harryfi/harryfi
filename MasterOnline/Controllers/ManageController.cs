@@ -34709,15 +34709,41 @@ namespace MasterOnline.Controllers
 
         //end add by Tri 30-08-2019, picking list
 
-        public ActionResult RefreshTablePackingPesananTokped(string bukti, int? page, string search = "")
+        public ActionResult RefreshTablePackingPesananMP(string bukti, string nama_cust, int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             ViewData["tableBukti"] = bukti;
 
+            string viewName = "";
+            switch (nama_cust)
+            {
+                case "7":
+                    viewName = "PackingListLazada";
+                    break;
+                case "8":
+                    viewName = "PackingListBukalapak";
+                    break;
+                case "9":
+                    viewName = "PackingListElevenia";
+                    break;
+                case "15":
+                    viewName = "PackingListTokped";
+                    break;
+                case "16":
+                    viewName = "PackingListBlibli";
+                    break;
+                case "17":
+                    viewName = "PackingListShopee";
+                    break;
+                default:
+                    viewName = "";
+                    break;
+            }
+
             string cust = "";
-            var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
+            var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == nama_cust).Select(p => p.CUST).ToList();
             foreach (var item in listAkunTokped)
             {
                 cust += item + "','";
@@ -34771,7 +34797,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+            sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
@@ -34781,12 +34807,12 @@ namespace MasterOnline.Controllers
                 sSQL2 += " AND ( " + sSQL_No_Bukti + " or " + sSQL_No_Ref + " or " + sSQL_Pembeli + " or " + sSQL_Shipment + " ) ";
             }
 
-            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            //var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
-            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
-            {
-                pagenumber = pagenumber - 1;
-            }
+            //if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            //{
+            //    pagenumber = pagenumber - 1;
+            //}
 
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -34798,7 +34824,63 @@ namespace MasterOnline.Controllers
             var pageContent = ListStt01a;
 
             IPagedList<PackingPerMP> pageOrders = new StaticPagedList<PackingPerMP>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
-            return PartialView("PackingListTokped", pageOrders);
+            return PartialView(viewName, pageOrders);
+        }
+
+        public ActionResult RequestPickupTokpedPerPacking(string bukti)
+        {
+            try
+            {
+                string cust = "";
+                var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
+                foreach (var item in listAkunTokped)
+                {
+                    cust += item + "','";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                foreach (var item in ListStt01a)
+                {
+                    var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.);
+                    if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                    {
+                        TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                        {
+                            merchant_code = marketPlace.Sort1_Cust, //FSID
+                            API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                            API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                            API_secret_key = marketPlace.API_KEY, //Shop ID 
+                            token = marketPlace.TOKEN,
+                            idmarket = marketPlace.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = usernameLogin
+                        };
+                        string[] referensi = item.no_referensi.Split(';');
+                        if (referensi.Count() > 0)
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
+                        }
+                    }
+                }
+                
+
+                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
 
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
