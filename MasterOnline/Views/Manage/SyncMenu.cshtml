@@ -507,6 +507,8 @@
 
         var msg2 = '';
         var namaFileLog = '';
+        var lastPage = 0;
+        var loop = 1;
         //get data barang with record
         function GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData) {
                  var link = '@Url.Action("ImportDataMP", "Manage")';
@@ -523,6 +525,7 @@
                         $('#spinner_' + cust).show();
                     },
                     success: function (response) {
+                        lastPage = page;
                         if (response.Errors == null || response.Errors.length == 0) {
                             if (response.RecordCount != null) {
                                 document.getElementById('lblRecord_' + cust).innerText = 'Jumlah data berhasil tersimpan ke MO : ' + response.RecordCount;
@@ -588,7 +591,8 @@
                                 loop = 1;
                             }
                             if (loop <= 3) {
-                                GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                                //GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                                GetDataBrgWithRecord(cust, page, recordCount, statBL, totalData);
                             } else {
                                 alert('Terdapat Error saat mengambil data barang marketplace ini.\nSilahkan hubungi tim support MO');
                                 //refreshTableBarangUpload();
