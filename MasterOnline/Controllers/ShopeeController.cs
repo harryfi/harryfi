@@ -184,7 +184,8 @@ namespace MasterOnline.Controllers
                     ret.status = 1;
                     if (listBrg.items != null)
                     {
-                        if (listBrg.items.Length == 10)
+                        //if (listBrg.items.Length == 10)
+                        if (listBrg.more)
                             //ret.message = (page + 1).ToString();
                             ret.nextPage = 1;
                         ret.totalData += listBrg.items.Count();//add 18 Juli 2019, show total record
