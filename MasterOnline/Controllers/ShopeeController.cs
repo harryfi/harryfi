@@ -125,8 +125,8 @@ namespace MasterOnline.Controllers
                 partner_id = MOPartnerID, //MasterOnline Partner ID
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                pagination_offset = page * 5,
-                pagination_entries_per_page = 5,
+                pagination_offset = page * 3,
+                pagination_entries_per_page = 3,
 
             };
 
