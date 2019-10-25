@@ -796,7 +796,8 @@
 
         var exGetData = 0;
         var namaFileLog = '';
-
+        var lastPage = 0;
+        var loop = 1;
         function GetDataBrgWithRecord(page, recordCount, statBL, totalData) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
@@ -808,6 +809,7 @@
                 $.ajax({
                     type: "GET",
                     url: link,
+                    timeout: 0,                    
                     beforeSend: function () {
                         //$('#datatable').hide();
                         $('#table-upload-barang-partial').hide();
@@ -817,6 +819,7 @@
                         $('#info_record').show();
                     },
                     success: function (response) {
+                        lastPage = page;
                         if (response.Errors == null || response.Errors.length == 0) {
                             if (response.RecordCount != null) {
                                 //document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount + '\nJumlah data yang didapat dari marketplace : ' + response.totalData;
@@ -874,7 +877,21 @@
                         //var err = JSON.parse(xhr.responseText);
                         //alert(err.Message);
                         //console.log(err.error);
-
+                        if (xhr.status == 524) {
+                            if (lastPage == page) {
+                                loop = loop + 1;
+                            } else {
+                                loop = 1;
+                            }
+                            if (loop <= 3) {
+                                GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                            } else {
+                                alert('Terdapat Error saat mengambil data barang marketplace ini.\nSilahkan hubungi tim support MO');
+                                refreshTableBarangUpload();
+                                $('#lblPleasewait').hide();
+                                $('#info_record').hide();
+                            }
+                        }
                     }
                 });
                 $('#konfTarikData').modal('hide');
