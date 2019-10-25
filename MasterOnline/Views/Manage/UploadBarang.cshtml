@@ -878,13 +878,18 @@
                         //alert(err.Message);
                         //console.log(err.error);
                         if (xhr.status == 524) {
-                            if (lastPage = page) {
+                            if (lastPage == page) {
                                 loop = loop + 1;
                             } else {
                                 loop = 1;
                             }
                             if (loop <= 3) {
                                 GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                            } else {
+                                alert('Terdapat Error saat mengambil data barang marketplace ini.\nSilahkan hubungi tim support MO');
+                                refreshTableBarangUpload();
+                                $('#lblPleasewait').hide();
+                                $('#info_record').hide();
                             }
                         }
                     }

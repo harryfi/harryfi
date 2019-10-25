@@ -581,15 +581,40 @@
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
-                        $('#spinner_' + cust).hide();
-                        rows_selected.shift();
-                        window.selected_cust.push(cust);
-                        if (rows_selected.length > 0) {
-                            GetAllDataBrg(rows_selected);
+                        if (xhr.status == 524) {
+                            if (lastPage == page) {
+                                loop = loop + 1;
+                            } else {
+                                loop = 1;
+                            }
+                            if (loop <= 3) {
+                                GetDataBrgWithRecord(page, recordCount, statBL, totalData);
+                            } else {
+                                alert('Terdapat Error saat mengambil data barang marketplace ini.\nSilahkan hubungi tim support MO');
+                                //refreshTableBarangUpload();
+                                //$('#lblPleasewait').hide();
+                                //$('#info_record').hide();
+                                $('#spinner_' + cust).hide();
+                                rows_selected.shift();
+                                window.selected_cust.push(cust);
+                                if (rows_selected.length > 0) {
+                                    GetAllDataBrg(rows_selected);
+                                } else {
+                                    $('#lblPleaseWait').hide();
+                                    alert('Proses mengambil data barang dari marketplace telah selesai.');
+                                }
+                            }
                         } else {
-                            $('#lblPleaseWait').hide();
-                            alert('Proses mengambil data barang dari marketplace telah selesai.');
-                        }
+                            $('#spinner_' + cust).hide();
+                            rows_selected.shift();
+                            window.selected_cust.push(cust);
+                            if (rows_selected.length > 0) {
+                                GetAllDataBrg(rows_selected);
+                            } else {
+                                $('#lblPleaseWait').hide();
+                                alert('Proses mengambil data barang dari marketplace telah selesai.');
+                            }
+                        }                        
                         //var err = JSON.parse(xhr.responseText);
                         //alert(err.Message);
                         //console.log(err.error);
