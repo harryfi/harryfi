@@ -1052,7 +1052,7 @@ namespace MasterOnline.Controllers
                                             string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
                                             ret.cust.Add(cust);
                                             ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
-                                            int dataPerPage = 200;
+                                            int dataPerPage = 300;
                                             int maxData = 19 + (page * dataPerPage) + dataPerPage;
                                             if (19 + (page * dataPerPage) + dataPerPage >= worksheet.Dimension.End.Row)
                                             {
