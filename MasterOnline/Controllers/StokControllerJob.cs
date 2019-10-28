@@ -1622,9 +1622,8 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
 
-            SetupContextBlibli(DatabasePathErasoft, uname, iden);
-            //string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
-            //iden.token = newToken;
+            string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
+            iden.token = newToken;
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
 
