@@ -969,7 +969,21 @@ namespace MasterOnline.Controllers
                     //listBrg.Add("SP1930.02.38");
                     //listBrg.Add("SP1930.02.39");
                     //listBrg.Add("SP1930.02.40");
-                    listBrg.Add("sp1939.08.06");
+                    //listBrg.Add("SP1939.03.02");
+                    //listBrg.Add("SP1939.03.03");
+                    //listBrg.Add("SP1939.03.04");
+                    //listBrg.Add("SP1939.03.05");
+                    //listBrg.Add("SP1939.03.06");
+                    //listBrg.Add("SP1939.06.02");
+                    //listBrg.Add("SP1939.06.03");
+                    //listBrg.Add("SP1939.06.04");
+                    //listBrg.Add("SP1939.06.05");
+                    //listBrg.Add("SP1939.06.06");
+                    //listBrg.Add("SP1939.08.02");
+                    //listBrg.Add("SP1939.08.03");
+                    //listBrg.Add("SP1939.08.04");
+                    //listBrg.Add("SP1939.08.05");
+                    //listBrg.Add("SP1939.08.06");
                 }
 
                 foreach (string kdBrg in listBrg)
@@ -1349,6 +1363,8 @@ namespace MasterOnline.Controllers
                 {
                     ret.status = 1;
                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
+
+
                 }
                 else
                 {
@@ -1549,6 +1565,56 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<int> BlibliCheckUpdateStock(BlibliAPIData iden, BlibliProductData data, string skuUpdate) {
+            int newQty = -1;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
+
+            HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+            myReq_1.Method = "GET";
+            myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+            myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq_1.Accept = "application/json";
+            myReq_1.ContentType = "application/json";
+            myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+            myReq_1.Headers.Add("sessionId", milis.ToString());
+            myReq_1.Headers.Add("username", userMTA);
+            string responseFromServer_1 = "";
+
+            using (WebResponse response = await myReq_1.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer_1 = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer_1 != null)
+            {
+                BlibliDetailProductResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1, typeof(BlibliDetailProductResult)) as BlibliDetailProductResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    if (result.value.items.Count() > 0)
+                    {
+                        newQty = result.value.items[0].availableStockLevel2;
+                    }
+                }
+            }
+
+            return newQty;
+        }
+
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Blibli gagal.")]
@@ -1556,7 +1622,7 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
 
-            SetupContext(DatabasePathErasoft, uname);
+            SetupContextBlibli(DatabasePathErasoft, uname, iden);
             //string newToken = SetupContextBlibli(DatabasePathErasoft, uname, iden);
             //iden.token = newToken;
 
@@ -1611,8 +1677,7 @@ namespace MasterOnline.Controllers
                 myReq_1.Headers.Add("sessionId", milis.ToString());
                 myReq_1.Headers.Add("username", userMTA);
                 string responseFromServer_1 = "";
-                //try
-                //{
+
                 using (WebResponse response = await myReq_1.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -1621,10 +1686,7 @@ namespace MasterOnline.Controllers
                         responseFromServer_1 = reader.ReadToEnd();
                     }
                 }
-                //}
-                //catch (Exception ex)
-                //{
-                //}
+
                 if (responseFromServer_1 != null)
                 {
                     BlibliDetailProductResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1, typeof(BlibliDetailProductResult)) as BlibliDetailProductResult;
@@ -1648,7 +1710,6 @@ namespace MasterOnline.Controllers
                                     {
                                         QOHBlibli = 0;
                                     }
-                                    //if (QOHBlibli != 0)
                                     {
                                         myData += "{";
                                         myData += "\"gdnSku\": \"" + skuUpdate + "\",  ";
@@ -1670,18 +1731,6 @@ namespace MasterOnline.Controllers
                             string signature = CreateTokenBlibli("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
                             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
 
-                            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                            //{
-                            //    REQUEST_ID = milis.ToString(),
-                            //    REQUEST_ACTION = "Update QOH dan Display",
-                            //    REQUEST_DATETIME = milisBack,
-                            //    REQUEST_ATTRIBUTE_1 = data.kode,
-                            //    REQUEST_ATTRIBUTE_2 = brg_mp[1], //product_code
-                            //    REQUEST_ATTRIBUTE_3 = brg_mp[0], //gdnsku
-                            //    REQUEST_STATUS = "Pending",
-                            //};
-                            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-
                             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                             myReq.Method = "POST";
                             myReq.Headers.Add("Authorization", ("bearer " + iden.token));
@@ -1693,8 +1742,7 @@ namespace MasterOnline.Controllers
                             myReq.Headers.Add("sessionId", milis.ToString());
                             myReq.Headers.Add("username", userMTA);
                             string responseFromServer = "";
-                            //try
-                            //{
+
                             myReq.ContentLength = myData.Length;
                             using (var dataStream = myReq.GetRequestStream())
                             {
@@ -1708,35 +1756,48 @@ namespace MasterOnline.Controllers
                                     responseFromServer = reader.ReadToEnd();
                                 }
                             }
-                            //}
-                            //catch (Exception ex)
-                            //{
-                            //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-
-                            //}
                             if (responseFromServer != null)
                             {
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                                //if (string.IsNullOrEmpty(result2.errorCode.Value))
-                                //{
-                                //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                //add by calvin 28 oktober 2019
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
+                                {
+                                    try
+                                    {
+                                        var a = await BlibliCheckUpdateStock(iden, data, skuUpdate);
 
-                                //    //remark by calvin 2 april 2019
-                                //    //BlibliQueueFeedData queueData = new BlibliQueueFeedData
-                                //    //{
-                                //    //    request_id = result2.requestId.Value,
-                                //    //    log_request_id = currentLog.REQUEST_ID
-                                //    //};
-                                //    //await GetQueueFeedDetail(iden, queueData);
-                                //    //end remark by calvin 2 april 2019
-                                //}
-                                //else
-                                //{
-                                //    //currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
-                                //    //currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
-                                //    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                                //}
+                                        if (a < Convert.ToInt32(data.Qty) || a > Convert.ToInt32(data.Qty))
+                                        {
+                                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                            {
+                                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                                REQUEST_ACTION = "Selisih Stok",
+                                                REQUEST_DATETIME = DateTime.Now,
+                                                REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(data.Qty), //updating to stock
+                                                REQUEST_ATTRIBUTE_3 = "Blibli Stock : " + Convert.ToString(a), //marketplace stock
+                                                REQUEST_STATUS = "Pending",
+                                            };
+                                            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Blibli");
+
+                                            //#if (DEBUG || Debug_AWS)
+                                            //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                                            //#else
+                                            //                            var EDB = new DatabaseSQL(dbPathEra);
+                                            //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            //                            var client = new BackgroundJobClient(sqlStorage);
+                                            //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                                            //#endif
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                //end add by calvin 28 oktober 2019
                             }
                         }
                     }
@@ -1941,6 +2002,7 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
+
             if (responseFromServer != "")
             {
                 try
@@ -1952,18 +2014,37 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if (result.item.stock < qty || result.item.stock > qty)
+                        //add by calvin 28 oktober 2019
+                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
                         {
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
-#else
-                            var EDB = new DatabaseSQL(dbPathEra);
-                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                            var client = new BackgroundJobClient(sqlStorage);
-                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
-#endif
+                            var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), 0);
+                            if (a.recordCount < qty || a.recordCount > qty)
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok",
+                                    REQUEST_DATETIME = DateTime.Now,
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
+                                    REQUEST_STATUS = "Pending",
+                                };
+                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+
+//#if (DEBUG || Debug_AWS)
+//                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+//#else
+//                            var EDB = new DatabaseSQL(dbPathEra);
+//                            string EDBConnID = EDB.GetConnectionString("ConnId");
+//                            var sqlStorage = new SqlServerStorage(EDBConnID);
+//                            var client = new BackgroundJobClient(sqlStorage);
+//                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+//#endif
+                            }
                         }
+                        //end add by calvin 28 oktober 2019
                     }
                 }
                 catch (Exception ex)
@@ -2064,24 +2145,126 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if (result.item.stock < qty || result.item.stock > qty)
+                        //add by calvin 28 oktober 2019
+
+                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
                         {
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
-#else
-                            var EDB = new DatabaseSQL(dbPathEra);
-                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                            var client = new BackgroundJobClient(sqlStorage);
-                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
-#endif
+                            var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
+                            if (a.recordCount < qty || a.recordCount > qty)
+                            {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok",
+                                    REQUEST_DATETIME = DateTime.Now,
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                    REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
+                                    REQUEST_STATUS = "Pending",
+                                };
+                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+
+                                //#if (DEBUG || Debug_AWS)
+                                //                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                                //#else
+                                //                            var EDB = new DatabaseSQL(dbPathEra);
+                                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                            var client = new BackgroundJobClient(sqlStorage);
+                                //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                                //#endif
+                            }
                         }
+                        //end add by calvin 28 oktober 2019
+
                     }
                 }
                 catch (Exception ex)
                 {
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     throw new Exception(msg);
+                }
+            }
+            return ret;
+        }
+
+        public async Task<BindingBase> ShopeeCheckUpdateStock(ShopeeAPIData iden, Int64 item_id, Int64 variation_id)
+        {
+            //    int MOPartnerID = 841371;
+            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //string ret = "";
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = -1,
+            };
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+
+            ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
+            {
+                partner_id = 841371,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = item_id
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c");
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != null)
+            {
+                var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeControllerJob.ShopeeGetItemDetailResult)) as ShopeeControllerJob.ShopeeGetItemDetailResult;
+
+                ret.status = 1;
+
+                var sellerSku = "";
+
+                if (detailBrg.item.has_variation)
+                {
+                    //insert brg induk
+                    string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
+
+                    foreach (var item in detailBrg.item.variations)
+                    {
+                        if(detailBrg.item.item_id == item_id && item.variation_id == variation_id)
+                        {
+                            ret.recordCount = item.stock;
+                        }
+                    }
+                }
+                else
+                {
+                    if (detailBrg.item.item_id == item_id)
+                    {
+                        ret.recordCount = detailBrg.item.stock;
+                    }
                 }
             }
             return ret;

@@ -226,7 +226,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, int item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
+        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, long item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
         {
             //    int MOPartnerID = 841371;
             //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -5932,7 +5932,7 @@ namespace MasterOnline.Controllers
             public int partner_id { get; set; }
             public int shopid { get; set; }
             public long timestamp { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
         }
 
         public class ShopeeGetItemListResult
@@ -5949,7 +5949,7 @@ namespace MasterOnline.Controllers
             public string item_sku { get; set; }
             public ShopeeGetItemListVariation[] variations { get; set; }
             public int shopid { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
         }
 
         public class ShopeeGetItemListVariation
@@ -5987,7 +5987,7 @@ namespace MasterOnline.Controllers
             public float price { get; set; }
             public int sales { get; set; }
             public int discount_id { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public object[] wholesales { get; set; }
             public string condition { get; set; }
             public float package_height { get; set; }
