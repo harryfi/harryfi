@@ -726,9 +726,22 @@
         };
 
         var listCustomerUploaded = [];
+        var fileEXcel = 0;
         function uploadfileexcel() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
+            }
+            else
+            {
+                uploadfileexcelbatch(0, 0);
+            }
+        }
+        function uploadfileexcelbatch(fileNum, pageNum) {
+            //if ($('#file_upload_excel')[0].files.length < 1) {
+            if ($('#file_upload_excel')[0].files.length <= fileNum) {
+                $('#loading_spinner').hide();
+                $('#sync_btn').click();
+                //$('#file_upload_excel').click();
             }
             else
             {
@@ -737,12 +750,15 @@
                 //Iterating through each files selected in fileInput
                 for (i = 0; i < fileInput.files.length; i++) {
                     //Appending each file to FormData object
-                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                    if (i == fileNum) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                    }
                 }
-
+                var url1 = '@Url.Action("UploadXcelwithPage", "TransferExcel", new { page = "replacePage"})';
+                url1 = url1.replace("replacePage", encodeURIComponent(pageNum));
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UploadXcel", "TransferExcel")',
+                    url: url1,
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
@@ -750,26 +766,34 @@
                         $('#loading_spinner').show();
                     },
                     success: function (response) {
-                        if (response.Errors.length == 0) {
-                            $('#loading_spinner').hide();
-                            //alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
-                            //$('#upload_btn').show();
-                            rows_selected = response.cust;
-                            listCustomerUploaded = response.namaCust;
+                        if (response.nextFile) {
+                            rows_selected.push(response.cust);
+                            listCustomerUploaded.push(response.namaCust);
+                            uploadfileexcelbatch(fileNum + 1, 0);
                         } else {
-                            var err = "";
-                            for (i = 0; i < response.Errors.length; i++) {
-                                err += response.Errors[i] + "\n";
+                            if (response.Errors.length == 0) {
+                                //$('#loading_spinner').hide();
+                                ////alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
+                                ////$('#upload_btn').show();
+                                //rows_selected = response.cust;
+                                //listCustomerUploaded = response.namaCust;
+                            } else {
+                                var err = "";
+                                for (i = 0; i < response.Errors.length; i++) {
+                                    err += response.Errors[i] + "\n";
+                                }
+                                //alert(err);
+                                document.getElementById('lblListError').innerText += err;
+                                //$('#modalError').modal('show');
+                                //$('#loading_spinner').hide();
+                                ////$('#upload_btn').show();
+                                //rows_selected = response.cust;
+                                //listCustomerUploaded = response.namaCust;
                             }
-                            //alert(err);
-                            document.getElementById('lblListError').innerText = err;
-                            //$('#modalError').modal('show');
-                            $('#loading_spinner').hide();
-                            //$('#upload_btn').show();
-                            rows_selected = response.cust;
-                            listCustomerUploaded = response.namaCust;
+                            //$('#sync_btn').click();
+                            uploadfileexcelbatch(fileNum, pageNum + 1);
                         }
-                        $('#sync_btn').click();
+                        
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
