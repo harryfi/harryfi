@@ -959,7 +959,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    //listBrg.Add("SP1930.01.36");
+                    listBrg.Add("17.SMDT00.00.2y");
                     //listBrg.Add("SP1930.01.37");
                     //listBrg.Add("SP1930.01.38");
                     //listBrg.Add("SP1930.01.39");
@@ -1565,7 +1565,8 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<int> BlibliCheckUpdateStock(BlibliAPIData iden, BlibliProductData data, string skuUpdate) {
+        public async Task<int> BlibliCheckUpdateStock(BlibliAPIData iden, BlibliProductData data, string skuUpdate)
+        {
             int newQty = -1;
 
             long milis = CurrentTimeMillis();
@@ -1759,7 +1760,7 @@ namespace MasterOnline.Controllers
                             {
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                                 //add by calvin 28 oktober 2019
-                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                                 {
                                     try
                                     {
@@ -1872,6 +1873,226 @@ namespace MasterOnline.Controllers
             return QOHBlibli;
         }
 
+        public async Task<int> TokpedCheckUpdateStock(TokopediaAPIData data, int product_id)
+        {
+            int newQty = -1;
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/product/info?product_id=" + Uri.EscapeDataString(Convert.ToString(product_id));
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetProductInfoRootobject)) as TokpedGetProductInfoRootobject;
+                if (!string.IsNullOrWhiteSpace(result.header.messages))
+                {
+
+                }
+                else {
+                    var a = result.data.FirstOrDefault();
+                    if (a != null) {
+                        newQty = a.stock.value;
+                    }
+                }
+            }
+
+            return newQty;
+        }
+
+        public class Tokped_updateStockResult
+        {
+            public Tokped_updateStockResultHeader header { get; set; }
+            public Tokped_updateStockResultData data { get; set; }
+        }
+
+        public class Tokped_updateStockResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class Tokped_updateStockResultData
+        {
+            public int failed_rows { get; set; }
+            public object[] failed_rows_data { get; set; }
+            public int succeed_rows { get; set; }
+        }
+
+
+        public class TokpedGetProductInfoRootobject
+        {
+            public TokpedGetProductInfoHeader header { get; set; }
+            public TokpedGetProductInfoDatum[] data { get; set; }
+        }
+
+        public class TokpedGetProductInfoHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class TokpedGetProductInfoDatum
+        {
+            public TokpedGetProductInfoBasic basic { get; set; }
+            public TokpedGetProductInfoPrice price { get; set; }
+            public TokpedGetProductInfoWeight weight { get; set; }
+            public TokpedGetProductInfoStock stock { get; set; }
+            public TokpedGetProductInfoVariant variant { get; set; }
+            public TokpedGetProductInfoMenu menu { get; set; }
+            public TokpedGetProductInfoPreorder preorder { get; set; }
+            public TokpedGetProductInfoExtraattribute extraAttribute { get; set; }
+            public TokpedGetProductInfoCategorytree[] categoryTree { get; set; }
+            public TokpedGetProductInfoPicture[] pictures { get; set; }
+            public TokpedGetProductInfoGmstats GMStats { get; set; }
+            public TokpedGetProductInfoStats stats { get; set; }
+            public TokpedGetProductInfoOther other { get; set; }
+            public TokpedGetProductInfoCampaign campaign { get; set; }
+            public TokpedGetProductInfoWarehouse[] warehouses { get; set; }
+        }
+
+        public class TokpedGetProductInfoBasic
+        {
+            public int productID { get; set; }
+            public int shopID { get; set; }
+            public int status { get; set; }
+            public string name { get; set; }
+            public int condition { get; set; }
+            public int childCategoryID { get; set; }
+        }
+
+        public class TokpedGetProductInfoPrice
+        {
+            public int value { get; set; }
+            public int currency { get; set; }
+            public int LastUpdateUnix { get; set; }
+            public int idr { get; set; }
+        }
+
+        public class TokpedGetProductInfoWeight
+        {
+            public int value { get; set; }
+            public int unit { get; set; }
+        }
+
+        public class TokpedGetProductInfoStock
+        {
+            public bool useStock { get; set; }
+            public int value { get; set; }
+            public string stockWording { get; set; }
+        }
+
+        public class TokpedGetProductInfoVariant
+        {
+            public int parentID { get; set; }
+            public bool isVariant { get; set; }
+            public int[] childrenID { get; set; }
+        }
+
+        public class TokpedGetProductInfoMenu
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+        }
+
+        public class TokpedGetProductInfoPreorder
+        {
+        }
+
+        public class TokpedGetProductInfoExtraattribute
+        {
+            public int minOrder { get; set; }
+            public int lastUpdateCategory { get; set; }
+            public bool isEligibleCOD { get; set; }
+        }
+
+        public class TokpedGetProductInfoGmstats
+        {
+            public int transactionSuccess { get; set; }
+            public int countSold { get; set; }
+        }
+
+        public class TokpedGetProductInfoStats
+        {
+            public int countView { get; set; }
+            public int countReview { get; set; }
+            public int rating { get; set; }
+        }
+
+        public class TokpedGetProductInfoOther
+        {
+            public string url { get; set; }
+            public string mobileURL { get; set; }
+        }
+
+        public class TokpedGetProductInfoCampaign
+        {
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+        }
+
+        public class TokpedGetProductInfoCategorytree
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public string title { get; set; }
+            public string breadcrumbURL { get; set; }
+        }
+
+        public class TokpedGetProductInfoPicture
+        {
+            public int picID { get; set; }
+            public string fileName { get; set; }
+            public string filePath { get; set; }
+            public int status { get; set; }
+            public string OriginalURL { get; set; }
+            public string ThumbnailURL { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public string URL300 { get; set; }
+        }
+
+        public class TokpedGetProductInfoWarehouse
+        {
+            public int productID { get; set; }
+            public int warehouseID { get; set; }
+            public TokpedGetProductInfoPrice1 price { get; set; }
+            public TokpedGetProductInfoStock1 stock { get; set; }
+        }
+
+        public class TokpedGetProductInfoPrice1
+        {
+            public int value { get; set; }
+            public int currency { get; set; }
+            public int LastUpdateUnix { get; set; }
+            public int idr { get; set; }
+        }
+
+        public class TokpedGetProductInfoStock1
+        {
+            public bool useStock { get; set; }
+            public int value { get; set; }
+        }
+
+
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Tokopedia gagal.")]
@@ -1922,6 +2143,45 @@ namespace MasterOnline.Controllers
                 {
                     StreamReader reader = new StreamReader(stream);
                     responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
+
+                if (!string.IsNullOrWhiteSpace( result.header.messages))
+                {
+                    throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
+                }
+                else
+                {
+                    try
+                    {
+                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                        {
+                            var a = await TokpedCheckUpdateStock(iden, product_id);
+                            if (a < stok || a > stok) {
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok",
+                                    REQUEST_DATETIME = DateTime.Now,
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                    REQUEST_ATTRIBUTE_3 = "Tokped Stock : " + Convert.ToString(a), //marketplace stock
+                                    REQUEST_STATUS = "Pending",
+                                };
+                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Tokped");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
                 }
             }
             //}
@@ -2014,7 +2274,7 @@ namespace MasterOnline.Controllers
                     else
                     {
                         //add by calvin 28 oktober 2019
-                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
+                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                         {
                             var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), 0);
                             if (a.recordCount < qty || a.recordCount > qty)
@@ -2032,15 +2292,15 @@ namespace MasterOnline.Controllers
                                 var ErasoftDbContext = new ErasoftContext(dbPathEra);
                                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
 
-//#if (DEBUG || Debug_AWS)
-//                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
-//#else
-//                            var EDB = new DatabaseSQL(dbPathEra);
-//                            string EDBConnID = EDB.GetConnectionString("ConnId");
-//                            var sqlStorage = new SqlServerStorage(EDBConnID);
-//                            var client = new BackgroundJobClient(sqlStorage);
-//                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
-//#endif
+                                //#if (DEBUG || Debug_AWS)
+                                //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                                //#else
+                                //                            var EDB = new DatabaseSQL(dbPathEra);
+                                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                            var client = new BackgroundJobClient(sqlStorage);
+                                //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                                //#endif
                             }
                         }
                         //end add by calvin 28 oktober 2019
@@ -2146,7 +2406,7 @@ namespace MasterOnline.Controllers
                     {
                         //add by calvin 28 oktober 2019
 
-                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149")
+                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                         {
                             var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
                             if (a.recordCount < qty || a.recordCount > qty)
@@ -2222,7 +2482,7 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            
+
             myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
@@ -2252,7 +2512,7 @@ namespace MasterOnline.Controllers
 
                     foreach (var item in detailBrg.item.variations)
                     {
-                        if(detailBrg.item.item_id == item_id && item.variation_id == variation_id)
+                        if (detailBrg.item.item_id == item_id && item.variation_id == variation_id)
                         {
                             ret.recordCount = item.stock;
                         }
