@@ -3683,7 +3683,7 @@ namespace MasterOnline.Controllers
             //}
 
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
                 var new_tier_variation = new List<ShopeeUpdateVariation>();
@@ -4269,38 +4269,43 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
-                if (resServer.variation_id_list != null)
+                if (resServer.error != null)
                 {
-                    if (resServer.variation_id_list.Count() > 0)
+                    throw new Exception(resServer.msg);
+                }
+                else {
+                    if (resServer.variation_id_list != null)
                     {
-                        foreach (var variasi in resServer.variation_id_list)
+                        if (resServer.variation_id_list.Count() > 0)
                         {
-                            string key_map_tier_index_recnum = "";
-                            foreach (var indexes in variasi.tier_index)
+                            foreach (var variasi in resServer.variation_id_list)
                             {
-                                key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                                string key_map_tier_index_recnum = "";
+                                foreach (var indexes in variasi.tier_index)
+                                {
+                                    key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                                }
+                                int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+                                //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
+                                //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+                                //ErasoftDbContext.SaveChanges();
+                                string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
+                                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+
+                                //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
+                                //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
                             }
-                            int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
-                            //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
-                            //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-                            //ErasoftDbContext.SaveChanges();
-                            string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
 
-                            //var barang = ErasoftDbContext.STF02H.Where(m => m.RecNum == recnum_stf02h_var).FirstOrDefault();
-                            //await UpdateImage(iden, barang.BRG, Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id));
-                        }
-
-                        if (currentLog != null)
-                        {
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            if (currentLog != null)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
                         }
                     }
-                }
-                else
-                {
-#if  (DEBUG || Debug_AWS)
-                    await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+                    else
+                    {
+#if (DEBUG || Debug_AWS)
+                        await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
 #else
                     string EDBConnID = EDB.GetConnectionString("ConnId");
                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -4309,6 +4314,7 @@ namespace MasterOnline.Controllers
                     client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
 #endif
 
+                    }
                 }
             }
 
@@ -6626,6 +6632,8 @@ namespace MasterOnline.Controllers
             public long item_id { get; set; }
             public Variation_Id_List[] variation_id_list { get; set; }
             public string request_id { get; set; }
+            public string msg { get; set; }
+            public string error { get; set; }
         }
 
         public class Variation_Id_List

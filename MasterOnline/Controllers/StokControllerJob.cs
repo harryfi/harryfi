@@ -207,7 +207,8 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             dbPathEra = DatabasePathErasoft;
         }
-        public string[] SplitItemName(string name) {
+        public string[] SplitItemName(string name)
+        {
             var result = new string[2];
             var length_nama = name.Length;
             if (length_nama > 285)
@@ -263,17 +264,19 @@ namespace MasterOnline.Controllers
             username = uname;
         }
 
-        public int PesananBatal(string ordersn) {
+        public int PesananBatal(string ordersn)
+        {
 
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
 
             var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
             EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS = '2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T' AND JENIS_FORM='2'");
-            
+
             var dsFakturRetur = new DataSet();
             dsFakturRetur = EDB.GetDataSet("MOConnectionString", "CREATE_RETUR", "SELECT SI.* FROM SIT01A SI LEFT JOIN SIT01A RT ON SI.NO_BUKTI = RT.NO_REF AND SI.JENIS_FORM = '2' AND RT.JENIS_FORM = '3' WHERE SI.NO_REF IN (" + ordersn + ") AND SI.STATUS <> '2' AND SI.ST_POSTING = 'Y' AND SI.JENIS_FORM='2' AND ISNULL(RT.NO_BUKTI,'') = ''");
-            if (dsFakturRetur.Tables[0].Rows.Count > 0) {
+            if (dsFakturRetur.Tables[0].Rows.Count > 0)
+            {
                 var digitAkhir = "";
                 var noOrder = "";
                 var lastRecNum = 0;
@@ -285,7 +288,8 @@ namespace MasterOnline.Controllers
                     noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                     ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
                 }
-                else {
+                else
+                {
                     lastRecNum = lastDigitSIT01A.RecNum.Value;
                     lastRecNum++;
 
@@ -364,8 +368,8 @@ namespace MasterOnline.Controllers
                     created = ErasoftDbContext.SaveChanges();
 
                     if (created > 0)
-                        {
-                            object[] spParams = {
+                    {
+                        object[] spParams = {
                             new SqlParameter("@NOBUK",newRetur.NO_BUKTI),
                             new SqlParameter("@NO_REF",newRetur.NO_REF)
                         };
@@ -955,7 +959,17 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("01.JRB00.02.9m");
+                    //listBrg.Add("SP1930.01.36");
+                    //listBrg.Add("SP1930.01.37");
+                    //listBrg.Add("SP1930.01.38");
+                    //listBrg.Add("SP1930.01.39");
+                    //listBrg.Add("SP1930.01.40");
+                    //listBrg.Add("SP1930.02.36");
+                    //listBrg.Add("SP1930.02.37");
+                    //listBrg.Add("SP1930.02.38");
+                    //listBrg.Add("SP1930.02.39");
+                    //listBrg.Add("SP1930.02.40");
+                    listBrg.Add("sp1939.08.06");
                 }
 
                 foreach (string kdBrg in listBrg)
@@ -1252,8 +1266,10 @@ namespace MasterOnline.Controllers
             var EDB = new DatabaseSQL(DatabasePathErasoft);
 
             var dsArf01 = EDB.GetDataSet("sConn", "ARF01", "SELECT STATUS_API FROM ARF01 WHERE CUST='" + log_CUST + "'");
-            if (dsArf01.Tables[0].Rows.Count > 0) {
-                if (Convert.ToString(dsArf01.Tables[0].Rows[0]["STATUS_API"]) == "2") {
+            if (dsArf01.Tables[0].Rows.Count > 0)
+            {
+                if (Convert.ToString(dsArf01.Tables[0].Rows[0]["STATUS_API"]) == "2")
+                {
                     throw new Exception("Link ke marketplace Lazada Expired. lakukan Link Ulang di menu Link ke Marketplace.");
                 }
             }
@@ -1580,8 +1596,8 @@ namespace MasterOnline.Controllers
                 allowUpdate = false;
             }
 
-            if(allowUpdate)
-            { 
+            if (allowUpdate)
+            {
                 string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(skuUpdate) + "&channelId=MasterOnline";
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
@@ -1925,35 +1941,39 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            //}
-            //catch (Exception ex)
-            //{
-            //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateStockResult)) as ShopeeUpdateStockResult;
+                    if (!string.IsNullOrWhiteSpace(result.error))
+                    {
+                        throw new Exception(result.msg + ";request_id:" + result.request_id);
+                    }
+                    else
+                    {
+                        if (result.item.stock < qty || result.item.stock > qty)
+                        {
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+#else
+                            var EDB = new DatabaseSQL(dbPathEra);
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+#endif
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    throw new Exception(msg);
+                }
+            }
 
-            //if (responseFromServer != null)
-            //{
-            //    try
-            //    {
-            //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-            //    }
-            //    catch (Exception ex2)
-            //    {
-            //        currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-            //        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //    }
-            //}
             return ret;
-        }
-
-
-        public class ShopeeUpdateVariationStockError
-        {
-            public string msg { get; set; }
-            public string request_id { get; set; }
-            public string error { get; set; }
         }
 
         [AutomaticRetry(Attempts = 3)]
@@ -2037,10 +2057,25 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateVariationStockError)) as ShopeeUpdateVariationStockError;
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateStockResult)) as ShopeeUpdateStockResult;
                     if (!string.IsNullOrWhiteSpace(result.error))
                     {
                         throw new Exception(result.msg + ";request_id:" + result.request_id);
+                    }
+                    else
+                    {
+                        if (result.item.stock < qty || result.item.stock > qty)
+                        {
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+#else
+                            var EDB = new DatabaseSQL(dbPathEra);
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var client = new BackgroundJobClient(sqlStorage);
+                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+#endif
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -2496,5 +2531,23 @@ namespace MasterOnline.Controllers
             }
             return sb.ToString();
         }
+
+        public class ShopeeUpdateStockResult
+        {
+            public ShopeeUpdateStockResultItem item { get; set; }
+            public string request_id { get; set; }
+            public string error { get; set; }
+            public string msg { get; set; }
+        }
+
+        public class ShopeeUpdateStockResultItem
+        {
+            public long item_id { get; set; }
+            public long variation_id { get; set; }
+            public int modified_time { get; set; }
+            public int stock { get; set; }
+            public string request_id { get; set; }
+        }
+
     }
 }
