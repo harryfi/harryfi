@@ -41,6 +41,7 @@
         #FAKTUR {
             width: 120px !important;
         }
+
         @@media screen and (max-width: 767px) {
             .table-responsive {
                 width: 44%;
@@ -81,6 +82,32 @@
             overflow-x: auto; /* Horizontal */
         }
     </style>
+    <style>
+        #loading_upload {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_upload_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+    </style>
 }
 
 <div class="row">
@@ -103,7 +130,7 @@
                         <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
                     </li>*@
             </ul>
-            <div id="myTabContent" class="tab-content"style="padding-top:10px">
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="piutang-tab">
                     <div class="row piutang_table_section">
                         <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
@@ -119,8 +146,8 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_piutang">Tambah Baru</button>
                             </div>
                         </div>
@@ -398,30 +425,30 @@
             </div>
             <div class="modal-body">
                 @*<div class="row text-center">
-            <h4>Apakah Anda ingin autoload faktur dengan periode di bawah?</h4>
-        </div>*@
+                        <h4>Apakah Anda ingin autoload faktur dengan periode di bawah?</h4>
+                    </div>*@
                 @*<div class="row">
-            <label class="col-md-4 col-sm-4 col-xs-12 control-label">Dari Tanggal :</label>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="input-group date">
-                    <input type="text" id="DR_TGL" class="form-control" />
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <label class="col-md-4 col-sm-4 col-xs-12 control-label"> Sampai Tanggal :</label>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <div class="input-group date">
-                    <input type="text" id="SD_TGL" class="form-control" />
-                    <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
-                </div>
-            </div>
-        </div>*@
+                        <label class="col-md-4 col-sm-4 col-xs-12 control-label">Dari Tanggal :</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group date">
+                                <input type="text" id="DR_TGL" class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-md-4 col-sm-4 col-xs-12 control-label"> Sampai Tanggal :</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group date">
+                                <input type="text" id="SD_TGL" class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>*@
                 @*//add by nurul 21/6/2019*@
                 <div class="row">
                     @Html.Label("Masukkan nilai yang akan ditarik dari marketplace !", new { @class = "col-md-12 col-sm-12 control-label" })
@@ -447,6 +474,91 @@
         </div>
     </div>
 </div>
+@*//add by nurul 18/10/2019*@
+<div class="modal fade" id="konfUpload" tabindex="-1" role="dialog">
+    <div class="modal-dialog" id="modal-upload" role="document">
+        <div class="modal-content modalresponsive">
+            <div id="loading_upload" class="text-center">
+                <div id="loading_upload_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="uploadlabel">Upload Pembayaran</h4>
+            </div>
+            <div class="modal-body" id="modal-upload-body">
+                <br />
+                <div class="row">
+                    <div class="col-md-8 file_upload_section">
+                        <input type='file' id='file_upload_excel' name="file_upload_faktur" onchange="checkfile(this);"
+                               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" />
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-primary pull-right" onclick="uploadfile();" data-style="expand-right">
+                            <span>Upload</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+                </div>
+                <div id="uploadbrgviewdiv" class="row">
+                </div>
+                <br />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfCreatePot" tabindex="-1" role="dialog">
+    <div class="modal-dialog" id="modal-create" role="document">
+        <div class="modal-content modalresponsive">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="createlabel">Konfirmasi Create Potongan Sesuai Selisih</h4>
+            </div>
+            <div class="modal-body" id="modal-create-body">
+                <div class="row">
+                    <div class="col-md-10 ">
+                        <h5>Proses ini akan melunasi faktur. Apakah Anda yakin ingin melanjutkan?</h5>
+                        @*<h5>Apakah anda yakin ingin melanjutkan?</h5>*@
+                    </div>
+                    <div class="col-md-4"></div>
+
+                </div>
+                @*<div class="row pull-right">
+                    <button type="button" class="btn btn-primary pull-right" onclick="createPOT();" data-style="expand-right">
+                        <span>Proses</span>
+                    </button>
+                </div>
+                <div></div>*@
+                <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary pull-right" onclick="createPOT();">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <label id="lblListError"></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 18/10/2019*@
 
 @section scripts
 {
@@ -459,6 +571,8 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var $tempMP1 = "";
+        var $tempMP = "";
         var $modeEdit = 0; // 0 new, 1 edit
         //add by nurul 12/2/2019
         var $page = window.text;
@@ -629,7 +743,7 @@
             //getFaktur(null);
 
             //refreshInputan();
-            
+
             //if ($('#Piutang_TGL').val() != '') {
             //    var $tgl = $('#Piutang_TGL').val();
             //    $('#TGL').val($tgl.format('dd/MM/yyyy'));
@@ -643,7 +757,7 @@
                 $('#Piutang_TGL').val($('#TGL').val());
             }
 
-            
+
             //add by nurul 12/2/2019
             //$('#datatable').on('page.dt', function () {
             //    $page = $('#datatable').DataTable().page.info().page;
@@ -672,7 +786,7 @@
             //        //var $tgl = moment($(this).val(), "DD/MM/YYYY");
             //        $('#Piutang_TGL').val($(this).val());
             //        $('#TGL').datepicker('hide');
-                    
+
             //        $modeEdit = 1;
             //        $('#btn-simpan-perubahan-row').show();
             //    });
@@ -699,7 +813,7 @@
                     $modeEdit = 1;
                 });
             }
-            
+
 
             if ($('#Piutang_TGL').val() != '') {
                 $('#TGL').val($('#Piutang_TGL').val().substr(0, 10));
@@ -787,7 +901,7 @@
                 });
             });
 
-            
+
             //var $totalPot = 0;
             //var $totalBayar = 0;
             //var $totalSemua = 0;
@@ -868,7 +982,9 @@
                     //$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
 
                     $totalAwal = 0;
-
+                    $('input, select').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveBayarPiutang", "Manage")',
@@ -885,11 +1001,14 @@
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
-                                //getFaktur(false);
+                                getFaktur($("#Piutang_CUST").val());
                                 //$('#tambah_faktur').click();
                                 //$nettoSebelumnya += $bakalNetto;
 
-                                $(' select ').each(function () {
+                                //$(' select ').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                $('input, select').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
 
@@ -939,7 +1058,7 @@
             var $sisaInitialSpan = $($tr + ' .sisa-initial');
 
             if ($btnEdit.hasClass('glyphicon-pencil')) {
-               
+
                 //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                 //$totalAwalBarang = parseInt(convertToAngka($($tr + ' .netto-barang').text()));
                 $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
@@ -985,7 +1104,7 @@
                         $(this).val(convertToAngka($(this).val()));
                     })
                     .show();
-               
+
             } else {
                 if ($bayarInputBox.val() != '' && convertToAngka($bayarInputBox.val()) > 0) {
                     if ($potInputBox.val() == '')
@@ -1006,13 +1125,13 @@
                         //simpanBrg($idFaktur, $bayarInputBox, $potInputBox, $btnEdit);
                         simpaneditdetail($idFaktur, convertToAngka($bayarInputBox.val()), convertToAngka($potInputBox.val()), $btnEdit, $potInitialSpan, $potInputBox, $bayarInitialSpan, $bayarInputBox);
                     }
-                    
+
                 } else {
                     alert('Field Bayar Harus diisi dan lebih dari 0 !');
                     $bayarInputBox.focus();
                 }
             }
-        }        
+        }
 
         function simpaneditdetail(id, bayar, pot, $btnEdit, $potInitialSpan, $potInputBox, $bayarInitialSpan, $bayarInputBox) {
             var link = '@Url.Action("SaveEditDetail", "Manage")';
@@ -1080,7 +1199,9 @@
 
                             customerList[i] = {
                                 id: item.CUST,
-                                text: $namaMarket + " (" + item.PERSO + ")"
+                                text: $namaMarket + " (" + item.PERSO + ")",
+                                market: $namaMarket,
+                                idMarket: item.NAMA
                             };
                         });
 
@@ -1088,13 +1209,17 @@
                         valueField: 'id',
                         searchField: 'text',
                         options: customerList,
-                        onChange: function(value) {
+                        onChange: function (value) {
+                            var $objSup = $.grep(customerList, function (data) { return data.id == value });
                             if (value == null) {
                                 $("#Piutang_CUST").val(null);
                                 getFaktur(null);
                             } else {
                                 $("#Piutang_CUST").val(value);
                                 getFaktur(value);
+                                $tempMP1 = $objSup[0].market;
+                                $tempMP = $objSup[0].idMarket;
+
                             }
                         }
                     });
@@ -1150,6 +1275,9 @@
                                             $($trElement + ' .span-sisa-piutang').text(convertToRupiah(item.Sisa));
                                             $('#PiutangDetail_SISA').val(item.Sisa);
                                             $('#PiutangDetail_NFAKTUR').val(item.NO_BUKTI);
+                                            $('#PiutangDetail_NOREF').val(item.noRef);
+                                            $($trElement + ' .span-noref-piutang').text(item.noRef);
+                                            $($trElement + ' .span-tglref-piutang').text(item.tglRef);
                                             return;
                                         }
                                     });
@@ -1159,6 +1287,8 @@
                                 $($trElement + ' .span-bayar-piutang').hide();
                                 $($trElement + ' #PiutangDetail_POT').show();
                                 $($trElement + ' #PiutangDetail_BAYAR').show();
+                                $($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                                $($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
                             } else {
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                                 $($trElement + ' .span-potongan-piutang').val('-').show();
@@ -1230,7 +1360,8 @@
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());
-                    
+                    getDetailBayarPiutang();
+
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                     $('input, select, .btn-danger').each(function () {
@@ -1259,7 +1390,10 @@
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());
-                    
+                    getDetailBayarPiutang();
+                    $('input, select').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                 },
@@ -1429,7 +1563,7 @@
                     //refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur(null);
+                    getFaktur($("#Piutang_CUST").val());
 
                     //$('#TGL').change();
                 },
@@ -1482,7 +1616,9 @@
                     $('#Piutang_TBAYAR').val(parseFloat($('#Piutang_TBAYAR').val()) + parseFloat($('#PiutangDetail_BAYAR').val()));
                     $('#TotalBAYAR').val(parseFloat($('#Piutang_TPOT').val()) + parseFloat($('#Piutang_TBAYAR').val()));
 
-
+                    $('input, select').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveBayarPiutang", "Manage")',
@@ -1491,6 +1627,9 @@
                             if (response.Errors == null) {
                                 $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
@@ -1510,6 +1649,225 @@
                 }
             }
         }
+
+        //add by nurul 21/10/2019
+        function validasiUpload() {
+            if ($tempMP1.toUpperCase() != "SHOPEE") {
+                alert('Maaf, upload ini baru bisa menghandle Shopee');
+            }
+            else if ($('#Piutang_TGL').val() != null &&
+                $('#Piutang_CUST').val() != '') {
+                $("#konfUpload").modal('show');
+                //refreshInputan();
+            }
+            else {
+                alert('Silahkan pilih nama marketplace terlebih dulu !');
+
+            }
+        }
+
+        function validasiCreatePot() {
+            if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
+                alert('Tidak ada detail pembayaran');
+            } else if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
+                alert('Tidak ada selisih !');
+            }else if ($('#Piutang_TGL').val() != null &&
+                $('#Piutang_CUST').val() != '') {
+                $("#konfCreatePot").modal('show');
+            }
+            else {
+                alert('Silahkan pilih nama marketplace terlebih dulu !');
+
+            }
+        }
+
+        function checkfile(s) {
+            //var validExts = new Array(".xlsx", ".xls", ".csv");
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+            }
+        }
+        function uploadfile() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+            } else {
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                }
+                formdata.append("cust", $('#Piutang_CUST').val());
+                formdata.append("market", $tempMP1);
+                formdata.append("tgl", $('#Piutang_TGL').val());
+                $('input, select').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UploadXcelBayar1", "Manage")',
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_upload').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == undefined) {
+                            $('#loading_upload').hide();
+                            $("#konfUpload").modal('hide');
+
+                            $modeEdit = 1; // 0 new, 1 edit
+                            $('.piutang_table_section').hide();
+                            $('.piutang_editor_section').show();
+                            $('#form-partial').html(response);
+                            refreshInputan();
+                            getTanggal();
+                            getMarketplace();
+                            getFaktur($("#Piutang_CUST").val());
+                            $('input, select').each(function () {
+                                $(this).attr('disabled', 'disabled');
+                            });
+                            $('#btn-simpan-perubahan-row').hide();
+                        } else {
+                            $('#loading_upload').hide();
+                            alert(response.Errors);
+                            getFaktur($("#Piutang_CUST").val());
+                            $('input, select').each(function () {
+                                $(this).removeAttr('disabled');
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+        }
+
+        function getDetailBayarPiutang() {
+            var link = '@Url.Action("GetDetailBayarPiutang", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", $('#NOBUK_bayar_piutang').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (res) {
+                    var $jumlahDetail = res;
+                    if ($jumlahDetail == 0) {
+                        $('input, select').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('#btn-print-row').hide();
+                    } else {
+                        $('input, select').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('#btn-print-row').show();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function createPOT() {
+            if ($('tr[data-piutang-id != "0"] .potongan-piutang').length > 0) {
+                var totalSelisih = 0;
+                var get_rec = [];
+                var get_pot = [];
+                var get_faktur = [];
+                get_rec.length = 0;
+                get_pot.length = 0;
+                get_faktur.length = 0;
+                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                    if ($(item).attr("data-selisih") != undefined) {
+                        $(item).text(convertToRupiah(convertToAngka($(item).attr("data-selisih"))));
+                        totalSelisih += convertToAngka($(item).attr("data-selisih"));
+                        get_pot.push(convertToAngka($(item).attr("data-selisih")));
+                        get_rec.push($(item).attr("data-rec"));
+                        get_faktur.push($(item).attr("data-faktur"));
+                    }
+                });
+
+                if (totalSelisih == 0) {
+                    $("#konfCreatePot").modal('hide');
+                    alert('Tidak ada selisih');
+                }
+                else
+                {
+                    $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                        $(item).text(convertToRupiah(0));
+                    });
+                    $('#TOTALPOT').val(convertToRupiah(totalSelisih));
+                    $('#TOTALSELISIH').val(convertToRupiah(0));
+                    $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdatePotonganBayarPiutang", "Manage")',
+                    data: JSON.stringify({
+                        OrderId: $('#NOBUK_bayar_piutang').val(),
+                        Tgl: $('#Piutang_TGL').val(),
+                        Cust: $('#Piutang_CUST').val(),
+                        TotalFaktur: convertToAngka($('#TOTALBYR').val()),
+                        TotalBayar: convertToAngka($('#TOTALREF').val()),
+                        TotalPotongan: convertToAngka($('#TOTALPOT').val()),
+                        getRec: get_rec,
+                        getPot: get_pot,
+                        getFaktur: get_faktur
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function () {
+                        $("#konfCreatePot").modal('hide');
+                        alert('Nilai potongan berhasil dibuat');
+                    },
+                    error: function (xhr) {
+                        $("#konfCreatePot").modal('hide');
+                        console.log(xhr);
+                    }
+                    });
+                    //end proses simpan
+                }
+            } else {
+                $("#konfCreatePot").modal('hide');
+                alert('Tidak ada detail pembayaran');
+            }
+        }
+
+        function ViewLog() {
+            var link = '@Url.Action("ListLogBayarPiutang", "Manage")';
+            link += '?cust=' + encodeURIComponent($("#Piutang_CUST").val());
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_upload').show();
+                },
+                success: function (response) {
+                    $('#uploadbrgviewdiv').html(response);
+                    $('#loading_upload').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    $('#loading_upload').hide();
+                }
+            });
+        }
+        //end add by nurul 21/10/2019
     </script>
 
     <script>
