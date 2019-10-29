@@ -959,8 +959,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("17.SMDT00.00.2y");
-                    //listBrg.Add("SP1930.01.37");
+                    listBrg.Add("2469");
                     //listBrg.Add("SP1930.01.38");
                     //listBrg.Add("SP1930.01.39");
                     //listBrg.Add("SP1930.01.40");
@@ -2274,33 +2273,40 @@ namespace MasterOnline.Controllers
                     else
                     {
                         //add by calvin 28 oktober 2019
-                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                        try
                         {
-                            var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), 0);
-                            if (a.recordCount < qty || a.recordCount > qty)
-                            {
-                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                                {
-                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                                    REQUEST_ACTION = "Selisih Stok",
-                                    REQUEST_DATETIME = DateTime.Now,
-                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
-                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
-                                    REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
-                                    REQUEST_STATUS = "Pending",
-                                };
-                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
 
-                                //#if (DEBUG || Debug_AWS)
-                                //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
-                                //#else
-                                //                            var EDB = new DatabaseSQL(dbPathEra);
-                                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                //                            var client = new BackgroundJobClient(sqlStorage);
-                                //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
-                                //#endif
+                        }
+                        catch (Exception exx)
+                        {
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                            {
+                                var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), 0);
+                                if (a.recordCount < qty || a.recordCount > qty)
+                                {
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok",
+                                        REQUEST_DATETIME = DateTime.Now,
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                        REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
+                                        REQUEST_STATUS = "Pending",
+                                    };
+                                    var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+
+                                    //#if (DEBUG || Debug_AWS)
+                                    //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                                    //#else
+                                    //                            var EDB = new DatabaseSQL(dbPathEra);
+                                    //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                    //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    //                            var client = new BackgroundJobClient(sqlStorage);
+                                    //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                                    //#endif
+                                }
                             }
                         }
                         //end add by calvin 28 oktober 2019
@@ -2405,34 +2411,40 @@ namespace MasterOnline.Controllers
                     else
                     {
                         //add by calvin 28 oktober 2019
-
-                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                        try
                         {
-                            var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
-                            if (a.recordCount < qty || a.recordCount > qty)
-                            {
-                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                                {
-                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                                    REQUEST_ACTION = "Selisih Stok",
-                                    REQUEST_DATETIME = DateTime.Now,
-                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
-                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
-                                    REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
-                                    REQUEST_STATUS = "Pending",
-                                };
-                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
 
-                                //#if (DEBUG || Debug_AWS)
-                                //                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
-                                //#else
-                                //                            var EDB = new DatabaseSQL(dbPathEra);
-                                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
-                                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
-                                //                            var client = new BackgroundJobClient(sqlStorage);
-                                //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
-                                //#endif
+                        }
+                        catch (Exception ex)
+                        {
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                            {
+                                var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
+                                if (a.recordCount < qty || a.recordCount > qty)
+                                {
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok",
+                                        REQUEST_DATETIME = DateTime.Now,
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                        REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(a.recordCount), //marketplace stock
+                                        REQUEST_STATUS = "Pending",
+                                    };
+                                    var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+
+                                    //#if (DEBUG || Debug_AWS)
+                                    //                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                                    //#else
+                                    //                            var EDB = new DatabaseSQL(dbPathEra);
+                                    //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                    //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    //                            var client = new BackgroundJobClient(sqlStorage);
+                                    //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                                    //#endif
+                                }
                             }
                         }
                         //end add by calvin 28 oktober 2019
