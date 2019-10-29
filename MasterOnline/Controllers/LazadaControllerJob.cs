@@ -1869,7 +1869,8 @@ namespace MasterOnline.Controllers
                                                     {
                                                         var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
                                                     }
-                                                    else {
+                                                    else
+                                                    {
                                                         var adaPembeliGagalInsert = true;
                                                     }
                                                 }
@@ -2486,6 +2487,33 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public BindingBase GetOrdersCancelled(string cust, string accessToken, string dbPathEra, string uname)
         {
+            var ret = new BindingBase();
+            ret.status = 0;
+            //var jmlhNewOrder = 0;//add by calvin 1 april 2019
+            //string connectionID = Guid.NewGuid().ToString();
+            var fromDt = DateTime.Now.AddDays(-14);
+            var toDt = DateTime.Now.AddDays(1);
+
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+            //var username = uname;
+
+            var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
+                                       //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
+                                       //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
+                                       //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11"
+                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.CUST == cust && a.TGL < toDt && a.TGL > fromDt
+                                   //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
+                                   //select new { a.NO_REFERENSI }).ToList();
+                                   select a.NO_REFERENSI).ToList();
+
+            GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, 0,  orderUnpaidList);
+
+            return ret;
+        }
+        public BindingBase GetOrdersCancelledWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, List<string> orderUnpaidList)
+        {
             //order unpaid yang cancelled
             var ret = new BindingBase();
             ret.status = 0;
@@ -2493,7 +2521,11 @@ namespace MasterOnline.Controllers
             string connectionID = Guid.NewGuid().ToString();
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
-            SetupContext(dbPathEra, uname);
+            //SetupContext(dbPathEra, uname);
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -2506,87 +2538,134 @@ namespace MasterOnline.Controllers
 
             //pesanan baru yang unpaid
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
-            var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
-                                   //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
-                                       //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
-                                   where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11"
-                                   //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
-                                   select new { a.NO_REFERENSI }).ToList();
+            //var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
+            //                           //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
+            //                           //where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI == "0"
+            //                       where a.USER_NAME == "Auto Lazada" && a.STATUS_TRANSAKSI != "11" && a.TGL < toDt && a.TGL > fromDt
+            //                       //end change by nurul 10/10/2019, cari semua status kecuali cancel (11)
+            //                       //select new { a.NO_REFERENSI }).ToList();
+            //                       select  a.NO_REFERENSI ).ToList();
             var connIDStok = Guid.NewGuid().ToString();
-            foreach (var order in orderUnpaidList)
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/orders/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            request.AddApiParameter("sort_direction", "DESC");
+            request.AddApiParameter("offset", (page * 100).ToString());
+            request.AddApiParameter("limit", "100");
+            request.AddApiParameter("status", "canceled");
+            LazopResponse response = client.Execute(request, accessToken);
+            var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
+            if (bindOrder != null)
             {
-                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-                LazopRequest request = new LazopRequest();
-                request.SetApiName("/order/get");
-                request.SetHttpMethod("GET");
-                request.AddApiParameter("order_id", order.NO_REFERENSI);
-                try
+                if (bindOrder.code.Equals("0"))
                 {
-                    LazopResponse response = client.Execute(request, accessToken);
-                    var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
-                    if (bindOrder != null)
+                    foreach(var order in bindOrder.data.orders)
                     {
-                        //ret = bindOrder;
-                        if (bindOrder.code.Equals("0"))
+                        if (orderUnpaidList.Contains(order.order_id))
                         {
-                            //change 12 Maret 2019, handle record > 100
-                            //string listOrderId = "[";
-                            List<string> listOrderId = new List<string>();
-                            //end change 12 Maret 2019, handle record > 100
-                            //TEMP_ALL_MP_ORDER_ITEM
-                            if (!string.IsNullOrWhiteSpace(bindOrder.data.order_id))
+                            var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+
+                            if (rowAffected > 0)
                             {
-                                //change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
-                                //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
+                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2'");
 
-                                //if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
-                                if (bindOrder.data.statuses[0].ToLower() == "canceled")
-                                //end change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
+                                var orderDetail = (from a in ErasoftDbContext.SOT01A
+                                                   join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                                                   where a.NO_REFERENSI == order.order_id
+                                                   select new { b.BRG }).ToList();
+                                foreach (var item in orderDetail)
                                 {
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
-
-                                    if (rowAffected > 0)
+                                    if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
                                     {
-                                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') AND STATUS <> '2'");
-
-                                        var orderDetail = (from a in ErasoftDbContext.SOT01A
-                                                           join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                                           where a.NO_REFERENSI == bindOrder.data.order_id
-                                                           select new { b.BRG }).ToList();
-                                        foreach (var item in orderDetail)
-                                        {
-                                            if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
-                                            {
-                                                brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
-                                            }
-                                        }
+                                        brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
                                     }
                                 }
                             }
-                            else
-                            {
-                                ret.message = "no order";
-                            }
-                        }
-                        else
-                        {
-                            //currentLog.REQUEST_EXCEPTION = bindOrder.message;
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                            ret.message = "lazada api return error";
                         }
                     }
-                    else
+                    if (bindOrder.data.orders.Count >= 100)
                     {
-                        ret.message = "failed to call lazada api";
+                        GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, page + 1, orderUnpaidList);
                     }
-                }
-                catch (Exception ex)
-                {
-                    ret.message = ex.ToString();
-                    //currentLog.REQUEST_EXCEPTION = ex.Message;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
                 }
             }
+            //foreach (var order in orderUnpaidList)
+            //{
+            //    ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            //    LazopRequest request = new LazopRequest();
+            //    request.SetApiName("/order/get");
+            //    request.SetHttpMethod("GET");
+            //    request.AddApiParameter("order_id", order.NO_REFERENSI);
+            //    try
+            //    {
+            //        LazopResponse response = client.Execute(request, accessToken);
+            //        var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+            //        if (bindOrder != null)
+            //        {
+            //            //ret = bindOrder;
+            //            if (bindOrder.code.Equals("0"))
+            //            {
+            //                //change 12 Maret 2019, handle record > 100
+            //                //string listOrderId = "[";
+            //                List<string> listOrderId = new List<string>();
+            //                //end change 12 Maret 2019, handle record > 100
+            //                //TEMP_ALL_MP_ORDER_ITEM
+            //                if (!string.IsNullOrWhiteSpace(bindOrder.data.order_id))
+            //                {
+            //                    //change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
+            //                    //var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.TGL.Value >= fromDt).Select(p => p.NO_REFERENSI).ToList();
+
+            //                    //if (OrderNoInDb.Contains(Convert.ToString(bindOrder.data.order_id)))
+            //                    if (bindOrder.data.statuses[0].ToLower() == "canceled")
+            //                    //end change by Tri 5 Juli 2019, cek status pesanan menjadi cancelled di lazada baru update status di mo
+            //                    {
+            //                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + bindOrder.data.order_id + "') AND STATUS_TRANSAKSI <> '11'");
+
+            //                        if (rowAffected > 0)
+            //                        {
+            //                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + bindOrder.data.order_id + "') AND STATUS <> '2'");
+
+            //                            var orderDetail = (from a in ErasoftDbContext.SOT01A
+            //                                               join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+            //                                               where a.NO_REFERENSI == bindOrder.data.order_id
+            //                                               select new { b.BRG }).ToList();
+            //                            foreach (var item in orderDetail)
+            //                            {
+            //                                if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
+            //                                {
+            //                                    brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
+            //                                }
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    ret.message = "no order";
+            //                }
+            //            }
+            //            else
+            //            {
+            //                //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+            //                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+            //                ret.message = "lazada api return error";
+            //            }
+            //        }
+            //        else
+            //        {
+            //            ret.message = "failed to call lazada api";
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        ret.message = ex.ToString();
+            //        //currentLog.REQUEST_EXCEPTION = ex.Message;
+            //        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //    }
+            //}
 
             var itemCount = brgCancelled.Count();
             if (itemCount > 0)
