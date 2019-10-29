@@ -21776,7 +21776,7 @@ namespace MasterOnline.Controllers
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
 
-            //new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_100144", "Calvin");
+            new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_100144", "Calvin");
 
             //Task.Run(() => new LazadaControllerJob().GetOrdersCancelled("000023", "50000800209xk7TpgeUPD1314839fwAmIv1NwB8Zj1gHyaSrcXdEt7qWzCWIIn", dbPathEra, "Calvin")).Wait();
 

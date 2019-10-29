@@ -959,7 +959,12 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("2469");
+                    listBrg.Add("1315");
+                    listBrg.Add("654");
+                    //listBrg.Add("1578");
+                    //listBrg.Add("2004");
+                    //listBrg.Add("2495");
+                    //listBrg.Add("2497");
                     //listBrg.Add("SP1930.01.38");
                     //listBrg.Add("SP1930.01.39");
                     //listBrg.Add("SP1930.01.40");
@@ -1778,7 +1783,7 @@ namespace MasterOnline.Controllers
                                                 REQUEST_STATUS = "Pending",
                                             };
                                             var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Blibli");
+                                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Blibli");
 
                                             //#if (DEBUG || Debug_AWS)
                                             //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
@@ -1793,7 +1798,20 @@ namespace MasterOnline.Controllers
                                     }
                                     catch (Exception ex)
                                     {
-
+                                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                        {
+                                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                            REQUEST_ACTION = "Selisih Stok",
+                                            REQUEST_DATETIME = DateTime.Now,
+                                            REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                            REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(data.Qty), //updating to stock
+                                            REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                                            REQUEST_STATUS = "Pending",
+                                            REQUEST_EXCEPTION = msg
+                                        };
+                                        var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Blibli");
                                     }
                                 }
                                 //end add by calvin 28 oktober 2019
@@ -2173,13 +2191,26 @@ namespace MasterOnline.Controllers
                                     REQUEST_STATUS = "Pending",
                                 };
                                 var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Tokped");
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-
+                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        {
+                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                            REQUEST_ACTION = "Selisih Stok",
+                            REQUEST_DATETIME = DateTime.Now,
+                            REQUEST_ATTRIBUTE_1 = stf02_brg,
+                            REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                            REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                            REQUEST_STATUS = "Pending",
+                            REQUEST_EXCEPTION = msg
+                        };
+                        var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
                     }
                 }
             }
@@ -2275,10 +2306,6 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-
-                        }
-                        catch (Exception exx)
-                        {
                             if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                             {
                                 var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), 0);
@@ -2295,7 +2322,7 @@ namespace MasterOnline.Controllers
                                         REQUEST_STATUS = "Pending",
                                     };
                                     var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
 
                                     //#if (DEBUG || Debug_AWS)
                                     //                                Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
@@ -2309,13 +2336,34 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                REQUEST_ACTION = "Selisih Stok",
+                                REQUEST_DATETIME = DateTime.Now,
+                                REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                                REQUEST_STATUS = "Pending",
+                                REQUEST_EXCEPTION = msg
+                            };
+                            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
+                        }
                         //end add by calvin 28 oktober 2019
                     }
                 }
                 catch (Exception ex)
                 {
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    throw new Exception(msg);
+                    if (msg.Contains("not allowed to edit"))
+                    {
+                        var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
+                    }
+                    //throw new Exception(msg);
                 }
             }
 
@@ -2413,10 +2461,6 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-
-                        }
-                        catch (Exception ex)
-                        {
                             if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                             {
                                 var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
@@ -2433,7 +2477,7 @@ namespace MasterOnline.Controllers
                                         REQUEST_STATUS = "Pending",
                                     };
                                     var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "Support ", currentLog, "Shopee");
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
 
                                     //#if (DEBUG || Debug_AWS)
                                     //                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
@@ -2447,6 +2491,23 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                REQUEST_ACTION = "Selisih Stok",
+                                REQUEST_DATETIME = DateTime.Now,
+                                REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
+                                REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                                REQUEST_STATUS = "Pending",
+                                REQUEST_EXCEPTION = msg
+                            };
+                            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
+                        }
                         //end add by calvin 28 oktober 2019
 
                     }
@@ -2454,7 +2515,13 @@ namespace MasterOnline.Controllers
                 catch (Exception ex)
                 {
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    throw new Exception(msg);
+
+                    if (msg.Contains("not allowed to edit"))
+                    {
+                        var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
+                    }
+
+                    //throw new Exception(msg);
                 }
             }
             return ret;
