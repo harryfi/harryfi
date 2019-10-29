@@ -374,7 +374,15 @@ namespace MasterOnline.Controllers
                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
             }
 
-            return Json(ret, JsonRequestBehavior.AllowGet);
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         public ActionResult UploadXcel()
@@ -592,7 +600,15 @@ namespace MasterOnline.Controllers
                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
             }
 
-            return Json(ret, JsonRequestBehavior.AllowGet);
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         public FileResult DownloadFileExcel(/*byte[] file, string fileName*//*BindDownloadExcel data*/ string data)
@@ -729,7 +745,15 @@ namespace MasterOnline.Controllers
                 ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
             }
 
-            return Json(ret, JsonRequestBehavior.AllowGet);
+            //return Json(ret, JsonRequestBehavior.AllowGet);
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
         }
 
         public ActionResult UploadXcelSaldoAwal()
