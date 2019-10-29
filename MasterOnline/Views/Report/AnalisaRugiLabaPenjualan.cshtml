@@ -22,9 +22,35 @@
 @section styles
 {
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <style>
+        #loading_spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_spinner_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+    </style>
 }
 
-    <h2>Analisa Laba/Rugi Penjualan</h2>
+<h2>Analisa Laba/Rugi Penjualan</h2>
 
 <div class="row">
     <div class="col-md-2">
@@ -147,32 +173,32 @@
     </div>
 </div>
 @*<div class="row" id="div_Buyer">
-    <div class="col-md-2">
-        @Html.Label("", "Dari Pembeli")
-        <div class="input-group text">
-            @Html.TextBox("FromBuyer", "", new { @class = "form-control", @MaxLength = "10" })
-            <span class="input-group-btn">
-                <button id="prompt-daribuyer" class="btn btn-default" type="button" style="height: 34px;">
-                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                </button>
-            </span>
+        <div class="col-md-2">
+            @Html.Label("", "Dari Pembeli")
+            <div class="input-group text">
+                @Html.TextBox("FromBuyer", "", new { @class = "form-control", @MaxLength = "10" })
+                <span class="input-group-btn">
+                    <button id="prompt-daribuyer" class="btn btn-default" type="button" style="height: 34px;">
+                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                    </button>
+                </span>
+            </div>
         </div>
-    </div>
-    <div class="col-md-2">
-        @Html.Label("", "Sampai Pembeli")
-        <div class="input-group text">
-            @Html.TextBox("ToBuyer", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
-            <span class="input-group-btn">
-                <button id="prompt-sdbuyer" class="btn btn-default" type="button" style="height: 34px;">
-                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                </button>
-            </span>
+        <div class="col-md-2">
+            @Html.Label("", "Sampai Pembeli")
+            <div class="input-group text">
+                @Html.TextBox("ToBuyer", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+                <span class="input-group-btn">
+                    <button id="prompt-sdbuyer" class="btn btn-default" type="button" style="height: 34px;">
+                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                    </button>
+                </span>
+            </div>
         </div>
-    </div>
-    <div class="col-md-8">
+        <div class="col-md-8">
 
-    </div>
-</div>*@
+        </div>
+    </div>*@
 <br />
 <div class="row">
     <div class="col-md-12">
@@ -182,8 +208,8 @@
 <br />
 <br />
 @*<div class="row text-center">
-    <object id="pdf_viewer" data="#" type="application/pdf" width="1079" height="600"></object>
-</div>*@
+        <object id="pdf_viewer" data="#" type="application/pdf" width="1079" height="600"></object>
+    </div>*@
 
 @section scripts
 {
@@ -250,9 +276,10 @@
                 var $link = '@Url.Action("PromptBarang", "Report")';
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
-            
+
 
             $('#preview-report').click(function () {
+                $('#loading_spinner').show();
                 previewing();
             });
 
@@ -289,7 +316,7 @@
                     $('#div_Supp2').hide();
                     //$('#div_Buyer').hide();
                 }
-            }); 
+            });
 
             $('#Order').click(function () {
                 if ($('#Order').val() == 1) {
@@ -323,7 +350,7 @@
                     $('#div_Supp2').hide();
                     //$('#div_Buyer').hide();
                 }
-            }); 
+            });
 
             $('#prompt-daricustomer2').click(function () {
                 promptCust = "3";
@@ -402,32 +429,34 @@
                         //ToCust: $('#ToCust').val(),
                         FromCust: drCust,
                         ToCust: sdCust,
-                        //end change 
+                        //end change
                         FromBrg: $('#FromBrg').val(),
                         ToBrg: $('#ToBrg').val(),
                         //FromBuyer: $('#FromBuyer').val(),
                         //ToBuyer: $('#ToBuyer').val(),
                         DrTanggal: formatDateToYYYYmmDD(1),
                         SdTanggal: formatDateToYYYYmmDD(2),
-                        //add by nurul 
+                        //add by nurul
                         Order: $('#Order').val()
-                        //end add 
+                        //end add
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function (data) {
+                        
                         //console.log(data);
                         $("<iframe id='LoadReportMO'>")// create a new iframe element
                             .hide()//invisible
                             .load(function () {
+                                $('#loading_spinner').hide();
                                 setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
                             })
                             .attr("src", data)//load the page
                             .appendTo("body");
-
                     },
                     error: function (xhr) {
                         console.log(xhr);
+                        $('#loading_spinner').hide();
                     }
                 });
             //}
@@ -446,7 +475,7 @@
             else if (promptCust == "4") {
                 $('#ToCust2').val(cust);
             }
-            //end add 
+            //end add
             promptCust = "";
         }
         function afterPromptBarang(brg) {
