@@ -959,8 +959,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("1315");
-                    listBrg.Add("654");
+                    listBrg.Add("2469");
                     //listBrg.Add("1578");
                     //listBrg.Add("2004");
                     //listBrg.Add("2495");
@@ -1920,9 +1919,11 @@ namespace MasterOnline.Controllers
                 {
 
                 }
-                else {
+                else
+                {
                     var a = result.data.FirstOrDefault();
-                    if (a != null) {
+                    if (a != null)
+                    {
                         newQty = a.stock.value;
                     }
                 }
@@ -2168,7 +2169,7 @@ namespace MasterOnline.Controllers
 
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
 
-                if (!string.IsNullOrWhiteSpace( result.header.messages))
+                if (!string.IsNullOrWhiteSpace(result.header.messages))
                 {
                     throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
                 }
@@ -2179,7 +2180,8 @@ namespace MasterOnline.Controllers
                         if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                         {
                             var a = await TokpedCheckUpdateStock(iden, product_id);
-                            if (a < stok || a > stok) {
+                            if (a < stok || a > stok)
+                            {
                                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                 {
                                     REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -2340,9 +2342,20 @@ namespace MasterOnline.Controllers
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     if (msg.Contains("not allowed to edit"))
                     {
-                        //var a = await ShopeeCheckUpdateStock(iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]));
+#if (DEBUG || Debug_AWS)
+                        await ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty);
+#else
+                        var EDB = new DatabaseSQL(dbPathEra);
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var client = new BackgroundJobClient(sqlStorage);
+                        client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
+#endif
                     }
-                    throw new Exception(msg);
+                    else
+                    {
+                        throw new Exception(msg);
+                    }
                 }
             }
 
@@ -2472,16 +2485,161 @@ namespace MasterOnline.Controllers
                 catch (Exception ex)
                 {
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    throw new Exception(msg);
+                    if (msg.Contains("not allowed to edit"))
+                    {
+
+#if (DEBUG || Debug_AWS)
+                        await ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty);
+#else
+                        var EDB = new DatabaseSQL(dbPathEra);
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var client = new BackgroundJobClient(sqlStorage);
+                        client.Schedule<StokControllerJob>(x => x.ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty), TimeSpan.FromMinutes(1));
+#endif
+                    }
+                    else
+                    {
+                        throw new Exception(msg);
+                    }
                 }
             }
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 1)]
+        [Queue("1_update_stok")]
+        public async Task<BindingBase> ShopeeUnlinkProduct(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
+        {
+            //    int MOPartnerID = 841371;
+            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //string ret = "";
+            SetupContext(DatabasePathErasoft, uname);
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = -1,
+            };
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/get";
+
+            ShopeeControllerJob.ShopeeGetItemDetailData HttpBody = new ShopeeControllerJob.ShopeeGetItemDetailData
+            {
+                partner_id = 841371,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = item_id,
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c");
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != null)
+            {
+                var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeControllerJob.ShopeeGetItemDetailResult)) as ShopeeControllerJob.ShopeeGetItemDetailResult;
+
+                ret.status = 1;
+
+                var sellerSku = "";
+
+                if (detailBrg.item.has_variation)
+                {
+                    //insert brg induk
+                    string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
+
+                    foreach (var item in detailBrg.item.variations)
+                    {
+                        if (detailBrg.item.item_id == item_id && item.variation_id == variation_id)
+                        {
+                            if (item.status.ToLower() == "deleted")
+                            {
+                                var EDB = new DatabaseSQL(dbPathEra);
+                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                                var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
+                                if (rowsAffected > 0)
+                                {
+                                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                    contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (detailBrg.item.item_id == item_id)
+                    {
+                        if (detailBrg.item.status.ToLower() == "deleted")
+                        {
+                            var EDB = new DatabaseSQL(dbPathEra);
+                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                            var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
+                            if (rowsAffected > 0)
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (ret.recordCount < MO_qty || ret.recordCount > MO_qty)
+            {
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                {
+                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                    REQUEST_ACTION = "Selisih Stok",
+                    REQUEST_DATETIME = DateTime.Now,
+                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(MO_qty), //updating to stock
+                    REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(ret.recordCount), //marketplace stock
+                    REQUEST_STATUS = "Pending",
+                };
+                var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
+
+                //#if (DEBUG || Debug_AWS)
+                //                            Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null)).Wait();
+                //#else
+                //                            var EDB = new DatabaseSQL(dbPathEra);
+                //                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                //                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                //                            var client = new BackgroundJobClient(sqlStorage);
+                //                            client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02_brg, log_CUST, "Stock", "Update Stok", iden, brg_mp, 0, uname, null));
+                //#endif
+            }
+
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_update_stok")]
-        public async Task<BindingBase> ShopeeCheckUpdateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname,ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
+        public async Task<BindingBase> ShopeeCheckUpdateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string uname, ShopeeAPIData iden, Int64 item_id, Int64 variation_id, int MO_qty)
         {
             //    int MOPartnerID = 841371;
             //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
