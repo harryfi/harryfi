@@ -34621,6 +34621,7 @@ namespace MasterOnline.Controllers
 
             }
             tw.WriteLine(message);
+            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
             ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
             ErasoftDbContext.SaveChanges();
 
