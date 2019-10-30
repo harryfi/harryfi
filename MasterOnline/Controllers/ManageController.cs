@@ -10098,7 +10098,7 @@ namespace MasterOnline.Controllers
 
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
 
-                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId="+ Uri.EscapeDataString("MasterOnline-" + milis.ToString()) +"&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
 
                 System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
                 myReq.Method = "GET";
