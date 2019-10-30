@@ -500,9 +500,9 @@
                         </button>
                     </div>
                 </div>
-                <div>
+                @*<div>
                     <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-                </div>
+                </div>*@
                 <div id="uploadbrgviewdiv" class="row">
                 </div>
                 <br />
@@ -547,10 +547,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
             </div>
-            <div class="modal-body">
-                <div class="row text-center">
-                    <label id="lblListError"></label>
-                </div>
+            <div class="modal-body edit-content">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
@@ -577,7 +574,7 @@
         //add by nurul 12/2/2019
         var $page = window.text;
             //end add by nurul 12/2/2019
-        $(document).ready(function () {
+        $(document).ready(function () {            
             refreshTablePiutang1();
             //add by nurul 12/2/2019
             $page = 0;
@@ -641,6 +638,30 @@
                 //});
                 //$('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 12/2/2019
+            });
+
+            $('#modalError').on('show.bs.modal', function (e) {
+                var str = listError.map(function (item) {
+                    for (var key in item)
+                        return item;
+                }).join("\n").html_safe;
+                var $modal = $(this),
+                    //esseyId = e.relatedTarget.dataset.yourparameter;
+                    esseyId = str;
+
+                //            $.ajax({
+                //                cache: false,
+                //                type: 'POST',
+                //                url: 'backend.php',
+                //                data: 'EID='+essay_id,
+                //                success: function(data) 
+                //                {
+                
+                var esy = $('.profile').html();
+                $modal.find('.edit-content').html(esy);
+                //                }
+                //            });
+
             });
         });
 
@@ -1652,17 +1673,20 @@
 
         //add by nurul 21/10/2019
         function validasiUpload() {
-            if ($tempMP1.toUpperCase() != "SHOPEE") {
+            
+            if ($('#Piutang_TGL').val() == null ||
+                $('#Piutang_CUST').val() == '') {
+                //$("#konfUpload").modal('show');
+                //document.getElementById("file_upload_excel").value = "";
+                //refreshInputan();
+                alert('Silahkan pilih nama marketplace terlebih dulu !');
+            } else if ($tempMP1.toUpperCase() != "SHOPEE") {
                 alert('Maaf, upload ini baru bisa menghandle Shopee');
             }
-            else if ($('#Piutang_TGL').val() != null &&
-                $('#Piutang_CUST').val() != '') {
-                $("#konfUpload").modal('show');
-                //refreshInputan();
-            }
             else {
-                alert('Silahkan pilih nama marketplace terlebih dulu !');
-
+                //alert('Silahkan pilih nama marketplace terlebih dulu !');
+                $("#konfUpload").modal('show');
+                document.getElementById("file_upload_excel").value = "";
             }
         }
 
@@ -1750,7 +1774,8 @@
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
-                        $('#loading_spinner').hide();
+                        alert(error);
+                        $('#loading_upload').hide();
                     }
                 });
             }
@@ -1866,6 +1891,15 @@
                     $('#loading_upload').hide();
                 }
             });
+        }
+
+        function downloadLogUploadPiutang(txt){
+            window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
+
+        }
+
+        function viewError(err) {
+
         }
         //end add by nurul 21/10/2019
     </script>

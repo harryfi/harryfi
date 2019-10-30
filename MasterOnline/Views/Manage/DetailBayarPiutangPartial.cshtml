@@ -18,7 +18,10 @@
         username = dataSession?.Account?.Username;
         accId = (dataSession?.Account?.AccountId ?? 0);
     }
+
+    
 }
+
 
 @Html.AntiForgeryToken()
 @Html.HiddenFor(m => m.Piutang.RecNum)
@@ -67,6 +70,11 @@
     $(document).ready(function () {
         Initialize();
     });
+
+    @{ 
+        var listError = Model?.Errors?.ToList();
+    }
+    var listError = @Html.Raw(Json.Encode(listError));
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -288,6 +296,35 @@
                     </div>
                 </div>
             </div>
+        </div>
+    }
+    @if (Model?.Errors.Count > 0)
+    {
+        <div id="btn-error-row" class="row">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <div><button id="btn-error" type="button" data-toggle="modal" data-target="#modalError" data-yourparameter="@(Model?.Errors)" class="btn btn-primary btn-block">View Error</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="profile hide">
+            <table>
+                <tbody>
+                    @foreach (var detailError in Model?.Errors?.ToList())
+                    {
+                        <tr>
+                            <td>
+                                @detailError
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     }
     @if (Model?.Piutang?.RecNum != null)

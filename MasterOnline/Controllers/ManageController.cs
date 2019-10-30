@@ -34228,29 +34228,29 @@ namespace MasterOnline.Controllers
             var bukti = "";
             var vm = new BayarPiutangViewModel() { };
 
-            #region Logging
-            string message = "";
-            string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
-            if (!System.IO.File.Exists(path))
-            {
-                System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
-                //var asd = System.IO.File.Create(path);
-                //asd.Close();
-            }
-            var asd = System.IO.File.Create(path);
-            asd.Close();
-            LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
-            {
-                CUST = cust_id,
-                UPLOADER = uname,
-                UPLOAD_DATETIME = DateTime.Now,
-                LOG_FILE = filename,
-            };
-            string lastFakturInUpload = "";
-            DateTime lastFakturDateInUpload = DateTime.Now;
-            StreamWriter tw = new StreamWriter(path);
-            #endregion
+            //#region Logging
+            //string message = "";
+            //string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+            //if (!System.IO.File.Exists(path))
+            //{
+            //    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+            //    //var asd = System.IO.File.Create(path);
+            //    //asd.Close();
+            //}
+            //var asd = System.IO.File.Create(path);
+            //asd.Close();
+            //LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
+            //{
+            //    CUST = cust_id,
+            //    UPLOADER = uname,
+            //    UPLOAD_DATETIME = DateTime.Now,
+            //    LOG_FILE = filename,
+            //};
+            //string lastFakturInUpload = "";
+            //DateTime lastFakturDateInUpload = DateTime.Now;
+            //StreamWriter tw = new StreamWriter(path);
+            //#endregion
 
             try
             {
@@ -34493,24 +34493,24 @@ namespace MasterOnline.Controllers
                                                                     }
                                                                     else
                                                                     {
-                                                                        //ret.Errors.Add("Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan");
-                                                                        message = "Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan." + System.Environment.NewLine;
-                                                                        tw.WriteLine(message);
+                                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan" + System.Environment.NewLine);
+                                                                        //message += "Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan." + System.Environment.NewLine;
+                                                                        //tw.WriteLine(message);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    //ret.Errors.Add("No. Ref tidak ditemukan di baris " + i);
-                                                                    message = "No. Ref tidak ditemukan di baris " + i + "." + System.Environment.NewLine;
-                                                                    tw.WriteLine(message);
+                                                                    ret.Errors.Add("No. Ref tidak ditemukan di baris " + i + System.Environment.NewLine);
+                                                                    //message += "No. Ref tidak ditemukan di baris " + i + "." + System.Environment.NewLine;
+                                                                    //tw.WriteLine(message);
                                                                 }
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //ret.Errors.Add("Saldo masuk tidak ditemukan di baris " + i);
-                                                            message = "Saldo masuk tidak ditemukan di baris " + i + "." + System.Environment.NewLine;
-                                                            tw.WriteLine(message);
+                                                            ret.Errors.Add("Saldo masuk tidak ditemukan di baris " + i + System.Environment.NewLine);
+                                                            //message += "Saldo masuk tidak ditemukan di baris " + i + "." + System.Environment.NewLine;
+                                                            //tw.WriteLine(message);
                                                             //ret.lastRow[file_index] = i;
                                                             //break;
                                                         }
@@ -34542,32 +34542,32 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-                                                    //ret.Errors.Add("Faktur dari marketplace tidak ditemukan");
-                                                    message = "Faktur dari marketplace tidak ditemukan." + System.Environment.NewLine;
-                                                    tw.WriteLine(message);
+                                                    ret.Errors.Add("Faktur dari marketplace tidak ditemukan" + System.Environment.NewLine);
+                                                    //message += "Faktur dari marketplace tidak ditemukan." + System.Environment.NewLine;
+                                                    //tw.WriteLine(message);
                                                 }
                                             }
                                             else
                                             {
                                                 //customer not found
-                                                //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan");
-                                                message = "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
-                                                tw.WriteLine(message);
+                                                ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
+                                                //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
+                                                //tw.WriteLine(message);
                                             }
                                         }
                                         else
                                         {
-                                            //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan");
-                                            message = "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
-                                            tw.WriteLine(message);
+                                            ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
+                                            //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
+                                            //tw.WriteLine(message);
                                         }
                                     }
                                     else
                                     {
                                         //cust empty
-                                        //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan");
-                                        message = "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
-                                        tw.WriteLine(message);
+                                        ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
+                                        //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
+                                        //tw.WriteLine(message);
                                     }
                                 }
                             }
@@ -34579,15 +34579,35 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + System.Environment.NewLine);
 
-                message += "Error : " + (ex.InnerException == null ? ex.Message : (ex.InnerException.InnerException == null ? ex.InnerException.Message : ex.InnerException.InnerException.Message));
-                tw.WriteLine(message);
+                //message += "Error : " + (ex.InnerException == null ? ex.Message : (ex.InnerException.InnerException == null ? ex.InnerException.Message : ex.InnerException.InnerException.Message));
+                //tw.WriteLine(message);
 
-                newLogImportFaktur.LAST_FAKTUR_UPLOADED = "Error. Gagal Upload.";
-                newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
-                ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
-                ErasoftDbContext.SaveChanges();
+                //newLogImportFaktur.LAST_FAKTUR_UPLOADED = "Error. Gagal Upload.";
+                //newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
+                //ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                //ErasoftDbContext.SaveChanges();
+                if (bukti != "")
+                {
+                    var cekdetail1 = ErasoftDbContext.ART03B.Where(a => a.BUKTI == bukti).Count();
+                    if (cekdetail1 != 0)
+                    {
+                        vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == bukti);
+                        vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == bukti).ToList();
+                        vm.Errors = ret.Errors;
+                    }
+                    else
+                    {
+                        var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == bukti);
+                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.SaveChanges();
+                        ret.Errors.Add("Tidak ada data yang dapat diproses" + System.Environment.NewLine);
+                        vm.Errors = ret.Errors;
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
 
                 return Json(ret, JsonRequestBehavior.AllowGet);
             }
@@ -34602,29 +34622,29 @@ namespace MasterOnline.Controllers
                 {
                     vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == bukti);
                     vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == bukti).ToList();
-                    //vm.Errors = ret.Errors;
+                    vm.Errors = ret.Errors;
                 }
                 else
                 {
                     var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == bukti);
                     ErasoftDbContext.ART03A.Remove(piutangInDb);
                     ErasoftDbContext.SaveChanges();
-                    ret.Errors.Add("Tidak ada data yang dapat diproses");
-                    message = "Tidak ada data yang dapat diproses." + System.Environment.NewLine;
-                    tw.WriteLine(message);
-                    newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
-                    ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
-                    ErasoftDbContext.SaveChanges();
+                    ret.Errors.Add("Tidak ada data yang dapat diproses" + System.Environment.NewLine);
+                    //message += "Tidak ada data yang dapat diproses." + System.Environment.NewLine;
+                    //tw.WriteLine(message);
+                    //newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
+                    //ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                    //ErasoftDbContext.SaveChanges();
                     vm.Errors = ret.Errors;
                     return Json(ret, JsonRequestBehavior.AllowGet);
                 }
 
             }
-            tw.WriteLine(message);
-            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
-            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
-            ErasoftDbContext.SaveChanges();
-
+            //tw.WriteLine(message);
+            //newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
+            //ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+            //ErasoftDbContext.SaveChanges();
+            //tw.Close();
             return PartialView("DetailBayarPiutangPartial", vm);
         }
 
