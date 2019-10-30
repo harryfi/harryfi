@@ -9,12 +9,12 @@
 }
 
 <input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-<div class="modal fade" id="modalPrintTokped" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+<div class="modal fade" id="modalPrintBlibli" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modalphapusp">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Tokped</h4>
+                <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Blibli</h4>
             </div>
             <div class="modal-body">
                 <div class="row text-center">
@@ -32,17 +32,17 @@
 <div class="row">
     <div class="col-md-4">
         <div class="input-group">
-            <input id="search_table_packing_pesanan_tokped" type="text" class="form-control" placeholder="Pencarian">
+            <input id="search_table_packing_pesanan_blibli" type="text" class="form-control" placeholder="Pencarian">
             <span class="input-group-btn">
-                <button type="button" id="search_table_packing_pesanan_tokped_button" class="btn btn-primary">
+                <button type="button" id="search_table_packing_pesanan_blibli_button" class="btn btn-primary">
                     <i class="fa fa-search"></i>
                 </button>
             </span>
         </div>
     </div>
     <div class="col-md-8" style="text-align:right" >
-        <button id="btnProsesTokped" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped()">Request Pickup</button>
-        <button id="btnPrintTokped" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>
+        @*<button id="btnProsesBlibli" type="button" class="btn btn-primary" onclick="RequestPickupPackingBlibli()">Request Pickup</button>*@
+        <button id="btnPrintBlibli" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintBlibli">Print</button>
     </div>
 </div>
 <div class="hscroll table-responsive tbljurnal">
@@ -72,10 +72,10 @@
 
     @if (Model.PageCount > 1)
     {
-        <div id="tabelPackingPesananTokpedPager" class="pager">
+        <div id="tabelPackingPesananBlibliPager" class="pager">
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackingPesananMP", new
        {
-           nama_cust = "15",
+           nama_cust = "16",
            bukti = ViewData["tableBukti"],
            page,
            search = ViewData["searchParam"]
@@ -96,20 +96,20 @@
 </div>
 <script type="text/javascript">
 
-    $('#search_table_packing_pesanan_tokped').keypress(function (e) {
+    $('#search_table_packing_pesanan_blibli').keypress(function (e) {
         var key = e.which;
         if (key == 13)// the enter key code
         {
-            RefreshPackingPesananTokped();
+            RefreshPackingPesananBlibli();
             return false;
         }
     });
-    $('#search_table_packing_pesanan_tokped_button').click(function () {
-        RefreshPackingPesananTokped();
+    $('#search_table_packing_pesanan_blibli_button').click(function () {
+        RefreshPackingPesananBlibli();
     });
 
     $(function () {
-        $('#tabelPackingPesananTokpedPager').on('click', 'a', function () {
+        $('#tabelPackingPesananBlibliPager').on('click', 'a', function () {
             if (this.href != "") {
                 $.ajax({
                     url: this.href,
@@ -118,7 +118,7 @@
                     beforeSend: function () {
                     },
                     success: function (response) {
-                        $('#packing_pesanan_tokped_content').html(response);
+                        $('#packing_pesanan_blibli_content').html(response);
                     }
                 });
             }

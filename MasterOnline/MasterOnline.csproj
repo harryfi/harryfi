@@ -6357,6 +6357,8 @@
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
     <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
     <Content Include="Views\Manage\PackingListTokped.cshtml" />
+    <Content Include="Views\Manage\PackingListLazada.cshtml" />
+    <Content Include="Views\Manage\PackingListBlibli.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
