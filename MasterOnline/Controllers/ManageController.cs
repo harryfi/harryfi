@@ -28688,7 +28688,7 @@ namespace MasterOnline.Controllers
                                     //end add 10 Juni 2019, update panjang/lebar/tinggi
 
                                     //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                                    brgMp.HJUAL = data.Stf02.HJUAL;
+                                    brgMp.HJUAL = data.TempBrg.HJUAL;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                     brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
@@ -28878,7 +28878,7 @@ namespace MasterOnline.Controllers
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                 //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                                brgMp.HJUAL = data.Stf02.HJUAL;
+                                brgMp.HJUAL = data.TempBrg.HJUAL;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -29176,7 +29176,7 @@ namespace MasterOnline.Controllers
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
                             //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                            brgMp.HJUAL = data.Stf02.HJUAL;
+                            brgMp.HJUAL = data.TempBrg.HJUAL;
                             brgMp.DISPLAY = data.TempBrg.DISPLAY;
                             brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;

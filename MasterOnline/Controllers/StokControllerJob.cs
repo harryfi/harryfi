@@ -959,7 +959,7 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("2469");
+                    listBrg.Add("284");
                     //listBrg.Add("1578");
                     //listBrg.Add("2004");
                     //listBrg.Add("2495");
@@ -2314,7 +2314,7 @@ namespace MasterOnline.Controllers
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var client = new BackgroundJobClient(sqlStorage);
-                                client.Schedule<StokControllerJob>(x => x.ShopeeCheckUpdateStock(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(1));
+                                client.Schedule<StokControllerJob>(x => x.ShopeeCheckUpdateStock(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty), TimeSpan.FromMinutes(2));
                             }
                         }
                         catch (Exception ex)
@@ -2459,7 +2459,7 @@ namespace MasterOnline.Controllers
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var client = new BackgroundJobClient(sqlStorage);
-                                client.Schedule<StokControllerJob>(x => x.ShopeeCheckUpdateStock(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty), TimeSpan.FromMinutes(1));
+                                client.Schedule<StokControllerJob>(x => x.ShopeeCheckUpdateStock(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(brg_mp_split[1]), qty), TimeSpan.FromMinutes(2));
                             }
                         }
                         catch (Exception ex)
