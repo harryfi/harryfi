@@ -176,6 +176,7 @@
                         <div class="form-group" id="ktp-section">
                             @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
                             <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
+                            <span style="color: #b94a48" id="imageError"></span>
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -190,7 +191,24 @@
         </div>
     </div>
 </div>
-
+@*@if (ViewData["SuccessMessage"] != null)
+{
+    <div class="modal fade" id="modalSuccessMessage" tabindex="-1" role="dialog" aria-labelledby="successMessageLabel" style="-webkit-text-stroke-width:0pt">
+        <div class="modal-dialog" id="modal-success-message" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px;padding:0px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Master Online</h4>
+            </div>
+            <div class="alert alert-success">
+                @Html.Raw(ViewData["SuccessMessage"])
+            </div>
+            <div class="modal-footer" style="padding:15px">
+                <div>
+                </div>
+            </div>
+        </div>
+    </div>
+}*@
 @section scripts
 {
     <script>
@@ -208,6 +226,10 @@
             }*@
 
             initRequired();
+
+            //if ($('#modalSuccessMessage').length > 0) {
+            //    $('#modalSuccessMessage').modal('show');
+            //}
 
             $('#Tipe').on('change',
                 function() {
@@ -239,6 +261,31 @@
                 }
 
                 $('form').submit();
+                //var $form = $('#btn-submit-daftar').parents('form');
+                //var $formData = new FormData($('form')[0]);
+                //$.ajax({
+                //    type: "POST",
+                //    url: $form.attr('action'),
+                //    data: $formData,
+                //    processData: false,  // tell jQuery not to process the data
+                //    contentType: false,  // tell jQuery not to set contentType
+                //    beforeSend: function () {
+                //        $('#loading_spinner').show();
+                //    },
+                //    success: function (response) {
+                //        $('#loading_spinner').hide();
+
+                //        if (response.error == null) {
+                //            $('#loginColumns').html(response);
+                //        } else {
+                //            alert(response.error);
+                //        }
+                //    },
+                //    error: function (xhr, status, error) {
+                //        console.log(error);
+                //        $('#loading_spinner').hide();
+                //    }
+                //});
             });
 
             $('form').submit(function () {
@@ -249,11 +296,28 @@
 
             var validImage = ["image/jpeg"];
 
+            //$('#ImageFile').change(function () {
+            //    var file = this.files[0];
+            //    var fileType = file["type"];
+            //    if ($.inArray(fileType, validImage) < 0) {
+            //        alert('Hanya boleh file berformat .jpg!');
+            //        $(this).val('');
+            //        return;
+            //    }
+            //});
             $('#ImageFile').change(function () {
+                $('#imageError').html('');
+
                 var file = this.files[0];
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
+                    $('#imageError').html('Hanya boleh file berformat .jpg !');
+                    $(this).val('');
+                    return;
+                }
+
+                if (((file.size / 1024) / 1024).toFixed(4) > 4) {
+                    $('#imageError').html('Ukuran file tidak bisa lebih besar dari 4 mb !');
                     $(this).val('');
                     return;
                 }

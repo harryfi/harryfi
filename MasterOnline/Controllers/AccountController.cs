@@ -1579,10 +1579,18 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     //var fileName = Path.GetFileName(file.FileName);
-                    var fileName = partner.Email.Replace(".", "_");
+                    //change by nurul 29/10/2019, add .jpg
+                    //var fileName = partner.Email.Replace(".", "_");
+                    var fileName = "partner_" + partner.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
+                    //end add by nurul 29/10/2019
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     partner.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);
+
+                    //var fileName = account.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
+                    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
+                    //account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
+                    //file.SaveAs(path);
                 }
             }
 
@@ -1609,6 +1617,7 @@ namespace MasterOnline.Controllers
             ViewData["SuccessMessage"] = $"Terima kasih, pengajuan Partner Anda akan segera kami proses. Silakan tunggu email konfirmasi.";
 
             return View("Partner");
+            //return new EmptyResult();
         }
 
         [System.Web.Mvc.Route("partner/approval")]
