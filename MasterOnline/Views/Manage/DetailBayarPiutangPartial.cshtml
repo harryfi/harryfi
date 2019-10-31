@@ -234,10 +234,10 @@
             </div>
         </div>
 
-        <div class="col-md-3">
+        @*<div class="col-md-3">
             <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
         </div>
-        <div class="col-md-4"></div>
+        <div class="col-md-4"></div>*@
     </div>
     @*<div class="row">
             <div class="col-md-6">
@@ -285,7 +285,20 @@
             </div>
         </div>
 
-        <div id="btn-autoload-row" class="row">
+        <div id="btn-upload-row" class="row">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*<div id="btn-autoload-row" class="row">
             <div class="col-lg-4"></div>
             <div class="col-lg-4"></div>
             <div class="col-lg-4">
@@ -296,7 +309,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>*@
     }
     @if (Model?.Errors.Count > 0)
     {
@@ -369,46 +382,46 @@
                     }
                     @foreach (var detailPiutang in Model.ListPiutangDetail.Where(pb => pb.BUKTI == Model?.Piutang?.BUKTI).ToList())
                     {
-                        <tr data-piutang-id="piu-@detailPiutang.NO">
-                            <td>
-                                @detailPiutang.NFAKTUR
-                            </td>
-                            <td>@detailPiutang.NOREF</td>
-                            <td>@detailPiutang.TGL_REF.GetValueOrDefault().ToString("dd/MM/yyyy")</td>
-                            <td class="sisa-piutang" style="text-align:right">
-                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
-                                <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
-                            </td>
-                            <td class="bayar-piutang" style="text-align:right">
-                                <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
-                            </td>
-                            <td class="potongan-piutang" data-selisih="@Convert.ToString(detailPiutang.SISA - detailPiutang.BAYAR)" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
-                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
-                                <input min="0" class="pot-input-box num-only" style="display: none;" />
-                                <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
-                            </td>
-                            <td class="selisih-piutang" style="text-align:right">
-                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
-                                <input min="0" class="selisih-input-box num-only" style="display: none;" />
-                                <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR))</span>
-                            </td>
-                            @*<td class="edit-hapus-col">
+                    <tr data-piutang-id="piu-@detailPiutang.NO">
+                        <td>
+                            @detailPiutang.NFAKTUR
+                        </td>
+                        <td>@detailPiutang.NOREF</td>
+                        <td>@detailPiutang.TGL_REF.GetValueOrDefault().ToString("dd/MM/yyyy")</td>
+                        <td class="sisa-piutang" style="text-align:right">
+                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
+                            <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
+                        </td>
+                        <td class="bayar-piutang" style="text-align:right">
+                            <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
+                        </td>
+                        <td class="potongan-piutang" data-selisih="@Convert.ToString(detailPiutang.SISA - detailPiutang.BAYAR)" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
+                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
+                            <input min="0" class="pot-input-box num-only" style="display: none;" />
+                            <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
+                        </td>
+                        <td class="selisih-piutang" style="text-align:right">
+                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
+                            <input min="0" class="selisih-input-box num-only" style="display: none;" />
+                            <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
+                        </td>
+                        @*<td class="edit-hapus-col">
+            <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
+                <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+
+            </button>
+        </td>*@
+                        <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                             </button>
-                        </td>*@
-                            <td class="edit-hapus-col">
-                                <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
-                                    <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
-
-                                </button>
-                            </td>
-                            <td class="edit-hapus-col">
-                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusFaktur" onclick="passFakturInDb('@detailPiutang.NO')">
-                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                                </button>
-                            </td>
-                        </tr>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusFaktur" onclick="passFakturInDb('@detailPiutang.NO')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
                         iPd = iPd + 1;
                     }
                         <tr data-piutang-id="0">
@@ -440,7 +453,7 @@
                             <td class="selisih-piutang" style="text-align:right">
                                 <span class="span-selisih-piutang">0,00</span>
                                 @{
-                                    var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR);
+                                    var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT);
                                 }
                                 @Html.TextBox("SELISIH", (tempSelisih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempSelisih) : "0,00"), new { @class = "form-control", @style = "display: none;text-align:right" })
                             </td>

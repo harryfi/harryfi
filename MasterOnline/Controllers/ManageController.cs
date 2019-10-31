@@ -21982,11 +21982,16 @@ namespace MasterOnline.Controllers
                     {
                         //var cekso = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
                         //var cekSISo= ErasoftDbContext.SIT01A.Where(a => a.NO_SO == cekso.NO_BUKTI)
-                        noref = cekfaktur.NO_SO;
-                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == noref).SingleOrDefault();
+                        //noref = cekfaktur.NO_SO;
+                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
                         if (cekSO != null)
                         {
+                            noref = cekSO.NO_REFERENSI;
                             tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
+                        }
+                        else
+                        {
+                            noref = cekfaktur.NO_SO;
                         }
                     }
                 }
@@ -22107,6 +22112,11 @@ namespace MasterOnline.Controllers
                 
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
 
+                var cekListDetailSama = ErasoftDbContext.ART03B.Where(a => a.NFAKTUR.Contains(dataVm.PiutangDetail.NFAKTUR)).ToList();
+                if(cekListDetailSama.Count() > 0)
+                {
+                    return JsonErrorMessage("No. Faktur " + dataVm.PiutangDetail.NFAKTUR + " sudah ada dalam pembayaran ini. Silahkan pilih No. Faktur yang lain!");
+                }
                 //if (dataVm.PiutangDetail.NO == null)
                 if (!string.IsNullOrEmpty(dataVm.PiutangDetail.NFAKTUR))
                 {
@@ -34414,14 +34424,22 @@ namespace MasterOnline.Controllers
                                                                         var adaBayar = false;
                                                                         if (cekfaktur != null)
                                                                         {
-                                                                            totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == cekfaktur.NO_BUKTI && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
-                                                                                    .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                                            var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == cekfaktur.NO_BUKTI && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
+                                                                            if (getBayar.Count() > 0)
+                                                                            {
+                                                                                totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == cekfaktur.NO_BUKTI && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                                                                        .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                                            }
                                                                             adaBayar = true;
                                                                         }
                                                                         else
                                                                         {
-                                                                            totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == so && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
-                                                                                        .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                                            var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == so && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
+                                                                            if (getBayar.Count() > 0)
+                                                                            {
+                                                                                totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == so && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                                                                            .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                                            }
                                                                             adaBayar = true;
                                                                         }
                                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
@@ -34489,6 +34507,10 @@ namespace MasterOnline.Controllers
                                                                             {
 
                                                                             }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            ret.Errors.Add("Faktur dengan No. Ref " + noref + " di baris " + i + " sudah lunas." + System.Environment.NewLine);
                                                                         }
                                                                     }
                                                                     else
@@ -34602,7 +34624,7 @@ namespace MasterOnline.Controllers
                         var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == bukti);
                         ErasoftDbContext.ART03A.Remove(piutangInDb);
                         ErasoftDbContext.SaveChanges();
-                        ret.Errors.Add("Tidak ada data yang dapat diproses" + System.Environment.NewLine);
+                        ret.Errors.Add("Tidak ada data yang dapat diproses");
                         vm.Errors = ret.Errors;
                         return Json(ret, JsonRequestBehavior.AllowGet);
                     }
@@ -34666,7 +34688,7 @@ namespace MasterOnline.Controllers
                             var nofaktur = dataUpdate.getFaktur[y];
                             var potongan = dataUpdate.getPot[y];
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
-                            if (getBayar != null) { 
+                            if (getBayar.Count() > 0) { 
                                 totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 if (totalSisa >= potongan)
@@ -34676,19 +34698,20 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
-                            else
-                            {
-                                piutangDetailInDb.POT = dataUpdate.getPot[y];
-                                cekTotalPot += piutangDetailInDb.POT;
-                                ErasoftDbContext.SaveChanges();
-                            }
+                            //else
+                            //{
+                            //    piutangDetailInDb.POT = dataUpdate.getPot[y];
+                            //    cekTotalPot += piutangDetailInDb.POT;
+                            //    ErasoftDbContext.SaveChanges();
+                            //}
                         }
                     }
                 }
             }
             //piutangInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             //piutangInDb.TBAYAR = dataUpdate.TotalBayar;
-            piutangInDb.TPOT = cekTotalPot;
+
+            piutangInDb.TPOT = piutangInDb.TPOT + cekTotalPot;
 
             ErasoftDbContext.SaveChanges();
 

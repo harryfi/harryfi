@@ -1314,8 +1314,11 @@
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                                 $($trElement + ' .span-potongan-piutang').val('-').show();
                                 $($trElement + ' .span-bayar-piutang').val('-').show();
-                                $($trElement + ' #PiutangDetail_POT').show();
-                                $($trElement + ' #PiutangDetail_BAYAR').show();
+                                $($trElement + ' #PiutangDetail_POT').hide();
+                                $($trElement + ' #PiutangDetail_BAYAR').hide();
+                                $($trElement + ' .span-noref-piutang').text('-');
+                                $($trElement + ' .span-tglref-piutang').text('-');
+                                $($trElement + ' .span-sisa-piutang').text('0,00');
 
                                 @if (Model?.ListPiutangDetail?.Count == 0)
                                 {
@@ -1657,8 +1660,9 @@
                                 getFaktur($("#Piutang_CUST").val());
                                 $('#btn-simpan-perubahan-row').hide();
                             } else {
-                                console.log(response.Errors);
-                                alert('Ada data yang tidak valid!');
+                                //console.log(response.Errors);
+                                //alert('Ada data yang tidak valid!');
+                                alert(response.Errors);
                             }
                         },
                         error: function (xhr) {
@@ -1857,6 +1861,7 @@
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function () {
+                        getFaktur($("#Piutang_CUST").val());
                         $("#konfCreatePot").modal('hide');
                         alert('Nilai potongan berhasil dibuat');
                     },
