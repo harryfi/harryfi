@@ -735,12 +735,16 @@
             }
             else
             {
+                $('#progressBarUpload').show();
                 uploadfileexcelbatch(0, 0);
             }
         }
         function uploadfileexcelbatch(fileNum, pageNum) {
             //if ($('#file_upload_excel')[0].files.length < 1) {
             if ($('#file_upload_excel')[0].files.length <= fileNum) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
                 $('#loading_spinner').hide();
                 $('#sync_btn').click();
                 //$('#file_upload_excel').click();
@@ -754,6 +758,7 @@
                     //Appending each file to FormData object
                     if (i == fileNum) {
                         formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name)
                     }
                 }
                 var url1 = '@Url.Action("UploadXcelwithPage", "TransferExcel", new { page = "replacePage"})';
@@ -765,10 +770,17 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_spinner').show();
+                        //$('#loading_spinner').show();
                     },
                     success: function (response) {
                         lastPage = pageNum;
+                        if (response.lastRow != null) {
+                            if (parseInt(response.lastRow[0]) > 0) {
+                                var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 300);
+                                $('#pBar_uploadFile').css('width', parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (pageNum + 1) / (maxPage2 + 1) * 100);
+                                $('#pBar_uploadFile').html(parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '% Complete');
+                            }
+                        }
                         if (response.nextFile) {
                             loop = 1;
                             rows_selected.push(response.cust[0]);
@@ -815,7 +827,7 @@
                                 //refreshTableBarangUpload();
                                 //$('#lblPleasewait').hide();
                                 //$('#info_record').hide();
-                                $('#loading_spinner').hide();
+                                //$('#loading_spinner').hide();
                             }
                         }
                     }
@@ -875,28 +887,31 @@
                                 namaFileLog = response.fileName;
                                 if (parseInt(response.Total) > 0) {
                                     //showProgressBar();
-                                    if (parseInt(response.Total) <= 10) {
-                                        //UploadAllBrg();
-                                        maxPage = 0;
-                                        dataPerPage = parseInt(response.Total);
-                                    } else {
-                                        //$('#progressDiv').show();
-                                        //controlButton();
-                                        if (parseInt(response.Total) <= 50) {
-                                            maxPage = 4;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
-                                        } else if (parseInt(response.Total) <= 1000){
-                                            maxPage = 9;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
-                                        } else if (parseInt(response.Total) <= 5000) {
-                                            maxPage = 19;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 20) + 1;
-                                        } else {
-                                            maxPage = 99;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 1000) + 1;
-                                        }
-                                        //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
-                                    }
+                                    //if (parseInt(response.Total) <= 10) {
+                                    //    //UploadAllBrg();
+                                    //    maxPage = 0;
+                                    //    dataPerPage = parseInt(response.Total);
+                                    //} else {
+                                    //    //$('#progressDiv').show();
+                                    //    //controlButton();
+                                    //    if (parseInt(response.Total) <= 50) {
+                                    //        maxPage = 4;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
+                                    //    } else if (parseInt(response.Total) <= 1000){
+                                    //        maxPage = 9;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
+                                    //    } else if (parseInt(response.Total) <= 5000) {
+                                    //        maxPage = 19;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 20) + 1;
+                                    //    } else {
+                                    //        maxPage = 99;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 100) + 1;
+                                    //    }
+                                    //    //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                    //}
+                                    var total = parseInt(response.Total);
+                                    maxPage = parseInt(total / 100);
+                                    dataPerPage = 100;
                                     UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                                 } else {
                                     alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
@@ -938,8 +953,8 @@
                             //document.getElementById('txtMessage').innerText = listErrorMessage;
                         }
                     }
-                    $('#pBar_' + rows_selected[0]).css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
-                    $('#pBar_' + rows_selected[0]).html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
+                    $('#pBar_' + rows_selected[0]).css('width', parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                    $('#pBar_' + rows_selected[0]).html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
                     if (response.contRecursive == "1") {
                         if ((currentPage + 1) > maxPage) {
                             //alert('Sinkronisasi barang selesai');
