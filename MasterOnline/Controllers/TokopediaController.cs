@@ -1556,7 +1556,7 @@ namespace MasterOnline.Controllers
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1701,10 +1701,13 @@ namespace MasterOnline.Controllers
 
                                     Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
                                     {
-                                        //change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                                        //SELLER_SKU = Convert.ToString(item.product_id),
-                                        SELLER_SKU = "",
-                                        //end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                        //change by calvin 31 okt 2019, perubahan dr tokped
+                                        ////change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                        ////SELLER_SKU = Convert.ToString(item.product_id),
+                                        //SELLER_SKU = "",
+                                        ////end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
+                                        SELLER_SKU = item.sku,
+                                        //end change by calvin 31 okt 2019
                                         BRG_MP = Convert.ToString(item.product_id),
                                         NAMA = nama,
                                         NAMA2 = nama2,
@@ -3488,6 +3491,7 @@ namespace MasterOnline.Controllers
         {
             public long product_id { get; set; }
             public string name { get; set; }
+            public string sku { get; set; }
             public long shop_id { get; set; }
             public string shop_name { get; set; }
             public long category_id { get; set; }
