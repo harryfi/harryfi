@@ -28237,7 +28237,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY SELLER_SKU ASC ";
+            sSQLSelect2 += "ORDER BY NAMA + ' ' + ISNULL(NAMA2,'') ASC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 

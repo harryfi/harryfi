@@ -1632,7 +1632,7 @@ namespace MasterOnline.Controllers
                         //{
                         //    ret.message = "";
                         //}
-                        if (result.data.Count() == 100)
+                        if (result.data.Count() >= 100)
                         {
                             ret.nextPage = 1;
                         }
