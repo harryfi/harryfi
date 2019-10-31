@@ -34317,6 +34317,10 @@ namespace MasterOnline.Controllers
                                     string cust = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
                                     if (!string.IsNullOrEmpty(cust))
                                     {
+                                        if(cust.Length != 33) {
+                                            ret.Errors.Add("File " + file.FileName + " bukan excel pembayaran Shopee." + System.Environment.NewLine);
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
                                         if (market.ToUpper() == cust.Substring(17, 6).ToUpper())
                                         {
                                             var customer = eraDB.ARF01.Where(m => m.CUST == cust_id).FirstOrDefault();
@@ -34587,9 +34591,11 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         //cust empty
-                                        ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
+                                        //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
                                         //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
                                         //tw.WriteLine(message);
+                                        ret.Errors.Add("File " + file.FileName + " bukan excel pembayaran Shopee." + System.Environment.NewLine);
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
                             }
