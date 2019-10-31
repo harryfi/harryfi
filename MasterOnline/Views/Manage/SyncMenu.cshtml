@@ -740,7 +740,7 @@
         }
         function uploadfileexcelbatch(fileNum, pageNum) {
             //if ($('#file_upload_excel')[0].files.length < 1) {
-            if ($('#file_upload_excel')[0].files.length < fileNum) {
+            if ($('#file_upload_excel')[0].files.length <= fileNum) {
                 $('#loading_spinner').hide();
                 $('#sync_btn').click();
                 //$('#file_upload_excel').click();
