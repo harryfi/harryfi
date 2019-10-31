@@ -1856,7 +1856,7 @@ namespace MasterOnline.Controllers
             string sSql1 = "";
             sSql1 += "SELECT A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA FROM  ";
             sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA FROM ";
-            sSql1 += "STF02 B LEFT JOIN "; 
+            sSql1 += "STF02 B LEFT JOIN ";
             sSql1 += "	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, ";
             sSql1 += "	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO ";
             sSql1 += "	FROM (";
@@ -2153,7 +2153,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            
+
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
@@ -2640,7 +2640,7 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
-            
+
             //change by nurul 26/9/2019, contain search 
             string[] getkata = search.Split(' ');
             string sSQLnama = "";
@@ -2848,7 +2848,7 @@ namespace MasterOnline.Controllers
 
             var ListArf01c = ErasoftDbContext.Database.SqlQuery<ARF01C>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-                        
+
             IPagedList<ARF01C> pageOrders = new StaticPagedList<ARF01C>(ListArf01c, pagenumber + 1, 10, totalCount.JUMLAH);
             //return PartialView("TableBarang1Partial", barangVm);
             return PartialView("TableBuyerPopUp", pageOrders);
@@ -3803,7 +3803,7 @@ namespace MasterOnline.Controllers
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-                        
+
             IPagedList<mdlCustomer> pageOrders = new StaticPagedList<mdlCustomer>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableCustomerPartial", pageOrders);
         }
@@ -3946,7 +3946,7 @@ namespace MasterOnline.Controllers
 
             var result = ErasoftDbContext.Database.SqlQuery<TableMenuBarang1PartialViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-                        
+
             IPagedList<TableMenuBarang1PartialViewModel> pageOrders = new StaticPagedList<TableMenuBarang1PartialViewModel>(result, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableMenuBarang1Partial", pageOrders);
         }
@@ -4071,7 +4071,7 @@ namespace MasterOnline.Controllers
 
             var ListStf02S = ErasoftDbContext.Database.SqlQuery<STF02>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-            
+
 
             IPagedList<STF02> pageOrders = new StaticPagedList<STF02>(ListStf02S, pagenumber + 1, 10, totalCount.JUMLAH);
             //return PartialView("TableBarang1Partial", barangVm);
@@ -4366,7 +4366,7 @@ namespace MasterOnline.Controllers
             //note by calvin 24 mei 2019 : hanya cari dari pesanan, confirm by pak dani
 
             //change by nurul 4/9/2019, order by qoh desc
-            
+
             //ADD BY NURUL 2/10/2019
             string[] getkata = search.Split(' ');
             string sSQLkode = "";
@@ -10098,7 +10098,7 @@ namespace MasterOnline.Controllers
 
                 string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
 
-                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId="+ Uri.EscapeDataString("MasterOnline-" + milis.ToString()) +"&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
 
                 System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -13705,7 +13705,7 @@ namespace MasterOnline.Controllers
                 {
                     dataVm.FakturDetail.NILAI_DISC_5 = 0;
                 }
-                
+
                 ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
                 ErasoftDbContext.SaveChanges();
 
@@ -14286,7 +14286,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }            
+            }
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
@@ -17500,7 +17500,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            
+
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
@@ -17809,7 +17809,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }            
+            }
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
@@ -20385,7 +20385,7 @@ namespace MasterOnline.Controllers
 
             var ListApf01 = ErasoftDbContext.Database.SqlQuery<APF01>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-            
+
             IPagedList<APF01> pageOrders = new StaticPagedList<APF01>(ListApf01, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableSupplierPartial", pageOrders);
         }
@@ -21544,7 +21544,7 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokInDb = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.ID == stokId);
-                
+
                 var ListStokDetail = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList();
                 var listBarangInStokDetail = ListStokDetail.Select(p => p.Kobar).ToList();
 
@@ -21559,7 +21559,7 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInStokDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
                     //ListGudang = ErasoftDbContext.STF18.ToList()
                 };
-                
+
                 return PartialView("BarangStokPartial", vm);
             }
             catch (Exception)
@@ -26284,9 +26284,9 @@ namespace MasterOnline.Controllers
                         sSQL += "WHERE C.NO_REF IN (";
                         foreach (var faktur in newFakturs)
                         {
-                            sSQL += "'" + faktur.NO_REF + "' , ";                            
+                            sSQL += "'" + faktur.NO_REF + "' , ";
                         }
-                        sSQL = sSQL.Substring(0, sSQL.Length -2) + ")";
+                        sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
 
                         var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                         //end add 18/10/2019, hitung ulang bruto,netto
@@ -28184,7 +28184,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            
+
             //string sSQLSelect = "";
             //sSQLSelect += "SELECT RECNUM AS RECNUM, BRG_MP AS BRG_MP, SELLER_SKU AS SELLER_SKU, MEREK AS MEREK, NAMA AS NAMA, NAMA2 AS NAMA2, CATEGORY_NAME AS CATEGORY_NAME, HJUAL AS HJUAL ";
             //string sSQLCount = "";
@@ -28243,7 +28243,7 @@ namespace MasterOnline.Controllers
 
             var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlUploadBarang>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             //end change by nurul 26/9/2019, contain search 
-                        
+
             IPagedList<mdlUploadBarang> pageOrders = new StaticPagedList<mdlUploadBarang>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableUploadBarangPartial", pageOrders);
         }
@@ -28688,7 +28688,7 @@ namespace MasterOnline.Controllers
                                     //end add 10 Juni 2019, update panjang/lebar/tinggi
 
                                     //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                                    brgMp.HJUAL = data.TempBrg.HJUAL;
+                                    brgMp.HJUAL = data.Stf02.HJUAL;
                                     brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                     brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                     brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
@@ -28878,7 +28878,7 @@ namespace MasterOnline.Controllers
                                 brgMp.BRG = data.Stf02.BRG;
                                 brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                 //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                                brgMp.HJUAL = data.TempBrg.HJUAL;
+                                brgMp.HJUAL = data.Stf02.HJUAL;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -29176,7 +29176,7 @@ namespace MasterOnline.Controllers
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
                             //brgMp.HJUAL = data.TempBrg.HJUAL_MP;
-                            brgMp.HJUAL = data.TempBrg.HJUAL;
+                            brgMp.HJUAL = data.Stf02.HJUAL;
                             brgMp.DISPLAY = data.TempBrg.DISPLAY;
                             brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                             brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
@@ -32534,7 +32534,8 @@ namespace MasterOnline.Controllers
             //    ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
 
             //};
-
+            //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+            var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
             var retBarang = new STF02();
             if (!string.IsNullOrEmpty(brg))
             {
@@ -32557,6 +32558,15 @@ namespace MasterOnline.Controllers
                             retBarang.TINGGI = brg_induk.TINGGI;
                         }
                     }
+                    //var stf02h = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                    //if (stf02h != null)
+                    //{
+                    //    retBarang.HJUAL = stf02h.HJUAL;
+                    //}
+                    //else
+                    //{
+                        retBarang.HJUAL = tempBrg.HJUAL;
+                    //}
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                     //barangVm.Stf02 = retBarang;
                     //return PartialView("FormBarangUploadsPartial", barangVm);
@@ -32564,7 +32574,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
+                    //var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
                     if (tempBrg != null)
                     {
                         retBarang = new STF02();
@@ -32633,7 +32643,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
+                //var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
                 if (tempBrg != null)
                 {
                     retBarang = new STF02();
