@@ -885,9 +885,15 @@
                                         if (parseInt(response.Total) <= 50) {
                                             maxPage = 4;
                                             dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
-                                        } else {
+                                        } else if (parseInt(response.Total) <= 1000){
                                             maxPage = 9;
                                             dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
+                                        } else if (parseInt(response.Total) <= 5000) {
+                                            maxPage = 19;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 20) + 1;
+                                        } else {
+                                            maxPage = 99;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 1000) + 1;
                                         }
                                         //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                                     }
