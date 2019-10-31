@@ -37,9 +37,8 @@
     }
 </script>
 @{
-    var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct();
+    var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
 }
-
 <table style="width:100%">
     <tr>
         <td style="width:100%">
@@ -109,7 +108,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var order in Model)
+                        @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
                         {
                             <tr>
                                 <td>@order.no_bukti</td>
@@ -121,64 +120,7 @@
                         }
                     </tbody>
                 </table>
-
-                @if (Model.PageCount > 1)
-                {
-                    <div id="tabelPackingPesananLazadaPager" class="pager">
-                        @Html.PagedListPager(Model, page => Url.Action("RefreshTablePackingPesananMP", new
-                           {
-                               nama_cust = "7",
-                               bukti = ViewData["tableBukti"],
-                               page,
-                               search = ViewData["searchParam"]
-                               //pagenumber = ViewData["lastPage"]
-                           }),
-                            new PagedListRenderOptions
-                            {
-                                LinkToFirstPageFormat = "<<",
-                                LinkToPreviousPageFormat = "prev",
-                                LinkToNextPageFormat = "next",
-                                LinkToLastPageFormat = ">>",
-                                DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                            })
-                        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
-                    </div>
-                }
             </div>
-            <script type="text/javascript">
-                $('#search_table_packing_pesanan_lazada').keypress(function (e) {
-                    var key = e.which;
-                    if (key == 13)// the enter key code
-                    {
-                        RefreshPackingPesananLazada();
-                        return false;
-                    }
-                });
-                $('#search_table_packing_pesanan_lazada_button').click(function () {
-                    RefreshPackingPesananLazada();
-                });
-
-                $(function () {
-                    $('#tabelPackingPesananLazadaPager').on('click', 'a', function () {
-                        if (this.href != "") {
-                            $.ajax({
-                                url: this.href,
-                                type: 'GET',
-                                cache: false,
-                                beforeSend: function () {
-                                },
-                                success: function (response) {
-                                    $('#packing_pesanan_lazada_content').html(response);
-                                }
-                            });
-                        }
-                        return false;
-
-                    });
-                });
-            </script>
         </div>
     }
 </div>
-    

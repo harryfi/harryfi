@@ -34,26 +34,15 @@
     function RefreshSemuaPesananMP() {
         RefreshPackingPesananTokped();
         RefreshPackingPesananLazada();
-        RefreshPackingPesananShopee();
-        RefreshPackingPesananBukalapak();
-        RefreshPackingPesananBlibli();
-        RefreshPackingPesananElevenia();
+        //RefreshPackingPesananShopee();
+        //RefreshPackingPesananBukalapak();
+        //RefreshPackingPesananBlibli();
+        //RefreshPackingPesananElevenia();
     }
 
     function RefreshPackingPesananTokped() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust="15", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust="15", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_tokped').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_tokped').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
@@ -71,19 +60,8 @@
         });
     }
     function RefreshPackingPesananLazada() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "7", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "7", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_lazada').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_lazada').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
@@ -102,19 +80,8 @@
     }
 
     function RefreshPackingPesananShopee() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "17", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "17", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_shopee').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_shopee').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
@@ -132,19 +99,8 @@
         });
     }
     function RefreshPackingPesananBukalapak() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "8", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "8", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_bukalapak').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_bukalapak').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
@@ -162,19 +118,8 @@
         });
     }
     function RefreshPackingPesananBlibli() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "16", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "16", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_blibli').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_blibli').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
@@ -192,19 +137,8 @@
         });
     }
     function RefreshPackingPesananElevenia() {
-        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "9", bukti = "replaceBuktiPacking", page = "replaceLastPage", search = "replaceSearch" }))';
+        var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "9", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        var textboxsearch = $('#search_table_packing_pesanan_elevenia').val();
-        if (textboxsearch == undefined) {
-            textboxsearch = "";
-        }
-        var lastpage = $('#txt_last_page_table_packing_pesanan_elevenia').val();
-        if (lastpage == undefined) {
-            lastpage = 1;
-        }
-        $link = $link.replace("replaceSearch", encodeURIComponent(textboxsearch));
-        $link = $link.replace("replaceLastPage", encodeURIComponent(lastpage));
 
         $.ajax({
             type: "GET",
