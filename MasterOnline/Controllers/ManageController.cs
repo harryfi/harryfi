@@ -34221,9 +34221,6 @@ namespace MasterOnline.Controllers
 
         public ActionResult UploadXcelBayar1()
         {
-            //var file = Request.Files[0];
-            //List<string> excelData = new List<string>();
-            //var listCust = new List<string>();
             BindUploadExcel ret = new BindUploadExcel();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
@@ -34330,8 +34327,7 @@ namespace MasterOnline.Controllers
                                                 List<double> nilaiRef = new List<double>();
                                                 List<double> nilaiPot = new List<double>();
                                                 string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
-                                                //ret.cust.Add(cust);
-                                                //ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
+                                                
 
                                                 var listTemp = eraDB.SIT01A.Where(a => a.NO_REF != null && a.NO_SO != null).Count();
                                                 if (listTemp > 0)
@@ -34590,8 +34586,6 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        //cust empty
-                                        //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
                                         //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
                                         //tw.WriteLine(message);
                                         ret.Errors.Add("File " + file.FileName + " bukan excel pembayaran Shopee." + System.Environment.NewLine);
@@ -34704,18 +34698,10 @@ namespace MasterOnline.Controllers
                                     ErasoftDbContext.SaveChanges();
                                 }
                             }
-                            //else
-                            //{
-                            //    piutangDetailInDb.POT = dataUpdate.getPot[y];
-                            //    cekTotalPot += piutangDetailInDb.POT;
-                            //    ErasoftDbContext.SaveChanges();
-                            //}
                         }
                     }
                 }
             }
-            //piutangInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            //piutangInDb.TBAYAR = dataUpdate.TotalBayar;
 
             piutangInDb.TPOT = piutangInDb.TPOT + cekTotalPot;
 
@@ -34727,11 +34713,6 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult ListLogBayarPiutang(string cust)
         {
-            //var partialVm = new FakturViewModel()
-            //{
-            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-            //    ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
-            //};
             ActionResult ret = RefreshTableLogBayarPiutang(1, cust);
             return ret;
         }

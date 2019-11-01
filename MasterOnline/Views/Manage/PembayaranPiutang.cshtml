@@ -1418,6 +1418,10 @@
                     $('input, select').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
+                    $('#file_upload_excel').removeAttr('disabled');
+                    $('#btn-autoload').click(function () {
+                        $('#file_upload_excel').removeAttr('disabled');
+                    });
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                 },
@@ -1680,15 +1684,11 @@
             
             if ($('#Piutang_TGL').val() == null ||
                 $('#Piutang_CUST').val() == '') {
-                //$("#konfUpload").modal('show');
-                //document.getElementById("file_upload_excel").value = "";
-                //refreshInputan();
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
             } else if ($tempMP1.toUpperCase() != "SHOPEE") {
                 alert('Maaf, upload ini baru bisa menghandle Shopee');
             }
             else {
-                //alert('Silahkan pilih nama marketplace terlebih dulu !');
                 $("#konfUpload").modal('show');
                 document.getElementById("file_upload_excel").value = "";
             }
@@ -1768,9 +1768,9 @@
                             });
                             $('#btn-simpan-perubahan-row').hide();
                             $('#btn-autoload').click(function () {
-                                $("#konfUpload").modal('hide');
-                                alert('Silahkan tambah baru untuk upload file.');
-                                
+                                //$("#konfUpload").modal('hide');
+                                //alert('Silahkan tambah baru untuk upload kembali.');
+                                $('#file_upload_excel').removeAttr('disabled');
                             });
                         } else {
                             $('#loading_upload').hide();
