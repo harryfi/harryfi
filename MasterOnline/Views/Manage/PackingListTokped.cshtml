@@ -8,32 +8,28 @@
 
 }
 <script type="text/javascript">
-    function PromptDeliveryProvTokped(r) {
-        //PromptDeliveryProvTokpedTextBox = i;
-        showPromptDeliveryProvTokpedTextBoxWindow(r);
-    }
-    var promptTokpedCust = "";
-    function showPromptDeliveryProvTokpedTextBoxWindow(val) {
-        promptTokpedCust = val;
-        var $link = '@Url.Action("PromptDeliveryProviderTokped", "Manage", new { cust = "replaceCust" })';
-        $link = $link.replace("replaceCust", val);
-        window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
-    }
+    function RequestPickupPackingTokped(cust) {
+        $('#btnProsesTokped_' + cust).attr("disabled", true);
+        var $link = '@Html.Raw(Url.Action("RequestPickupTokpedPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
 
-    function afterPromptDelTempLzd(val) {
-        $('#txtShipment__' + promptTokpedCust).val(val);
-    }
-
-    function cekValidasi(cust) {
-        var ret = true;
-        if (document.getElementById("txtShipment") != null) {
-            if ($("#txtShipment__" + cust).val() == undefined || $("#txtShipment__" + cust).val() == '') {
-                alert("Shipment Provider harus diisi.");
-                ret = false;
-                $("#btnShipment__" + cust).focus();
+        $.ajax({
+            url: $link,
+            type: 'GET',
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+            },
+            complete: function () {
+                $('#btnProsesTokped_' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
             }
-        }
-        return ret;
+        });
     }
 </script>
 @{

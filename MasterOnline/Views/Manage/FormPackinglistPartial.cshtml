@@ -155,51 +155,6 @@
             }
         });
     }
-
-    function RequestPickupPackingTokped() {
-        $('#btnProsesTokped').attr("disabled", true);
-        var $link = '@Html.Raw(Url.Action("RequestPickupTokpedPerPacking", "Manage", new { bukti = "replaceBuktiPacking" }))';
-        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        $.ajax({
-            url: $link,
-            type: 'GET',
-            beforeSend: function () {
-                //$('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                //$('#loading_barang_tab').hide();
-            },
-            complete: function () {
-                $('#btnProsesTokped').attr("disabled", false);
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            }
-        });
-    }
-    @*function RequestPickupPackingLazada() {
-        $('#btnProsesLazada').attr("disabled", true);
-        var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { bukti = "replaceBuktiPacking" }))';
-        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        $.ajax({
-            url: $link,
-            type: 'GET',
-            beforeSend: function () {
-                //$('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                //$('#loading_barang_tab').hide();
-            },
-            complete: function () {
-                $('#btnProsesLazada').attr("disabled", false);
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
-            }
-        });
-    }*@
     
 </script>
 <div class="form-horizontal">

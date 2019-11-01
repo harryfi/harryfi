@@ -8,7 +8,32 @@
 
 }
 <script type="text/javascript">
-    function PromptDeliveryProvLazada(r) {
+    function RequestPickupPackingLazada(cust) {
+        $('#btnProsesLazada__' + cust).attr("disabled", true);
+        var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
+        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        $link = $link.replace("replaceDeliveryProvider", encodeURIComponent($('#txtShipment__' + cust).val()));
+
+        $.ajax({
+            url: $link,
+            type: 'GET',
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+            },
+            complete: function () {
+                $('#btnProsesLazada__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    -function PromptDeliveryProvLazada(r) {
         //PromptDeliveryProvLazadaTextBox = i;
         showPromptDeliveryProvLazadaTextBoxWindow(r);
     }
@@ -92,8 +117,8 @@
                     <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada('@(item.CUST)')">
                         <span class="glyphicon glyphicon-option-horizontal"></span>
                     </button>
-                    @*<button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingLazada('@(item.CUST)')">Request Pickup</button>
-                    <button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada">Print</button>*@
+                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingLazada('@(item.CUST)')">Request Pickup</button>
+                    @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada">Print</button>*@
                 </div>
             </div>
             <div class="hscroll table-responsive tbljurnal">

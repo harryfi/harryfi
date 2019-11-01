@@ -34827,16 +34827,16 @@ namespace MasterOnline.Controllers
             return PartialView(viewName, pageOrders);
         }
 
-        public ActionResult RequestPickupTokpedPerPacking(string bukti)
+        public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti)
         {
             try
             {
-                string cust = "";
-                var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
-                foreach (var item in listAkunTokped)
-                {
-                    cust += item + "','";
-                }
+                //string cust = "";
+                //var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
+                //foreach (var item in listAkunTokped)
+                //{
+                //    cust += item + "','";
+                //}
 
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
@@ -34885,17 +34885,10 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult RequestPickupLazadaPerPacking(string bukti, string DeliveryProvider)
+        public ActionResult RequestPickupLazadaPerPacking(string cust, string bukti, string DeliveryProvider)
         {
             try
             {
-                string cust = "";
-                var listAkunTokped = ErasoftDbContext.ARF01.Where(p => p.NAMA == "15").Select(p => p.CUST).ToList();
-                foreach (var item in listAkunTokped)
-                {
-                    cust += item + "','";
-                }
-
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
@@ -34905,9 +34898,9 @@ namespace MasterOnline.Controllers
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 foreach (var so in ListStt01a)
                 {
-                    var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == so.CUST);
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -34915,48 +34908,26 @@ namespace MasterOnline.Controllers
                             var lzdApi = new LazadaController();
                             List<string> orderItemIds = new List<string>();
                             var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                            var adaItem = false;
+                            var adaOrderItemIdNull = false;
                             if (sot01b.Count > 0)
                             {
                                 List<string> ordItemId = new List<string>();
                                 foreach (SOT01B item in sot01b)
                                 {
+                                    adaItem = true;
+                                    if (string.IsNullOrWhiteSpace(item.ORDER_ITEM_ID))
+                                    {
+                                        adaOrderItemIdNull = true;
+                                    }
                                     ordItemId.Add(item.ORDER_ITEM_ID);
                                 }
-
-                                var retApi = lzdApi.GetToPacked(ordItemId, DeliveryProvider, marketPlace.TOKEN);
-                                if (retApi.code == "0")
+                                if (adaItem && !adaOrderItemIdNull && !string.IsNullOrWhiteSpace(so.no_referensi))
                                 {
-                                    var ret = new LazadaGetResiObj();
-                                    //{
-                                    if (retApi.data != null)
-                                        ret.NoResi = retApi.data.order_items[0].tracking_number;
-                                    //};
-                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                    var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Request Pickup", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
                                 }
-                                else
-                                {
-                                    return JsonErrorMessage(retApi.message);
-                                }
-
-                            }
-
-                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
-                            {
-                                merchant_code = marketPlace.Sort1_Cust, //FSID
-                                API_client_password = marketPlace.API_CLIENT_P, //Client ID
-                                API_client_username = marketPlace.API_CLIENT_U, //Client Secret
-                                API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                token = marketPlace.TOKEN,
-                                idmarket = marketPlace.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = usernameLogin
-                            };
-                            string[] referensi = so.no_referensi.Split(';');
-                            if (referensi.Count() > 0)
-                            {
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, so.no_bukti, referensi[0]));
                             }
                         }
                     }
