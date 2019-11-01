@@ -2542,38 +2542,119 @@ namespace MasterOnline.Controllers
         //end add by nurul
 
         //add by calvin 15 mei 2019
-        public ActionResult RefreshTableLog(int? page = 1, string search = "")
+        public ActionResult RefreshTableLog(int? page , string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
-            var listMarketplace = (from c in MoDbContext.Marketplaces select c).ToList();
+            //change by nurul 1/11/2019
+            //var listMarketplace = (from c in MoDbContext.Marketplaces select c).ToList();
 
-            var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
-                                    join b in ErasoftDbContext.ARF01
-                                    on a.CUST equals b.CUST
-                                    where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
-                                    && a.REQUEST_STATUS == "FAILED"
-                                    && (a.REQUEST_RESULT.Contains(search) || a.REQUEST_ACTION.Contains(search) || a.REQUEST_ATTRIBUTE_3.Contains(search))
-                                    orderby a.REQUEST_DATETIME descending
-                                    select new API_LOG_MARKETPLACE_HANGFIRE
-                                    {
-                                        Marketplace = b.NAMA,
-                                        AkunMarketplace = b.PERSO,
-                                        REQUEST_ACTION = a.REQUEST_ACTION,
-                                        REQUEST_CATEGORY = a.REQUEST_ATTRIBUTE_3,
-                                        REQUEST_DATETIME = a.REQUEST_DATETIME,
-                                        REQUEST_RESULT = a.REQUEST_RESULT,
-                                        REQUEST_EXCEPTION = a.REQUEST_EXCEPTION,
-                                        REQUEST_ID = a.REQUEST_ID
-                                    });
-            var HangfireLog = QueryHangfireLog.Skip(pagenumber * 10).Take(10).ToList();
-            foreach (var item in HangfireLog)
+            //var QueryHangfireLog = (from a in ErasoftDbContext.API_LOG_MARKETPLACE
+            //                        join b in ErasoftDbContext.ARF01
+            //                        on a.CUST equals b.CUST
+            //                        where a.REQUEST_ATTRIBUTE_5 == "HANGFIRE"
+            //                        && a.REQUEST_STATUS == "FAILED"
+            //                        && (a.REQUEST_RESULT.Contains(search) || a.REQUEST_ACTION.Contains(search) || a.REQUEST_ATTRIBUTE_3.Contains(search))
+            //                        orderby a.REQUEST_DATETIME descending
+            //                        select new API_LOG_MARKETPLACE_HANGFIRE
+            //                        {
+            //                            Marketplace = b.NAMA,
+            //                            AkunMarketplace = b.PERSO,
+            //                            REQUEST_ACTION = a.REQUEST_ACTION,
+            //                            REQUEST_CATEGORY = a.REQUEST_ATTRIBUTE_3,
+            //                            REQUEST_DATETIME = a.REQUEST_DATETIME,
+            //                            REQUEST_RESULT = a.REQUEST_RESULT,
+            //                            REQUEST_EXCEPTION = a.REQUEST_EXCEPTION,
+            //                            REQUEST_ID = a.REQUEST_ID
+            //                        });
+            //var HangfireLog = QueryHangfireLog.Skip(pagenumber * 10).Take(10).ToList();
+            //foreach (var item in HangfireLog)
+            //{
+            //    item.Marketplace = listMarketplace.Where(p => (p.IdMarket ?? 0).ToString() == item.Marketplace).FirstOrDefault()?.NamaMarket;
+            //}
+            //var totalLHangfireLog = QueryHangfireLog.Count();
+
+            string[] getkata = search.Split(' ');
+            string sSQLakun = "";
+            string sSQLmarket = "";
+            string sSQLaction = "";
+            string sSQLatribut_3 = "";
+            string sSQLresult = "";
+            if (getkata.Length > 0)
             {
-                item.Marketplace = listMarketplace.Where(p => (p.IdMarket ?? 0).ToString() == item.Marketplace).FirstOrDefault()?.NamaMarket;
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLakun += " ( b.PERSO like '%" + getkata[i] + "%' )";
+                            sSQLmarket += " ( c.NamaMarket like '%" + getkata[i] + "%' )";
+                            sSQLaction += " ( a.REQUEST_ACTION like '%" + getkata[i] + "%' )";
+                            sSQLatribut_3 += " ( a.REQUEST_ATTRIBUTE_3 like '%" + getkata[i] + "%' )";
+                            sSQLresult += " ( a.REQUEST_RESULT like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLakun += " ( b.PERSO like '%" + getkata[i] + "%'";
+                                sSQLmarket += " ( c.NamaMarket like '%" + getkata[i] + "%'";
+                                sSQLaction += " ( a.REQUEST_ACTION like '%" + getkata[i] + "%' ";
+                                sSQLatribut_3 += " ( a.REQUEST_ATTRIBUTE_3 like '%" + getkata[i] + "%' ";
+                                sSQLresult += " ( a.REQUEST_RESULT like '%" + getkata[i] + "%' ";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLakun += " and b.PERSO like '%" + getkata[i] + "%' )";
+                                sSQLmarket += " and c.NamaMarket like '%" + getkata[i] + "%' )";
+                                sSQLaction += " and a.REQUEST_ACTION like '%" + getkata[i] + "%' )";
+                                sSQLatribut_3 += " and a.REQUEST_ATTRIBUTE_3 like '%" + getkata[i] + "%' )";
+                                sSQLresult += " and a.REQUEST_RESULT like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLakun += " and b.PERSO like '%" + getkata[i] + "%' ";
+                                sSQLmarket += " and c.NamaMarket like '%" + getkata[i] + "%' ";
+                                sSQLaction += " and a.REQUEST_ACTION like '%" + getkata[i] + "%' ";
+                                sSQLatribut_3 += " and a.REQUEST_ATTRIBUTE_3 like '%" + getkata[i] + "%' ";
+                                sSQLresult += " and a.REQUEST_RESULT like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
             }
-            var totalLHangfireLog = QueryHangfireLog.Count();
-            IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(HangfireLog, pagenumber + 1, 10, totalLHangfireLog);
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT c.NamaMarket as Marketplace,b.PERSO as AkunMarketplace,a.REQUEST_ACTION as REQUEST_ACTION,a.REQUEST_ATTRIBUTE_3 as REQUEST_CATEGORY,a.REQUEST_DATETIME as REQUEST_DATETIME,a.REQUEST_RESULT as REQUEST_RESULT,a.REQUEST_EXCEPTION as REQUEST_EXCEPTION,a.REQUEST_ID as REQUEST_ID ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(a.REQUEST_ID) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "from API_LOG_MARKETPLACE a inner join arf01 b on a.cust=b.cust ";
+            sSQL2 += "left join mo..marketplace c on b.nama=c.idmarket ";
+            sSQL2 += "where a.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' and a.REQUEST_STATUS = 'FAILED' ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLakun + " or " + sSQLmarket + " or " + sSQLaction + " or " + sSQLatribut_3 + " or " + sSQLresult + " ) ";
+            }
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalLHangfireLog = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalLHangfireLog.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY a.REQUEST_DATETIME desc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var HangfireLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_HANGFIRE>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            //end change by nurul 1/11/2019
+
+            IPagedList<API_LOG_MARKETPLACE_HANGFIRE> pageOrders = new StaticPagedList<API_LOG_MARKETPLACE_HANGFIRE>(HangfireLog, pagenumber + 1, 10, totalLHangfireLog.JUMLAH);
 
             return PartialView("TableMarketPlaceLog", pageOrders);
         }
