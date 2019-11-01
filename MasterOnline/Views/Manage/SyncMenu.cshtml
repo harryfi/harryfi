@@ -960,6 +960,8 @@
                     $('#pBar_' + rows_selected[0]).html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
                     if (response.contRecursive == "1") {
                         if ((currentPage + 1) > maxPage) {
+                            lastPage = 0;
+                            loop = 1;
                             //alert('Sinkronisasi barang selesai');
                             //$('#btnSelesai').prop('disabled', false)
                             rows_selected.shift();
@@ -976,8 +978,6 @@
                                 
                             }
                         } else {
-                            lastPage = 0;
-                            loop = 1;
                             UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
                         }
                     } else {
