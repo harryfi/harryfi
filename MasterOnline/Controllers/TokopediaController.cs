@@ -1556,7 +1556,7 @@ namespace MasterOnline.Controllers
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1706,7 +1706,7 @@ namespace MasterOnline.Controllers
                                         ////SELLER_SKU = Convert.ToString(item.product_id),
                                         //SELLER_SKU = "",
                                         ////end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
-                                        SELLER_SKU = item.sku,
+                                        SELLER_SKU = "",
                                         //end change by calvin 31 okt 2019
                                         BRG_MP = Convert.ToString(item.product_id),
                                         NAMA = nama,
