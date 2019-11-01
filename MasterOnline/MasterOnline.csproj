@@ -207,6 +207,15 @@
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="Spire.License, Version=1.3.7.46, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\FreeSpire.XLS.9.10.11\lib\net46\Spire.License.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.Pdf, Version=5.10.8.2046, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\FreeSpire.XLS.9.10.11\lib\net46\Spire.Pdf.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.XLS, Version=9.10.11.61046, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\FreeSpire.XLS.9.10.11\lib\net46\Spire.XLS.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -1034,6 +1043,7 @@
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
     <Compile Include="Models\TransaksiMidtrans.cs" />
+    <Compile Include="Models\UpdateDataBayarPiutang.cs" />
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
     <Compile Include="Models\ValidasiSubs.cs" />
@@ -6345,6 +6355,7 @@
     <Content Include="Views\Admin\DetailPartnerPartial.cshtml" />
     <Content Include="Views\Admin\TablePartPartial.cshtml" />
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
+    <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

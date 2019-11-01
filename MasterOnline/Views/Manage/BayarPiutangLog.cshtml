@@ -1,0 +1,96 @@
+﻿@using System.Globalization
+@using PagedList.Mvc
+@using MasterOnline.ViewModels
+@*@model FakturViewModel
+    @{
+        /**/
+
+        var listImportLog = Model.ListImportFaktur.ToList();
+        var listPelanggan = Model.ListPelanggan.ToList();
+    }*@
+
+@model PagedList.IPagedList<ListImportFaktur>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+}
+<div class="row">
+    <div class="col-md-12">
+        <label class="control-label">History Upload</label>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table id="table_history_upload" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">Pengupload</th>
+                    <th width="150">Tanggal Upload</th>
+                    <th width="100">Akun</th>
+                    <th width="45">Log Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var importLog in Model.ToList())
+                {
+                    <tr data-log-recnum="log-@importLog.RECNUM">
+                        <td class="log-pengupload">
+                            @importLog.UPLOADER
+                        </td>
+                        <td class="log-tanggal">
+                            @importLog.UPLOAD_DATETIME
+                        </td>
+                        <td class="log-akun">
+                            @importLog.CUST
+                        </td>
+                        <td class="log-history" style="text-align:center">
+                            <button type="button" class="btn btn-primary" onclick="downloadLogUploadPiutang('@importLog.LOG_FILE')">
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (Model.PageCount > 1)
+        {
+            <div id="tabeluploadfakturpartialpager" class="pager">
+                @Html.PagedListPager(Model, page => Url.Action("RefreshTableLogBayarPiutang", new
+                {
+                    page,
+                    cust = ViewData["searchParam"]
+                }),
+                           new PagedListRenderOptions
+                           {
+                               LinkToFirstPageFormat = "<<",
+                               LinkToPreviousPageFormat = "prev",
+                               LinkToNextPageFormat = "next",
+                               LinkToLastPageFormat = ">>",
+                               DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                           })
+                Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+            </div>
+        }
+        <script type="text/javascript">
+            $(function () {
+                $('#tabeluploadpartialpager').on('click', 'a', function () {
+                    if (this.href != "") {
+                        $.ajax({
+                            url: this.href,
+                            type: 'GET',
+                            cache: false,
+                            beforeSend: function () {
+                                $('#loading_upload').show();
+                            },
+                            success: function (response) {
+                                $('#uploadbrgviewdiv').html(response);
+                                $('#loading_upload').hide();
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+        </script>
+    </div>
+</div>

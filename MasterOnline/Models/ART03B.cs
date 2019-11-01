@@ -34,5 +34,12 @@ namespace MasterOnline
 
         [JsonIgnore]
         public virtual ART03A ART03A { get; set; }
+
+        //ADD BY NURUL 21/10/2019
+        [StringLength(100)]
+        public string NOREF { get; set; }
+
+        public DateTime? TGL_REF { get; set; }
+        //END ADD BY NURUL 21/10/2019
     }
 }
