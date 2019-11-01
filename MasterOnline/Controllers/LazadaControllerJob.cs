@@ -2866,6 +2866,189 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+
+        public BindingBase getMultiOrderItems2WithQueue(string dbPathEra, string uname, List<string> orderIds, string accessToken, string connectionID)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            SetupContext(dbPathEra, uname);
+
+            List<string> listID = new List<string>();
+            string addOrderID = "[";
+            if (orderIds.Count > 100)
+            {
+                for (int i = 0; i < orderIds.Count; i++)
+                {
+                    addOrderID += orderIds[i];
+                    if ((i + 1) % 100 == 0)
+                    {
+                        addOrderID += "]";
+                        listID.Add(addOrderID);
+                        addOrderID = "[";
+                    }
+                    else
+                    {
+                        addOrderID += ",";
+                    }
+                }
+            }
+            else
+            {
+                foreach (var ids in orderIds)
+                {
+                    addOrderID += ids + ",";
+                }
+                addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+                listID.Add(addOrderID);
+            }
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order Items",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = "",
+            //    REQUEST_ATTRIBUTE_2 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //foreach (var a in listID)
+            //{
+            //    currentLog.REQUEST_ATTRIBUTE_1 += a;
+            //}
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
+            string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
+            insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
+            insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
+            insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
+            insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+            string sSQL_Value = "";
+            foreach (var listOrderIds in listID)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/orders/items/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("order_ids", listOrderIds);
+
+                LazopResponse response = client.Execute(request, accessToken);
+
+                var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                if (bindOrderItems != null)
+                {
+                    if (bindOrderItems.code.Equals("0"))
+                    {
+                        if (bindOrderItems.data.Count > 0)
+                        {
+                            foreach (Datum order in bindOrderItems.data)
+                            {
+                                if (order.order_items.Count() > 0)
+                                {
+                                    //var connectionID = Guid.NewGuid().ToString();
+
+                                    foreach (Order_Items items in order.order_items)
+                                    {
+                                        //var isDigital = (items.IsDigital == 1) ? 1 : 0;
+                                        var statusEra = "";
+                                        switch (items.status.ToString())
+                                        {
+                                            case "processing":
+                                            case "pending":
+                                                statusEra = "01";
+                                                break;
+                                            case "ready_to_ship":
+                                                statusEra = "03";
+                                                break;
+                                            case "delivered":
+                                            //statusEra = "03";
+                                            //break;
+                                            case "shipped":
+                                                statusEra = "04";
+                                                break;
+                                            case "returned":
+                                                statusEra = "06";
+                                                break;
+                                            case "return_waiting_for_approval":
+                                                statusEra = "07";
+                                                break;
+                                            case "return_shipped_by_customer":
+                                                statusEra = "08";
+                                                break;
+                                            case "return_rejected":
+                                                statusEra = "09";
+                                                break;
+                                            case "failed":
+                                                statusEra = "10";
+                                                break;
+                                            case "canceled":
+                                                statusEra = "11";
+                                                break;
+                                            default:
+                                                statusEra = "99";
+                                                break;
+                                        }
+                                        //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                        if (statusEra == "01")
+                                        {
+                                            var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
+                                            if (!string.IsNullOrEmpty(currentStatus))
+                                                if (currentStatus == "02" || currentStatus == "03")
+                                                    statusEra = currentStatus;
+                                        }
+                                        //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+
+                                        sSQL_Value += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name.Replace('\'', '`') + "','" + items.sku.Replace('\'', '`') + "','" + items.shop_sku.Replace('\'', '`') + "','" + items.shipping_type;
+                                        sSQL_Value += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        sSQL_Value += ",'" + statusEra + "','" + items.shipment_provider.Replace('\'', '`') + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason.Replace('\'', '`') + "','" + items.reason_detail.Replace('\'', '`') + "','" + items.purchase_order_id;
+                                        sSQL_Value += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes.Replace('\'', '`') + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
+                                        sSQL_Value += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation.Replace('\'', '`') + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
+
+                                        //if (i < bindOrderItems.data.Count)
+                                        sSQL_Value += ",";
+                                        //i = i + 1;
+                                    }
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ret.message = "no item";
+                        }
+                    }
+                    else
+                    {
+                        //currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
+                        if (!string.IsNullOrEmpty(bindOrderItems.message))
+                            ret.message += "\n" + bindOrderItems.message;
+                    }
+                }
+                else
+                {
+                    ret.message = "failed to call lazada api";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(sSQL_Value))
+            {
+                insertQ = insertQ + sSQL_Value.Substring(0, sSQL_Value.Length - 1);
+                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                SqlCommand CommandSQL = new SqlCommand();
+                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
+
+                EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+            }
+
+
+            return ret;
+        }
+
         public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount)
         {
             var ret = new BindingBase();

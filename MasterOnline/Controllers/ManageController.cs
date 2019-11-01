@@ -21776,7 +21776,7 @@ namespace MasterOnline.Controllers
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
 
-            new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_100144", "Calvin");
+            //new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_100144", "Calvin");
 
             //Task.Run(() => new LazadaControllerJob().GetOrdersCancelled("000023", "50000800209xk7TpgeUPD1314839fwAmIv1NwB8Zj1gHyaSrcXdEt7qWzCWIIn", dbPathEra, "Calvin")).Wait();
 
@@ -21859,38 +21859,66 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            //            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            //            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-            //            //var lzdApi = new LazadaController();
-            //            if (listLazadaShop.Count > 0)
-            //            {
-            //                foreach (ARF01 tblCustomer in listLazadaShop)
-            //                {
-            //                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-            //                    {
-            //                        #region refresh token lazada
-            //                        //change by calvin 4 april 2019
-            //                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-            //                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-            //                        //end change by calvin 4 april 2019
-            //                        #endregion
-            //#if (DEBUG || Debug_AWS)
-            //                        new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-            //                        new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-            //                        new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-            //#else
-            //                        string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-            //                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+//            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+//            //var lzdApi = new LazadaController();
+//            if (listLazadaShop.Count > 0)
+//            {
+//                foreach (ARF01 tblCustomer in listLazadaShop)
+//                {
+//                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+//                    {
+//                        #region refresh token lazada
+//                        //change by calvin 4 april 2019
+//                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+//                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+//                        //end change by calvin 4 april 2019
+//                        #endregion
 
-            //                        connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-            //                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//                        string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
+//                        var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
+//                        if (dsSO.Tables[0].Rows.Count > 0)
+//                        {
+//                            var pageCount = Math.Abs(dsSO.Tables[0].Rows.Count / 10) + 1;
+//                            for (int page = 0; page < pageCount; page++)
+//                            {
+//                                List<string> listorderid = new List<string>();
+//                                for (int i = page * 10; i < ((page * 10) + 10); i++)
+//                                {
+//                                    try
+//                                    {
+//                                        listorderid.Add(Convert.ToString(dsSO.Tables[0].Rows[i]["NO_REFERENSI"]));
+//                                    }
+//                                    catch (Exception ex)
+//                                    {
+                                        
+//                                    }
+//                                }
+//                                if (listorderid.Count > 0) {
+//                                    new LazadaControllerJob().getMultiOrderItems2WithQueue(dbPathEra, "Support", listorderid, tblCustomer.TOKEN, "fixingOrderItem");
+//                                }
+                                
+//                            }
+//                        }
+//                        //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+//                        //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+//#if (DEBUG || Debug_AWS)
+//                        //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+//                        //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+//                        //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+//#else
+//                                    string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-            //                        connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-            //                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-            //#endif  
-            //                    }
-            //                }
-            //            }
+//                                    connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+//                                    connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+//                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+//#endif
+//                    }
+//                }
+//            }
 
             #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -32565,7 +32593,7 @@ namespace MasterOnline.Controllers
                     //}
                     //else
                     //{
-                        retBarang.HJUAL = tempBrg.HJUAL;
+                    retBarang.HJUAL = tempBrg.HJUAL;
                     //}
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                     //barangVm.Stf02 = retBarang;
