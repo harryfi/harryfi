@@ -1767,6 +1767,11 @@
                                 $(this).attr('disabled', 'disabled');
                             });
                             $('#btn-simpan-perubahan-row').hide();
+                            $('#btn-autoload').click(function () {
+                                $("#konfUpload").modal('hide');
+                                alert('Silahkan tambah baru untuk upload file.');
+                                
+                            });
                         } else {
                             $('#loading_upload').hide();
                             alert(response.Errors);
