@@ -912,6 +912,8 @@
                                     var total = parseInt(response.Total);
                                     maxPage = parseInt(total / 100);
                                     dataPerPage = 100;
+                                    lastPage = 0;
+                                    loop = 1;
                                     UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                                 } else {
                                     alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
@@ -933,7 +935,7 @@
                 });
             //}
         }
-
+        
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
 
             var link = '@Url.Action("UploadItemByCust", "Manage")';
@@ -946,6 +948,7 @@
                 //    $('#loading_barang_tab').show();
                 //},
                 success: function (response) {
+                    lastPage = currentPage;
                     if (response.Errors != null) {
                         if (response.Errors.length > 0) {
                             response.Errors.forEach(ErrorMessageDialog);
@@ -973,6 +976,8 @@
                                 
                             }
                         } else {
+                            lastPage = 0;
+                            loop = 1;
                             UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
                         }
                     } else {
@@ -994,6 +999,37 @@
                     console.log(error);
                     //$('#table-upload-barang-partial').show();
                     //$('#btnSelesai').prop('disabled', false);
+                    if (xhr.status == 524) {
+                        if (lastPage == currentPage) {
+                            loop = loop + 1;
+                        } else {
+                            loop = 1;
+                        }
+                        if (loop <= 3) {
+                            UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync);
+                        } else {
+                            alert('Terdapat Error saat sinkroisasi data barang dari excel ini.\nSilahkan hubungi tim support MO');
+                            //refreshTableBarangUpload();
+                            //$('#lblPleasewait').hide();
+                            //$('#info_record').hide();
+                            rows_selected.shift();
+                            if (rows_selected.length > 0) {
+                                startSyncAll();
+                            }
+                        }
+                    } else {
+                        rows_selected.shift();
+                        if (rows_selected.length > 0) {
+                            startSyncAll();
+                        } else {
+                            alert('Proses mengambil data barang dari marketplace telah selesai.');
+                            //alert(listErrorMessage);
+                            if (listErrorMessage != "") {
+                                document.getElementById('lblListError').innerText = listErrorMessage;
+                                $('#modalError').modal('show');
+                            }
+                        }
+                    }
                 }
             });
 
