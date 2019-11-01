@@ -639,7 +639,7 @@ namespace MasterOnline.Controllers
                     if (dsBarang.Tables[0].Rows.Count > 0)
                     {
                         worksheet.Cells["A1"].Value = "Kode Gudang";
-                        worksheet.Cells[2,2].Value = "Isi kode gudang sesuai dengan master gudang pada sheet2";
+                        worksheet.Cells[2, 2].Value = "Isi kode gudang sesuai dengan master gudang pada sheet2";
                         worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                         worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
                         //var gudang = ErasoftDbContext.STF18.Where(m => m.Kode_Gudang == kd_gudang).FirstOrDefault();
@@ -697,11 +697,11 @@ namespace MasterOnline.Controllers
                             //var kategori = ErasoftDbContext.STF02E.Where(m => m.LEVEL == "1").ToList();
                             //if (kategori.Count > 0)
                             //{
-                                for (int j = 0; j < gudang.Count; j++)
-                                {
-                                    sheet2.Cells[3 + j, 1].Value = gudang[j].Kode_Gudang;
-                                    sheet2.Cells[3 + j, 2].Value = gudang[j].Nama_Gudang;
-                                }
+                            for (int j = 0; j < gudang.Count; j++)
+                            {
+                                sheet2.Cells[3 + j, 1].Value = gudang[j].Kode_Gudang;
+                                sheet2.Cells[3 + j, 2].Value = gudang[j].Nama_Gudang;
+                            }
                             //}
 
                             using (var range = sheet2.Cells[2, 1, 2, 2])
@@ -1019,6 +1019,202 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         #endregion
+        //add by Tri 28 okt 2019, tuning upload excel sinkronisasi barang
+        public ActionResult UploadXcelwithPage(int page)
+        {
+            //var file = Request.Files[0];
+            //List<string> excelData = new List<string>();
+            //var listCust = new List<string>();
+            BindUploadExcel ret = new BindUploadExcel();
+            ret.Errors = new List<string>();
+            ret.cust = new List<string>();
+            ret.namaCust = new List<string>();
+            ret.lastRow = new List<int>();
+            ret.nextFile = false;
+            try
+            {
+                if (Request.Files.Count > 0)
+                {
+                    var mp = MoDbContext.Marketplaces.ToList();
+                    for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                    {
+                        var file = Request.Files[file_index];
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            byte[] data;
+                            ret.lastRow.Add(0);
+                            using (Stream inputStream = file.InputStream)
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+                                if (memoryStream == null)
+                                {
+                                    memoryStream = new MemoryStream();
+                                    inputStream.CopyTo(memoryStream);
+                                }
+                                data = memoryStream.ToArray();
+                            }
+
+                            using (MemoryStream stream = new MemoryStream(data))
+                            {
+                                using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                                {
+                                    using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                    {
+                                        eraDB.Database.CommandTimeout = 180;
+                                        //loop all worksheets
+                                        var worksheet = excelPackage.Workbook.Worksheets[1];
+                                        //foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
+                                        //{
+                                        string cust = worksheet.Cells[1, 2].Value == null ? "" : worksheet.Cells[1, 2].Value.ToString();
+                                        if (!string.IsNullOrEmpty(cust))
+                                        {
+                                            var customer = eraDB.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                                            if (customer != null)
+                                            {
+                                                if (page == 0)
+                                                {
+                                                    var resetFlag = EDB.ExecuteSQL("CString", System.Data.CommandType.Text, "update temp_brg_mp set avalue_36 = '' where cust = '" + cust + "' and avalue_36 like 'auto%'");
+                                                }
+                                                string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
+                                                ret.cust.Add(cust);
+                                                ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
+                                                int dataPerPage = 300;
+                                                int maxData = 19 + (page * dataPerPage) + dataPerPage;
+                                                if (19 + (page * dataPerPage) + dataPerPage >= worksheet.Dimension.End.Row)
+                                                {
+                                                    ret.nextFile = true;
+                                                    maxData = worksheet.Dimension.End.Row;
+                                                }
+                                                var listCurrentBrg = new List<string>();
+                                                for (int j = 19 + (page * dataPerPage); j <= maxData; j++)
+                                                {
+                                                    var brg_mp = worksheet.Cells[j, 11].Value == null ? "" : worksheet.Cells[j, 11].Value.ToString();
+                                                    if (!string.IsNullOrEmpty(brg_mp))
+                                                    {
+                                                        //if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[j, 3].Value)))
+                                                        //{
+                                                        listCurrentBrg.Add(brg_mp);
+                                                        //}
+                                                    }
+                                                }
+                                                //var listTemp = eraDB.TEMP_BRG_MP.Where(m => m.CUST == cust).ToList();
+                                                var listTemp = eraDB.TEMP_BRG_MP.Where(m => m.CUST == cust && listCurrentBrg.Contains(m.BRG_MP)).ToList();
+                                                if (listTemp.Count > 0)
+                                                {
+                                                    //loop all rows
+                                                    //for (int i = 19; i <= worksheet.Dimension.End.Row; i++)
+                                                    for (int i = 19 + (page * dataPerPage); i <= maxData; i++)
+                                                    {
+                                                        var kd_brg_mp = worksheet.Cells[i, 11].Value == null ? "" : worksheet.Cells[i, 11].Value.ToString();
+                                                        if (!string.IsNullOrEmpty(kd_brg_mp))
+                                                        {
+                                                            ////loop all columns in a row
+                                                            //for (int j = 1; j <= worksheet.Dimension.End.Column; j++)
+                                                            //{
+                                                            //    //add the cell data to the List
+                                                            //    if (worksheet.Cells[i, j].Value != null)
+                                                            //    {
+                                                            //        excelData.Add(worksheet.Cells[i, j].Value.ToString());
+                                                            //    }
+                                                            //}
+                                                            var current_brg = listTemp.Where(m => m.BRG_MP == kd_brg_mp).SingleOrDefault();
+                                                            if (current_brg != null)
+                                                            {
+                                                                if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value))) //user tidak isi kode barang mo, tidak perlu update  
+                                                                {
+                                                                    if (!string.IsNullOrEmpty(current_brg.KODE_BRG_INDUK) && string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
+                                                                    {
+                                                                        // barang varian tapi tidak diisi kode brg induk di excel
+                                                                        //break;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        //if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                                                                        //    current_brg.NAMA = worksheet.Cells[i, 1].Value.ToString();
+                                                                        //current_brg.NAMA2 = worksheet.Cells[i, 2].Value == null ? "" : worksheet.Cells[i, 2].Value.ToString();
+                                                                        current_brg.SELLER_SKU = worksheet.Cells[i, 3].Value == null ? "" : worksheet.Cells[i, 3].Value.ToString();
+                                                                        current_brg.KODE_BRG_INDUK = worksheet.Cells[i, 4].Value == null ? "" : worksheet.Cells[i, 4].Value.ToString();
+                                                                        //change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
+                                                                        //current_brg.CATEGORY_CODE = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
+                                                                        current_brg.AVALUE_40 = worksheet.Cells[i, 5].Value == null ? "" : worksheet.Cells[i, 5].Value.ToString();
+                                                                        //end change 14 juni 2019, kode kategori mo disimpan di avalue_40, kode kategory mp tetap di category_code
+                                                                        current_brg.MEREK = worksheet.Cells[i, 6].Value == null ? "" : worksheet.Cells[i, 6].Value.ToString();
+                                                                        //current_brg.HJUAL_MP = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
+                                                                        current_brg.HJUAL = Convert.ToDouble(worksheet.Cells[i, 7].Value == null ? "0" : worksheet.Cells[i, 7].Value.ToString());
+                                                                        //current_brg.BERAT = Convert.ToDouble(worksheet.Cells[i, 9].Value == null ? "0" : worksheet.Cells[i, 9].Value.ToString());
+                                                                        //current_brg.IMAGE = worksheet.Cells[i, 10].Value == null ? "" : worksheet.Cells[i, 10].Value.ToString();
+                                                                        current_brg.AVALUE_36 = "Auto Process";// barang yg akan di transfer ke master hasil upload excel saja
+                                                                        try
+                                                                        {
+                                                                            eraDB.SaveChanges();
+                                                                        }
+                                                                        catch (Exception ex)
+                                                                        {
+
+                                                                        }
+                                                                    }
+
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                ret.Errors.Add(namaMP + "(" + customer.PERSO + ") : Kode Barang MP (" + kd_brg_mp + ") tidak ditemukan");
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            ret.nextFile = true;
+                                                            ret.Errors.Add(namaMP + "(" + customer.PERSO + ") : Kode barang marketplace tidak ditemukan lagi di baris " + i);
+                                                            ret.lastRow[file_index] = i;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (ret.lastRow[file_index] == 0)
+                                                        ret.lastRow[file_index] = worksheet.Dimension.End.Row;
+                                                }
+                                                else
+                                                {
+                                                    //var mp = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault();
+                                                    //ret.Errors.Add("Data barang untuk akun " + mp.NamaMarket + "(" + customer.PERSO + ") tidak ditemukan");
+                                                    ret.Errors.Add(namaMP + "(" + customer.PERSO + ") : Data Barang untuk akun ini tidak ditemukan");
+                                                    ret.nextFile = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //customer not found
+                                                ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan");
+                                                ret.nextFile = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //cust empty
+                                            ret.Errors.Add("File " + file.FileName + ": Kode akun marketplace tidak ditemukan");
+                                            ret.nextFile = true;
+                                        }
+                                        //}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ret.nextFile = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                ret.nextFile = true;
+            }
+
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        //end by Tri add 28 okt 2019, tuning upload excel sinkronisasi barang
+
     }
 
 
@@ -1030,6 +1226,7 @@ namespace MasterOnline.Controllers
         public List<string> cust { get; set; }
         public List<string> namaCust { get; set; }
         public List<string> namaGudang { get; set; }
+        public bool nextFile { get; set; }
     }
 
     public class BindDownloadExcel

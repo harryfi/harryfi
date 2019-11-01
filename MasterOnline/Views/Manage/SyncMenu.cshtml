@@ -726,9 +726,28 @@
         };
 
         var listCustomerUploaded = [];
+        var fileEXcel = 0;
+        var lastPage = 0;
+        var loop = 1;
         function uploadfileexcel() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
+            }
+            else
+            {
+                $('#progressBarUpload').show();
+                uploadfileexcelbatch(0, 0);
+            }
+        }
+        function uploadfileexcelbatch(fileNum, pageNum) {
+            //if ($('#file_upload_excel')[0].files.length < 1) {
+            if ($('#file_upload_excel')[0].files.length <= fileNum) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_spinner').hide();
+                $('#sync_btn').click();
+                //$('#file_upload_excel').click();
             }
             else
             {
@@ -737,43 +756,80 @@
                 //Iterating through each files selected in fileInput
                 for (i = 0; i < fileInput.files.length; i++) {
                     //Appending each file to FormData object
-                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                    if (i == fileNum) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name)
+                    }
                 }
-
+                var url1 = '@Url.Action("UploadXcelwithPage", "TransferExcel", new { page = "replacePage"})';
+                url1 = url1.replace("replacePage", encodeURIComponent(pageNum));
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UploadXcel", "TransferExcel")',
+                    url: url1,
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_spinner').show();
+                        //$('#loading_spinner').show();
                     },
                     success: function (response) {
-                        if (response.Errors.length == 0) {
-                            $('#loading_spinner').hide();
-                            //alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
-                            //$('#upload_btn').show();
-                            rows_selected = response.cust;
-                            listCustomerUploaded = response.namaCust;
-                        } else {
-                            var err = "";
-                            for (i = 0; i < response.Errors.length; i++) {
-                                err += response.Errors[i] + "\n";
+                        lastPage = pageNum;
+                        if (response.lastRow != null) {
+                            if (parseInt(response.lastRow[0]) > 0) {
+                                var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 300);
+                                $('#pBar_uploadFile').css('width', parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (pageNum + 1) / (maxPage2 + 1) * 100);
+                                $('#pBar_uploadFile').html(parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '% Complete');
                             }
-                            //alert(err);
-                            document.getElementById('lblListError').innerText = err;
-                            //$('#modalError').modal('show');
-                            $('#loading_spinner').hide();
-                            //$('#upload_btn').show();
-                            rows_selected = response.cust;
-                            listCustomerUploaded = response.namaCust;
                         }
-                        $('#sync_btn').click();
+                        if (response.nextFile) {
+                            loop = 1;
+                            rows_selected.push(response.cust[0]);
+                            listCustomerUploaded.push(response.namaCust[0]);
+                            uploadfileexcelbatch(fileNum + 1, 0);
+                        } else {
+                            if (response.Errors.length == 0) {
+                                //$('#loading_spinner').hide();
+                                ////alert('Data anda berhasil di Update.\nSilahkan lanjutkan sinkronisasi, dapat secara manual satu per satu atau otomatis semua barang.');
+                                ////$('#upload_btn').show();
+                                //rows_selected = response.cust;
+                                //listCustomerUploaded = response.namaCust;
+                            } else {
+                                var err = "";
+                                for (i = 0; i < response.Errors.length; i++) {
+                                    err += response.Errors[i] + "\n";
+                                }
+                                //alert(err);
+                                document.getElementById('lblListError').innerText += err;
+                                //$('#modalError').modal('show');
+                                //$('#loading_spinner').hide();
+                                ////$('#upload_btn').show();
+                                //rows_selected = response.cust;
+                                //listCustomerUploaded = response.namaCust;
+                            }
+                            //$('#sync_btn').click();
+                            uploadfileexcelbatch(fileNum, pageNum + 1);
+                        }
+                        
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
-                        $('#loading_spinner').hide();
+                        //$('#loading_spinner').hide();
+                        if (xhr.status == 524) {
+                            if (lastPage == pageNum) {
+                                loop = loop + 1;
+                            } else {
+                                loop = 1;
+                            }
+                            if (loop <= 3) {
+                                uploadfileexcelbatch(fileNum, pageNum);
+                            } else {
+                                alert('Terdapat Error saat mengupload data barang excel ini.\nSilahkan hubungi tim support MO');
+                                //refreshTableBarangUpload();
+                                //$('#lblPleasewait').hide();
+                                //$('#info_record').hide();
+                                //$('#loading_spinner').hide();
+                            }
+                        }
                     }
                 });
             }
@@ -831,22 +887,33 @@
                                 namaFileLog = response.fileName;
                                 if (parseInt(response.Total) > 0) {
                                     //showProgressBar();
-                                    if (parseInt(response.Total) <= 10) {
-                                        //UploadAllBrg();
-                                        maxPage = 0;
-                                        dataPerPage = parseInt(response.Total);
-                                    } else {
-                                        //$('#progressDiv').show();
-                                        //controlButton();
-                                        if (parseInt(response.Total) <= 50) {
-                                            maxPage = 4;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
-                                        } else {
-                                            maxPage = 9;
-                                            dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
-                                        }
-                                        //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
-                                    }
+                                    //if (parseInt(response.Total) <= 10) {
+                                    //    //UploadAllBrg();
+                                    //    maxPage = 0;
+                                    //    dataPerPage = parseInt(response.Total);
+                                    //} else {
+                                    //    //$('#progressDiv').show();
+                                    //    //controlButton();
+                                    //    if (parseInt(response.Total) <= 50) {
+                                    //        maxPage = 4;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
+                                    //    } else if (parseInt(response.Total) <= 1000){
+                                    //        maxPage = 9;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
+                                    //    } else if (parseInt(response.Total) <= 5000) {
+                                    //        maxPage = 19;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 20) + 1;
+                                    //    } else {
+                                    //        maxPage = 99;
+                                    //        dataPerPage = parseInt(parseInt(response.Total) / 100) + 1;
+                                    //    }
+                                    //    //UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
+                                    //}
+                                    var total = parseInt(response.Total);
+                                    maxPage = parseInt(total / 100);
+                                    dataPerPage = 100;
+                                    lastPage = 0;
+                                    loop = 1;
                                     UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0);
                                 } else {
                                     alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
@@ -868,7 +935,7 @@
                 });
             //}
         }
-
+        
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
 
             var link = '@Url.Action("UploadItemByCust", "Manage")';
@@ -881,6 +948,7 @@
                 //    $('#loading_barang_tab').show();
                 //},
                 success: function (response) {
+                    lastPage = currentPage;
                     if (response.Errors != null) {
                         if (response.Errors.length > 0) {
                             response.Errors.forEach(ErrorMessageDialog);
@@ -888,10 +956,12 @@
                             //document.getElementById('txtMessage').innerText = listErrorMessage;
                         }
                     }
-                    $('#pBar_' + rows_selected[0]).css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
-                    $('#pBar_' + rows_selected[0]).html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
+                    $('#pBar_' + rows_selected[0]).css('width', parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                    $('#pBar_' + rows_selected[0]).html(parseFloat(((currentPage + 1) / (maxPage + 1) * 100)).toFixed(2) + '% Complete');
                     if (response.contRecursive == "1") {
                         if ((currentPage + 1) > maxPage) {
+                            lastPage = 0;
+                            loop = 1;
                             //alert('Sinkronisasi barang selesai');
                             //$('#btnSelesai').prop('disabled', false)
                             rows_selected.shift();
@@ -929,6 +999,37 @@
                     console.log(error);
                     //$('#table-upload-barang-partial').show();
                     //$('#btnSelesai').prop('disabled', false);
+                    if (xhr.status == 524) {
+                        if (lastPage == currentPage) {
+                            loop = loop + 1;
+                        } else {
+                            loop = 1;
+                        }
+                        if (loop <= 3) {
+                            UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync);
+                        } else {
+                            alert('Terdapat Error saat sinkroisasi data barang dari excel ini.\nSilahkan hubungi tim support MO');
+                            //refreshTableBarangUpload();
+                            //$('#lblPleasewait').hide();
+                            //$('#info_record').hide();
+                            rows_selected.shift();
+                            if (rows_selected.length > 0) {
+                                startSyncAll();
+                            }
+                        }
+                    } else {
+                        rows_selected.shift();
+                        if (rows_selected.length > 0) {
+                            startSyncAll();
+                        } else {
+                            alert('Proses mengambil data barang dari marketplace telah selesai.');
+                            //alert(listErrorMessage);
+                            if (listErrorMessage != "") {
+                                document.getElementById('lblListError').innerText = listErrorMessage;
+                                $('#modalError').modal('show');
+                            }
+                        }
+                    }
                 }
             });
 

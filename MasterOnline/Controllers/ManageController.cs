@@ -30230,9 +30230,13 @@ namespace MasterOnline.Controllers
                         }
 
                         var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
-                        var stf02temp = eraDB.STF02.ToList();
-                        var tempBrgInduktemp = eraDB.TEMP_BRG_MP.Where(t => t.IDMARKET == customer.RecNum).ToList();
-                        var stf02htemp = eraDB.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
+                        //var stf02temp = eraDB.STF02.ToList();
+                        //var tempBrgInduktemp = eraDB.TEMP_BRG_MP.Where(t => t.IDMARKET == customer.RecNum).ToList();
+                        //var stf02htemp = eraDB.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
+                        var listBrg = dataBrg.Select(m => m.SELLER_SKU).ToList();
+                        var stf02temp = eraDB.STF02.Where(m => listBrg.Contains(m.BRG)).ToList();
+                        var tempBrgInduktemp = eraDB.TEMP_BRG_MP.Where(t => listBrg.Contains(t.SELLER_SKU) && t.IDMARKET == customer.RecNum).ToList();
+                        var stf02htemp = eraDB.STF02H.Where(t => listBrg.Contains(t.BRG) && t.IDMARKET == customer.RecNum).ToList();
 
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         foreach (var item in dataBrg)
