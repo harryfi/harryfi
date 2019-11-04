@@ -34942,7 +34942,178 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        
+
+        public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat)
+        {
+            try
+            {
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                foreach (var so in ListStt01a)
+                {
+                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    {
+                        if (marketPlace.STATUS_API == "1")
+                        {
+                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                            if (pesananInDb != null) {
+                                var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                var splitParamsInit = paramsInit[5].Split(';');
+                                if (splitParamsInit.Contains("PICKUP")) {
+                                    string pAddress = "";
+                                    string pTime = "";
+                                    ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = usernameLogin
+                                    };
+                                    if (splitParamsInit.Contains("ADDRESS_ID")) {
+                                        pAddress = alamat;
+                                        if (splitParamsInit.Contains("PICKUP_TIME")) {
+                                            var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
+                                            pTime = firstpickuptime.pickup_time_id;
+                                        }
+                                    }
+
+                                    ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
+                                    {
+                                        address_id = 0,
+                                        pickup_time_id = ""
+                                    };
+                                    if (pAddress != "")
+                                    {
+                                        detail.address_id = Convert.ToInt64(pAddress);
+                                    }
+                                    if (pTime != "")
+                                    {
+                                        detail.pickup_time_id = pTime;
+                                    }
+                                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                    //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+
+                                    string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeePickupAddressByCust(string cust)
+        {
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetAddress(data);
+            return Json(result.address_list, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public async Task<ShopeeController.ShopeeGetTimeSlotResultPickup_Time> GetShopeeFirstPickupTime(SOT01A pesananInDb, long address_id, string sort1_cust)
+        {
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = sort1_cust,
+            };
+            var result = await shoAPI.GetTimeSlot(data, address_id, pesananInDb.NO_REFERENSI);
+            var firsttime = result.pickup_time.ToList().First();
+            return firsttime;
+        }
+        public async Task<string[]> GetParameterInitLogisticShopee(SOT01A pesananInDb, string sort1_cust)
+        {
+            string[] shipment = new string[6];
+            shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            shipment[1] = pesananInDb.SHIPMENT;
+            shipment[2] = pesananInDb.NO_BUKTI;
+            shipment[3] = pesananInDb.NAMAPEMESAN;
+            shipment[4] = pesananInDb.NAMAPENGIRIM;
+
+            string parameters = "";
+            shipment[5] = "";
+            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+            {
+                var shoAPI = new ShopeeController();
+                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                {
+                    merchant_code = sort1_cust,
+                };
+                ShopeeController.ShopeeGetParameterForInitLogisticResult InitParam;
+                InitParam = await shoAPI.GetParameterForInitLogistic(data, pesananInDb.NO_REFERENSI);
+
+                if (InitParam.dropoff != null)
+                {
+                    parameters += "DROPOFF;";
+
+                    if (InitParam.dropoff.Contains("branch_id"))
+                    {
+                        parameters += "BRANCH_ID;";
+                    }
+                    if (InitParam.dropoff.Contains("sender_real_name"))
+                    {
+                        parameters += "SENDER;";
+                    }
+                    if (InitParam.dropoff.Contains("tracking_no"))
+                    {
+                        parameters += "DROPOFF_TRACKING_NO;";
+                    }
+                }
+                if (InitParam.pickup != null)
+                {
+                    parameters += "PICKUP;";
+
+                    if (InitParam.pickup.Contains("address_id"))
+                    {
+                        parameters += "ADDRESS_ID;";
+                    }
+                    if (InitParam.pickup.Contains("pickup_time_id"))
+                    {
+                        parameters += "PICKUP_TIME;";
+                    }
+                }
+                if (InitParam.non_integrated != null)
+                {
+                    parameters += "NON;";
+                    if (InitParam.non_integrated.Contains("tracking_no"))
+                    {
+                        parameters += "TRACKING_NO;";
+                    }
+                }
+            }
+            else
+            {
+                if (pesananInDb.TRACKING_SHIPMENT.Contains("[;]"))
+                {
+                    parameters = "AUTO_SHOPEE";
+                }
+            }
+            shipment[5] = parameters;
+            return shipment;
+        }
 
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()

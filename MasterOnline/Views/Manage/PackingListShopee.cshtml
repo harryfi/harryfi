@@ -8,12 +8,52 @@
 
 }
 <script type="text/javascript">
-    function RequestPickupPackingLazada(cust) {
-        $('#btnProsesLazada__' + cust).attr("disabled", true);
-        var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
+    $(document).ready(function () {
+        $('.selectShopeeResiPickupAddress').each(function (i, item) {
+            var cust = $(item).attr("data-kodecust");
+
+            var link = '@Html.Raw(Url.Action("GetShopeePickupAddressByCust", "Manage", new { cust = "replaceCode" }))';
+            link = link.replace("replaceCode", encodeURIComponent(cust));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listAddress = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listAddress[i] = {
+                                id: item.address_id,
+                                text: item.address
+                            };
+                        });
+
+                    var Select = $('#select-shopee-resi-pickup-address-' + cust).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listAddress,
+                        onChange: function (value) {
+
+                        }
+                    });
+
+                    //Select[0].selectize.setValue(valueTRACKING_SHIPMENT[1]);
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        });
+    });
+    function RequestPickupPackingShopee(cust) {
+        $('#btnProsesShopee__' + cust).attr("disabled", true);
+        var $link = '@Html.Raw(Url.Action("RequestPickupShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", alamat = "replaceAlamatPickup" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-        $link = $link.replace("replaceDeliveryProvider", encodeURIComponent($('#txtShipment__' + cust).val()));
+        $link = $link.replace("replaceAlamatPickup", encodeURIComponent($('#select-shopee-resi-pickup-address-' + cust).val()));
 
         $.ajax({
             url: $link,
@@ -25,7 +65,7 @@
                 //$('#loading_barang_tab').hide();
             },
             complete: function () {
-                $('#btnProsesLazada__' + cust).attr("disabled", false);
+                $('#btnProsesShopee__' + cust).attr("disabled", false);
             },
             error: function (xhr, status, error) {
                 console.log(error);
@@ -33,20 +73,20 @@
         });
     }
 
-    -function PromptDeliveryProvLazada(r) {
-        //PromptDeliveryProvLazadaTextBox = i;
-        showPromptDeliveryProvLazadaTextBoxWindow(r);
+    function PromptDeliveryProvShopee(r) {
+        //PromptDeliveryProvShopeeTextBox = i;
+        showPromptDeliveryProvShopeeTextBoxWindow(r);
     }
-    var promptLazadaCust = "";
-    function showPromptDeliveryProvLazadaTextBoxWindow(val) {
-        promptLazadaCust = val;
-        var $link = '@Url.Action("PromptDeliveryProviderLazada", "Manage", new { cust = "replaceCust" })';
+    var promptShopeeCust = "";
+    function showPromptDeliveryProvShopeeTextBoxWindow(val) {
+        promptShopeeCust = val;
+        var $link = '@Url.Action("PromptDeliveryProviderShopee", "Manage", new { cust = "replaceCust" })';
         $link = $link.replace("replaceCust", val);
         window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
     }
 
     function afterPromptDelTempLzd(val) {
-        $('#txtShipment__' + promptLazadaCust).val(val);
+        $('#txtShipment__' + promptShopeeCust).val(val);
     }
 
     function cekValidasi(cust) {
@@ -67,10 +107,10 @@
 <table style="width:100%">
     <tr>
         <td style="width:100%">
-            <ul id="lazada-cust-tab" class="nav nav-tabs">
+            <ul id="shopee-cust-tab" class="nav nav-tabs">
                 @foreach (var item in distinctCust)
                 {
-                    <li><a data-toggle="tab" href="#lazada_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
+                    <li><a data-toggle="tab" href="#shopee_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
                 }
             </ul>
         </td>
@@ -79,14 +119,14 @@
 <div class="tab-content">
     @foreach (var item in distinctCust)
     {
-        <div id="lazada_tab_content__@(item.CUST)" class="tab-pane fade in">
+        <div id="shopee_tab_content__@(item.CUST)" class="tab-pane fade in">
             <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-            <div class="modal fade" id="modalPrintLazada__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+            <div class="modal fade" id="modalPrintShopee__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Lazada</h4>
+                            <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Shopee</h4>
                         </div>
                         <div class="modal-body">
                             <div class="row text-center">
@@ -104,24 +144,30 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input id="search_table_packing_pesanan_lazada__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
+                        <input id="search_table_packing_pesanan_shopee__@(item.CUST)" type="text" class="form-control" placeholder="Pencarian">
                         <span class="input-group-btn">
-                            <button type="button" id="search_table_packing_pesanan_lazada_button__@(item.CUST)" class="btn btn-primary">
+                            <button type="button" id="search_table_packing_pesanan_shopee_button__@(item.CUST)" class="btn btn-primary">
                                 <i class="fa fa-search"></i>
                             </button>
                         </span>
                     </div>
                 </div>
                 <div class="col-md-8" style="text-align:right">
-                    <input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-                    <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada('@(item.CUST)')">
+                    @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
+                    <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
                         <span class="glyphicon glyphicon-option-horizontal"></span>
-                    </button>
-                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingLazada('@(item.CUST)')">Ready To Ship</button>
-                    @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada">Print</button>*@
+                    </button>*@
+                    <div class="form-group">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Alamat</label>
+                        <div id="shopee-resi-pickup-address-@(item.CUST)" class="col-md-8 col-sm-8 col-xs-12">
+                            <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" disabled="disabled" placeholder="Harap pilih" required="required"></select>
+                        </div>
+                    </div>
+                    <button id="btnProsesShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
+                    @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
                 </div>
             </div>
-            <div class="hscroll table-responsive tbljurnal">
+            <div class="hscroll table-responsive">
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
                         <tr role="row">

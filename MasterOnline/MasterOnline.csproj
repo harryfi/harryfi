@@ -6359,6 +6359,7 @@
     <Content Include="Views\Manage\PackingListTokped.cshtml" />
     <Content Include="Views\Manage\PackingListLazada.cshtml" />
     <Content Include="Views\Manage\PackingListBlibli.cshtml" />
+    <Content Include="Views\Manage\PackingListShopee.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
