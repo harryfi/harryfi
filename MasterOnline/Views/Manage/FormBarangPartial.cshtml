@@ -613,7 +613,7 @@
                                                                     {
                                                                         var data_tip = getLatestLog.LINK_ERROR.Split(';');
                                                                         var msg_tip = "";
-                                                                        if (data_tip.Count() == 4)
+                                                                        if (data_tip.Count() >= 4)
                                                                         {
                                                                             //jobid;request_action;request_result;request_exception
                                                                             msg_tip = data_tip[3];
