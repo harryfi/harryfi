@@ -1770,6 +1770,7 @@ namespace MasterOnline.Controllers
             var MoDbContext = new MoDbContext();
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
 
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
             string connectionID = Guid.NewGuid().ToString();
@@ -2126,7 +2127,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -2230,6 +2231,7 @@ namespace MasterOnline.Controllers
             var MoDbContext = new MoDbContext();
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
 
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
             string connectionID = Guid.NewGuid().ToString();
@@ -2458,7 +2460,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -2707,10 +2709,16 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID)
+        public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
+
             List<string> listID = new List<string>();
             string addOrderID = "[";
             if (orderIds.Count > 100)
@@ -3500,6 +3508,7 @@ namespace MasterOnline.Controllers
             var MoDbContext = new MoDbContext();
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
 
             string connectionID = Guid.NewGuid().ToString();
             var fromDt = DateTime.Now.AddDays(-14);
