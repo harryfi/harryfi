@@ -3942,6 +3942,25 @@ namespace MasterOnline.Controllers
                 {
                     brgSku.Add(property.Name, property.Value.ToString());
                 }
+
+                //add by Tri 4 Nov 2019, handle category not in db
+                var categoryName = "";
+                var categoryinDB = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault();
+                if(categoryinDB != null)
+                {
+                    categoryName = categoryinDB.NAME;
+                }
+                else
+                {
+                    GetCategoryLzd();
+                    categoryinDB = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault();
+                    if (categoryinDB != null)
+                    {
+                        categoryName = categoryinDB.NAME;
+                    }
+                }
+                //end add by Tri 4 Nov 2019, handle category not in db
+
                 string value;
                 var statusBrg = (brgSku.TryGetValue("Status", out value) ? value : "");
                 var display = statusBrg.Equals("active") ? 1 : 0;
@@ -3954,7 +3973,10 @@ namespace MasterOnline.Controllers
                 sSQL_Value += Convert.ToDouble(brg.skus[i].package_weight) * 1000 + " , " + brg.skus[i].package_length + " , " + brg.skus[i].package_width + " , " + brg.skus[i].package_height + " , '" + cust + "' , '";
                 sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
                 sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
-                sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
+                //change by Tri 4 Nov 2019, handle category not in db
+                //sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
+                sSQL_Value += display + " , '" + categoryCode + "' , '" + categoryName + "' , '";
+                //end change by Tri 4 Nov 2019, handle category not in db
                 sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
                 var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
