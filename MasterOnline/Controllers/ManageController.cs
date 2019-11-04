@@ -31854,14 +31854,20 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                                        TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData
                                         {
                                             merchant_code = arf01.Sort1_Cust, //FSID
                                             API_client_password = arf01.API_CLIENT_P, //Client ID
                                             API_client_username = arf01.API_CLIENT_U, //Client Secret
                                             API_secret_key = arf01.API_KEY, //Shop ID 
-                                            token = arf01.TOKEN
+                                            idmarket = arf01.RecNum.Value,
                                         };
+                                        var gettoken = TokoAPI.GetToken(data);
+                                        data.token = gettoken.access_token;
+
+                                        if (string.IsNullOrWhiteSpace(data.token)) {
+                                            return JsonErrorMessage("Status Akun tidak aktif.");
+                                        }
 
                                         //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
                                         var resultTokped = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value, totalData);
