@@ -1558,16 +1558,16 @@ namespace MasterOnline.Controllers
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
             string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Get Item List",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = CUST,
-                REQUEST_ATTRIBUTE_3 = page.ToString(),
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Item List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = CUST,
+            //    REQUEST_ATTRIBUTE_3 = page.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -1590,8 +1590,8 @@ namespace MasterOnline.Controllers
             {
                 ret.nextPage = 1;
                 ret.exception = 1;
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
@@ -1621,8 +1621,8 @@ namespace MasterOnline.Controllers
                             {
                                 ret.message += err.ToString() + "_;_";
                             }
-                            currentLog.REQUEST_EXCEPTION = ret.message;
-                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            //currentLog.REQUEST_EXCEPTION = ret.message;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                     if (!adaError)
@@ -1750,8 +1750,8 @@ namespace MasterOnline.Controllers
                     ret.exception = 1;
                     ret.status = 0;
                     ret.message = ex.Message;
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //currentLog.REQUEST_EXCEPTION = ret.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
 
             }
