@@ -30946,13 +30946,35 @@ namespace MasterOnline.Controllers
                                     stf02.TYPE = item.TYPE;
                                     if (string.IsNullOrEmpty(stf02.TYPE))
                                     {
-                                        if (string.IsNullOrEmpty(item.KODE_BRG_INDUK))
+                                        //change by Tri 5 Nov 2019, perbaikan logic set type brg
+                                        //if (string.IsNullOrEmpty(item.KODE_BRG_INDUK))
+                                        if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))
+                                        //end change by Tri 5 Nov 2019, perbaikan logic set type brg
                                         {
                                             stf02.TYPE = "3";
                                         }
                                         else
                                         {
-                                            stf02.TYPE = "4";
+                                            //change by Tri 5 Nov 2019, perbaikan logic set type brg
+                                            //stf02.TYPE = "4";
+                                            var indukTemp = eraDB.TEMP_BRG_MP.Where(m => m.CUST == cust && (m.KODE_BRG_INDUK == null ? "" : m.KODE_BRG_INDUK) == stf02.BRG).Select(m => m.BRG_MP).ToList();
+                                            if(indukTemp.Count == 0)
+                                            {
+                                                var indukMO = eraDB.STF02.Where(m => (m.PART == null ? "" : m.PART) == stf02.BRG).Select(m => m.BRG).ToList();
+                                                if(indukMO.Count == 0)
+                                                {
+                                                    stf02.TYPE = "3";
+                                                }
+                                                else
+                                                {
+                                                    stf02.TYPE = "4";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                stf02.TYPE = "4";
+                                            }
+                                            //end change by Tri 5 Nov 2019, perbaikan logic set type brg
                                         }
                                     }
                                     stf02.PART = item.KODE_BRG_INDUK;
