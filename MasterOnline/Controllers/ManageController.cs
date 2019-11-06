@@ -34950,7 +34950,7 @@ namespace MasterOnline.Controllers
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35005,6 +35005,81 @@ namespace MasterOnline.Controllers
 
                                     string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
                                     clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public async Task<ActionResult> RequestDropoffShopeePerPacking(string cust, string bukti)
+        {
+            try
+            {
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+
+                //parameters += "DROPOFF;";
+
+                //if (InitParam.dropoff.Contains("branch_id"))
+                //{
+                //    parameters += "BRANCH_ID;";
+                //}
+                //if (InitParam.dropoff.Contains("sender_real_name"))
+                //{
+                //    parameters += "SENDER;";
+                //}
+                //if (InitParam.dropoff.Contains("tracking_no"))
+                //{
+                //    parameters += "DROPOFF_TRACKING_NO;";
+                    foreach (var so in ListStt01a)
+                {
+                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    {
+                        if (marketPlace.STATUS_API == "1")
+                        {
+                            var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
+                            if (pesananInDb != null)
+                            {
+                                var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                var splitParamsInit = paramsInit[5].Split(';');
+                                if (splitParamsInit.Contains("DROPOFF"))
+                                {
+                                    string dBranch = "";
+                                    ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                    {
+                                        merchant_code = marketPlace.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = usernameLogin
+                                    };
+                                    if (!splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("TRACKING_NO"))
+                                    {
+                                        ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                        {
+                                            branch_id = 0,
+                                            sender_real_name = "",
+                                            tracking_no = ""
+                                        };
+                                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                        clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+                                    }
                                 }
                             }
                         }

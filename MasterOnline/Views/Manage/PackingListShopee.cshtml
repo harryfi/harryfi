@@ -49,11 +49,39 @@
         });
     });
     function RequestPickupPackingShopee(cust) {
-        $('#btnProsesShopee__' + cust).attr("disabled", true);
-        var $link = '@Html.Raw(Url.Action("RequestPickupShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", alamat = "replaceAlamatPickup" }))';
+        $('#btnProsesPickupShopee__' + cust).attr("disabled", true);
+        if ($('#select-shopee-resi-pickup-address-' + cust).val()) {
+            var $link = '@Html.Raw(Url.Action("RequestPickupShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", alamat = "replaceAlamatPickup" }))';
+            $link = $link.replace("replaceCust", encodeURIComponent(cust));
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+            $link = $link.replace("replaceAlamatPickup", encodeURIComponent($('#select-shopee-resi-pickup-address-' + cust).val()));
+
+            $.ajax({
+                url: $link,
+                type: 'GET',
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    //$('#loading_barang_tab').hide();
+                },
+                complete: function () {
+                    $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        } else {
+            alert('Silahkan pilih alamat Pickup terlebih dahulu.');
+            $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
+        }
+    }
+    function RequestDropoffPackingShopee(cust) {
+        $('#btnProsesDropoffShopee__' + cust).attr("disabled", true);
+        var $link = '@Html.Raw(Url.Action("RequestDropoffShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-        $link = $link.replace("replaceAlamatPickup", encodeURIComponent($('#select-shopee-resi-pickup-address-' + cust).val()));
 
         $.ajax({
             url: $link,
@@ -65,13 +93,14 @@
                 //$('#loading_barang_tab').hide();
             },
             complete: function () {
-                $('#btnProsesShopee__' + cust).attr("disabled", false);
+                $('#btnProsesDropoffShopee__' + cust).attr("disabled", false);
             },
             error: function (xhr, status, error) {
                 console.log(error);
             }
         });
     }
+    
 
     function PromptDeliveryProvShopee(r) {
         //PromptDeliveryProvShopeeTextBox = i;
@@ -163,7 +192,8 @@
                             <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" disabled="disabled" placeholder="Harap pilih" required="required"></select>
                         </div>
                     </div>
-                    <button id="btnProsesShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
+                    <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
+                    <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Request Pickup</button>
                     @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
                 </div>
             </div>
