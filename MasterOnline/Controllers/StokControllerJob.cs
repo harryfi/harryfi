@@ -2118,104 +2118,107 @@ namespace MasterOnline.Controllers
         {
             var token = SetupContextTokopedia(DatabasePathErasoft, uname, iden);
             iden.token = token;
-
-            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
-            //add by calvin 17 juni 2019
-            if (qtyOnHand < 0)
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                qtyOnHand = 0;
-            }
-            //end add by calvin 17 juni 2019
-            stok = Convert.ToInt32(qtyOnHand);
-
-            long milis = CurrentTimeMillis();
-            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
-            string responseFromServer = "";
-            List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
-            TokopediaUpdateStockData HttpBody = new TokopediaUpdateStockData()
-            {
-                sku = "",
-                product_id = product_id,
-                new_stock = stok
-            };
-            HttpBodies.Add(HttpBody);
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "POST";
-            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            string myData = JsonConvert.SerializeObject(HttpBodies);
-            //try
-            //{
-            myReq.ContentLength = myData.Length;
-            using (var dataStream = myReq.GetRequestStream())
-            {
-                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            }
-            using (WebResponse response = await myReq.GetResponseAsync())
-            {
-                using (Stream stream = response.GetResponseStream())
+                var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+                //add by calvin 17 juni 2019
+                if (qtyOnHand < 0)
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    qtyOnHand = 0;
                 }
-            }
+                //end add by calvin 17 juni 2019
+                stok = Convert.ToInt32(qtyOnHand);
 
-            if (responseFromServer != "")
-            {
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
-
-                if (!string.IsNullOrWhiteSpace(result.header.messages))
+                string responseFromServer = "";
+                List<TokopediaUpdateStockData> HttpBodies = new List<TokopediaUpdateStockData>();
+                TokopediaUpdateStockData HttpBody = new TokopediaUpdateStockData()
                 {
-                    throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
+                    sku = "",
+                    product_id = product_id,
+                    new_stock = stok
+                };
+                HttpBodies.Add(HttpBody);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string myData = JsonConvert.SerializeObject(HttpBodies);
+                //try
+                //{
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                 }
-                else
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    try
+                    using (Stream stream = response.GetResponseStream())
                     {
-                        if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+                if (responseFromServer != "")
+                {
+
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
+
+                    if (!string.IsNullOrWhiteSpace(result.header.messages))
+                    {
+                        throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
+                    }
+                    else
+                    {
+                        try
                         {
-                            var a = await TokpedCheckUpdateStock(iden, product_id);
-                            if (a < stok || a > stok)
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                             {
-                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                var a = await TokpedCheckUpdateStock(iden, product_id);
+                                if (a < stok || a > stok)
                                 {
-                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                                    REQUEST_ACTION = "Selisih Stok",
-                                    REQUEST_DATETIME = DateTime.Now,
-                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
-                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
-                                    REQUEST_ATTRIBUTE_3 = "Tokped Stock : " + Convert.ToString(a), //marketplace stock
-                                    REQUEST_STATUS = "Pending",
-                                };
-                                var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    {
+                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                        REQUEST_ACTION = "Selisih Stok",
+                                        REQUEST_DATETIME = DateTime.Now,
+                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                        REQUEST_ATTRIBUTE_3 = "Tokped Stock : " + Convert.ToString(a), //marketplace stock
+                                        REQUEST_STATUS = "Pending",
+                                    };
+                                    var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                        catch (Exception ex)
                         {
-                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                            REQUEST_ACTION = "Selisih Stok",
-                            REQUEST_DATETIME = DateTime.Now,
-                            REQUEST_ATTRIBUTE_1 = stf02_brg,
-                            REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
-                            REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
-                            REQUEST_STATUS = "Pending",
-                            REQUEST_EXCEPTION = msg
-                        };
-                        var ErasoftDbContext = new ErasoftContext(dbPathEra);
-                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                            string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                REQUEST_ACTION = "Selisih Stok",
+                                REQUEST_DATETIME = DateTime.Now,
+                                REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                                REQUEST_STATUS = "Pending",
+                                REQUEST_EXCEPTION = msg
+                            };
+                            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                        }
                     }
                 }
             }
+            
             //}
             //catch (Exception ex)
             //{
