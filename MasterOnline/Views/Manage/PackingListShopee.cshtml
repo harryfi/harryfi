@@ -10,6 +10,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('.selectShopeeResiPickupAddress').each(function (i, item) {
+            
             var cust = $(item).attr("data-kodecust");
 
             var link = '@Html.Raw(Url.Action("GetShopeePickupAddressByCust", "Manage", new { cust = "replaceCode" }))';
@@ -181,20 +182,21 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-md-8" style="text-align:right">
+                <div class="col-md-6">
                     @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-                    <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
-                        <span class="glyphicon glyphicon-option-horizontal"></span>
-                    </button>*@
+                <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>*@
                     <div class="form-group">
-                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Alamat</label>
-                        <div id="shopee-resi-pickup-address-@(item.CUST)" class="col-md-8 col-sm-8 col-xs-12">
-                            <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" disabled="disabled" placeholder="Harap pilih" required="required"></select>
+                        <div id="shopee-resi-pickup-address-@(item.CUST)">
+                            <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" placeholder="Pickup Address" required="required"></select>
                         </div>
                     </div>
-                    <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
-                    <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Request Pickup</button>
                     @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
+                </div>
+                <div class="col-md-2" style="text-align:right">
+                    <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
+                    <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Drop Off</button>
                 </div>
             </div>
             <div class="hscroll table-responsive">
