@@ -3130,6 +3130,13 @@ namespace MasterOnline.Controllers
                                 data.token = "";
                             }
                         }
+                        else
+                        {
+                            arf01inDB.TOKEN = "";
+                            arf01inDB.STATUS_API = "0";
+                            ErasoftDbContext.SaveChanges();
+                            data.token = "";
+                        }
                     }
                 }
                 else
