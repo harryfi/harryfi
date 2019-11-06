@@ -2425,7 +2425,7 @@ namespace MasterOnline.Controllers
         }
 
         //public TokopediaToken GetToken(TokopediaAPIData data, bool syncData)
-        public TokopediaToken GetToken(TokopediaAPIData data)
+        public async Task<TokopediaToken> GetToken(TokopediaAPIData data)
         {
             var ret = new TokopediaToken();
 
@@ -2478,7 +2478,7 @@ namespace MasterOnline.Controllers
                             {
                                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                             }
-                            using (WebResponse response = myReq.GetResponse())
+                            using (WebResponse response = await myReq.GetResponseAsync())
                             {
                                 using (Stream stream = response.GetResponseStream())
                                 {
@@ -2511,6 +2511,13 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
                                 data.token = "";
                             }
+                        }
+                        else
+                        {
+                            arf01inDB.TOKEN = "";
+                            arf01inDB.STATUS_API = "0";
+                            ErasoftDbContext.SaveChanges();
+                            data.token = "";
                         }
                     }
                 }

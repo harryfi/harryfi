@@ -3683,7 +3683,7 @@ namespace MasterOnline.Controllers
                     idmarket = customer.Customers.RecNum.Value,
                 };
                 TokopediaController tokopediaApi = new TokopediaController();
-                tokopediaApi.GetToken(dataTokped);
+                Task.Run(() => tokopediaApi.GetToken(dataTokped)).Wait();
             }
             #endregion
             //end add by Tri call bl/lzd api get access key
@@ -31862,7 +31862,7 @@ namespace MasterOnline.Controllers
                                             API_secret_key = arf01.API_KEY, //Shop ID 
                                             idmarket = arf01.RecNum.Value,
                                         };
-                                        var gettoken = TokoAPI.GetToken(data);
+                                        var gettoken = await TokoAPI.GetToken(data);
                                         data.token = gettoken.access_token;
 
                                         if (string.IsNullOrWhiteSpace(data.token)) {
