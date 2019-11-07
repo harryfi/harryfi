@@ -959,7 +959,8 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("284");
+                    listBrg.Add("03.MIC00.00");
+                    listBrg.Add("17.TTOT00.00.6m");
                     //listBrg.Add("1578");
                     //listBrg.Add("2004");
                     //listBrg.Add("2495");
