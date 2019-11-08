@@ -3958,6 +3958,12 @@ namespace MasterOnline.Controllers
                     {
                         categoryName = categoryinDB.NAME;
                     }
+                    //add 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
+                    else
+                    {
+                        categoryCode = "";
+                    }
+                    //end add 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
                 }
                 //end add by Tri 4 Nov 2019, handle category not in db
 
@@ -3979,7 +3985,14 @@ namespace MasterOnline.Controllers
                 //end change by Tri 4 Nov 2019, handle category not in db
                 sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
-                var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                //change 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
+                //var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                var attributeLzd = new ATTRIBUTE_LAZADA();
+                if (!string.IsNullOrEmpty(categoryCode))
+                {
+                    attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                }
+                //end change 8 Nov 2019, kalau kategory code sudah tidak bisa ditemukan di lazada tidak perlu disimpan
                 //bool getAttr = true;
                 if (attributeLzd == null)
                 {
