@@ -417,7 +417,8 @@
 
         $('#btn_hapus_induk_1').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
-            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            //$link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            $link = $link.replace("replaceKode", encodeURIComponent($('#txtInfoKodeBarang').val()));
                 $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({
@@ -443,7 +444,8 @@
             });
         $('#btn_hapus_induk_2').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
-            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            //$link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            $link = $link.replace("replaceKode", encodeURIComponent($('#txtInfoKodeBarang').val()));
                 $link = $link.replace("replaceUrutan", 2);
 
                 $.ajax({
@@ -469,7 +471,8 @@
             });
         $('#btn_hapus_induk_3').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
-            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            //$link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            $link = $link.replace("replaceKode", encodeURIComponent($('#txtInfoKodeBarang').val()));
                 $link = $link.replace("replaceUrutan", 3);
 
                 $.ajax({
@@ -495,7 +498,8 @@
             });
         $('#btn_hapus_induk_4').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
-            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            //$link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            $link = $link.replace("replaceKode", encodeURIComponent($('#txtInfoKodeBarang').val()));
                 $link = $link.replace("replaceUrutan", 4);
 
                 $.ajax({
@@ -521,7 +525,8 @@
             });
         $('#btn_hapus_induk_5').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan"}))';
-            $link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            //$link = $link.replace("replaceKode", encodeURIComponent($('#gambarInduk_BRG').val()));
+            $link = $link.replace("replaceKode", encodeURIComponent($('#txtInfoKodeBarang').val()));
                 $link = $link.replace("replaceUrutan", 5);
 
                 $.ajax({
