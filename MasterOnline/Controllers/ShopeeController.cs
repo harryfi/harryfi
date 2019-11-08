@@ -4679,6 +4679,62 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<ShopeeGetTimeSlotResult> GetLabel(ShopeeAPIData iden, bool is_batch, List<string> ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            var ret = new ShopeeGetTimeSlotResult();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+            ShopeeGetAirwayBill HttpBody = new ShopeeGetAirwayBill
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                is_batch = is_batch,
+                ordersn_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //}
+
+            if (responseFromServer != "")
+            {
+
+            }
+            return ret;
+        }
         public async Task<ShopeeGetTimeSlotResult> GetTimeSlot(ShopeeAPIData iden, long address_id, string ordersn)
         {
             int MOPartnerID = 841371;
@@ -5807,6 +5863,14 @@ namespace MasterOnline.Controllers
             public long partner_id { get; set; }
             public long shopid { get; set; }
             public long timestamp { get; set; }
+        }
+        public class ShopeeGetAirwayBill
+        {
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
+            public long timestamp { get; set; }
+            public bool is_batch { get; set; }
+            public List<string> ordersn_list { get; set; } = new List<string>();
         }
         public class ShopeeGetTimeSlotData
         {

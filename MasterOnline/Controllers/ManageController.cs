@@ -34942,6 +34942,78 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
+        public ActionResult LazadaLabelPerPacking(string cust, string bukti)
+        {
+            try
+            {
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                List<string> orderItemIds = new List<string>();
+                foreach (var so in ListStt01a)
+                {
+                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    {
+                        if (marketPlace.STATUS_API == "1")
+                        {
+                            var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
+                            if (sot01b.Count > 0)
+                            {
+                                foreach (SOT01B item in sot01b)
+                                {
+                                    orderItemIds.Add(item.ORDER_ITEM_ID);
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+                var lzdApi = new LazadaController();
+                var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                if (retApi.code == "0")
+                {
+                    var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                    #region add button cetak
+                    htmlString += "<button id='print-btn' >Cetak</button>";
+                    htmlString += "<script>";
+                    htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                    htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                    htmlString += "x.style.height = 'auto'; ";
+                    //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                    //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                    htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                    htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                    htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                    htmlString += "window.print(); }; window.onafterprint = function () {";
+                    htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                    htmlString += " if (document.readyState!='loading') run();";
+                    htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                    htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                    htmlString += "</script>";
+                    #endregion
+                    return Json(htmlString, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return JsonErrorMessage(retApi.message);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for Lazada only");
+        }
 
         public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat)
         {
@@ -35190,6 +35262,69 @@ namespace MasterOnline.Controllers
             return shipment;
         }
 
+        public ActionResult ShopeeLabelPerPacking(string cust, string bukti)
+        {
+            try
+            {
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                {
+                    string sSQLSelect = "";
+                    sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                    string sSQL2 = "";
+                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                    string sSQLSelect2 = "";
+                    sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                    var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                    List<string> ordersn_list = new List<string>();
+                    foreach (var so in ListStt01a)
+                    {
+                        ordersn_list.Add(so.no_referensi);
+                    }
+
+                }
+               
+                //var lzdApi = new LazadaController();
+                //var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                //if (retApi.code == "0")
+                //{
+                //    var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                //    #region add button cetak
+                //    htmlString += "<button id='print-btn' >Cetak</button>";
+                //    htmlString += "<script>";
+                //    htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                //    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                //    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                //    htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                //    htmlString += "x.style.height = 'auto'; ";
+                //    //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                //    //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                //    htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                //    htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                //    htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                //    htmlString += "window.print(); }; window.onafterprint = function () {";
+                //    htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                //    htmlString += " if (document.readyState!='loading') run();";
+                //    htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                //    htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                //    htmlString += "</script>";
+                //    #endregion
+                //    return Json(htmlString, JsonRequestBehavior.AllowGet);
+                //}
+                //else
+                //{
+                //    return JsonErrorMessage(retApi.message);
+                //}
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            return JsonErrorMessage("This Function is for Lazada only");
+        }
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {

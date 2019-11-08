@@ -33,6 +33,38 @@
             }
         });
     }
+    function LazadaGetLabelPerPacking(cust) {
+        var $link = '@Html.Raw(Url.Action("LazadaLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            success: function (response) {
+                if (response != null) {
+                    if (response.Errors == null) {
+                        //$('#labelContainer').html(response);
+
+                        //window.open(response, "_self");
+                        var w = window.open('about:blank');
+                        w.document.open();
+                        w.document.write(response);
+                        w.document.close();
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                }
+                //window.open(response, "_self");
+                //window.location.href(response);
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
 
     function PromptDeliveryProvLazada(r) {
         //PromptDeliveryProvLazadaTextBox = i;
@@ -129,7 +161,8 @@
                     <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingLazada('@(item.CUST)')">Ready To Ship</button>
                 </div>
                 <div class="col-md-1" style="text-align:right">
-                    <button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>
+                    @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>*@
+                    <button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="LazadaGetLabelPerPacking('@(item.CUST)')">Print</button>
                 </div>
             </div>
             <div class="hscroll table-responsive tbljurnal">
@@ -140,7 +173,6 @@
                             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No Referensi</th>
                             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Nama Pemesan</th>
                             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
-                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Jumlah</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -151,7 +183,6 @@
                                 <td>@order.no_referensi</td>
                                 <td>@order.nama_pemesan</td>
                                 <td>@order.kurir</td>
-                                <td>@order.jumlah_item</td>
                             </tr>
                         }
                     </tbody>
