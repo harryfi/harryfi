@@ -1885,7 +1885,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                     else
                                                     {
-                                                        InsertPembeli(order, connIDARF01C);
+                                                        InsertPembeli(order, connIDARF01C,dbPathEra);
                                                         pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
@@ -2241,8 +2241,11 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        private void InsertPembeli(Order order, string connIDARF01C)
+        private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra)
         {
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
             var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
             var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
 
@@ -3648,7 +3651,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(order.address_billing.phone))
                                 {
-                                    InsertPembeli(order, connectionID);
+                                    InsertPembeli(order, connectionID, dbPathEra);
                                     var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                     var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
                                 }
