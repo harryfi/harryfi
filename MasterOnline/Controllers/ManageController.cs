@@ -28900,7 +28900,11 @@ namespace MasterOnline.Controllers
                                             stf02h_induk.HJUAL = tempBrgInduk.HJUAL;
                                             stf02h_induk.BRG_MP = tempBrgInduk.BRG_MP;
                                             stf02h_induk.DISPLAY = tempBrgInduk.DISPLAY;
-                                            ErasoftDbContext.STF02H.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP).Delete();
+                                            //ErasoftDbContext.STF02H.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP).Delete();
+                                            ErasoftDbContext.TEMP_BRG_MP.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP && m.IDMARKET == customer.RecNum).Delete();
+                                            if (tempBrgInduk.BRG_MP != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                                EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrgInduk.BRG_MP + "' AND CUST = '" + customer.CUST + "'");
+                                            ErasoftDbContext.SaveChanges();
                                         }
                                     }
                                     //end add 15 april 2019
