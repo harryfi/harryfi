@@ -3653,7 +3653,14 @@ namespace MasterOnline.Controllers
                                 {
                                     InsertPembeli(order, connectionID, dbPathEra);
                                     var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                                    if (pembeliInDB != null)
+                                    {
+                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + orderMO.NO_BUKTI + "'");
+                                    }
+                                    else
+                                    {
+                                        var adaPembeliGagalInsert = true;
+                                    }
                                 }
                             }
                             if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
