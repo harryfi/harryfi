@@ -1737,7 +1737,7 @@ namespace MasterOnline.Controllers
             sSql1 += "( ";
             //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
             sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM ";
-            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
             sSql1 += "INNER JOIN ";
             sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
             sSql1 += "STF02 B LEFT JOIN ";
@@ -1762,7 +1762,7 @@ namespace MasterOnline.Controllers
             sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
             sSql1 += ") A ";
             sSql1 += "ON A.BRG=B.BRG ";
-            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
+            sSql1 += "LEFT JOIN (SELECT NO_BUKTI,NO_SO FROM SIT01A WHERE TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND STATUS='1') C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
@@ -1792,7 +1792,7 @@ namespace MasterOnline.Controllers
             sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' AND (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI  ";
             sSql1 += "AND B.BRG NOT IN ( ";
             sSql1 += "      SELECT A.BRG FROM  ";
-            sSql1 += "      (SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "      (SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
             sSql1 += "      INNER JOIN ";
             sSql1 += "      (SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
             sSql1 += "      STF02 B LEFT JOIN ";
@@ -1813,7 +1813,7 @@ namespace MasterOnline.Controllers
             sSql1 += "      		GROUP BY B.BRG)A ";
             sSql1 += "      	GROUP BY BRG) A ";
             sSql1 += "      ON A.BRG = B.BRG WHERE B.TYPE = '3')A ON A.BRG=B.BRG ";
-            sSql1 += "      LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
+            sSql1 += "      LEFT JOIN (SELECT NO_BUKTI,NO_SO FROM SIT01A WHERE TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND STATUS='1') C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "      WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "      GROUP BY A.BRG ";
@@ -5001,7 +5001,7 @@ namespace MasterOnline.Controllers
             sSql1 += "FROM ( ";
             //1. CARI YANG BARANG NYA ADA PENJUALAN DAN SISA KURANG DR MINIMAL STOK
             sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM ";
-            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "(SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
             sSql1 += "INNER JOIN ";
             sSql1 += "(SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, B.HJUAL, B.ID, B.KET_SORT1, B.KET_SORT2, B.LINK_GAMBAR_1, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
             sSql1 += "STF02 B LEFT JOIN ";
@@ -5026,7 +5026,7 @@ namespace MasterOnline.Controllers
             sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' ";
             sSql1 += ") A ";
             sSql1 += "ON A.BRG=B.BRG ";
-            sSql1 += "LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
+            sSql1 += "LEFT JOIN (SELECT NO_BUKTI,NO_SO FROM SIT01A WHERE TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND STATUS='1') C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "GROUP BY A.BRG,A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
@@ -5056,7 +5056,7 @@ namespace MasterOnline.Controllers
             sSql1 += "ON A.BRG = B.BRG WHERE B.TYPE = '3' AND (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI  ";
             sSql1 += "AND B.BRG NOT IN ( ";
             sSql1 += "      SELECT A.BRG FROM  ";
-            sSql1 += "      (SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI )B ";
+            sSql1 += "      (SELECT C.NO_BUKTI,D.BRG, C.TGL,C.STATUS_TRANSAKSI FROM SOT01A C INNER JOIN SOT01B D ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'))B ";
             sSql1 += "      INNER JOIN ";
             sSql1 += "      (SELECT B.BRG, (isnull(B.NAMA, '') + ' ' + ISNULL(B.NAMA2, '')) AS NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI FROM ";
             sSql1 += "      STF02 B LEFT JOIN ";
@@ -5077,7 +5077,7 @@ namespace MasterOnline.Controllers
             sSql1 += "      		GROUP BY B.BRG)A ";
             sSql1 += "      	GROUP BY BRG) A ";
             sSql1 += "      ON A.BRG = B.BRG WHERE B.TYPE = '3')A ON A.BRG=B.BRG ";
-            sSql1 += "      LEFT JOIN SIT01A C ON B.NO_BUKTI= C.NO_SO ";
+            sSql1 += "      LEFT JOIN (SELECT NO_BUKTI,NO_SO FROM SIT01A WHERE TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND STATUS='1') C ON B.NO_BUKTI= C.NO_SO ";
             sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "      WHERE A.SISA <= A.MINI AND B.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND B.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' ";
             sSql1 += "      GROUP BY A.BRG ";
