@@ -35262,7 +35262,7 @@ namespace MasterOnline.Controllers
             return shipment;
         }
 
-        public ActionResult ShopeeLabelPerPacking(string cust, string bukti)
+        public async Task<ActionResult> ShopeeLabelPerPacking(string cust, string bukti)
         {
             try
             {
@@ -35283,40 +35283,14 @@ namespace MasterOnline.Controllers
                     {
                         ordersn_list.Add(so.no_referensi);
                     }
-
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData
+                    {
+                        merchant_code = marketPlace.Sort1_Cust,
+                    };
+                    ShopeeControllerJob shoAPI = new ShopeeControllerJob();
+                    await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
                 }
-               
-                //var lzdApi = new LazadaController();
-                //var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                //if (retApi.code == "0")
-                //{
-                //    var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-                //    #region add button cetak
-                //    htmlString += "<button id='print-btn' >Cetak</button>";
-                //    htmlString += "<script>";
-                //    htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
-                //    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
-                //    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
-                //    htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
-                //    htmlString += "x.style.height = 'auto'; ";
-                //    //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
-                //    //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
-                //    htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
-                //    htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
-                //    htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
-                //    htmlString += "window.print(); }; window.onafterprint = function () {";
-                //    htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
-                //    htmlString += " if (document.readyState!='loading') run();";
-                //    htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
-                //    htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
-                //    htmlString += "</script>";
-                //    #endregion
-                //    return Json(htmlString, JsonRequestBehavior.AllowGet);
-                //}
-                //else
-                //{
-                //    return JsonErrorMessage(retApi.message);
-                //}
+
             }
             catch (Exception ex)
             {

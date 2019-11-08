@@ -10,7 +10,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $('.selectShopeeResiPickupAddress').each(function (i, item) {
-            
+
             var cust = $(item).attr("data-kodecust");
 
             var link = '@Html.Raw(Url.Action("GetShopeePickupAddressByCust", "Manage", new { cust = "replaceCode" }))';
@@ -101,7 +101,7 @@
             }
         });
     }
-    
+
 
     function PromptDeliveryProvShopee(r) {
         //PromptDeliveryProvShopeeTextBox = i;
@@ -129,6 +129,37 @@
             }
         }
         return ret;
+    }
+    function ShopeeGetLabelPerPacking(cust) {
+        var $link = '@Html.Raw(Url.Action("ShopeeLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
+        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            success: function (response) {
+                //if (response != null) {
+                //    if (response.Errors == null) {
+                //        //$('#labelContainer').html(response);
+
+                //        //window.open(response, "_self");
+                //        var w = window.open('about:blank');
+                //        w.document.open();
+                //        w.document.write(response);
+                //        w.document.close();
+                //    } else {
+                //        alert(response.Errors[0]);
+                //    }
+                //}
+                //window.open(response, "_self");
+                //window.location.href(response);
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
     }
 </script>
 @{
@@ -182,7 +213,7 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
                 <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
                     <span class="glyphicon glyphicon-option-horizontal"></span>
@@ -194,9 +225,10 @@
                     </div>
                     @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
                 </div>
-                <div class="col-md-2" style="text-align:right">
+                <div class="col-md-4" style="text-align:right">
                     <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
                     <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Drop Off</button>
+                    <button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>
                 </div>
             </div>
             <div class="hscroll table-responsive">
