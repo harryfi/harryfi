@@ -1840,104 +1840,160 @@ namespace MasterOnline.Controllers
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
                             //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            string no_referensi_update_status = "";
 
-                            foreach (Order order in bindOrder.data.orders)
+                            var list_pesanan_update_pembeli = new List<string>();
+
+                            foreach (Order order in bindOrder.data.orders.Where(p=> OrderNoInDb.Contains(Convert.ToString(p.order_id))).ToList())
+                            {
+                                no_referensi_update_status += "'"+ Convert.ToString(order.order_id) +"',";
+                            }
+                            if (no_referensi_update_status != "") {
+                                no_referensi_update_status = no_referensi_update_status.Substring(0, no_referensi_update_status.Length - 1);
+
+                                var dsPesananUnpaid = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
+                                if (dsPesananUnpaid.Tables[0].Rows.Count > 0)
+                                {
+                                    for (int i = 0; i < dsPesananUnpaid.Tables[0].Rows.Count; i++)
+                                    {
+                                        list_pesanan_update_pembeli.Add(Convert.ToString(dsPesananUnpaid.Tables[0].Rows[i]["NO_REFERENSI"]));
+                                    }
+                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + no_referensi_update_status + ") AND STATUS_TRANSAKSI = '0'");
+                                }
+                            }
+                            if (list_pesanan_update_pembeli.Count() > 0) {
+                                var noref_update_pembeli = bindOrder.data.orders.Where(p => list_pesanan_update_pembeli.Contains(Convert.ToString(p.order_id))).ToList();
+                                foreach (var order in noref_update_pembeli)
+                                {
+                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                    {
+                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                        if (ordInDB != null)//add by calvin 16 oktober 2019
+                                        {
+                                            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                            {
+                                                var pembeliInDB = new ARF01C();
+                                                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                if (pembeliInDB != null)
+                                                {
+                                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                                }
+                                                else
+                                                {
+                                                    InsertPembeli(order, connIDARF01C);
+                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                                    if (pembeliInDB != null)
+                                                    {
+                                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                                    }
+                                                    else
+                                                    {
+                                                        var adaPembeliGagalInsert = true;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            foreach (Order order in bindOrder.data.orders.Where(p => !OrderNoInDb.Contains(Convert.ToString(p.order_id))).ToList())
                             {
                                 bool doInsert = true;
                                 bool doInsertPembeli = true;
                                 var pembeliInDB = new ARF01C();
-                                if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing" || order.statuses[0].ToString() == "canceled"))
-                                {
-                                    doInsert = false;
-                                    doInsertPembeli = false;
-                                    if (order.statuses[0].ToString() == "pending")
-                                    {
-                                        //tidak perlu insert karena pesanan sudah ada di MO pada saat statusnya masih unpaid, update status transaksi jadi 01 dan bila perlu update juga ongkir dll
-                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI = '0'");
-                                    }
-                                    if (order.statuses[0].ToString() == "canceled")
-                                    {
-                                        //remark by nurul 10/10/2019, dijalanin di GetOrdersCancelled
-                                        //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
-                                    }
+                                //if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing" || order.statuses[0].ToString() == "canceled"))
+                                //{
+                                //    doInsert = false;
+                                //    doInsertPembeli = false;
+                                //    if (order.statuses[0].ToString() == "pending")
+                                //    {
+                                //        //tidak perlu insert karena pesanan sudah ada di MO pada saat statusnya masih unpaid, update status transaksi jadi 01 dan bila perlu update juga ongkir dll
+                                //        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI = '0'");
+                                //    }
+                                //    if (order.statuses[0].ToString() == "canceled")
+                                //    {
+                                //        //remark by nurul 10/10/2019, dijalanin di GetOrdersCancelled
+                                //        //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
+                                //    }
 
-                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
-                                    {
-                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
-                                        if (ordInDB != null)//add by calvin 16 oktober 2019
-                                        {
-                                            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
-                                            {
-                                                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                                if (pembeliInDB != null)
-                                                {
-                                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
-                                                }
-                                                else
-                                                {
-                                                    InsertPembeli(order, connIDARF01C);
-                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                                    if (pembeliInDB != null)
-                                                    {
-                                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
-                                                    }
-                                                    else
-                                                    {
-                                                        var adaPembeliGagalInsert = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                //add 19 Feb 2019
-                                else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
-                                {
-                                    doInsertPembeli = false;
-                                    if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
-                                    {
-                                        //tidak ubah status menjadi selesai jika belum diisi faktur
-                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.order_id + "'");
-                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
-                                        {
-                                            doInsert = false;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //tidak diinput jika order sudah selesai sebelum masuk MO
-                                        doInsert = false;
-                                    }
-                                    if (!string.IsNullOrEmpty(order.address_billing.phone))
-                                    {
-                                        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
-                                        if (ordInDB != null)//add by calvin 16 oktober 2019
-                                        {
-                                            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
-                                            {
-                                                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                                if (pembeliInDB != null)
-                                                {
-                                                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
-                                                }
-                                                else
-                                                {
-                                                    InsertPembeli(order, connIDARF01C);
-                                                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
-                                                    if (pembeliInDB != null)
-                                                    {
-                                                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
-                                                    }
-                                                    else
-                                                    {
-                                                        var adaPembeliGagalInsert = true;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                //end add 19 Feb 2019
+                                //    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                //    {
+                                //        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                //        if (ordInDB != null)//add by calvin 16 oktober 2019
+                                //        {
+                                //            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                //            {
+                                //                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                //                if (pembeliInDB != null)
+                                //                {
+                                //                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                //                }
+                                //                else
+                                //                {
+                                //                    InsertPembeli(order, connIDARF01C);
+                                //                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                //                    if (pembeliInDB != null)
+                                //                    {
+                                //                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                //                    }
+                                //                    else
+                                //                    {
+                                //                        var adaPembeliGagalInsert = true;
+                                //                    }
+                                //                }
+                                //            }
+                                //        }
+                                //    }
+                                //}
+                                ////add 19 Feb 2019
+                                //else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
+                                //{
+                                //    doInsertPembeli = false;
+                                //    if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                //    {
+                                //        //tidak ubah status menjadi selesai jika belum diisi faktur
+                                //        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.order_id + "'");
+                                //        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                //        {
+                                //            doInsert = false;
+                                //        }
+                                //    }
+                                //    else
+                                //    {
+                                //        //tidak diinput jika order sudah selesai sebelum masuk MO
+                                //        doInsert = false;
+                                //    }
+                                //    if (!string.IsNullOrEmpty(order.address_billing.phone))
+                                //    {
+                                //        var ordInDB = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust && p.NO_REFERENSI == order.order_id).FirstOrDefault();
+                                //        if (ordInDB != null)//add by calvin 16 oktober 2019
+                                //        {
+                                //            if (string.IsNullOrEmpty(ordInDB.PEMESAN))
+                                //            {
+                                //                pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                //                if (pembeliInDB != null)
+                                //                {
+                                //                    var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                //                }
+                                //                else
+                                //                {
+                                //                    InsertPembeli(order, connIDARF01C);
+                                //                    pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
+                                //                    if (pembeliInDB != null)
+                                //                    {
+                                //                        var rowAffected2 = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET PEMESAN = '" + pembeliInDB.BUYER_CODE + "' WHERE NO_BUKTI = '" + ordInDB.NO_BUKTI + "'");
+                                //                    }
+                                //                    else
+                                //                    {
+                                //                        var adaPembeliGagalInsert = true;
+                                //                    }
+                                //                }
+                                //            }
+                                //        }
+                                //    }
+                                //}
+                                ////end add 19 Feb 2019
 
                                 if (doInsert)
                                 {
@@ -2244,7 +2300,7 @@ namespace MasterOnline.Controllers
             string connectionID = Guid.NewGuid().ToString();
             //change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
             //var fromDt = DateTime.Now.AddDays(-14);
-            var fromDt = DateTime.Now.AddDays(-3);
+            var fromDt = DateTime.Now.AddDays(-1);
             //end change by Tri 4 Nov 2019, ambil pesanan baru 3 hari terakhir saja
             var toDt = DateTime.Now.AddDays(1);
             //SetupContext(dbPathEra, uname);
