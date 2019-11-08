@@ -918,7 +918,10 @@ namespace MasterOnline.Controllers
                                                             //if (worksheet.Cells[i, 3].Value != null)
                                                             if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
                                                             {
-                                                                if (Convert.ToInt32(worksheet.Cells[i, 3].Value) > 0)
+                                                                //change 7 Nov 2019, stok 0 juga bisa masuk
+                                                                //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) > 0)
+                                                                if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                //end change 7 Nov 2019, stok 0 juga bisa masuk
                                                                 {
                                                                     var stt01b = new STT01B
                                                                     {
