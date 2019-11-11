@@ -3574,6 +3574,56 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+       
+        //add by Tri 11 Nov 2019, cancel order
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Tokopedia Gagal.")]
+        public BindingBase SetStatusToCanceled(TokopediaAPIData data, string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string uname)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+            var username = uname;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(orderId) + "/fs/" + Uri.EscapeDataString(data.merchant_code) + "/nack";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            //}
+            //catch (Exception ex)
+            //{
+
+            //}
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
+                //res = result.data.etalase;
+            }
+
+            return ret;
+
+        }
+        //end add by Tri 11 Nov 2019, cancel order
+
         public enum StatusOrder
         {
             Cancel = 1,
