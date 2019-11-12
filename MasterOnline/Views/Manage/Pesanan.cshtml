@@ -1812,6 +1812,17 @@
                         <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
                     </p>
                 </div>
+                <div id="cancel_reason" class="row" style="margin-top:5px;">
+                    <div class="col-md-4 col-sm-4 col-xs-12" style="margin-top:5px;">
+                        <p>
+                            <span style="font-weight:bold;display:inline-block;font-size:16px;">Alasan Pembatalan:</span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12" id="divCbCancel">
+                        @*<select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>*@
+                    </div>
+                    <input id="txtCancelReason" type="text" style="display:none" />
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
@@ -3471,6 +3482,9 @@
                                 $('#footer_info_pesananSudahBayar').show();
                             }
                             //end add by calvin 17 desember 2018
+                            if ($statusPesanan == "11") {
+                                GetCancelReasons(response.ID_MARKETPLACE);
+                            }
                         },
                         error: function(xhr, status, error) {
                             console.log(error);
@@ -3521,7 +3535,44 @@
             //end add by nurul 1/8/2019
         });
 
-        //add by Tri, call midtrans api get token
+        //add by Tri 11 Nov 2019, set combo box untuk cancel reason
+        function GetCancelReasons(idMarketplace){
+            var listReason = [];
+            $('#cancel_reason').hide();
+            //$('#cbCancelReason').hide();
+            if (idMarketplace == "17") {//shopee
+                $('#cancel_reason').show();
+                //$('#cbCancelReason').show();
+                listReason[0] = {
+                    id: "OUT_OF_STOCK",
+                    text: "OUT OF STOCK"
+                };
+                listReason[1] = {
+                    id: "CUSTOMER_REQUEST",
+                    text: "CUSTOMER REQUEST"
+                };
+                listReason[2] = {
+                    id: "UNDELIVERABLE_AREA",
+                    text: "UNDELIVERABLE AREA"
+                };
+                listReason[3] = {
+                    id: "COD_NOT_SUPPORTED",
+                    text: "COD NOT SUPPORTED"
+                };
+
+                var comboSelect = $('#cbCancelReason').selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listReason,
+                    onChange: function (value) {
+                        $('#txtCancelReason').val(value);
+                        //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                    }
+                });
+
+            }
+        }
+        //end add by Tri, call midtrans api get token
 
         function changeUser(val) {
             if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
@@ -7999,9 +8050,10 @@
                 $statusPesanan = '03';
 
             var link =
-                '@Html.Raw(Url.Action("UbahStatusPesanan", "Manage", new {recNum = "replaceRecNum", tipeStatus = "replaceStatus"}))';
+                '@Html.Raw(Url.Action("UbahStatusPesanan", "Manage", new {recNum = "replaceRecNum", tipeStatus = "replaceStatus", cancelReason = "replaceCancelReason" }))';
             link = link.replace("replaceRecNum", encodeURIComponent(this.$recPesanan));
             link = link.replace("replaceStatus", encodeURIComponent(this.$statusPesanan));
+            link = link.replace("replaceCancelReason", encodeURIComponent($('#txtCancelReason').val()));
 
             $.ajax({
                 type: "GET",

@@ -3131,90 +3131,100 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        //public async Task<string> CancelOrder(ShopeeAPIData iden, string ordersn)
-        //{
-        //    int MOPartnerID = 841371;
-        //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-        //    string ret = "";
 
-        //    long seconds = CurrentTimeSecond();
-        //    DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Shopee Gagal.")]
+        public async Task<string> CancelOrder(string dbPathEra, string namaPembeli, string log_CUST, string log_ActionCategory, string log_ActionName,ShopeeAPIData iden, string ordersn, string cancelReason)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
 
-        //    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-        //    {
-        //        REQUEST_ID = seconds.ToString(),
-        //        REQUEST_ACTION = "Cancel Order",
-        //        REQUEST_DATETIME = milisBack,
-        //        REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-        //        REQUEST_STATUS = "Pending",
-        //    };
+            var MoDbContext = new MoDbContext();
+            var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            var EDB = new DatabaseSQL(dbPathEra);
+            var username = iden.username;
 
-        //    string urll = "https://partner.shopeemobile.com/api/v1/orders/cancel";
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-        //    ShopeeCancelOrderData HttpBody = new ShopeeCancelOrderData
-        //    {
-        //        partner_id = MOPartnerID,
-        //        shopid = Convert.ToInt32(iden.merchant_code),
-        //        timestamp = seconds,
-        //        ordersn = ordersn,
-        //        cancel_reason = "CUSTOMER_REQUEST"
-        //    };
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ACTION = "Cancel Order",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
 
-        //    string myData = JsonConvert.SerializeObject(HttpBody);
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/cancel";
 
-        //    string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+            ShopeeCancelOrderData HttpBody = new ShopeeCancelOrderData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn,
+                //cancel_reason = "CUSTOMER_REQUEST"
+                cancel_reason = cancelReason
+            };
 
-        //    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-        //    myReq.Method = "POST";
-        //    myReq.Headers.Add("Authorization", signature);
-        //    myReq.Accept = "application/json";
-        //    myReq.ContentType = "application/json";
-        //    string responseFromServer = "";
-        //    try
-        //    {
-        //        myReq.ContentLength = myData.Length;
-        //        using (var dataStream = myReq.GetRequestStream())
-        //        {
-        //            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-        //        }
-        //        using (WebResponse response = await myReq.GetResponseAsync())
-        //        {
-        //            using (Stream stream = response.GetResponseStream())
-        //            {
-        //                StreamReader reader = new StreamReader(stream);
-        //                responseFromServer = reader.ReadToEnd();
-        //            }
-        //        }
-        //        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-        //        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-        //    }
+            string myData = JsonConvert.SerializeObject(HttpBody);
 
-        //    if (responseFromServer != null)
-        //    {
-        //        try
-        //        {
-        //            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-        //            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
-        //            if (result.error != null)
-        //            {
-        //                if (result.error != "")
-        //                {
-        //                    await AcceptBuyerCancellation(iden, ordersn);
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex2)
-        //        {
-        //            currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-        //            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-        //        }
-        //    }
-        //    return ret;
-        //}
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+            if (responseFromServer != null)
+            {
+                //try
+                //{
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
+                    if (result.error != null)
+                    {
+                        if (result.error != "")
+                        {
+                            //await AcceptBuyerCancellation(iden, ordersn);
+                        }
+                    }
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return ret;
+        }
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
