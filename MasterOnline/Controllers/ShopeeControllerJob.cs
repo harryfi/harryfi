@@ -2353,6 +2353,34 @@ namespace MasterOnline.Controllers
             public long timestamp { get; set; }
             public string[] ordersn_list { get; set; }
         }
+
+
+        public class GetAirwayBillsRootResult
+        {
+            public GetAirwayBillsResult result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsResult
+        {
+            public int total_count { get; set; }
+            public GetAirwayBillsError[] errors { get; set; }
+            public GetAirwayBillsAirway_Bills[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public class GetAirwayBillsAirway_Bills
+        {
+            public string ordersn { get; set; }
+            public string airway_bill { get; set; }
+        }
+
         public async Task<string> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
         {
             int MOPartnerID = 841371;
@@ -2370,7 +2398,7 @@ namespace MasterOnline.Controllers
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 ordersn_list = ordersn_list,
-                is_batch = false
+                is_batch = true
                 //ordersn_list = ordersn_list_test.ToArray()
             };
 
@@ -2401,7 +2429,7 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                //var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsRootResult)) as GetAirwayBillsRootResult;
                 //var connIdARF01C = Guid.NewGuid().ToString();
 
                 //foreach (var order in result.orders)
@@ -3827,15 +3855,15 @@ namespace MasterOnline.Controllers
                 }
                 else //update image only
                 {
-//#if (Debug_AWS || DEBUG)
+                    //#if (Debug_AWS || DEBUG)
                     await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
+                    //#endif
                 }
             }
 
@@ -4014,17 +4042,17 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
                 if (string.IsNullOrEmpty(resServer.error))
                 {
-//                    if (resServer.item_id == item_id)
-//                    {
-//#if (Debug_AWS || DEBUG)
-//                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //                    if (resServer.item_id == item_id)
+                    //                    {
+                    //#if (Debug_AWS || DEBUG)
+                    //                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
+                    //#endif
                     //}
                 }
             }
@@ -4347,7 +4375,8 @@ namespace MasterOnline.Controllers
                 {
                     throw new Exception(resServer.msg);
                 }
-                else {
+                else
+                {
                     if (resServer.variation_id_list != null)
                     {
                         if (resServer.variation_id_list.Count() > 0)
@@ -5625,7 +5654,7 @@ namespace MasterOnline.Controllers
                     {
                         if (item == "190917235708RJN")
                         {
-                            await GetOrderDetails(iden, ordersn_list.Where(p=> p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
+                            await GetOrderDetails(iden, ordersn_list.Where(p => p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
                         }
                     }
                     //jmlhNewOrder = filtered.Count();
