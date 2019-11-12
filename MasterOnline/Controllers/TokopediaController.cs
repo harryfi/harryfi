@@ -1556,7 +1556,8 @@ namespace MasterOnline.Controllers
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            //string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/10";
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -1632,7 +1633,8 @@ namespace MasterOnline.Controllers
                         //{
                         //    ret.message = "";
                         //}
-                        if (result.data.Count() >= 100)
+                        //if (result.data.Count() >= 100)
+                        if (result.data.Count() >= 10)
                         {
                             ret.nextPage = 1;
                         }
