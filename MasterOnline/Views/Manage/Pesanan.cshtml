@@ -1813,7 +1813,7 @@
                     </p>
                 </div>
                 <div id="cancel_reason" class="row" style="margin-top:5px;">
-                    <div class="col-md-4 col-sm-4 col-xs-12" style="margin-top:5px;">
+                    <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                         <p>
                             <span style="font-weight:bold;display:inline-block;font-size:16px;">Alasan Pembatalan:</span>
                         </p>
@@ -3539,8 +3539,12 @@
         function GetCancelReasons(idMarketplace){
             var listReason = [];
             $('#cancel_reason').hide();
+            $('#divReasons').remove();
+            var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
+                sHTML += '</div>';
+                $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
                 //$('#cbCancelReason').show();
                 listReason[0] = {

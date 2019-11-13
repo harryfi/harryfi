@@ -14,5 +14,6 @@ namespace MasterOnline.Models
         public string Total { get; set; }
         public int allowContinue { get; set; }
         public string ID_MARKETPLACE { get; set; }
+        public List<string> listBrg { get; set; }
     }
 }

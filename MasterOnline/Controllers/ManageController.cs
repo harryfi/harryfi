@@ -2544,7 +2544,7 @@ namespace MasterOnline.Controllers
         //end add by nurul
 
         //add by calvin 15 mei 2019
-        public ActionResult RefreshTableLog(int? page , string search = "")
+        public ActionResult RefreshTableLog(int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -16397,6 +16397,7 @@ namespace MasterOnline.Controllers
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
             var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
+            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.BRG, B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA FROM SOT01B A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
             {
@@ -16406,7 +16407,9 @@ namespace MasterOnline.Controllers
                 Pembeli = namaBuyer,
                 Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO),
                 allowContinue = pesananDetailInDb == null ? 1 : 0,
+                //add by Tri 12 Nov 2019, untuk cancel order
                 ID_MARKETPLACE = marketInDb.NAMA
+                //end add by Tri 12 Nov 2019, untuk cancel order
             };
 
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
@@ -22461,16 +22464,16 @@ namespace MasterOnline.Controllers
                 if (status)
                 {
                     var cekfaktur = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(cekfaktur.NO_REF != null && cekfaktur.NO_REF != "" && cekfaktur.NO_REF != "-")
+                    if (cekfaktur.NO_REF != null && cekfaktur.NO_REF != "" && cekfaktur.NO_REF != "-")
                     {
                         noref = cekfaktur.NO_REF;
                         var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
-                        if(cekSO != null)
+                        if (cekSO != null)
                         {
                             tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
                         }
                     }
-                    else if(cekfaktur.NO_SO != null && cekfaktur.NO_SO != "" && cekfaktur.NO_SO != "-")
+                    else if (cekfaktur.NO_SO != null && cekfaktur.NO_SO != "" && cekfaktur.NO_SO != "-")
                     {
                         //var cekso = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
                         //var cekSISo= ErasoftDbContext.SIT01A.Where(a => a.NO_SO == cekso.NO_BUKTI)
@@ -22490,7 +22493,7 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var getTgl = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(getTgl != null)
+                    if (getTgl != null)
                     {
                         tglref = getTgl.TGL.ToString("dd/MM/yyyy");
                     }
@@ -22602,11 +22605,11 @@ namespace MasterOnline.Controllers
             else
             {
                 dataVm.PiutangDetail.BUKTI = dataVm.Piutang.BUKTI;
-                
+
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
 
                 var cekListDetailSama = ErasoftDbContext.ART03B.Where(a => a.NFAKTUR.Contains(dataVm.PiutangDetail.NFAKTUR)).ToList();
-                if(cekListDetailSama.Count() > 0)
+                if (cekListDetailSama.Count() > 0)
                 {
                     return JsonErrorMessage("No. Faktur " + dataVm.PiutangDetail.NFAKTUR + " sudah ada dalam pembayaran ini. Silahkan pilih No. Faktur yang lain!");
                 }
@@ -30961,10 +30964,10 @@ namespace MasterOnline.Controllers
                                             //change by Tri 5 Nov 2019, perbaikan logic set type brg
                                             //stf02.TYPE = "4";
                                             var indukTemp = eraDB.TEMP_BRG_MP.Where(m => m.CUST == cust && (m.KODE_BRG_INDUK == null ? "" : m.KODE_BRG_INDUK) == stf02.BRG).Select(m => m.BRG_MP).ToList();
-                                            if(indukTemp.Count == 0)
+                                            if (indukTemp.Count == 0)
                                             {
                                                 var indukMO = eraDB.STF02.Where(m => (m.PART == null ? "" : m.PART) == stf02.BRG).Select(m => m.BRG).ToList();
-                                                if(indukMO.Count == 0)
+                                                if (indukMO.Count == 0)
                                                 {
                                                     stf02.TYPE = "3";
                                                 }
@@ -31890,7 +31893,8 @@ namespace MasterOnline.Controllers
                                         var gettoken = await TokoAPI.GetToken(data);
                                         data.token = gettoken.access_token;
 
-                                        if (string.IsNullOrWhiteSpace(data.token)) {
+                                        if (string.IsNullOrWhiteSpace(data.token))
+                                        {
                                             return JsonErrorMessage("Status Akun tidak aktif.");
                                         }
 
@@ -34889,7 +34893,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                
+
                 var mp = MoDbContext.Marketplaces.ToList();
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
@@ -34925,7 +34929,7 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        
+
 
                         using (MemoryStream stream = new MemoryStream(data))
                         {
@@ -34933,7 +34937,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
                                 {
-                                    
+
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
@@ -34942,7 +34946,8 @@ namespace MasterOnline.Controllers
                                     string cust = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
                                     if (!string.IsNullOrEmpty(cust))
                                     {
-                                        if(cust.Length != 33) {
+                                        if (cust.Length != 33)
+                                        {
                                             ret.Errors.Add("File " + file.FileName + " bukan excel pembayaran Shopee." + System.Environment.NewLine);
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
@@ -34955,7 +34960,7 @@ namespace MasterOnline.Controllers
                                                 List<double> nilaiRef = new List<double>();
                                                 List<double> nilaiPot = new List<double>();
                                                 string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
-                                                
+
 
                                                 var listTemp = eraDB.SIT01A.Where(a => a.NO_REF != null && a.NO_SO != null).Count();
                                                 if (listTemp > 0)
@@ -35222,7 +35227,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        
+
                     }
 
                 }
@@ -35303,7 +35308,8 @@ namespace MasterOnline.Controllers
         {
             var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataUpdate.OrderId);
             var cekTotalPot = 0d;
-            if (dataUpdate.getPot.Count() > 0) {
+            if (dataUpdate.getPot.Count() > 0)
+            {
                 if (dataUpdate.getPot.Count() == dataUpdate.getRec.Count())
                 {
                     for (int y = 0; y < dataUpdate.getPot.Count(); y++)
@@ -35316,7 +35322,8 @@ namespace MasterOnline.Controllers
                             var nofaktur = dataUpdate.getFaktur[y];
                             var potongan = dataUpdate.getPot[y];
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
-                            if (getBayar.Count() > 0) { 
+                            if (getBayar.Count() > 0)
+                            {
                                 totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 if (totalSisa >= potongan)
