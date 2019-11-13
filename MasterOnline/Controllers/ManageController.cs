@@ -16591,10 +16591,15 @@ namespace MasterOnline.Controllers
                                 barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == Recnum);
                                 qty = barangPesananInDb.QTY;
 
-                                //add by calvin, 22 juni 2018 validasi QOH
-                                var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gudang);
+                                //add by Tri 13 Nov 2019, cek gudang yg sudah dipilih user
+                                var kd_gudang = barangPesananInDb.LOKASI;
+                                if (string.IsNullOrWhiteSpace(kd_gudang))
+                                    kd_gudang = gudang;
+                                //end add by Tri 13 Nov 2019, cek gudang yg sudah dipilih user
 
-                                if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == gudang ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
+                                //add by calvin, 22 juni 2018 validasi QOH
+                                var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, kd_gudang);
+                                if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == kd_gudang ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
                                 {
                                     //var vmError = new StokViewModel(){};
                                     //vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gudang + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
@@ -16603,7 +16608,7 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    barangPesananInDb.LOKASI = gudang;
+                                    barangPesananInDb.LOKASI = kd_gudang;
                                     barangPesananInDb.QTY_N = qty;
 
                                     //ErasoftDbContext.SOT01B.AddRange(barangPesananInDb);
@@ -35332,10 +35337,15 @@ namespace MasterOnline.Controllers
                                             var barangPesananInDb = context.SOT01B.Single(b => b.NO_URUT == Recnum);
                                             qty = barangPesananInDb.QTY;
 
+                                            //add by Tri 13 Nov 2019, gunakan gudang pilihan user jika belum ada maka pakai gudang default
+                                            var kd_gudang = barangPesananInDb.LOKASI;
+                                            if (string.IsNullOrWhiteSpace(kd_gudang))
+                                                kd_gudang = gudang;
+                                            //end add by Tri 13 Nov 2019, gunakan gudang pilihan user jika belum ada maka pakai gudang default
                                             //add by calvin, 22 juni 2018 validasi QOH
-                                            var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gudang);
+                                            var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, kd_gudang);
 
-                                            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == gudang ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
+                                            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == kd_gudang ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
                                             {
                                                 //var vmError = new StokViewModel(){};
                                                 //vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gudang + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
@@ -35347,13 +35357,15 @@ namespace MasterOnline.Controllers
                                                     listError.Add(new listErrorPacking
                                                     {
                                                         no_bukti_so = getnobuk,
-                                                        error_msg = "Gagal, karena Qty sisa untuk item [" + barangPesananInDb.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                                        //error_msg = "Gagal, karena Qty sisa untuk item [" + barangPesananInDb.BRG + "] di gudang [" + kd_gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                                        error_msg = "\n-" + barangPesananInDb.BRG + "."
+
                                                     });
                                                 }
                                             }
                                             else
                                             {
-                                                barangPesananInDb.LOKASI = gudang;
+                                                barangPesananInDb.LOKASI = kd_gudang;
                                                 barangPesananInDb.QTY_N = qty;
 
                                                 //context.SOT01B.AddRange(barangPesananInDb);
@@ -35615,11 +35627,11 @@ namespace MasterOnline.Controllers
                                                 context.SIT01A.Add(dataVm.Faktur);
                                                 context.SaveChanges();
 
-                                                dataVm.FakturDetail.NO_BUKTI = noOrder;
-                                                dataVm.FakturDetail.USERNAME = usernameLogin;
-                                                dataVm.FakturDetail.CATATAN = "-";
-                                                dataVm.FakturDetail.JENIS_FORM = "2";
-                                                dataVm.FakturDetail.TGLINPUT = DateTime.Now;
+                                                //dataVm.FakturDetail.NO_BUKTI = noOrder;
+                                                //dataVm.FakturDetail.USERNAME = usernameLogin;
+                                                //dataVm.FakturDetail.CATATAN = "-";
+                                                //dataVm.FakturDetail.JENIS_FORM = "2";
+                                                //dataVm.FakturDetail.TGLINPUT = DateTime.Now;
 
                                                 //add by calvin 8 nov 2018, update stok marketplace
                                                 List<string> listBrg = new List<string>();
@@ -35627,6 +35639,12 @@ namespace MasterOnline.Controllers
                                                 var listSIT01B = new List<SIT01B>();
                                                 foreach (var pesananDetail in listBarangPesananInDb)
                                                 {
+                                                    dataVm.FakturDetail = new SIT01B();
+                                                    dataVm.FakturDetail.NO_BUKTI = noOrder;
+                                                    dataVm.FakturDetail.USERNAME = usernameLogin;
+                                                    dataVm.FakturDetail.CATATAN = "-";
+                                                    dataVm.FakturDetail.JENIS_FORM = "2";
+                                                    dataVm.FakturDetail.TGLINPUT = DateTime.Now;
                                                     #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
                                                     double nilai_disc_1 = 0d;
                                                     double nilai_disc_2 = 0d;
@@ -35769,7 +35787,7 @@ namespace MasterOnline.Controllers
                                     listError.Add(new listErrorPacking
                                     {
                                         no_bukti_so = getnobuk,
-                                        error_msg = "Terjadi error internal saat memproses pesanan. mohon coba lagi."
+                                        error_msg = " (Terjadi error internal saat memproses pesanan. mohon coba lagi.)"
                                     });
                                 }
                                 transaction.Rollback();
@@ -35786,12 +35804,20 @@ namespace MasterOnline.Controllers
             if (listError.Count() > 0)
             {
                 var vmError = new PesananViewModel() { };
-
+                vmError.Errors.Add("");
                 foreach (var item in listError)
                 {
                     if (!string.IsNullOrEmpty(item.error_msg))
                     {
-                        vmError.Errors.Add(item.no_bukti_so + ";" + item.error_msg);
+                        //vmError.Errors.Add(item.no_bukti_so + ";" + item.error_msg);
+                        if(item.error_msg.Contains("error internal"))
+                        {
+                            vmError.Errors[0] += "\n- " + item.no_bukti_so + item.error_msg;
+                        }
+                        else
+                        {
+                            vmError.Errors[0] += "\n- " + item.no_bukti_so;
+                        }
                     }
                 }
                 return Json(vmError, JsonRequestBehavior.AllowGet);

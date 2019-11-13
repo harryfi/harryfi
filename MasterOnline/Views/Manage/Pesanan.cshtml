@@ -5945,7 +5945,12 @@
                         refreshTablePesanan();
                         refreshTableSudahKirim();
                         refreshTableSudahDibayar();
-                        alert('Mohon lengkapi Gudang pada Pesanan (' + response.Errors + ') terlebih dahulu !');
+                        //alert('Mohon lengkapi Gudang pada Pesanan (' + response.Errors + ') terlebih dahulu !');
+                        //if (response.Errors[0].includes('error internal')) {
+                        //    alert(response.Errors[0]);
+                        //} else {
+                            alert('Mohon lengkapi gudang pada pesanan berikut karena stok barang kurang dari jumlah barang yg dipesan :' + response.Errors[0]);
+                        //}
                     }
                     $('#modal-status-multi-packing-body').modal('hide');
                     $('#modalUbahStatusMultiPacking').modal('hide');
