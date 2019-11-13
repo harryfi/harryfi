@@ -35627,11 +35627,11 @@ namespace MasterOnline.Controllers
                                                 context.SIT01A.Add(dataVm.Faktur);
                                                 context.SaveChanges();
 
-                                                dataVm.FakturDetail.NO_BUKTI = noOrder;
-                                                dataVm.FakturDetail.USERNAME = usernameLogin;
-                                                dataVm.FakturDetail.CATATAN = "-";
-                                                dataVm.FakturDetail.JENIS_FORM = "2";
-                                                dataVm.FakturDetail.TGLINPUT = DateTime.Now;
+                                                //dataVm.FakturDetail.NO_BUKTI = noOrder;
+                                                //dataVm.FakturDetail.USERNAME = usernameLogin;
+                                                //dataVm.FakturDetail.CATATAN = "-";
+                                                //dataVm.FakturDetail.JENIS_FORM = "2";
+                                                //dataVm.FakturDetail.TGLINPUT = DateTime.Now;
 
                                                 //add by calvin 8 nov 2018, update stok marketplace
                                                 List<string> listBrg = new List<string>();
@@ -35639,6 +35639,12 @@ namespace MasterOnline.Controllers
                                                 var listSIT01B = new List<SIT01B>();
                                                 foreach (var pesananDetail in listBarangPesananInDb)
                                                 {
+                                                    dataVm.FakturDetail = new SIT01B();
+                                                    dataVm.FakturDetail.NO_BUKTI = noOrder;
+                                                    dataVm.FakturDetail.USERNAME = usernameLogin;
+                                                    dataVm.FakturDetail.CATATAN = "-";
+                                                    dataVm.FakturDetail.JENIS_FORM = "2";
+                                                    dataVm.FakturDetail.TGLINPUT = DateTime.Now;
                                                     #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
                                                     double nilai_disc_1 = 0d;
                                                     double nilai_disc_2 = 0d;
