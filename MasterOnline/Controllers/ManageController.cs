@@ -14576,7 +14576,7 @@ namespace MasterOnline.Controllers
             var vm = new FakturViewModel()
             {
                 Faktur = fakturInDb,
-                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                //ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                 ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
@@ -15708,12 +15708,13 @@ namespace MasterOnline.Controllers
                 var vm = new InvoiceViewModel()
                 {
                     Invoice = invoiceInDb,
-                    ListInvoice = ErasoftDbContext.PBT01A.ToList(),
+                    //ListInvoice = ErasoftDbContext.PBT01A.ToList(),
                     ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == invoiceInDb.INV && pd.JENISFORM == "1").ToList(),
                     //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
                 };
-
+                var listBarangInInvDetail = vm.ListInvoiceDetail.Select(p => p.BRG).ToList();
+                vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInInvDetail.Contains(a.BRG) && a.TYPE == "3").ToList();
                 return PartialView("BarangInvoicePartial", vm);
             }
             catch (Exception ex)
@@ -21832,21 +21833,21 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-            //var lzdApi = new LazadaController();
-            if (listLazadaShop.Count > 0)
-            {
-                foreach (ARF01 tblCustomer in listLazadaShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                    {
-                        #region refresh token lazada
-                        //change by calvin 4 april 2019
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        //end change by calvin 4 april 2019
-                        #endregion
+            //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            //var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+            ////var lzdApi = new LazadaController();
+            //if (listLazadaShop.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listLazadaShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+            //        {
+            //            #region refresh token lazada
+            //            //change by calvin 4 april 2019
+            //            //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+            //            //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+            //            //end change by calvin 4 april 2019
+            //            #endregion
 
                         //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
                         //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
@@ -21877,22 +21878,22 @@ namespace MasterOnline.Controllers
                         //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
                         //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 #if (DEBUG || Debug_AWS)
-                        new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+                        //new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
                         //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
                         //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
 #else
-                                                string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 #endif
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
 
             #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -22317,7 +22318,7 @@ namespace MasterOnline.Controllers
             var vm = new BayarPiutangViewModel()
             {
                 //ListPiutang = ErasoftDbContext.ART03A.ToList(),
-                ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
+                //ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
@@ -22752,9 +22753,9 @@ namespace MasterOnline.Controllers
                 var vm = new BayarPiutangViewModel()
                 {
                     Piutang = piutangInDb,
-                    ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                    //ListPiutang = ErasoftDbContext.ART03A.ToList(),
                     ListPiutangDetail = ErasoftDbContext.ART03B.Where(pd => pd.BUKTI == piutangInDb.BUKTI).ToList(),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
                 };
 
                 return PartialView("DetailBayarPiutangPartial", vm);
@@ -22931,7 +22932,7 @@ namespace MasterOnline.Controllers
             var vm = new BayarHutangViewModel()
             {
                 //ListHutang = ErasoftDbContext.APT03A.ToList(),
-                ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
+                //ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
@@ -23047,9 +23048,9 @@ namespace MasterOnline.Controllers
                 var vm = new BayarHutangViewModel()
                 {
                     Hutang = hutangInDb,
-                    ListHutang = ErasoftDbContext.APT03A.ToList(),
+                    //ListHutang = ErasoftDbContext.APT03A.ToList(),
                     ListHutangDetail = ErasoftDbContext.APT03B.Where(pd => pd.BUKTI == hutangInDb.BUKTI).ToList(),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
                 };
 
                 return PartialView("DetailBayarHutangPartial", vm);
@@ -34724,7 +34725,7 @@ namespace MasterOnline.Controllers
             var detail = 0;
             try
             {
-                var listDetail = ErasoftDbContext.ART03B.Where(b => b.BUKTI == orderId).OrderByDescending(a => a.NO).ToList();
+                var listDetail = ErasoftDbContext.ART03B.Where(b => b.BUKTI == orderId).Select(a => a.NO).ToList();
                 detail = listDetail.Count();
             }
             catch (Exception ex)

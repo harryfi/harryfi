@@ -1022,7 +1022,7 @@
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
-                                getFaktur($("#Piutang_CUST").val());
+                                //getFaktur($("#Piutang_CUST").val());
                                 //$('#tambah_faktur').click();
                                 //$nettoSebelumnya += $bakalNetto;
 
@@ -1178,7 +1178,7 @@
                         refreshInputan();
                         getTanggal();
                         getMarketplace();
-                        getFaktur($("#Piutang_CUST").val());
+                        //getFaktur($("#Piutang_CUST").val());
                         $('#btn-simpan-perubahan-row').hide();
                         $('#loading_spinner').hide();
 
@@ -1320,12 +1320,12 @@
                                 $($trElement + ' .span-tglref-piutang').text('-');
                                 $($trElement + ' .span-sisa-piutang').text('0,00');
 
-                                @if (Model?.ListPiutangDetail?.Count == 0)
+                                @*@if (Model?.ListPiutangDetail?.Count == 0)
                                 {
                                     <text>
                                         $('#Piutang_TBAYAR').val(@(Model?.Piutang?.TBAYAR));
                                     </text>
-                                }
+                                }*@
                             }
                         });
                     },
@@ -1383,7 +1383,7 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
 
                     //$('#tambah_piutang').click();
@@ -1413,7 +1413,7 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
                     $('input, select').each(function () {
                         $(this).attr('disabled', 'disabled');
@@ -1480,7 +1480,7 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
                     $('#konfHapusFaktur').modal('hide');
                 },
                 error: function (xhr) {
@@ -1591,7 +1591,7 @@
                     //refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
 
                     //$('#TGL').change();
                 },
@@ -1661,7 +1661,7 @@
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
-                                getFaktur($("#Piutang_CUST").val());
+                                //getFaktur($("#Piutang_CUST").val());
                                 $('#btn-simpan-perubahan-row').hide();
                             } else {
                                 //console.log(response.Errors);
@@ -1762,7 +1762,7 @@
                             refreshInputan();
                             getTanggal();
                             getMarketplace();
-                            getFaktur($("#Piutang_CUST").val());
+                            //getFaktur($("#Piutang_CUST").val());
                             $('input, select').each(function () {
                                 $(this).attr('disabled', 'disabled');
                             });
