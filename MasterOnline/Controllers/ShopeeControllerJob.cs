@@ -4271,7 +4271,13 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.error != null)
                 {
-                    throw new Exception(resServer.msg);
+                    if (resServer.msg.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
+                    {
+                        //do nothing
+                    }
+                    else {
+                        throw new Exception(resServer.msg);
+                    }
                 }
                 else {
                     if (resServer.variation_id_list != null)
