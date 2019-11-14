@@ -22339,7 +22339,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetRefFaktur(string noFaktur)
         {
             var vm = new refJson() { };
-            var noref = "";
+            var noref = "-";
             string tglref = null;
             if (noFaktur != null)
             {
@@ -22354,9 +22354,9 @@ namespace MasterOnline.Controllers
                     {
                         noref = ListRef.refSO;
                     }
-                    else
+                    else if (ListRef.nobukSO != null && ListRef.nobukSO != "" && ListRef.nobukSO != "-")
                     {
-                        noref = ListRef.nobukSI;
+                        noref = ListRef.nobukSO;
                     }
                     if (ListRef.tglSO != null)
                     {
