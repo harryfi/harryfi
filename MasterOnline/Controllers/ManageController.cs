@@ -14576,7 +14576,7 @@ namespace MasterOnline.Controllers
             var vm = new FakturViewModel()
             {
                 Faktur = fakturInDb,
-                ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                //ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                 ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
                 //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019 
                 //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
@@ -15708,12 +15708,13 @@ namespace MasterOnline.Controllers
                 var vm = new InvoiceViewModel()
                 {
                     Invoice = invoiceInDb,
-                    ListInvoice = ErasoftDbContext.PBT01A.ToList(),
+                    //ListInvoice = ErasoftDbContext.PBT01A.ToList(),
                     ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == invoiceInDb.INV && pd.JENISFORM == "1").ToList(),
                     //ListBarang = ErasoftDbContext.STF02.ToList() 'change by nurul 21/1/2019
-                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
                 };
-
+                var listBarangInInvDetail = vm.ListInvoiceDetail.Select(p => p.BRG).ToList();
+                vm.ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInInvDetail.Contains(a.BRG) && a.TYPE == "3").ToList();
                 return PartialView("BarangInvoicePartial", vm);
             }
             catch (Exception ex)
@@ -21837,21 +21838,21 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-            //var lzdApi = new LazadaController();
-            if (listLazadaShop.Count > 0)
-            {
-                foreach (ARF01 tblCustomer in listLazadaShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                    {
-                        #region refresh token lazada
-                        //change by calvin 4 april 2019
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        //end change by calvin 4 april 2019
-                        #endregion
+            //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            //var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+            ////var lzdApi = new LazadaController();
+            //if (listLazadaShop.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listLazadaShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+            //        {
+            //            #region refresh token lazada
+            //            //change by calvin 4 april 2019
+            //            //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+            //            //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+            //            //end change by calvin 4 april 2019
+            //            #endregion
 
                         //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
                         //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
@@ -21882,22 +21883,22 @@ namespace MasterOnline.Controllers
                         //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
                         //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 #if (DEBUG || Debug_AWS)
-                        new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+                        //new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
                         //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
                         //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
 #else
-                                                string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                                                connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                                                //connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 #endif
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
 
             #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -22322,11 +22323,62 @@ namespace MasterOnline.Controllers
             var vm = new BayarPiutangViewModel()
             {
                 //ListPiutang = ErasoftDbContext.ART03A.ToList(),
-                ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
+                //ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
             return View(vm);
+        }
+
+        public class tempRef
+        {
+            public string nobukSI { get; set; }
+            public DateTime? tglSI { get; set; }
+            public string refSI { get; set; }
+            public string nobukSO { get; set; }
+            public DateTime? tglSO { get; set; }
+            public string refSO { get; set; }
+        }
+
+        [HttpGet]
+        public ActionResult GetRefFaktur(string noFaktur)
+        {
+            var vm = new refJson() { };
+            var noref = "-";
+            string tglref = null;
+            if (noFaktur != null)
+            {
+                var ListRef = ErasoftDbContext.Database.SqlQuery<tempRef>("select a.no_bukti as nobukSI,a.tgl as tglSI,a.no_ref as refSI,b.no_bukti as nobukSO,b.tgl as tglSO,b.no_referensi as refSO from sit01a a(nolock) left join sot01a b(nolock) on a.no_ref = b.no_referensi or a.no_so = b.no_bukti  where a.no_bukti in ('" + noFaktur + "')").SingleOrDefault();
+                if (ListRef != null)
+                {
+                    if (ListRef.refSI != null && ListRef.refSI != "" && ListRef.refSI != "-")
+                    {
+                        noref = ListRef.refSI;
+                    }
+                    else if (ListRef.refSO != null && ListRef.refSO != "" && ListRef.refSO != "-")
+                    {
+                        noref = ListRef.refSO;
+                    }
+                    else if (ListRef.nobukSO != null && ListRef.nobukSO != "" && ListRef.nobukSO != "-")
+                    {
+                        noref = ListRef.nobukSO;
+                    }
+                    if (ListRef.tglSO != null)
+                    {
+                        tglref = ListRef.tglSO?.ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        tglref = ListRef.tglSI?.ToString("dd/MM/yyyy");
+                    }
+                    
+                    vm.NO_BUKTI = noFaktur;
+                    vm.noRef = noref;
+                    vm.tglRef = tglref;
+                }
+            }
+            
+            return Json(vm, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -22334,69 +22386,14 @@ namespace MasterOnline.Controllers
         {
             var listFakturBelumLunas = ErasoftDbContext.ART01D.Where(f => f.CUST == noCust && (f.NETTO + f.DEBET - f.KREDIT - f.BAYAR) > 0).ToList();
             var listKodeFaktur = new List<FakturJson>();
-            //add by nurul 23/10/2019
-            var cekStatusAPI = ErasoftDbContext.ARF01.Where(a => a.CUST == noCust).SingleOrDefault();
-            var status = false;
-            if (cekStatusAPI != null)
-            {
-                if (cekStatusAPI.STATUS_API == "1")
-                {
-                    status = true;
-                }
-            }
-            var noref = "";
-            string tglref = null;
-            //end add by nurul 23/10/2019
-
             foreach (var faktur in listFakturBelumLunas)
             {
-                //add by nurul 23/10/2019
-                if (status)
-                {
-                    var cekfaktur = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(cekfaktur.NO_REF != null && cekfaktur.NO_REF != "" && cekfaktur.NO_REF != "-")
-                    {
-                        noref = cekfaktur.NO_REF;
-                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
-                        if(cekSO != null)
-                        {
-                            tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
-                        }
-                    }
-                    else if(cekfaktur.NO_SO != null && cekfaktur.NO_SO != "" && cekfaktur.NO_SO != "-")
-                    {
-                        //var cekso = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
-                        //var cekSISo= ErasoftDbContext.SIT01A.Where(a => a.NO_SO == cekso.NO_BUKTI)
-                        //noref = cekfaktur.NO_SO;
-                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
-                        if (cekSO != null)
-                        {
-                            noref = cekSO.NO_REFERENSI;
-                            tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
-                        }
-                        else
-                        {
-                            noref = cekfaktur.NO_SO;
-                        }
-                    }
-                }
-                else
-                {
-                    var getTgl = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(getTgl != null)
-                    {
-                        tglref = getTgl.TGL.ToString("dd/MM/yyyy");
-                    }
-                }
-                //end add by nurul 23/10/2019
-
+                
                 listKodeFaktur.Add(new FakturJson()
                 {
                     RecNum = faktur.RecNum,
                     NO_BUKTI = faktur.FAKTUR,
                     Sisa = (faktur.NETTO + faktur.DEBET - faktur.KREDIT - faktur.BAYAR) ?? 0,
-                    noRef = noref,
-                    tglRef = tglref
                 });
             }
 
@@ -22757,9 +22754,9 @@ namespace MasterOnline.Controllers
                 var vm = new BayarPiutangViewModel()
                 {
                     Piutang = piutangInDb,
-                    ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                    //ListPiutang = ErasoftDbContext.ART03A.ToList(),
                     ListPiutangDetail = ErasoftDbContext.ART03B.Where(pd => pd.BUKTI == piutangInDb.BUKTI).ToList(),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
                 };
 
                 return PartialView("DetailBayarPiutangPartial", vm);
@@ -22936,7 +22933,7 @@ namespace MasterOnline.Controllers
             var vm = new BayarHutangViewModel()
             {
                 //ListHutang = ErasoftDbContext.APT03A.ToList(),
-                ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
+                //ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
                 //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
 
@@ -23052,9 +23049,9 @@ namespace MasterOnline.Controllers
                 var vm = new BayarHutangViewModel()
                 {
                     Hutang = hutangInDb,
-                    ListHutang = ErasoftDbContext.APT03A.ToList(),
+                    //ListHutang = ErasoftDbContext.APT03A.ToList(),
                     ListHutangDetail = ErasoftDbContext.APT03B.Where(pd => pd.BUKTI == hutangInDb.BUKTI).ToList(),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                    //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
                 };
 
                 return PartialView("DetailBayarHutangPartial", vm);
@@ -34729,7 +34726,7 @@ namespace MasterOnline.Controllers
             var detail = 0;
             try
             {
-                var listDetail = ErasoftDbContext.ART03B.Where(b => b.BUKTI == orderId).OrderByDescending(a => a.NO).ToList();
+                var listDetail = ErasoftDbContext.ART03B.Where(b => b.BUKTI == orderId).Select(a => a.NO).ToList();
                 detail = listDetail.Count();
             }
             catch (Exception ex)
@@ -35196,7 +35193,8 @@ namespace MasterOnline.Controllers
         {
             var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataUpdate.OrderId);
             var cekTotalPot = 0d;
-            if (dataUpdate.getPot.Count() > 0) {
+            if (dataUpdate.getPot.Count() > 0)
+            {
                 if (dataUpdate.getPot.Count() == dataUpdate.getRec.Count())
                 {
                     for (int y = 0; y < dataUpdate.getPot.Count(); y++)
@@ -35209,14 +35207,19 @@ namespace MasterOnline.Controllers
                             var nofaktur = dataUpdate.getFaktur[y];
                             var potongan = dataUpdate.getPot[y];
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
-                            if (getBayar.Count() > 0) { 
+                            if (getBayar.Count() > 0)
+                            {
                                 totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 if (totalSisa >= potongan)
                                 {
-                                    piutangDetailInDb.POT = dataUpdate.getPot[y];
-                                    cekTotalPot += piutangDetailInDb.POT;
+                                    piutangDetailInDb.POT += dataUpdate.getPot[y];
+                                    cekTotalPot += dataUpdate.getPot[y];
                                     ErasoftDbContext.SaveChanges();
+                                }
+                                else
+                                {
+                                    return Json("Nilai Potongan melebihi nilai bayar.", JsonRequestBehavior.AllowGet);
                                 }
                             }
                         }
