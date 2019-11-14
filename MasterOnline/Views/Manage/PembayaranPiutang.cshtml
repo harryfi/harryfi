@@ -501,8 +501,8 @@
                     </div>
                 </div>
                 @*<div>
-                    <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-                </div>*@
+                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+                    </div>*@
                 <div id="uploadbrgviewdiv" class="row">
                 </div>
                 <br />
@@ -527,11 +527,11 @@
 
                 </div>
                 @*<div class="row pull-right">
-                    <button type="button" class="btn btn-primary pull-right" onclick="createPOT();" data-style="expand-right">
-                        <span>Proses</span>
-                    </button>
-                </div>
-                <div></div>*@
+                        <button type="button" class="btn btn-primary pull-right" onclick="createPOT();" data-style="expand-right">
+                            <span>Proses</span>
+                        </button>
+                    </div>
+                    <div></div>*@
                 <br />
             </div>
             <div class="modal-footer">
@@ -574,7 +574,7 @@
         //add by nurul 12/2/2019
         var $page = window.text;
             //end add by nurul 12/2/2019
-        $(document).ready(function () {            
+        $(document).ready(function () {
             refreshTablePiutang1();
             //add by nurul 12/2/2019
             $page = 0;
@@ -654,9 +654,9 @@
                 //                type: 'POST',
                 //                url: 'backend.php',
                 //                data: 'EID='+essay_id,
-                //                success: function(data) 
+                //                success: function(data)
                 //                {
-                
+
                 var esy = $('.profile').html();
                 $modal.find('.edit-content').html(esy);
                 //                }
@@ -1253,6 +1253,29 @@
             });
         }
 
+        function getRef($FakturId, $tr) {
+            var $link = '@Url.Action("GetRefFaktur", "Manage", new { noFaktur = "replaceId" })';
+            $link = $link.replace("replaceId", encodeURIComponent($FakturId));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    if (data.NO_BUKTI == $FakturId) {
+                        $('#PiutangDetail_NOREF').val(data.noRef);
+                        $($tr + ' .span-noref-piutang').text(data.noRef);
+                        $($tr + ' .span-tglref-piutang').text(data.tglRef);
+
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
         function getFaktur($customerId) {
             if ($customerId == null) {
                 $('#FAKTUR').selectivity({
@@ -1296,9 +1319,10 @@
                                             $($trElement + ' .span-sisa-piutang').text(convertToRupiah(item.Sisa));
                                             $('#PiutangDetail_SISA').val(item.Sisa);
                                             $('#PiutangDetail_NFAKTUR').val(item.NO_BUKTI);
-                                            $('#PiutangDetail_NOREF').val(item.noRef);
-                                            $($trElement + ' .span-noref-piutang').text(item.noRef);
-                                            $($trElement + ' .span-tglref-piutang').text(item.tglRef);
+                                            //$('#PiutangDetail_NOREF').val(item.noRef);
+                                            //$($trElement + ' .span-noref-piutang').text(item.noRef);
+                                            //$($trElement + ' .span-tglref-piutang').text(item.tglRef);
+                                            getRef(item.NO_BUKTI, $trElement);
                                             return;
                                         }
                                     });
@@ -1681,7 +1705,7 @@
 
         //add by nurul 21/10/2019
         function validasiUpload() {
-            
+
             if ($('#Piutang_TGL').val() == null ||
                 $('#Piutang_CUST').val() == '') {
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
@@ -1762,7 +1786,7 @@
                             refreshInputan();
                             getTanggal();
                             getMarketplace();
-                            //getFaktur($("#Piutang_CUST").val());
+                            getFaktur($("#Piutang_CUST").val());
                             $('input, select').each(function () {
                                 $(this).attr('disabled', 'disabled');
                             });
@@ -1865,12 +1889,17 @@
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
                     success: function () {
                         getFaktur($("#Piutang_CUST").val());
+                        $('#loading_spinner').show();
                         $("#konfCreatePot").modal('hide');
                         alert('Nilai potongan berhasil dibuat');
                     },
                     error: function (xhr) {
+                        $('#loading_spinner').show();
                         $("#konfCreatePot").modal('hide');
                         console.log(xhr);
                     }

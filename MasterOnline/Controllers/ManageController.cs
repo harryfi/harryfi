@@ -22325,74 +22325,70 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
+        public class tempRef
+        {
+            public string nobukSI { get; set; }
+            public DateTime? tglSI { get; set; }
+            public string refSI { get; set; }
+            public string nobukSO { get; set; }
+            public DateTime? tglSO { get; set; }
+            public string refSO { get; set; }
+        }
+
+        [HttpGet]
+        public ActionResult GetRefFaktur(string noFaktur)
+        {
+            var vm = new refJson() { };
+            var noref = "";
+            string tglref = null;
+            if (noFaktur != null)
+            {
+                var ListRef = ErasoftDbContext.Database.SqlQuery<tempRef>("select a.no_bukti as nobukSI,a.tgl as tglSI,a.no_ref as refSI,b.no_bukti as nobukSO,b.tgl as tglSO,b.no_referensi as refSO from sit01a a(nolock) left join sot01a b(nolock) on a.no_ref = b.no_referensi or a.no_so = b.no_bukti  where a.no_bukti in ('" + noFaktur + "')").SingleOrDefault();
+                if (ListRef != null)
+                {
+                    if (ListRef.refSI != null && ListRef.refSI != "" && ListRef.refSI != "-")
+                    {
+                        noref = ListRef.refSI;
+                    }
+                    else if (ListRef.refSO != null && ListRef.refSO != "" && ListRef.refSO != "-")
+                    {
+                        noref = ListRef.refSO;
+                    }
+                    else
+                    {
+                        noref = ListRef.nobukSI;
+                    }
+                    if (ListRef.tglSO != null)
+                    {
+                        tglref = ListRef.tglSO?.ToString("dd/MM/yyyy");
+                    }
+                    else
+                    {
+                        tglref = ListRef.tglSI?.ToString("dd/MM/yyyy");
+                    }
+                    
+                    vm.NO_BUKTI = noFaktur;
+                    vm.noRef = noref;
+                    vm.tglRef = tglref;
+                }
+            }
+            
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+
         [HttpGet]
         public ActionResult GetFakturBelumLunas(string noCust)
         {
             var listFakturBelumLunas = ErasoftDbContext.ART01D.Where(f => f.CUST == noCust && (f.NETTO + f.DEBET - f.KREDIT - f.BAYAR) > 0).ToList();
             var listKodeFaktur = new List<FakturJson>();
-            //add by nurul 23/10/2019
-            var cekStatusAPI = ErasoftDbContext.ARF01.Where(a => a.CUST == noCust).SingleOrDefault();
-            var status = false;
-            if (cekStatusAPI != null)
-            {
-                if (cekStatusAPI.STATUS_API == "1")
-                {
-                    status = true;
-                }
-            }
-            var noref = "";
-            string tglref = null;
-            //end add by nurul 23/10/2019
-
             foreach (var faktur in listFakturBelumLunas)
             {
-                //add by nurul 23/10/2019
-                if (status)
-                {
-                    var cekfaktur = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(cekfaktur.NO_REF != null && cekfaktur.NO_REF != "" && cekfaktur.NO_REF != "-")
-                    {
-                        noref = cekfaktur.NO_REF;
-                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
-                        if(cekSO != null)
-                        {
-                            tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
-                        }
-                    }
-                    else if(cekfaktur.NO_SO != null && cekfaktur.NO_SO != "" && cekfaktur.NO_SO != "-")
-                    {
-                        //var cekso = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
-                        //var cekSISo= ErasoftDbContext.SIT01A.Where(a => a.NO_SO == cekso.NO_BUKTI)
-                        //noref = cekfaktur.NO_SO;
-                        var cekSO = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == cekfaktur.NO_SO).SingleOrDefault();
-                        if (cekSO != null)
-                        {
-                            noref = cekSO.NO_REFERENSI;
-                            tglref = cekSO.TGL?.ToString("dd/MM/yyyy");
-                        }
-                        else
-                        {
-                            noref = cekfaktur.NO_SO;
-                        }
-                    }
-                }
-                else
-                {
-                    var getTgl = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == faktur.FAKTUR).SingleOrDefault();
-                    if(getTgl != null)
-                    {
-                        tglref = getTgl.TGL.ToString("dd/MM/yyyy");
-                    }
-                }
-                //end add by nurul 23/10/2019
-
+                
                 listKodeFaktur.Add(new FakturJson()
                 {
                     RecNum = faktur.RecNum,
                     NO_BUKTI = faktur.FAKTUR,
                     Sisa = (faktur.NETTO + faktur.DEBET - faktur.KREDIT - faktur.BAYAR) ?? 0,
-                    noRef = noref,
-                    tglRef = tglref
                 });
             }
 
