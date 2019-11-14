@@ -1732,12 +1732,16 @@ namespace MasterOnline.Controllers
 
             //change by calvin 19 nov 2018
             //request.AddFileParameter("image", new FileItem(imagePath));
-            var req = System.Net.WebRequest.Create(imagePath);
-                System.IO.Stream stream = req.GetResponse().GetResponseStream();
-                request.AddFileParameter("image", new FileItem("image", stream));
+            //var req = System.Net.WebRequest.Create(imagePath);
+            //    System.IO.Stream stream = req.GetResponse().GetResponseStream();
+            //    request.AddFileParameter("image", new FileItem("image", stream));
             //end change by calvin 19 nov 2018
             try
             {
+                var req = System.Net.WebRequest.Create(imagePath);
+                System.IO.Stream stream = req.GetResponse().GetResponseStream();
+                request.AddFileParameter("image", new FileItem("image", stream));
+
                 LazopResponse response = client.Execute(request, accessToken);
                 var bindImg = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ImageLzd)) as ImageLzd;
                 if (bindImg.code.Equals("0"))
