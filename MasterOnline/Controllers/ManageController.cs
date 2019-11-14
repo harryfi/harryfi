@@ -35188,7 +35188,8 @@ namespace MasterOnline.Controllers
         {
             var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataUpdate.OrderId);
             var cekTotalPot = 0d;
-            if (dataUpdate.getPot.Count() > 0) {
+            if (dataUpdate.getPot.Count() > 0)
+            {
                 if (dataUpdate.getPot.Count() == dataUpdate.getRec.Count())
                 {
                     for (int y = 0; y < dataUpdate.getPot.Count(); y++)
@@ -35201,14 +35202,19 @@ namespace MasterOnline.Controllers
                             var nofaktur = dataUpdate.getFaktur[y];
                             var potongan = dataUpdate.getPot[y];
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
-                            if (getBayar.Count() > 0) { 
+                            if (getBayar.Count() > 0)
+                            {
                                 totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 if (totalSisa >= potongan)
                                 {
-                                    piutangDetailInDb.POT = dataUpdate.getPot[y];
-                                    cekTotalPot += piutangDetailInDb.POT;
+                                    piutangDetailInDb.POT += dataUpdate.getPot[y];
+                                    cekTotalPot += dataUpdate.getPot[y];
                                     ErasoftDbContext.SaveChanges();
+                                }
+                                else
+                                {
+                                    return Json("Nilai Potongan melebihi nilai bayar.", JsonRequestBehavior.AllowGet);
                                 }
                             }
                         }

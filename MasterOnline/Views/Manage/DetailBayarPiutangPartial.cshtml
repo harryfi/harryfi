@@ -395,7 +395,7 @@
                         <td class="bayar-piutang" style="text-align:right">
                             <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
                         </td>
-                        <td class="potongan-piutang" data-selisih="@Convert.ToString(detailPiutang.SISA - detailPiutang.BAYAR)" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
+                        <td class="potongan-piutang" data-selisih="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
                             @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
                             <input min="0" class="pot-input-box num-only" style="display: none;" />
                             <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
