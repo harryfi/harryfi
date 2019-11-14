@@ -1732,9 +1732,26 @@ namespace MasterOnline.Controllers
 
             //change by calvin 19 nov 2018
             //request.AddFileParameter("image", new FileItem(imagePath));
-            var req = System.Net.WebRequest.Create(imagePath);
+            try
+            {
+                var req = System.Net.WebRequest.Create(imagePath);
                 System.IO.Stream stream = req.GetResponse().GetResponseStream();
                 request.AddFileParameter("image", new FileItem("image", stream));
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                if (ret.message.Contains("forbidden"))
+                {
+                    ret.message = "Gambar tidak dapat diakses lagi, silahkan upload ulang gambar untuk produk ini.";
+                }
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                return ret;
+            }
+            //var req = System.Net.WebRequest.Create(imagePath);
+            //System.IO.Stream stream = req.GetResponse().GetResponseStream();
+            //request.AddFileParameter("image", new FileItem("image", stream));
             //end change by calvin 19 nov 2018
             try
             {
