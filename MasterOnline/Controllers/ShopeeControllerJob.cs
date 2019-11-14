@@ -4693,17 +4693,19 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                 imagess.Add(brgInDb.LINK_GAMBAR_5);
             //}
-            if (brgInDb.TYPE == "4")
-            {
-                var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
-                foreach (var brgVar in brgVarian)
-                {
-                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_1))
-                        imagess.Add(brgVar.LINK_GAMBAR_1);
-                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_2))
-                        imagess.Add(brgVar.LINK_GAMBAR_2);
-                }
-            }
+            //remark 14 Nov 2019, gambar varian tidak masuk ke gambar induk
+            //if (brgInDb.TYPE == "4")
+            //{
+            //    var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
+            //    foreach (var brgVar in brgVarian)
+            //    {
+            //        if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_1))
+            //            imagess.Add(brgVar.LINK_GAMBAR_1);
+            //        if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_2))
+            //            imagess.Add(brgVar.LINK_GAMBAR_2);
+            //    }
+            //}
+            //end remark 14 Nov 2019, gambar varian tidak masuk ke gambar induk
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
             {
