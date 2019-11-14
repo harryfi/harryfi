@@ -1,0 +1,17 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.BayarPiutangViewModel
+
+
+<table @*class="table table-striped table-bordered"*@ id="datatable_ubahstatus_dibayar">
+    <tbody>
+        @foreach (var detailError in Model?.Errors?.ToList())
+        {
+            <tr>
+                <td>
+                    @detailError
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

@@ -2519,7 +2519,7 @@ namespace MasterOnline.Controllers
         //end add by nurul
 
         //add by calvin 15 mei 2019
-        public ActionResult RefreshTableLog(int? page , string search = "")
+        public ActionResult RefreshTableLog(int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -22400,15 +22400,16 @@ namespace MasterOnline.Controllers
                     {
                         tglref = ListRef.tglSI?.ToString("dd/MM/yyyy");
                     }
-                    
+
                     vm.NO_BUKTI = noFaktur;
                     vm.noRef = noref;
                     vm.tglRef = tglref;
                 }
             }
-            
+
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
+
 
         [HttpGet]
         public ActionResult GetFakturBelumLunas(string noCust)
@@ -22417,7 +22418,7 @@ namespace MasterOnline.Controllers
             var listKodeFaktur = new List<FakturJson>();
             foreach (var faktur in listFakturBelumLunas)
             {
-                
+
                 listKodeFaktur.Add(new FakturJson()
                 {
                     RecNum = faktur.RecNum,
@@ -22428,6 +22429,7 @@ namespace MasterOnline.Controllers
 
             return Json(listKodeFaktur, JsonRequestBehavior.AllowGet);
         }
+        
 
         public ActionResult SaveBayarPiutang(BayarPiutangViewModel dataVm)
         {
@@ -22521,11 +22523,11 @@ namespace MasterOnline.Controllers
             else
             {
                 dataVm.PiutangDetail.BUKTI = dataVm.Piutang.BUKTI;
-                
+
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
 
                 var cekListDetailSama = ErasoftDbContext.ART03B.Where(a => a.NFAKTUR.Contains(dataVm.PiutangDetail.NFAKTUR)).ToList();
-                if(cekListDetailSama.Count() > 0)
+                if (cekListDetailSama.Count() > 0)
                 {
                     return JsonErrorMessage("No. Faktur " + dataVm.PiutangDetail.NFAKTUR + " sudah ada dalam pembayaran ini. Silahkan pilih No. Faktur yang lain!");
                 }
@@ -31809,7 +31811,8 @@ namespace MasterOnline.Controllers
                                         var gettoken = await TokoAPI.GetToken(data);
                                         data.token = gettoken.access_token;
 
-                                        if (string.IsNullOrWhiteSpace(data.token)) {
+                                        if (string.IsNullOrWhiteSpace(data.token))
+                                        {
                                             return JsonErrorMessage("Status Akun tidak aktif.");
                                         }
 
@@ -34808,7 +34811,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                
+
                 var mp = MoDbContext.Marketplaces.ToList();
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
@@ -34844,7 +34847,7 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        
+
 
                         using (MemoryStream stream = new MemoryStream(data))
                         {
@@ -34852,7 +34855,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
                                 {
-                                    
+
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
@@ -34861,7 +34864,8 @@ namespace MasterOnline.Controllers
                                     string cust = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
                                     if (!string.IsNullOrEmpty(cust))
                                     {
-                                        if(cust.Length != 33) {
+                                        if (cust.Length != 33)
+                                        {
                                             ret.Errors.Add("File " + file.FileName + " bukan excel pembayaran Shopee." + System.Environment.NewLine);
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
@@ -34874,7 +34878,7 @@ namespace MasterOnline.Controllers
                                                 List<double> nilaiRef = new List<double>();
                                                 List<double> nilaiPot = new List<double>();
                                                 string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
-                                                
+
 
                                                 var listTemp = eraDB.SIT01A.Where(a => a.NO_REF != null && a.NO_SO != null).Count();
                                                 if (listTemp > 0)
@@ -35141,7 +35145,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        
+
                     }
 
                 }
@@ -35860,6 +35864,507 @@ namespace MasterOnline.Controllers
             }
             return new EmptyResult();
         }
+
+        //add by nurul 11/11/2019, upload pembayaran lazada 
+        public ActionResult UploadXcelBayarLazada()
+        {
+            BindUploadExcel ret = new BindUploadExcel();
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string uname = sessionData.Account.Username;
+            string cust_id = Request["cust"];
+            string market = Request["market"];
+            string tgl = Request["tgl"];
+            ret.Errors = new List<string>();
+            ret.cust = new List<string>();
+            ret.namaCust = new List<string>();
+            ret.lastRow = new List<int>();
+            var bukti = "";
+            var vm = new BayarPiutangViewModel() { };
+            List<LazadaExcelBayarPiutang> records = new List<LazadaExcelBayarPiutang>();
+            List<mdlTempBayarLazada> rec = new List<mdlTempBayarLazada>();
+            try
+            {
+
+                var mp = MoDbContext.Marketplaces.ToList();
+                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                {
+                    TextReader tr;
+                    var file = Request.Files[file_index];
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        var xxx = file.FileName;
+                        var bx = xxx.Substring(xxx.LastIndexOf('.'));
+                        byte[] data;
+                        ret.lastRow.Add(0);
+                        if (bx.ToLower() == ".csv")
+                        {
+                            using (Stream inputStream = file.InputStream)
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+                                if (memoryStream == null)
+                                {
+                                    memoryStream = new MemoryStream();
+                                    inputStream.CopyTo(memoryStream);
+                                }
+                                data = memoryStream.ToArray();
+                                tr = new StreamReader(inputStream);
+                            }
+
+                            string namaFile = dbPathEra + "_BayarLazada_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
+                            System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
+                            using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
+                            {
+                                CsvReader reader = new CsvReader(sr);
+                                reader.Configuration.Delimiter = ",";
+                                reader.Configuration.PrepareHeaderForMatch = (header, index) => Regex.Replace(header, @"\s|[().]", string.Empty);
+                                var records_excell = reader.GetRecords<LazadaExcelBayarPiutang>();
+                                try
+                                {
+                                    foreach (var dataPiutang in records_excell)
+                                    {
+                                        var a = new LazadaExcelBayarPiutang
+                                        {
+                                            TransactionDate = Convert.ToDateTime(dataPiutang.TransactionDate),
+                                            TransactionType = Convert.ToString(dataPiutang.TransactionType),
+                                            FeeName = Convert.ToString(dataPiutang.FeeName),
+                                            TransactionNumber = Convert.ToString(dataPiutang.TransactionNumber),
+                                            Details = Convert.ToString(dataPiutang.Details),
+                                            SellerSKU = Convert.ToString(dataPiutang.SellerSKU),
+                                            LazadaSKU = Convert.ToString(dataPiutang.LazadaSKU),
+                                            Amount = Math.Abs(Convert.ToDouble(dataPiutang.Amount)),
+                                            VATinAmount = Convert.ToDouble(dataPiutang.VATinAmount),
+                                            WHTAmount = Convert.ToDouble(dataPiutang.WHTAmount),
+                                            WHTincludedinAmount = Convert.ToString(dataPiutang.WHTincludedinAmount),
+                                            Statement = Convert.ToString(dataPiutang.Statement),
+                                            PaidStatus = Convert.ToString(dataPiutang.PaidStatus),
+                                            OrderNo = Regex.Replace(Convert.ToString(dataPiutang.OrderNo), @"s", ""),
+                                            OrderItemNo = Regex.Replace(Convert.ToString(dataPiutang.OrderItemNo), @"s", ""),
+                                            OrderItemStatus = Convert.ToString(dataPiutang.OrderItemStatus),
+                                            ShippingProvider = Convert.ToString(dataPiutang.ShippingProvider),
+                                            ShippingSpeed = Convert.ToString(dataPiutang.ShippingSpeed),
+                                            ShipmentType = Convert.ToString(dataPiutang.ShipmentType),
+                                            Reference = Regex.Replace(Convert.ToString(dataPiutang.Reference), @"s", ""),
+                                            Comment = Convert.ToString(dataPiutang.Comment),
+                                            PaymentRefId = Convert.ToString(dataPiutang.PaymentRefId),
+                                        };
+                                        if (!string.IsNullOrEmpty(a.OrderNo))
+                                        {
+                                            if (a.OrderNo != "")
+                                            {
+                                                records.Add(a);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    ret.Errors.Add("Format file yang anda upload salah.");
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                }
+
+                            }
+                            System.IO.File.Delete(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile));
+                        }
+                        else
+                        {
+                            if (bx.ToLower() == ".xls")
+                            {
+                                using (Stream inputStream = file.InputStream)
+                                {
+                                    Workbook workbook = new Workbook();
+                                    workbook.LoadFromStream(inputStream);
+                                    MemoryStream memoryStream = new MemoryStream();
+                                    workbook.SaveToStream(memoryStream, FileFormat.Version2013);
+                                    data = memoryStream.ToArray();
+                                }
+                            }
+                            else if (bx.ToLower() == ".xlsx")
+                            {
+                                using (Stream inputStream = file.InputStream)
+                                {
+                                    MemoryStream memoryStream = inputStream as MemoryStream;
+                                    if (memoryStream == null)
+                                    {
+                                        memoryStream = new MemoryStream();
+                                        inputStream.CopyTo(memoryStream);
+                                    }
+                                    data = memoryStream.ToArray();
+                                }
+                            }
+                            else
+                            {
+                                ret.Errors.Add("File " + file.FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.");
+                                return Json(ret, JsonRequestBehavior.AllowGet);
+                            }
+
+                            using (MemoryStream stream = new MemoryStream(data))
+                            {
+                                using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                                {
+                                    //loop all worksheets
+                                    var worksheet = excelPackage.Workbook.Worksheets[1];
+                                    for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
+                                    {
+                                        //Columns start from A5, start mapping column
+                                        var a = new LazadaExcelBayarPiutang
+                                        {
+                                            TransactionDate = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
+                                            TransactionType = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
+                                            FeeName = worksheet.Cells[i, 3].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 3].Value),
+                                            TransactionNumber = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                            Details = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                            SellerSKU = worksheet.Cells[i, 6].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 6].Value),
+                                            LazadaSKU = worksheet.Cells[i, 7].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 7].Value),
+                                            Amount = worksheet.Cells[i, 8].Value == null ? 0 : Math.Abs(Convert.ToDouble(worksheet.Cells[i, 8].Value)),
+                                            VATinAmount = worksheet.Cells[i, 9].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 9].Value),
+                                            WHTAmount = worksheet.Cells[i, 10].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 10].Value),
+                                            WHTincludedinAmount = worksheet.Cells[i, 11].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 11].Value),
+                                            Statement = worksheet.Cells[i, 12].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 12].Value),
+                                            PaidStatus = worksheet.Cells[i, 13].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 13].Value),
+                                            OrderNo = worksheet.Cells[i, 14].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 14].Value), @"s", ""),
+                                            OrderItemNo = worksheet.Cells[i, 15].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 15].Value), @"s", ""),
+                                            OrderItemStatus = worksheet.Cells[i, 16].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 16].Value),
+                                            ShippingProvider = worksheet.Cells[i, 17].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 17].Value),
+                                            ShippingSpeed = worksheet.Cells[i, 18].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 18].Value),
+                                            ShipmentType = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
+                                            Reference = worksheet.Cells[i, 20].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 20].Value), @"s", ""),
+                                            Comment = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
+                                            PaymentRefId = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                        };
+                                        if (!string.IsNullOrEmpty(a.OrderNo))
+                                        {
+                                            if (a.OrderNo != "")
+                                            {
+                                                records.Add(a);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                        {
+                            eraDB.Database.CommandTimeout = 180;
+                            var customer = eraDB.ARF01.Where(m => m.CUST == cust_id).FirstOrDefault();
+                            if (customer != null)
+                            {
+                                List<double> nilaiFaktur = new List<double>();
+                                List<double> nilaiRef = new List<double>();
+                                List<double> nilaiPot = new List<double>();
+                                string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
+
+                                var listTemp = eraDB.SIT01A.Where(a => a.NO_REF != null && a.NO_SO != null).Count();
+                                if (listTemp > 0)
+                                {
+                                    if (records.Count() != 0)
+                                    {
+                                        #region create induk
+                                        var art03a = new ART03A
+                                        {
+                                            KET = "-",
+                                            USERNAME = "UPLOAD_LAZADA",
+                                            TUKAR = 1,
+                                            MUKA1 = 0,
+                                            MUKA2 = 0,
+                                            KONTAN = 0,
+                                            VLT = "IDR",
+                                            TOTAL_KREDIT_GL = 0,
+                                            TOTAL_DEBET_GL = 0,
+                                            POSTING = "'",
+                                            NCUST = "",
+                                            TGLINPUT = DateTime.Now,
+                                            TBAYAR = 0,
+                                            TPOT = 0,
+                                            TGL = Convert.ToDateTime(tgl),
+                                            CUST = cust_id
+                                        };
+
+                                        var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                        var digitAkhir = "";
+                                        var noOrder = "";
+
+                                        if (listBayarPiutangInDb == null)
+                                        {
+                                            digitAkhir = "000001";
+                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                        }
+                                        else
+                                        {
+                                            var lastRecNum = listBayarPiutangInDb.RecNum;
+                                            lastRecNum++;
+
+                                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        }
+
+                                        art03a.BUKTI = noOrder;
+                                        bukti = noOrder;
+                                        eraDB.ART03A.Add(art03a);
+                                        try
+                                        {
+                                            //save header
+                                            eraDB.SaveChanges();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                            ret.Errors.Add(errMsg);
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
+                                        #endregion
+
+                                        #region detail
+                                        var detail = records.GroupBy(a => a.OrderNo)
+                                                        .Select(f => new
+                                                        {
+                                                            Tanggal = f.FirstOrDefault().TransactionDate,
+                                                            Ref = f.FirstOrDefault().OrderNo.Trim(),
+                                                            NItemPrice = f.Where(b => b.FeeName.Contains("Item Price Credit")).Sum(b => Convert.ToDouble(b.Amount)),
+                                                            NPaymentFee = f.Where(b => b.FeeName.Contains("Payment Fee")).Sum(b => Convert.ToDouble(b.Amount)),
+                                                            NPromotion = f.Where(b => b.FeeName.Contains("Promotional Charges Vouchers")).Sum(b => Convert.ToDouble(b.Amount)),
+                                                            NShipping = f.Where(b => b.FeeName.Contains("Return Shipping Fees")).Sum(b => Convert.ToDouble(b.Amount)),
+                                                            Potongan = (f.Where(b => b.FeeName.Contains("Payment Fee")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Promotional Charges Vouchers")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Return Shipping Fees")).Sum(b => Convert.ToDouble(b.Amount))),
+                                                            //Bayar = nitemprice - (npaymentfee + npromotion + nshipping) 
+                                                            Bayar = (f.Where(b => b.FeeName.Contains("Item Price Credit")).Sum(b => Convert.ToDouble(b.Amount)) - (f.Where(b => b.FeeName.Contains("Payment Fee")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Promotional Charges Vouchers")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Return Shipping Fees")).Sum(b => Convert.ToDouble(b.Amount))))
+                                                        });
+                                        foreach (var bayar in detail)
+                                        {
+                                            if (!string.IsNullOrWhiteSpace(bayar.Ref))
+                                            {
+                                                var noref = bayar.Ref;
+                                                if (!string.IsNullOrEmpty(noref))
+                                                {
+
+                                                    var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref).SingleOrDefault();
+                                                    var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
+                                                    var so = "";
+                                                    double nettoSI = 0;
+
+                                                    if (cekPesanan != null)
+                                                    {
+                                                        var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI).SingleOrDefault();
+                                                        if (cekSIPesanan != null)
+                                                        {
+                                                            so = cekSIPesanan.NO_BUKTI;
+                                                            nettoSI = cekSIPesanan.NETTO.Value;
+                                                        }
+                                                    }
+                                                    if (cekfaktur != null || so != "")
+                                                    {
+                                                        var totalSisa = 0d;
+                                                        var bayarpiutang = 0d;
+                                                        var adaBayar = false;
+                                                        if (cekfaktur != null)
+                                                        {
+                                                            var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == cekfaktur.NO_BUKTI && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
+                                                            if (getBayar.Count() > 0)
+                                                            {
+                                                                totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == cekfaktur.NO_BUKTI && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                                                        .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                            }
+                                                            adaBayar = true;
+                                                        }
+                                                        else
+                                                        {
+                                                            var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == so && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
+                                                            if (getBayar.Count() > 0)
+                                                            {
+                                                                totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == so && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                                                            .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                                            }
+                                                            adaBayar = true;
+                                                        }
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(bayar.Bayar)))
+                                                        {
+                                                            //total yg dibandingkan dengan sisa = bayar + pot
+                                                            bayarpiutang = bayar.Bayar + bayar.Potongan;
+                                                        }
+
+                                                        if (adaBayar == false || (adaBayar == true && totalSisa >= bayarpiutang))
+                                                        {
+                                                            var art03b = new ART03B
+                                                            {
+                                                                USERNAME = "UPLOAD_LAZADA",
+                                                                POT = 0,
+                                                                BUKTI = art03a.BUKTI,
+                                                            };
+
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(bayar.Ref)))
+                                                            {
+                                                                art03b.NOREF = noref;
+                                                            }
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(bayar.Tanggal)))
+                                                            {
+                                                                art03b.TGL_REF = bayar.Tanggal;
+                                                            }
+
+                                                            if (cekfaktur != null)
+                                                            {
+                                                                art03b.NFAKTUR = cekfaktur.NO_BUKTI;
+                                                                art03b.SISA = totalSisa;
+                                                            }
+                                                            else if (so != null)
+                                                            {
+                                                                art03b.NFAKTUR = so;
+                                                                art03b.SISA = totalSisa;
+                                                            }
+
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(bayar.Bayar)))
+                                                            {
+                                                                art03b.BAYAR = bayar.Bayar;
+                                                            }
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
+                                                            {
+                                                                art03b.POT = bayar.Potongan;
+                                                            }
+
+                                                            nilaiFaktur.Add(art03b.SISA);
+                                                            nilaiRef.Add(art03b.BAYAR);
+                                                            nilaiPot.Add(art03b.POT);
+                                                            eraDB.ART03B.Add(art03b);
+                                                            try
+                                                            {
+                                                                eraDB.SaveChanges();
+                                                            }
+                                                            catch (Exception ex)
+                                                            {
+                                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                                ret.Errors.Add(errMsg);
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            //ret.Errors.Add("Faktur dengan No. Ref " + noref + " sudah lunas." + System.Environment.NewLine);
+                                                            ret.Errors.Add("Faktur dengan No. Ref " + noref + " sudah lunas.");
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan." + System.Environment.NewLine);
+                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan.");
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        #endregion
+
+                                        if (nilaiRef.Count() > 0)
+                                        {
+                                            for (int x = 0; x < nilaiRef.Count(); x++)
+                                            {
+                                                art03a.TBAYAR += nilaiRef[x];
+                                            }
+                                        }
+                                        if (nilaiPot.Count() > 0)
+                                        {
+                                            for (int x = 0; x < nilaiPot.Count(); x++)
+                                            {
+                                                art03a.TPOT += nilaiPot[x];
+                                            }
+                                        }
+                                        try
+                                        {
+                                            eraDB.SaveChanges();
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //ret.Errors.Add("Faktur dari marketplace tidak ditemukan" + System.Environment.NewLine);
+                                        ret.Errors.Add("Tidak ada data yang dapat diproses.");
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                    }
+                                }
+                                else
+                                {
+                                    //ret.Errors.Add("Faktur dari marketplace tidak ditemukan" + System.Environment.NewLine);
+                                    ret.Errors.Add("Faktur dari marketplace tidak ditemukan.");
+                                }
+                            }
+                            else
+                            {
+                                //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
+                                ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan.");
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + System.Environment.NewLine);
+                ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message);
+
+                if (bukti != "")
+                {
+                    var cekdetail1 = ErasoftDbContext.ART03B.Where(a => a.BUKTI == bukti).Count();
+                    if (cekdetail1 != 0)
+                    {
+                        vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == bukti);
+                        vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == bukti).ToList();
+                        vm.Errors = ret.Errors;
+                    }
+                    else
+                    {
+                        var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == bukti);
+                        ErasoftDbContext.ART03A.Remove(piutangInDb);
+                        ErasoftDbContext.SaveChanges();
+                        ret.Errors.Add("Tidak ada data yang dapat diproses.");
+                        vm.Errors = ret.Errors;
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+
+                return PartialView("DetailBayarPiutangPartial", vm);
+            }
+
+            var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == bukti).Count();
+
+
+            vm.Errors = ret.Errors;
+            if (bukti != "")
+            {
+                if (cekdetail != 0)
+                {
+                    vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == bukti);
+                    vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == bukti).ToList();
+                    vm.Errors = ret.Errors;
+                }
+                else
+                {
+                    var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == bukti);
+                    ErasoftDbContext.ART03A.Remove(piutangInDb);
+                    ErasoftDbContext.SaveChanges();
+                    ret.Errors.Add("Tidak ada data yang dapat diproses.");
+                    vm.Errors = ret.Errors;
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+
+            }
+            return PartialView("DetailBayarPiutangPartial", vm);
+        }
+
+        public ActionResult ShowErrorUploadBayar(string[] listError)
+        {
+            var vm = new BayarPiutangViewModel()
+            {
+                //Errors = data.ToList()
+            };
+            if(listError !=  null)
+            {
+                vm.Errors = listError.ToList();
+            }
+            return PartialView("ListErrorPembayaranPiutang", vm);
+        }
+        //end add by nurul 11/11/2019, upload pembayaran lazada 
     }
     public class smolSTF02
     {

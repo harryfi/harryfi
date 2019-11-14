@@ -12,13 +12,13 @@ namespace MasterOnline.ViewModels
 
         //Piutang
         public double? Sisa { get; set; }
-        
+
     }
 
-    //add by nurul 14/11/2019
     public class refJson
     {
         public string NO_BUKTI { get; set; }
+        //add by nurul 23/10/2019
         public string noRef { get; set; }
         public string tglRef { get; set; }
     }

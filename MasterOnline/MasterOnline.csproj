@@ -714,6 +714,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\LazadaExcelBayarPiutang.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
     <Compile Include="Models\BRAND_LAZADA.cs" />
     <Compile Include="Models\CATEGORY_BUKALAPAK.cs" />
@@ -1063,6 +1064,7 @@
     <Compile Include="Utils\XcelUtils.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
     <Compile Include="ViewModels\mdlPartner.cs" />
+    <Compile Include="ViewModels\mdlTempBayarLazada.cs" />
     <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />
@@ -6356,6 +6358,7 @@
     <Content Include="Views\Admin\TablePartPartial.cshtml" />
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
     <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
+    <Content Include="Views\Manage\ListErrorPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
   </ItemGroup>
   <ItemGroup>
