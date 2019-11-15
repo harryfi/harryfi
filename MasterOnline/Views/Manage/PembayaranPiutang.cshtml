@@ -1932,7 +1932,7 @@
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
                             $("#btn-error-row").show();
-                            $("#btn-error-row").click();
+                            //$("#btn-error-row").click();
                             $tempErr.length = 0;
                             $tempErr = listError;
                             $("#modalError").on('show.bs.modal', function (e) {
@@ -1964,6 +1964,11 @@
                                 });
 
                             });
+                            if ($tempErr.length > 1) {
+                                alert('Ada error. Silahkan klik "View Error"');
+                            } else {
+                                $("#btn-error").click();
+                            }
 
                         } else {
                             $('#loading_upload').hide();
@@ -1977,7 +1982,7 @@
                             });
                             $("#konfUpload").modal('hide');
                             $("#btn-error-row").show();
-                            $("#btn-error-row").click();
+                            //$("#btn-error-row").click();
                             $tempErr.length = 0;
                             $tempErr = response.Errors;
                             $("#modalError").on('show.bs.modal', function (e) {
@@ -2005,6 +2010,11 @@
                                 });
 
                             });
+                            if ($tempErr.length > 1) {
+                                alert('Ada error. Silahkan klik "View Error"');
+                            } else {
+                                $("#btn-error").click();
+                            }
                         }
                     },
                     error: function (xhr, status, error) {

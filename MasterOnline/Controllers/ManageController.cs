@@ -34954,14 +34954,14 @@ namespace MasterOnline.Controllers
                                                                 if (!string.IsNullOrEmpty(current_ref))
                                                                 {
                                                                     var noref = current_ref.Substring(26);
-                                                                    var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref).SingleOrDefault();
-                                                                    var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
+                                                                    var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref && a.CUST == cust_id).SingleOrDefault();
+                                                                    var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref && a.CUST == cust_id).SingleOrDefault();
                                                                     var so = "";
                                                                     double nettoSI = 0;
 
                                                                     if (cekPesanan != null)
                                                                     {
-                                                                        var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI).SingleOrDefault();
+                                                                        var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI && a.CUST == cust_id).SingleOrDefault();
                                                                         if (cekSIPesanan != null)
                                                                         {
                                                                             so = cekSIPesanan.NO_BUKTI;
@@ -35066,7 +35066,7 @@ namespace MasterOnline.Controllers
                                                                     }
                                                                     else
                                                                     {
-                                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan" + System.Environment.NewLine);
+                                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ")." + System.Environment.NewLine);
                                                                         //message += "Faktur dengan No. Ref " + noref + " di baris " + i + " tidak ditemukan." + System.Environment.NewLine;
                                                                         //tw.WriteLine(message);
                                                                     }
@@ -36005,38 +36005,47 @@ namespace MasterOnline.Controllers
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
                                     for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
                                     {
-                                        //Columns start from A5, start mapping column
-                                        var a = new LazadaExcelBayarPiutang
+                                        string cekValid = worksheet.Cells[1, 1].Value == null ? "" : worksheet.Cells[1, 1].Value.ToString();
+                                        if (!string.IsNullOrEmpty(cekValid) && cekValid == "Transaction Date")
                                         {
-                                            TransactionDate = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
-                                            TransactionType = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
-                                            FeeName = worksheet.Cells[i, 3].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 3].Value),
-                                            TransactionNumber = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
-                                            Details = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
-                                            SellerSKU = worksheet.Cells[i, 6].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 6].Value),
-                                            LazadaSKU = worksheet.Cells[i, 7].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 7].Value),
-                                            Amount = worksheet.Cells[i, 8].Value == null ? 0 : Math.Abs(Convert.ToDouble(worksheet.Cells[i, 8].Value)),
-                                            VATinAmount = worksheet.Cells[i, 9].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 9].Value),
-                                            WHTAmount = worksheet.Cells[i, 10].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 10].Value),
-                                            WHTincludedinAmount = worksheet.Cells[i, 11].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 11].Value),
-                                            Statement = worksheet.Cells[i, 12].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 12].Value),
-                                            PaidStatus = worksheet.Cells[i, 13].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 13].Value),
-                                            OrderNo = worksheet.Cells[i, 14].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 14].Value), @"s", ""),
-                                            OrderItemNo = worksheet.Cells[i, 15].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 15].Value), @"s", ""),
-                                            OrderItemStatus = worksheet.Cells[i, 16].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 16].Value),
-                                            ShippingProvider = worksheet.Cells[i, 17].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 17].Value),
-                                            ShippingSpeed = worksheet.Cells[i, 18].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 18].Value),
-                                            ShipmentType = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
-                                            Reference = worksheet.Cells[i, 20].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 20].Value), @"s", ""),
-                                            Comment = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
-                                            PaymentRefId = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
-                                        };
-                                        if (!string.IsNullOrEmpty(a.OrderNo))
-                                        {
-                                            if (a.OrderNo != "")
+                                            //Columns start from A5, start mapping column
+                                            var a = new LazadaExcelBayarPiutang
                                             {
-                                                records.Add(a);
+                                                TransactionDate = worksheet.Cells[i, 1].Value == null ? DateTime.Now : Convert.ToDateTime(worksheet.Cells[i, 1].Value),
+                                                TransactionType = worksheet.Cells[i, 2].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 2].Value),
+                                                FeeName = worksheet.Cells[i, 3].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 3].Value),
+                                                TransactionNumber = worksheet.Cells[i, 4].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 4].Value),
+                                                Details = worksheet.Cells[i, 5].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 5].Value),
+                                                SellerSKU = worksheet.Cells[i, 6].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 6].Value),
+                                                LazadaSKU = worksheet.Cells[i, 7].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 7].Value),
+                                                Amount = worksheet.Cells[i, 8].Value == null ? 0 : Math.Abs(Convert.ToDouble(worksheet.Cells[i, 8].Value)),
+                                                VATinAmount = worksheet.Cells[i, 9].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 9].Value),
+                                                WHTAmount = worksheet.Cells[i, 10].Value == null ? 0 : Convert.ToDouble(worksheet.Cells[i, 10].Value),
+                                                WHTincludedinAmount = worksheet.Cells[i, 11].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 11].Value),
+                                                Statement = worksheet.Cells[i, 12].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 12].Value),
+                                                PaidStatus = worksheet.Cells[i, 13].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 13].Value),
+                                                OrderNo = worksheet.Cells[i, 14].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 14].Value), @"s", ""),
+                                                OrderItemNo = worksheet.Cells[i, 15].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 15].Value), @"s", ""),
+                                                OrderItemStatus = worksheet.Cells[i, 16].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 16].Value),
+                                                ShippingProvider = worksheet.Cells[i, 17].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 17].Value),
+                                                ShippingSpeed = worksheet.Cells[i, 18].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 18].Value),
+                                                ShipmentType = worksheet.Cells[i, 19].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 19].Value),
+                                                Reference = worksheet.Cells[i, 20].Value == null ? "" : Regex.Replace(Convert.ToString(worksheet.Cells[i, 20].Value), @"s", ""),
+                                                Comment = worksheet.Cells[i, 21].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 21].Value),
+                                                PaymentRefId = worksheet.Cells[i, 22].Value == null ? "" : Convert.ToString(worksheet.Cells[i, 22].Value),
+                                            };
+                                            if (!string.IsNullOrEmpty(a.OrderNo))
+                                            {
+                                                if (a.OrderNo != "")
+                                                {
+                                                    records.Add(a);
+                                                }
                                             }
+                                        }
+                                        else
+                                        {
+                                            ret.Errors.Add("File " + file.FileName + " bukan data pembayaran lazada.");
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
                                 }
@@ -36137,14 +36146,14 @@ namespace MasterOnline.Controllers
                                                 if (!string.IsNullOrEmpty(noref))
                                                 {
 
-                                                    var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref).SingleOrDefault();
-                                                    var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
+                                                    var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref && a.CUST == cust_id).SingleOrDefault();
+                                                    var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref && a.CUST == cust_id).SingleOrDefault();
                                                     var so = "";
                                                     double nettoSI = 0;
 
                                                     if (cekPesanan != null)
                                                     {
-                                                        var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI).SingleOrDefault();
+                                                        var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI && a.CUST == cust_id).SingleOrDefault();
                                                         if (cekSIPesanan != null)
                                                         {
                                                             so = cekSIPesanan.NO_BUKTI;
@@ -36244,7 +36253,7 @@ namespace MasterOnline.Controllers
                                                     else
                                                     {
                                                         //ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan." + System.Environment.NewLine);
-                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan.");
+                                                        ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").");
 
                                                     }
                                                 }
