@@ -36575,14 +36575,14 @@ namespace MasterOnline.Controllers
                                                             if (!string.IsNullOrEmpty(noref))
                                                             {
 
-                                                                var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref).SingleOrDefault();
-                                                                var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref).SingleOrDefault();
+                                                                var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref && a.CUST == cust_id).SingleOrDefault();
+                                                                var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref && a.CUST == cust_id).SingleOrDefault();
                                                                 var so = "";
                                                                 double nettoSI = 0;
 
                                                                 if (cekPesanan != null)
                                                                 {
-                                                                    var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI).SingleOrDefault();
+                                                                    var cekSIPesanan = eraDB.SIT01A.Where(a => a.NO_SO == cekPesanan.NO_BUKTI && a.CUST == cust_id).SingleOrDefault();
                                                                     if (cekSIPesanan != null)
                                                                     {
                                                                         so = cekSIPesanan.NO_BUKTI;
@@ -36683,7 +36683,7 @@ namespace MasterOnline.Controllers
                                                                 else
                                                                 {
                                                                     //ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan." + System.Environment.NewLine);
-                                                                    ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan.");
+                                                                    ret.Errors.Add("Faktur dengan No. Ref " + noref + " tidak ditemukan pada akun " + namaMP + "(" + customer.PERSO + ").");
 
                                                                 }
                                                             }
