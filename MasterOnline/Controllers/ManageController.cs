@@ -21777,34 +21777,34 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            //if (lisTokpedShop.Count > 0)
-            //{
-            //    //var tokopediaApi = new TokopediaController();
-            //    foreach (var tblCustomer in lisTokpedShop)
-            //    {
-            //        if (tblCustomer.Sort1_Cust != "")
-            //        {
-            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-            //            {
-            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-            //                {
-            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
-            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            //                    idmarket = tblCustomer.RecNum.Value,
-            //                    DatabasePathErasoft = dbPathEra,
-            //                    username = "Support"
-            //                };
-            //                var tokpedController = new TokopediaControllerJob();
-            //                await tokpedController.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-            //                //await tokpedController.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-            //            }
-            //        }
-            //    }
-            //}
+            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            if (lisTokpedShop.Count > 0)
+            {
+                //var tokopediaApi = new TokopediaController();
+                foreach (var tblCustomer in lisTokpedShop)
+                {
+                    if (tblCustomer.Sort1_Cust != "")
+                    {
+                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                        {
+                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+                            {
+                                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                idmarket = tblCustomer.RecNum.Value,
+                                DatabasePathErasoft = dbPathEra,
+                                username = "Support"
+                            };
+                            var tokpedController = new TokopediaControllerJob();
+                            await tokpedController.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                            //await tokpedController.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+                        }
+                    }
+                }
+            }
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
             //if (listBLIShop.Count > 0)
@@ -21854,38 +21854,38 @@ namespace MasterOnline.Controllers
             //            //end change by calvin 4 april 2019
             //            #endregion
 
-                        //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
-                        //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
-                        //if (dsSO.Tables[0].Rows.Count > 0)
-                        //{
-                        //    var pageCount = Math.Abs(dsSO.Tables[0].Rows.Count / 10) + 1;
-                        //    for (int page = 0; page < pageCount; page++)
-                        //    {
-                        //        List<string> listorderid = new List<string>();
-                        //        for (int i = page * 10; i < ((page * 10) + 10); i++)
-                        //        {
-                        //            try
-                        //            {
-                        //                listorderid.Add(Convert.ToString(dsSO.Tables[0].Rows[i]["NO_REFERENSI"]));
-                        //            }
-                        //            catch (Exception ex)
-                        //            {
+            //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
+            //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
+            //if (dsSO.Tables[0].Rows.Count > 0)
+            //{
+            //    var pageCount = Math.Abs(dsSO.Tables[0].Rows.Count / 10) + 1;
+            //    for (int page = 0; page < pageCount; page++)
+            //    {
+            //        List<string> listorderid = new List<string>();
+            //        for (int i = page * 10; i < ((page * 10) + 10); i++)
+            //        {
+            //            try
+            //            {
+            //                listorderid.Add(Convert.ToString(dsSO.Tables[0].Rows[i]["NO_REFERENSI"]));
+            //            }
+            //            catch (Exception ex)
+            //            {
 
-                        //            }
-                        //        }
-                        //        if (listorderid.Count > 0)
-                        //        {
-                        //            new LazadaControllerJob().getMultiOrderItems2WithQueue(dbPathEra, "Support", listorderid, tblCustomer.TOKEN, "fixingOrderItem");
-                        //        }
+            //            }
+            //        }
+            //        if (listorderid.Count > 0)
+            //        {
+            //            new LazadaControllerJob().getMultiOrderItems2WithQueue(dbPathEra, "Support", listorderid, tblCustomer.TOKEN, "fixingOrderItem");
+            //        }
 
-                        //    }
-                        //}
-                        //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-                        //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            //    }
+            //}
+            //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 #if (DEBUG || Debug_AWS)
-                        //new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-                        //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-                        //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
 #else
                                                 //string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                                                 //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
