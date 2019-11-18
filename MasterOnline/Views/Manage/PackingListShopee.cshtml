@@ -155,11 +155,65 @@
                 //window.open(response, "_self");
                 //window.location.href(response);
 
+                if (response.mo_error != undefined) {
+                    alert(response.mo_error);
+                }
+                else {
+                    var textareaValue = "";
+
+                    var adaUrl = false;
+                    var urlValue = "";
+                    var countUrl = 0;
+                    response.ret.batch_result.airway_bills.forEach(function (item) {
+                        adaUrl = true;
+                        //urlValue += item + " \n";
+                        countUrl++;
+                        //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
+                        //    .hide()                               // make it invisible
+                        //    .attr("src", item) // point the iframe to the page you want to print
+                        //    .appendTo("body");
+
+                        var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
+                        urlValue += buttonHtml;
+                    });
+                    if (adaUrl) {
+                        textareaValue += "Url AWB :</br>";
+                        textareaValue += urlValue;
+                    }
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.ret.batch_result.errors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Error Orders :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+                    $('#modalPrintShopee__' + cust).modal('show');
+
+                    
+
+                }
             },
             error: function (xhr, status, error) {
                 console.log(error);
             }
         });
+
+        function shopeePrint(url) {
+            //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
+            var newWin = window.open(url, 'Print-Window');
+            newWin.document.open();
+            newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+            newWin.document.close();
+            setTimeout(function () {
+                newWin.close();
+            }, 10);
+        }
     }
 </script>
 @{
@@ -190,9 +244,9 @@
                             <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Shopee</h4>
                         </div>
                         <div class="modal-body">
-                            <div class="row text-center">
-                                <input type="radio" name="printType" value="0" checked />Rekap per Barang<br />
-                                <input type="radio" name="printType" value="1" />Detail per Pesanan<br />
+                            <div class="row">
+                                <div class="col-md-12" id="modalPrintShopee__textarea__@(item.CUST)">
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">

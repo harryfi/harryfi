@@ -2381,11 +2381,34 @@ namespace MasterOnline.Controllers
             public string airway_bill { get; set; }
         }
 
-        public async Task<string> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
+        public class GetAirwayBillsBatchResult
+        {
+            public GetAirwayBillsBatchResultBatch_Result batch_result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultBatch_Result
+        {
+            public int total_count { get; set; }
+            public List<GetAirwayBillsBatchResultError> errors { get; set; }
+            public string[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "";
+            var result = new GetAirwayBillsBatchResult();
+            result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2429,7 +2452,8 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsRootResult)) as GetAirwayBillsRootResult;
+                result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+
                 //var connIdARF01C = Guid.NewGuid().ToString();
 
                 //foreach (var order in result.orders)
@@ -2443,7 +2467,7 @@ namespace MasterOnline.Controllers
                 //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
             }
-            return ret;
+            return result;
         }
 
         public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)

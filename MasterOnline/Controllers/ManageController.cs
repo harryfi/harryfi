@@ -21749,7 +21749,7 @@ namespace MasterOnline.Controllers
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
 
-            //new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_80069", "Calvin");
+            //new StokControllerJob().updateStockMarketPlace("MANUAL", "erasoft_100144", "Calvin");
 
             //Task.Run(() => new LazadaControllerJob().GetOrdersCancelled("000023", "50000800209xk7TpgeUPD1314839fwAmIv1NwB8Zj1gHyaSrcXdEt7qWzCWIIn", dbPathEra, "Calvin")).Wait();
 
@@ -21832,67 +21832,67 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-//            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-//            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-//            //var lzdApi = new LazadaController();
-//            if (listLazadaShop.Count > 0)
-//            {
-//                foreach (ARF01 tblCustomer in listLazadaShop)
-//                {
-//                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-//                    {
-//                        #region refresh token lazada
-//                        //change by calvin 4 april 2019
-//                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-//                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-//                        //end change by calvin 4 april 2019
-//                        #endregion
+            //            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            //            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+            //            //var lzdApi = new LazadaController();
+            //            if (listLazadaShop.Count > 0)
+            //            {
+            //                foreach (ARF01 tblCustomer in listLazadaShop)
+            //                {
+            //                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+            //                    {
+            //                        #region refresh token lazada
+            //                        //change by calvin 4 april 2019
+            //                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+            //                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+            //                        //end change by calvin 4 april 2019
+            //                        #endregion
 
-//                        //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
-//                        //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
-//                        //if (dsSO.Tables[0].Rows.Count > 0)
-//                        //{
-//                        //    var pageCount = Math.Abs(dsSO.Tables[0].Rows.Count / 10) + 1;
-//                        //    for (int page = 0; page < pageCount; page++)
-//                        //    {
-//                        //        List<string> listorderid = new List<string>();
-//                        //        for (int i = page * 10; i < ((page * 10) + 10); i++)
-//                        //        {
-//                        //            try
-//                        //            {
-//                        //                listorderid.Add(Convert.ToString(dsSO.Tables[0].Rows[i]["NO_REFERENSI"]));
-//                        //            }
-//                        //            catch (Exception ex)
-//                        //            {
+            //                        //string sSQLSelect2 = "select A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.NO_BUKTI IS NULL AND MONTH(A.TGL) IN (9,10) ORDER BY A.TGL ASC ";
+            //                        //var dsSO = EDB.GetDataSet("ConnId", "SO", sSQLSelect2);
+            //                        //if (dsSO.Tables[0].Rows.Count > 0)
+            //                        //{
+            //                        //    var pageCount = Math.Abs(dsSO.Tables[0].Rows.Count / 10) + 1;
+            //                        //    for (int page = 0; page < pageCount; page++)
+            //                        //    {
+            //                        //        List<string> listorderid = new List<string>();
+            //                        //        for (int i = page * 10; i < ((page * 10) + 10); i++)
+            //                        //        {
+            //                        //            try
+            //                        //            {
+            //                        //                listorderid.Add(Convert.ToString(dsSO.Tables[0].Rows[i]["NO_REFERENSI"]));
+            //                        //            }
+            //                        //            catch (Exception ex)
+            //                        //            {
 
-//                        //            }
-//                        //        }
-//                        //        if (listorderid.Count > 0)
-//                        //        {
-//                        //            new LazadaControllerJob().getMultiOrderItems2WithQueue(dbPathEra, "Support", listorderid, tblCustomer.TOKEN, "fixingOrderItem");
-//                        //        }
+            //                        //            }
+            //                        //        }
+            //                        //        if (listorderid.Count > 0)
+            //                        //        {
+            //                        //            new LazadaControllerJob().getMultiOrderItems2WithQueue(dbPathEra, "Support", listorderid, tblCustomer.TOKEN, "fixingOrderItem");
+            //                        //        }
 
-//                        //    }
-//                        //}
-//                        //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-//                        //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
-//#if (DEBUG || Debug_AWS)
-//                        new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-//                        //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-//                        //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
-//#else
-//                                                string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-//                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //                        //    }
+            //                        //}
+            //                        //sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            //                        //sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            //#if (DEBUG || Debug_AWS)
+            //                        new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //                        //new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //                        //new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, "Support");
+            //#else
+            //                                                string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-//                                                connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-//                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //                                                connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-//                                                connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-//                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-//#endif
-//                    }
-//                }
-//            }
+            //                                                connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+            //                                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+            //#endif
+            //                    }
+            //                }
+            //            }
 
             #region fix pemesan null di pesanan shopee
             //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -34957,6 +34957,8 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 List<string> orderItemIds = new List<string>();
+
+                var Valid = false;
                 foreach (var so in ListStt01a)
                 {
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
@@ -34969,47 +34971,52 @@ namespace MasterOnline.Controllers
                                 foreach (SOT01B item in sot01b)
                                 {
                                     orderItemIds.Add(item.ORDER_ITEM_ID);
+                                    Valid = true;
                                 }
-                                
                             }
                         }
                     }
                 }
-                var lzdApi = new LazadaController();
-                var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                if (retApi.code == "0")
+                if (Valid)
                 {
-                    var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
-                    #region add button cetak
-                    htmlString += "<button id='print-btn' >Cetak</button>";
-                    htmlString += "<script>";
-                    htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
-                    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
-                    //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
-                    htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
-                    htmlString += "x.style.height = 'auto'; ";
-                    //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
-                    //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
-                    htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
-                    htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
-                    htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
-                    htmlString += "window.print(); }; window.onafterprint = function () {";
-                    htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
-                    htmlString += " if (document.readyState!='loading') run();";
-                    htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
-                    htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
-                    htmlString += "</script>";
-                    #endregion
-                    return Json(htmlString, JsonRequestBehavior.AllowGet);
+                    var lzdApi = new LazadaController();
+                    var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                    if (retApi.code == "0")
+                    {
+                        var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                        #region add button cetak
+                        htmlString += "<button id='print-btn' >Cetak</button>";
+                        htmlString += "<script>";
+                        htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                        //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                        htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                        htmlString += "x.style.height = 'auto'; ";
+                        //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                        //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                        htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                        htmlString += " if (document.readyState!='loading') run();";
+                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                        htmlString += "</script>";
+                        #endregion
+                        return Json(htmlString, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage(retApi.message);
+                    }
                 }
-                else
-                {
-                    return JsonErrorMessage(retApi.message);
+                else {
+                    return new JsonResult { Data = "Account link status is expired.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
             }
             catch (Exception ex)
             {
-
                 return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
@@ -35288,16 +35295,27 @@ namespace MasterOnline.Controllers
                         merchant_code = marketPlace.Sort1_Cust,
                     };
                     ShopeeControllerJob shoAPI = new ShopeeControllerJob();
-                    await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
+                    var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
+                    var listErrors = new Dictionary<string, string>();
+                    foreach (var item in ret.batch_result.errors)
+                    {
+                        if (listErrors.ContainsKey(item.error_description))
+                        {
+                            listErrors[item.error_description] = listErrors[item.error_description] + "," + item.ordersn;
+                        }
+                        else {
+                            listErrors.Add(item.error_description, item.ordersn);
+                        }
+                    }
+                    return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-
+                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
 
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
-            return JsonErrorMessage("This Function is for Lazada only");
         }
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
