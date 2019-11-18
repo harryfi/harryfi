@@ -64,5 +64,11 @@ namespace MasterOnline.ViewModels
         public int? BarangTidakLakuCount { get; set; }
         public int? BarangDibawahMinStokCount { get; set; }
         //end add by nurul 19/9/2019
+
+        //add by nurul 18/11/2019, arus kas 
+        public double totalSI { get; set; }
+        public double totalPB { get; set; }
+        public double selisih { get; set; }
+        //end add by nurul 18/11/2019, arus kas 
     }
 }

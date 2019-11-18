@@ -6356,6 +6356,7 @@
     <Content Include="Views\Admin\TablePartPartial.cshtml" />
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
     <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
+    <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
