@@ -3483,7 +3483,7 @@
                             }
                             //end add by calvin 17 desember 2018
                             if ($statusPesanan == "11") {
-                                GetCancelReasons(response.ID_MARKETPLACE);
+                                GetCancelReasons(response.ID_MARKETPLACE, response.listBrg);
                             }
                         },
                         error: function(xhr, status, error) {
@@ -3536,7 +3536,7 @@
         });
 
         //add by Tri 11 Nov 2019, set combo box untuk cancel reason
-        function GetCancelReasons(idMarketplace){
+        function GetCancelReasons(idMarketplace, listBrg){
             var listReason = [];
             $('#cancel_reason').hide();
             $('#divReasons').remove();
@@ -3544,6 +3544,13 @@
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
                 sHTML += '</div>';
+                sHTML += '<div id="ckBrg">';
+                listBrg.forEach(function setCheckBox(item, index) {
+                    var splitText = item.split(';');
+                    sHTML += '<div class="checkbox"><label><input type="checkbox" value="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
+                });
+                sHTML += '</div>';
+
                 $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
                 //$('#cbCancelReason').show();

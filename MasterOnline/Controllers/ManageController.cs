@@ -16397,7 +16397,7 @@ namespace MasterOnline.Controllers
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
             var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
-            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.BRG, B.NAMA + ' ' + ISNULL(B.NAMA2, '') AS NAMA FROM SOT01B A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
+            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.BRG, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
             {
@@ -16408,10 +16408,24 @@ namespace MasterOnline.Controllers
                 Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO),
                 allowContinue = pesananDetailInDb == null ? 1 : 0,
                 //add by Tri 12 Nov 2019, untuk cancel order
-                ID_MARKETPLACE = marketInDb.NAMA
+                ID_MARKETPLACE = marketInDb.NAMA,
+                listBrg = new List<string>()
                 //end add by Tri 12 Nov 2019, untuk cancel order
             };
+            if(listBarang.Tables[0].Rows.Count > 0)
+            {
+                for(int i = 0; i < listBarang.Tables[0].Rows.Count; i++)
+                {
+                    string namaBarang = listBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                    var catatan_split = listBarang.Tables[0].Rows[i]["NAMA"].ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
 
+                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                    {
+                        namaBarang = catatan_split[1];
+                    }
+                    infoPesanan.listBrg.Add(listBarang.Tables[0].Rows[i]["BRG"].ToString() + ";" + namaBarang);
+                }
+            }
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
         }
 
