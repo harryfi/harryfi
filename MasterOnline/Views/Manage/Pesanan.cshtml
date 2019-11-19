@@ -3543,11 +3543,12 @@
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
+                $('#ckBrg').remove();
                 sHTML += '</div>';
-                sHTML += '<div id="ckBrg">';
+                sHTML += '<div id="ckBrg" style="display:none">';
                 listBrg.forEach(function setCheckBox(item, index) {
                     var splitText = item.split(';');
-                    sHTML += '<div class="checkbox"><label><input type="checkbox" value="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
+                    sHTML += '<div class="checkbox"><label><input type="checkbox" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
                 });
                 sHTML += '</div>';
 
@@ -3578,6 +3579,12 @@
                     onChange: function (value) {
                         $('#txtCancelReason').val(value);
                         //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        if (value.includes("STOCK")) {
+                            $('#ckBrg').show();
+                        } else {
+                            $('#ckBrg').hide();
+                        }
+
                     }
                 });
 
@@ -8045,7 +8052,6 @@
             });
         }
         //end add by nurul 14/3/2019
-
         function ubahStatusPesanan() {
             //if ($('#Pesanan_TRACKING_SHIPMENT').val() == '' && $statusPesanan == '03') {
             //    alert('Isi nomor resi terlebih dahulu!');
@@ -8059,12 +8065,20 @@
 
             if ($statusPesanan == '03-undo')
                 $statusPesanan = '03';
+            var rows_selected = [];
 
             var link =
                 '@Html.Raw(Url.Action("UbahStatusPesanan", "Manage", new {recNum = "replaceRecNum", tipeStatus = "replaceStatus", cancelReason = "replaceCancelReason" }))';
             link = link.replace("replaceRecNum", encodeURIComponent(this.$recPesanan));
             link = link.replace("replaceStatus", encodeURIComponent(this.$statusPesanan));
             link = link.replace("replaceCancelReason", encodeURIComponent($('#txtCancelReason').val()));
+
+            $('.ckBarang').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("id-barang"));
+                }
+            });
+            link += "&listData=" + rows_selected;
 
             $.ajax({
                 type: "GET",

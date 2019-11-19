@@ -16397,7 +16397,7 @@ namespace MasterOnline.Controllers
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
             var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
-            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.BRG, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
+            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.NO_URUT, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
             {
@@ -16423,7 +16423,7 @@ namespace MasterOnline.Controllers
                     {
                         namaBarang = catatan_split[1];
                     }
-                    infoPesanan.listBrg.Add(listBarang.Tables[0].Rows[i]["BRG"].ToString() + ";" + namaBarang);
+                    infoPesanan.listBrg.Add(listBarang.Tables[0].Rows[i]["NO_URUT"].ToString() + ";" + namaBarang);
                 }
             }
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
@@ -16544,7 +16544,7 @@ namespace MasterOnline.Controllers
             //end change by nurul 13/5/2019
         }
 
-        public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus, string cancelReason)
+        public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus, string cancelReason, string[] listData)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             if (tipeStatus == "04") // validasi di tab Siap dikirim
@@ -16605,6 +16605,64 @@ namespace MasterOnline.Controllers
             }
             //end add
 
+            //add 19 Nov 2019, validasi cancel reason
+            string listVariable = "";
+            if (tipeStatus == "11")
+            {
+                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
+                if(customer != null)
+                {
+                    if(customer.STATUS_API == "1")
+                    {
+                        if(customer.NAMA == "17")//shopee
+                        {
+                            if (!string.IsNullOrEmpty(cancelReason))
+                            {
+                                if (cancelReason.Contains("STOCK") && listData.Count() == 0)
+                                {
+                                    var vmError = new StokViewModel();
+                                    vmError.Errors.Add("Anda belum memilih barang yang stoknya habis di pesanan ini.");
+                                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                                }
+                                else
+                                {
+                                    for(int i =0;i < listData.Count(); i++)
+                                    {
+                                        var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == listData[i]).FirstOrDefault();
+                                        if(detail != null)
+                                        {
+                                            if(detail.BRG == "NOT_FOUND")
+                                            {
+                                                var catatan_split = detail.CATATAN.ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
+
+                                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                                                {
+                                                    listVariable += catatan_split[2] + "|";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var kdBrgMp = ErasoftDbContext.STF02H.Where(m => m.BRG == detail.BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                                                if(kdBrgMp != null)
+                                                {
+                                                    listVariable += kdBrgMp.BRG_MP + "|";
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Pilih alasan anda membatalkan pesanan ini.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                }
+            }
+            //end add 19 Nov 2019, validasi cancel reason
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
 
@@ -16623,7 +16681,7 @@ namespace MasterOnline.Controllers
             //end add by calvin 29 nov 2018
 
             //add by Tri, call marketplace api to update order status
-            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, cancelReason);
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, cancelReason, listVariable);
             //end add by Tri, call marketplace api to update order status
             return new EmptyResult();
         }
@@ -16648,7 +16706,7 @@ namespace MasterOnline.Controllers
                             pesananInDb.STATUS_TRANSAKSI = "02";
                             ErasoftDbContext.SaveChanges();
                             //add by Tri, call marketplace api to update order status
-                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "");
+                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "", "");
                             //end add by Tri, call marketplace api to update order status
                         }
                     }
@@ -16802,7 +16860,7 @@ namespace MasterOnline.Controllers
 
                             ErasoftDbContext.SaveChanges();
                             //add by Tri, call marketplace api to update order status
-                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "");
+                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "", "");
                             //end add by Tri, call marketplace api to update order status
 
                             //add by nurul 5/9/2019, langsung generate faktur
@@ -18014,7 +18072,7 @@ namespace MasterOnline.Controllers
         }
         //add by Tri, call marketplace api to change status
         [HttpGet]
-        public void ChangeStatusPesanan(string nobuk, string status, bool lazadaPickup, string cancelReason)
+        public void ChangeStatusPesanan(string nobuk, string status, bool lazadaPickup, string cancelReason, string listVariable)
         {
             var pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
@@ -18056,7 +18114,7 @@ namespace MasterOnline.Controllers
                                 //var sqlStorage = new SqlServerStorage(EDBConnID);
                                 //var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
-                                Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason).Wait());
+                                Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable).Wait());
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
@@ -18759,7 +18817,7 @@ namespace MasterOnline.Controllers
             //remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
             //if (changeStat)
             //end remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
-            ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/, "");
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/, "", "");
             //end add by Tri, call mp api if user input new resi
 
             return new EmptyResult();

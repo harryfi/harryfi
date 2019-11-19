@@ -3135,7 +3135,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> CancelOrder(string dbPathEra, string namaPembeli, string log_CUST, string log_ActionCategory, string log_ActionName,ShopeeAPIData iden, string ordersn, string cancelReason)
+        public async Task<string> CancelOrder(string dbPathEra, string namaPembeli, string log_CUST, string log_ActionCategory, string log_ActionName,ShopeeAPIData iden, string ordersn, string cancelReason, string listVariable)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -3169,7 +3169,27 @@ namespace MasterOnline.Controllers
                 //cancel_reason = "CUSTOMER_REQUEST"
                 cancel_reason = cancelReason
             };
+            if (cancelReason.Contains("STOCK"))
+            {
+                var listBrg = listVariable.Split('|');
+                foreach(var brg in listBrg)
+                {
+                    var kodeBrg = brg.Split(';');
+                    if(kodeBrg.Length > 1)
+                    {
+                        if(kodeBrg[1] == "0" || string.IsNullOrEmpty(kodeBrg[1]))
+                        {
+                            HttpBody.item_id = Convert.ToInt64(kodeBrg[0]);
+                        }
+                        else
+                        {
+                            HttpBody.item_id = Convert.ToInt64(kodeBrg[0]);
+                            HttpBody.variation_id = Convert.ToInt64(kodeBrg[1]);
+                        }
+                    }
+                }
 
+            }
             string myData = JsonConvert.SerializeObject(HttpBody);
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
@@ -6283,6 +6303,8 @@ namespace MasterOnline.Controllers
             public long timestamp { get; set; }
             public string ordersn { get; set; }
             public string cancel_reason { get; set; }
+            public long item_id { get; set; }
+            public long variation_id { get; set; }
         }
         public class ShopeeCancelOrderResult
         {
