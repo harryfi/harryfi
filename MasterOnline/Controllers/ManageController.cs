@@ -17439,7 +17439,7 @@ namespace MasterOnline.Controllers
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
-            return PartialView("KonfirmasiGenerateFaktur", vm);
+            return PartialView("KonfirmasiGenerateFakturNew", vm);
         }
         //end add by nurul 2/8/2019
 
