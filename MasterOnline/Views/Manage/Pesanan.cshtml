@@ -2777,7 +2777,7 @@
                     <h4>Apakah Anda yakin ingin buat faktur?</h4>
                 </div>
                 <div id="modal-generate-faktur-body">
-                    @Html.Partial("KonfirmasiGenerateFaktur")
+                    @Html.Partial("KonfirmasiGenerateFakturNew")
                 </div>
             </div>
             <br />
@@ -3287,15 +3287,15 @@
                 $(".checkbox_generateFaktur").prop('checked',
                     $(this).prop('checked'));
                 if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                    $(".buat_faktur").attr('disabled', 'disabled');
+                    //$(".buat_faktur").attr('disabled', 'disabled');
                 } else {
-                    $(".buat_faktur").removeAttr('disabled');
+                    //$(".buat_faktur").removeAttr('disabled');
                 }
             });
             $(".checkbox_generateFaktur").each(function (i, item) {
                 $(item).off('click').on('click', function () {
                     if ($(item).prop('checked') == true) {
-                        $(".buat_faktur").attr('disabled', 'disabled');
+                        //$(".buat_faktur").attr('disabled', 'disabled');
                     } else {
                         var cekTrue = [];
                         $(".checkbox_generateFaktur").each(function (z, chk) {
@@ -3304,7 +3304,7 @@
                             }
                         });
                         if (cekTrue.length == 0) {
-                            $(".buat_faktur").removeAttr('disabled');
+                            //$(".buat_faktur").removeAttr('disabled');
                         }
                     }
                 });
@@ -6523,15 +6523,15 @@
                         $(".checkbox_generateFaktur").prop('checked',
                             $(this).prop('checked'));
                         if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                            $(".buat_faktur").attr('disabled', 'disabled');
+                            //$(".buat_faktur").attr('disabled', 'disabled');
                         } else {
-                            $(".buat_faktur").removeAttr('disabled');
+                            //$(".buat_faktur").removeAttr('disabled');
                         }
                     });
                     $(".checkbox_generateFaktur").each(function (i, item) {
                         $(item).off('click').on('click', function () {
                             if ($(item).prop('checked') == true) {
-                                $(".buat_faktur").attr('disabled', 'disabled');
+                                //$(".buat_faktur").attr('disabled', 'disabled');
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_generateFaktur").each(function (z, chk) {
@@ -6540,7 +6540,7 @@
                                     }
                                 });
                                 if (cekTrue.length == 0) {
-                                    $(".buat_faktur").removeAttr('disabled');
+                                    //$(".buat_faktur").removeAttr('disabled');
                                 }
                             }
                         });
@@ -6571,15 +6571,15 @@
                         $(".checkbox_generateFaktur").prop('checked',
                             $(this).prop('checked'));
                         if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                            $(".buat_faktur").attr('disabled', 'disabled');
+                            //$(".buat_faktur").attr('disabled', 'disabled');
                         } else {
-                            $(".buat_faktur").removeAttr('disabled');
+                            //$(".buat_faktur").removeAttr('disabled');
                         }
                     });
                     $(".checkbox_generateFaktur").each(function (i, item) {
                         $(item).off('click').on('click', function () {
                             if ($(item).prop('checked') == true) {
-                                $(".buat_faktur").attr('disabled', 'disabled');
+                                //$(".buat_faktur").attr('disabled', 'disabled');
                             } else {
                                 var cekTrue = [];
                                 $(".checkbox_generateFaktur").each(function (z, chk) {
@@ -6588,7 +6588,7 @@
                                     }
                                 });
                                 if (cekTrue.length == 0) {
-                                    $(".buat_faktur").removeAttr('disabled');
+                                    //$(".buat_faktur").removeAttr('disabled');
                                 }
                             }
                         });
