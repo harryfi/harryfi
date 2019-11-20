@@ -574,15 +574,15 @@
                 </div>
                 <div class="col-md-4 col-sm-12">
                     @*<div class="dropdown" style="padding-top:1.8em;">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <span id="mode_Baranglaku">Grafik</span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li><a onclick="changeStyle(1)">Grafik</a></li>
-                            <li><a onclick="changeStyle(2)">Tabel</a></li>
-                        </ul>
-                    </div>*@
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <span id="mode_Baranglaku">Grafik</span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                <li><a onclick="changeStyle(1)">Grafik</a></li>
+                                <li><a onclick="changeStyle(2)">Tabel</a></li>
+                            </ul>
+                        </div>*@
                 </div>
             </div>
             <div class="x_content text-center">
@@ -644,7 +644,7 @@
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-@*@if (Model?.ListBarang != null)*@
+                @*@if (Model?.ListBarang != null)*@
                 @if (Model?.listBarangCount > 0)
                 {
                     <p>
@@ -664,6 +664,40 @@
                 {
                     <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
                 }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Estimasi Arus Kas</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="row" id="periode_aruskas">
+                <div class="col-md-12">
+                    <div class="col-md-2">
+                        @*@Html.Label("", "Periode")*@
+                        <h5 class="text-left"><strong>Periode</strong></h5>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group number">
+                            @Html.TextBox("Bulan", null, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class='input-group number'>
+                            @Html.TextBox("Tahun", null, new { @class = "form-control", @ReadOnly = true })
+                        </div>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </div>
+            <div class="x_content text-center">
+                <div id="loading_aruskas" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row container" id="table-aruskas-partial">
+                </div>
             </div>
         </div>
     </div>

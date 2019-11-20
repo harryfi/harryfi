@@ -1851,6 +1851,35 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 2/9/2019
 
+        //add by nurul 18/11/2019, dashboard arus kas 
+        public class SUM_NettoSIPB
+        {
+            public double TOTAL { get; set; }
+        }
+        public ActionResult RefreshDashboardArusKas(string bulan, string tahun)
+         {
+            try
+            {
+                var vm = new DashboardViewModel() { };
+                if (bulan != "" && tahun != "")
+                {
+                    string sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from sit01a where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "'";
+                    var TotalPenjualan = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
+                    sSQL1 = "select isnull(sum(isnull(netto,0)),0) as TOTAL from pbt01a where month(tgl)='" + bulan + "' and year(tgl)='" + tahun + "'";
+                    var TotalPembelian = ErasoftDbContext.Database.SqlQuery<SUM_NettoSIPB>(sSQL1).Single();
+                    vm.totalSI = TotalPenjualan.TOTAL;
+                    vm.totalPB = TotalPembelian.TOTAL;
+                    vm.selisih = TotalPenjualan.TOTAL - TotalPembelian.TOTAL;
+                }
+                return PartialView("TableDashboardArusKas", vm);
+            }
+            catch ( Exception ex)
+            {
+                return new EmptyResult();
+            }
+        }
+        //end add by nurul 18/11/2019, dashboard arus kas 
+
         // =============================================== Dashboard (END)
 
         // =============================================== Menu Manage (START)
