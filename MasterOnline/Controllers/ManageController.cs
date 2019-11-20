@@ -35296,15 +35296,16 @@ namespace MasterOnline.Controllers
                     };
                     ShopeeControllerJob shoAPI = new ShopeeControllerJob();
                     var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
-                    var listErrors = new Dictionary<string, string>();
+                    var listErrors = new List<PackingListErrors>();
                     foreach (var item in ret.batch_result.errors)
                     {
-                        if (listErrors.ContainsKey(item.error_description))
+                        if (listErrors.Where(p => p.keyname == item.error_description).Count() == 0)
                         {
-                            listErrors[item.error_description] = listErrors[item.error_description] + "," + item.ordersn;
-                        }
-                        else {
-                            listErrors.Add(item.error_description, item.ordersn);
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = item.error_description,
+                                errorMessage = item.ordersn
+                            });
                         }
                     }
                     return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -35317,6 +35318,209 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
+        public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti) {
+            try
+            {
+                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var EDB = new DatabaseSQL(dbPathEra);
+                if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
+                {
+                    if (tblCustomer.STATUS_API == "1") {
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                        BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = usernameLogin
+                        };
+                        var bliJob = new BlibliControllerJob();
+                        var listErrors = new List<PackingListErrors>();
+                        foreach (var so in ListStt01a)
+                        {
+                            var orderItemIds = new List<string>();
+
+                            var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                            for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
+                            {
+                                orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
+                            }
+                            if (orderItemIds.Count > 0) {
+                                var success = false;
+                                try
+                                {
+                                    var bookingAWB = await bliJob.createPackage(dbPathEra, iden, orderItemIds);
+                                    if (!string.IsNullOrWhiteSpace(bookingAWB))
+                                    {
+                                        var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
+                                        if (updated < 1) {
+                                            success = true;
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    
+                                }
+
+                                if(!success)
+                                {
+                                    if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = "Order failed to create package."
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Order have no item."
+                                    });
+                                }
+                            }
+                        }
+                        return new JsonResult { Data = new { listErrors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        public class PackingListErrors {
+            public string keyname { get; set; }
+            public string errorMessage { get; set; }
+        }
+        public class listSuccessPrintLabel {
+            public string no_referensi { get; set; }
+            public string orderItemId { get; set; }
+            public string pdf64 { get; set; }
+        }
+        public async Task<ActionResult> BlibliLabelPerPacking(string cust, string bukti) {
+            try
+            {
+                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var EDB = new DatabaseSQL(dbPathEra);
+                if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
+                {
+                    if (tblCustomer.STATUS_API == "1")
+                    {
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                        BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = usernameLogin
+                        };
+                        var bliJob = new BlibliControllerJob();
+                        var listErrors = new List<PackingListErrors>();
+                        var listSuccess = new List<listSuccessPrintLabel>();
+                        foreach (var so in ListStt01a)
+                        {
+                            var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                            if(dsSOT01B.Tables[0].Rows.Count == 0)
+                            {
+                                if (listErrors.Where(p=> p.keyname == so.no_referensi).Count() == 0)
+                                {
+                                    listErrors.Add(new PackingListErrors { keyname = so.no_referensi, errorMessage = "Order have no item." });
+                                }
+                            }
+
+                            for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
+                            {
+                                var orderItemId = Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]);
+                                string failedReason = "";
+                                var success = false;
+                                try
+                                {
+                                    var bookingAWB = await bliJob.GetShippingLabel(dbPathEra, iden, orderItemId);
+                                    if (bookingAWB.success)
+                                    {
+                                        listSuccess.Add( new listSuccessPrintLabel {
+                                            no_referensi = so.no_referensi,
+                                            pdf64 = bookingAWB.value.document,
+                                            orderItemId = orderItemId
+                                        });
+                                    }
+                                    else {
+                                        failedReason = bookingAWB.errorMessage;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    failedReason = "Internal Server Error.";
+                                }
+
+                                if (!success)
+                                {
+
+                                    if (listErrors.Where(p => p.keyname == so.no_referensi + "_" + orderItemId).Count() == 0)
+                                    {
+                                        listErrors.Add(new PackingListErrors {
+                                            keyname = so.no_referensi + "_" + orderItemId,
+                                            errorMessage = "Order [" + so.no_referensi + "] Item ID [" + orderItemId + "] gagal cetak label, karena : " + failedReason
+                                        });
+                                    }
+                                }
+                            }
+
+                        }
+                        return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+
+                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {

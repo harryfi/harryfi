@@ -9,9 +9,18 @@
 }
 @Html.AntiForgeryToken()
 <script type="text/javascript">
+    $(document).ready(function () {
+        if ($('#PackingListLazadaFound')) {
+            if (parseInt($('#PackingListLazadaFound').val()) > 0) {
+                $('#li_pesanan_lazada_tab_focus').show().on('click', function () {
+                    $('#lazada-cust-tab li:first').find('a').click();
+                });
+            }
+        }
+    });
     function RequestPickupPackingLazada(cust) {
         $('#btnProsesLazada__' + cust).attr("disabled", true);
-        var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
+        var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
         $link = $link.replace("replaceDeliveryProvider", encodeURIComponent($('#txtShipment__' + cust).val()));
@@ -34,7 +43,7 @@
         });
     }
     function LazadaGetLabelPerPacking(cust) {
-        var $link = '@Html.Raw(Url.Action("LazadaLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
+        var $link = '@Html.Raw(Url.Action("LazadaLabelPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
 
@@ -110,6 +119,10 @@
     </tr>
 </table>
 <div class="tab-content">
+    @{ 
+        var PackingListLazadaFound = distinctCust.Count();
+    }
+    @Html.TextBox("PackingListLazadaFound", PackingListLazadaFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
     @foreach (var item in distinctCust)
     {
         <div id="lazada_tab_content__@(item.CUST)" class="tab-pane fade in">

@@ -9,6 +9,13 @@
 }
 <script type="text/javascript">
     $(document).ready(function () {
+        if ($('#PackingListShopeeFound')) {
+            if (parseInt($('#PackingListShopeeFound').val()) > 0) {
+                $('#li_pesanan_shopee_tab_focus').show().on('click', function () {
+                    $('#shopee-cust-tab li:first').find('a').click();
+                });
+            }
+        }
         $('.selectShopeeResiPickupAddress').each(function (i, item) {
 
             var cust = $(item).attr("data-kodecust");
@@ -139,21 +146,6 @@
             type: "GET",
             url: $link,
             success: function (response) {
-                //if (response != null) {
-                //    if (response.Errors == null) {
-                //        //$('#labelContainer').html(response);
-
-                //        //window.open(response, "_self");
-                //        var w = window.open('about:blank');
-                //        w.document.open();
-                //        w.document.write(response);
-                //        w.document.close();
-                //    } else {
-                //        alert(response.Errors[0]);
-                //    }
-                //}
-                //window.open(response, "_self");
-                //window.location.href(response);
 
                 if (response.mo_error != undefined) {
                     alert(response.mo_error);
@@ -204,16 +196,16 @@
             }
         });
 
-        function shopeePrint(url) {
-            //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
-            var newWin = window.open(url, 'Print-Window');
-            newWin.document.open();
-            newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
-            newWin.document.close();
-            setTimeout(function () {
-                newWin.close();
-            }, 10);
-        }
+        //function shopeePrint(url) {
+        //    //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
+        //    var newWin = window.open(url, 'Print-Window');
+        //    newWin.document.open();
+        //    newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+        //    newWin.document.close();
+        //    setTimeout(function () {
+        //        newWin.close();
+        //    }, 10);
+        //}
     }
 </script>
 @{
@@ -232,6 +224,10 @@
     </tr>
 </table>
 <div class="tab-content">
+    @{
+        var PackingListShopeeFound = distinctCust.Count();
+    }
+    @Html.TextBox("PackingListShopeeFound", PackingListShopeeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
     @foreach (var item in distinctCust)
     {
         <div id="shopee_tab_content__@(item.CUST)" class="tab-pane fade in">

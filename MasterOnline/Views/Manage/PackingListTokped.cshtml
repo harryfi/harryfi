@@ -8,6 +8,15 @@
 
 }
 <script type="text/javascript">
+    $(document).ready(function () {
+        if ($('#PackingListTokpedFound')) {
+            if (parseInt($('#PackingListTokpedFound').val()) > 0) {
+                $('#li_pesanan_tokped_tab_focus').show().on('click', function () {
+                    $('#tokped-cust-tab li:first').find('a').click();
+                });
+            }
+        }
+    });
     function RequestPickupPackingTokped(cust) {
         $('#btnProsesTokped_' + cust).attr("disabled", true);
         var $link = '@Html.Raw(Url.Action("RequestPickupTokpedPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
@@ -48,6 +57,10 @@
     </tr>
 </table>
 <div class="tab-content">
+    @{
+        var PackingListTokpedFound = distinctCust.Count();
+    }
+    @Html.TextBox("PackingListTokpedFound", PackingListTokpedFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
     @foreach (var item in distinctCust)
     {
         <div id="tokped_tab_content__@(item.CUST)" class="tab-pane fade in">
