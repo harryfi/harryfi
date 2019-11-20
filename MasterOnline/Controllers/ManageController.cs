@@ -16618,7 +16618,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(cancelReason))
                             {
-                                if (cancelReason.Contains("STOCK") && listData.Count() == 0)
+                                if (cancelReason.Contains("STOCK") && string.IsNullOrEmpty(listData[0]))
                                 {
                                     var vmError = new StokViewModel();
                                     vmError.Errors.Add("Anda belum memilih barang yang stoknya habis di pesanan ini.");
