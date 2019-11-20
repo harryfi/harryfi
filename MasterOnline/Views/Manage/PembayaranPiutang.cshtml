@@ -4,6 +4,7 @@
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 
     var context = new MoDbContext();
+    var listErr = Model.Errors;
 }
 
 @section styles
@@ -488,6 +489,71 @@
                 <h4 class="modal-title" id="uploadlabel">Upload Pembayaran</h4>
             </div>
             <div class="modal-body" id="modal-upload-body">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div id="note_shopee" style="display:none">
+                            <h5>Anda bisa “UPLOAD” data pembayaran piutang ke MasterOnline (MO), tanpa harus input satu per satu.</h5>
+                            <h5>Untuk Marketplace Shopee dengan cara :</h5>
+                            <h5>
+                                1. Buka https://seller.shopee.co.id/
+                            </h5>
+                            <h5>2. Klik Saldo Saya</h5>
+                            <h5>3. Isi password akun Anda bila diminta</h5>
+                            <h5>4. Klik Lihat Riwayat Transaksi</h5>
+                            <h5>5. Pilih rentang tanggal yang diinginkan</h5>
+                            <h5>6. Klik Export</h5>
+                            <h5>7. Klik Download</h5>
+                            <h5>8. Save di direktori yang diinginkan</h5>
+                        </div>
+                        <div id="note_tokopedia" style="display:none">
+                            <h5>Anda bisa “UPLOAD” data pembayaran piutang ke MasterOnline (MO), tanpa harus input satu per satu.</h5>
+                            <h5>Untuk Marketplace Tokopedia dengan cara :</h5>
+                            <h5>
+                                1. Buka https://www.tokopedia.com/
+                            </h5>
+                            <h5>2. Klik Saldo</h5>
+                            <h5>3. Pilih rentang tanggal yang diinginkan</h5>
+                            <h5>4. Klik Ekspor Riwayat</h5>
+                            <h5>5. Save di direktori yang diinginkan</h5>
+                        </div>
+                        <div id="note_lazada" style="display:none">
+                            <h5>Anda bisa “UPLOAD” data pembayaran piutang ke MasterOnline (MO), tanpa harus input satu per satu.</h5>
+                            <h5>Untuk Marketplace Lazada dengan cara :</h5>
+                            <h5>
+                                1. Buka https://sellercenter.lazada.co.id/
+                            </h5>
+                            <h5>2. Hover "Finance"</h5>
+                            <h5>3. Klik "Account Statements"</h5>
+                            <h5>4. Pilih rentang tanggal yang diinginkan</h5>
+                            <h5>5. Klik "Export"</h5>
+                            <h5>6. Klik "Download"</h5>
+                            <h5>7. Save di direktori yang diinginkan</h5>
+                        </div>
+                        <div id="note_bukalapak" style="display:none">
+                            <h5>Anda bisa “UPLOAD” data pembayaran piutang ke MasterOnline (MO), tanpa harus input satu per satu.</h5>
+                            <h5>Untuk Marketplace Bukalapak dengan cara :</h5>
+                            <h5>
+                                1. Buka https://www.bukalapak.com/
+                            </h5>
+                            <h5>2. Klik nominal di halaman bagian atas (nominal tiap akun besarnya berbeda2)</h5>
+                            <h5>3. Klik "Detail" pada BukaDompet</h5>
+                            <h5>4. Pilih rentang tanggal yang diinginkan</h5>
+                            <h5>5. Klik tombol download</h5>
+                            <h5>6. Save di direktori yang diinginkan</h5>
+                        </div>
+                        <div id="note_blibli" style="display:none">
+                            <h5>Anda bisa “UPLOAD” data pembayaran piutang ke MasterOnline (MO), tanpa harus input satu per satu.</h5>
+                            <h5>Untuk Marketplace Blibli dengan cara :</h5>
+                            <h5>
+                                1. Buka https://merchant.blibli.com/
+                            </h5>
+                            <h5>2. Hover "Laporan"</h5>
+                            <h5>3. Klik "Dokumen Pembayaran"</h5>
+                            <h5>4. Download file yang diinginkan</h5>
+                            <h5>5. Save di direktori yang diinginkan</h5>
+                        </div>
+                    </div>
+                </div>
                 <br />
                 <div class="row">
                     <div class="col-md-8 file_upload_section">
@@ -518,20 +584,16 @@
                 <h4 class="modal-title" id="createlabel">Konfirmasi Create Potongan Sesuai Selisih</h4>
             </div>
             <div class="modal-body" id="modal-create-body">
+                @*<div id="loading_pot" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>*@
                 <div class="row">
                     <div class="col-md-10 ">
                         <h5>Proses ini akan melunasi faktur. Apakah Anda yakin ingin melanjutkan?</h5>
-                        @*<h5>Apakah anda yakin ingin melanjutkan?</h5>*@
                     </div>
                     <div class="col-md-4"></div>
 
                 </div>
-                @*<div class="row pull-right">
-                        <button type="button" class="btn btn-primary pull-right" onclick="createPOT();" data-style="expand-right">
-                            <span>Proses</span>
-                        </button>
-                    </div>
-                    <div></div>*@
                 <br />
             </div>
             <div class="modal-footer">
@@ -548,6 +610,10 @@
                 <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
             </div>
             <div class="modal-body edit-content">
+                <div id="loading_error" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                @*@Html.Partial("ListErrorPembayaranPiutang", listErr)*@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
@@ -568,6 +634,7 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var $tempErr = [];
         var $tempMP1 = "";
         var $tempMP = "";
         var $modeEdit = 0; // 0 new, 1 edit
@@ -626,6 +693,10 @@
                 $('input, select, .btn-danger').each(function () {
                     $(this).removeAttr('disabled');
                 });
+                $("#modalError").on('show.bs.modal', function (e) {
+                    var $modal = $(this);
+                    $modal.find('.edit-content').html('');
+                });
 
                 $('.piutang_table_section').show();
                 $('.piutang_editor_section').hide();
@@ -640,29 +711,6 @@
                 //end add by nurul 12/2/2019
             });
 
-            $('#modalError').on('show.bs.modal', function (e) {
-                var str = listError.map(function (item) {
-                    for (var key in item)
-                        return item;
-                }).join("\n").html_safe;
-                var $modal = $(this),
-                    //esseyId = e.relatedTarget.dataset.yourparameter;
-                    esseyId = str;
-
-                //            $.ajax({
-                //                cache: false,
-                //                type: 'POST',
-                //                url: 'backend.php',
-                //                data: 'EID='+essay_id,
-                //                success: function(data)
-                //                {
-
-                var esy = $('.profile').html();
-                $modal.find('.edit-content').html(esy);
-                //                }
-                //            });
-
-            });
         });
 
         //var table = $('#datatable').DataTable({
@@ -1313,6 +1361,7 @@
                             var $trElement = 'tr[data-piutang-id="' + $trId + '"]';
 
                             if (val != null) {
+                                $('#CUSTOMER')[0].selectize.disable();
                                 $.each(data,
                                     function (i, item) {
                                         if (item.RecNum == val) {
@@ -1335,6 +1384,8 @@
                                 $($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
                                 $($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
                             } else {
+                                $('#CUSTOMER')[0].selectize.enable();
+
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                                 $($trElement + ' .span-potongan-piutang').val('-').show();
                                 $($trElement + ' .span-bayar-piutang').val('-').show();
@@ -1409,7 +1460,7 @@
                     getMarketplace();
                     //getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
-
+                    $('#btn-error-row').hide();
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                     $('input, select, .btn-danger').each(function () {
@@ -1437,15 +1488,14 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    //getFaktur($("#Piutang_CUST").val());
+                    getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
-                    $('input, select').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
-                    $('#file_upload_excel').removeAttr('disabled');
+                    
+                    $('#btn-error-row').hide();
                     $('#btn-autoload').click(function () {
                         $('#file_upload_excel').removeAttr('disabled');
                     });
+                    
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                 },
@@ -1504,7 +1554,10 @@
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    //getFaktur($("#Piutang_CUST").val());
+                    $('#btn-autoload').click(function () {
+                        $('#file_upload_excel').removeAttr('disabled');
+                    });
+                    getFaktur($("#Piutang_CUST").val());
                     $('#konfHapusFaktur').modal('hide');
                 },
                 error: function (xhr) {
@@ -1571,7 +1624,10 @@
                     $('#table-piutang-partial').html(response);
                     $('#loading_bayarpiutang_tab').hide();
                     $('#table-piutang-partial').show();
-
+                    $("#modalError").on('show.bs.modal', function (e) {
+                        var $modal = $(this);
+                        $modal.find('.edit-content').html('');
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1612,6 +1668,11 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
+                    $("#modalError").on('show.bs.modal', function (e) {
+                        var $modal = $(this);
+                        $modal.find('.edit-content').html('');
+                    });
+                    $("#btn-error-row").hide();
                     //refreshInputan();
                     getTanggal();
                     getMarketplace();
@@ -1682,6 +1743,9 @@
                                 $('input, select').each(function () {
                                     $(this).attr('disabled', 'disabled');
                                 });
+                                $('#btn-autoload').click(function () {
+                                    $('#file_upload_excel').removeAttr('disabled');
+                                });
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
@@ -1709,10 +1773,46 @@
             if ($('#Piutang_TGL').val() == null ||
                 $('#Piutang_CUST').val() == '') {
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
-            } else if ($tempMP1.toUpperCase() != "SHOPEE") {
-                alert('Maaf, upload ini baru bisa menghandle Shopee');
+            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA") {
+                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia dan Lazada.');
             }
             else {
+
+
+                $("#konfUpload").on('show.bs.modal', function (e) {
+
+                    if ($tempMP1.toUpperCase() == "SHOPEE") {
+                        $('#note_shopee').show();
+                        $('#note_tokopedia').hide();
+                        $('#note_lazada').hide();
+                        $('#note_bukalapak').hide();
+                        $('#note_blibli').hide();
+                    } else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+                        $('#note_shopee').hide();
+                        $('#note_tokopedia').show();
+                        $('#note_lazada').hide();
+                        $('#note_bukalapak').hide();
+                        $('#note_blibli').hide();
+                    } else if ($tempMP1.toUpperCase() == "LAZADA") {
+                        $('#note_shopee').hide();
+                        $('#note_tokopedia').hide();
+                        $('#note_lazada').show();
+                        $('#note_bukalapak').hide();
+                        $('#note_blibli').hide();
+                    } else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                        $('#note_shopee').hide();
+                        $('#note_tokopedia').hide();
+                        $('#note_lazada').hide();
+                        $('#note_bukalapak').show();
+                        $('#note_blibli').hide();
+                    } else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                        $('#note_shopee').hide();
+                        $('#note_tokopedia').hide();
+                        $('#note_lazada').hide();
+                        $('#note_bukalapak').hide();
+                        $('#note_blibli').show();
+                    }
+                });
                 $("#konfUpload").modal('show');
                 document.getElementById("file_upload_excel").value = "";
             }
@@ -1734,8 +1834,8 @@
         }
 
         function checkfile(s) {
-            //var validExts = new Array(".xlsx", ".xls", ".csv");
-            var validExts = new Array(".xlsx", ".xls");
+            var validExts = new Array(".xlsx", ".xls", ".csv");
+            //var validExts = new Array(".xlsx", ".xls");
             var fileExt = s.value;
             if (fileExt != null && fileExt != "") {
                 fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
@@ -1765,9 +1865,22 @@
                 $('input, select').each(function () {
                     $(this).removeAttr('disabled');
                 });
+
+                var url = "";
+                if ($tempMP1.toUpperCase() == "SHOPEE") {
+                    url = '@Url.Action("UploadXcelBayar1", "Manage")';
+                }
+                else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+                    url = '@Url.Action("UploadXcelBayarTokped", "Manage")';
+                }
+                else if ($tempMP1.toUpperCase() == "LAZADA") {
+                    url = '@Url.Action("UploadXcelBayarLazada", "Manage")';
+                }
+
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UploadXcelBayar1", "Manage")',
+                    @*url: '@Url.Action("UploadXcelBayar1", "Manage")',*@
+                    url: url,
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
@@ -1775,6 +1888,7 @@
                         $('#loading_upload').show();
                     },
                     success: function (response) {
+                        
                         if (response.Errors == undefined) {
                             $('#loading_upload').hide();
                             $("#konfUpload").modal('hide');
@@ -1792,17 +1906,78 @@
                             });
                             $('#btn-simpan-perubahan-row').hide();
                             $('#btn-autoload').click(function () {
-                                //$("#konfUpload").modal('hide');
-                                //alert('Silahkan tambah baru untuk upload kembali.');
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
+                            $("#btn-error-row").show();
+                            $tempErr.length = 0;
+                            $tempErr = listError;
+                            $("#modalError").on('show.bs.modal', function (e) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ShowErrorUploadBayar", "Manage")',
+                                    data: JSON.stringify($tempErr),
+                                    contentType: 'application/json; charset=UTF-8',
+                                    cache: false,
+                                    beforeSend: function () {
+                                        $('#loading_error').show();
+                                    },
+                                    success: function (value) {
+                                        $('#modalError').find('.edit-content').html(value);
+                                        $('#Modal').modal('show');
+                                        $('#loading_error').hide();
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        $tempErr.length = 0;
+                                    }
+                                });
+                            });
+                            if ($tempErr.length > 1) {
+                                alert('Ada error. Silahkan klik "View Error"');
+                            } else {
+                                $("#btn-error").click();
+                            }
+
                         } else {
                             $('#loading_upload').hide();
-                            alert(response.Errors);
+                            //alert(response.Errors);
                             getFaktur($("#Piutang_CUST").val());
                             $('input, select').each(function () {
                                 $(this).removeAttr('disabled');
                             });
+                            $('#btn-autoload').click(function () {
+                                $('#file_upload_excel').removeAttr('disabled');
+                            });
+                            $("#konfUpload").modal('hide');
+                            $("#btn-error-row").show();
+                            $tempErr.length = 0;
+                            $tempErr = response.Errors;
+                            $("#modalError").on('show.bs.modal', function (e) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ShowErrorUploadBayar", "Manage")',
+                                    data: JSON.stringify($tempErr),
+                                    contentType: 'application/json; charset=UTF-8',
+                                    cache: false,
+                                    beforeSend: function () {
+                                        $('#loading_error').show();
+                                    },
+                                    success: function (value) {
+                                        $('#modalError').find('.edit-content').html(value);
+                                        $('#Modal').modal('show');
+                                        $('#loading_error').hide();
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        $tempErr.length = 0;
+                                    }
+                                });
+                            });
+                            if ($tempErr.length > 1) {
+                                alert('Ada error. Silahkan klik "View Error"');
+                            } else {
+                                $("#btn-error").click();
+                            }
                         }
                     },
                     error: function (xhr, status, error) {
@@ -1829,12 +2004,12 @@
                         $('input, select').each(function () {
                             $(this).removeAttr('disabled');
                         });
-                        $('#btn-print-row').hide();
+                        $('#NOBUK_bayar_piutang').attr('disabled', 'disabled');
                     } else {
                         $('input, select').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
-                        $('#btn-print-row').show();
+                        $('#CUSTOMER')[0].selectize.disable();
                     }
                 },
                 error: function (xhr, status, error) {
