@@ -6481,7 +6481,7 @@ namespace MasterOnline.Controllers
             newData.productNonDefiningAttributes = nonDefiningAttributes;
 
             Dictionary<string, string> images = new Dictionary<string, string>();
-            List<string> uploadedImageID = new List<string>();
+            //List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
             #region bukan barang variasi
             if (data.type == "3")
@@ -6499,8 +6499,8 @@ namespace MasterOnline.Controllers
                 }
                 if (!string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(idGambar))
-                    {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6539,15 +6539,15 @@ namespace MasterOnline.Controllers
                                 {
                                     idGambar = Convert.ToString(bytes.Length);
                                 }
-                                if (!uploadedImageID.Contains(idGambar))
-                                {
-                                    uploadedImageID.Add(idGambar);
+                                //if (!uploadedImageID.Contains(idGambar))
+                                //{
+                                //    uploadedImageID.Add(idGambar);
                                     images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                     images_pervar.Add(idGambar);
-                                }
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
                 idGambar = stf02h.ACODE_49;
                 urlGambar = stf02h.AVALUE_49;
@@ -6558,8 +6558,8 @@ namespace MasterOnline.Controllers
                 }
                 if (!string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(idGambar))
-                    {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6599,15 +6599,15 @@ namespace MasterOnline.Controllers
                                     idGambar = Convert.ToString(bytes.Length);
                                 }
 
-                                if (!uploadedImageID.Contains(idGambar))
-                                {
-                                    uploadedImageID.Add(idGambar);
+                                //if (!uploadedImageID.Contains(idGambar))
+                                //{
+                                //    uploadedImageID.Add(idGambar);
                                     images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                     images_pervar.Add(idGambar);
-                                }
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
 
                 idGambar = stf02h.ACODE_48;
@@ -6619,8 +6619,8 @@ namespace MasterOnline.Controllers
                 }
                 if (!string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(idGambar))
-                    {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6660,15 +6660,15 @@ namespace MasterOnline.Controllers
                                     idGambar = Convert.ToString(bytes.Length);
                                 }
 
-                                if (!uploadedImageID.Contains(idGambar))
-                                {
-                                    uploadedImageID.Add(idGambar);
+                                //if (!uploadedImageID.Contains(idGambar))
+                                //{
+                                //    uploadedImageID.Add(idGambar);
                                     images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                     images_pervar.Add(idGambar);
-                                }
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
                 #region 6/9/2019, 5 gambar
 
@@ -6681,8 +6681,8 @@ namespace MasterOnline.Controllers
                 }
                 if (!string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(idGambar))
-                    {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6722,15 +6722,15 @@ namespace MasterOnline.Controllers
                                     idGambar = Convert.ToString(bytes.Length);
                                 }
 
-                                if (!uploadedImageID.Contains(idGambar))
-                                {
-                                    uploadedImageID.Add(idGambar);
+                                //if (!uploadedImageID.Contains(idGambar))
+                                //{
+                                //    uploadedImageID.Add(idGambar);
                                     images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                     images_pervar.Add(idGambar);
-                                }
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
 
                 idGambar = stf02h.SIZE_GAMBAR_5;
@@ -6742,8 +6742,8 @@ namespace MasterOnline.Controllers
                 }
                 if (!string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(idGambar))
-                    {
+                    //if (!uploadedImageID.Contains(idGambar))
+                    //{
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(urlGambar);
@@ -6783,15 +6783,15 @@ namespace MasterOnline.Controllers
                                     idGambar = Convert.ToString(bytes.Length);
                                 }
 
-                                if (!uploadedImageID.Contains(idGambar))
-                                {
-                                    uploadedImageID.Add(idGambar);
+                                //if (!uploadedImageID.Contains(idGambar))
+                                //{
+                                //    uploadedImageID.Add(idGambar);
                                     images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                     images_pervar.Add(idGambar);
-                                }
+                                //}
                             }
                         }
-                    }
+                    //}
                 }
                 #endregion
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
@@ -6963,8 +6963,8 @@ namespace MasterOnline.Controllers
                     }
                     if (!string.IsNullOrWhiteSpace(image_id))
                     {
-                        if (!uploadedImageID.Contains(image_id))
-                        {
+                        //if (!uploadedImageID.Contains(image_id))
+                        //{
                             using (var client = new HttpClient())
                             {
                                 string url = var_stf02h_item.AVALUE_50;
@@ -7011,15 +7011,15 @@ namespace MasterOnline.Controllers
                                     {
                                         image_id = Convert.ToString(bytes.Length);
                                     }
-                                    if (!uploadedImageID.Contains(image_id))
-                                    {
-                                        uploadedImageID.Add(image_id);
-                                        images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                        images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                    }
+                                    //if (!uploadedImageID.Contains(image_id))
+                                    //{
+                                    //    uploadedImageID.Add(image_id);
+                                        images.Add(var_item.BRG + image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                        images_pervar.Add(var_item.BRG + image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                    //}
                                 }
                             }
-                        }
+                        //}
                     }
                     #region 6/9/2019, barang varian 2 gambar
                     //image_id = var_stf02h_item.ACODE_49;
