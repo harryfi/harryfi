@@ -3595,6 +3595,13 @@ namespace MasterOnline.Controllers
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //add 21 Nov 2019, check create product duplicate
+                            if(dbPathEra == "ERASOFT_120157")
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }                           
+                            //end add 21 Nov 2019, check create product duplicate
+
                         }
                         else
                         {
