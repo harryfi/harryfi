@@ -28872,8 +28872,11 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                                 ErasoftDbContext.STF02H.Add(dupeStf02h);
-                                                if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                                //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                                //if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                                //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                                //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                                EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.BRG_MP + "' AND CUST = '" + data.TempBrg.CUST + "'");
                                                 ErasoftDbContext.SaveChanges();
 
                                                 //add 25 April 2019, create stf02h untuk mp offline
@@ -28902,8 +28905,10 @@ namespace MasterOnline.Controllers
                                             stf02h_induk.DISPLAY = tempBrgInduk.DISPLAY;
                                             //ErasoftDbContext.STF02H.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP).Delete();
                                             ErasoftDbContext.TEMP_BRG_MP.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP && m.IDMARKET == customer.RecNum).Delete();
-                                            if (tempBrgInduk.BRG_MP != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                                                EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrgInduk.BRG_MP + "' AND CUST = '" + customer.CUST + "'");
+                                            //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                            //if (tempBrgInduk.BRG_MP != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                            //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrgInduk.BRG_MP + "' AND CUST = '" + customer.CUST + "'");
                                             ErasoftDbContext.SaveChanges();
                                         }
                                     }
@@ -29357,8 +29362,11 @@ namespace MasterOnline.Controllers
                             }
                             if (barangInDB.TYPE == "4")
                             {
-                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                //if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.BRG_MP + "' AND CUST = '" + data.TempBrg.CUST + "'");
                             }
 
 
@@ -29452,8 +29460,12 @@ namespace MasterOnline.Controllers
                             else if (data.tipeBarang == 2)//barang induk
                             {
                                 data.Stf02.TYPE = "4";
-                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                //if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                                //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.BRG_MP + "' AND CUST = '" + data.TempBrg.CUST + "'");
+
                             }
                             //end change by Tri 11 Feb 2019, handle brg tokped
 
@@ -30113,8 +30125,10 @@ namespace MasterOnline.Controllers
 
                     //delete brg induk di temp
                     eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
-                    if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                        EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "' AND CUST = '" + tempBrg.CUST + "'");
+                    //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                    //if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                    //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "' AND CUST = '" + tempBrg.CUST + "'");
                     eraDB.SaveChanges();
 
                     //add 25 April 2019, create stf02h untuk mp offline
