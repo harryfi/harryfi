@@ -19,6 +19,7 @@
         }
     });
     function RequestPickupPackingLazada(cust) {
+
         $('#btnProsesLazada__' + cust).attr("disabled", true);
         var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
@@ -33,6 +34,41 @@
             },
             success: function (response) {
                 //$('#loading_barang_tab').hide();
+
+                if (response.mo_error != undefined) {
+                    alert(response.mo_error);
+                }
+                else {
+                    var textareaValue = "";
+
+                    var adaSuccess = false;
+                    var successValue = "";
+                    response.listSuccess.forEach(function (item) {
+                        adaSuccess = true;
+                        if (successValue != "") {
+                            successValue += ", ";
+                        }
+                        successValue += item.no_referensi;
+                    });
+                    if (adaSuccess) {
+                        textareaValue += "Pesanan berhasil update status :</br>";
+                        textareaValue += successValue + ". </br>";
+                    }
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + ". </br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Error Orders :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintLazada__textarea__' + cust).html(textareaValue);
+                    $('#modalPrintLazada__' + cust).modal('show');
+                }
             },
             complete: function () {
                 $('#btnProsesLazada__' + cust).attr("disabled", false);
@@ -92,15 +128,12 @@
     }
 
     function cekValidasi(cust) {
-        var ret = true;
-        if (document.getElementById("txtShipment") != null) {
-            if ($("#txtShipment__" + cust).val() == undefined || $("#txtShipment__" + cust).val() == '') {
-                alert("Shipment Provider harus diisi.");
-                ret = false;
-                $("#btnShipment__" + cust).focus();
-            }
+        if ($("#txtShipment__" + cust).val()) {
+            RequestPickupPackingLazada(cust);
         }
-        return ret;
+        else {
+            alert("Delivery Provider harus dipilih terlebih dahulu.");
+        }
     }
 </script>
 @{
@@ -135,9 +168,9 @@
                             <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Lazada</h4>
                         </div>
                         <div class="modal-body">
-                            <div class="row text-center">
-                                <input type="radio" name="printType" value="0" checked />Rekap per Barang<br />
-                                <input type="radio" name="printType" value="1" />Detail per Pesanan<br />
+                            <div class="row">
+                                <div class="col-md-12" id="modalPrintLazada__textarea__@(item.CUST)">
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -171,7 +204,7 @@
                     </div>
                 </div>
                 <div class="col-md-2" style="text-align:right">
-                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingLazada('@(item.CUST)')">Ready To Ship</button>
+                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasi('@(item.CUST)')">Ready To Ship</button>
                 </div>
                 <div class="col-md-1" style="text-align:right">
                     @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>*@

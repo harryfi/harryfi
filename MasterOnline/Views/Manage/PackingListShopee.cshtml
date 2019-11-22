@@ -109,23 +109,6 @@
         });
     }
 
-
-    function PromptDeliveryProvShopee(r) {
-        //PromptDeliveryProvShopeeTextBox = i;
-        showPromptDeliveryProvShopeeTextBoxWindow(r);
-    }
-    var promptShopeeCust = "";
-    function showPromptDeliveryProvShopeeTextBoxWindow(val) {
-        promptShopeeCust = val;
-        var $link = '@Url.Action("PromptDeliveryProviderShopee", "Manage", new { cust = "replaceCust" })';
-        $link = $link.replace("replaceCust", val);
-        window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
-    }
-
-    function afterPromptDelTempLzd(val) {
-        $('#txtShipment__' + promptShopeeCust).val(val);
-    }
-
     function cekValidasi(cust) {
         var ret = true;
         if (document.getElementById("txtShipment") != null) {
@@ -186,9 +169,6 @@
                     }
                     $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
                     $('#modalPrintShopee__' + cust).modal('show');
-
-                    
-
                 }
             },
             error: function (xhr, status, error) {

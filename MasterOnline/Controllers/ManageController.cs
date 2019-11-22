@@ -34889,21 +34889,22 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                string sSQLSelect = "";
-                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
-                string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
-
-                string sSQLSelect2 = "";
-                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-
-                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
-                foreach (var so in ListStt01a)
+                if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
-                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    if (marketPlace.STATUS_API == "1")
                     {
-                        if (marketPlace.STATUS_API == "1")
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                        foreach (var so in ListStt01a)
                         {
                             var lzdApi = new LazadaController();
                             List<string> orderItemIds = new List<string>();
@@ -34927,19 +34928,37 @@ namespace MasterOnline.Controllers
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                                     var jobId = clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToPackedToDeliver(dbPathEra, so.nama_pemesan, marketPlace.CUST, "Pesanan", "Request Pickup", usernameLogin, ordItemId, DeliveryProvider, marketPlace.TOKEN));
+
+                                    listSuccess.Add(new listSuccessPrintLabel
+                                    {
+                                        no_referensi = so.no_referensi
+                                    });
+                                }
+                                else {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Terjadi kesalahan saat mengupdate status pesanan."
+                                    });
                                 }
                             }
+                            else {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_referensi,
+                                    errorMessage = "Pesanan tidak memiliki item."
+                                });
+                            }
                         }
+                        return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
+                    return new JsonResult { Data = new { mo_error = "Status link akun lazada tidak aktif / expired." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-
-
-                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Status link akun lazada tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         public ActionResult LazadaLabelPerPacking(string cust, string bukti)
