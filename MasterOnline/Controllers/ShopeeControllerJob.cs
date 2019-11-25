@@ -4680,6 +4680,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Update Product Image",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = brg,
+                REQUEST_ATTRIBUTE_3 = brg_mp,
                 REQUEST_STATUS = "Pending",
             };
 
