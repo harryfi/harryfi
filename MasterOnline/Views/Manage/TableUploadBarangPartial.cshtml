@@ -33,6 +33,10 @@
     {
         username = dataSession?.Account.Username;
     }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 <style>
     #loading_uploadbarang_tab {

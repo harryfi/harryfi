@@ -20,6 +20,10 @@
         username = dataSession?.Account?.Username;
         accId = (dataSession?.Account?.AccountId ?? 0);
     }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 
 @section styles {
