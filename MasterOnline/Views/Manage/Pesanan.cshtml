@@ -1823,6 +1823,34 @@
                     </div>
                     <input id="txtCancelReason" type="text" style="display:none" />
                 </div>
+                <div id="cancel_tokped">
+                    <div id="cancel_tokped_date">
+                        <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
+                            <p>
+                                <span style="font-weight:bold;display:inline-block;font-size:16px;">Tanggal toko buka kembali:</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group date">
+                                <input type="text" id="dtTokpedCancelOpenDate" class="form-control" />
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="cancel_tokped_note">
+                        <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
+                            <p>
+                                <span style="font-weight:bold;display:inline-block;font-size:16px;">Keterangan:</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" id="txtTokpedCancelNote"/>
+                        </div>
+                    </div>
+                </div>                   
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
@@ -3539,6 +3567,7 @@
         function GetCancelReasons(idMarketplace, listBrg){
             var listReason = [];
             $('#cancel_reason').hide();
+            $('#cancel_tokped').hide();            
             $('#divReasons').remove();
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
@@ -3589,6 +3618,68 @@
                     }
                 });
 
+            }
+            else if (idMarketplace == "15") {//tokopedia
+                sHTML += '</div>';
+                $('#cancel_reason').show();
+                $('#cancel_tokped').show();            
+                $('#cancel_tokped').hide();
+                $('#cancel_tokped_date').hide();  
+
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    //$('#packingList_TGL').val($(this).val());
+                    $(this).datepicker('hide');
+                    
+                    //$('#btn-simpan-perubahan-row').show();
+                    });
+
+                listReason[0] = {
+                    id: "01",
+                    text: "Empty stock"
+                };
+                listReason[1] = {
+                    id: "02",
+                    text: "Empty variants"
+                };
+                listReason[2] = {
+                    id: "03",
+                    text: "Product price or weight is not matched"
+                };
+                listReason[3] = {
+                    id: "04",
+                    text: "Shop closed"
+                };
+                listReason[4] = {
+                    id: "05",
+                    text: "Courrier problem"
+                };
+                listReason[5] = {
+                    id: "06",
+                    text: "Request from buyer"
+                };
+
+                var comboSelect = $('#cbCancelReason').selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listReason,
+                    onChange: function (value) {
+                        $('#txtCancelReason').val(value);
+                        $('#cancel_tokped').hide();
+                        $('#cancel_tokped_date').hide();  
+                        //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        if (value.includes("Courrier") || value.includes("buyer")) {
+                            $('#cancel_tokped').show();
+                        }
+                        else if (value.includes("closed")) {
+                            $('#cancel_tokped').show();
+                            $('#cancel_tokped_date').show();                            
+                        }
+
+                    }
+                });
             }
         }
         //end add by Tri, call midtrans api get token
