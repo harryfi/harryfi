@@ -1065,7 +1065,7 @@
     <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
     <Compile Include="ViewModels\mdlPartner.cs" />
-    <Compile Include="ViewModels\mdlTempBayarLazada.cs" />
+    <Compile Include="ViewModels\mdlTempBayarBukalapak.cs" />
     <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />

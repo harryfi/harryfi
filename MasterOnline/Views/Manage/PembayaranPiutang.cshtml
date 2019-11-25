@@ -1775,8 +1775,8 @@
             if ($('#Piutang_TGL').val() == null ||
                 $('#Piutang_CUST').val() == '') {
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
-            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA") {
-                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia dan Lazada.');
+            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA" && $tempMP1.toUpperCase() != "BUKALAPAK") {
+                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia, Lazada dan Bukalapak.');
             }
             else {
 
@@ -1877,6 +1877,9 @@
                 }
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
                     url = '@Url.Action("UploadXcelBayarLazada", "Manage")';
+                }
+                else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    url = '@Url.Action("UploadXcelBayarBukalapak", "Manage")';
                 }
 
                 $.ajax({
