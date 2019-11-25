@@ -9123,8 +9123,6 @@ namespace MasterOnline.Controllers
                                                     DatabasePathErasoft = dbPathEra,
                                                     username = usernameLogin
                                                 };
-                                                Task.Run(() => new ShopeeControllerJob().UpdateImage(data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
-
 #if (DEBUG || Debug_AWS)
                                                 Task.Run(() => new ShopeeControllerJob().InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer, null).Wait());
 #else
