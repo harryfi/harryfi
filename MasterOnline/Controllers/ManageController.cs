@@ -56,6 +56,7 @@ namespace MasterOnline.Controllers
         public ManageController()
         {
             MoDbContext = new MoDbContext();
+            usernameLogin = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -83,6 +84,9 @@ namespace MasterOnline.Controllers
                     usernameLogin = sessionData.User.Username;
                 }
             }
+            if (usernameLogin.Length > 20)
+                usernameLogin = usernameLogin.Substring(0, 17) + "...";
+
         }
 
         [HttpGet]
@@ -1742,7 +1746,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSql1 = "";
-            sSql1 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
+            sSql1 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
             sSql1 += "SELECT B.BRG, B.NAMA, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM]	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
 
             sSql1 += "SELECT JENIS, BRG, NAMA, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH FROM ";
@@ -1751,7 +1755,7 @@ namespace MasterOnline.Controllers
             sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B  ";
             sSql1 += "  INNER JOIN #A A  ON A.BRG=B.BRG ";
             sSql1 += "  LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-            sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "  GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI,D.QTY ";
 
             sSql1 += "UNION ALL ";
@@ -1761,7 +1765,7 @@ namespace MasterOnline.Controllers
             sSql1 += "      SELECT A.BRG FROM #B B ";
             sSql1 += "      INNER JOIN #A A  ON A.BRG=B.BRG ";
             sSql1 += "      LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-            sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + tempDrtgl + "' AND '" + tempSdtgl + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "  GROUP BY A.BRG ";
             sSql1 += ") )A ";
             sSql1 += "GROUP BY A.BRG,A.NAMA, A.QOH, A.QOO , A.SISA, A.MINI ";
@@ -1857,7 +1861,7 @@ namespace MasterOnline.Controllers
             public double TOTAL { get; set; }
         }
         public ActionResult RefreshDashboardArusKas(string bulan, string tahun)
-         {
+        {
             try
             {
                 var vm = new DashboardViewModel() { };
@@ -1873,7 +1877,7 @@ namespace MasterOnline.Controllers
                 }
                 return PartialView("TableDashboardArusKas", vm);
             }
-            catch ( Exception ex)
+            catch (Exception ex)
             {
                 return new EmptyResult();
             }
@@ -4980,7 +4984,7 @@ namespace MasterOnline.Controllers
             string sSQL2 = "";
             string sSQL3 = "";
             string sSQL0 = "";
-            sSQL0 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
+            sSQL0 += "SELECT C.NO_BUKTI, D.BRG into #B FROM SOT01A C(NOLOCK) INNER JOIN SOT01B D(NOLOCK) ON C.NO_BUKTI = D.NO_BUKTI WHERE C.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND C.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04'); " + System.Environment.NewLine;
             sSQL0 += "SELECT B.BRG, B.NAMA, B.HJUAL, B.ID, B.KET_SORT1, B.KET_SORT2, B.LINK_GAMBAR_1, ISNULL(QOH,0) QOH, ISNULL(QOO,0) QOO, (ISNULL(QOH,0) - ISNULL(QOO,0)) AS SISA,B.MINI INTO #A FROM (SELECT BRG, (isnull(NAMA, '') + ' ' + ISNULL(NAMA2, '')) AS NAMA, HJUAL, ID, KET_SORT1, KET_SORT2, LINK_GAMBAR_1,MINI FROM STF02(NOLOCK) WHERE TYPE='3') B LEFT JOIN 	( SELECT BRG, SUM(CASE WHEN JENIS = 'QOH' THEN JUMLAH ELSE 0 END) QOH, 	SUM(CASE WHEN JENIS = 'QOO' THEN JUMLAH ELSE 0 END) QOO 	FROM [QOH_QOO_ALL_ITEM]	GROUP BY BRG 	) A ON A.BRG = B.BRG WHERE (ISNULL(QOH,0) - ISNULL(QOO,0)) <= B.MINI; " + System.Environment.NewLine;
             sSQL2 += "SELECT COUNT(BRG) AS COUNT_TRANSAKSI  ";
             sSQL += "SELECT JENIS, BRG, NAMA, HJUAL, ID, KET_SORT1, KET_SORT2, LINK_GAMBAR_1, QOH, QOO , SISA, MINI, QTY_JUAL, (MINI - SISA) AS SELISIH  ";
@@ -4989,7 +4993,7 @@ namespace MasterOnline.Controllers
             sSql1 += "SELECT 'ADA' AS JENIS, A.BRG, A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY AS QTY_JUAL FROM #B B ";
             sSql1 += "  INNER JOIN #A A  ON A.BRG=B.BRG ";
             sSql1 += "  LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-            sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "  LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "  GROUP BY A.BRG,A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI, D.QTY ";
 
             sSql1 += "UNION ALL ";
@@ -4999,7 +5003,7 @@ namespace MasterOnline.Controllers
             sSql1 += "      SELECT A.BRG FROM #B B ";
             sSql1 += "      INNER JOIN #A A  ON A.BRG=B.BRG ";
             sSql1 += "      LEFT JOIN SIT01A C(NOLOCK) ON B.NO_BUKTI= C.NO_SO ";
-            sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '2019-10-11 00:00:00.000' AND '2019-11-11 23:59:59.999' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
+            sSql1 += "      LEFT JOIN (SELECT B.BRG, SUM(B.QTY) QTY FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE A.TGL BETWEEN '" + drtanggal + "' AND '" + sdtanggal + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') GROUP BY B.BRG)D ON A.BRG=D.BRG ";
             sSql1 += "      GROUP BY A.BRG ";
             sSql1 += ") )A ";
             sSql1 += "GROUP BY A.BRG,A.NAMA, A.HJUAL, A.ID, A.KET_SORT1, A.KET_SORT2, A.LINK_GAMBAR_1, A.QOH, A.QOO , A.SISA, A.MINI ";
@@ -22427,7 +22431,7 @@ namespace MasterOnline.Controllers
 
             return Json(listKodeFaktur, JsonRequestBehavior.AllowGet);
         }
-        
+
 
         public ActionResult SaveBayarPiutang(BayarPiutangViewModel dataVm)
         {
@@ -30880,10 +30884,10 @@ namespace MasterOnline.Controllers
                                             //change by Tri 5 Nov 2019, perbaikan logic set type brg
                                             //stf02.TYPE = "4";
                                             var indukTemp = eraDB.TEMP_BRG_MP.Where(m => m.CUST == cust && (m.KODE_BRG_INDUK == null ? "" : m.KODE_BRG_INDUK) == stf02.BRG).Select(m => m.BRG_MP).ToList();
-                                            if(indukTemp.Count == 0)
+                                            if (indukTemp.Count == 0)
                                             {
                                                 var indukMO = eraDB.STF02.Where(m => (m.PART == null ? "" : m.PART) == stf02.BRG).Select(m => m.BRG).ToList();
-                                                if(indukMO.Count == 0)
+                                                if (indukMO.Count == 0)
                                                 {
                                                     stf02.TYPE = "3";
                                                 }
@@ -35325,7 +35329,8 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 23/10/2019
 
-        public class listErrorPacking {
+        public class listErrorPacking
+        {
             public string no_bukti_so { get; set; }
             public string error_msg { get; set; }
         }
@@ -35776,7 +35781,7 @@ namespace MasterOnline.Controllers
                                                         dataVm.FakturDetail.NILAI_DISC_5 = 0;
                                                     }
 
-                                                    
+
                                                     listSIT01B.Add(dataVm.FakturDetail);
 
                                                     //add by calvin 8 nov 2018, update stok marketplace
@@ -35801,7 +35806,7 @@ namespace MasterOnline.Controllers
                                                     listError.Add(new listErrorPacking
                                                     {
                                                         no_bukti_so = getnobuk,
-                                                        error_msg = "Pesanan sudah memiliki faktur, dengan nomor ["+ cekNoSOExist.NO_BUKTI +"]."
+                                                        error_msg = "Pesanan sudah memiliki faktur, dengan nomor [" + cekNoSOExist.NO_BUKTI + "]."
                                                     });
                                                 }
                                             }
@@ -35853,7 +35858,7 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(item.error_msg))
                     {
                         //vmError.Errors.Add(item.no_bukti_so + ";" + item.error_msg);
-                        if(item.error_msg.Contains("error internal"))
+                        if (item.error_msg.Contains("error internal"))
                         {
                             vmError.Errors[0] += "\n- " + item.no_bukti_so + item.error_msg;
                         }
@@ -36374,7 +36379,7 @@ namespace MasterOnline.Controllers
             {
                 //Errors = data.ToList()
             };
-            if(listError !=  null)
+            if (listError != null)
             {
                 vm.Errors = listError.ToList();
             }

@@ -629,7 +629,10 @@ namespace MasterOnline.Controllers
 
             }
 
-            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            //change by Tri, 25 Nov 2019
+            //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email);
+            //end change by Tri, 25 Nov 2019
             akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
@@ -2609,8 +2612,10 @@ namespace MasterOnline.Controllers
                 subsInDb.SdTGL = vm.Payment.SdTGL;
                 subsInDb.jumlahUser = vm.Payment.jumlahUser;
             }
-
-            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            //change by Tri, 25 Nov 2019
+            //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email);
+            //end change by Tri, 25 Nov 2019
             akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;

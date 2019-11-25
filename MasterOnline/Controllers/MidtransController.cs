@@ -314,6 +314,8 @@ namespace MasterOnline.Controllers
                                         userData.TOKEN_CC = notification_data.saved_token_id;
 
                                     insertTrans.Account = userData.Username;
+                                    if (insertTrans.Account.Length > 20)
+                                        insertTrans.Account = insertTrans.Account.Substring(0, 17) + "...";
                                     insertTrans.Email = userData.Email;
                                     //insertTrans.Nilai = tranMidtrans.VALUE * (tranMidtrans.BULAN > 0 ? tranMidtrans.BULAN : 1);
                                     insertTrans.Nilai = Convert.ToDouble(notification_data.gross_amount);

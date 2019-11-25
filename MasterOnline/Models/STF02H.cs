@@ -49,7 +49,7 @@ namespace MasterOnline
 
         public double HJUAL { get; set; }
 
-        [StringLength(50)]
+        [StringLength(200)]
         public string BRG_MP { get; set; }
 
         public bool DISPLAY { get; set; }
