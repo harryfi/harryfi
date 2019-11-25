@@ -754,6 +754,8 @@ namespace MasterOnline.Controllers
                     //int i = 1;
                     var connIDARF01C = Guid.NewGuid().ToString();
                     string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                    if (username.Length > 20)
+                        username = username.Substring(0, 17) + "...";
                     var dtNow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     foreach (Transaction order in bindOrder.transactions)
                     {

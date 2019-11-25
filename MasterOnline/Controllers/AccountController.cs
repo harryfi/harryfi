@@ -274,6 +274,8 @@ namespace MasterOnline.Controllers
                 //};
                 //md.PostReceive(data);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
+                if (username.Length > 20)
+                    username = username.Substring(0, 17) + "...";
                 bool cekSyncMarketplace = false;
                 if (cekSyncMarketplace)
                 {
@@ -508,6 +510,8 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
+                if (username.Length > 20)
+                    username = username.Substring(0, 17) + "...";
                 Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
 
                 //end change by calvin 1 april 2019
