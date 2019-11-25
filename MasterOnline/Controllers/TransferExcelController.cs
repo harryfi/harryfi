@@ -52,8 +52,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
-            if (username.Length > 20)
-                username = username.Substring(0, 17) + "...";
+            //if (username.Length > 20)
+            //    username = username.Substring(0, 17) + "...";
         }
 
         public ActionResult SQLtoExcel(string cust)

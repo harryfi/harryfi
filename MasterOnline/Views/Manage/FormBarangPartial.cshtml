@@ -17,6 +17,10 @@
     {
         username = dataSession?.Account.Username;
     }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 @Html.AntiForgeryToken()
 @Html.HiddenFor(m => m.Stf02.ID)
