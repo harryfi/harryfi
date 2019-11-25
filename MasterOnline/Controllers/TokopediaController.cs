@@ -32,6 +32,7 @@ namespace MasterOnline.Controllers
         public TokopediaController()
         {
             MoDbContext = new MoDbContext();
+            username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -55,6 +56,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
+            if (username.Length > 20)
+                username = username.Substring(0, 17) + "...";
         }
 
         public async Task<string> CreateProductGetStatus(TokopediaAPIData iden, string brg, int upload_id, string log_request_id)

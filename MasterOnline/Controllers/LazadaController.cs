@@ -1845,6 +1845,8 @@ namespace MasterOnline.Controllers
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Order order in bindOrder.data.orders)
                             {
@@ -2111,6 +2113,8 @@ namespace MasterOnline.Controllers
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Order order in bindOrder.data.orders)
                             {
@@ -2523,6 +2527,8 @@ namespace MasterOnline.Controllers
                         int i = 1;
                         var connectionID = Guid.NewGuid().ToString();
                         string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                        if (username.Length > 20)
+                            username = username.Substring(0, 17) + "...";
 
                         foreach (Orderitem items in bindOrderItems.data)
                         {
@@ -2645,6 +2651,8 @@ namespace MasterOnline.Controllers
                             insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
                             insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Datum order in bindOrderItems.data)
                             {

@@ -54,6 +54,7 @@ namespace MasterOnline.Controllers
         public ShopeeController()
         {
             MoDbContext = new MoDbContext();
+            username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -77,6 +78,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
+            if (username.Length > 20)
+                username = username.Substring(0, 17) + "...";
         }
         [Route("shp/code")]
         [HttpGet]
