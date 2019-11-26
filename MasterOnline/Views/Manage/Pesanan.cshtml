@@ -1823,11 +1823,11 @@
                     </div>
                     <input id="txtCancelReason" type="text" style="display:none" />
                 </div>
-                <div id="cancel_tokped">
-                    <div id="cancel_tokped_date">
+                <div id="cancel_tokped" class="row">
+                    <div id="cancel_tokped_date" class="row">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
-                                <span style="font-weight:bold;display:inline-block;font-size:16px;">Tanggal toko buka kembali:</span>
+                                <span style="font-weight:bold;display:inline-block;font-size:16px;">Tgl toko buka:</span>
                             </p>
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -1839,7 +1839,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="cancel_tokped_note">
+                    <div id="cancel_tokped_note" class="row">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
                                 <span style="font-weight:bold;display:inline-block;font-size:16px;">Keterangan:</span>
@@ -1848,8 +1848,7 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <input type="text" id="txtTokpedCancelNote"/>
                         </div>
-                    </div>
-                </div>                   
+                    </div>                  
                 </div>
             </div>
             <div class="modal-footer">
@@ -3564,11 +3563,13 @@
         });
 
         //add by Tri 11 Nov 2019, set combo box untuk cancel reason
+        var cancelIDMarket = "0";
         function GetCancelReasons(idMarketplace, listBrg){
             var listReason = [];
             $('#cancel_reason').hide();
             $('#cancel_tokped').hide();            
             $('#divReasons').remove();
+            cancelIDMarket = idMarketplace;
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
             //$('#cbCancelReason').hide();
             if (idMarketplace == "17") {//shopee
@@ -3578,8 +3579,9 @@
                 listBrg.forEach(function setCheckBox(item, index) {
                     var splitText = item.split(';');
                     //sHTML += '<div class="checkbox"><label><input type="checkbox" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] +'</label></div></div>';
-                    sHTML += '<div class="checkbox"><label><input type="radio" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] + '</label></div></div>';
+                    sHTML += '<div class="radio"><label><input type="radio" name="ckBarang" class="ckBarang" id-barang="' + splitText[0] + '"/>' + splitText[1] + '</label></div>';
                 });
+                sHTML += '</div>';
                 sHTML += '</div>';
 
                 $('#divCbCancel').append(sHTML);
@@ -3621,9 +3623,10 @@
             }
             else if (idMarketplace == "15") {//tokopedia
                 sHTML += '</div>';
+                $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
                 $('#cancel_tokped').show();            
-                $('#cancel_tokped').hide();
+                $('#cancel_tokped_note').hide();
                 $('#cancel_tokped_date').hide();  
 
                 $('#TGL').datepicker({
@@ -3667,14 +3670,14 @@
                     options: listReason,
                     onChange: function (value) {
                         $('#txtCancelReason').val(value);
-                        $('#cancel_tokped').hide();
+                        $('#cancel_tokped_note').hide();
                         $('#cancel_tokped_date').hide();  
                         //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
-                        if (value.includes("Courrier") || value.includes("buyer")) {
-                            $('#cancel_tokped').show();
+                        if (value == "05" || value == "06") {
+                            $('#cancel_tokped_note').show();
                         }
-                        else if (value.includes("closed")) {
-                            $('#cancel_tokped').show();
+                        else if (value == "04") {
+                            $('#cancel_tokped_note').show();
                             $('#cancel_tokped_date').show();                            
                         }
 
@@ -8164,13 +8167,22 @@
             link = link.replace("replaceRecNum", encodeURIComponent(this.$recPesanan));
             link = link.replace("replaceStatus", encodeURIComponent(this.$statusPesanan));
             link = link.replace("replaceCancelReason", encodeURIComponent($('#txtCancelReason').val()));
-
-            $('.ckBarang').each(function (i, item) {
-                if ($(item).is(":checked")) {
-                    rows_selected.push($(item).attr("id-barang"));
+            if (cancelIDMarket == "17") {
+                $('.ckBarang').each(function (i, item) {
+                    if ($(item).is(":checked")) {
+                        rows_selected.push(encodeURIComponent($(item).attr("id-barang")));
+                    }
+                });
+            } else if (cancelIDMarket == "15") {
+                if ($('#txtCancelReason').val() == "05" || $('#txtCancelReason').val() == "06") {
+                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val());
+                } else if ($('#txtCancelReason').val() == "04"){
+                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val() + ";" + $('#cancel_tokped_date').val());
                 }
-            });
+            } 
+
             link += "&listData=" + rows_selected;
+            
 
             $.ajax({
                 type: "GET",

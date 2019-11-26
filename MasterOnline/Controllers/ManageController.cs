@@ -16609,6 +16609,12 @@ namespace MasterOnline.Controllers
             string listVariable = "";
             if (tipeStatus == "11")
             {
+                var sot01d = ErasoftDbContext.SOT01D.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).FirstOrDefault();
+                if(sot01d == null)
+                {
+                    sot01d = new SOT01D();
+                    sot01d.NO_BUKTI = pesananInDb.NO_BUKTI;//inprogess here
+                }
                 var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
                 if(customer != null)
                 {
@@ -16626,9 +16632,10 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    for(int i =0;i < listData.Count(); i++)
+                                    for(int i = 0;i < listData.Count(); i++)
                                     {
-                                        var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == listData[i]).FirstOrDefault();
+                                        var data = listData[i];
+                                        var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == data).FirstOrDefault();
                                         if(detail != null)
                                         {
                                             if(detail.BRG == "NOT_FOUND")
