@@ -522,8 +522,8 @@
                             <h5>
                                 1. Buka https://sellercenter.lazada.co.id/
                             </h5>
-                            <h5>2. Hover "Finance"</h5>
-                            <h5>3. Klik "Account Statements"</h5>
+                            <h5>2. Arahkan mouse ke "Keuangan"</h5>
+                            <h5>3. Klik "Laporan Akun"</h5>
                             <h5>4. Pilih rentang tanggal yang diinginkan</h5>
                             <h5>5. Klik "Export"</h5>
                             <h5>6. Klik "Download"</h5>
@@ -2091,11 +2091,32 @@
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
                             } else {
+                                $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                    if ($(item).attr("data-selisih-gagal") != undefined) {
+                                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                    }
+                                });
+                                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                    $(item).text(convertToRupiah(0));
+                                });
+                                $('#TOTALPOT').val(convertToRupiah(0));
+                                $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
                                 alert(data.Errors);
                                 $('#loading_spinner').hide();
                             }
                         },
                         error: function (xhr) {
+                            $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                if ($(item).attr("data-selisih-gagal") != undefined) {
+                                    $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                }
+                            });
+                            $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                $(item).text(convertToRupiah(0));
+                            });
+                            $('#TOTALPOT').val(convertToRupiah(0));
+                            $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                            alert('Ada error. Mohon ulangi proses!');
                             $('#loading_spinner').hide();
                             $("#konfCreatePot").modal('hide');
                             console.log(xhr);

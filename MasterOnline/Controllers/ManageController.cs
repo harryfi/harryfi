@@ -35270,6 +35270,11 @@ namespace MasterOnline.Controllers
             return PartialView("DetailBayarPiutangPartial", vm);
         }
 
+        public class getSisa
+        {
+            public float SISA { get; set; }
+        }
+
         [HttpPost]
         public ActionResult UpdatePotonganBayarPiutang(UpdateDataBayarPiutang dataUpdate)
         {
@@ -35285,15 +35290,24 @@ namespace MasterOnline.Controllers
                         var piutangDetailInDb = ErasoftDbContext.ART03B.SingleOrDefault(p => p.BUKTI == dataUpdate.OrderId && p.NO == rec);
                         if (piutangDetailInDb != null)
                         {
-                            var totalSisa = 0d;
+                            var totalSisa = new decimal();
                             var nofaktur = dataUpdate.getFaktur[y];
                             var potongan = dataUpdate.getPot[y];
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
                             if (getBayar.Count() > 0)
                             {
-                                totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                //totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                                //.Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                                var testDesimal = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
-                                if (totalSisa >= potongan)
+                                totalSisa = Math.Round(Convert.ToDecimal(testDesimal), 2, MidpointRounding.AwayFromZero);
+                                var rowPot = Math.Round(Convert.ToDecimal(potongan), 2, MidpointRounding.AwayFromZero);
+                                //var getsisa = ErasoftDbContext.Database.SqlQuery<getSisa>("select convert(float,(isnull(SUM(NETTO - BAYAR - KREDIT + DEBET),0))) AS SISA from art01d where faktur='" + nofaktur + "' and (NETTO - BAYAR - KREDIT + DEBET) > 0").SingleOrDefault();
+                                //if (getsisa != null)
+                                //{
+                                //    totalSisa = getsisa.SISA;
+                                //}
+                                if (totalSisa >= rowPot)
                                 {
                                     piutangDetailInDb.POT += dataUpdate.getPot[y];
                                     cekTotalPot += dataUpdate.getPot[y];
@@ -36236,8 +36250,8 @@ namespace MasterOnline.Controllers
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(bayar.Bayar)))
                                                         {
-                                                            //total yg dibandingkan dengan sisa = bayar + pot
-                                                            bayarpiutang = bayar.Bayar + bayar.Potongan;
+                                                            //bayarpiutang = bayar.Bayar + bayar.Potongan;
+                                                            bayarpiutang = bayar.Bayar;
                                                         }
 
                                                         if (adaBayar == false || (adaBayar == true && totalSisa >= bayarpiutang))
@@ -36273,10 +36287,11 @@ namespace MasterOnline.Controllers
                                                             {
                                                                 art03b.BAYAR = bayar.Bayar;
                                                             }
-                                                            if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
-                                                            {
-                                                                art03b.POT = bayar.Potongan;
-                                                            }
+                                                            //change by nurul 26/11/2019, req pak dani & pak richard, yg d input jumlah uang yg diterima aja, tanpa potongan 
+                                                            //if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
+                                                            //{
+                                                            //    art03b.POT = bayar.Potongan;
+                                                            //}
 
                                                             nilaiFaktur.Add(art03b.SISA);
                                                             nilaiRef.Add(art03b.BAYAR);
@@ -36656,7 +36671,8 @@ namespace MasterOnline.Controllers
                                                                     }
                                                                     if (!string.IsNullOrEmpty(Convert.ToString(bayar.Bayar)))
                                                                     {
-                                                                        bayarpiutang = bayar.Bayar;
+                                                                        //bayarpiutang = bayar.Bayar;
+                                                                        bayarpiutang = bayar.NRef;
                                                                     }
 
                                                                     if (adaBayar == false || (adaBayar == true && totalSisa >= bayarpiutang))
@@ -36694,10 +36710,11 @@ namespace MasterOnline.Controllers
                                                                         {
                                                                             art03b.BAYAR = bayar.NRef;
                                                                         }
-                                                                        if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
-                                                                        {
-                                                                            art03b.POT = bayar.Potongan;
-                                                                        }
+                                                                        //change by nurul 26/11/2019, req pak dani & pak richard, yg d input jumlah uang yg diterima aja, tanpa potongan 
+                                                                        //if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
+                                                                        //{
+                                                                        //    art03b.POT = bayar.Potongan;
+                                                                        //}
 
                                                                         nilaiFaktur.Add(art03b.SISA);
                                                                         nilaiRef.Add(art03b.BAYAR);
@@ -37649,7 +37666,8 @@ namespace MasterOnline.Controllers
                                                                     }
                                                                     if (!string.IsNullOrEmpty(Convert.ToString(bayar.Bayar)))
                                                                     {
-                                                                        bayarpiutang = bayar.NRef + bayar.Potongan;
+                                                                        //bayarpiutang = bayar.NRef + bayar.Potongan;
+                                                                        bayarpiutang = bayar.NRef;
                                                                     }
 
                                                                     if (adaBayar == false || (adaBayar == true && totalSisa >= bayarpiutang))
@@ -37687,10 +37705,11 @@ namespace MasterOnline.Controllers
                                                                         {
                                                                             art03b.BAYAR = bayar.NRef;
                                                                         }
-                                                                        if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
-                                                                        {
-                                                                            art03b.POT = bayar.Potongan;
-                                                                        }
+                                                                        //change by nurul 26/11/2019, req pak dani & pak richard, yg d input jumlah uang yg diterima aja, tanpa potongan 
+                                                                        //if (!string.IsNullOrEmpty(Convert.ToString(bayar.Potongan)))
+                                                                        //{
+                                                                        //    art03b.POT = bayar.Potongan;
+                                                                        //}
 
                                                                         nilaiFaktur.Add(art03b.SISA);
                                                                         nilaiRef.Add(art03b.BAYAR);
