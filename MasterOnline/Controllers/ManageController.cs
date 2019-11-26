@@ -23896,9 +23896,13 @@ namespace MasterOnline.Controllers
                 sSQLValues = sSQLValues.Substring(0, sSQLValues.Length - 1);
                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG, CONN_ID) VALUES " + sSQLValues);
                 AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                //change by Tri 26 Nov 2019, gunakan usernamelogin
+                //string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, username);
+                //new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, username);
+                new StokControllerJob().updateStockMarketPlace(ConnId, dbPathEra, usernameLogin);
+                //end change by Tri 26 Nov 2019, gunakan usernamelogin
+
             }
 
         }
@@ -25750,6 +25754,10 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
+                        //add by Tri 26 Nov 2019, update stok ke mp 
+                        var listBarangUpdateStock = newFaktursDetails.Select(p => p.BRG).Where(p => p != "NOT_FOUND").Distinct().ToList();
+                        //end add by Tri 26 Nov 2019, update stok ke mp 
+
                         ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
                         ErasoftDbContext.SaveChanges();
                         if (newFakturs.Count == 0)
@@ -25784,6 +25792,10 @@ namespace MasterOnline.Controllers
 
                         var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                         //end add 18/10/2019, hitung ulang bruto,netto
+
+                        //add by Tri 26 Nov 2019, update stok ke mp 
+                        updateStockMarketPlace(listBarangUpdateStock, "[UPL_FA][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                        //end add by Tri 26 Nov 2019, update stok ke mp 
 
                     }
                     catch (Exception ex)
@@ -26465,6 +26477,10 @@ namespace MasterOnline.Controllers
                 {
                     try
                     {
+                        //add by Tri 26 Nov 2019, update stok ke mp 
+                        var listBarangUpdateStock = newFaktursDetails.Select(p => p.BRG).Where(p => p != "NOT_FOUND").Distinct().ToList();
+                        //end add by Tri 26 Nov 2019, update stok ke mp 
+
                         ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
                         ErasoftDbContext.SaveChanges();
                         if (newFakturs.Count == 0)
@@ -26499,6 +26515,10 @@ namespace MasterOnline.Controllers
 
                         var resultUpdate = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                         //end add 18/10/2019, hitung ulang bruto,netto
+
+                        //add by Tri 26 Nov 2019, update stok ke mp 
+                        updateStockMarketPlace(listBarangUpdateStock, "[UPL_FA][" + DateTime.Now.ToString("yyyyMMddhhmmss") + "]");
+                        //end add by Tri 26 Nov 2019, update stok ke mp 
 
                     }
                     catch (Exception ex)
