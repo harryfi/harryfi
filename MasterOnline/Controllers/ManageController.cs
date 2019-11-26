@@ -35269,12 +35269,7 @@ namespace MasterOnline.Controllers
             //tw.Close();
             return PartialView("DetailBayarPiutangPartial", vm);
         }
-
-        public class getSisa
-        {
-            public float SISA { get; set; }
-        }
-
+        
         [HttpPost]
         public ActionResult UpdatePotonganBayarPiutang(UpdateDataBayarPiutang dataUpdate)
         {
@@ -35296,17 +35291,10 @@ namespace MasterOnline.Controllers
                             var getBayar = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0).ToList();
                             if (getBayar.Count() > 0)
                             {
-                                //totalSisa = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
-                                //.Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 var testDesimal = ErasoftDbContext.ART01D.Where(p => p.FAKTUR == nofaktur && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
                                 .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
                                 totalSisa = Math.Round(Convert.ToDecimal(testDesimal), 2, MidpointRounding.AwayFromZero);
                                 var rowPot = Math.Round(Convert.ToDecimal(potongan), 2, MidpointRounding.AwayFromZero);
-                                //var getsisa = ErasoftDbContext.Database.SqlQuery<getSisa>("select convert(float,(isnull(SUM(NETTO - BAYAR - KREDIT + DEBET),0))) AS SISA from art01d where faktur='" + nofaktur + "' and (NETTO - BAYAR - KREDIT + DEBET) > 0").SingleOrDefault();
-                                //if (getsisa != null)
-                                //{
-                                //    totalSisa = getsisa.SISA;
-                                //}
                                 if (totalSisa >= rowPot)
                                 {
                                     piutangDetailInDb.POT += dataUpdate.getPot[y];
