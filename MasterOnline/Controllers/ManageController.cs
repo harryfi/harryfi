@@ -16412,9 +16412,9 @@ namespace MasterOnline.Controllers
                 listBrg = new List<string>()
                 //end add by Tri 12 Nov 2019, untuk cancel order
             };
-            if(listBarang.Tables[0].Rows.Count > 0)
+            if (listBarang.Tables[0].Rows.Count > 0)
             {
-                for(int i = 0; i < listBarang.Tables[0].Rows.Count; i++)
+                for (int i = 0; i < listBarang.Tables[0].Rows.Count; i++)
                 {
                     string namaBarang = listBarang.Tables[0].Rows[i]["NAMA"].ToString();
                     var catatan_split = listBarang.Tables[0].Rows[i]["NAMA"].ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
@@ -16610,17 +16610,18 @@ namespace MasterOnline.Controllers
             if (tipeStatus == "11")
             {
                 var sot01d = ErasoftDbContext.SOT01D.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).FirstOrDefault();
-                if(sot01d == null)
+                if (sot01d == null)
                 {
                     sot01d = new SOT01D();
-                    sot01d.NO_BUKTI = pesananInDb.NO_BUKTI;//inprogess here
+                    sot01d.NO_BUKTI = pesananInDb.NO_BUKTI;
+                    sot01d.USERNAME = usernameLogin;
                 }
                 var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
-                if(customer != null)
+                if (customer != null)
                 {
-                    if(customer.STATUS_API == "1")
+                    if (customer.STATUS_API == "1")
                     {
-                        if(customer.NAMA == "17")//shopee
+                        if (customer.NAMA == "17")//shopee
                         {
                             if (!string.IsNullOrEmpty(cancelReason))
                             {
@@ -16632,13 +16633,13 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    for(int i = 0;i < listData.Count(); i++)
+                                    for (int i = 0; i < listData.Count(); i++)
                                     {
                                         var data = listData[i];
                                         var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == data).FirstOrDefault();
-                                        if(detail != null)
+                                        if (detail != null)
                                         {
-                                            if(detail.BRG == "NOT_FOUND")
+                                            if (detail.BRG == "NOT_FOUND")
                                             {
                                                 var catatan_split = detail.CATATAN.ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
 
@@ -16650,13 +16651,14 @@ namespace MasterOnline.Controllers
                                             else
                                             {
                                                 var kdBrgMp = ErasoftDbContext.STF02H.Where(m => m.BRG == detail.BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
-                                                if(kdBrgMp != null)
+                                                if (kdBrgMp != null)
                                                 {
                                                     listVariable += kdBrgMp.BRG_MP + "|";
                                                 }
                                             }
                                         }
                                     }
+                                    sot01d.CATATAN_1 = cancelReason + "_;_";
                                 }
                             }
                             else
@@ -16692,6 +16694,43 @@ namespace MasterOnline.Controllers
             //end add by Tri, call marketplace api to update order status
             return new EmptyResult();
         }
+
+        //add by Tri 27 Nov 2019
+        public ActionResult GetCancelReasonLazada(string nobuk)
+        {
+            var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == nobuk).FirstOrDefault();
+            if (order != null)
+            {
+                var cust = order.CUST;
+                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+                if (customer != null)
+                {
+                    if (customer.STATUS_API == "1")
+                    {
+                        var lzdApi = new LazadaControllerJob();
+                        var ret = lzdApi.getCancelReason(customer.TOKEN);
+                        if (ret.Count > 0)
+                        {
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return JsonErrorMessage("Tidak berhasil mendapat Cancel Reason dari API Lazada");
+                        }
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Akun Lazada untuk pesanan ini tidak aktif, silahkan cek akun Lazada anda di Link ke Marketplace");
+                    }
+                }
+                else
+                {
+                    return JsonErrorMessage("Akun dari pesanan ini tidak ditemukan");
+                }
+            }
+            return JsonErrorMessage("Pesanan ini tidak ditemukan");
+        }
+        //end add by Tri 27 Nov 2019
 
         //add by nurul 18/3/2019
         public ActionResult UbahStatusPesananDibayar(string[] get_selected)

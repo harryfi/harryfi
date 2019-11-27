@@ -1846,9 +1846,9 @@
                             </p>
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            <input type="text" id="txtTokpedCancelNote"/>
+                            <input type="text" id="txtTokpedCancelNote" />
                         </div>
-                    </div>                  
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2789,13 +2789,13 @@
             <br />
             <div class="modal-footer">
                 <div class="left row">
-                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;"/><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
+                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
                 </div>
                 <div class="right">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                     <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -3567,7 +3567,7 @@
         function GetCancelReasons(idMarketplace, listBrg){
             var listReason = [];
             $('#cancel_reason').hide();
-            $('#cancel_tokped').hide();            
+            $('#cancel_tokped').hide();
             $('#divReasons').remove();
             cancelIDMarket = idMarketplace;
             var sHTML = '<div id="divReasons"><select id="cbCancelReason" placeholder="Harap pilih" required="required"></select>';
@@ -3625,9 +3625,9 @@
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
                 $('#cancel_reason').show();
-                $('#cancel_tokped').show();            
+                $('#cancel_tokped').show();
                 $('#cancel_tokped_note').hide();
-                $('#cancel_tokped_date').hide();  
+                $('#cancel_tokped_date').hide();
 
                 $('#TGL').datepicker({
                     format: 'dd/mm/yyyy',
@@ -3635,9 +3635,9 @@
                 }).change(function () {
                     //$('#packingList_TGL').val($(this).val());
                     $(this).datepicker('hide');
-                    
+
                     //$('#btn-simpan-perubahan-row').show();
-                    });
+                });
 
                 listReason[0] = {
                     id: "01",
@@ -3671,16 +3671,59 @@
                     onChange: function (value) {
                         $('#txtCancelReason').val(value);
                         $('#cancel_tokped_note').hide();
-                        $('#cancel_tokped_date').hide();  
+                        $('#cancel_tokped_date').hide();
                         //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
                         if (value == "05" || value == "06") {
                             $('#cancel_tokped_note').show();
                         }
                         else if (value == "04") {
                             $('#cancel_tokped_note').show();
-                            $('#cancel_tokped_date').show();                            
+                            $('#cancel_tokped_date').show();
                         }
 
+                    }
+                });
+            }
+            else if (idMarketplace = "7")//lazada
+            {
+                sHTML += '</div>';
+                $('#divCbCancel').append(sHTML);
+
+                var link = '@Url.Action("GetCancelReasonLazada", "Manage")';
+                link += '?nobuk=' + encodeURIComponent($('#konfBatalPesanan  .no_pesanan').text());
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        if (response != null) {
+                            if (response.error == null) {
+                                $('#cancel_reason').show();
+                                response.forEach(function setCBLazada(item, index) {
+                                    listReason[index] = {
+                                        id: item.reason_id,
+                                        text: item.name
+                                    };
+                                });
+
+                                var comboSelect = $('#cbCancelReason').selectize({
+                                    valueField: 'id',
+                                    searchField: 'text',
+                                    options: listReason,
+                                    onChange: function (value) {
+                                        $('#txtCancelReason').val(value);                                        
+                                    }
+                                });
+
+                            } else {
+                                alert(response.error);
+                                $('#modalTransfer').modal('hide');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#modalTransfer').modal('hide');
                     }
                 });
             }
@@ -5574,14 +5617,14 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
-                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Pesanan_BRUTO').val();
                                 $beforeState.netto = $('#Pesanan_NETTO').val();
                                 $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
                                 $beforeState.ppn = $('#Pesanan_PPN').val();
                                 $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
                                 $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
-                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
 
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
@@ -8179,10 +8222,10 @@
                 } else if ($('#txtCancelReason').val() == "04"){
                     rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val() + ";" + $('#cancel_tokped_date').val());
                 }
-            } 
+            }
 
             link += "&listData=" + rows_selected;
-            
+
 
             $.ajax({
                 type: "GET",

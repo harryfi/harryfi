@@ -5875,6 +5875,25 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public List<CancelReasonDetail> getCancelReason(string token)
+        {
+            var ret = new List<CancelReasonDetail>();
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/failure_reason/get");
+            request.SetHttpMethod("GET");
+            LazopResponse response = client.Execute(request, token);
+            var bindCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(CancelReason)) as CancelReason;
+            if(bindCancel != null)
+            {
+                if(bindCancel.code == "0")
+                {
+                    ret = bindCancel.data;
+                }
+            }
+            return ret;
+        }
+
         public enum api_status
         {
             Pending = 1,

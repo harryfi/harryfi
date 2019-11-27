@@ -381,4 +381,18 @@ namespace MasterOnline.Models
         public string code { get; set; }
         public string request_id { get; set; }
     }
+
+
+    public class CancelReason : LazadaCommonRes
+    {
+        public List<CancelReasonDetail> data { get; set; }
+    }
+
+    public class CancelReasonDetail
+    {
+        public string name { get; set; }
+        public string type { get; set; }
+        public int reason_id { get; set; }
+    }
+
 }
