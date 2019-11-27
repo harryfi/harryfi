@@ -36119,11 +36119,77 @@ namespace MasterOnline.Controllers
         {
             List<listErrorPacking> listError = new List<listErrorPacking>();
             var listSuccess = new List<string>();
-            //add 19/9/2019, packing list
             var listRecnumPackinglist = new List<string>();
-            //EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET TITIPAN = " + (packinglist ? "1" : "0"));
-            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET EDIT_BONUS = " + (packinglist ? "1" : "0"));
-            //end add 19/9/2019, packing list
+            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET EDIT_BONUS = " + (packinglist ? "1" : "0") + " WHERE EDIT_BONUS != " + (packinglist ? "1" : "0"));
+
+            var default_gudang = "";
+            using (var context = new ErasoftContext(dbPathEra))
+            {
+                var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
+                var cekgudang = context.STF18.ToList();
+                if (cekgudang.Where(p=>p.Kode_Gudang == gudang_parsys).Count() > 0)
+                {
+                    default_gudang = gudang_parsys;
+                }
+                else
+                {
+                    default_gudang = cekgudang.FirstOrDefault().Kode_Gudang;
+                }
+            }
+
+            var stringListRecnum = "";
+            for (int i = 0; i < get_selected.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(get_selected[i])) {
+                    if (stringListRecnum != "") {
+                        stringListRecnum += ",";
+                    }
+                    stringListRecnum += "'" + get_selected[i].Trim() + "'";
+                }
+            }
+            var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.RECNUM");
+            if (dsSO.Tables[0].Rows.Count > 0) {
+                var lastNobuk = "";
+                var validNobuk = true;
+                var stringUpdateSOB = "";
+                for (int i = 0; i < dsSO.Tables[0].Rows.Count; i++)
+                {
+                    var dsSORow = dsSO.Tables[0].Rows[i];
+                    var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
+                    var SOB_Brg = Convert.ToString(dsSORow["BRG"]);
+                    var SOB_Qty = Convert.ToInt32(dsSORow["QTY"]);
+                    var SOB_QtyN = Convert.ToInt32(dsSORow["QTY_N"]);
+                    var SOB_Lokasi = Convert.ToString(dsSORow["LOKASI"]);
+
+                    if (lastNobuk != Nobuk) {
+                        validNobuk = true;
+                        //GenerateFakturFromPesanan();
+                    }
+                    var gudang = default_gudang;
+                    if (!string.IsNullOrWhiteSpace(SOB_Lokasi)) {
+                        gudang = SOB_Lokasi;
+                    }
+                    var qtyOnHand = GetQOHSTF08A(SOB_Brg, gudang);
+                    if (qtyOnHand + (SOB_QtyN > 0 ? (SOB_Lokasi == gudang ? SOB_QtyN : 0) : 0) - SOB_Qty < 0)
+                    {
+                        validNobuk = false;
+                        var inListError = listError.Where(p => p.no_bukti_so == Nobuk).FirstOrDefault();
+                        if (inListError == null)
+                        {
+                            listError.Add(new listErrorPacking
+                            {
+                                no_bukti_so = Nobuk,
+                                error_msg = "Gagal, karena Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                            });
+                        }
+                    }
+                    else
+                    {
+                        stringUpdateSOB += "UPDATE ";
+                    }
+                }
+            }
+
             for (int i = 0; i < get_selected.Length; i++)
             {
                 if (!string.IsNullOrEmpty(get_selected[i]))
@@ -36143,17 +36209,6 @@ namespace MasterOnline.Controllers
                                 //{
                                 if (pesananInDb.STATUS_TRANSAKSI == "02")
                                 {
-                                    var default_gudang = context.SIFSYS.FirstOrDefault().GUDANG;
-                                    var cekgudang = context.STF18.Where(a => a.Kode_Gudang == default_gudang).ToList();
-                                    var gudang = "";
-                                    if (cekgudang.Count() > 0)
-                                    {
-                                        gudang = default_gudang;
-                                    }
-                                    else
-                                    {
-                                        gudang = cekgudang.FirstOrDefault().Kode_Gudang;
-                                    }
                                     var cekpesananDetailInDb = context.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                                     bool valid = true;
                                     double qty = 0;
@@ -36167,32 +36222,8 @@ namespace MasterOnline.Controllers
                                             qty = barangPesananInDb.QTY;
 
                                             //add by calvin, 22 juni 2018 validasi QOH
-                                            var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gudang);
 
-                                            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == gudang ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
-                                            {
-                                                //var vmError = new StokViewModel(){};
-                                                //vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gudang + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
-                                                //return Json(vmError, JsonRequestBehavior.AllowGet);
-                                                valid = false;
-                                                var inListError = listError.Where(p => p.no_bukti_so == getnobuk).FirstOrDefault();
-                                                if (inListError == null)
-                                                {
-                                                    listError.Add(new listErrorPacking
-                                                    {
-                                                        no_bukti_so = getnobuk,
-                                                        error_msg = "Gagal, karena Qty sisa untuk item [" + barangPesananInDb.BRG + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
-                                                    });
-                                                }
-                                            }
-                                            else
-                                            {
-                                                barangPesananInDb.LOKASI = gudang;
-                                                barangPesananInDb.QTY_N = qty;
-
-                                                //context.SOT01B.AddRange(barangPesananInDb);
-                                                context.SaveChanges();
-                                            }
+                                            
                                         }
                                     }
 

@@ -1571,7 +1571,7 @@
                         </div>
                         <div class="col-lg-7 col-sm-5" style="margin-top:13px;">
                             <div class="pull-right">
-                                <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" data-backdrop="static" data-keyboard="false" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
                                 </button>
                                 @*//remark by nurul 17/6/2019*@
@@ -2731,13 +2731,13 @@
     </div>
 </div>
 <div class="modal fade" id="modalUbahStatusMultiPacking" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
-    <div class="modal-dialog" id="status-multi" role="document">
+    <div class="modal-dialog modal-dialog-scrollable" id="status-multi" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
                 <div id="loading_ubahstatus_packing" class="text-center">
                     <img src="~/Content/Images/spinner.gif" width="100" />
                 </div>
@@ -2750,7 +2750,7 @@
             </div>
             <br />
             <div class="modal-footer">
-                <div class="left row">
+                <div class="left row" style="display: none;">
                     <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;"/><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
                 </div>
                 <div class="right">
@@ -7891,13 +7891,14 @@
                             $('#modal-status-multi-packing-body').html(response);
                             $('#datatable_ubahstatus_packing').show();
                             $('#loading_ubahstatus_packing').hide();
-                            //add by 19/9/19 by Tri
-                            if ($('#createPackinglist').val() == 1) {
+                            //remark by calvin 26 november 2019, selalu true
+                            ////add by 19/9/19 by Tri
+                            //if ($('#createPackinglist').val() == 1) {
                                 $('#ckPackinglist').prop('checked', true);
-                            } else {
-                                $('#ckPackinglist').prop('checked', false);
-                            }
-                            //end add by 19/9/19 by Tri
+                            //} else {
+                            //    $('#ckPackinglist').prop('checked', false);
+                            //}
+                            ////end add by 19/9/19 by Tri
                         } else {
                             $('#modalUbahStatusMultiPacking').modal('hide');
                             $('#datatable_ubahstatus_packing').show();
