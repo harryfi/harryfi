@@ -36856,6 +36856,103 @@ namespace MasterOnline.Controllers
             return Json("Gagal mendapatkan pesan error.", JsonRequestBehavior.AllowGet);
         }
         //end add by nurul 21/11/2019
+
+        //add by nurul 20/11/2019
+        public ActionResult RefreshTableTransaksiBuyer(string recnum, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string buyer = "";
+            if(recnum != null)
+            {
+                buyer = recnum;
+            }
+            string[] getkata = search.Split(' ');
+            string sSQLsi = "";
+            string sSQLbrg= "";
+            string sSQLnama = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLsi += " ( isnull(a.no_bukti,'') like '%" + getkata[i] + "%' )";
+                            sSQLbrg += " ( ISNULL(b.brg, '') like '%" + getkata[i] + "%' )";
+                            sSQLnama += " ( (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' )";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First())
+                            {
+                                sSQLsi += " ( isnull(a.no_bukti,'') like '%" + getkata[i] + "%'";
+                                sSQLbrg += " ( ISNULL(b.brg, '') like '%" + getkata[i] + "%'";
+                                sSQLnama += " ( (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%'";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLsi += " and isnull(a.no_bukti,'') like '%" + getkata[i] + "%' )";
+                                sSQLbrg += " and ISNULL(b.brg, '') like '%" + getkata[i] + "%' )";
+                                sSQLnama += " and (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' )";
+                            }
+                            else
+                            {
+                                sSQLsi += " and isnull(a.no_bukti,'') like '%" + getkata[i] + "%' ";
+                                sSQLbrg += " and ISNULL(b.brg, '') like '%" + getkata[i] + "%' ";
+                                sSQLnama += " and (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' ";
+                            }
+                        }
+                    }
+                }
+            }
+
+            
+            string sSQLSelect = "";
+            sSQLSelect += "select a.tgl as tgl_si,isnull(a.no_bukti,'') as nobuk_si,ISNULL(b.brg, '') as brg,(e.nama + ' ' + isnull(e.nama2,'')) as nama, isnull(b.qty,0) as qty, (isnull(b.h_satuan,0) * isnull(b.qty,0)) as nilai, isnull(d.qty,0) as qty_retur, (isnull(d.h_satuan,0) * isnull(d.qty,0)) as nilai_retur ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(a.no_bukti) AS JUMLAH ";
+            string sSQL2 = "";
+            string sSQL4 = "from sit01a a inner join sit01b b on a.no_bukti = b.no_bukti and a.jenis_form='2' ";
+            sSQL4 += "left join stf02 e on b.brg=e.brg ";
+            sSQL4 += "left join sit01a c on a.no_bukti=c.no_ref and c.jenis_form = '3' ";
+            sSQL4 += "left join sit01b d on d.no_bukti=c.no_bukti and d.brg=b.brg ";
+            sSQL4 += "where e.type='3' and isnull(a.pemesan,'')='" + buyer + "' and isnull(a.jenis_form,'')='2' and isnull(a.status,'')='1' ";
+            sSQL2 += sSQL4;
+            sSQLCount += sSQL4;
+
+            if (search != "")
+            {
+                sSQL2 += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + " ) ";
+                sSQLCount += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + " ) ";
+            }
+            
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount).Single();
+
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+                if (pagenumber < 0)
+                {
+                    pagenumber = 0;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "order by a.tgl desc,a.no_bukti desc,b.brg asc ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPembeli = ErasoftDbContext.Database.SqlQuery<mdlTransaksiPembeli>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlTransaksiPembeli> pageOrders = new StaticPagedList<mdlTransaksiPembeli>(listPembeli, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            return PartialView("TableTransaksiBuyerPartial", pageOrders);
+        }
+        //end add by nurul 20/11/2019
     }
     public class smolSTF02
     {

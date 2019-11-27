@@ -6360,6 +6360,7 @@
     <Content Include="Views\Manage\ListErrorPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />
+    <Content Include="Views\Manage\TableTransaksiBuyerPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

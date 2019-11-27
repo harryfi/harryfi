@@ -66,8 +66,8 @@
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                     <button class="btn btn-primary btn_tambah_data" id="tambah_pembeli">Tambah Baru</button>
                 </div>
             </div>
@@ -88,106 +88,160 @@
                     <div class="form-horizontal">
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
-                                <div class="x_panel">
-                                    <div class="x_title">
-                                        <h2 style="font-size: 16px">Detail Pembeli</h2>
-                                        <ul class="nav navbar-right panel_toolbox">
-                                            <li>
-                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                            </li>
-                                        </ul>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                    <div class="x_content">
-                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
-                                        <br>
-                                        @using (Html.BeginForm("SavePembeli", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                                        {
-                                            @Html.AntiForgeryToken()
-                                            @Html.HiddenFor(m => m.Pembeli.USERNAME, new { Value = username })
-                                            @Html.HiddenFor(m => m.Pembeli.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                                            @Html.HiddenFor(m => m.Pembeli.RecNum)
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.BUYER_CODE, "Kode Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @if (Model.Pembeli != null)
-                                                    {
-                                                        @Html.HiddenFor(m => m.Pembeli.BUYER_CODE)
-                                                        <input type="text" value="@Model.Pembeli.BUYER_CODE" disabled class="form-control" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <input id="BUYERCODE" type="text" value="[AUTO]" disabled class="form-control" />
-                                                    }
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.NAMA, "Nama Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Pembeli.NAMA, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Pembeli.PERSO, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun  ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @*change by nurul 7/11/2018 -- @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control email_not_required", type = "email" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextAreaFor(m => m.Pembeli.AL, new { @class = "form-control", required = "required", maxlength = 250 })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Pembeli.KODEPROV, new { @class = "form-control", required = "required" })
-                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Pembeli.KODEKABKOT, new { @class = "form-control", required = "required" })
-                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @*@Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control num-only", required = "required", maxlength = 5, max = 99999, @data_val_length_max = 5 })
+                                <div class="" role="tabpanel" data-example-id="togglable-tabs">
+                                    <ul id="buyerTab" class="nav nav-tabs" role="tablist">
+                                        <li role="presentation" class="active">
+                                            <a href="#tab_content_pembeli" id="pembeli-tab" role="tab" data-toggle="tab" aria-expanded="true">Pembeli</a>
+                                        </li>
+                                        <li role="presentation" class="">
+                                            <a href="#tab_content_transaksi" role="tab" id="transaksi-tab" data-toggle="tab" aria-expanded="false">Transaksi Pembeli</a>
+                                        </li>
+                                    </ul>
+                                    <div id="PembeliTabContent" class="tab-content" style="padding-top:10px">
+                                        <div role="tabpanel" class="tab-pane fade active in" id="tab_content_pembeli" aria-labelledby="pembeli-tab">
+                                            <div class="row">
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <div class="x_panel">
+                                                        <div class="x_title">
+                                                            <h2 style="font-size: 16px">Detail Pembeli</h2>
+                                                            <ul class="nav navbar-right panel_toolbox">
+                                                                <li>
+                                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="clearfix"></div>
+                                                        </div>
+                                                        <div class="x_content">
+                                                            @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                                            {
+                                                                foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                                {
+                                                                    <div class="alert alert-danger">
+                                                                        <span class="message-error">@modelError.ErrorMessage</span>
+                                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            <br>
+                                                            @using (Html.BeginForm("SavePembeli", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                @Html.HiddenFor(m => m.Pembeli.USERNAME, new { Value = username })
+                                                                @Html.HiddenFor(m => m.Pembeli.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                                                @Html.HiddenFor(m => m.Pembeli.RecNum)
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.BUYER_CODE, "Kode Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @if (Model.Pembeli != null)
+                                                                        {
+                                                                            @Html.HiddenFor(m => m.Pembeli.BUYER_CODE)
+                                                                            <input type="text" value="@Model.Pembeli.BUYER_CODE" disabled class="form-control" />
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <input id="BUYERCODE" type="text" value="[AUTO]" disabled class="form-control" />
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.NAMA, "Nama Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.TextBoxFor(m => m.Pembeli.NAMA, new { @class = "form-control", required = "required" })
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.TextBoxFor(m => m.Pembeli.PERSO, new { @class = "form-control", required = "required" })
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun  ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @*change by nurul 7/11/2018 -- @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })*@
+                                                                        @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control email_not_required", type = "email" })
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.TextAreaFor(m => m.Pembeli.AL, new { @class = "form-control", required = "required", maxlength = 250 })
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.HiddenFor(m => m.Pembeli.KODEPROV, new { @class = "form-control", required = "required" })
+                                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @Html.HiddenFor(m => m.Pembeli.KODEKABKOT, new { @class = "form-control", required = "required" })
+                                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @*@Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })*@
+                                                                        @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control num-only", required = "required", maxlength = 5, max = 99999, @data_val_length_max = 5 })
 
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    @Html.LabelFor(m => m.Pembeli.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                        @*@Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 15 })*@
+                                                                        @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 15 })
+                                                                    </div>
+                                                                </div>
+                                                                <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)" />
+                                                            }
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @*@Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 15 })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 15 })
+                                        </div>
+                                        <div role="tabpanel" class="tab-pane fade in" id="tab_content_transaksi" aria-labelledby="transaksi-tab">
+                                            <div class="row" >
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <div class="x_panel">
+                                                        <div class="x_title">
+                                                            <h2 style="font-size: 16px">Riwayat Transaksi</h2>
+                                                            <ul class="nav navbar-right panel_toolbox">
+                                                                <li>
+                                                                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="clearfix"></div>
+                                                        </div>
+                                                        <div class="x_content">
+                                                            <div class="row">
+                                                                <div class="col-lg-4 col-sm-6">
+                                                                    <div class="input-group">
+                                                                        <input id="search_transaksi" type="text" class="form-control" placeholder="Pencarian">
+                                                                        <span class="input-group-btn">
+                                                                            <button type="button" id="search_transaksi_click" class="btn btn-primary">
+                                                                                <i class="fa fa-search"></i>
+                                                                            </button>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row ">
+                                                                <div id="table-transaksi-partial" class="col-sm-12">
+                                                                    @*@Html.Partial("TableTransaksiBuyerPartial")*@
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)" />
-                                        }
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -227,6 +281,7 @@
 
     <script type="text/javascript">
         $pembeliId = "";
+        $TransBuyerId = "";
         //add by nurul 12/2/2019
         var $page = window.text;
             //end add by nurul 12/2/2019
@@ -265,6 +320,21 @@
                 searchTableBuyer();
             });
             //end add by nurul 30/4/2019
+            
+            //$('#search_transaksi').keypress(function (e) {
+            //    var key = e.which;
+            //    if (key == 13)// the enter key code
+            //    {
+            //        searchTableTransaksi();
+            //        return false;
+            //    }
+            //});
+            //$('#search_transaksi_click').click(function () {
+            //    searchTableTransaksi();
+            //});
+            //$('#transaksi-tab').click(function () {
+            //    refreshTableTransaksi($TransBuyerId);
+            //});
 
             $('#tambah_pembeli').on('click', function () {
                 $('.pembeli_table_section').hide();
@@ -291,6 +361,7 @@
                 $('#Pembeli_TGL_INPUT').val('@(DateTime.Now)');
                 $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
                 resetError();
+                $TransBuyerId = "";
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
                 //    $page = $('#datatable').DataTable().page.info().page;
@@ -535,7 +606,7 @@
             });
         }
 
-        function editPembeli(pembeliId) {
+        function editPembeli(pembeliId, buyerCode) {
             var link = '@Url.Action("EditPembeli", "Manage", new { recNum = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(pembeliId));
 
@@ -543,6 +614,8 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('#search_transaksi').val('');
+                    $('#pembeli-tab').click();
                     getKabKot();
                     resetKabKot();
                     $('#BUYERCODE').val(response.Pembeli.BUYER_CODE);
@@ -559,6 +632,21 @@
                     $('#Pembeli_KODEKABKOT').val(response.Pembeli.KODEKABKOT);
                     $('#Pembeli_TLP').val(response.Pembeli.TLP);
                     $('#tambah_pembeli').click();
+                    $TransBuyerId = buyerCode;
+                    $('#transaksi-tab').off('click').on('click', function () {
+                        refreshTableTransaksi($TransBuyerId);
+                        $('#search_transaksi').keypress(function (e) {
+                            var key = e.which;
+                            if (key == 13)// the enter key code
+                            {
+                                searchTableTransaksi($TransBuyerId);
+                                return false;
+                            }
+                        });
+                        $('#search_transaksi_click').click(function () {
+                            searchTableTransaksi($TransBuyerId);
+                        });
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -681,5 +769,54 @@
             });
         }
         //end add by nurul 30/4/2019
+
+        //add by nurul 20/11/2019
+        function refreshTableTransaksi($TransBuyerId) {
+            var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiBuyer", "Manage", new { recnum = "replaceId", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_transaksi').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_trans').val()));
+            $link = $link.replace("replaceId", encodeURIComponent($TransBuyerId));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-transaksi-partial').hide();
+                    $('#loading_tran_buyer_tab').show();
+                },
+                success: function (response) {
+                    $('#table-transaksi-partial').html(response);
+                    $('#loading_tran_buyer_tab').hide();
+                    $('#table-transaksi-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableTransaksi(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiBuyer", "Manage", new { recnum = "replaceId", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_transaksi').val()));
+            $link = $link.replace("replaceId", encodeURIComponent($TransBuyerId));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_transaksi_click')[0].disabled = true;
+                    $('#loading_tran_buyer_tab').show();
+                },
+                success: function (response) {
+                    $('#search_transaksi_click')[0].disabled = false;
+                    $('#table-transaksi-partial').html(response);
+                    $('#loading_tran_buyer_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_transaksi_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 20/11/2019
     </script>
 }
