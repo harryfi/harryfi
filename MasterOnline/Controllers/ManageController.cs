@@ -36841,6 +36841,21 @@ namespace MasterOnline.Controllers
             return PartialView("DetailBayarPiutangPartial", vm);
         }
         //end add by nurul 4/11/2019, upload pembayaran tokopedia 
+
+        //add by nurul 21/11/2019
+        public ActionResult findException(string reqId)
+        {            
+            if(reqId != null || reqId != "")
+            {
+                var ex = ErasoftDbContext.API_LOG_MARKETPLACE.Where(a => a.REQUEST_ID == reqId).SingleOrDefault();
+                if(ex != null)
+                {
+                    return Json(ex.REQUEST_EXCEPTION, JsonRequestBehavior.AllowGet);
+                }
+            }
+            return Json("Gagal mendapatkan pesan error.", JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 21/11/2019
     }
     public class smolSTF02
     {
