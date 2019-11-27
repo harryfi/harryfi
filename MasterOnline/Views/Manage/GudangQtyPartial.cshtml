@@ -1,36 +1,38 @@
 ﻿@model MasterOnline.ViewModels.PesananViewModel
 @{
-    var listBarang = Model.ListBarang.ToList();
-    var Pesanan = Model.Pesanan;
+                /**/
+
+                var listBarang = Model.ListBarang.ToList();
+                var Pesanan = Model.Pesanan;
 }
 
-<style>
-    @@media screen and (max-width: 767px) {
-        .hscroll {
-            overflow-x: auto; /* Horizontal */
-        }
-        .fontz {
-            font-size: 11px;
-        }
-        .qtyleft2 {
-            margin-left: -20px;
-        }
-        .qtyleft {
-            margin-left: -26px;
-        }
-        .qtyright10 {
-            margin-right: 10px;
-        }
-        .qtyright15 {
-            margin-right: 22px;
+@*<style>
+        @@media screen and (max-width: 767px) {
+            .hscroll {
+                overflow-x: auto; /* Horizontal */
+            }
+            .fontz {
+                font-size: 11px;
+            }
+            .qtyleft2 {
+                margin-left: -20px;
+            }
+            .qtyleft {
+                margin-left: -26px;
+            }
+            .qtyright10 {
+                margin-right: 10px;
+            }
+            .qtyright15 {
+                margin-right: 22px;
+            }
+
+            #modal-gudang-qty-body .selectivity-dropdown {
+                left: 76.9688px !important;
+            }
         }
 
-        #modal-gudang-qty-body .selectivity-dropdown {
-            left: 76.9688px !important;
-        }
-    }
-    
-</style>
+    </style>*@
 
 @*add by nurul 23/11/2018*@
 <script type="text/javascript">
@@ -67,6 +69,42 @@
                 $(this).val(0);
             }
         });
+
+    $(window).off('resize').on('resize', function () {
+        //var win = $(this); //this = window
+        var style = $('.selectivity-input').attr('style');
+        if (style !== undefined && style !== null) {
+            $('.selectivity-input').attr('style', style.replace('width: 2000px', 'width: 300px; min-width: 300px !important'));
+        }
+    });
+
+    $(window).scroll(function () {
+        //var scrollTop = $(window).scrollTop();
+        var style = $('.selectivity-input').attr('style');
+        if (style !== undefined && style !== null) {
+            $('.selectivity-input').attr('style', style.replace('width: 200px', 'width: 300px; min-width: 300px !important'));
+        }
+    });
+
+    $('.selectivity-input').click(function () {
+        var checkExist = setInterval(function () {
+            //if ($('.selectivity-dropdown').length) {
+            //    $('html, body').animate({ scrollTop: '-=10px' }, 500);
+            //    clearInterval(checkExist);
+            //}
+            if (window.pageYOffset == 0) {
+                $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                clearInterval(checkExist);
+            } else {
+                $('html, body').animate({ scrollTop: '-=1px' }, 500);
+                clearInterval(checkExist);
+            }
+        }, 100);
+    });
+
+    $('body').click(function () {
+        $('.selectivity-input').css('max-width', '180px').attr('style', 'width: 180px !important');
+    });
 </script>
 <div class="row">
     <div class="form-group" style="margin-top: 5px;">
@@ -87,28 +125,28 @@
 <br />
 <br />
 @*end add by nurul 23/11/2018*@
-<div class="hscroll">
-    <div class="row fontz">
+<div class="">
+    <div class="row ">
 
         <div class="col-md-3 col-sm-3 col-xs-3">
             <i>Nama Barang</i>
         </div>
-        <div class="col-md-3 col-sm-3 col-xs-3 qtyleft">
+        <div class="col-md-3 col-sm-3 col-xs-3 ">
             <i>Gudang</i>
         </div>
-        <div class="col-md-1 col-sm-1 col-xs-1 qtyleft">
+        <div class="col-md-1 col-sm-1 col-xs-1 ">
             @*change by nurul 29/11/2018 -- <i>Stok</i>*@
             <i>Qty Stok</i>
         </div>
-        <div class="col-md-1 col-sm-1 col-xs-1 qtyright10">
+        <div class="col-md-1 col-sm-1 col-xs-1 ">
             @*change by nurul 29/11/2018 -- <i>Pesanan Lain</i>*@
             <i>Qty Sudah Dipesan</i>
         </div>
-        <div class="col-md-1 col-sm-1 col-xs-1 qtyright15">
+        <div class="col-md-1 col-sm-1 col-xs-1 ">
             @*change by nurul 29/11/2018 -- <i>Tersedia</i>*@
             <i>Qty Tersedia</i>
         </div>
-        <div class="col-md-1 col-sm-1 col-xs-1 qtyright15">
+        <div class="col-md-1 col-sm-1 col-xs-1 ">
             <i>Qty Pesanan</i>
         </div>
         <div class="col-md-1 col-sm-1 col-xs-1">
@@ -124,15 +162,16 @@
         //var namaBarang = barangValid == null ? "" : barangValid.NAMA;
         var namaBarang = barangValid == null ? "" : barangValid.NAMA + ' ' + barangValid.NAMA2;
 
-        <div class="row fontz">
+        <div class="row ">
             @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
             <div class="form-group">
                 @*//change by nurul 25/9/2019*@
                 @*@Html.Label(namaBarang, new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "padding-top: 11px;" })*@
                 <label class="col-md-3 col-sm-3 col-xs-3 control-label" style="padding-top: 11px;">@namaBarang</label>
                 @*//end change by nurul 25/9/2019*@
-                <div class="col-md-3 col-sm-3 col-xs-3 qtyleft2" style="">
+                <div class="col-md-3 col-sm-3 col-xs-3 " style="">
                     <div id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></div>
+                    @*<select id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></select>*@
                     @Html.Hidden($"Gudang-{barang.NO_URUT}", barang.LOKASI, new { data_jenis = "gudang_siap_kirim" })
                 </div>
                 <div id="Gudang-stok-@(barang.NO_URUT)" class="col-md-1 col-sm-1 col-xs-1" style="text-align:center;padding-top: 11px;">
