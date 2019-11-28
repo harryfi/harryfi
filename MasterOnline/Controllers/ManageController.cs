@@ -16668,6 +16668,50 @@ namespace MasterOnline.Controllers
                                 return Json(vmError, JsonRequestBehavior.AllowGet);
                             }
                         }
+                        else if (customer.NAMA == "15")//tokopedia
+                        {
+                            if (!string.IsNullOrEmpty(cancelReason))
+                            {
+                                if ((cancelReason == "04" || cancelReason == "05" || cancelReason == "06") && string.IsNullOrEmpty(listData[0]))
+                                {
+                                    var vmError = new StokViewModel();
+                                    vmError.Errors.Add("Lengkapi field yang ada untuk membatalkan pesanan dengan alasan ini.");
+                                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                                }
+                                else
+                                {
+                                    string reason = cancelReason;
+                                    switch (cancelReason)
+                                    {
+                                        case "01":
+                                            reason = "Empty stock";
+                                            break;
+                                        case "02":
+                                            reason = "Empty variants";
+                                            break;
+                                        case "03":
+                                            reason = "Product price or weight is not matched";
+                                            break;
+                                        case "04":
+                                            reason = "Shop closed";
+                                            break;
+                                        case "05":
+                                            reason = "Courrier problem";
+                                            break;
+                                        case "06":
+                                            reason = "Request from buyer";
+                                            break;
+                                    }
+                                    sot01d.CATATAN_1 = cancelReason + "_;_";
+                                }
+                            }
+                            else
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Pilih alasan anda membatalkan pesanan ini.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
                     }
                 }
             }
@@ -18179,6 +18223,29 @@ namespace MasterOnline.Controllers
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
+                            }
+
+                            if (mp.NamaMarket.ToUpper().Contains("TOKOPEDIA"))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
+                                };
+
+                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                //lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.SetStatusToCanceled(iden, dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, usernameLogin));
+                                //end change by calvin 10 april 2019, jadi pakai backgroundjob
+
                             }
                         }
                         break;
