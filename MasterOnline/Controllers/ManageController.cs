@@ -6376,23 +6376,38 @@ namespace MasterOnline.Controllers
                         case 1:
                             barangInDb.LINK_GAMBAR_1 = null;
                             barangInDb.Sort5 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            barangInDb.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 2:
                             barangInDb.LINK_GAMBAR_2 = null;
                             barangInDb.Sort6 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            barangInDb.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 3:
                             barangInDb.LINK_GAMBAR_3 = null;
                             barangInDb.Sort7 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            barangInDb.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         //add 6/9/2019, 5 gambar
                         case 4:
                             barangInDb.LINK_GAMBAR_4 = null;
                             barangInDb.SIZE_GAMBAR_4 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            barangInDb.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 5:
                             barangInDb.LINK_GAMBAR_5 = null;
                             barangInDb.SIZE_GAMBAR_5 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            barangInDb.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                             //end add 6/9/2019, 5 gambar
                     }
@@ -6414,7 +6429,9 @@ namespace MasterOnline.Controllers
             {
                 int recnum_int = Convert.ToInt32(recnum);
                 var barangInDb = ErasoftDbContext.STF02H.FirstOrDefault(b => b.BRG == brg && b.IDMARKET == recnum_int);
-
+                //add by nurul 27/11/2019, add tgl last edit
+                var getStf02 = ErasoftDbContext.STF02.FirstOrDefault(b => b.BRG == brg);
+                //end add by nurul 27/11/2019, add tgl last edit
                 if (barangInDb != null)
                 {
                     switch (urutan)
@@ -6422,23 +6439,53 @@ namespace MasterOnline.Controllers
                         case 1:
                             barangInDb.AVALUE_50 = null;
                             barangInDb.ACODE_50 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if(getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 2:
                             barangInDb.AVALUE_49 = null;
                             barangInDb.ACODE_49 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 3:
                             barangInDb.AVALUE_48 = null;
                             barangInDb.ACODE_48 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         //add 6/9/2019, 5 gambar
                         case 4:
                             barangInDb.LINK_GAMBAR_4 = null;
                             barangInDb.SIZE_GAMBAR_4 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         case 5:
                             barangInDb.LINK_GAMBAR_5 = null;
                             barangInDb.SIZE_GAMBAR_5 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                             //end add 6/9/2019, 5 gambar
                     }
@@ -6460,7 +6507,9 @@ namespace MasterOnline.Controllers
             {
                 int recnum_int = Convert.ToInt32(recnum);
                 var barangInDb = ErasoftDbContext.STF02H.FirstOrDefault(b => b.RecNum.Value == recnum_int);
-
+                //add by nurul 27/11/2019, add tgl last edit
+                var getStf02 = ErasoftDbContext.STF02.FirstOrDefault(b => b.BRG == barangInDb.BRG);
+                //end add by nurul 27/11/2019, add tgl last edit
                 if (barangInDb != null)
                 {
                     switch (urutan)
@@ -6468,11 +6517,23 @@ namespace MasterOnline.Controllers
                         case 1:
                             barangInDb.AVALUE_50 = null;
                             barangInDb.ACODE_50 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                         //add 6/9/2019, 2 gambar untuk barang varian
                         case 2:
                             barangInDb.AVALUE_49 = null;
                             barangInDb.ACODE_49 = null;
+                            //add by nurul 27/11/2019, add tgl last edit
+                            if (getStf02 != null)
+                            {
+                                getStf02.Tgl_Input = DateTime.Today;
+                            }
+                            //end add by nurul 27/11/2019, add tgl last edit
                             break;
                             //end add 6/9/2019, 2 gambar untuk barang varian
                     }
@@ -6806,6 +6867,11 @@ namespace MasterOnline.Controllers
                     {
                         dataBarang.Stf02.TYPE = "3";
                     }
+
+                    //add by nurul 27/11/2019, add tgl last edit
+                    dataBarang.Stf02.Tgl_Input = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ErasoftDbContext.STF02.Add(dataBarang.Stf02);
                 }
                 else
@@ -6833,6 +6899,10 @@ namespace MasterOnline.Controllers
                         barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                         barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
                         barangInDb.TYPE = "3";
+
+                        //add by nurul 27/11/2019, add tgl last edit
+                        barangInDb.Tgl_Input = DateTime.Today;
+                        //end add by nurul 27/11/2019, add tgl last edit
 
                         if (dataBarang.ListHargaJualPermarket?.Count > 0)
                         {
@@ -7940,6 +8010,11 @@ namespace MasterOnline.Controllers
                     {
                         dataBarang.Stf02.TYPE = "4";
                     }
+
+                    //add by nurul 27/11/2019, add tgl last edit
+                    dataBarang.Stf02.Tgl_Input = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ErasoftDbContext.STF02.Add(dataBarang.Stf02);
                 }
                 else
@@ -7968,6 +8043,11 @@ namespace MasterOnline.Controllers
                         barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                         barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
                         barangInDb.TYPE = "4";
+
+                        //add by nurul 27/11/2019, add tgl last edit
+                        barangInDb.Tgl_Input = DateTime.Today;
+                        //end add by nurul 27/11/2019, add tgl last edit
+
                         if (dataBarang.ListHargaJualPermarket?.Count > 0)
                         {
                             List<string> listError = new List<string>();
@@ -10654,6 +10734,14 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBarang = ErasoftDbContext.STF02.Where(p => p.BRG == brg).FirstOrDefault();
+                if (tempBarang != null) {
+                    tempBarang.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SaveChanges();
             }
 
@@ -11168,6 +11256,11 @@ namespace MasterOnline.Controllers
                     newVariantData.Ket_Sort10 = ket_varlv3;
                     newVariantData.PART = STF02_Induk.BRG;
                     newVariantData.TYPE = "3";
+
+                    //add by nurul 27/11/2019, add tgl last edit
+                    newVariantData.Tgl_Input = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ListNewVariantData_Stf02.Add(newVariantData);
                 }
                 else
@@ -11184,6 +11277,11 @@ namespace MasterOnline.Controllers
                         UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
                         UpdateStf02Sorts.Ket_Sort9 = ket_varlv2;
                         UpdateStf02Sorts.Ket_Sort10 = ket_varlv3;
+
+                        //add by nurul 27/11/2019, add tgl last edit
+                        UpdateStf02Sorts.Tgl_Input = DateTime.Today;
+                        //end add by nurul 27/11/2019, add tgl last edit
+
                         ErasoftDbContext.SaveChanges();
                     }
                 }
@@ -11354,6 +11452,9 @@ namespace MasterOnline.Controllers
                                 {
                                     itemInduk.Sort5 = Convert.ToString(file.ContentLength);
                                     itemInduk.LINK_GAMBAR_1 = itemVar.LINK_GAMBAR_1;
+                                    //add by nurul 27/11/2019, add tgl last edit
+                                    itemInduk.Tgl_Input = DateTime.Today;
+                                    //end add by nurul 27/11/2019, add tgl last edit
                                 }
                             }
                         }
@@ -12395,6 +12496,15 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SaveChanges();
             }
             #endregion
@@ -12514,6 +12624,15 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SaveChanges();
             }
             #endregion
@@ -12634,6 +12753,15 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SaveChanges();
             }
             #endregion
@@ -12754,6 +12882,15 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 ErasoftDbContext.STF02I.AddRange(listNewData);
+
+                //add by nurul 27/11/2019, add tgl last edit
+                var tempBrg = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+                if (tempBrg != null)
+                {
+                    tempBrg.Tgl_Input = DateTime.Today;
+                }
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SaveChanges();
             }
             #endregion
@@ -13887,6 +14024,11 @@ namespace MasterOnline.Controllers
                     //dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.RecNum == recNumCust).AL3;
                     dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
                     dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
+
+                    //add by nurul 27/11/2019, add tgl last edit
+                    dataVm.Faktur.TGLINPUT = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
 
                     ErasoftDbContext.SaveChanges();
@@ -13943,6 +14085,11 @@ namespace MasterOnline.Controllers
                     fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
                     fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
                     fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+
+                    //add by nurul 27/11/2019, add tgl last edit
+                    fakturInDb.TGLINPUT = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ErasoftDbContext.SaveChanges();
 
                     returBaru = false;
@@ -14396,7 +14543,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, A.TGLINPUT AS TGL_LASTEDIT ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -14500,7 +14647,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN, A.REF AS REFERENSI ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN, A.REF AS REFERENSI, A.TGLINPUT AS TGL_LASTEDIT ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -14795,6 +14942,10 @@ namespace MasterOnline.Controllers
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * ((double)fakturInDb.BRUTO - (double)fakturInDb.NILAI_DISC) / 100);
                 fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
 
+                //add by nurul 27/11/2019, add tgl last edit
+                fakturInDb.TGLINPUT = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -14853,6 +15004,10 @@ namespace MasterOnline.Controllers
             fakturInDb.NILAI_PPN = dataUpdate.NilaiPpn;
             fakturInDb.MATERAI = dataUpdate.OngkosKirim;
             fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+
+            //add by nurul 27/11/2019, add tgl last edit
+            fakturInDb.TGLINPUT = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
 
             ErasoftDbContext.SaveChanges();
 
@@ -15089,6 +15244,9 @@ namespace MasterOnline.Controllers
 
                 dataVm.InvoiceDetail.INV = noOrder;
 
+                //add by nurul 27/11/2019, add tgl last edit
+                dataVm.Invoice.TGLINPUT = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
                 ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
                 ErasoftDbContext.SaveChanges();
 
@@ -15112,7 +15270,9 @@ namespace MasterOnline.Controllers
                 //END ADD
                 invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
                 invoiceInDb.KODE_REF_PESANAN = dataVm.Invoice.KODE_REF_PESANAN;
-
+                //add by nurul 27/11/2019, add tgl last edit
+                invoiceInDb.TGLINPUT = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
                 dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
 
                 if (dataVm.InvoiceDetail.NO == null)
@@ -15229,6 +15389,10 @@ namespace MasterOnline.Controllers
 
                     //dataVm.InvoiceDetail.INV = noOrder;
 
+                    //add by nurul 27/11/2019, add tgl last edit
+                    dataVm.Invoice.TGLINPUT = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
+
                     ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
 
                     //if (dataVm.InvoiceDetail.NO == null)
@@ -15278,7 +15442,9 @@ namespace MasterOnline.Controllers
                     //add by nurul 10/12/2018
                     invoiceInDb.BIAYA_LAIN = dataVm.Invoice.BIAYA_LAIN;
                     //end add
-
+                    //add by nurul 27/11/2019, add tgl last edit
+                    invoiceInDb.TGLINPUT = DateTime.Today;
+                    //end add by nurul 27/11/2019, add tgl last edit
                     //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
                     //if (dataVm.InvoiceDetail.NO == null)
                     //{
@@ -15431,7 +15597,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.INV,'') AS PEMBAYARAN, A.TGLINPUT AS TGL_LASTEDIT ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -15894,6 +16060,10 @@ namespace MasterOnline.Controllers
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
                 invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
 
+                //add by nurul 27/11/2019, add tgl last edit
+                invoiceInDb.TGLINPUT = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.PBT01B.Remove(barangInvoiceInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -15933,6 +16103,10 @@ namespace MasterOnline.Controllers
                 invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * ((double)invoiceInDb.BRUTO - (double)invoiceInDb.NDISC1) / 100);
                 //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
                 invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
+
+                //add by nurul 27/11/2019, add tgl last edit
+                invoiceInDb.TGLINPUT = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 ErasoftDbContext.PBT01B.Remove(barangInvoiceInDb);
                 ErasoftDbContext.SaveChanges();
@@ -16003,6 +16177,10 @@ namespace MasterOnline.Controllers
             invoiceInDb.DROPSHIPPER = dataUpdate.Dropship;
             //end add by nurul 24/7/2019
 
+            //add by nurul 27/11/2019, add tgl last edit
+            invoiceInDb.TGLINPUT = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -16024,6 +16202,10 @@ namespace MasterOnline.Controllers
             //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
             invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
             //end change 
+
+            //add by nurul 27/11/2019, add tgl last edit
+            invoiceInDb.TGLINPUT = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
 
             ErasoftDbContext.SaveChanges();
 
@@ -21316,6 +21498,10 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.NO_FAKTUR = "";
                 #endregion
 
+                //add by nurul 27/11/2019, add tgl last edit
+                dataVm.Stok.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -21346,6 +21532,10 @@ namespace MasterOnline.Controllers
 
                 stokInDb.Tgl = dataVm.Stok.Tgl;
                 dataVm.BarangStok.Nobuk = dataVm.Stok.Nobuk;
+
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -21656,6 +21846,10 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -21690,6 +21884,11 @@ namespace MasterOnline.Controllers
             //remark by nurul 25/9/2018
             //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            //add by nurul 27/11/2019, add tgl last edit
+            stokInDb.TglInput = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -23519,6 +23718,10 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.STATUS_LOADING = "0";
                 dataVm.BarangStok.Nobuk = noStok;
 
+                //add by nurul 27/11/2019, add tgl last edit
+                dataVm.Stok.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -23544,6 +23747,10 @@ namespace MasterOnline.Controllers
 
                 stokInDb.Tgl = dataVm.Stok.Tgl;
                 dataVm.BarangStok.Nobuk = dataVm.Stok.Nobuk;
+
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -23829,6 +24036,10 @@ namespace MasterOnline.Controllers
                 brg.Add(barangStokInDb.Kobar);
                 //end add by Tri, panggil api marketplace to change stock
 
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -23861,6 +24072,11 @@ namespace MasterOnline.Controllers
             //remark by nurul 25/9/2018
             //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            //add by nurul 27/11/2019, add tgl last edit
+            stokInDb.TglInput = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -23983,6 +24199,10 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.STATUS_LOADING = "0";
                 dataVm.BarangStok.Nobuk = noStok;
 
+                //add by nurul 27/11/2019, add tgl last edit
+                dataVm.Stok.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -24026,6 +24246,10 @@ namespace MasterOnline.Controllers
 
                 stokInDb.Tgl = dataVm.Stok.Tgl;
                 dataVm.BarangStok.Nobuk = dataVm.Stok.Nobuk;
+
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -24287,6 +24511,10 @@ namespace MasterOnline.Controllers
                 brg.Add(barangStokInDb.Kobar);
                 //end add by Tri, panggil api marketplace to change stock
 
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -24319,6 +24547,11 @@ namespace MasterOnline.Controllers
             //remark by nurul 25/9/2018
             //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            //add by nurul 27/11/2019, add tgl last edit
+            stokInDb.TglInput = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -24398,7 +24631,9 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.STATUS_LOADING = "0";
                 dataVm.BarangStok.Nobuk = noStok;
 
-
+                //add by nurul 27/11/2019, add tgl last edit
+                dataVm.Stok.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
@@ -24439,6 +24674,10 @@ namespace MasterOnline.Controllers
 
                 stokInDb.Tgl = dataVm.Stok.Tgl;
                 dataVm.BarangStok.Nobuk = dataVm.Stok.Nobuk;
+
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -24732,6 +24971,10 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
+                //add by nurul 27/11/2019, add tgl last edit
+                stokInDb.TglInput = DateTime.Today;
+                //end add by nurul 27/11/2019, add tgl last edit
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -24762,6 +25005,11 @@ namespace MasterOnline.Controllers
             //remark by nurul 25/9/2018
             //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            //add by nurul 27/11/2019, add tgl last edit
+            stokInDb.TglInput = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -28001,6 +28249,9 @@ namespace MasterOnline.Controllers
             //end add by Tri, validasi harga per marketplace
 
             hJualInDb.HJUAL = hargaJualBaru;
+            //add by nurul 27/11/2019, add tgl last edit
+            brg.Tgl_Input = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
             ErasoftDbContext.SaveChanges();
 
             //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
@@ -28204,6 +28455,9 @@ namespace MasterOnline.Controllers
                 }
             }
             brg.HJUAL = hargaJualIndukBaru;
+            //add by nurul 27/11/2019, add tgl last edit
+            brg.Tgl_Input = DateTime.Today;
+            //end add by nurul 27/11/2019, add tgl last edit
             hJualInDb.HJUAL = hargaJualPromosiBaru;
             ErasoftDbContext.SaveChanges();
 
@@ -28603,6 +28857,9 @@ namespace MasterOnline.Controllers
                 {
                     if (data.Stf02 != null)
                     {
+                        //add by nurul 27/11/2019, add tgl last edit
+                        data.Stf02.Tgl_Input = DateTime.Today;
+                        //add by nurul 27/11/2019, add tgl last edit
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
                         var tokped = 15;
@@ -28917,6 +29174,9 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
+                                    //add by nurul 27/11/2019, add tgl last edit
+                                    barangInDB.Tgl_Input = DateTime.Today;
+                                    //end add by nurul 27/11/2019, add tgl last edit
                                     //add 10 Juni 2019, update panjang/lebar/tinggi
                                     if (barangInDB.PANJANG == 0 && data.Stf02.PANJANG > 0)
                                     {
@@ -29421,6 +29681,10 @@ namespace MasterOnline.Controllers
 
                             }
                             //end change by Tri 11 Feb 2019, handle brg tokped
+
+                            //add by nurul 27/11/2019, add tgl last edit
+                            data.Stf02.Tgl_Input = DateTime.Today;
+                            //end add by nurul 27/11/2019, add tgl last edit
 
                             ErasoftDbContext.STF02.Add(data.Stf02);
 
@@ -30325,6 +30589,9 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
+                                            //add by nurul 27/11/2019, add tgl last edit
+                                            barangInDB.Tgl_Input = DateTime.Today;
+                                            //end add by nurul 27/11/2019, add tgl last edit
                                             //add 10 Juni 2019, update panjang/lebar/tinggi
                                             if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
                                             {
@@ -30539,6 +30806,9 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
+                                        //add by nurul 27/11/2019, add tgl last edit
+                                        barangInDB.Tgl_Input = DateTime.Today;
+                                        //end add by nurul 27/11/2019, add tgl last edit
                                         if (barangInDB.PANJANG == 0 && item.PANJANG > 0)
                                         {
                                             barangInDB.PANJANG = item.PANJANG;
