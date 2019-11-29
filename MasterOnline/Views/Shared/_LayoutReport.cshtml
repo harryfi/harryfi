@@ -18,7 +18,7 @@
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
     }
 
-    var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
 }
 
 <!DOCTYPE html>
@@ -369,7 +369,7 @@
                                     <a href="@Url.Action("Index", "Manage")"><i class="fa fa-home"></i> Dashboard</a>
                                 </li>
                                 @{
-                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
                                     var listChild = listAnak.ToList();
                                     //add by nurul 26/7/2018
                                     var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
