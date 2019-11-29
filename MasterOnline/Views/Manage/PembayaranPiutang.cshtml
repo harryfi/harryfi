@@ -522,8 +522,8 @@
                             <h5>
                                 1. Buka https://sellercenter.lazada.co.id/
                             </h5>
-                            <h5>2. Hover "Finance"</h5>
-                            <h5>3. Klik "Account Statements"</h5>
+                            <h5>2. Arahkan kursor ke "Keuangan"</h5>
+                            <h5>3. Klik "Laporan Akun"</h5>
                             <h5>4. Pilih rentang tanggal yang diinginkan</h5>
                             <h5>5. Klik "Export"</h5>
                             <h5>6. Klik "Download"</h5>
@@ -547,7 +547,7 @@
                             <h5>
                                 1. Buka https://merchant.blibli.com/
                             </h5>
-                            <h5>2. Hover "Laporan"</h5>
+                            <h5>2. Arahkan kursor ke "Laporan"</h5>
                             <h5>3. Klik "Dokumen Pembayaran"</h5>
                             <h5>4. Download file yang diinginkan</h5>
                             <h5>5. Save di direktori yang diinginkan</h5>
@@ -1775,8 +1775,8 @@
             if ($('#Piutang_TGL').val() == null ||
                 $('#Piutang_CUST').val() == '') {
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
-            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA") {
-                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia dan Lazada.');
+            } else if ($tempMP1.toUpperCase() != "SHOPEE" && $tempMP1.toUpperCase() != "TOKOPEDIA" && $tempMP1.toUpperCase() != "LAZADA" && $tempMP1.toUpperCase() != "BUKALAPAK" && $tempMP1.toUpperCase() != "BLIBLI") {
+                alert('Maaf, upload ini baru bisa menghandle Shopee, Tokopedia, Lazada, Bukalapak dan Blibli.');
             }
             else {
 
@@ -1878,6 +1878,12 @@
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
                     url = '@Url.Action("UploadXcelBayarLazada", "Manage")';
                 }
+                else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    url = '@Url.Action("UploadXcelBayarBukalapak", "Manage")';
+                }
+                else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                    url = '@Url.Action("UploadXcelBayarBlibli", "Manage")';
+                }
 
                 $.ajax({
                     type: "POST",
@@ -1936,8 +1942,10 @@
                             });
                             if ($tempErr.length > 1) {
                                 alert('Ada error. Silahkan klik "View Error"');
-                            } else {
+                            } else if($tempErr.length == 1) {
                                 $("#btn-error").click();
+                            } else if ($tempErr.length == 0) {
+                                $("#btn-error-row").hide();
                             }
 
                         } else {
@@ -1977,8 +1985,10 @@
                             });
                             if ($tempErr.length > 1) {
                                 alert('Ada error. Silahkan klik "View Error"');
-                            } else {
+                            } else if ($tempErr.length == 1) {
                                 $("#btn-error").click();
+                            } else if ($tempErr.length == 0) {
+                                $("#btn-error-row").hide();
                             }
                         }
                     },
@@ -2081,11 +2091,32 @@
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
                             } else {
+                                $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                    if ($(item).attr("data-selisih-gagal") != undefined) {
+                                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                    }
+                                });
+                                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                    $(item).text(convertToRupiah(0));
+                                });
+                                $('#TOTALPOT').val(convertToRupiah(0));
+                                $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
                                 alert(data.Errors);
                                 $('#loading_spinner').hide();
                             }
                         },
                         error: function (xhr) {
+                            $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                if ($(item).attr("data-selisih-gagal") != undefined) {
+                                    $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                }
+                            });
+                            $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                $(item).text(convertToRupiah(0));
+                            });
+                            $('#TOTALPOT').val(convertToRupiah(0));
+                            $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                            alert('Ada error. Mohon ulangi proses!');
                             $('#loading_spinner').hide();
                             $("#konfCreatePot").modal('hide');
                             console.log(xhr);

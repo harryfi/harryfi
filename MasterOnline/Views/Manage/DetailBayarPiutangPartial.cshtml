@@ -388,7 +388,7 @@
                                 <input min="0" class="pot-input-box num-only" style="display: none;" />
                                 <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
                             </td>
-                            <td class="selisih-piutang" style="text-align:right">
+                            <td class="selisih-piutang" data-selisih-gagal="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" style="text-align:right">
                                 @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
                                 <input min="0" class="selisih-input-box num-only" style="display: none;" />
                                 <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
