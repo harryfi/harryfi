@@ -3711,7 +3711,7 @@
                                     searchField: 'text',
                                     options: listReason,
                                     onChange: function (value) {
-                                        $('#txtCancelReason').val(value);                                        
+                                        $('#txtCancelReason').val(value + ';' + $('#cbCancelReason')[0].innerText);                                        
                                     }
                                 });
 

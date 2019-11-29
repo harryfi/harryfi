@@ -1597,12 +1597,12 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Lazada Gagal.")]
-        public BindingBase SetStatusToCanceled(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderItemId, string accessToken, string uname)
+        public BindingBase SetStatusToCanceled(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderItemId, string accessToken, string uname, string cancelReason)
         {
             var ret = new BindingBase();
             ret.status = 0;
             SetupContext(dbPathEra, uname);
-
+            var splitReason = cancelReason.Split(';');
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -1616,8 +1616,10 @@ namespace MasterOnline.Controllers
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/order/cancel");
-            request.AddApiParameter("reason_detail", "Out of stock");
-            request.AddApiParameter("reason_id", "15");
+            //request.AddApiParameter("reason_detail", "Out of stock");
+            //request.AddApiParameter("reason_id", "15");
+            request.AddApiParameter("reason_detail", splitReason[1]);
+            request.AddApiParameter("reason_id", splitReason[0]);
             request.AddApiParameter("order_item_id", orderItemId);
             //try
             //{
