@@ -25327,7 +25327,10 @@ namespace MasterOnline.Controllers
             {
                 CUST = cust,
                 UPLOADER = uname,
-                UPLOAD_DATETIME = DateTime.Now,
+                //change by nurul 28/11/2019
+                //UPLOAD_DATETIME = DateTime.Now,
+                UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                //end change by nurul 28/11/2019
                 LOG_FILE = filename,
             };
             string lastFakturInUpload = "";
@@ -26053,7 +26056,9 @@ namespace MasterOnline.Controllers
             {
                 CUST = cust,
                 UPLOADER = uname,
-                UPLOAD_DATETIME = DateTime.Now,
+                //UPLOAD_DATETIME = DateTime.Now,
+                UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                //end change by nurul 28/11/2019
                 LOG_FILE = filename,
             };
             string lastFakturInUpload = "";
@@ -26641,7 +26646,9 @@ namespace MasterOnline.Controllers
             {
                 CUST = cust,
                 UPLOADER = uname,
-                UPLOAD_DATETIME = DateTime.Now,
+                //UPLOAD_DATETIME = DateTime.Now,
+                UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                //end change by nurul 28/11/2019
                 LOG_FILE = filename,
             };
             string lastFakturInUpload = "";
@@ -33082,9 +33089,15 @@ namespace MasterOnline.Controllers
                             {
                                 CUST = cust,
                                 UPLOADER = uname,
-                                UPLOAD_DATETIME = DateTime.Now,
+                                //change by nurul 28/11/2019
+                                //UPLOAD_DATETIME = DateTime.Now,
+                                UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                                //end change by nurul 28/11/2019
                                 LOG_FILE = filename,
-                                LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now
+                                //change by nurul 28/11/2019
+                                //LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now
+                                LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7)
+                                //end change by nurul 28/11/2019
                             };
                             //string lastFakturInUpload = "";
                             //DateTime lastFakturDateInUpload = DateTime.Now;
