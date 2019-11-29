@@ -1613,6 +1613,47 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
                     <div class="row">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_faktur_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="statuskirim">Status Kirim</option>
+                                <option value="statusprint">Status Print</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_faktur_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_faktur_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_faktur_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_faktur_field_marketplace" required="required">
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_faktur_field_statuskirim_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_faktur_field_statuskirim" required="required">
+                                    <option value="0">Dalam Proses</option>
+                                    <option value="1">Gagal Proses</option>
+                                    <option value="2">Siap Kirim</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_faktur_field_statusprint_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_faktur_field_statusprint" required="required">
+                                    <option value="0">Belum</option>
+                                    <option value="1">Sudah</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
@@ -1623,21 +1664,32 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-7 col-sm-5" style="margin-top:13px;">
+                        <div class="col-lg-1 col-sm-12" style="text-align:left">
+                        </div>
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
                                         <span>Refresh</span>
                                     </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
-                                <button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
+                                @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                                </button>
-
+                                </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
+                                <div class="btn-group" role="group">
+                                    <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Proses <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="pesanan_faktur_btnGroup">
+                                        <button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-lg-1 col-sm-1" style="margin-top:13px;">
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
@@ -2705,13 +2757,13 @@
     </div>
 </div>
 <div class="modal fade" id="modalUbahStatusMultiDibayar" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
-    <div class="modal-dialog" id="status-multi" role="document">
+    <div class="modal-dialog modal-dialog-scrollable" id="status-multi" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
                 <div id="loading_ubahstatus_dibayar" class="text-center">
                     <img src="~/Content/Images/spinner.gif" width="100" />
                 </div>
@@ -2733,13 +2785,17 @@
 <div class="modal fade" id="modalUbahStatusMultiPacking" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
     <div class="modal-dialog modal-dialog-scrollable" id="status-multi" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header" id="modalUbahStatusMultiPacking_header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
-            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+            <div class="modal-body" id="modalUbahStatusMultiPacking_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
                 <div id="loading_ubahstatus_packing" class="text-center">
                     <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row">
+                    <div class="col-md-12 warning" id="modalUbahStatusMultiPacking_error">
+                    </div>
                 </div>
                 <div class="row" id="packing_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Faktur?</h4>
@@ -2751,13 +2807,64 @@
             <br />
             <div class="modal-footer">
                 <div class="left row" style="display: none;">
-                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;"/><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
+                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
                 </div>
                 <div class="right">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                    <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+                    <button type="button" class="btn btn-danger" id="modalUbahStatusMultiPacking_btn_tidak" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking();">Ya</button>
+                    <button type="button" class="btn btn-success" style="display:none" id="modalUbahStatusMultiPacking_btn_lanjut" onclick="OpenPackingTransaction();">Lanjut</button>
                 </div>
-                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPackingPengiriman" tabindex="-1" role="dialog" aria-labelledby="PackingMulti">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="PackingMulti">Pengiriman</h4>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div class="row">
+                    <input type="hidden" disabled="disabled" id="modalUbahStatusMultiPacking_packingNo" />
+                    <h4 id="modalPackingPengiriman_packingTitle">Nomor Bukti Packing List : </h4>
+                </div>
+                <div class="row" style="margin-top: 15px;">
+                    <div class="x_content">
+                        <ul id="detail-packinglist-tabs" class="nav nav-tabs">
+                            <li id="li_pesanan_tokped_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_tokped_tab_focus" href="#packing_pesanan_tokped" aria-expanded="false">Tokopedia</a></li>
+                            <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
+                            <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
+                            <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="packing_pesanan_tokped" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_tokped_content">
+
+                                </div>
+                            </div>
+                            <div id="packing_pesanan_lazada" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_lazada_content">
+
+                                </div>
+                            </div>
+                            <div id="packing_pesanan_shopee" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_shopee_content">
+
+                                </div>
+                            </div>
+                            <div id="packing_pesanan_blibli" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_blibli_content">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer">
             </div>
         </div>
     </div>
@@ -3519,6 +3626,44 @@
                 refreshTableSudahKirim("1");
             });
             //end add by nurul 1/8/2019
+
+            //add by calvin 29 nov 2019
+            $('#filter_pesanan_faktur_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_faktur_field_tanggal_div').show();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').show();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "statuskirim":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').show();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "statusprint":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').show();
+                        break;
+                    default:
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                }
+            });
+            //end add by calvin 29 nov 2019
         });
 
         //add by Tri, call midtrans api get token
@@ -4568,9 +4713,9 @@
         function hitungUlangBruto() {
             $total_bruto_barang = 0;
             if ($modeEditSelesai == 1) {
-                    $('tr[data-pesanan-selesai-id!="0"] .netto-barang').each(function () {
-                        $total_bruto_barang += convertToAngka($(this).text());
-                    });
+                $('tr[data-pesanan-selesai-id!="0"] .netto-barang').each(function () {
+                    $total_bruto_barang += convertToAngka($(this).text());
+                });
             } else if ($modeEditDibayar == 1) {
                 $('tr[data-pesanan-dibayar-id!="0"] .netto-barang').each(function () {
                     $total_bruto_barang += convertToAngka($(this).text());
@@ -4585,9 +4730,9 @@
                     });
                 } else if ($modeEditDetail == 0) {
                     $('tr[data-barang-id!="0"] .netto-barang').each(function () {
-                            if ($(this).attr("data-issaved") != undefined) {
-                                $total_bruto_barang += convertToAngka($(this).text());
-                            }
+                        if ($(this).attr("data-issaved") != undefined) {
+                            $total_bruto_barang += convertToAngka($(this).text());
+                        }
                     });
                 }
             }
@@ -5410,14 +5555,14 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
-                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Pesanan_BRUTO').val();
                                 $beforeState.netto = $('#Pesanan_NETTO').val();
                                 $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
                                 $beforeState.ppn = $('#Pesanan_PPN').val();
                                 $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
                                 $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
-                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
 
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
@@ -5928,27 +6073,58 @@
             $.ajax({
                 type: "POST",
                 url: link,
-
                 //data: JSON.stringify(get_selected),
                 data: JSON.stringify({ get_selected: get_selected, packinglist: pList }),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_ubahstatus_packing').show();
+                },
+                complete: function (){
+                    $('#loading_ubahstatus_packing').hide();
+                },
                 success: function(response) {
-                    if (response.Errors == null) {
-                        refreshTableSiapKirim();
-                        refreshTablePesanan();
-                        refreshTableSudahKirim();
-                        refreshTableSudahDibayar();
-                        alert('Semua kode pesanan berhasil ubah status');
+                    $('#modalUbahStatusMultiPacking_body').animate({ scrollTop: 0 }, 'slow');
+
+                    if (response.error_packing_list == false) {
+                        var textareaValue = "";
+
+                        textareaValue += "Jumlah pesanan berhasil update status : "+ response.successCount +"</br>";
+
+                        var adaError = false;
+                        var errorValue = "";
+                        response.listError.forEach(function (item) {
+                            adaError = true;
+                            errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
+                        });
+                        if (adaError) {
+                            textareaValue += "</br>";
+                            textareaValue += "Pesanan gagal update status :</br>";
+                            textareaValue += errorValue;
+                        }
+                        $('#modalUbahStatusMultiPacking_error').show();
+                        $('#modalUbahStatusMultiPacking_error').html(textareaValue);
+
+                        if(response.successCount > 0){
+                            refreshTableSiapKirim();
+                            refreshTablePesanan();
+                            refreshTableSudahKirim();
+                            refreshTableSudahDibayar();
+                            $('#packing_div').hide();
+                            $('#modalUbahStatusMultiPacking_header').hide();
+                            $('#modalUbahStatusMultiPacking_btn_tidak').hide();
+                            $('#modalUbahStatusMultiPacking_btn_ya').hide();
+                            $('#modalUbahStatusMultiPacking_btn_lanjut').show();
+                            $('#modalUbahStatusMultiPacking_packingNo').val(response.packingNo);
+                            $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ' + response.packingNo);
+
+                        }
                     } else {
-                        refreshTableSiapKirim();
-                        refreshTablePesanan();
-                        refreshTableSudahKirim();
-                        refreshTableSudahDibayar();
-                        alert('Mohon lengkapi Gudang pada Pesanan (' + response.Errors + ') terlebih dahulu !');
+                        $('#modalUbahStatusMultiPacking_error').show();
+                        $('#modalUbahStatusMultiPacking_error').html('Gagal memproses packing. Mohon hubungi support.');
                     }
                     $('#modal-status-multi-packing-body').modal('hide');
-                    $('#modalUbahStatusMultiPacking').modal('hide');
+                    //$('#modalUbahStatusMultiPacking').modal('hide');
                     $('#konfUbahStatusSiapkirim').modal('hide');
                     get_selected.length = 0;
                 },
@@ -6497,11 +6673,15 @@
                 $setPage = $('#txt_last_page_4').val();
             }
             //var link = '@Url.Action("RefreshTablePesananSudahKirim", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudahkirim').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_4').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
+            var filterby = get_pesanan_faktur_filterby();
+            var filtervalue = get_pesanan_faktur_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
             $.ajax({
                 type: "GET",
@@ -6540,6 +6720,35 @@
                             }
                         });
                     });
+                    //add by calvin 29 nov 2019
+                    $("#all_checkbox_pesanan_faktur").click(function () {
+                        $(".checkbox_pesanan_faktur").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#all_checkbox_pesanan_faktur").prop('checked') == true) {
+                            $(".buat_faktur").attr('disabled', 'disabled');
+                        } else {
+                            $(".buat_faktur").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_pesanan_faktur").each(function (i, item) {
+                        $(item).off('click').on('click', function () {
+                            if ($(item).prop('checked') == true) {
+                                $(".buat_faktur").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_pesanan_faktur").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-recnum"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".buat_faktur").removeAttr('disabled');
+                                }
+                            }
+                        });
+                    });
+                    //end add by calvin 29 nov 2019
+
                     $('#loading_pesanan_invoicing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -6547,10 +6756,37 @@
                 }
             });
         }
+        function get_pesanan_faktur_filterby(){
+            return $('#filter_pesanan_faktur_field').val();
+        }
+        function get_pesanan_faktur_filtervalue(filterby){
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_faktur_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_faktur_field_marketplace').val();
+                    break;
+                case "statuskirim":
+                    filtervalue = $('#filter_pesanan_faktur_field_statuskirim').val();
+                    break;
+                case "statusprint":
+                    filtervalue = $('#filter_pesanan_faktur_field_statusprint').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
         function searchTablePesananInvoicing(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sudahkirim').val()));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordInvoicing').val()));
+            var filterby = get_pesanan_faktur_filterby();
+            var filtervalue = get_pesanan_faktur_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
             $.ajax({
                 type: "GET",
@@ -6562,32 +6798,6 @@
                 success: function (response) {
                     $('#search_invoicing_click')[0].disabled = false;
                     $('#table-pesanan-sudah-kirim-partial').html(response);
-                    $("#checkbox_all_generateFaktur").click(function () {
-                        $(".checkbox_generateFaktur").prop('checked',
-                            $(this).prop('checked'));
-                        if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
-                            $(".buat_faktur").attr('disabled', 'disabled');
-                        } else {
-                            $(".buat_faktur").removeAttr('disabled');
-                        }
-                    });
-                    $(".checkbox_generateFaktur").each(function (i, item) {
-                        $(item).off('click').on('click', function () {
-                            if ($(item).prop('checked') == true) {
-                                $(".buat_faktur").attr('disabled', 'disabled');
-                            } else {
-                                var cekTrue = [];
-                                $(".checkbox_generateFaktur").each(function (z, chk) {
-                                    if ($(chk).prop('checked') == true) {
-                                        cekTrue.push($(chk).attr("data-recnum"));
-                                    }
-                                });
-                                if (cekTrue.length == 0) {
-                                    $(".buat_faktur").removeAttr('disabled');
-                                }
-                            }
-                        });
-                    });
                     $('#loading_pesanan_invoicing_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -7517,7 +7727,7 @@
                             $('#btn-resi-shopee-manual').show();
                             //end add 3/9/2019 handle create manual pesanan shopee
                         }
-                        //add 3/9/2019 handle create manual pesanan shopee
+                            //add 3/9/2019 handle create manual pesanan shopee
                         else {
                             $('#shopee-resi-non-integrated-section').show();
                             $('#btn-resi-shopee-manual').show();
@@ -7598,7 +7808,7 @@
                     link = link.replace("replaceDeliveryProv",
                         $('#txtShipmentBL').val() == undefined ? '' : encodeURIComponent($('#txtShipmentBL').val()));
                 }
-                //add by Tri 3/9/2019, kurir untuk mp lain
+                    //add by Tri 3/9/2019, kurir untuk mp lain
                 else if (document.getElementById("resi_kurir") != null) {
                     link = link.replace("replaceDeliveryProv",
                         $('#resi_kurir').val() == undefined ? '' : encodeURIComponent($('#resi_kurir').val()));
@@ -7821,6 +8031,160 @@
         }
         //end add by Tri 10/9/2019, proses packing list
 
+        //add by calvin 28 november 2019
+        function RefreshSemuaPesananMP() {
+            RefreshPackingPesananTokped();
+            RefreshPackingPesananLazada();
+            RefreshPackingPesananShopee();
+            RefreshPackingPesananBlibli();
+        }
+
+        function RefreshPackingPesananTokped() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust="15", bukti = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#packing_pesanan_tokped_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function RefreshPackingPesananLazada() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "7", bukti = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#packing_pesanan_lazada_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function RefreshPackingPesananShopee() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "17", bukti = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#packing_pesanan_shopee_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function RefreshPackingPesananBlibli() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "16", bukti = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#packing_pesanan_blibli_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function OpenPackingTransaction(){
+            $('#modalUbahStatusMultiPacking').modal('hide');
+            $('#modalPackingPengiriman').modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+            
+            RefreshSemuaPesananMP();
+        }
+        function packingStatusSingleRecord(recnum){
+
+            $('#packing_div').show();
+            $('#modalUbahStatusMultiPacking_header').show();
+            $('#modalUbahStatusMultiPacking_btn_tidak').show();
+            $('#modalUbahStatusMultiPacking_btn_ya').show();
+            $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
+            $('#modalUbahStatusMultiPacking_packingNo').val('');
+            $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ');
+            $('#modalUbahStatusMultiPacking_error').html('');
+            $('#modalUbahStatusMultiPacking_error').hide();
+
+            
+            var rows_selected = [];
+            rows_selected.push(recnum);
+
+            var link = '@Url.Action("RefreshUbahStatusPacking", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                beforeSend: function () {
+                    $('#datatable_ubahstatus_packing').hide();
+                    $('#loading_ubahstatus_packing').show();
+                },
+                // The key needs to match your method's input parameter (case-sensitive).
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#modal-status-multi-packing-body').html(response);
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        //remark by calvin 26 november 2019, selalu true
+                        ////add by 19/9/19 by Tri
+                        //if ($('#createPackinglist').val() == 1) {
+                        $('#ckPackinglist').prop('checked', true);
+                        //} else {
+                        //    $('#ckPackinglist').prop('checked', false);
+                        //}
+                        ////end add by 19/9/19 by Tri
+                    } else {
+                        $('#modalUbahStatusMultiPacking').modal('hide');
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        alert(response.Errors[0]);
+
+                    }
+                },
+                error: function (errMsg) {
+                    $('#loading_ubahstatus_packing').hide();
+                    $('#datatable_ubahstatus_packing').show();
+                    $('#loading_ubahstatus_packing').hide();
+                    alert(errMsg);
+                },
+            });
+        }
+        //end add by calvin 28 november 2019
+
         //add by nurul 14/3/2019
         function passRecStatusMultiDibayar() {
 
@@ -7866,6 +8230,19 @@
                     },
                 });
             } else if ($TabAktif == 2) {
+
+                //add by calvin 28 november 2019
+                $('#packing_div').show();
+                $('#modalUbahStatusMultiPacking_header').show();
+                $('#modalUbahStatusMultiPacking_btn_tidak').show();
+                $('#modalUbahStatusMultiPacking_btn_ya').show();
+                $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
+                $('#modalUbahStatusMultiPacking_packingNo').val('');
+                $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ');
+                $('#modalUbahStatusMultiPacking_error').html('');
+                $('#modalUbahStatusMultiPacking_error').hide();
+                //end add by calvin 28 november 2019
+
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
                     //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
                     //    rows_selected.push($(item).attr("data-recnum"));
@@ -7894,7 +8271,7 @@
                             //remark by calvin 26 november 2019, selalu true
                             ////add by 19/9/19 by Tri
                             //if ($('#createPackinglist').val() == 1) {
-                                $('#ckPackinglist').prop('checked', true);
+                            $('#ckPackinglist').prop('checked', true);
                             //} else {
                             //    $('#ckPackinglist').prop('checked', false);
                             //}

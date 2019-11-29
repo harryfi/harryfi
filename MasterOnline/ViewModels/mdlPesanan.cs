@@ -53,6 +53,9 @@ namespace MasterOnline
 
         public string STATUS_FAKTUR { get; set; }
         public string FKT_RETUR { get; set; }
+        public string status_kirim { get; set; }
+        public string status_print { get; set; }
+        public string PACKINGNO { get; set; }
 
         //[Key]
         //[StringLength(15)]
