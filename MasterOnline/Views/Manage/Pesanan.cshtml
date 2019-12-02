@@ -6999,47 +6999,49 @@
                             valueField: 'id',
                             searchField: 'text',
                             options: $listGudang,
-                            onChange: function (value) {
-                                
-                                if (value == null) {
-                                } else {
-                                    var $val = $(this).selectivity('value');
-                                    //add by calvin 27 nov 2018, munculkan qoh, dan qso
-                                    var getqoh_listqohpergd = listqohpergd;
-                                    getqoh_listqohpergd = $.grep(getqoh_listqohpergd, function (n, i) {
-                                        return n.brg === $brg_sot01b && n.gd === $val;
+                            placeholder: 'Harap pilih'
+                        }).selectize('value', $('#Gudang-' + $recNum).val()).change(function (value) {
+                            //var $objSup = $.grep($listGudang, function (data) { return data.id == value });
+                            //$('#Gudang-Dropdown-' + $recNum).val(value).trigger('change');
+                            //var $val = $(this).selectivity('value');
+                            var $val = $(this).val();
+                            //add by calvin 27 nov 2018, munculkan QOH, dan QSO
+                            var getQOH_listQOHPerGD = listQOHPerGD;
+                            getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function (n, i) {
+                                return n.BRG === $brg_sot01b && n.GD === $val;
+                            });
+
+                            var getQSO_ListQOOPerBRG = ListQOOPerBRG;
+                            getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function (n, i) {
+                                return n.BRG === $brg_sot01b && n.GD === $val;
+                            });
+
+                            $('#Gudang-' + $recNum).val($val);
+                            if (getQOH_listQOHPerGD[0] != undefined) {
+                                $.each(getQOH_listQOHPerGD,
+                                    function (i, item) {
+                                        $('#Gudang-stok-' + $recNum).html(item.QOH);
                                     });
+                            } else {
+                                $('#Gudang-stok-' + $recNum).html("");
+                            }
 
-                                    var getqso_listqooperbrg = listqooperbrg;
-                                    getqso_listqooperbrg = $.grep(getqso_listqooperbrg, function (n, i) {
-                                        return n.brg === $brg_sot01b && n.gd === $val;
+                            if (getQSO_ListQOOPerBRG[0] != undefined) {
+                                $.each(getQSO_ListQOOPerBRG,
+                                    function (i, item) {
+                                        $('#Gudang-pesanan-' + $recNum).html(item.QSO);
                                     });
+                            } else {
+                                $('#Gudang-pesanan-' + $recNum).html("0");
+                            }
 
-                                    $('#gudang-' + $recnum).val($val);
-                                    if (getqoh_listqohpergd[0] != undefined) {
-                                        $.each(getqoh_listqohpergd,
-                                            function (i, item) {
-                                                $('#gudang-stok-' + $recnum).html(item.qoh);
-                                            });
-                                    } else {
-                                        $('#gudang-stok-' + $recnum).html("");
-                                    }
-
-                                    if (getqso_listqooperbrg[0] != undefined) {
-                                        $.each(getqso_listqooperbrg,
-                                            function (i, item) {
-                                                $('#gudang-pesanan-' + $recnum).html(item.qso);
-                                            });
-                                    } else {
-                                        $('#gudang-pesanan-' + $recnum).html("0");
-                                    }
-
-                                    var stok = converttoangka($('#gudang-stok-' + $recnum).html().trim())
-                                    var pesanan = converttoangka($('#gudang-pesanan-' + $recnum).html().trim())
-                                    $('#gudang-sisa-' + $recnum).html(stok - pesanan);
-                                    //end add by calvin 27 nov 2018
-                                }
-                            },
+                            var stok = convertToAngka($('#Gudang-stok-' + $recNum).html().trim())
+                            var pesanan = convertToAngka($('#Gudang-pesanan-' + $recNum).html().trim())
+                            $('#Gudang-sisa-' + $recNum).html(stok - pesanan);
+                            //end add by calvin 27 nov 2018
+                        }).click(function () {
+                            var $offsetTop = $this.offset().top;
+                            $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
                         });
                         //end change by nurul 29/11/2019
                         
@@ -7048,8 +7050,9 @@
                             //$('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
                             //$this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
                             //$('#Gudang-Dropdown-' + $recNum).change();
-                            gdSelect[0].selectize.setValue(gudang, true);
+                            gdSelect[0].selectize.setValue(gudang, true);                            
                             $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                            $('#Gudang-Dropdown-' + $recNum).change();
                         }
                         //end add by nurul 13/3/2019
 

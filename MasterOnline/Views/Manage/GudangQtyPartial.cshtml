@@ -33,6 +33,11 @@
         }
 
     </style>*@
+<style>
+    .selectize-input > input {
+        display: normal !important;
+    }
+</style>
 
 @*add by nurul 23/11/2018*@
 <script type="text/javascript">
@@ -173,7 +178,7 @@
                     @*<div id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></div>*@
                     @*<select id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></select>*@
                     @Html.Hidden($"Gudang-{barang.NO_URUT}", barang.LOKASI, new { data_jenis = "gudang_siap_kirim" })
-                    <select id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" placeholder="Harap Pilih" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></select>
+                    <select id="Gudang-Dropdown-@(barang.NO_URUT)" name="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" placeholder="Harap Pilih" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)" style="position:relative"></select>
                 </div>
                 <div id="Gudang-stok-@(barang.NO_URUT)" class="col-md-1 col-sm-1 col-xs-1" style="text-align:center;padding-top: 11px;">
                 </div>
