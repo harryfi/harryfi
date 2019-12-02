@@ -2164,6 +2164,12 @@ namespace MasterOnline.Controllers
             return PartialView("TablePesananSudahDibayarPartial", pageOrders);
             //end change by nurul 9/5/2019
         }
+
+        public class sumPesanan
+        {
+            public int COUNT_TRANSAKSI { get; set; }
+            public double bruto { get; set; }
+        }
         [Route("manage/order")]
         //public ActionResult Pesanan()
         public async System.Threading.Tasks.Task<ActionResult> Pesanan()
@@ -2342,6 +2348,22 @@ namespace MasterOnline.Controllers
             //return View(vm);
             var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
             var ceklistPesanan = ErasoftDbContext.SOT01A.Take(1).ToList();
+
+            //add by nurul 2/12/2019, penambahan dashboard pesanan
+            var getBelumBayar = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='0' ").Single();
+            var JumlahBelumBayar = getBelumBayar.COUNT_TRANSAKSI;
+            var NilaiBelumBayar = getBelumBayar.bruto;
+            var getSudahBayar = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='01' ").Single();
+            var JumlahSudahBayar = getSudahBayar.COUNT_TRANSAKSI;
+            var NilaiSudahBayar = getSudahBayar.bruto;
+            var getSiapKirim = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='03' and status_kirim ='03'").Single();
+            var JumlahSiapkirim = getSiapKirim.COUNT_TRANSAKSI;
+            var NilaiSiapkirim = getSiapKirim.bruto;
+            var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
+            var JumlahBatal = getBatal.COUNT_TRANSAKSI;
+            var NilaiBatal = getBatal.bruto;
+            //end add by nurul 2/12/2019, penambahan dashboard pesanan
+
             if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
             {
                 var vm = new PesananViewModel()
@@ -2358,7 +2380,17 @@ namespace MasterOnline.Controllers
                 {
                     ListSubs = MoDbContext.Subscription.ToList(),
                     DataUsaha = dataUsaha,
-                    ListPesanan = ceklistPesanan
+                    ListPesanan = ceklistPesanan,
+                    //add by nurul 2/12/2019, penambahan dashboard pesanan
+                    JumlahPesananBelumBayar = JumlahBelumBayar,
+                    NilaiPesananBelumBayar = NilaiBelumBayar,
+                    JumlahPesananSudahBayar = JumlahSudahBayar,
+                    NilaiPesananSudahBayar = NilaiSudahBayar,
+                    JumlahPesananSiapKirim = JumlahSiapkirim,
+                    NilaiPesananSiapKirim = NilaiSiapkirim,
+                    JumlahPesananBatal = JumlahBatal,
+                    NilaiPesananBatal = NilaiBatal
+                    //end add by nurul 2/12/2019, penambahan dashboard pesanan
                 };
                 return View(vm);
             }
