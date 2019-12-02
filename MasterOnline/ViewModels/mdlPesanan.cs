@@ -54,6 +54,10 @@ namespace MasterOnline
         public string STATUS_FAKTUR { get; set; }
         public string FKT_RETUR { get; set; }
 
+        //add by Tri 2/12/2019
+        public string CancelReason { get; set; }
+        //end add by Tri 2/12/2019
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

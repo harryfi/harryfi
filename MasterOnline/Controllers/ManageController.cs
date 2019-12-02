@@ -8640,11 +8640,11 @@ namespace MasterOnline.Controllers
                         string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         //var result = lzdApi.CreateProduct(dataLazada);
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                        var clientJobServer = new BackgroundJobClient(sqlStorage);
-                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
-                        //var test = new LazadaControllerJob();
-                        //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
+                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        //clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+                        var test = new LazadaControllerJob();
+                        test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
                     }
                     //else
                     //{
@@ -18080,13 +18080,19 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            //change by Tri 2 Des 2019, tambah cancel reason
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(D.CATATAN_1, '') AS CancelReason ";
+            //end change by Tri 2 Des 2019, tambah cancel reason
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM SOT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            //add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI ";
+            //end add by Tri 2 Des 2019, tambah cancel reason
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='11' ";
             if (search != "")
             {
