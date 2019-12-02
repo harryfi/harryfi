@@ -17283,6 +17283,85 @@ namespace MasterOnline.Controllers
             //end change by nurul 8/5/2019, paging 
         }
 
+        public ActionResult RefreshUndoStatusPesananBatch(string[] rows_selected) {
+            if (rows_selected == null)
+            {
+                var vmError = new PesananViewModel() { };
+
+                vmError.Errors.Add("Silahkan pilih pesanan yang akan diundo statusnya !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            var listorder = new List<SOT01A>();
+            var listBuyer = new List<ARF01C>();
+            var listRecnum = new List<int>();
+            for (int i = 0; i < rows_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(rows_selected[i]))
+                {
+                    Int32 row = Convert.ToInt32(rows_selected[i]);
+                    listRecnum.Add(row);
+                }
+            }
+            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value)).ToList();
+            listorder.AddRange(xx);
+            var buyer = xx.Select(a => a.PEMESAN).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            listBuyer.AddRange(xxBuyer);
+
+            var vm = new PesananViewModel()
+            {
+                //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                ListPesanan = listorder,
+                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPembeli = listBuyer,
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList()
+            };
+            return PartialView("UbahStatusMultiPartial", vm);
+        }
+
+        public ActionResult RefreshUbahStatusPesananSelesaiBatch(string[] rows_selected)
+        {
+            if (rows_selected == null)
+            {
+                var vmError = new PesananViewModel() { };
+
+                vmError.Errors.Add("Silahkan pilih pesanan yang akan diubah statusnya !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            var listorder = new List<SOT01A>();
+            var listBuyer = new List<ARF01C>();
+            var listRecnum = new List<int>();
+            for (int i = 0; i < rows_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(rows_selected[i]))
+                {
+                    Int32 row = Convert.ToInt32(rows_selected[i]);
+                    listRecnum.Add(row);
+                }
+            }
+            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "03").ToList();
+            listorder.AddRange(xx);
+            var buyer = xx.Select(a => a.PEMESAN).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            listBuyer.AddRange(xxBuyer);
+
+            var vm = new PesananViewModel()
+            {
+                //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                ListPesanan = listorder,
+                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPembeli = listBuyer,
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList()
+            };
+            return PartialView("UbahStatusMultiPartial", vm);
+        }
+
         //add by nurul 24/03/2019
         public ActionResult RefreshUbahStatusDibayar(string[] rows_selected)
         {
@@ -17335,19 +17414,20 @@ namespace MasterOnline.Controllers
             }
             var listorder = new List<SOT01A>();
             var listBuyer = new List<ARF01C>();
-            string[] IRecnum = new string[rows_selected.Length];
+            var listRecnum = new List<int>();
             for (int i = 0; i < rows_selected.Length; i++)
             {
                 if (!string.IsNullOrEmpty(rows_selected[i]))
                 {
                     Int32 row = Convert.ToInt32(rows_selected[i]);
-                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "02").ToList();
-                    listorder.AddRange(xx);
-                    var buyer = xx.Select(a => a.PEMESAN).ToList();
-                    var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
-                    listBuyer.AddRange(xxBuyer);
+                    listRecnum.Add(row);
                 }
             }
+            var xx = ErasoftDbContext.SOT01A.Where(a => listRecnum.Contains(a.RecNum.Value) && a.STATUS_TRANSAKSI == "02").ToList();
+            listorder.AddRange(xx);
+            var buyer = xx.Select(a => a.PEMESAN).ToList();
+            var xxBuyer = ErasoftDbContext.ARF01C.Where(a => buyer.Contains(a.BUYER_CODE)).ToList();
+            listBuyer.AddRange(xxBuyer);
 
             var vm = new PesananViewModel()
             {
@@ -17539,45 +17619,22 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                            sSQLpembeli += " ( A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                            sSQLfaktur += " ( D.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLresi += " ( A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLmarket += " and ";
+                            sSQLpembeli += " and ";
+                            sSQLfaktur += " and ";
+                            sSQLresi += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
-                                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%'";
-                                sSQLpembeli += "( A.NAMAPEMESAN like '%" + getkata[i] + "%'";
-                                sSQLfaktur += " ( D.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLresi += " ( A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                                sSQLfaktur += " and D.NO_BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLresi += " and A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
-                                sSQLfaktur += " and D.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLresi += " and A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+                        sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                        sSQLpembeli += " A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLfaktur += "  D.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLresi += "  A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -17593,7 +17650,41 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SOT01A A ";
+            string sSQLTemp = "";
+            switch (filter)
+            {
+                case "marketplace":
+                    {
+                        var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p=>p.CUST).ToList();
+                        var queryfilter = "";
+                        foreach (var item in listCustSesuaiFilter)
+                        {
+                            if (queryfilter != "") { queryfilter += ","; }
+                            queryfilter += "'"+ item +"'";
+                        }
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND CUST IN ('',"+ queryfilter +");" + Environment.NewLine;
+                        sSQL2 += "FROM #SOT01A A ";
+                    }
+                    break;
+                case "statuskirim":
+                    {
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_KIRIM,'') = '"+ filtervalue +"';" + Environment.NewLine;
+                        sSQL2 += " FROM #SOT01A A ";
+                    }
+                    break;
+                case "statusprint":
+                    {
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_PRINT,'0') = '" + filtervalue + "';" + Environment.NewLine;
+                        sSQL2 += " FROM #SOT01A A ";
+                    }
+                    break;
+                default:
+                    {
+                        sSQL2 += "FROM SOT01A A ";
+                    }
+                    break;
+            }
+            
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI = D.NO_SO ";
@@ -17602,48 +17693,21 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%' OR A.TRACKING_SHIPMENT LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLfaktur + " or " + sSQLresi + " or " + sSQLnetto + " ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") ) ";
             }
             string sSQLSelect2 = "";
-            if (filter == "tanggal")
+            if (filter == "tanggal" && filtervalue == "asc")
             {
-                switch (filtervalue)
-                {
-                    case "desc":
-                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-                        break;
-                    default:
-                        sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
-                        break;
-                }
+                sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
             }
             else {
-                switch (filter) {
-                    case "marketplace":
-                        {
-                            sSQL2 += " AND B.NAMA = '"+ filtervalue +"' ";
-                        }
-                        break;
-                    case "statuskirim":
-                        {
-                            sSQL2 += " AND ISNULL(A.STATUS_KIRIM, '') = '"+ filtervalue +"' ";
-                        }
-                        break;
-                    case "statusprint":
-                        {
-                            sSQL2 += " AND ISNULL(A.STATUS_PRINT,'0') = '" + filtervalue + "' ";
-                        }
-                        break;
-                    default:
-                        break;
-                }
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
             }
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT " + take + " ROWS ONLY ";
 
-            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
-            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLTemp + sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLTemp + sSQLCount + sSQL2).Single();
 
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, Convert.ToInt32(take), totalCount.JUMLAH);
             return PartialView("TablePesananSudahKirimPartial", pageOrders);
@@ -34650,6 +34714,25 @@ namespace MasterOnline.Controllers
                 packingNo = "",
                 so_success = new List<PackingSuccess>()
             };
+
+            var string_rows_selected = "";
+            foreach (var item in rows_selected)
+            {
+                if (string_rows_selected != "") { string_rows_selected += ","; }
+                string_rows_selected += "'" + item + "'";
+            }
+
+            var dsBuktiPackingList = EDB.GetDataSet("sConn", "PACKING", "SELECT DISTINCT NO_BUKTI FROM SOT03B B WHERE B.NO_PESANAN IN ('',"+ string_rows_selected +")");
+            var string_bukti_packing = "";
+            for (int i = 0; i < dsBuktiPackingList.Tables[0].Rows.Count; i++)
+            {
+                if (string_bukti_packing != "") { string_bukti_packing += ","; }
+                string_bukti_packing += "'" + Convert.ToString(dsBuktiPackingList.Tables[0].Rows[i]["NO_BUKTI"]) + "'";
+            }
+            //hapus dari packing list
+            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + string_rows_selected + ")");
+            //hapus bukti packing list yg kosong ( dari packing list yang dihapus sot03b nya )
+            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND NO_BUKTI IN ('',"+ string_bukti_packing +")");
             using (var context = new ErasoftContext(dbPathEra))
             {
                 using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
@@ -36272,6 +36355,123 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 23/10/2019
 
+        public ActionResult UndoStatusPesananBatchTransaction(string[] get_selected) {
+            List<listErrorPacking> listError = new List<listErrorPacking>();
+            var listSuccess = new List<string>();
+            var listSuccessRecnum = new List<int>();
+            int successCount = 0;
+
+            try
+            {
+                var stringListRecnum = "";
+                for (int i = 0; i < get_selected.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(get_selected[i]))
+                    {
+                        if (stringListRecnum != "")
+                        {
+                            stringListRecnum += ",";
+                        }
+                        stringListRecnum += "'" + get_selected[i].Trim() + "'";
+                    }
+                }
+                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A LEFT JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') <> '' ORDER BY A.NO_BUKTI");
+                if (dsSOFail.Tables[0].Rows.Count > 0) {
+                    for (int i = 0; i < dsSOFail.Tables[0].Rows.Count; i++)
+                    {
+                        listError.Add(new listErrorPacking
+                        {
+                            error_msg = "Pesanan sudah menjadi faktur. Status pesanan tidak bisa dimundurkan.",
+                            no_bukti_so = Convert.ToString(dsSOFail.Tables[0].Rows[i]["NO_BUKTI"])
+                        });
+                    }
+                }
+
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A LEFT JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') = '' ORDER BY A.NO_BUKTI");
+                if (dsSO.Tables[0].Rows.Count > 0)
+                {
+                    string listNobuk = "";
+                    for (int i = 0; i < dsSO.Tables[0].Rows.Count; i++)
+                    {
+                        var dsSORow = dsSO.Tables[0].Rows[i];
+                        var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
+                        if (listNobuk != "") {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + Nobuk + "'";
+                    }
+                    var hapusDrPacking = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + listNobuk + ")");
+                    var successRow = EDB.ExecuteSQL("sConn",CommandType.Text,"UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN ('',"+ listNobuk +")");
+                    successCount += successRow;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+
+            return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        public ActionResult UbahStatusPesananSelesaiBatchTransaction(string[] get_selected)
+        {
+            List<listErrorPacking> listError = new List<listErrorPacking>();
+            var listSuccess = new List<string>();
+            var listSuccessRecnum = new List<int>();
+            int successCount = 0;
+
+            try
+            {
+                var stringListRecnum = "";
+                for (int i = 0; i < get_selected.Length; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(get_selected[i]))
+                    {
+                        if (stringListRecnum != "")
+                        {
+                            stringListRecnum += ",";
+                        }
+                        stringListRecnum += "'" + get_selected[i].Trim() + "'";
+                    }
+                }
+                var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI <> '03' ORDER BY A.NO_BUKTI");
+                if (dsSOFail.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsSOFail.Tables[0].Rows.Count; i++)
+                    {
+                        listError.Add(new listErrorPacking
+                        {
+                            error_msg = "Pesanan tidak berstatus packing. Status pesanan tidak bisa diubah.",
+                            no_bukti_so = Convert.ToString(dsSOFail.Tables[0].Rows[i]["NO_BUKTI"])
+                        });
+                    }
+                }
+
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '04' ORDER BY A.NO_BUKTI");
+                if (dsSO.Tables[0].Rows.Count > 0)
+                {
+                    string listNobuk = "";
+                    for (int i = 0; i < dsSO.Tables[0].Rows.Count; i++)
+                    {
+                        var dsSORow = dsSO.Tables[0].Rows[i];
+                        var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
+                        if (listNobuk != "")
+                        {
+                            listNobuk += ",";
+                        }
+                        listNobuk += "'" + Nobuk + "'";
+                    }
+                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (''," + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
+                    successCount += successRow;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+
+            return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+        
         public class listErrorPacking {
             public string no_bukti_so { get; set; }
             public string error_msg { get; set; }
@@ -36283,7 +36483,6 @@ namespace MasterOnline.Controllers
             var listSuccessRecnum = new List<int>();
             int successCount = 0;
             string packingNo = "";
-            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE SIFSYS SET EDIT_BONUS = " + (packinglist ? "1" : "0") + " WHERE EDIT_BONUS != " + (packinglist ? "1" : "0"));
 
             try
             {

@@ -37,6 +37,31 @@
     <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
     @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
     <style>
+        .loading_spinner_modal {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        .loading_spinner_image_modal {
+            /*width: 20px;
+            height: 20px;*/
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
         [data-tip] {
             position: relative;
         }
@@ -1613,6 +1638,20 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
                     <div class="row">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            <div class="input-group">
+                                <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_invoicing_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row">
                         <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
                         <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
                             <select class="form-control" id="filter_pesanan_faktur_field" required="required">
@@ -1654,36 +1693,28 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
-                            <div class="input-group">
-                                <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" id="search_invoicing_click" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-1 col-sm-12" style="text-align:left">
-                        </div>
+                        <div class="col-lg-5 col-sm-12"></div>
                         <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                    <span>Refresh</span>
+                </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                                </button>*@
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 <div class="btn-group" role="group">
                                     <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Proses <span class="caret"></span>
                                     </button>
-                                    <div class="dropdown-menu" aria-labelledby="pesanan_faktur_btnGroup">
-                                        <button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                                            <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%" id="btn_batch_selesai_status" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#konfUbahStatusSelesaiBatch" onclick="passRecSelesaiStatus()">
+                                            <span class="glyphicon glyphicon-edit" aria-hidden="true"> Change Status</span>
+                                        </button>
+                                        <button type="button" style="width:100%" id="btn_batch_undo_status" class="btn btn-warning" data-style="expand-right" data-toggle="modal" data-target="#konfUndoStatusSudahkirimBatch" onclick="passRecUndoStatus()">
+                                            <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"> Undo Status</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1693,7 +1724,7 @@
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2764,8 +2795,8 @@
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
             <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
-                <div id="loading_ubahstatus_dibayar" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
+                <div id="loading_ubahstatus_dibayar" class="text-center loading_spinner_modal">
+                    <img class="loading_spinner_image_modal" src="~/Content/Images/spinner.gif" width="100" />
                 </div>
                 <div class="row" id="dibayar_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?</h4>
@@ -2790,8 +2821,8 @@
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
             <div class="modal-body" id="modalUbahStatusMultiPacking_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
-                <div id="loading_ubahstatus_packing" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
+                <div id="loading_ubahstatus_packing" class="text-center loading_spinner_modal">
+                    <img class="loading_spinner_image_modal" src="~/Content/Images/spinner.gif" width="100" />
                 </div>
                 <div class="row">
                     <div class="col-md-12 warning" id="modalUbahStatusMultiPacking_error">
@@ -2827,6 +2858,7 @@
             </div>
             <div class="modal-body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
                 <div class="row">
+                    <input type="hidden" disabled="disabled" id="packingList_NO_BUKTI" />
                     <input type="hidden" disabled="disabled" id="modalUbahStatusMultiPacking_packingNo" />
                     <h4 id="modalPackingPengiriman_packingTitle">Nomor Bukti Packing List : </h4>
                 </div>
@@ -2891,6 +2923,68 @@
             <div class="modal-footer right">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="GenerateFaktur();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUndoStatusSudahkirimBatch" tabindex="-1" role="dialog" aria-labelledby="UndoStatusSudahkirimBatch">
+    <div class="modal-dialog modal-dialog-scrollable" id="status-multi" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="konfUndoStatusSudahkirimBatch_header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="UndoStatusSudahkirimBatch">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" id="konfUndoStatusSudahkirimBatch_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div id="loading_undo_status" class="text-center loading_spinner_modal">
+                    <img class="loading_spinner_image_modal" src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row">
+                    <div class="col-md-12 warning" id="konfUndoStatusSudahkirimBatch_error">
+                    </div>
+                </div>
+                <div class="row">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Faktur menjadi Packing ?</h4>
+                </div>
+                <div id="konfUndoStatusSudahkirimBatch_partial_body">
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer">
+                <div class="right">
+                    <button type="button" class="btn btn-danger" id="konfUndoStatusSudahkirimBatch_btn_tidak" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" id="konfUndoStatusSudahkirimBatch_btn_ya" onclick="UndoStatusPesananBatch();">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUbahStatusSelesaiBatch" tabindex="-1" role="dialog" aria-labelledby="UndoStatusSudahkirimBatch">
+    <div class="modal-dialog modal-dialog-scrollable" id="status-multi" role="document">
+        <div class="modal-content">
+            <div class="modal-header" id="konfUbahStatusSelesaiBatch_header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="UndoStatusSudahkirimBatch">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" id="konfUbahStatusSelesaiBatch_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div id="loading_undo_status" class="text-center loading_spinner_modal">
+                    <img class="loading_spinner_image_modal" src="~/Content/Images/spinner.gif" width="100" />
+                </div>
+                <div class="row">
+                    <div class="col-md-12 warning" id="konfUbahStatusSelesaiBatch_error">
+                    </div>
+                </div>
+                <div class="row">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Faktur menjadi Selesai ?</h4>
+                </div>
+                <div id="konfUbahStatusSelesaiBatch_partial_body">
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer">
+                <div class="right">
+                    <button type="button" class="btn btn-danger" id="konfUbahStatusSelesaiBatch_btn_tidak" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-success" id="konfUbahStatusSelesaiBatch_btn_ya" onclick="ubahStatusPesananSelesaiBatch();">Ya</button>
+                </div>
             </div>
         </div>
     </div>
@@ -6116,6 +6210,7 @@
                             $('#modalUbahStatusMultiPacking_btn_ya').hide();
                             $('#modalUbahStatusMultiPacking_btn_lanjut').show();
                             $('#modalUbahStatusMultiPacking_packingNo').val(response.packingNo);
+                            $('#packingList_NO_BUKTI').val(response.packingNo);
                             $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ' + response.packingNo);
 
                         }
@@ -8123,7 +8218,7 @@
                 backdrop: 'static',
                 keyboard: false
             });
-            
+
             RefreshSemuaPesananMP();
         }
         function packingStatusSingleRecord(recnum){
@@ -8134,11 +8229,13 @@
             $('#modalUbahStatusMultiPacking_btn_ya').show();
             $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
             $('#modalUbahStatusMultiPacking_packingNo').val('');
+            $('#packingList_NO_BUKTI').val('');
+
             $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ');
             $('#modalUbahStatusMultiPacking_error').html('');
             $('#modalUbahStatusMultiPacking_error').hide();
 
-            
+
             var rows_selected = [];
             rows_selected.push(recnum);
 
@@ -8181,6 +8278,201 @@
                     $('#loading_ubahstatus_packing').hide();
                     alert(errMsg);
                 },
+            });
+        }
+        function passRecUndoStatus(){
+
+            var rows_selected = [];
+            $('.checkbox_pesanan_faktur').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                }
+            });
+            var link = '@Url.Action("RefreshUndoStatusPesananBatch", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_undo_status').show();
+                },
+                complete: function () {
+                    $('#loading_undo_status').hide();
+                },
+                // The key needs to match your method's input parameter (case-sensitive).
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#konfUndoStatusSudahkirimBatch_partial_body').html(response);
+                    } else {
+                        $('#konfUndoStatusSudahkirimBatch').modal('hide');
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (errMsg) {
+                    $('#loading_undo_status').hide();
+                    alert(errMsg);
+                },
+            });
+        }
+        function UndoStatusPesananBatch(){
+            var rows_selected = [];
+            $('.checkbox_pesanan_faktur').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                }
+            });
+            var link = '@Url.Action("UndoStatusPesananBatchTransaction", "Manage")';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                //data: JSON.stringify(get_selected),
+                data: JSON.stringify({ get_selected: rows_selected }),
+                contentType: 'application/json; charset=UTF-8',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_undo_status').show();
+                },
+                complete: function (){
+                    $('#loading_undo_status').hide();
+                },
+                success: function(response) {
+                    $('#konfUndoStatusSudahkirimBatch_body').animate({ scrollTop: 0 }, 'slow');
+
+                    if (response.error_packing_list == false) {
+                        var textareaValue = "";
+
+                        textareaValue += "Jumlah pesanan berhasil undo status : "+ response.successCount +"</br>";
+
+                        var adaError = false;
+                        var errorValue = "";
+                        response.listError.forEach(function (item) {
+                            adaError = true;
+                            errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
+                        });
+                        if (adaError) {
+                            textareaValue += "</br>";
+                            textareaValue += "Pesanan gagal undo status :</br>";
+                            textareaValue += errorValue;
+                        }
+                        $('#konfUndoStatusSudahkirimBatch_error').show();
+                        $('#konfUndoStatusSudahkirimBatch_error').html(textareaValue);
+
+                        if(response.successCount > 0){
+                            refreshTableSiapKirim();
+                            refreshTablePesanan();
+                            refreshTableSudahKirim();
+                            refreshTableSudahDibayar();
+                        }
+                    } else {
+                        $('#konfUndoStatusSudahkirimBatch_error').show();
+                        $('#konfUndoStatusSudahkirimBatch_error').html('Gagal memproses undo status. Mohon hubungi support.');
+                    }
+                    get_selected.length = 0;
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    get_selected.length = 0;
+                }
+            });
+        }
+        function passRecSelesaiStatus(){
+            var rows_selected = [];
+            $('.checkbox_pesanan_faktur').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                }
+            });
+            var link = '@Url.Action("RefreshUbahStatusPesananSelesaiBatch", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_undo_status').show();
+                },
+                complete: function () {
+                    $('#loading_undo_status').hide();
+                },
+                // The key needs to match your method's input parameter (case-sensitive).
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#konfUbahStatusSelesaiBatch_partial_body').html(response);
+                    } else {
+                        $('#konfUbahStatusSelesaiBatch').modal('hide');
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (errMsg) {
+                    $('#loading_undo_status').hide();
+                    alert(errMsg);
+                },
+            });
+        }
+        function ubahStatusPesananSelesaiBatch(){
+            var rows_selected = [];
+            $('.checkbox_pesanan_faktur').each(function (i, item) {
+                if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                }
+            });
+            var link = '@Url.Action("UbahStatusPesananSelesaiBatchTransaction", "Manage")';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                //data: JSON.stringify(get_selected),
+                data: JSON.stringify({ get_selected: rows_selected }),
+                contentType: 'application/json; charset=UTF-8',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_undo_status').show();
+                },
+                complete: function (){
+                    $('#loading_undo_status').hide();
+                },
+                success: function(response) {
+                    $('#konfUbahStatusSelesaiBatch_body').animate({ scrollTop: 0 }, 'slow');
+
+                    if (response.error_packing_list == false) {
+                        var textareaValue = "";
+
+                        textareaValue += "Jumlah pesanan berhasil ubah status : "+ response.successCount +"</br>";
+
+                        var adaError = false;
+                        var errorValue = "";
+                        response.listError.forEach(function (item) {
+                            adaError = true;
+                            errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
+                        });
+                        if (adaError) {
+                            textareaValue += "</br>";
+                            textareaValue += "Pesanan gagal ubah status :</br>";
+                            textareaValue += errorValue;
+                        }
+                        $('#konfUbahStatusSelesaiBatch_error').show();
+                        $('#konfUbahStatusSelesaiBatch_error').html(textareaValue);
+
+                        if(response.successCount > 0){
+                            refreshTableSiapKirim();
+                            refreshTablePesanan();
+                            refreshTableSudahKirim();
+                            refreshTableSudahDibayar();
+                        }
+                    } else {
+                        $('#konfUbahStatusSelesaiBatch_error').show();
+                        $('#konfUbahStatusSelesaiBatch_error').html('Gagal memproses status ke selesai. Mohon hubungi support.');
+                    }
+                    rows_selected.length = 0;
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    rows_selected.length = 0;
+                }
             });
         }
         //end add by calvin 28 november 2019
@@ -8238,6 +8530,8 @@
                 $('#modalUbahStatusMultiPacking_btn_ya').show();
                 $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
                 $('#modalUbahStatusMultiPacking_packingNo').val('');
+                $('#packingList_NO_BUKTI').val('');
+
                 $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ');
                 $('#modalUbahStatusMultiPacking_error').html('');
                 $('#modalUbahStatusMultiPacking_error').hide();
@@ -8292,6 +8586,7 @@
                     },
                 });
             }else if ($TabAktif == 3) {
+
                 $('.checkbox_generateFaktur').each(function (i, item) {
                     if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
