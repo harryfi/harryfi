@@ -34,6 +34,7 @@
             type: 'GET',
             beforeSend: function () {
                 //$('#loading_barang_tab').show();
+                $('#loading_spinner').show();
             },
             success: function (response) {
                 //$('#loading_barang_tab').hide();
@@ -74,6 +75,7 @@
                 }
             },
             complete: function () {
+                $('#loading_spinner').hide();
                 $('#btnProsesLazada__' + cust).attr("disabled", false);
             },
             error: function (xhr, status, error) {
@@ -130,7 +132,7 @@
         $('#txtShipment__' + promptLazadaCust).val(val);
     }
 
-    function cekValidasi(cust) {
+    function cekValidasiPackingLazada(cust) {
         if ($("#txtShipment__" + cust).val()) {
             RequestPickupPackingLazada(cust);
         }
@@ -203,7 +205,7 @@
                     </div>
                 </div>
                 <div class="col-md-2" style="text-align:right">
-                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasi('@(item.CUST)')">Ready To Ship</button>
+                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasiPackingLazada('@(item.CUST)')">Ready To Ship</button>
                 </div>
                 <div class="col-md-1" style="text-align:right">
                     @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>*@

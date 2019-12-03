@@ -113,17 +113,6 @@
         });
     }
 
-    function cekValidasi(cust) {
-        var ret = true;
-        if (document.getElementById("txtShipment") != null) {
-            if ($("#txtShipment__" + cust).val() == undefined || $("#txtShipment__" + cust).val() == '') {
-                alert("Shipment Provider harus diisi.");
-                ret = false;
-                $("#btnShipment__" + cust).focus();
-            }
-        }
-        return ret;
-    }
     function ShopeeGetLabelPerPacking(cust) {
         var $link = '@Html.Raw(Url.Action("ShopeeLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
