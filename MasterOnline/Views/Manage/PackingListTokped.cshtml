@@ -12,7 +12,7 @@
         if ($('#PackingListTokpedFound')) {
             if (parseInt($('#PackingListTokpedFound').val()) > 0) {
                 $('#li_pesanan_tokped_tab_focus').show().on('click', function () {
-                    $('#tokped-cust-tab li:first').find('a').click();
+                    $('#tokped_packing_cust_tabs li:first').find('a').click();
                 });
             }
         }
@@ -44,19 +44,15 @@
 @{
     var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
 }
-<table style="width:100%">
-    <tr>
-        <td style="width:100%">
-            <ul id="tokped-cust-tab" class="nav nav-tabs">
-                @foreach (var item in distinctCust)
-                {
-                    <li><a data-toggle="tab" href="#tokped_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
-                }
-            </ul>
-        </td>
-    </tr>
-</table>
-<div class="tab-content">
+<div class="row">
+    <div class="col-12">
+        <ul id="tokped_packing_cust_tabs" class="nav nav-tabs">
+            @foreach (var item in distinctCust)
+            {
+                <li><a data-toggle="tab" href="#tokped_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
+            }
+        </ul>
+        <div class="tab-content">
     @{
         var PackingListTokpedFound = distinctCust.Count();
     }
@@ -127,4 +123,6 @@
             </div>
         </div>
     }
+</div>
+    </div>
 </div>

@@ -12,49 +12,10 @@
         if ($('#PackingListBlibliFound')) {
             if (parseInt($('#PackingListBlibliFound').val()) > 0) {
                 $('#li_pesanan_blibli_tab_focus').show().on('click', function () {
-                    $('#blibli-cust-tab li:first').find('a').click();
+                    $('#blibli_packing_cust_tabs li:first').find('a').click();
                 });
             }
         }
-        $('.selectBlibliResiPickupAddress').each(function (i, item) {
-
-            var cust = $(item).attr("data-kodecust");
-
-            var link = '@Html.Raw(Url.Action("GetBlibliPickupAddressByCust", "Manage", new { cust = "replaceCode" }))';
-            link = link.replace("replaceCode", encodeURIComponent(cust));
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listAddress = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listAddress[i] = {
-                                id: item.address_id,
-                                text: item.address
-                            };
-                        });
-
-                    var Select = $('#select-blibli-resi-pickup-address-' + cust).selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listAddress,
-                        onChange: function (value) {
-
-                        }
-                    });
-
-                    //Select[0].selectize.setValue(valueTRACKING_SHIPMENT[1]);
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        });
     });
     function RequestDropoffPackingBlibli(cust) {
         $('#btnProsesDropoffBlibli__' + cust).attr("disabled", true);
@@ -167,7 +128,7 @@
 }
 <div class="row">
     <div class="col-12">
-        <ul id="blibli-cust-tab" class="nav nav-tabs">
+        <ul id="blibli_packing_cust_tabs" class="nav nav-tabs">
             @foreach (var item in distinctCust)
             {
                 <li><a data-toggle="tab" href="#blibli_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>

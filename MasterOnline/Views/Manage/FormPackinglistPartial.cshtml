@@ -31,43 +31,6 @@
         RefreshSemuaPesananMP();
     });
     
-    function getCurrentPackingTabIndex(){
-        return $('#detail-packinglist-tabs li.active').index();
-    }
-    
-    function PackingTabNext(){
-        var currentIndex = getCurrentPackingTabIndex();
-        
-        var found = false;
-        $('#shopee_packing_cust_tabs li').each(function(i){
-            debugger;
-            if(!found){
-                if(i > currentIndex){
-                   var checkVisible = $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').is(":visible");
-                   if(checkVisible){
-                       $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').find('a').click();
-                       found = true;
-                   }
-                }
-                else if (i == currentIndex){
-                    debugger;
-                    var TabAkunPerMP = $('#detail-packinglist-tabs li:nth-child(' + (currentIndex + 1) + ')');
-                    var TabAkunPerMPLiActive = TabAkunPerMP.('li.active').index();
-                    TabAkunPerMPLiActive.('li').each(function(ii){
-                        debugger;
-                        if(ii > currentIndex){
-                           var checkVisible = $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').is(":visible");
-                           if(checkVisible){
-                               $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').find('a').click();
-                               found = true;
-                           }
-                        }
-                    });
-                }
-            }
-        });
-    }
-    
     function RefreshSemuaPesananMP() {
         RefreshPackingPesananTokped();
         RefreshPackingPesananLazada();
@@ -347,11 +310,11 @@
                     <div class="col-lg-12">
                         @if (Model.listRekapBarang.Count > 0)
                         {
-                            <button id="btnPrint" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrint">Print</button>
+                            <button id="btnPrint" type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalPrint">Print</button>
                         }
                         else
                         {
-                            <button id="btnPrint" type="button" class="btn btn-primary" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
+                            <button id="btnPrint" type="button" class="btn btn-primary pull-right" disabled data-toggle="modal" data-target="#modalPrint">Print</button>
                         }
                     </div>
                 </div>

@@ -2897,6 +2897,8 @@
             </div>
             <br />
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" onclick="PackingTabNext()">Next</button>
             </div>
         </div>
     </div>
@@ -8127,6 +8129,59 @@
         //end add by Tri 10/9/2019, proses packing list
 
         //add by calvin 28 november 2019
+        function lihatPackingList(a,b,c){
+            
+        }
+        function getCurrentPackingTabIndex(){
+            return $('#detail-packinglist-tabs li.active').index();
+        }
+            
+        function PackingTabNext(){
+            var currentIndex = getCurrentPackingTabIndex();
+    
+            var found = false;
+            $('#detail-packinglist-tabs li').each(function(i){
+                if(!found){
+                    if(i > currentIndex){
+                       var checkVisible = $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').is(":visible");
+                       if(checkVisible){
+                           $('#detail-packinglist-tabs li:nth-child(' + (i + 1) + ')').find('a').click();
+                           found = true;
+                       }
+                    }
+                    else if (i == currentIndex){
+                        var TabAkunPerMP = $('#detail-packinglist-tabs li:nth-child(' + (currentIndex + 1) + ')');
+                        var id_ul_packinglistmp_cshtml = '';
+                        if(TabAkunPerMP[0].id.includes('lazada')){
+                            id_ul_packinglistmp_cshtml = 'lazada_packing_cust_tabs';
+                        }
+                        if(TabAkunPerMP[0].id.includes('shopee')){
+                            id_ul_packinglistmp_cshtml = 'shopee_packing_cust_tabs';
+                        }
+                        if(TabAkunPerMP[0].id.includes('blibli')){
+                            id_ul_packinglistmp_cshtml = 'blibli_packing_cust_tabs';
+                        }
+                        if(TabAkunPerMP[0].id.includes('tokped')){
+                            id_ul_packinglistmp_cshtml = 'tokped_packing_cust_tabs';
+                        }
+                        
+                        var AkunPerMPCurrentIndex = $('#'+ id_ul_packinglistmp_cshtml +' li.active').index();
+                        $('#'+ id_ul_packinglistmp_cshtml +' li').each(function(ii){
+                            if(!found){
+                                if(ii > AkunPerMPCurrentIndex){
+                                   var checkVisible = $('#'+ id_ul_packinglistmp_cshtml +' li:nth-child(' + (ii + 1) + ')').is(":visible");
+                                   if(checkVisible){
+                                       $('#'+ id_ul_packinglistmp_cshtml +' li:nth-child(' + (ii + 1) + ')').find('a').click();
+                                       found = true;
+                                   }
+                                }   
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        
         function RefreshSemuaPesananMP() {
             RefreshPackingPesananTokped();
             RefreshPackingPesananLazada();
