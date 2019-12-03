@@ -1653,10 +1653,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        [AutomaticRetry(Attempts = 2)]
-        [Queue("3_general")]
-        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
-        {
+        public async Task<string> GetOrderList3days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int daysFrom, int daysTo) {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
             string connId = Guid.NewGuid().ToString();
@@ -1696,8 +1693,8 @@ namespace MasterOnline.Controllers
                 default:
                     break;
             }
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -2004,11 +2001,10 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-
             }
             if (rowCount > 99)
             {
-                await GetOrderList(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhNewOrder);
+                await GetOrderList3days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhNewOrder,daysFrom,daysTo);
             }
             else
             {
@@ -2026,12 +2022,25 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
+        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
-            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+
+            var daysFrom = -1;
+            var daysTo = 1;
+
+            while (daysFrom > -13)
+            {
+                await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
+            return ret;
+        }
+        public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete,int daysFrom, int daysTo)
+        {
             string ret = "";
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
@@ -2070,8 +2079,8 @@ namespace MasterOnline.Controllers
                 default:
                     break;
             }
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
 
             ////untuk perbaiki data
             //unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-106).ToUnixTimeSeconds();
@@ -2145,7 +2154,7 @@ namespace MasterOnline.Controllers
             }
             if (rowCount > 99)
             {
-                await GetOrderListCompleted(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhOrderComplete);
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhOrderComplete,daysFrom,daysTo);
             }
             else
             {
@@ -2163,14 +2172,32 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
+        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+
+            var daysFrom = -1;
+            var daysTo = 1;
+
+            while (daysFrom > -13)
+            {
+                await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
+            return ret;
+
+        }
+        public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, int daysFrom, int daysTo)
         {
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
             long milis = CurrentTimeMillis();
-            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(daysFrom).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(daysTo).ToUnixTimeSeconds();
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
@@ -2219,13 +2246,13 @@ namespace MasterOnline.Controllers
                 {
                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
-                    
+
                     jmlhOrder = jmlhOrder + rowAffected;
                 }
             }
             if (rowCount > 99)
             {
-                await GetOrderListCancel(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder);
+                await GetOrderListCancel3days(iden, CUST, NAMA_CUST, (page + 1), jmlhOrder,daysFrom,daysTo);
             }
             else
             {
@@ -2236,6 +2263,24 @@ namespace MasterOnline.Controllers
                 }
             }
             return "";
+        }
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
+        {
+            string ret = "";
+
+            var daysFrom = -1;
+            var daysTo = 1;
+
+            while (daysFrom > -13)
+            {
+                await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
+
+                daysFrom -= 3;
+                daysTo -= 3;
+            }
+            return ret;
         }
 
         public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)

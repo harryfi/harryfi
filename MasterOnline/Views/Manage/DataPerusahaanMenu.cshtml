@@ -21,6 +21,11 @@
         username = dataSession?.Account.Username;
         userId = dataSession?.Account.UserId;
     }
+    if (username.Length > 20)
+    {
+        //username = username.Substring(0, 17) + "...";
+        username = username.Substring(0, 20);
+    }
 }
 
 @section styles

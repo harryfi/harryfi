@@ -54,6 +54,7 @@ namespace MasterOnline.Controllers
         public ShopeeController()
         {
             MoDbContext = new MoDbContext();
+            username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -77,6 +78,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
+            if (username.Length > 20)
+                username = username.Substring(0, 17) + "...";
         }
         [Route("shp/code")]
         [HttpGet]
@@ -376,7 +379,6 @@ namespace MasterOnline.Controllers
                                 //insert brg induk
                                 //string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
                                 string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";0";
-
                                 //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                                 //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                                 var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
@@ -393,6 +395,7 @@ namespace MasterOnline.Controllers
                                 {
                                     brgMpInduk = brgInDB.BRG;
                                 }
+                                //string skuInduk = string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku;
                                 //end insert brg induk
                                 var insert_1st_img = true;
 
@@ -416,6 +419,7 @@ namespace MasterOnline.Controllers
                                     {
                                         //ret.recordCount++;
                                         var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden, insert_1st_img);
+                                        //var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, skuInduk, iden, insert_1st_img);
                                         ret.recordCount += ret2.status;
                                         insert_1st_img = false;//varian ke-2 tidak perlu ambil gambar
                                     }

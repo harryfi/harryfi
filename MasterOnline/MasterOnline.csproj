@@ -714,6 +714,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\LazadaExcelBayarPiutang.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
     <Compile Include="Models\BRAND_LAZADA.cs" />
     <Compile Include="Models\CATEGORY_BUKALAPAK.cs" />
@@ -1061,8 +1062,11 @@
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
     <Compile Include="Utils\XcelUtils.cs" />
+    <Compile Include="ViewModels\mdlTempBayarBlibli.cs" />
+    <Compile Include="ViewModels\mdlTempBayarTokped.cs" />
     <Compile Include="ViewModels\mdlSaldoAwal.cs" />
     <Compile Include="ViewModels\mdlPartner.cs" />
+    <Compile Include="ViewModels\mdlTempBayarBukalapak.cs" />
     <Compile Include="ViewModels\PackingListViewModel.cs" />
     <Compile Include="ViewModels\PengirimanViewModel.cs" />
     <Compile Include="ViewModels\ListImportFaktur.cs" />
@@ -6332,9 +6336,7 @@
     <Content Include="Views\Report\TablePromptKodeRekPartial.cshtml" />
     <Content Include="Views\Manage\TableDashboardLinePartial.cshtml" />
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
-    <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Account\RegisterThankYou.cshtml" />
-    <Content Include="Views\Manage\KonfirmasiGenerateFaktur.cshtml" />
     <Content Include="Views\Manage\AktivasiPesananStokKeMarketplace.cshtml" />
     <Content Include="Views\Manage\PengirimanMenu.cshtml" />
     <Content Include="Views\Manage\TableKirimPartial.cshtml" />
@@ -6356,6 +6358,10 @@
     <Content Include="Views\Admin\TablePartPartial.cshtml" />
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
     <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
+    <Content Include="Views\Manage\ListErrorPembayaranPiutang.cshtml" />
+    <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
+    <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />
+    <Content Include="Views\Manage\TableTransaksiBuyerPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

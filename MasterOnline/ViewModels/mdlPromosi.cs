@@ -65,4 +65,18 @@ namespace MasterOnline
         public DateTime? TGL { get; set; }
 
     }
+
+    //add by nurul 20/11/2019
+    public class mdlTransaksiPembeli
+    {
+        public DateTime? tgl_si { get; set; }
+        public string nobuk_si { get; set; }
+        public string brg { get; set; }
+        public string nama { get; set; }
+        public double? qty { get; set; }
+        public double? nilai { get; set; }
+        public double? qty_retur { get; set; }
+        public double? nilai_retur { get; set; }
+    }
+    //end add by nurul 20/11/2019
 }

@@ -1732,9 +1732,26 @@ namespace MasterOnline.Controllers
 
             //change by calvin 19 nov 2018
             //request.AddFileParameter("image", new FileItem(imagePath));
-            var req = System.Net.WebRequest.Create(imagePath);
+            try
+            {
+                var req = System.Net.WebRequest.Create(imagePath);
                 System.IO.Stream stream = req.GetResponse().GetResponseStream();
                 request.AddFileParameter("image", new FileItem("image", stream));
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                if (ret.message.Contains("forbidden"))
+                {
+                    ret.message = "Gambar tidak dapat diakses lagi, silahkan upload ulang gambar untuk produk ini.";
+                }
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                return ret;
+            }
+            //var req = System.Net.WebRequest.Create(imagePath);
+            //System.IO.Stream stream = req.GetResponse().GetResponseStream();
+            //request.AddFileParameter("image", new FileItem("image", stream));
             //end change by calvin 19 nov 2018
             try
             {
@@ -1828,6 +1845,8 @@ namespace MasterOnline.Controllers
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Order order in bindOrder.data.orders)
                             {
@@ -2094,6 +2113,8 @@ namespace MasterOnline.Controllers
                             //int i = 1;
                             var connIDARF01C = Guid.NewGuid().ToString();
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Order order in bindOrder.data.orders)
                             {
@@ -2506,6 +2527,8 @@ namespace MasterOnline.Controllers
                         int i = 1;
                         var connectionID = Guid.NewGuid().ToString();
                         string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                        if (username.Length > 20)
+                            username = username.Substring(0, 17) + "...";
 
                         foreach (Orderitem items in bindOrderItems.data)
                         {
@@ -2628,6 +2651,8 @@ namespace MasterOnline.Controllers
                             insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
                             insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
                             string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            if (username.Length > 20)
+                                username = username.Substring(0, 17) + "...";
 
                             foreach (Datum order in bindOrderItems.data)
                             {

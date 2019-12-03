@@ -1,0 +1,21 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+<script type="text/javascript">
+</script>
+<table style="border:none">
+    <tbody>
+        <tr>
+            <td class="text-left" style="width:100px;"><h5>Penjualan</h5></td>
+            <td class="text-left"><h5>: Rp. @( Model.totalSI > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.totalSI) : "0,00" )</h5></td>
+        </tr>
+        <tr>
+            <td class="text-left" style="width:100px;"><h5>Pembelian</h5></td>
+            <td class="text-left"><h5>: Rp. @( Model.totalPB > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.totalPB) : "0,00" )</h5></td>
+        </tr>
+        <tr>
+            <td class="text-left" style="width:100px;"><h5>Selisih</h5></td>
+            <td class="text-left"><h5>: Rp. @( Model.selisih > 0 || Model.selisih < 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.selisih) : "0,00" )</h5></td>
+        </tr>
+    </tbody>
+</table>

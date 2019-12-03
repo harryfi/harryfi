@@ -9,6 +9,10 @@
 @section styles
 {
     <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
         .loading_barang_tab_class {
             display: none;
             width: 100%;
@@ -34,7 +38,7 @@
             border-radius: 50%;
         }
 
-        
+
         [data-tip] {
             position: relative;
         }
@@ -70,7 +74,7 @@
                 font-size: 0.85em;
                 height: auto;
                 line-break: normal;
-                max-width: 200px;
+                max-width: 300px;
                 line-height: 18px;
                 -webkit-border-radius: 3px;
                 -moz-border-radius: 3px;
@@ -85,6 +89,22 @@
             }
     </style>
 }
+
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">Keterangan</h4>
+            </div>
+            <div class="modal-body edit-content">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
 
@@ -187,6 +207,28 @@
             }
         });
     }
+
+    //add by nurul 21/11/2019
+    function LihatException($req_id) {
+        var $link = '@Html.Raw(Url.Action("findException", "Manage", new { reqId = "replaceID" }))';
+        $link = $link.replace("replaceID", encodeURIComponent($req_id));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+            },
+            success: function (value) {
+                $('#modalError').find('.edit-content').html(value);
+                $('#modalError').modal('show');
+                $('#loading_error').hide();
+            },
+            error: function (xhr, status, error) {
+            }
+        });
+    }
+
+    //end add by nurul 21/11/2019
 </script>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">

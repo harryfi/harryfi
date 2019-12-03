@@ -3682,10 +3682,14 @@ namespace MasterOnline.Controllers
                             }
                             else if (order.statuses[0].ToString() == "ready_to_ship")
                             {
-                                if (orderMO.STATUS_TRANSAKSI != "03")
-                                {
-                                    list_03.Add(orderMO.NO_BUKTI);
-                                }
+                                //remark by calvin, approve by pak dani, MO hanya ubah jika statusnya sudah delivered / shipped
+                                //if (orderMO.STATUS_TRANSAKSI != "03")
+                                //{
+                                //    if (getSIT01A.Contains(order.order_id))
+                                //    {
+                                //        list_03.Add(orderMO.NO_BUKTI);
+                                //    }
+                                //}
                             }
                             //else if (order.statuses[0].ToString() == "canceled" || order.statuses[0].ToString() == "failed")
                             //{
@@ -3708,16 +3712,19 @@ namespace MasterOnline.Controllers
                         sSQL = sSQL.Substring(0, sSQL.Length - 2) + ")";
                         var result = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     }
-                    if (list_03.Count > 0)
-                    {
-                        string sSQL2 = "UPDATE SOT01A SET STATUS_TRANSAKSI = '03' WHERE NO_BUKTI IN (";
-                        foreach (var nobuk in list_03)
-                        {
-                            sSQL2 += "'" + nobuk + "' ,";
-                        }
-                        sSQL2 = sSQL2.Substring(0, sSQL2.Length - 2) + ")";
-                        var result2 = EDB.ExecuteSQL("CString", CommandType.Text, sSQL2);
-                    }
+                    //remark by calvin, approve by pak dani, MO hanya ubah jika statusnya sudah delivered / shipped
+                    //if (list_03.Count > 0)
+                    //{
+                    //    string sSQL2 = "UPDATE SOT01A SET STATUS_TRANSAKSI = '03' WHERE NO_BUKTI IN (";
+                    //    foreach (var nobuk in list_03)
+                    //    {
+                    //        sSQL2 += "'" + nobuk + "' ,";
+                    //    }
+                    //    sSQL2 = sSQL2.Substring(0, sSQL2.Length - 2) + ")";
+                    //    var result2 = EDB.ExecuteSQL("CString", CommandType.Text, sSQL2);
+                    //}
+                    //end remark by calvin, approve by pak dani, MO hanya ubah jika statusnya sudah delivered / shipped
+
                 }
 
             }

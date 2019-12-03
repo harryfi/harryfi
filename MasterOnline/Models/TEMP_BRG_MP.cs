@@ -17,7 +17,7 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
 
-        [StringLength(50)]
+        [StringLength(200)]
         public string BRG_MP { get; set; }
 
         [StringLength(30)]

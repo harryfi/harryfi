@@ -3625,6 +3625,13 @@ namespace MasterOnline.Controllers
                             }
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            //add 21 Nov 2019, check create product duplicate
+                            if(dbPathEra == "ERASOFT_120157")
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }                           
+                            //end add 21 Nov 2019, check create product duplicate
+
                         }
                         else
                         {
@@ -4301,7 +4308,13 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.error != null)
                 {
-                    throw new Exception(resServer.msg);
+                    if (resServer.msg.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
+                    {
+                        //do nothing
+                    }
+                    else {
+                        throw new Exception(resServer.msg);
+                    }
                 }
                 else {
                     if (resServer.variation_id_list != null)
@@ -4697,6 +4710,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Update Product Image",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = brg,
+                REQUEST_ATTRIBUTE_3 = brg_mp,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -4717,17 +4732,19 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_5))
                 imagess.Add(brgInDb.LINK_GAMBAR_5);
             //}
-            if (brgInDb.TYPE == "4")
-            {
-                var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
-                foreach (var brgVar in brgVarian)
-                {
-                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_1))
-                        imagess.Add(brgVar.LINK_GAMBAR_1);
-                    if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_2))
-                        imagess.Add(brgVar.LINK_GAMBAR_2);
-                }
-            }
+            //remark 14 Nov 2019, gambar varian tidak masuk ke gambar induk
+            //if (brgInDb.TYPE == "4")
+            //{
+            //    var brgVarian = ErasoftDbContext.STF02.Where(m => m.PART == brg).ToList();
+            //    foreach (var brgVar in brgVarian)
+            //    {
+            //        if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_1))
+            //            imagess.Add(brgVar.LINK_GAMBAR_1);
+            //        if (!string.IsNullOrEmpty(brgVar.LINK_GAMBAR_2))
+            //            imagess.Add(brgVar.LINK_GAMBAR_2);
+            //    }
+            //}
+            //end remark 14 Nov 2019, gambar varian tidak masuk ke gambar induk
             string[] brg_mp_split = brg_mp.Split(';');
             ShopeeUpdateImageData HttpBody = new ShopeeUpdateImageData
             {

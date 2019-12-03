@@ -156,28 +156,30 @@
     }
 
     function adminBroadcast() {
-        var $link = '@Html.Raw(Url.Action("AdminBroadcastMessage", "Admin", new { pesan = "replacePesanBroadcast" }))';
-        $link = $link.replace("replacePesanBroadcast", $('#broadcase_message_text').val());
+        if (confirm("Yakin Kirim Pesan ?")) {
+            var $link = '@Html.Raw(Url.Action("AdminBroadcastMessage", "Admin", new { pesan = "replacePesanBroadcast" }))';
+            $link = $link.replace("replacePesanBroadcast", $('#broadcase_message_text').val());
 
-        $.ajax({
-            type: "GET",
-            url: $link,
-            beforeSend: function () {
-                //$('#table-barang-1-partial').hide();
-                $('#broadcase_message_btn')[0].disabled = true;
-                $('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                alert("Pesan berhasil dikirim.");
-                $('#broadcase_message_btn')[0].disabled = false;
-                $('#loading_barang_tab').hide();
-                $('#broadcase_message_text').val("");
-            },
-            error: function (xhr, status, error) {
-                $('#broadcase_message_btn')[0].disabled = false;
-                console.log(error);
-            }
-        });
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    $('#broadcase_message_btn')[0].disabled = true;
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    alert("Pesan berhasil dikirim.");
+                    $('#broadcase_message_btn')[0].disabled = false;
+                    $('#loading_barang_tab').hide();
+                    $('#broadcase_message_text').val("");
+                },
+                error: function (xhr, status, error) {
+                    $('#broadcase_message_btn')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
     }
 </script>
 <div class="row">

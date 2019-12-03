@@ -27,6 +27,7 @@ namespace MasterOnline.Controllers
         public TransferExcelController()
         {
             MoDbContext = new MoDbContext();
+            username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -51,6 +52,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
+            //if (username.Length > 20)
+            //    username = username.Substring(0, 17) + "...";
         }
 
         public ActionResult SQLtoExcel(string cust)
@@ -1179,8 +1182,10 @@ namespace MasterOnline.Controllers
                                                 {
                                                     //var mp = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault();
                                                     //ret.Errors.Add("Data barang untuk akun " + mp.NamaMarket + "(" + customer.PERSO + ") tidak ditemukan");
-                                                    ret.Errors.Add(namaMP + "(" + customer.PERSO + ") : Data Barang untuk akun ini tidak ditemukan");
-                                                    ret.nextFile = true;
+                                                    //remark by Tri 21 Nov 2019
+                                                    //ret.Errors.Add(namaMP + "(" + customer.PERSO + ") : Data Barang untuk akun ini tidak ditemukan");
+                                                    //ret.nextFile = true;
+                                                    //end remark by Tri 21 Nov 2019
                                                 }
                                             }
                                             else

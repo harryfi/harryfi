@@ -20,6 +20,10 @@
         username = dataSession?.Account?.Username;
         accId = (dataSession?.Account?.AccountId ?? 0);
     }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 
 @section styles {
@@ -1782,6 +1786,51 @@
                     });
                     RefreshTableDashboardBarangTidakLaku();
                     //end add by nurul 2/9/2019
+
+                    //add by nurul 18/11/2019
+                    var f = new Date();
+                    $('#Bulan').datepicker({
+                        format: 'MM',
+                        language: 'id',
+                        minViewMode: 'months',
+                        maxViewMode: 'months',
+                        startView: 'months'
+                    }).datepicker('setDate', f);
+                    $('#Bulan').datepicker({
+                        format: 'MM',
+                        language: 'id',
+                        minViewMode: 'months',
+                        maxViewMode: 'months',
+                        startView: 'months'
+                    }).change(function () {
+                        $('#Bulan').val($(this).val());
+                        $(this).datepicker('hide');
+                        RefreshTableDashboardArusKas();
+                        });
+                    $('#Tahun').datepicker({
+                        format: "yyyy",
+                        weekStart: 1,
+                        orientation: "bottom",
+                        language: "{{ app.request.locale }}",
+                        keyboardNavigation: false,
+                        viewMode: "years",
+                        minViewMode: "years"
+                    }).datepicker('setDate', f);
+                    $('#Tahun').datepicker({
+                        format: "yyyy",
+                        weekStart: 1,
+                        orientation: "bottom",
+                        language: "{{ app.request.locale }}",
+                        keyboardNavigation: false,
+                        viewMode: "years",
+                        minViewMode: "years"
+                    }).change(function () {
+                        $('#Tahun').val($(this).val());
+                        $(this).datepicker('hide');
+                        RefreshTableDashboardArusKas();
+                        });
+                    RefreshTableDashboardArusKas();
+                    //end add by nurul 18/11/2019
                                         
                     $('#loading_spinner').hide();
                 },
@@ -9859,5 +9908,50 @@
             });
         }
         //end add by nurul 2/9/2019
+
+        //add by nurul 18/11/2019
+        function RefreshTableDashboardArusKas() {
+            var $bulan = "";
+            var $Bln = "";
+            if ($('#Bulan').val() != undefined) {
+                $Bln = $('#Bulan').val();
+            }
+            var $Thn = "";
+            if ($('#Tahun').val() != undefined) {
+                $Thn = $('#Tahun').val();
+            }
+
+            if ($Bln != "" && $Thn != "") {
+                var d = new Date($('#Bulan').val() + ' ' + $('#Tahun').val());
+                $bulan = d.getMonth() + 1;
+            } else if ($Bln != "") {
+                var d = new Date($('#Bulan').val() + ' ' + 2019);
+                $bulan = d.getMonth() + 1;
+                $Thn = "2019";
+            }
+
+            var link = '@Html.Raw(Url.Action("RefreshDashboardArusKas", "Manage", new { bulan = "replaceDrtgl", tahun = "replaceSdtgl" }))';
+            link = link.replace("replaceDrtgl", encodeURIComponent($bulan));
+            link = link.replace("replaceSdtgl", encodeURIComponent($Thn));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-aruskas-partial').hide();
+                    $('#loading_aruskas').show();
+                },
+                success: function (response) {
+                    $('#table-aruskas-partial').html(response);
+                    
+                    $('#loading_aruskas').hide();
+                    $('#table-aruskas-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 18/11/2019
     </script>
 }

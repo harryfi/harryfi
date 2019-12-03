@@ -349,12 +349,17 @@
             if ($('#Order').val() == 1) {
                 drSupp = $('#FromSupp').val();
                 sdSupp = $('#ToSupp').val();
+            } else if ($('#Order').val() == 2) {
             } else if ($('#Order').val() == 3) {
                 drSupp = $('#FromSupp').val();
                 sdSupp = $('#ToSupp').val();
             } else if ($('#Order').val() == 4) {
                 drSupp = $('#FromSupp2').val();
                 sdSupp = $('#ToSupp2').val();
+            } else {
+                alert('Pilih berdasarkan apa terlebih dahulu!');
+                $('#loading_spinner').hide();
+                return false;
             }
 
             //end add
@@ -389,8 +394,9 @@
                         $("<iframe id='LoadReportMO'>")// create a new iframe element
                             .hide()//invisible
                             .load(function () {
-                                $('#loading_spinner').hide();
+                                
                                 setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
+                                $('#loading_spinner').hide();
                             })
                             .attr("src", data)//load the page
                             .appendTo("body");

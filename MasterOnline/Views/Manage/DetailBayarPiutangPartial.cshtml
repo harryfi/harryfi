@@ -18,8 +18,10 @@
         username = dataSession?.Account?.Username;
         accId = (dataSession?.Account?.AccountId ?? 0);
     }
-
-    
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
 }
 
 
@@ -71,7 +73,7 @@
         Initialize();
     });
 
-    @{ 
+    @{
         var listError = Model?.Errors?.ToList();
     }
     var listError = @Html.Raw(Json.Encode(listError));
@@ -235,9 +237,9 @@
         </div>
 
         @*<div class="col-md-3">
-            <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
-        </div>
-        <div class="col-md-4"></div>*@
+                <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
+            </div>
+            <div class="col-md-4"></div>*@
     </div>
     @*<div class="row">
             <div class="col-md-6">
@@ -299,19 +301,19 @@
         </div>
 
         @*<div id="btn-autoload-row" class="row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <div class="col-md-4"></div>
-                    <div class="col-md-8">
-                        <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Autoload</button>
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4"></div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-8">
+                            <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Autoload</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>*@
+            </div>*@
     }
-    @if (Model?.Errors.Count > 0)
+    @if (Model?.Piutang?.POSTING != "Y")
     {
         <div id="btn-error-row" class="row">
             <div class="col-lg-4"></div>
@@ -324,20 +326,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="profile hide">
-            <table>
-                <tbody>
-                    @foreach (var detailError in Model?.Errors?.ToList())
-                    {
-                        <tr>
-                            <td>
-                                @detailError
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
         </div>
     }
     @if (Model?.Piutang?.RecNum != null)
@@ -382,95 +370,95 @@
                     }
                     @foreach (var detailPiutang in Model.ListPiutangDetail.Where(pb => pb.BUKTI == Model?.Piutang?.BUKTI).ToList())
                     {
-                    <tr data-piutang-id="piu-@detailPiutang.NO">
-                        <td>
-                            @detailPiutang.NFAKTUR
-                        </td>
-                        <td>@detailPiutang.NOREF</td>
-                        <td>@detailPiutang.TGL_REF.GetValueOrDefault().ToString("dd/MM/yyyy")</td>
-                        <td class="sisa-piutang" style="text-align:right">
-                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
-                            <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
-                        </td>
-                        <td class="bayar-piutang" style="text-align:right">
-                            <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
-                        </td>
-                        <td class="potongan-piutang" data-selisih="@Convert.ToString(detailPiutang.SISA - detailPiutang.BAYAR)" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
-                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
-                            <input min="0" class="pot-input-box num-only" style="display: none;" />
-                            <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
-                        </td>
-                        <td class="selisih-piutang" style="text-align:right">
-                            @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
-                            <input min="0" class="selisih-input-box num-only" style="display: none;" />
-                            <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
-                        </td>
-                        @*<td class="edit-hapus-col">
-            <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
-                <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
-
-            </button>
-        </td>*@
-                        <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary" disabled="disabled">
-                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusFaktur" onclick="passFakturInDb('@detailPiutang.NO')">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                    </tr>
-                        iPd = iPd + 1;
-                    }
-                        <tr data-piutang-id="0">
-                            @Html.HiddenFor(m => m.PiutangDetail.NO)
-                            <td style="width: 120px; max-width: 120px;">
-                                <div id="FAKTUR" class="selectivity-input" tabindex="0"></div>
-                                @Html.HiddenFor(m => m.PiutangDetail.NFAKTUR)
+                        <tr data-piutang-id="piu-@detailPiutang.NO">
+                            <td>
+                                @detailPiutang.NFAKTUR
                             </td>
-                            <td class="noref-piutang" style="text-align:right">
-                                <span class="span-noref-piutang">-</span>
-                                @Html.HiddenFor(m => m.PiutangDetail.NOREF)
-                            </td>
-                            <td class="tglref-piutang" style="text-align:right">
-                                <span class="span-tglref-piutang"></span>
-                                @Html.HiddenFor(m => m.PiutangDetail.TGL_REF)
-                            </td>
+                            <td>@detailPiutang.NOREF</td>
+                            <td>@detailPiutang.TGL_REF.GetValueOrDefault().ToString("dd/MM/yyyy")</td>
                             <td class="sisa-piutang" style="text-align:right">
-                                <span class="span-sisa-piutang">-</span>
-                                @Html.HiddenFor(m => m.PiutangDetail.SISA)
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
+                                <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
                             </td>
                             <td class="bayar-piutang" style="text-align:right">
-                                <span class="span-potongan-piutang">0,00</span>
-                                @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                                <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
                             </td>
-                            <td class="potongan-piutang" style="text-align:right">
-                                <span class="span-bayar-piutang">0,00</span>
-                                @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                            <td class="potongan-piutang" data-selisih="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
+                                <input min="0" class="pot-input-box num-only" style="display: none;" />
+                                <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
                             </td>
-                            <td class="selisih-piutang" style="text-align:right">
-                                <span class="span-selisih-piutang">0,00</span>
-                                @{
-                                    var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT);
-                                }
-                                @Html.TextBox("SELISIH", (tempSelisih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempSelisih) : "0,00"), new { @class = "form-control", @style = "display: none;text-align:right" })
+                            <td class="selisih-piutang" data-selisih-gagal="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" style="text-align:right">
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
+                                <input min="0" class="selisih-input-box num-only" style="display: none;" />
+                                <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
                             </td>
+                            @*<td class="edit-hapus-col">
+                                    <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
+                                        <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+
+                                    </button>
+                                </td>*@
                             <td class="edit-hapus-col">
-                                <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('piu-0')">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
                                     <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                 </button>
                             </td>
                             <td class="edit-hapus-col">
-                                <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusFaktur">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusFaktur" onclick="passFakturInDb('@detailPiutang.NO')">
                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                 </button>
                             </td>
                         </tr>
+                        iPd = iPd + 1;
+                    }
+                    <tr data-piutang-id="0">
+                        @Html.HiddenFor(m => m.PiutangDetail.NO)
+                        <td style="width: 120px; max-width: 120px;">
+                            <div id="FAKTUR" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.PiutangDetail.NFAKTUR)
+                        </td>
+                        <td class="noref-piutang" style="text-align:right">
+                            <span class="span-noref-piutang">-</span>
+                            @Html.HiddenFor(m => m.PiutangDetail.NOREF)
+                        </td>
+                        <td class="tglref-piutang" style="text-align:right">
+                            <span class="span-tglref-piutang"></span>
+                            @Html.HiddenFor(m => m.PiutangDetail.TGL_REF)
+                        </td>
+                        <td class="sisa-piutang" style="text-align:right">
+                            <span class="span-sisa-piutang">-</span>
+                            @Html.HiddenFor(m => m.PiutangDetail.SISA)
+                        </td>
+                        <td class="bayar-piutang" style="text-align:right">
+                            <span class="span-potongan-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="potongan-piutang" style="text-align:right">
+                            <span class="span-bayar-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="selisih-piutang" style="text-align:right">
+                            <span class="span-selisih-piutang">0,00</span>
+                            @{
+                                var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT);
+                            }
+                            @Html.TextBox("SELISIH", (tempSelisih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempSelisih) : "0,00"), new { @class = "form-control", @style = "display: none;text-align:right" })
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('piu-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusFaktur">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-        </div>
     </div>
+</div>
 

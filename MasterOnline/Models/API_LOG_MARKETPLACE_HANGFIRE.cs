@@ -26,5 +26,9 @@ namespace MasterOnline
         public int HangfireServerCount { get; set; }
         public DateTime? LAST_LOGIN_DATE { get; set; }
         public DateTime? TGL_SUBSCRIPTION { get; set; }
+        public DateTime? LAST_HEARTBEAT { get; set; }
+        public int StokJobEnqueued { get; set; }
+        public int PesananJobEnqueued { get; set; }
+        public int CreateProductJobEnqueued { get; set; }
     }
 }

@@ -32,6 +32,7 @@ namespace MasterOnline.Controllers
         public TokopediaController()
         {
             MoDbContext = new MoDbContext();
+            username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
@@ -55,6 +56,8 @@ namespace MasterOnline.Controllers
                     username = accFromUser.Username;
                 }
             }
+            if (username.Length > 20)
+                username = username.Substring(0, 17) + "...";
         }
 
         public async Task<string> CreateProductGetStatus(TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
@@ -1556,7 +1559,8 @@ namespace MasterOnline.Controllers
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            //string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
+            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/10";
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -1632,7 +1636,8 @@ namespace MasterOnline.Controllers
                         //{
                         //    ret.message = "";
                         //}
-                        if (result.data.Count() >= 100)
+                        //if (result.data.Count() >= 100)
+                        if (result.data.Count() >= 10)
                         {
                             ret.nextPage = 1;
                         }

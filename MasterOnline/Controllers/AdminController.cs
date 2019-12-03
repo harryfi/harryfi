@@ -629,7 +629,10 @@ namespace MasterOnline.Controllers
 
             }
 
-            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            //change by Tri, 25 Nov 2019
+            //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email);
+            //end change by Tri, 25 Nov 2019
             akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
@@ -2609,8 +2612,10 @@ namespace MasterOnline.Controllers
                 subsInDb.SdTGL = vm.Payment.SdTGL;
                 subsInDb.jumlahUser = vm.Payment.jumlahUser;
             }
-
-            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            //change by Tri, 25 Nov 2019
+            //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email);
+            //end change by Tri, 25 Nov 2019
             akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
             akun.jumlahUser = vm.Payment.jumlahUser;
             akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
@@ -2780,7 +2785,12 @@ namespace MasterOnline.Controllers
                 var monitoringApi = sqlStorage.GetMonitoringApi();
                 var serverList = monitoringApi.Servers();
 
-                pageContent.Add(new HANGFIRE_SERVER_STATUS()
+                var lastHeartbeat = new DateTime?();
+                var getfirstserver = serverList.FirstOrDefault();
+                if (getfirstserver != null) {
+                    lastHeartbeat = getfirstserver.Heartbeat;
+                }
+                var data = new HANGFIRE_SERVER_STATUS()
                 {
                     Email = item.Email,
                     LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
@@ -2788,8 +2798,41 @@ namespace MasterOnline.Controllers
                     DatabasePathErasoft = item.DatabasePathErasoft,
                     NamaTokoOnline = item.NamaTokoOnline,
                     TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
-                    HangfireServerCount = serverList.Count()
-                });
+                    HangfireServerCount = serverList.Count(),
+                    PesananJobEnqueued = 0,
+                    CreateProductJobEnqueued = 0,
+                    StokJobEnqueued = 0,
+                    LAST_HEARTBEAT = lastHeartbeat
+                };
+
+                string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+                sSQL += "union all" + System.Environment.NewLine;
+                sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+                sSQL += "union all" + System.Environment.NewLine;
+                sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+                var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+                if (dsCekQueue.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsCekQueue.Tables[0].Rows.Count; i++)
+                    {
+                        switch (Convert.ToString(dsCekQueue.Tables[0].Rows[i]["tipe"]))
+                        {
+                            case "Stok":
+                                data.StokJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                break;
+                            case "Order":
+                                data.PesananJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                break;
+                            case "Product":
+                                data.CreateProductJobEnqueued = Convert.ToInt32(dsCekQueue.Tables[0].Rows[i]["jumlah"]);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                pageContent.Add(data);
             }
 
             var totalAccountInDb = accountInDb.Count();
