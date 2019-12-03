@@ -8183,8 +8183,25 @@
                 }
             });
         }
+        var refreshingPackingTokped = false;
+        var refreshingPackingLazada = false;
+        var refreshingPackingShopee = false;
+        var refreshingPackingBlibli = false;
+        function onRefreshSemuaPesananMPComplete(){
+            if(!refreshingPackingTokped &&
+            !refreshingPackingLazada &&
+            !refreshingPackingShopee &&
+            !refreshingPackingBlibli &&
+            ){
+                //semua MP sudah selesai refresh
+                PackingTabNext();     
+                $('#loading_spinner').hide();
+            }
+        } 
+        
         
         function RefreshSemuaPesananMP() {
+            $('#loading_spinner').show();
             RefreshPackingPesananTokped();
             RefreshPackingPesananLazada();
             RefreshPackingPesananShopee();
@@ -8200,6 +8217,11 @@
                 url: $link,
                 beforeSend: function () {
                     //$('#loading_barang_tab').show();
+                    refreshingPackingTokped = true;
+                },
+                complete: function () {
+                    refreshingPackingTokped = false;
+                    onRefreshSemuaPesananMPComplete();
                 },
                 success: function (response) {
                     $('#packing_pesanan_tokped_content').html(response);
@@ -8219,6 +8241,11 @@
                 url: $link,
                 beforeSend: function () {
                     //$('#loading_barang_tab').show();
+                    refreshingPackingLazada = true;
+                },
+                complete: function () {
+                    refreshingPackingLazada = false;
+                    onRefreshSemuaPesananMPComplete();
                 },
                 success: function (response) {
                     $('#packing_pesanan_lazada_content').html(response);
@@ -8239,6 +8266,11 @@
                 url: $link,
                 beforeSend: function () {
                     //$('#loading_barang_tab').show();
+                    refreshingPackingShopee = true;
+                },
+                complete: function () {
+                    refreshingPackingShopee = false;
+                    onRefreshSemuaPesananMPComplete();
                 },
                 success: function (response) {
                     $('#packing_pesanan_shopee_content').html(response);
@@ -8258,6 +8290,11 @@
                 url: $link,
                 beforeSend: function () {
                     //$('#loading_barang_tab').show();
+                    refreshingPackingBlibli = true;
+                },
+                complete: function () {
+                    refreshingPackingBlibli = false;
+                    onRefreshSemuaPesananMPComplete();
                 },
                 success: function (response) {
                     $('#packing_pesanan_blibli_content').html(response);
