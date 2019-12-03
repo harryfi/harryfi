@@ -34731,6 +34731,7 @@ namespace MasterOnline.Controllers
             }
             //hapus dari packing list
             EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + string_rows_selected + ")");
+            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (''," + string_rows_selected + ")");
             //hapus bukti packing list yg kosong ( dari packing list yang dihapus sot03b nya )
             EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND NO_BUKTI IN ('',"+ string_bukti_packing +")");
             using (var context = new ErasoftContext(dbPathEra))
@@ -36407,6 +36408,10 @@ namespace MasterOnline.Controllers
                         listNobuk += "'" + Nobuk + "'";
                     }
                     var hapusDrPacking = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + listNobuk + ")");
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (''," + listNobuk + ")");
+                    //hapus bukti packing list yg kosong ( dari packing list yang dihapus sot03b nya )
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND NO_BUKTI IN ('',"+ listNobuk +")");
+                    
                     var successRow = EDB.ExecuteSQL("sConn",CommandType.Text,"UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN ('',"+ listNobuk +")");
                     successCount += successRow;
                 }

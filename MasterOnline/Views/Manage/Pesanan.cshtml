@@ -2898,7 +2898,7 @@
             <br />
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" onclick="PackingTabNext()">Next</button>
+                <button type="button" class="btn btn-success" id="btn_packing_tab_next" onclick="PackingTabNext()">Next</button>
             </div>
         </div>
     </div>
@@ -2955,6 +2955,7 @@
                 <div class="right">
                     <button type="button" class="btn btn-danger" id="konfUndoStatusSudahkirimBatch_btn_tidak" data-dismiss="modal">Tidak</button>
                     <button type="button" class="btn btn-success" id="konfUndoStatusSudahkirimBatch_btn_ya" onclick="UndoStatusPesananBatch();">Ya</button>
+                    <button type="button" class="btn btn-danger" style="display:none;" id="konfUndoStatusSudahkirimBatch_btn_close" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
@@ -6149,6 +6150,7 @@
             });
         }
         function UbahStatusPesananPacking() {
+            $('#loading_ubahstatus_packing').show();
             var cekTrue = [];
             get_selected.length = 0;
             $(".checkbox_gntstatus_packing").each(function (z, chk) {
@@ -8336,7 +8338,12 @@
             });
         }
         function passRecUndoStatus(){
-
+            $('#konfUndoStatusSudahkirimBatch_error').hide();
+            $('#konfUndoStatusSudahkirimBatch_error').html('');
+            $('#konfUndoStatusSudahkirimBatch_btn_tidak').show();
+            $('#konfUndoStatusSudahkirimBatch_btn_ya').show();
+            $('#konfUndoStatusSudahkirimBatch_btn_close').hide();
+            
             var rows_selected = [];
             $('.checkbox_pesanan_faktur').each(function (i, item) {
                 if ($(item).is(":checked")) {
@@ -8420,6 +8427,10 @@
                             refreshTablePesanan();
                             refreshTableSudahKirim();
                             refreshTableSudahDibayar();
+                            
+                            $('#konfUndoStatusSudahkirimBatch_btn_tidak').hide();
+                            $('#konfUndoStatusSudahkirimBatch_btn_ya').hide();
+                            $('#konfUndoStatusSudahkirimBatch_btn_close').show();
                         }
                     } else {
                         $('#konfUndoStatusSudahkirimBatch_error').show();
