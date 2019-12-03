@@ -20,6 +20,10 @@
                 $('#li_pesanan_lazada_tab_focus').hide();
             }
         }
+        
+        $('.btn_modal_hide').off('click').on('click', function () {
+            $(this).modal('hide');
+        });
     });
     function RequestPickupPackingLazada(cust) {
 
@@ -165,7 +169,7 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="close btn_modal_hide" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Lazada</h4>
                         </div>
                         <div class="modal-body">
@@ -175,7 +179,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-danger btn_modal_hide">Tutup</button>
                             @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                         </div>
                     </div>
