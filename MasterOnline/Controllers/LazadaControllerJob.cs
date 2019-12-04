@@ -1887,7 +1887,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                     else
                                                     {
-                                                        InsertPembeli(order, connIDARF01C,dbPathEra);
+                                                        InsertPembeli(order, connIDARF01C, dbPathEra);
                                                         pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
@@ -2669,6 +2669,18 @@ namespace MasterOnline.Controllers
 
                             if (rowAffected > 0)
                             {
+                                //add by Tri 4 Des 2019, isi cancel reason
+                                var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
+                                if (!string.IsNullOrEmpty(nobuk))
+                                {
+                                    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+                                    if (sot01d == null)
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                    }
+                                }
+                                //end add by Tri 4 Des 2019, isi cancel reason
+
                                 var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2'");
 
                                 var orderDetail = (from a in ErasoftDbContext.SOT01A
@@ -5893,9 +5905,9 @@ namespace MasterOnline.Controllers
             request.SetHttpMethod("GET");
             LazopResponse response = client.Execute(request, token);
             var bindCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(CancelReason)) as CancelReason;
-            if(bindCancel != null)
+            if (bindCancel != null)
             {
-                if(bindCancel.code == "0")
+                if (bindCancel.code == "0")
                 {
                     ret = bindCancel.data;
                 }

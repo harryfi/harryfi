@@ -215,6 +215,7 @@ namespace MasterOnline.Models
         public string gift_message { get; set; }
         public string remarks { get; set; }
         public Address_Shipping address_shipping { get; set; }
+        public string reason { get; set; }//add 4 Des 2019, cancel reason
     }
     public class Address_Billing
     {
