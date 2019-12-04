@@ -3761,10 +3761,10 @@ namespace MasterOnline.Controllers
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             //add 21 Nov 2019, check create product duplicate
-                            if(dbPathEra == "ERASOFT_120157")
+                            if (dbPathEra == "ERASOFT_120157")
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            }                           
+                            }
                             //end add 21 Nov 2019, check create product duplicate
 
                         }
@@ -3926,7 +3926,8 @@ namespace MasterOnline.Controllers
                 else //update image only
                 {
                     //#if (Debug_AWS || DEBUG)
-                    await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
+                    if (tier_variation != null)
+                        await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
                     //#else
                     //                    string EDBConnID = EDB.GetConnectionString("ConnId");
                     //                    var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -4446,8 +4447,20 @@ namespace MasterOnline.Controllers
                     if (resServer.msg.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
                     {
                         //do nothing
+                        //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
+#if (DEBUG || Debug_AWS)
+                        await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+#else
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var client = new BackgroundJobClient(sqlStorage);
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
+#endif
+                        //end add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
                     }
-                    else {
+                    else
+                    {
                         throw new Exception(resServer.msg);
                     }
                 }
