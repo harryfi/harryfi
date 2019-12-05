@@ -20186,7 +20186,18 @@ namespace MasterOnline.Controllers
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                //change by nurul 5/12/2019
+                //vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                var ceknama = ErasoftDbContext.STF02.Where(a => a.BRG == barangPesananInDb.BRG).SingleOrDefault();
+                if (ceknama != null)
+                {
+                    vmError.Errors.Add("Maaf, Quantity tersedia barang ( " + ceknama.NAMA + " " + ceknama.NAMA2 +" ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                }
+                else
+                {
+                    vmError.Errors.Add("Maaf, Quantity tersedia barang ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                }
+                //end change by nurul 5/12/2019
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
