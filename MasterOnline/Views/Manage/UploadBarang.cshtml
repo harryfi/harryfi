@@ -1438,7 +1438,15 @@
                 $('#txtBrgInduk').val('');
             }
         }
+
+        function getValueFromCKEditor() {
+            for (var i in CKEDITOR.instances) {
+                CKEDITOR.instances[i].updateElement();
+            }
+        }
+
         function uploadBarang(btnClicked) {
+            getValueFromCKEditor();
             var valid = validateForm();
             var valid2 = DataIsValid();
 
