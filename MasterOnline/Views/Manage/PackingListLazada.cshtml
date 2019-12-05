@@ -20,13 +20,9 @@
                 $('#li_pesanan_lazada_tab_focus').hide();
             }
         }
-        
-        $('.btn_modal_hide').off('click').on('click', function () {
-            $(this).modal('hide');
-        });
     });
     function RequestPickupPackingLazada(cust) {
-
+        $('#modalPrintLazada__label__' + cust).html('Proses ReadyToShip Pesanan Lazada');
         $('#btnProsesLazada__' + cust).attr("disabled", true);
         var $link = '@Html.Raw(Url.Action("RequestPickupLazadaPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking", DeliveryProvider = "replaceDeliveryProvider" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
@@ -75,7 +71,12 @@
                         textareaValue += errorValue;
                     }
                     $('#modalPrintLazada__textarea__' + cust).html(textareaValue);
-                    $('#modalPrintLazada__' + cust).modal('show');
+                    
+                    $('#modalPrintLazada__' + cust).modal({
+                        show: true,
+                        backdrop: 'static',
+                        keyboard: false
+                    });
                 }
             },
             complete: function () {
@@ -165,12 +166,12 @@
     {
         <div id="lazada_tab_content__@(item.CUST)" class="tab-pane fade in">
             <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-            <div class="modal fade" id="modalPrintLazada__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+            <div class="modal fade" id="modalPrintLazada__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLazada__label__@(item.CUST)">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close btn_modal_hide" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Lazada</h4>
+                            @* <button type="button" class="close btn_modal_hide" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                            <h4 class="modal-title" id="modalPrintLazada__label__@(item.CUST)">Print Pesanan Lazada</h4>
                         </div>
                         <div class="modal-body">
                             <div class="row">
@@ -179,7 +180,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger btn_modal_hide">Tutup</button>
+                            <button type="button" class="btn btn-danger" onclick="$('#modalPrintLazada__@(item.CUST)').modal('hide');">Tutup</button>
                             @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                         </div>
                     </div>

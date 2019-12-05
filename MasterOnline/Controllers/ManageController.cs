@@ -35083,6 +35083,8 @@ namespace MasterOnline.Controllers
                 //    cust += item + "','";
                 //}
 
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
@@ -35115,18 +35117,45 @@ namespace MasterOnline.Controllers
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
+                                listSuccess.Add(new listSuccessPrintLabel
+                                {
+                                    no_referensi = item.no_bukti
+                                });
+                            }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = item.no_bukti,
+                                    errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                });
                             }
                         }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = item.no_bukti,
+                                errorMessage = "Status Link ke Marketplace tidak aktif."
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = item.no_bukti,
+                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                        });
                     }
                 }
                 
-
-                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                var successCount = listSuccess.Count();
+                return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
@@ -35191,7 +35220,7 @@ namespace MasterOnline.Controllers
                                 listErrors.Add(new PackingListErrors
                                 {
                                     keyname = so.no_referensi,
-                                    errorMessage = "Pesanan tidak memiliki item."
+                                    errorMessage = "Pesanan tidak memiliki barang."
                                 });
                             }
                         }
@@ -35222,9 +35251,14 @@ namespace MasterOnline.Controllers
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 List<string> orderItemIds = new List<string>();
 
+                var listNobuk = "";
                 var Valid = false;
                 foreach (var so in ListStt01a)
                 {
+                    if (listNobuk != "") {
+                        listNobuk += ",";
+                    }
+                    listNobuk += "'"+ so.no_bukti +"'";
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -35268,6 +35302,7 @@ namespace MasterOnline.Controllers
                         //htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
                         //htmlString += "</script>";
                         //#endregion
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
                         return Json(htmlString, JsonRequestBehavior.AllowGet);
                     }
                     else
@@ -35296,6 +35331,8 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
@@ -35315,57 +35352,115 @@ namespace MasterOnline.Controllers
                         {
                             var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
                             if (pesananInDb != null) {
-                                var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
-                                var splitParamsInit = paramsInit[5].Split(';');
-                                if (splitParamsInit.Contains("PICKUP")) {
-                                    string pAddress = "";
-                                    string pTime = "";
-                                    ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
+                                {
+                                    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                                     {
-                                        merchant_code = marketPlace.Sort1_Cust,
-                                        DatabasePathErasoft = dbPathEra,
-                                        username = usernameLogin
-                                    };
-                                    if (splitParamsInit.Contains("ADDRESS_ID")) {
-                                        pAddress = alamat;
-                                        if (splitParamsInit.Contains("PICKUP_TIME")) {
-                                            var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
-                                            pTime = firstpickuptime.pickup_time_id;
+                                        var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                        var splitParamsInit = paramsInit[5].Split(';');
+                                        if (splitParamsInit.Contains("PICKUP")) {
+                                            string pAddress = "";
+                                            string pTime = "";
+                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                            {
+                                                merchant_code = marketPlace.Sort1_Cust,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
+                                            if (splitParamsInit.Contains("ADDRESS_ID")) {
+                                                pAddress = alamat;
+                                                if (splitParamsInit.Contains("PICKUP_TIME")) {
+                                                    var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
+                                                    pTime = firstpickuptime.pickup_time_id;
+                                                }
+                                            }
+
+                                            ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
+                                            {
+                                                address_id = 0,
+                                                pickup_time_id = ""
+                                            };
+                                            if (pAddress != "")
+                                            {
+                                                detail.address_id = Convert.ToInt64(pAddress);
+                                            }
+                                            if (pTime != "")
+                                            {
+                                                detail.pickup_time_id = pTime;
+                                            }
+                                            //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                            //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+
+                                            string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                            listSuccess.Add(new listSuccessPrintLabel
+                                            {
+                                                no_referensi = so.no_referensi
+                                            });
+                                        }
+                                        else
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Pesanan tidak bisa diproses Pickup."
+                                            });
                                         }
                                     }
-
-                                    ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
+                                    else
                                     {
-                                        address_id = 0,
-                                        pickup_time_id = ""
-                                    };
-                                    if (pAddress != "")
-                                    {
-                                        detail.address_id = Convert.ToInt64(pAddress);
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = "Pesanan sudah pernah diproses."
+                                        });
                                     }
-                                    if (pTime != "")
+                                }
+                                else
+                                {
+                                    listErrors.Add(new PackingListErrors
                                     {
-                                        detail.pickup_time_id = pTime;
-                                    }
-                                    //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                    //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
-                                    var sqlStorage = new SqlServerStorage(EDBConnID);
-                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
-
-                                    string nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
-                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, nilaiTRACKING_SHIPMENT));
+                                        keyname = so.no_bukti,
+                                        errorMessage = "Pesanan tidak memiliki nomor referensi."
+                                    });
                                 }
                             }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = "Pesanan tidak ditemukan."
+                                });
+                            }
                         }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_bukti,
+                                errorMessage = "Status Link ke Marketplace tidak aktif."
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_bukti,
+                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                        });
                     }
                 }
 
-                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                var successCount = listSuccess.Count();
+                return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
@@ -35373,6 +35468,8 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
@@ -35397,7 +35494,7 @@ namespace MasterOnline.Controllers
                 //if (InitParam.dropoff.Contains("tracking_no"))
                 //{
                 //    parameters += "DROPOFF_TRACKING_NO;";
-                    foreach (var so in ListStt01a)
+                foreach (var so in ListStt01a)
                 {
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
@@ -35406,41 +35503,110 @@ namespace MasterOnline.Controllers
                             var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
                             if (pesananInDb != null)
                             {
-                                var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
-                                var splitParamsInit = paramsInit[5].Split(';');
-                                if (splitParamsInit.Contains("DROPOFF"))
+                                if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
                                 {
-                                    string dBranch = "";
-                                    ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                    if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                                     {
-                                        merchant_code = marketPlace.Sort1_Cust,
-                                        DatabasePathErasoft = dbPathEra,
-                                        username = usernameLogin
-                                    };
-                                    if (!splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("TRACKING_NO"))
-                                    {
-                                        ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                        var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
+                                        var splitParamsInit = paramsInit[5].Split(';');
+                                        if (splitParamsInit.Contains("DROPOFF"))
                                         {
-                                            branch_id = 0,
-                                            sender_real_name = "",
-                                            tracking_no = ""
-                                        };
-                                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                                        var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                        clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+                                            string dBranch = "";
+                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                            {
+                                                merchant_code = marketPlace.Sort1_Cust,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
+                                            if (!splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("DROPOFF_TRACKING_NO"))
+                                            {
+                                                ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                                {
+                                                    branch_id = 0,
+                                                    sender_real_name = "",
+                                                    tracking_no = ""
+                                                };
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+                                            }
+                                            else
+                                            {
+                                                var reasonFail = "Karena memerlukan data : ";
+                                                if (splitParamsInit.Contains("BRANCH_ID")) { reasonFail += "Kode Cabang,"; }
+                                                if (splitParamsInit.Contains("SENDER_REAL_NAME")) { reasonFail += "Nama Pengirim,"; }
+                                                if (splitParamsInit.Contains("DROPOFF_TRACKING_NO")) { reasonFail += "No Resi,"; }
+
+                                                reasonFail = reasonFail.Substring(0, reasonFail.Length - 1);
+                                                
+                                                listErrors.Add(new PackingListErrors
+                                                {
+                                                    keyname = so.no_referensi,
+                                                    errorMessage = "Pesanan tidak bisa diproses Dropoff. " + reasonFail
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Pesanan tidak bisa diproses Dropoff."
+                                            });
+                                        }
+                                    }
+                                    else
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = "Pesanan sudah pernah diproses."
+                                        });
                                     }
                                 }
+                                else
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_bukti,
+                                        errorMessage = "Pesanan tidak memiliki nomor referensi."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = so.no_bukti,
+                                    errorMessage = "Pesanan tidak ditemukan."
+                                });
                             }
                         }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = so.no_bukti,
+                                errorMessage = "Status Link ke Marketplace tidak aktif."
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = so.no_bukti,
+                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                        });
                     }
                 }
 
-                return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                var successCount = listSuccess.Count();
+                return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
@@ -35580,7 +35746,7 @@ namespace MasterOnline.Controllers
                     }
                     return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
@@ -35655,7 +35821,7 @@ namespace MasterOnline.Controllers
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
-                                            errorMessage = "Order failed to create package."
+                                            errorMessage = "Pesanan gagal diproses."
                                         });
                                     }
                                 }
@@ -35667,20 +35833,19 @@ namespace MasterOnline.Controllers
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
-                                        errorMessage = "Order have no item."
+                                        errorMessage = "Pesanan tidak memiliki barang."
                                     });
                                 }
                             }
                         }
                         return new JsonResult { Data = new { listErrors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
-                    return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_error = "Status Link Ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Status Link Ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-
                 return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
@@ -35735,7 +35900,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (listErrors.Where(p=> p.keyname == so.no_referensi).Count() == 0)
                                 {
-                                    listErrors.Add(new PackingListErrors { keyname = so.no_referensi, errorMessage = "Order have no item." });
+                                    listErrors.Add(new PackingListErrors { keyname = so.no_referensi, errorMessage = "Pesanan tidak memiliki barang." });
                                 }
                             }
 
@@ -35780,9 +35945,9 @@ namespace MasterOnline.Controllers
                         }
                         return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
-                    return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                return new JsonResult { Data = new { mo_error = "Marketplace Link Status inactive." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {

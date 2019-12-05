@@ -19,20 +19,33 @@
                 $('#li_pesanan_blibli_tab_focus').hide();
             }
         }
+        $('.btn_modal_hide').off('click').on('click', function () {
+            $(this).modal('hide');
+        });
     });
     function RequestDropoffPackingBlibli(cust) {
         $('#btnProsesDropoffBlibli__' + cust).attr("disabled", true);
+        $('#modalPrintBlibli__label__' + cust).html('Proses Dropoff Pesanan Blibli');
+        $('#modalPrintBlibli__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintBlibli__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        
         var $link = '@Html.Raw(Url.Action("BlibliCreatePackage", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        $('#modalPrintBlibli__textarea__' + cust).html('');
         $.ajax({
             type: "GET",
             url: $link,
+            complete: function () {
+                $('#btnProsesDropoffBlibli__' + cust).attr("disabled", false);
+            },
             success: function (response) {
                 if (response.mo_error != undefined) {
-                    alert(response.mo_error);
+                    // alert(response.mo_error);
+                    $('#modalPrintBlibli__textarea__' + cust).html(response.mo_error);
                 }
                 else {
                     var textareaValue = "";
@@ -66,7 +79,6 @@
                         textareaValue = "All order success packing.";
                     }
                     $('#modalPrintBlibli__textarea__' + cust).html(textareaValue);
-                    $('#modalPrintBlibli__' + cust).modal('show');
                 }
             },
             error: function (xhr, status, error) {
@@ -75,18 +87,25 @@
         });
     }
     function BlibliGetLabelPerPacking(cust) {
-        var $link = '@Html.Raw(Url.Action("BlibliLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
+        $('#modalPrintBlibli__label__' + cust).html('Print Pesanan Blibli');
+        $('#modalPrintBlibli__textarea__' + cust).html('Sedang diproses. Mohon menunggu..');
+        $('#modalPrintBlibli__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        
+        var $link = '@Html.Raw(Url.Action("BlibliLabelPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
-
-        $('#modalPrintBlibli__textarea__' + cust).html('');
         $.ajax({
             type: "GET",
             url: $link,
             success: function (response) {
 
                 if (response.mo_error != undefined) {
-                    alert(response.mo_error);
+                    // alert(response.mo_error);
+                    $('#modalPrintBlibli__textarea__' + cust).html(response.mo_error);
                 }
                 else {
                     var textareaValue = "";
@@ -117,7 +136,6 @@
                         textareaValue += errorValue;
                     }
                     $('#modalPrintBlibli__textarea__' + cust).html(textareaValue);
-                    $('#modalPrintBlibli__' + cust).modal('show');
                 }
             },
             error: function (xhr, status, error) {
@@ -146,12 +164,12 @@
             {
                 <div id="blibli_tab_content__@(item.CUST)" class="tab-pane fade in">
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                    <div class="modal fade" id="modalPrintBlibli__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+                    <div class="modal fade" id="modalPrintBlibli__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintBlibli__label__@(item.CUST)">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Blibli</h4>
+                                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                    <h4 class="modal-title" id="modalPrintBlibli__label__@(item.CUST)">Print Pesanan Blibli</h4>
                                 </div>
                                 <div class="modal-body">
                                     <div class="row">
@@ -160,7 +178,7 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintBlibli__@(item.CUST)').modal('hide');">Tutup</button>
                                     @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                                 </div>
                             </div>

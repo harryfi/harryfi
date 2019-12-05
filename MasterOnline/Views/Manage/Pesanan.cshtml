@@ -2806,7 +2806,7 @@
             </div>
             <br />
             <div class="modal-footer right">
-                <button type="button" class="btn btn-danger btn_modal_hide">Tidak</button>
+                <button type="button" class="btn btn-danger " onclick="$('#modalUbahStatusMultiDibayar').modal('hide');">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="UbahStatusPesananDibayar();">Ya</button>
             </div>
         </div>
@@ -2839,7 +2839,7 @@
                     <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
                 </div>
                 <div class="right">
-                    <button type="button" class="btn btn-danger btn_modal_hide" id="modalUbahStatusMultiPacking_btn_tidak">Tidak</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#modalUbahStatusMultiPacking').modal('hide');" id="modalUbahStatusMultiPacking_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking();">Ya</button>
                     <button type="button" class="btn btn-success" style="display:none" id="modalUbahStatusMultiPacking_btn_lanjut" onclick="OpenPackingTransaction();">Lanjut</button>
                 </div>
@@ -2894,7 +2894,7 @@
             </div>
             <br />
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger btn_modal_hide">Close</button>
+                <button type="button" class="btn btn-danger " onclick="$('#modalPackingPengiriman').modal('hide');">Close</button>
                 <button type="button" class="btn btn-success" id="btn_packing_tab_next" onclick="PackingTabNext()">Next</button>
             </div>
         </div>
@@ -2949,9 +2949,9 @@
             <br />
             <div class="modal-footer">
                 <div class="right">
-                    <button type="button" class="btn btn-danger btn_modal_hide" id="konfUndoStatusSudahkirimBatch_btn_tidak">Tidak</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#konfUndoStatusSudahkirimBatch').modal('hide');" id="konfUndoStatusSudahkirimBatch_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="konfUndoStatusSudahkirimBatch_btn_ya" onclick="UndoStatusPesananBatch();">Ya</button>
-                    <button type="button" class="btn btn-danger btn_modal_hide" style="display:none;" id="konfUndoStatusSudahkirimBatch_btn_close">Close</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#konfUndoStatusSudahkirimBatch').modal('hide');" style="display:none;" id="konfUndoStatusSudahkirimBatch_btn_close">Close</button>
                 </div>
             </div>
         </div>
@@ -2980,7 +2980,7 @@
             <br />
             <div class="modal-footer">
                 <div class="right">
-                    <button type="button" class="btn btn-danger btn_modal_hide" id="konfUbahStatusSelesaiBatch_btn_tidak">Tidak</button>
+                    <button type="button" class="btn btn-danger " onclick="$('#konfUbahStatusSelesaiBatch').modal('hide');" id="konfUbahStatusSelesaiBatch_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="konfUbahStatusSelesaiBatch_btn_ya" onclick="ubahStatusPesananSelesaiBatch();">Ya</button>
                 </div>
             </div>
@@ -3756,10 +3756,6 @@
                 }
             });
             //end add by calvin 29 nov 2019
-
-            $('.btn_modal_hide').off('click').on('click', function () {
-                $(this).modal('hide');
-            });
         });
 
         //add by Tri, call midtrans api get token

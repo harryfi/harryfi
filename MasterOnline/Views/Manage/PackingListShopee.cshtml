@@ -19,6 +19,7 @@
                 $('#li_pesanan_shopee_tab_focus').hide();
             }
         }
+
         $('.selectShopeeResiPickupAddress').each(function (i, item) {
 
             var cust = $(item).attr("data-kodecust");
@@ -62,20 +63,54 @@
 
     function RequestPickupPackingShopee(cust) {
         $('#btnProsesPickupShopee__' + cust).attr("disabled", true);
+        
         if ($('#select-shopee-resi-pickup-address-' + cust).val()) {
             var $link = '@Html.Raw(Url.Action("RequestPickupShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking", alamat = "replaceAlamatPickup" }))';
             $link = $link.replace("replaceCust", encodeURIComponent(cust));
             $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
             $link = $link.replace("replaceAlamatPickup", encodeURIComponent($('#select-shopee-resi-pickup-address-' + cust).val()));
 
+            $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+            $('#modalPrintShopee__label__' + cust).html('Proses Pickup Pesanan Shopee');
+            $('#modalPrintShopee__' + cust).modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
             $.ajax({
                 url: $link,
                 type: 'GET',
                 beforeSend: function () {
-                    //$('#loading_barang_tab').show();
+                    // $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    //$('#loading_barang_tab').hide();
+                    // $('#loading_spinner').hide();
+                    if (!response.mo_error) {
+                        var textareaValue = "";
+
+                        textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                        var adaError = false;
+                        var errorValue = "";
+                        response.listErrors.forEach(function (item) {
+                            adaError = true;
+                            errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                        });
+                        if (adaError) {
+                            textareaValue += "</br>";
+                            textareaValue += "Pesanan gagal diproses :</br>";
+                            textareaValue += errorValue;
+                        }
+                        $('#modalPrintShopee__textarea__' + cust).show();
+                        $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+
+                        // if(response.successCount > 0){
+                        //     refreshTableSudahDibayar();
+                        // }
+                    } else {
+                        $('#modalPrintShopee__textarea__' + cust).show();
+                        $('#modalPrintShopee__textarea__' + cust).html('Gagal memproses pickup. Mohon hubungi support.');
+                    }
                 },
                 complete: function () {
                     $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
@@ -84,13 +119,22 @@
                     console.log(error);
                 }
             });
-        } else {
+        } 
+        else {
             alert('Silahkan pilih alamat Pickup terlebih dahulu.');
             $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
         }
     }
     function RequestDropoffPackingShopee(cust) {
         $('#btnProsesDropoffShopee__' + cust).attr("disabled", true);
+        $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu');
+        $('#modalPrintShopee__label__' + cust).html('Proses Dropoff Pesanan Shopee');
+        $('#modalPrintShopee__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        
         var $link = '@Html.Raw(Url.Action("RequestDropoffShopeePerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
@@ -103,6 +147,32 @@
             },
             success: function (response) {
                 //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+    
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+    
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintShopee__textarea__' + cust).show();
+                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+    
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintShopee__textarea__' + cust).show();
+                    $('#modalPrintShopee__textarea__' + cust).html('Gagal memproses dropoff. Mohon hubungi support.');
+                }
             },
             complete: function () {
                 $('#btnProsesDropoffShopee__' + cust).attr("disabled", false);
@@ -114,6 +184,14 @@
     }
 
     function ShopeeGetLabelPerPacking(cust) {
+        $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
+        $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintShopee__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
         var $link = '@Html.Raw(Url.Action("ShopeeLabelPerPacking", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
@@ -124,7 +202,7 @@
             success: function (response) {
 
                 if (response.mo_error != undefined) {
-                    alert(response.mo_error);
+                    $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
                 }
                 else {
                     var textareaValue = "";
@@ -161,7 +239,6 @@
                         textareaValue += errorValue;
                     }
                     $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
-                    $('#modalPrintShopee__' + cust).modal('show');
                 }
             },
             error: function (xhr, status, error) {
@@ -202,12 +279,12 @@
             {
                 <div id="shopee_tab_content__@(item.CUST)" class="tab-pane fade in shopee_packing_tab_content">
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                    <div class="modal fade" id="modalPrintShopee__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+                    <div class="modal fade" id="modalPrintShopee__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintShopee__label__@(item.CUST)">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Shopee</h4>
+                                    @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                                    <h4 class="modal-title" id="modalPrintShopee__label__@(item.CUST)">Print Pesanan Shopee</h4>
                                 </div>
                                 <div class="modal-body">
                                     <div class="row">
@@ -216,7 +293,7 @@
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                                    <button type="button" class="btn btn-danger" onclick="$('#modalPrintShopee__@(item.CUST)').modal('hide');">Tutup</button>
                                     @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                                 </div>
                             </div>

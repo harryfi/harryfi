@@ -22,6 +22,14 @@
     });
     function RequestPickupPackingTokped(cust) {
         $('#btnProsesTokped_' + cust).attr("disabled", true);
+        $('#modalPrintTokped__label__' + cust).html('Proses Pickup Pesanan Tokopedia');
+        $('#modalPrintTokped__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintTokped__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        
         var $link = '@Html.Raw(Url.Action("RequestPickupTokpedPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
         $link = $link.replace("replaceCust", encodeURIComponent(cust));
         $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
@@ -34,6 +42,32 @@
             },
             success: function (response) {
                 //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintTokped__textarea__' + cust).show();
+                    $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintTokped__textarea__' + cust).show();
+                    $('#modalPrintTokped__textarea__' + cust).html('Gagal memproses pickup. Mohon hubungi support.');
+                }
             },
             complete: function () {
                 $('#btnProsesTokped_' + cust).attr("disabled", false);
@@ -64,21 +98,21 @@
     {
         <div id="tokped_tab_content__@(item.CUST)" class="tab-pane fade in">
             <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-            <div class="modal fade" id="modalPrintTokped__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintLabel">
+            <div class="modal fade" id="modalPrintTokped__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintTokped__label__@(item.CUST)">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" id="modalPrintLabel">Print Pesanan Tokped</h4>
+                            @* <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button> *@
+                            <h4 class="modal-title" id="modalPrintTokped__label__@(item.CUST)">Print Pesanan Tokped</h4>
                         </div>
                         <div class="modal-body">
-                            <div class="row text-center">
-                                <input type="radio" name="printType" value="0" checked />Rekap per Barang<br />
-                                <input type="radio" name="printType" value="1" />Detail per Pesanan<br />
+                            <div class="row">
+                                <div class="col-md-12" id="modalPrintTokped__textarea__@(item.CUST)">
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                            <button type="button" class="btn btn-danger" onclick="$('#modalPrintTokped__@(item.CUST)').modal('hide');">Tutup</button>
                             @*<button type="button" class="btn btn-success" onclick="printRekap();">Print</button>*@
                         </div>
                     </div>

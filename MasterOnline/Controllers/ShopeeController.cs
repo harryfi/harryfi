@@ -2106,7 +2106,7 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
