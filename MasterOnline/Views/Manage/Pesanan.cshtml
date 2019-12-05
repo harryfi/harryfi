@@ -6907,7 +6907,8 @@
                 success: function(response) {
                     $('#modal-gudang-qty-body').html(response);
 
-                    $('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() {
+                    //$('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() {
+                    $('#modal-gudang-qty-body select[data-jenis="gudang"]').each(function () {
                         var $this = $(this);
                         var $recNum = $this.attr('data-recnum');
 
@@ -6947,40 +6948,90 @@
                         }
                         //end add by calvin 27 nov 2018
 
-                        $('#Gudang-Dropdown-' + $recNum).selectivity({
-                            allowClear: true,
-                            items: $listGudang,
-                            placeholder: 'Harap pilih'
-                        }).selectivity('value', $('#Gudang-' + $recNum).val()).change(function() {
-                            var $val = $(this).selectivity('value');
+                        //change by nurul 29/11/2019
+                        ////$('#Gudang-Dropdown-' + $recNum).selectivity({
+                        ////    allowClear: true,
+                        ////    items: $listGudang,
+                        ////    placeholder: 'Harap pilih'
+                        ////}).selectivity('value', $('#Gudang-' + $recNum).val()).change(function() {
+                        ////    var $val = $(this).selectivity('value');
 
+                        ////    //add by calvin 27 nov 2018, munculkan QOH, dan QSO
+                        ////    var getQOH_listQOHPerGD = listQOHPerGD;
+                        ////    getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function( n, i ) {
+                        ////        return n.BRG===$brg_sot01b && n.GD === $val;
+                        ////    });
+
+                        ////    var getQSO_ListQOOPerBRG= ListQOOPerBRG;
+                        ////    getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function( n, i ) {
+                        ////        return n.BRG===$brg_sot01b && n.GD === $val;
+                        ////    });
+
+                        ////    $('#Gudang-' + $recNum).val($val);
+                        ////    if (getQOH_listQOHPerGD[0] != undefined) {
+                        ////        $.each(getQOH_listQOHPerGD,
+                        ////        function(i, item) {
+                        ////            $('#Gudang-stok-' + $recNum).html(item.QOH);
+                        ////        });
+                        ////    }else {
+                        ////        $('#Gudang-stok-' + $recNum).html("");
+                        ////    }
+
+                        ////    if (getQSO_ListQOOPerBRG[0] != undefined) {
+                        ////        $.each(getQSO_ListQOOPerBRG,
+                        ////        function(i, item) {
+                        ////            $('#Gudang-pesanan-' + $recNum).html(item.QSO);
+                        ////        });
+                        ////    }else {
+                        ////        $('#Gudang-pesanan-' + $recNum).html("0");
+                        ////    }
+
+                        ////    var stok = convertToAngka($('#Gudang-stok-' + $recNum).html().trim())
+                        ////    var pesanan = convertToAngka($('#Gudang-pesanan-' + $recNum).html().trim())
+                        ////    $('#Gudang-sisa-' + $recNum).html(stok - pesanan);
+                        ////    //end add by calvin 27 nov 2018
+                        ////}).click(function() {
+                        ////    var $offsetTop = $this.offset().top;
+                        ////    $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
+                        ////}).change();
+
+                        var gdSelect = $('#Gudang-Dropdown-' + $recNum).selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: $listGudang,
+                            placeholder: 'Harap pilih'
+                        }).selectize('value', $('#Gudang-' + $recNum).val()).change(function (value) {
+                            //var $objSup = $.grep($listGudang, function (data) { return data.id == value });
+                            //$('#Gudang-Dropdown-' + $recNum).val(value).trigger('change');
+                            //var $val = $(this).selectivity('value');
+                            var $val = $(this).val();
                             //add by calvin 27 nov 2018, munculkan QOH, dan QSO
                             var getQOH_listQOHPerGD = listQOHPerGD;
-                            getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function( n, i ) {
-                                return n.BRG===$brg_sot01b && n.GD === $val;
+                            getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function (n, i) {
+                                return n.BRG === $brg_sot01b && n.GD === $val;
                             });
 
-                            var getQSO_ListQOOPerBRG= ListQOOPerBRG;
-                            getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function( n, i ) {
-                                return n.BRG===$brg_sot01b && n.GD === $val;
+                            var getQSO_ListQOOPerBRG = ListQOOPerBRG;
+                            getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function (n, i) {
+                                return n.BRG === $brg_sot01b && n.GD === $val;
                             });
 
                             $('#Gudang-' + $recNum).val($val);
                             if (getQOH_listQOHPerGD[0] != undefined) {
                                 $.each(getQOH_listQOHPerGD,
-                                function(i, item) {
-                                    $('#Gudang-stok-' + $recNum).html(item.QOH);
-                                });
-                            }else {
+                                    function (i, item) {
+                                        $('#Gudang-stok-' + $recNum).html(item.QOH);
+                                    });
+                            } else {
                                 $('#Gudang-stok-' + $recNum).html("");
                             }
 
                             if (getQSO_ListQOOPerBRG[0] != undefined) {
                                 $.each(getQSO_ListQOOPerBRG,
-                                function(i, item) {
-                                    $('#Gudang-pesanan-' + $recNum).html(item.QSO);
-                                });
-                            }else {
+                                    function (i, item) {
+                                        $('#Gudang-pesanan-' + $recNum).html(item.QSO);
+                                    });
+                            } else {
                                 $('#Gudang-pesanan-' + $recNum).html("0");
                             }
 
@@ -6988,15 +7039,20 @@
                             var pesanan = convertToAngka($('#Gudang-pesanan-' + $recNum).html().trim())
                             $('#Gudang-sisa-' + $recNum).html(stok - pesanan);
                             //end add by calvin 27 nov 2018
-                        }).click(function() {
+                        }).click(function () {
                             var $offsetTop = $this.offset().top;
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
-                        }).change();
-
+                        });
+                        //end change by nurul 29/11/2019
+                        
                         //add by nurul 13/3/2019
                         if (link == true && temp_listQOHPerGD.length > 0) {
-                            $('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                            //$('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                            //$this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                            //$('#Gudang-Dropdown-' + $recNum).change();
+                            gdSelect[0].selectize.setValue(gudang, true);                            
                             $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                            $('#Gudang-Dropdown-' + $recNum).change();
                         }
                         //end add by nurul 13/3/2019
 
