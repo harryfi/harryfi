@@ -114,7 +114,7 @@
                 //}
             <tr>
                 <td>@pesanan.NOSO</td>
-                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
                 @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                 <td>
                     @if (pesanan?.PERSO != "")
@@ -210,8 +210,18 @@
     $(function () {
         $('#tabelpesanannunggupartialpager').on('click', 'a', function () {
             if (this.href != "") {
+                //add by nurul 4/12/2019
+                var filterby = get_pesanan_dibayar_filterby();
+                var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+                var link = this.href;
+                link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                //end add by nurul 4/12/2019
+
                 $.ajax({
-                    url: this.href,
+                    //url: this.href,
+                    url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {

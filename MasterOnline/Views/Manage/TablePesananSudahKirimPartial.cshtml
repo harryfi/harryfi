@@ -119,7 +119,7 @@
                 <tr>
                     <td>@pesanan.NOSO</td>
                     <td>@(String.IsNullOrWhiteSpace(pesanan?.NO_FAKTUR) ? "---" : pesanan?.NO_FAKTUR)</td>
-                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
                     @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                     <td>
                         @if (pesanan.PERSO != "")
