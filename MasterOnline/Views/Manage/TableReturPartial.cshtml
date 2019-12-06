@@ -73,6 +73,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Terakhir Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -121,6 +122,7 @@
                             Belum
                         </td>
                     }
+                    <td>@(faktur.TGL_LASTEDIT?.ToString("dd/MM/yyyy"))</td>
                     <td class="edit-hapus-col">
                         @if (Convert.ToString(faktur.POSTING) == "Y")
                         {

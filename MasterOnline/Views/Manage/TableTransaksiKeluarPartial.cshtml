@@ -65,6 +65,7 @@
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Terakhir Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -89,6 +90,7 @@
                             Belum
                         </td>
                     }
+                    <td>@(stok.TglInput?.ToString("dd/MM/yyyy"))</td>
                     <td class="edit-hapus-col">
                         @if (Convert.ToString(stok.ST_Posting) == "Y")
                         {

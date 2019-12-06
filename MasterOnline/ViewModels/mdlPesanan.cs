@@ -54,6 +54,10 @@ namespace MasterOnline
         public string STATUS_FAKTUR { get; set; }
         public string FKT_RETUR { get; set; }
 
+        //ADD BY NURUL 27/11/2019
+        public DateTime? TGL_LASTEDIT { get; set; }
+        //END ADD BY NURUL 27/11/2019
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }
