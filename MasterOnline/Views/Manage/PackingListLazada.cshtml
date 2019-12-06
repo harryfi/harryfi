@@ -28,11 +28,93 @@
         	}
         });
     }
+    function RequestPackingLazada(cust) {
+        $('#modalPrintLazada__label__' + cust).html('Proses Ambil Resi Pesanan Lazada');
+        $('#btnProsesLazada__' + cust).attr("disabled", true);
+        
+        var $link = '@Url.Action("RequestPackedLazadaPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_lazada').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+        
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            DeliveryProvider : $('#txtShipment__' + cust).val(),
+            rows_selected : rows_selected
+        };
+        
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+                $('#loading_spinner').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+
+                if (response.mo_error != undefined) {
+                    alert(response.mo_error);
+                }
+                else {
+                    var textareaValue = "";
+
+                    var adaSuccess = false;
+                    var successValue = "";
+                    response.listSuccess.forEach(function (item) {
+                        adaSuccess = true;
+                        if (successValue != "") {
+                            successValue += ", ";
+                        }
+                        successValue += item.no_referensi;
+                    });
+                    if (adaSuccess) {
+                        textareaValue += "Pesanan berhasil update status :</br>";
+                        textareaValue += successValue + ". </br>";
+                    }
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + ". </br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Error Orders :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintLazada__textarea__' + cust).html(textareaValue);
+                    
+                    $('#modalPrintLazada__' + cust).modal({
+                        show: true,
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                }
+            },
+            complete: function () {
+                $('#loading_spinner').hide();
+                $('#btnProsesLazada__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
     function RequestPickupPackingLazada(cust) {
         $('#modalPrintLazada__label__' + cust).html('Proses ReadyToShip Pesanan Lazada');
         $('#btnProsesLazada__' + cust).attr("disabled", true);
         
-        var $link = '@Url.Action("RequestPickupLazadaPerPacking", "Manage")';
+        var $link = '@Url.Action("RequestRTSLazadaPerPacking", "Manage")';
 
         var rows_selected = [];
         $('.checkbox_packing_lazada').each( function() {
@@ -175,6 +257,15 @@
 
     function cekValidasiPackingLazada(cust) {
         if ($("#txtShipment__" + cust).val()) {
+            RequestPackingLazada(cust);
+        }
+        else {
+            alert("Delivery Provider harus dipilih terlebih dahulu.");
+        }
+    }
+    
+    function cekValidasiRTSLazada(cust) {
+        if ($("#txtShipment__" + cust).val()) {
             RequestPickupPackingLazada(cust);
         }
         else {
@@ -233,8 +324,6 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-md-1" style="text-align:right">
-                </div>
                 <div class="col-md-4" style="text-align:right">
                     <div class="input-group">
                         <input id="txtShipment__@(item.CUST)" disabled="disabled" placeholder="Delivery Provider" required="required" class="form-control" maxlength="30" data_val_length_max="30">
@@ -245,8 +334,9 @@
                         </span>
                     </div>
                 </div>
-                <div class="col-md-2" style="text-align:right">
-                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasiPackingLazada('@(item.CUST)')">Ready To Ship</button>
+                <div class="col-md-3" style="text-align:right">
+                    <button id="btnProsesPackingLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasiPackingLazada('@(item.CUST)')">Ambil Resi</button>
+                    <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="cekValidasiRTSLazada('@(item.CUST)')">Ready To Ship</button>
                 </div>
                 <div class="col-md-1" style="text-align:right">
                     @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>*@

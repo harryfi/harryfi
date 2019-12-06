@@ -1517,12 +1517,12 @@ namespace MasterOnline.Controllers
                     {
                         order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
                         ErasoftDbContext.SaveChanges();
-
-
-                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
-                        var jobClient = new BackgroundJobClient(sqlStorage);
-                        jobClient.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, order.NAMAPEMESAN, order.CUST, "Pesanan", "Ganti Status", uname, orderItemId, order.SHIPMENT, order.TRACKING_SHIPMENT, accessToken));
+//
+//
+//                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+//                        var jobClient = new BackgroundJobClient(sqlStorage);
+//                        jobClient.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, order.NAMAPEMESAN, order.CUST, "Pesanan", "Ganti Status", uname, orderItemId, order.SHIPMENT, order.TRACKING_SHIPMENT, accessToken));
                     }
                 }
             }
@@ -1593,7 +1593,7 @@ namespace MasterOnline.Controllers
                 var orderid = orderItemId[0];
                 var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
 
-                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
             }
             else
@@ -1601,7 +1601,7 @@ namespace MasterOnline.Controllers
                 var orderid = orderItemId[0];
                 var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
 
-                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
                 throw new Exception(ret.message);
                 //currentLog.REQUEST_EXCEPTION = ret.message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
