@@ -2356,7 +2356,7 @@ namespace MasterOnline.Controllers
             var getSudahBayar = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='01' ").Single();
             var JumlahSudahBayar = getSudahBayar.COUNT_TRANSAKSI;
             var NilaiSudahBayar = getSudahBayar.bruto;
-            var getSiapKirim = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='03' and status_kirim ='03'").Single();
+            var getSiapKirim = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='03' and status_kirim ='2'").Single();
             var JumlahSiapkirim = getSiapKirim.COUNT_TRANSAKSI;
             var NilaiSiapkirim = getSiapKirim.bruto;
             var getBatal = ErasoftDbContext.Database.SqlQuery<sumPesanan>("select COUNT(RECNUM) AS COUNT_TRANSAKSI, isnull(sum(isnull(BRUTO,0)),0) as bruto  from sot01a(nolock) where status_transaksi='11' ").Single();
