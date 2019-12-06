@@ -2841,6 +2841,7 @@
                 <div class="right">
                     <button type="button" class="btn btn-danger " onclick="$('#modalUbahStatusMultiPacking').modal('hide');" id="modalUbahStatusMultiPacking_btn_tidak">Tidak</button>
                     <button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking(0);">Ya</button>
+                    <button type="button" class="btn btn-danger" style="display:none" id="modalUbahStatusMultiPacking_btn_notapprove" onclick="UbahStatusPesananPacking(2);">Tidak</button>
                     <button type="button" class="btn btn-success" style="display:none" id="modalUbahStatusMultiPacking_btn_approve" onclick="UbahStatusPesananPacking(1);">Lanjut</button>
                     <button type="button" class="btn btn-success" style="display:none" id="modalUbahStatusMultiPacking_btn_lanjut" onclick="OpenPackingTransaction();">Lanjut</button>
                 </div>
@@ -6181,56 +6182,79 @@
                     $('#modalUbahStatusMultiPacking_body').animate({ scrollTop: 0 }, 'slow');
 
                     if (response.error_packing_list == false) {
-                        var textareaValue = "";
-                        if(response.need_approval == 1){
-                            textareaValue += "Jumlah pesanan bisa dilakukan update status : "+ response.successCount +"</br>";
-                            textareaValue += "Namun terdapat pesanan yang tidak bisa diproses, lanjutkan ? "+ response.successCount +"</br>";
-                        }
-                        else{
-                            textareaValue += "Jumlah pesanan berhasil dilakukan update status : "+ response.successCount +"</br>";
-                        }
-
-                        var adaError = false;
-                        var errorValue = "";
-                        response.listError.forEach(function (item) {
-                            adaError = true;
-                            errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
-                        });
-                        if (adaError) {
-                            textareaValue += "</br>";
-                            if(response.need_approval == 1){
-                                textareaValue += "Pesanan yang tidak bisa diproses :</br>";
-                            }
-                            else{
-                                textareaValue += "Pesanan gagal update status :</br>";
-                            }
-                            textareaValue += errorValue;
-                        }
-                        $('#modalUbahStatusMultiPacking_error').show();
-                        $('#modalUbahStatusMultiPacking_error').html(textareaValue);
-
-                        if(response.need_approval == 1){
+                        if(response.need_approval == 2){
+                            var textareaValue = "Update status pesanan dibatalkan.";
+                            $('#modalUbahStatusMultiPacking_error').show();
+                            $('#modalUbahStatusMultiPacking_error').html(textareaValue);
+                            
+                            $('#modalUbahStatusMultiPacking_header').hide();
                             $('#modalUbahStatusMultiPacking_btn_tidak').show();
                             $('#modalUbahStatusMultiPacking_btn_ya').hide();
-                            $('#modalUbahStatusMultiPacking_btn_approve').show();
+                            $('#modalUbahStatusMultiPacking_btn_approve').hide();
+                            $('#modalUbahStatusMultiPacking_btn_notapprove').hide();
+                            
+                            $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
+                            
+                            $('#modalUbahStatusMultiPacking_btn_tidak').html('Close');
                         }
                         else{
-                            if(response.successCount > 0){
-                                refreshTableSiapKirim();
-                                refreshTablePesanan();
-                                refreshTableSudahKirim();
-                                refreshTableSudahDibayar();
-                                $('#packing_div').hide();
-                                $('#modalUbahStatusMultiPacking_header').hide();
+                            var textareaValue = "";
+                            
+                            if(response.need_approval == 1){
+                                textareaValue += "Jumlah pesanan bisa dilakukan update status : "+ response.successCount +"</br>";
+                                textareaValue += "Jumlah pesanan yang tidak bisa diproses : "+ response.listError.length +"</br>";
+                                textareaValue += "Tetap lanjutkan pembuatan faktur dan packing list ?</br>";
+                            }
+                            else{
+                                textareaValue += "Jumlah pesanan berhasil dilakukan update status : "+ response.successCount +"</br>";
+                            }
+    
+                            var adaError = false;
+                            var errorValue = "";
+                            response.listError.forEach(function (item) {
+                                adaError = true;
+                                errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
+                            });
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                if(response.need_approval == 1){
+                                    textareaValue += "Pesanan yang tidak bisa diproses :</br>";
+                                }
+                                else{
+                                    textareaValue += "Pesanan gagal update status :</br>";
+                                }
+                                textareaValue += errorValue;
+                            }
+                            $('#modalUbahStatusMultiPacking_error').show();
+                            $('#modalUbahStatusMultiPacking_error').html(textareaValue);
+    
+                            if(response.need_approval == 1){
                                 $('#modalUbahStatusMultiPacking_btn_tidak').hide();
                                 $('#modalUbahStatusMultiPacking_btn_ya').hide();
-                                $('#modalUbahStatusMultiPacking_btn_approve').hide();
-                                $('#modalUbahStatusMultiPacking_btn_lanjut').show();
-                                $('#modalUbahStatusMultiPacking_packingNo').val(response.packingNo);
-                                $('#packingList_NO_BUKTI').val(response.packingNo);
-                                $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ' + response.packingNo);
+                                $('#modalUbahStatusMultiPacking_btn_approve').show();
+                                $('#modalUbahStatusMultiPacking_btn_notapprove').show();
+                            }
+                            else{
+                                if(response.successCount > 0){
+                                    refreshTableSiapKirim();
+                                    refreshTablePesanan();
+                                    refreshTableSudahKirim();
+                                    refreshTableSudahDibayar();
+                                    $('#packing_div').hide();
+                                    $('#modalUbahStatusMultiPacking_header').hide();
+                                    $('#modalUbahStatusMultiPacking_btn_tidak').hide();
+                                    $('#modalUbahStatusMultiPacking_btn_ya').hide();
+                                    $('#modalUbahStatusMultiPacking_btn_approve').hide();
+                                    $('#modalUbahStatusMultiPacking_btn_notapprove').hide();
+
+                                    $('#modalUbahStatusMultiPacking_btn_lanjut').show();
+                                    $('#modalUbahStatusMultiPacking_packingNo').val(response.packingNo);
+                                    $('#packingList_NO_BUKTI').val(response.packingNo);
+                                    $('#modalPackingPengiriman_packingTitle').html('Nomor Bukti Packing List : ' + response.packingNo);
+                                }
                             }
                         }
+                        
                     } else {
                         $('#modalUbahStatusMultiPacking_error').show();
                         $('#modalUbahStatusMultiPacking_error').html('Gagal memproses packing. Mohon hubungi support.');
@@ -8340,8 +8364,12 @@
             $('#packing_div').show();
             $('#modalUbahStatusMultiPacking_header').show();
             $('#modalUbahStatusMultiPacking_btn_tidak').show();
+            $('#modalUbahStatusMultiPacking_btn_tidak').html('Tidak');
+
             $('#modalUbahStatusMultiPacking_btn_ya').show();
             $('#modalUbahStatusMultiPacking_btn_approve').hide();
+            $('#modalUbahStatusMultiPacking_btn_notapprove').hide();
+
             $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
             $('#modalUbahStatusMultiPacking_packingNo').val('');
             $('#packingList_NO_BUKTI').val('');
@@ -8651,8 +8679,12 @@
                 $('#packing_div').show();
                 $('#modalUbahStatusMultiPacking_header').show();
                 $('#modalUbahStatusMultiPacking_btn_tidak').show();
+                $('#modalUbahStatusMultiPacking_btn_tidak').html('Tidak');
+
                 $('#modalUbahStatusMultiPacking_btn_ya').show();
                 $('#modalUbahStatusMultiPacking_btn_approve').hide();
+                $('#modalUbahStatusMultiPacking_btn_notapprove').hide();
+
                 $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
                 $('#modalUbahStatusMultiPacking_packingNo').val('');
                 $('#packingList_NO_BUKTI').val('');

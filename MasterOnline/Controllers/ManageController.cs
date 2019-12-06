@@ -37080,6 +37080,7 @@ namespace MasterOnline.Controllers
 
             try
             {
+                
                 var default_gudang = "";
                 using (var context = new ErasoftContext(dbPathEra))
                 {
@@ -37105,6 +37106,13 @@ namespace MasterOnline.Controllers
                         stringListRecnum += "'" + get_selected[i].Trim() + "'";
                     }
                 }
+                
+                if(approved == 2){
+                    //undo alokasi stok pesanan, HANYA UNTUK YG LOKASI = DEFAULT GUDANG
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE B SET LOKASI = '', QTY_N = 0 FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.LOKASI = '" + default_gudang + "' AND A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '02'");
+                    return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 2 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                
                 var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
@@ -37131,7 +37139,7 @@ namespace MasterOnline.Controllers
 
                                 EDB.ExecuteSQL("sConn", CommandType.Text, doUpdateSOB + stringUpdateSOB);
 
-                                listSuccessRecnum.Add(Convert.ToInt32(SOA_RECNUM));
+                                listSuccessRecnum.Add(Convert.ToInt32(lastNobukRecnum));
                                 listSuccess.Add(lastNobuk);
                             }
 
@@ -37178,12 +37186,9 @@ namespace MasterOnline.Controllers
                         listSuccess.Add(lastNobuk);
                     }
                 }
+                
                 successCount = listSuccess.Count();
-                if(approved == 2){
-                    //undo alokasi stok pesanan, HANYA UNTUK YG LOKASI = DEFAULT GUDANG
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE B SET LOKASI = '', QTY_N = 0 FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.LOKASI = '" + default_gudang + "' AND A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '02'");
-                }
-                else if (listError.Count() > 0 && approved == 0){
+                if (listError.Count() > 0 && approved == 0){
                     if (successCount > 0)
                     {
                         return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount, need_approval = 1 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -37562,7 +37567,8 @@ namespace MasterOnline.Controllers
                                 context.SOT03B.AddRange(newpackingdetail);
                                 context.SOT03C.AddRange(newpackingbrgdetail);
                                 context.SaveChanges();
-                                transaction.Commit();      
+                                transaction.Commit();
+                                packingNo = newPackinglist.NO_BUKTI;
                             }
                             catch (Exception ex)
                             {
