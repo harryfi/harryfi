@@ -1907,17 +1907,6 @@ namespace MasterOnline.Controllers
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
-            string myData = "{";
-            myData += "\"type\": 1, ";
-            myData += "\"awbNo\": \"" + awbNo + "\", ";
-            myData += "\"orderNo\": \"" + orderNo + "\", ";
-            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
-            myData += "\"combineShipping\":[{";
-            myData += "\"orderNo\": \"" + orderNo + "\", ";
-            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
-            myData += "}] ";
-            myData += "}";
-
             List<fillOrderAWBCombineShipping> combineShipping = new List<fillOrderAWBCombineShipping>();
             combineShipping.Add(new fillOrderAWBCombineShipping
             {
@@ -1932,8 +1921,8 @@ namespace MasterOnline.Controllers
             thisData.orderNo = orderNo;
             thisData.orderItemNo = orderItemNo;
             thisData.combineShipping = combineShipping;
-
-            myData = JsonConvert.SerializeObject(thisData);
+            
+            string myData = JsonConvert.SerializeObject(thisData);
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -1985,15 +1974,17 @@ namespace MasterOnline.Controllers
             //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             //}
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '"+ log_CUST +"' AND NO_REFERENSI = '"+ orderNo +"'");
                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '1' WHERE CUST = '"+ log_CUST +"' AND NO_REFERENSI = '"+ orderNo +"'");
                     throw new Exception(result.errorMessage.Value);
                     //currentLog.REQUEST_RESULT = result.errorCode.Value;
                     //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;

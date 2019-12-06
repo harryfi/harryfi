@@ -8125,9 +8125,16 @@
         }
         //end add by Tri 10/9/2019, proses packing list
 
+        
         //add by calvin 28 november 2019
-        function lihatPackingList(a,b,c){
+        function lihatPackingList(packingno){
+            var expires = "";
+            var date = new Date();
+            date.setTime(date.getTime() + (1*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+            document.cookie = "viewpackinglist" + "=" + packingno  + expires + "; path=/;";
             
+            window.open(window.location.origin + '/manage/Packinglist', '_blank');
         }
         function getCurrentPackingTabIndex(){
             return $('#detail-packinglist-tabs li.active').index();

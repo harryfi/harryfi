@@ -35042,7 +35042,7 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+            sSQLSelect += "SELECT A.CUST,A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item, isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no, A.recnum as so_recnum ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
@@ -35072,7 +35072,7 @@ namespace MasterOnline.Controllers
             return PartialView(viewName, pageOrders);
         }
 
-        public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti)
+        public ActionResult RequestPickupTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
@@ -35082,13 +35082,35 @@ namespace MasterOnline.Controllers
                 //{
                 //    cust += item + "','";
                 //}
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
 
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35155,16 +35177,39 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
-        public ActionResult RequestPickupLazadaPerPacking(string cust, string bukti, string DeliveryProvider)
+        public ActionResult RequestPickupLazadaPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected)
         {
             try
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
@@ -35173,7 +35218,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35232,17 +35277,40 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        public ActionResult LazadaLabelPerPacking(string cust, string bukti)
+        public ActionResult LazadaLabelPerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = "Mohon pilih pesanan yang mau diproses.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = "Mohon pilih pesanan yang mau diproses.", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35322,21 +35390,45 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = "Error", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = "Gagal memproses pesanan. Mohon hubungi support", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
         }
 
-        public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat)
+        public async Task<ActionResult> RequestPickupShopeePerPacking(string cust, string bukti, string alamat, List<string> rows_selected)
         {
             try
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
+                
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35460,20 +35552,44 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
-        public async Task<ActionResult> RequestDropoffShopeePerPacking(string cust, string bukti)
+        public async Task<ActionResult> RequestDropoffShopeePerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
+                
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND ISNULL(A.TRACKING_SHIPMENT,'') = '' AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35606,7 +35722,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
@@ -35705,17 +35821,40 @@ namespace MasterOnline.Controllers
             return shipment;
         }
 
-        public async Task<ActionResult> ShopeeLabelPerPacking(string cust, string bukti)
+        public async Task<ActionResult> ShopeeLabelPerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
                     string sSQLSelect = "";
                     sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                     string sSQL2 = "";
-                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                     string sSQLSelect2 = "";
                     sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35750,22 +35889,44 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
-                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti) {
+        public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti, List<string> rows_selected) {
             try
             {
                 var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
                     if (tblCustomer.STATUS_API == "1") {
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35797,7 +35958,7 @@ namespace MasterOnline.Controllers
                                 orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
                             }
                             if (orderItemIds.Count > 0) {
-                                var success = false;
+                                var success = true;
                                 try
                                 {
                                     var bookingAWB = await bliJob.createPackage(dbPathEra, iden, orderItemIds);
@@ -35805,13 +35966,13 @@ namespace MasterOnline.Controllers
                                     {
                                         var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
                                         if (updated < 1) {
-                                            success = true;
+                                            success = false;
                                         }
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    
+
                                 }
 
                                 if(!success)
@@ -35846,7 +36007,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         public class PackingListErrors {
@@ -35858,11 +36019,35 @@ namespace MasterOnline.Controllers
             public string orderItemId { get; set; }
             public string pdf64 { get; set; }
         }
-        public async Task<ActionResult> BlibliLabelPerPacking(string cust, string bukti) {
+        public async Task<ActionResult> BlibliLabelPerPacking(string cust, string bukti, List<string> rows_selected) 
+        {
             try
             {
                 var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+                
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
                     if (tblCustomer.STATUS_API == "1")
@@ -35870,7 +36055,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35952,10 +36137,142 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
 
-                return new JsonResult { Data = new { mo_error = "Error" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
+        public async Task<ActionResult> BlibliBatchFulfill(string cust, string bukti, List<string> rows_selected) 
+        {
+            try
+            {
+                var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
+                var EDB = new DatabaseSQL(dbPathEra);
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
 
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
+                {
+                    if (tblCustomer.STATUS_API == "1") {
+                        string sSQLSelect = "";
+                        sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
+                        string sSQL2 = "";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+
+                        string sSQLSelect2 = "";
+                        sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                        var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                        BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = usernameLogin
+                        };
+                        
+                        var bliJob = new BlibliControllerJob();
+                        var listErrors = new List<PackingListErrors>();
+                        
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        foreach (var so in ListStt01a)
+                        {
+                            if (!string.IsNullOrWhiteSpace(so.no_referensi))
+                            {
+                                var orderItemIds = new List<string>();
+                                var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
+                                var success = false;
+                                try
+                                {
+                                    for (int i = 0; i < dsSOT01B.Tables[0].Rows.Count; i++)
+                                    {
+                                        string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]);
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+                                    }
+
+                                    success = true;
+                                }
+                                catch (Exception ex)
+                                {
+    
+                                }
+                                
+                                if (orderItemIds.Count > 0) 
+                                {
+                                    if(!success)
+                                    {
+                                        if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                        {
+                                            listErrors.Add(new PackingListErrors
+                                            {
+                                                keyname = so.no_referensi,
+                                                errorMessage = "Pesanan gagal diproses."
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = so.no_referensi,
+                                            errorMessage = "Pesanan tidak memiliki barang."
+                                        });
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = so.no_referensi,
+                                        errorMessage = "Pesanan tidak memiliki nomor referensi."
+                                    });
+                                }
+                            }
+                        }
+                        return new JsonResult { Data = new { listErrors }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                    return new JsonResult { Data = new { mo_error = "Status Link Ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+                return new JsonResult { Data = new { mo_error = "Status Link Ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {

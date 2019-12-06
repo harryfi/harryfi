@@ -19,13 +19,17 @@
                 $('#li_pesanan_blibli_tab_focus').hide();
             }
         }
-        $('.btn_modal_hide').off('click').on('click', function () {
-            $(this).modal('hide');
-        });
     });
-    function RequestDropoffPackingBlibli(cust) {
-        $('#btnProsesDropoffBlibli__' + cust).attr("disabled", true);
-        $('#modalPrintBlibli__label__' + cust).html('Proses Dropoff Pesanan Blibli');
+    function allcheckboxpackingbliblionclick(cust){
+        $('.checkbox_packing_blibli').each( function() {
+        	if($(this).attr("data-cust") == cust){
+        	    $(this).prop('checked', $('#all_checkbox_packing_blibli').prop('checked'));
+        	}
+        });
+    }
+    function RequestResiPackingBlibli(cust) {
+        $('#btnProsesGetResi__' + cust).attr("disabled", true);
+        $('#modalPrintBlibli__label__' + cust).html('Proses Packing Pesanan Blibli');
         $('#modalPrintBlibli__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
         $('#modalPrintBlibli__' + cust).modal({
             show: true,
@@ -33,18 +37,32 @@
             keyboard: false
         });
         
-        var $link = '@Html.Raw(Url.Action("BlibliCreatePackage", "Manage", new { cust = "replaceCust",bukti = "replaceBuktiPacking" }))';
-        $link = $link.replace("replaceCust", encodeURIComponent(cust));
-        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        var rows_selected = [];
+        $('.checkbox_packing_blibli').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+        
+        var $link = '@Url.Action("BlibliCreatePackage", "Manage")';
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected : rows_selected
+        };
+
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
             complete: function () {
-                $('#btnProsesDropoffBlibli__' + cust).attr("disabled", false);
+                $('#btnProsesGetResi__' + cust).attr("disabled", false);
             },
             success: function (response) {
                 if (response.mo_error != undefined) {
-                    // alert(response.mo_error);
                     $('#modalPrintBlibli__textarea__' + cust).html(response.mo_error);
                 }
                 else {
@@ -52,17 +70,6 @@
 
                     var adaUrl = false;
                     var urlValue = "";
-                    //var countUrl = 0;
-                    //response.listSuccess.forEach(function (item) {
-                    //    adaUrl = true;
-                    //    countUrl++;
-                    //    var buttonHtml = "<a class='btn btn-success' download='MO_Blibli_Shipping_" + item.no_referensi + '_' + item.orderItemId + ".pdf' target='_blank' href='data:application/octet-stream;base64," + item.pdf64 + "'>Download PDF File</a></br>";
-                    //    urlValue += buttonHtml;
-                    //});
-                    //if (adaUrl) {
-                    //    textareaValue += "Shipping Label PDF :</br>";
-                    //    textareaValue += urlValue;
-                    //}
 
                     var adaError = false;
                     var errorValue = "";
@@ -76,7 +83,73 @@
                         textareaValue += errorValue;
                     }
                     else {
-                        textareaValue = "All order success packing.";
+                        textareaValue = "Semua pesanan sukses diproses packing.";
+                    }
+                    $('#modalPrintBlibli__textarea__' + cust).html(textareaValue);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+    function RequestDropoffPackingBlibli(cust) {
+        $('#btnProsesDropoffBlibli__' + cust).attr("disabled", true);
+        $('#modalPrintBlibli__label__' + cust).html('Proses Dropoff Pesanan Blibli');
+        $('#modalPrintBlibli__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintBlibli__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+        
+        var rows_selected = [];
+        $('.checkbox_packing_blibli').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+        
+        var $link = '@Url.Action("BlibliBatchFulfill", "Manage")';
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected : rows_selected
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            complete: function () {
+                $('#btnProsesDropoffBlibli__' + cust).attr("disabled", false);
+            },
+            success: function (response) {
+                if (response.mo_error != undefined) {
+                    $('#modalPrintBlibli__textarea__' + cust).html(response.mo_error);
+                }
+                else {
+                    var textareaValue = "";
+
+                    var adaUrl = false;
+                    var urlValue = "";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.errorMessage + ". </br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Errors :</br>";
+                        textareaValue += errorValue;
+                    }
+                    else {
+                        textareaValue = "Semua Pesanan sukses diproses kirim.";
                     }
                     $('#modalPrintBlibli__textarea__' + cust).html(textareaValue);
                 }
@@ -195,30 +268,21 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-                                <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvBlibli('@(item.CUST)')">
-                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                </button>*@
-                            @*<div class="form-group">
-                                <div id="blibli-resi-pickup-address-@(item.CUST)">
-                                    <select id="select-blibli-resi-pickup-address-@(item.CUST)" class="selectBlibliResiPickupAddress" data-kodecust="@(item.CUST)" placeholder="Pickup Address" required="required"></select>
-                                </div>
-                            </div>*@
-                            @*<button id="btnPrintBlibli__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintBlibli">Print</button>*@
-                        </div>
-                        <div class="col-md-4" style="text-align:right">
-                            @*<button id="btnProsesPickupBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingBlibli('@(item.CUST)')">Request Pickup</button>*@
-                            <button id="btnProsesDropoffBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">Drop Off</button>
+                        <div class="col-md-8" style="text-align:right">
+                            <button id="btnProsesGetResi__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestResiPackingBlibli('@(item.CUST)')">Ambil Resi</button>
                             <button id="btnPrintBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="BlibliGetLabelPerPacking('@(item.CUST)')">Print</button>
+                            <button id="btnProsesDropoffBlibli__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingBlibli('@(item.CUST)')">Proses Kirim</button>
                         </div>
                     </div>
                     <div class="hscroll table-responsive">
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
                                 <tr role="row">
+                                    <th class="sorting text-center center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; align-self:flex-start"><input type="checkbox" onclick="allcheckboxpackingbliblionclick('@item.CUST');" class="dt-checkboxes-select-all center" id="all_checkbox_packing_blibli" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
                                     <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">No. Pesanan</th>
                                     <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">No Referensi</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">No. Resi</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Status Kirim</th>
                                     <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">Nama Pemesan</th>
                                     <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">Kurir</th>
                                     @*<th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">Jumlah</th>*@
@@ -227,9 +291,31 @@
                             <tbody>
                                 @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
                                 {
+                                    var status_kirim = "Dalam Proses";
+                                    
+                                    switch (order.status_kirim)
+                                    {
+                                        case "0":
+                                            status_kirim = "Dalam Proses";
+                                            break;
+                                        case "1":
+                                            status_kirim = "Gagal Proses";
+                                            break;
+                                        case "2":
+                                            status_kirim = "Siap Kirim";
+                                            break;
+                                        default:
+                                            status_kirim = "";
+                                            break;
+                                    }
                                     <tr>
+                                        <td style="text-align:center">
+                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_blibli" data-cust="@order.CUST" data-recnum="@order.so_recnum" style="align-self:flex-start; width:30px; height:28px;" />
+                                        </td>
                                         <td>@order.no_bukti</td>
                                         <td>@order.no_referensi</td>
+                                        <td>@order.tracking_no</td>
+                                        <td>@status_kirim</td>
                                         <td>@order.nama_pemesan</td>
                                         <td>@order.kurir</td>
                                         @*<td>@order.jumlah_item</td>*@
