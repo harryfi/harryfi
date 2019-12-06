@@ -7642,13 +7642,18 @@
                         //end change by nurul 29/11/2019
                         
                         //add by nurul 13/3/2019
-                        if (link == true && temp_listQOHPerGD.length > 0) {
-                            //$('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
-                            //$this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
-                            //$('#Gudang-Dropdown-' + $recNum).change();
-                            gdSelect[0].selectize.setValue(gudang, true);                            
-                            $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                        if ($('#Gudang-' + $recNum).val() != null || $('#Gudang-' + $recNum).val() != "") {
+                            gdSelect[0].selectize.setValue($('#Gudang-' + $recNum).val(), true);
                             $('#Gudang-Dropdown-' + $recNum).change();
+                        } else {
+                            if (link == true && temp_listQOHPerGD.length > 0) {
+                                //$('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                                //$this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                                //$('#Gudang-Dropdown-' + $recNum).change();
+                                gdSelect[0].selectize.setValue(gudang, true);
+                                $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                                $('#Gudang-Dropdown-' + $recNum).change();
+                            }
                         }
                         //end add by nurul 13/3/2019
 
@@ -7691,9 +7696,9 @@
             var ret = 0;
             var jmlgd = 0;
 
-            $('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() { jmlgd++; });
+            $('#modal-gudang-qty-body select[data-jenis="gudang"]').each(function() { jmlgd++; });
 
-            $('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() {
+            $('#modal-gudang-qty-body select[data-jenis="gudang"]').each(function () {
                 var $this = $(this);
                 var $recNum = $this.attr('data-recnum');
 
