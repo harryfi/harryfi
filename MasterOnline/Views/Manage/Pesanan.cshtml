@@ -1370,6 +1370,122 @@
         </div>
     </div>*@
 <!-- /top tiles -->
+@*//add by nurul 2/12/2019*@
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h3>Belum Bayar</h3>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @*<div class="label_waktu">
+                    <span class="label label-success date_label">Hari Ini</span>
+                </div>*@
+                <div>
+                    <h3 class="no-margins">
+                        @(Model?.JumlahPesananBelumBayar ?? 0)
+                    </h3>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <br />
+                <div>
+                    <h4 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBelumBayar ?? 0)
+                    </h4>
+                    <small>Nilai Pesanan</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h3>Sudah Bayar</h3>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @*<div class="label_waktu">
+            <span class="label label-success date_label">Hari Ini</span>
+        </div>*@
+                <div>
+                    <h3 class="no-margins">
+                        @(Model?.JumlahPesananSudahBayar ?? 0)
+                    </h3>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <br />
+                <div>
+                    <h4 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSudahBayar ?? 0)
+                    </h4>
+                    <small>Nilai Pesanan</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h3>Siap Kirim</h3>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @*<div class="label_waktu">
+            <span class="label label-success date_label">Hari Ini</span>
+        </div>*@
+                <div>
+                    <h3 class="no-margins">
+                        @(Model?.JumlahPesananSiapKirim ?? 0)
+                    </h3>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <br />
+                <div>
+                    <h4 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananSiapKirim ?? 0)
+                    </h4>
+                    <small>Nilai Pesanan</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-3 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h3>Batal</h3>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @*<div class="label_waktu">
+            <span class="label label-success date_label">Hari Ini</span>
+        </div>*@
+                <div>
+                    <h3 class="no-margins">
+                        @(Model?.JumlahPesananBatal ?? 0)
+                    </h3>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <br />
+                <div>
+                    <h4 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBatal ?? 0)
+                    </h4>
+                    <small>Nilai Pesanan</small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@*//end add by nurul 2/12/2019*@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
@@ -1378,7 +1494,7 @@
                     <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Dibayar</a>
+                    <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Bayar</a>
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
@@ -2918,13 +3034,13 @@
             <br />
             <div class="modal-footer">
                 <div class="left row">
-                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;"/><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
+                    <input id="ckPackinglist" class="dt-checkboxes center" checked type="checkbox" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /><h4 style="display:inline-block;vertical-align:top;">Buat Packing List</h4>
                 </div>
                 <div class="right">
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                     <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -5724,14 +5840,14 @@
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
-                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
                                 $beforeState.brutto = $('#Pesanan_BRUTO').val();
                                 $beforeState.netto = $('#Pesanan_NETTO').val();
                                 $beforeState.ndisc = $('#Pesanan_NILAI_DISC').val();
                                 $beforeState.ppn = $('#Pesanan_PPN').val();
                                 $beforeState.nppn = $('#Pesanan_NILAI_PPN').val();
                                 $beforeState.ongkir = $('#Pesanan_ONGKOS_KIRIM').val();
-                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0 
+                                //END ADD BY NURUL 11/9/2019, BIAR KALO UDH ISI ONGKIR, TRUS PILIH BARANG GA KE-SET JADI 0
 
                                 if ($('#Pesanan_RecNum').val() == null) {
                                     $('#Pesanan_NETTO').val(convertToRupiah(0));
