@@ -29005,7 +29005,8 @@ namespace MasterOnline.Controllers
                     }
                 }
 
-                var tempBrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == data.TempBrg.BRG_MP).FirstOrDefault();
+                //var tempBrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == data.TempBrg.BRG_MP).FirstOrDefault();
+                var tempBrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == data.TempBrg.BRG_MP && t.CUST == data.TempBrg.CUST).FirstOrDefault();
                 var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
                 if (tempBrginDB != null)
                 {
@@ -30109,7 +30110,10 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Barang tidak ditemukan");
             }
 
-            ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(data.TempBrg.BRG_MP)).Delete();
+            //change by Tri 6 Des 2019, hapus sesuai cust
+            //ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(data.TempBrg.BRG_MP)).Delete();
+            ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(data.TempBrg.BRG_MP) && t.CUST == data.TempBrg.CUST).Delete();
+            //end change by Tri 6 Des 2019, hapus sesuai cust
             ErasoftDbContext.SaveChanges();
 
             return Json("", JsonRequestBehavior.AllowGet);
@@ -30304,6 +30308,9 @@ namespace MasterOnline.Controllers
 
                     //brgMp.BRG = tempBrg.BRG_MP;
                     brgMp.BRG = kdBrgMO;
+                    //add by Tri 6 Des 2019
+                    brgMp.BRG_MP = tempBrg.BRG_MP;
+                    //end add by Tri 6 Des 2019
                     brgMp.HJUAL = tempBrg.HJUAL;
                     brgMp.DISPLAY = tempBrg.DISPLAY;
                     brgMp.CATEGORY_CODE = tempBrg.CATEGORY_CODE;
@@ -30495,7 +30502,10 @@ namespace MasterOnline.Controllers
                     eraDB.SaveChanges();
 
                     //delete brg induk di temp
-                    eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
+                    //change by Tri 6 Des 2019, hapus sesuai cust
+                    //eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
+                    eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP && b.CUST == tempBrg.CUST).Delete();
+                    //end change by Tri 6 Des 2019, hapus sesuai cust
                     //remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
                     //if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
                     //end remark 21 Nov 2019, barang induk bisa memiliki seller sku dan user menggunakan seller sku sbg kode barang MO
@@ -31680,7 +31690,10 @@ namespace MasterOnline.Controllers
                             foreach (var brg_mp in listBrgSuccess)
                             {
                                 //eraDB.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
-                                eraDB.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp).Delete();
+                                //change by Tri 6 Des 2019, hapus sesuai cust
+                                //eraDB.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp).Delete();
+                                eraDB.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp && t.CUST == cust).Delete();
+                                //end change by Tri 6 Des 2019, hapus sesuai cust
 
                             }
                             eraDB.SaveChanges();
@@ -33217,7 +33230,10 @@ namespace MasterOnline.Controllers
             {
                 foreach (var brg_mp in listBrgSuccess)
                 {
-                    ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp).Delete();
+                    //change by Tri 6 Des 2019, hapus sesuai cust
+                    //ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp).Delete();
+                    ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp && t.CUST == cust).Delete();
+                    //end change by Tri 6 Des 2019, hapus sesuai cust
                 }
                 ErasoftDbContext.SaveChanges();
             }
