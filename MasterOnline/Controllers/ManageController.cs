@@ -16847,12 +16847,12 @@ namespace MasterOnline.Controllers
             ViewData["LastPage"] = page;
             //ADD BY NURUL 27/9/2019
             bool searchStatus = false;
-            if (search.ToUpper() == "PESANAN BARU")
+            if (search.ToUpper() == "BELUM BAYAR")
             {
                 search = "0";
                 searchStatus = true;
             }
-            else if (search.ToUpper() == "SUDAH DIBAYAR")
+            else if (search.ToUpper() == "SUDAH BAYAR")
             {
                 search = "01";
                 searchStatus = true;
