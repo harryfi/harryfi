@@ -1437,7 +1437,38 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                    </div>
+                    <div class="row pesanan_table_section">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-sm-12"></div>
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-8 col-sm-6">*@
                             <div class="pull-right" id="tambah_baru_tombol_section">
                                 <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -1446,12 +1477,12 @@
                         </div>
                     </div>
                     @*<div class="row pesanan_table_section">
-                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-                        </div>*@
+            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+        </div>*@
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         @*<div id="loading_pesanan_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
                         <div class="col-sm-12" id="table-pesanan-partial">
                             @*@Html.Partial("TablePesananPartial")*@
                         </div>
@@ -1501,7 +1532,40 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-7 col-sm-5" style="margin-top:13px;">
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row pesanan_sudah_dibayar_section">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_dibayar_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_dibayar_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_dibayar_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_dibayar_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_dibayar_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-sm-12"></div>
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-7 col-sm-5" style="margin-top:13px;">*@
                             <div class="pull-right">
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
@@ -1517,7 +1581,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordDibayar" name="TakeRecordDibayar" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1528,8 +1592,8 @@
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
                             @*@Html.Partial("TablePesananSudahDibayarPartial")*@
                         </div>
@@ -1573,23 +1637,56 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-7 col-sm-5" style="margin-top:13px;">
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_packing_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_packing_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_packing_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_packing_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_packing_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-7 col-sm-5" style="margin-top:13px;">*@
                             <div class="pull-right">
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
                                 </button>
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                <span>Refresh</span>
+            </button>*@
 
                             </div>
                             @* remark 16/9/19, function pindah ke modal ubah status *@
                             @*<div class="pull-right">
-                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
-                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
-                                    </button>
-                                </div>*@
+            <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+            </button>
+        </div>*@
                             @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
@@ -1597,7 +1694,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordPacking" name="TakeRecordPacking" required="required">
                                     @*
-                                        <option>--Pilih--</option>*@
+                    <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1606,15 +1703,15 @@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                     </div>
-                    <div class="row" style="margin-top: 5px;">
-                        @*<div id="loading_siap_kirim_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
-                        <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
-                            @*@Html.Partial("TablePesananSiapKirimPartial")*@
+                        <div class="row" style="margin-top: 5px;">
+                            @*<div id="loading_siap_kirim_tab" class="text-center">
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
+                            <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
+                                @*@Html.Partial("TablePesananSiapKirimPartial")*@
+                            </div>
                         </div>
                     </div>
-                </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
                     <div class="row">
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
@@ -1674,19 +1771,52 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row pesanan_selesai_section">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_selesai_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_selesai_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_selesai_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_selesai_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_selesai_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-8 col-sm-6" style="margin-top:13px;">*@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                        <span>Refresh</span>
+                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row pesanan_selesai_section" style="margin-top: 5px;">
                         @*<div id="loading_selesai_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
                         <div class="col-sm-12" id="table-pesanan-selesai-partial">
                             @*@Html.Partial("TablePesananSelesaiPartial")*@
                         </div>
@@ -1730,19 +1860,52 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
+                        <div class="col-lg-6 col-sm-12" style="text-align:left">
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <label class="col-lg-1 col-sm-12" style="padding-top:20px;">Filter</label>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <select class="form-control" id="filter_pesanan_cancel_field" required="required">
+                                <option value="tanggal">Tgl. Pesanan</option>
+                                <option value="marketplace">Marketplace</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6" style="margin-top:13px;">
+                            <div class="col-12" id="filter_pesanan_cancel_field_tanggal_div">
+                                <select class="form-control" id="filter_pesanan_cancel_field_tanggal" required="required">
+                                    <option value="desc">Terbaru</option>
+                                    <option value="asc">Terlama</option>
+                                </select>
+                            </div>
+                            <div class="col-12" id="filter_pesanan_cancel_field_marketplace_div" style="display:none">
+                                <select class="form-control" id="filter_pesanan_cancel_field_marketplace" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="7">Lazada</option>
+                                    <option value="8">Bukalapak</option>
+                                    <option value="9">Elevenia</option>
+                                    <option value="15">Tokopedia</option>
+                                    <option value="16">Blibli</option>
+                                    <option value="17">Shopee</option>
+                                    <option value="18">Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-sm-12"></div>
+                        <div class="col-lg-1 col-sm-6" style="margin-top:13px;">
+                            @*<div class="col-lg-8 col-sm-6" style="margin-top:13px;">*@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                        <span>Refresh</span>
-                                    </button>*@
+                        <span>Refresh</span>
+                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_cancel_tab" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>*@
+                <img src="~/Content/Images/spinner.gif" width="100" />
+            </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-partial">
                             @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
@@ -3523,6 +3686,153 @@
                 refreshTableSudahKirim("1");
             });
             //end add by nurul 1/8/2019
+
+            //add by nurul 4/12/2019
+            $('#filter_pesanan_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_field_tanggal_div').show();
+                        $('#filter_pesanan_field_marketplace_div').hide();
+                        searchTablePesanan();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_marketplace_div').show();
+                        if ($('#filter_pesanan_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesanan();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_marketplace_div').hide();
+                        break;
+                }
+                
+            });
+            $('#filter_pesanan_field_tanggal').change(function () {
+                searchTablePesanan();
+            });
+            $('#filter_pesanan_field_marketplace').change(function () {
+                searchTablePesanan();
+            })
+
+            $('#filter_pesanan_dibayar_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').show();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        searchTablePesananSudahDibayar();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').show();
+                        if ($('#filter_pesanan_dibayar_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSudahDibayar();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        break;
+                }
+                
+            });
+            $('#filter_pesanan_dibayar_field_tanggal').change(function () {
+                searchTablePesananSudahDibayar();
+            });
+            $('#filter_pesanan_dibayar_field_marketplace').change(function () {
+                searchTablePesananSudahDibayar();
+            })
+
+            $('#filter_pesanan_packing_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_packing_field_tanggal_div').show();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        searchTablePesananPacking();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_packing_field_tanggal_div').hide();
+                        $('#filter_pesanan_packing_field_marketplace_div').show();
+                        if ($('#filter_pesanan_packing_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananPacking();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_packing_field_tanggal_div').hide();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        break;
+                }
+                
+            });
+            $('#filter_pesanan_packing_field_tanggal').change(function () {
+                searchTablePesananPacking();
+            });
+            $('#filter_pesanan_packing_field_marketplace').change(function () {
+                searchTablePesananPacking();
+            })
+
+            $('#filter_pesanan_selesai_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_selesai_field_tanggal_div').show();
+                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        searchTablePesananSelesai();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
+                        $('#filter_pesanan_selesai_field_marketplace_div').show();
+                        if ($('#filter_pesanan_selesai_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSelesai();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
+                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        break;
+                }
+                
+            });
+            $('#filter_pesanan_selesai_field_tanggal').change(function () {
+                searchTablePesananSelesai();
+            });
+            $('#filter_pesanan_selesai_field_marketplace').change(function () {
+                searchTablePesananSelesai();
+            })
+
+            $('#filter_pesanan_cancel_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_cancel_field_tanggal_div').show();
+                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        searchTablePesananCancel();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_field_marketplace_div').show();
+                        if ($('#filter_pesanan_cancel_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananCancel();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        break;
+                }
+                
+            });
+            $('#filter_pesanan_cancel_field_tanggal').change(function () {
+                searchTablePesananCancel();
+            });
+            $('#filter_pesanan_cancel_field_marketplace').change(function () {
+                searchTablePesananCancel();
+            })
+            //end add by nurul 4/12/2019
         });
 
         //add by Tri, call midtrans api get token
@@ -5810,9 +6120,15 @@
         //add by nurul 7/5/2019
         function refreshTablePesanan() {
             //var link = '@Url.Action("RefreshTablePesanan", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pesanan').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_filterby();
+            var filtervalue = get_pesanan_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -5841,9 +6157,35 @@
                 }
             });
         }
+
+        //add by nurul 4/12/2019
+        function get_pesanan_filterby() {
+            return $('#filter_pesanan_field').val();
+        }
+        function get_pesanan_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 4/12/2019
         function searchTablePesanan(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_pesanan').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_filterby();
+            var filtervalue = get_pesanan_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6031,9 +6373,15 @@
 
         function RefreshPesananDibayarMarketplace() {
             //var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshPesananDibayarMarketplace", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshPesananDibayarMarketplace", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_2').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_dibayar_filterby();
+            var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6164,11 +6512,17 @@
                 $setPage = $('#txt_last_page_2').val();
             }
             //var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_2').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDibayar').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_dibayar_filterby();
+            var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6228,10 +6582,37 @@
                 }
             });
         }
+
+        //add by nurul 4/12/2019
+        function get_pesanan_dibayar_filterby() {
+            return $('#filter_pesanan_dibayar_field').val();
+        }
+        function get_pesanan_dibayar_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_dibayar_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_dibayar_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 4/12/2019
+
         function searchTablePesananSudahDibayar(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_nunggu').val()));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordDibayar').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_dibayar_filterby();
+            var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6360,11 +6741,17 @@
                 $setPage = $('#txt_last_page_3').val();
             }
             //var link = '@Url.Action("RefreshTablePesananSiapKirim", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sedangproses').val()));
             //$link = $link.replace("replaceLastPage", $('#txt_last_page_3').val());
             $link = $link.replace("replaceLastPage", encodeURIComponent($setPage));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_packing_filterby();
+            var filtervalue = get_pesanan_packing_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6410,10 +6797,37 @@
                 }
             });
         }
+
+        //add by nurul 4/12/2019
+        function get_pesanan_packing_filterby() {
+            return $('#filter_pesanan_packing_field').val();
+        }
+        function get_pesanan_packing_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_packing_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_packing_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 4/12/2019
+
         function searchTablePesananPacking(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { take = "replaceLastTake", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_sedangproses').val()));
             $link = $link.replace("replaceLastTake", encodeURIComponent($('#TakeRecordPacking').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_packing_filterby();
+            var filtervalue = get_pesanan_packing_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6642,9 +7056,15 @@
         //add by nurul 7/5/2019
         function refreshTableSelesai() {
             //var link = '@Url.Action("RefreshTablePesananSelesai", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_selesai').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_5').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_selesai_filterby();
+            var filtervalue = get_pesanan_selesai_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6665,9 +7085,36 @@
                 }
             });
         }
+
+        //add by nurul 4/12/2019
+        function get_pesanan_selesai_filterby() {
+            return $('#filter_pesanan_selesai_field').val();
+        }
+        function get_pesanan_selesai_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_selesai_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_selesai_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 4/12/2019
+
         function searchTablePesananSelesai(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_selesai').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_selesai_filterby();
+            var filtervalue = get_pesanan_selesai_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6725,9 +7172,15 @@
         //add by nurul 7/5/2019
         function refreshTableCancel() {
             //var link = '@Url.Action("RefreshTablePesananCancel", "Manage")';
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_6').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_cancel_filterby();
+            var filtervalue = get_pesanan_cancel_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",
@@ -6748,9 +7201,36 @@
                 }
             });
         }
+
+        //add by nurul 4/12/2019
+        function get_pesanan_cancel_filterby() {
+            return $('#filter_pesanan_cancel_field').val();
+        }
+        function get_pesanan_cancel_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                case "tanggal":
+                    filtervalue = $('#filter_pesanan_cancel_field_tanggal').val();
+                    break;
+                case "marketplace":
+                    filtervalue = $('#filter_pesanan_cancel_field_marketplace').val();
+                    break;
+                default:
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 4/12/2019
+
         function searchTablePesananCancel(){
-            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { search = "replaceSearch" }))';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_cancel').val()));
+            //add by nurul 4/12/2019
+            var filterby = get_pesanan_cancel_filterby();
+            var filtervalue = get_pesanan_cancel_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+            //end add by nurul 4/12/2019
 
             $.ajax({
                 type: "GET",

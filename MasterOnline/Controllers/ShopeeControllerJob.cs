@@ -2257,7 +2257,10 @@ namespace MasterOnline.Controllers
                             ordersn = order.ordersn,
                             order_status = order.order_status,
                             payment_method = order.payment_method,
-                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                            //change by nurul 5/12/2019, local time 
+                            //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime.AddHours(7),
+                            //end change by nurul 5/12/2019, local time 
                             Recipient_Address_country = order.recipient_address.country,
                             Recipient_Address_state = order.recipient_address.state,
                             Recipient_Address_city = order.recipient_address.city,

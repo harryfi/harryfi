@@ -63,10 +63,10 @@
         @*<table id="datatable_cancel" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
         <thead>
             <tr role="row">
-                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Pesanan</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Pesanan</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
-                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Tanggal Pesanan</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 127px;">Marketplace</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>
             </tr>
@@ -90,7 +90,7 @@
                 //}
                 <tr>
                     <td>@pesanan.NOSO</td>
-                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                    <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
                     @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                     <td>
                         @if (pesanan?.PERSO != "")
@@ -152,8 +152,18 @@
     $(function () {
         $('#tabelpesanancancelpartialpager').on('click', 'a', function () {
             if (this.href != "") {
+                //add by nurul 4/12/2019
+                var filterby = get_pesanan_cancel_filterby();
+                var filtervalue = get_pesanan_dibayar_filtervalue(filterby);
+                var link = this.href;
+                link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+                //end add by nurul 4/12/2019
+
                 $.ajax({
-                    url: this.href,
+                    //url: this.href,
+                    url:link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
