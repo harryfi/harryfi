@@ -1885,7 +1885,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                     else
                                                     {
-                                                        InsertPembeli(order, connIDARF01C,dbPathEra);
+                                                        InsertPembeli(order, connIDARF01C,dbPathEra, username);
                                                         pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
@@ -2248,7 +2248,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra)
+        private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra, string username)
         {
             var MoDbContext = new MoDbContext();
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
@@ -3665,7 +3665,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(order.address_billing.phone))
                                 {
-                                    InsertPembeli(order, connectionID, dbPathEra);
+                                    InsertPembeli(order, connectionID, dbPathEra, username);
                                     var pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                     if (pembeliInDB != null)
                                     {
