@@ -17662,7 +17662,16 @@ namespace MasterOnline.Controllers
                             if (queryfilter != "") { queryfilter += ","; }
                             queryfilter += "'"+ item +"'";
                         }
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND CUST IN ('',"+ queryfilter +");" + Environment.NewLine;
+
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03'"; 
+
+                        if (queryfilter != "")
+                        {
+                            sSQLTemp += " AND CUST IN ("+ queryfilter +");" + Environment.NewLine;
+                        }
+                        else{
+                            sSQLTemp += " AND 0=1;" + Environment.NewLine;
+                        }
                         sSQL2 += "FROM #SOT01A A ";
                     }
                     break;
@@ -34708,140 +34717,6 @@ namespace MasterOnline.Controllers
             public List<PackingSuccess> so_success { get; set; }
             public string packingNo { get; set; }
         }
-        public GeneratePacking GeneratePackingList(List<string> rows_selected) {
-            var ret = new GeneratePacking() {
-                errors = new List<listErrorPacking>(),
-                packingNo = "",
-                so_success = new List<PackingSuccess>()
-            };
-
-            var string_rows_selected = "";
-            foreach (var item in rows_selected)
-            {
-                if (string_rows_selected != "") { string_rows_selected += ","; }
-                string_rows_selected += "'" + item + "'";
-            }
-
-            var dsBuktiPackingList = EDB.GetDataSet("sConn", "PACKING", "SELECT DISTINCT NO_BUKTI FROM SOT03B B WHERE B.NO_PESANAN IN ('',"+ string_rows_selected +")");
-            var string_bukti_packing = "";
-            for (int i = 0; i < dsBuktiPackingList.Tables[0].Rows.Count; i++)
-            {
-                if (string_bukti_packing != "") { string_bukti_packing += ","; }
-                string_bukti_packing += "'" + Convert.ToString(dsBuktiPackingList.Tables[0].Rows[i]["NO_BUKTI"]) + "'";
-            }
-            //hapus dari packing list
-            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + string_rows_selected + ")");
-            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (''," + string_rows_selected + ")");
-            //hapus bukti packing list yg kosong ( dari packing list yang dihapus sot03b nya )
-            EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND NO_BUKTI IN ('',"+ string_bukti_packing +")");
-            using (var context = new ErasoftContext(dbPathEra))
-            {
-                using (System.Data.Entity.DbContextTransaction transaction = context.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        var listPackinglistinDB = context.SOT03B.Where(p=> rows_selected.Contains(p.NO_PESANAN)).ToList();
-                        foreach (var item in listPackinglistinDB)
-                        {
-                            ret.errors.Add(new listErrorPacking {
-                                error_msg = "Pesanan sudah pernah dibuatkan packing list. [" + item.NO_BUKTI + "]",
-                                no_bukti_so = item.NO_PESANAN
-                            });
-                        }
-                        var listPesananInvalid = listPackinglistinDB.Select(p => p.NO_PESANAN).ToList();
-                        var listPesanan = rows_selected.Where(p => !listPesananInvalid.Contains(p)).ToList();
-            
-                        var listorder = new List<SOT01A>();
-                        var listBuyer = new List<ARF01C>();
-
-                        if (listPesanan.Count > 0)
-                        {
-                            var newPackinglist = new SOT03A
-                            {
-                                TGL = DateTime.Now,
-                                USERNAME = "AUTO_CREATE"
-                            };
-                            var listPackinglistInDb = context.SOT03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                            int? lastRecNum = 0;
-                            string nobuk = "";
-                            if (listPackinglistInDb == null)
-                            {
-                                context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT03A, RESEED, 0)");
-                                lastRecNum++;
-                            }
-                            else
-                            {
-                                lastRecNum = listPackinglistInDb.RecNum;
-                                lastRecNum++;
-                            }
-                            nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
-                            newPackinglist.NO_BUKTI = nobuk;
-                            context.SOT03A.Add(newPackinglist);
-
-                            ret.packingNo = nobuk;
-                            var newpackingdetail = new List<SOT03B>();
-                            var newpackingbrgdetail = new List<SOT03C>();
-                            string order = "";
-                            foreach (var item in listPesanan)
-                            {
-                                if (order != "") {
-                                    order += ",";
-                                }
-                                order += "'" + item + "'";
-                            }
-
-                            var dsPesanan = EDB.GetDataSet("CString", "SOT03B", "SELECT A.RECNUM,A.NO_BUKTI, A.TGL, NAMAPEMESAN, C.NAMAMARKET FROM SOT01A A (nolock) INNER JOIN ARF01 B (nolock) ON A.CUST = B.CUST INNER JOIN MO..MARKETPLACE C (nolock) ON B.NAMA = C.IDMARKET WHERE A.NO_BUKTI in (" + order + ")");
-                            if (dsPesanan.Tables[0].Rows.Count > 0)
-                            {
-                                for (int i = 0; i < dsPesanan.Tables[0].Rows.Count; i++)
-                                {
-                                    var pesanan = new SOT03B();
-                                    var row = dsPesanan.Tables[0].Rows[i];
-                                    pesanan.NO_PESANAN = row["NO_BUKTI"].ToString();
-                                    pesanan.TGL_PESANAN = Convert.ToDateTime(row["TGL"]);
-                                    pesanan.PEMBELI = row["NAMAPEMESAN"].ToString();
-                                    pesanan.MARKETPLACE = row["NAMAMARKET"].ToString();
-                                    pesanan.NO_BUKTI = newPackinglist.NO_BUKTI;
-                                    pesanan.USERNAME = usernameLogin;
-                                    pesanan.TGL_INPUT = newPackinglist.TGL;
-                                    newpackingdetail.Add(pesanan);
-                                    ret.so_success.Add(new PackingSuccess { recnum = Convert.ToInt32(row["RECNUM"]), no_bukti = pesanan.NO_PESANAN });
-                                }
-                            }
-                            context.SOT03B.AddRange(newpackingdetail);
-                            context.SaveChanges();
-
-                            var dsPesananDetail = EDB.GetDataSet("sConn", "SOB", "SELECT NO_BUKTI,BRG,QTY_N FROM SOT01B WHERE NO_BUKTI IN (" + order + ") ORDER BY NO_BUKTI, NO_URUT");
-                            if (dsPesananDetail.Tables[0].Rows.Count > 0) {
-                                for (int i = 0; i < dsPesananDetail.Tables[0].Rows.Count; i++)
-                                {
-                                    var newSot03c = new SOT03C();
-                                    var row = dsPesananDetail.Tables[0].Rows[i];
-                                    newSot03c.NO_BUKTI = newPackinglist.NO_BUKTI;
-                                    newSot03c.NO_PESANAN = row["NO_BUKTI"].ToString();
-                                    newSot03c.BRG = row["BRG"].ToString();
-                                    newSot03c.QTY = Convert.ToInt32(row["QTY_N"]);
-                                    newSot03c.USERNAME = usernameLogin;
-                                    newSot03c.TGL_INPUT = newPackinglist.TGL;
-                                    newpackingbrgdetail.Add(newSot03c);
-                                }
-                            }
-
-                            context.SOT03C.AddRange(newpackingbrgdetail);
-                            context.SaveChanges();
-                            
-                            transaction.Commit();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ret.packingNo = "";
-                        transaction.Rollback();
-                    }
-                }
-            }
-            return ret;
-        }
         
         public PesananViewModel ProsesPesananToPackingList(/*string[] rows_selected*/List<string> rows_selected)
         {
@@ -35981,8 +35856,29 @@ namespace MasterOnline.Controllers
                                 keyname = item.error_description,
                                 errorMessage = item.ordersn
                             });
+                            ordersn_list.Remove(item.ordersn);
                         }
                     }
+
+                    var listSuccess = "";
+                    foreach (var osn in ordersn_list)
+                    {
+                        if (listSuccess != "") {
+                            listSuccess += ",";
+                        }
+                        listSuccess += "'" + osn + "'";
+                    }
+                    
+                    string sSQLWhere = "";  
+                    if (listSuccess != "")
+                    {
+                        sSQLWhere += " no_referensi in (" + listSuccess + ")" + Environment.NewLine;
+                    }
+                    else{
+                        sSQLWhere += " 0=1" + Environment.NewLine;
+                    }
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
+
                     return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
@@ -36227,6 +36123,25 @@ namespace MasterOnline.Controllers
                                 }
                             }
 
+                            var buktiSuccess = "";
+                            foreach (var osn in listSuccess)
+                            {
+                                if (buktiSuccess != "") {
+                                    buktiSuccess += ",";
+                                }
+                                buktiSuccess += "'" + osn.no_referensi + "'";
+                            }
+                    
+                            string sSQLWhere = "";  
+                            if (buktiSuccess != "")
+                            {
+                                sSQLWhere += " no_referensi in (" + buktiSuccess + ")" + Environment.NewLine;
+                            }
+                            else{
+                                sSQLWhere += " 0=1" + Environment.NewLine;
+                            }
+                            EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
+                            
                         }
                         return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
@@ -36990,12 +36905,21 @@ namespace MasterOnline.Controllers
                         }
                         listNobuk += "'" + Nobuk + "'";
                     }
-                    var hapusDrPacking = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE NO_PESANAN IN (''," + listNobuk + ")");
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE NO_PESANAN IN (''," + listNobuk + ")");
+
+                    string sSQLWhere = "";  
+                    if (listNobuk != "")
+                    {
+                        sSQLWhere += " NO_PESANAN IN (" + listNobuk + ")" + Environment.NewLine;
+                    }
+                    else{
+                        sSQLWhere += " 0=1" + Environment.NewLine;
+                    }
+                    var hapusDrPacking = EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE " + sSQLWhere);
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE " + sSQLWhere);
                     //hapus bukti packing list yg kosong ( dari packing list yang dihapus sot03b nya )
-                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND NO_BUKTI IN ('',"+ listNobuk +")");
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE A FROM SOT03A A LEFT JOIN SOT03B B ON A.NO_BUKTI = B.NO_BUKTI WHERE ISNULL(B.NO_BUKTI,'') = '' AND A.NO_BUKTI IN ("+ listNobuk +")");
                     
-                    var successRow = EDB.ExecuteSQL("sConn",CommandType.Text,"UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN ('',"+ listNobuk +")");
+                    var successRow = EDB.ExecuteSQL("sConn",CommandType.Text,"UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN ("+ listNobuk +")");
                     successCount += successRow;
                 }
             }
@@ -37054,7 +36978,7 @@ namespace MasterOnline.Controllers
                         }
                         listNobuk += "'" + Nobuk + "'";
                     }
-                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (''," + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
+                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
                     successCount += successRow;
                 }
             }

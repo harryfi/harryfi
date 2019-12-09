@@ -8572,60 +8572,65 @@
                     rows_selected.push($(item).attr("data-recnum"));
                 }
             });
-            var link = '@Url.Action("UbahStatusPesananSelesaiBatchTransaction", "Manage")';
-
-            $.ajax({
-                type: "POST",
-                url: link,
-                //data: JSON.stringify(get_selected),
-                data: JSON.stringify({ get_selected: rows_selected }),
-                contentType: 'application/json; charset=UTF-8',
-                cache: false,
-                beforeSend: function () {
-                    $('#loading_undo_status').show();
-                },
-                complete: function (){
-                    $('#loading_undo_status').hide();
-                },
-                success: function(response) {
-                    $('#konfUbahStatusSelesaiBatch_body').animate({ scrollTop: 0 }, 'slow');
-
-                    if (response.error_packing_list == false) {
-                        var textareaValue = "";
-
-                        textareaValue += "Jumlah pesanan berhasil ubah status : "+ response.successCount +"</br>";
-
-                        var adaError = false;
-                        var errorValue = "";
-                        response.listError.forEach(function (item) {
-                            adaError = true;
-                            errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
-                        });
-                        if (adaError) {
-                            textareaValue += "</br>";
-                            textareaValue += "Pesanan gagal ubah status :</br>";
-                            textareaValue += errorValue;
+            if(rows_selected.length < 1){
+                alert('Mohon pilih pesanan yg mau diproses.');
+            }
+            else{
+                var link = '@Url.Action("UbahStatusPesananSelesaiBatchTransaction", "Manage")';
+    
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    //data: JSON.stringify(get_selected),
+                    data: JSON.stringify({ get_selected: rows_selected }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_undo_status').show();
+                    },
+                    complete: function (){
+                        $('#loading_undo_status').hide();
+                    },
+                    success: function(response) {
+                        $('#konfUbahStatusSelesaiBatch_body').animate({ scrollTop: 0 }, 'slow');
+    
+                        if (response.error_packing_list == false) {
+                            var textareaValue = "";
+    
+                            textareaValue += "Jumlah pesanan berhasil ubah status : "+ response.successCount +"</br>";
+    
+                            var adaError = false;
+                            var errorValue = "";
+                            response.listError.forEach(function (item) {
+                                adaError = true;
+                                errorValue += item.no_bukti_so + " : " + item.error_msg + "</br>";
+                            });
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                textareaValue += "Pesanan gagal ubah status :</br>";
+                                textareaValue += errorValue;
+                            }
+                            $('#konfUbahStatusSelesaiBatch_error').show();
+                            $('#konfUbahStatusSelesaiBatch_error').html(textareaValue);
+    
+                            if(response.successCount > 0){
+                                refreshTableSiapKirim();
+                                refreshTablePesanan();
+                                refreshTableSudahKirim();
+                                refreshTableSudahDibayar();
+                            }
+                        } else {
+                            $('#konfUbahStatusSelesaiBatch_error').show();
+                            $('#konfUbahStatusSelesaiBatch_error').html('Gagal memproses status ke selesai. Mohon hubungi support.');
                         }
-                        $('#konfUbahStatusSelesaiBatch_error').show();
-                        $('#konfUbahStatusSelesaiBatch_error').html(textareaValue);
-
-                        if(response.successCount > 0){
-                            refreshTableSiapKirim();
-                            refreshTablePesanan();
-                            refreshTableSudahKirim();
-                            refreshTableSudahDibayar();
-                        }
-                    } else {
-                        $('#konfUbahStatusSelesaiBatch_error').show();
-                        $('#konfUbahStatusSelesaiBatch_error').html('Gagal memproses status ke selesai. Mohon hubungi support.');
+                        rows_selected.length = 0;
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(error);
+                        rows_selected.length = 0;
                     }
-                    rows_selected.length = 0;
-                },
-                error: function(xhr, status, error) {
-                    console.log(error);
-                    rows_selected.length = 0;
-                }
-            });
+                });
+            }
         }
         //end add by calvin 28 november 2019
 
