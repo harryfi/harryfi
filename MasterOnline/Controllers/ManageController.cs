@@ -2139,7 +2139,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
@@ -16920,7 +16928,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
@@ -17333,7 +17349,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '01' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
@@ -17575,7 +17599,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '02' AND CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '02' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
@@ -17808,7 +17840,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '04' AND CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '04' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
@@ -17925,7 +17965,15 @@ namespace MasterOnline.Controllers
                                 if (queryfilter != "") { queryfilter += ","; }
                                 queryfilter += "'" + item + "'";
                             }
-                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '11' AND CUST IN (''," + queryfilter + ");" + Environment.NewLine;
+                            sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '11' AND ";
+                            if (queryfilter != "")
+                            {
+                                sSQLTemp += " CUST IN(" + queryfilter + "); " + Environment.NewLine;
+                            }
+                            else
+                            {
+                                sSQLTemp += " 0 = 1; " + Environment.NewLine;
+                            }
                             sSQL2 += "FROM #SOT01A A ";
                         }
                         else
