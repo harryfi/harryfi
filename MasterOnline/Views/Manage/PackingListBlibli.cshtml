@@ -95,7 +95,7 @@
     }
     function RequestDropoffPackingBlibli(cust) {
         $('#btnProsesDropoffBlibli__' + cust).attr("disabled", true);
-        $('#modalPrintBlibli__label__' + cust).html('Proses Dropoff Pesanan Blibli');
+        $('#modalPrintBlibli__label__' + cust).html('Proses Kirim Pesanan Blibli');
         $('#modalPrintBlibli__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
         $('#modalPrintBlibli__' + cust).modal({
             show: true,
@@ -168,12 +168,27 @@
             keyboard: false
         });
         
-        var $link = '@Html.Raw(Url.Action("BlibliLabelPerPacking", "Manage", new { cust = "replaceCust", bukti = "replaceBuktiPacking" }))';
-        $link = $link.replace("replaceCust", encodeURIComponent(cust));
-        $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+        var rows_selected = [];
+        $('.checkbox_packing_blibli').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+        
+        var $link = '@Url.Action("BlibliLabelPerPacking", "Manage")';
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected : rows_selected
+        };
+
         $.ajax({
-            type: "GET",
+            type: "POST",
             url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
             success: function (response) {
 
                 if (response.mo_error != undefined) {

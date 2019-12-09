@@ -36100,6 +36100,7 @@ namespace MasterOnline.Controllers
                                             pdf64 = bookingAWB.value.document,
                                             orderItemId = orderItemId
                                         });
+                                        success = true;
                                     }
                                     else {
                                         failedReason = bookingAWB.errorMessage;
