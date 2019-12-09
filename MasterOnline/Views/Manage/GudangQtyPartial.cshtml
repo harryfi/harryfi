@@ -175,7 +175,8 @@
             @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
             <div class="form-group">
                 @*//add by nurul 6/12/2019*@
-                @Html.Label(barang.BRG, new { @class = "col-md-2 col-sm-2 col-xs-2 control-label", style = "padding-top: 11px;" })
+                @*@Html.Label(barang.BRG, new { @class = "col-md-2 col-sm-2 col-xs-2 control-label", style = "padding-top: 11px;" })*@
+                <label class="col-md-3 col-sm-3 col-xs-3 control-label" style="padding-top: 11px;">@barang.BRG</label>
                 @*//end add by nurul 6/12/2019*@
                 @*//change by nurul 25/9/2019*@
                 @*@Html.Label(namaBarang, new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "padding-top: 11px;" })*@
