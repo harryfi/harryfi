@@ -1834,15 +1834,55 @@ namespace MasterOnline.Controllers
                     if (rowAffected > 0)
                     {
                         //add by Tri 4 Des 2019, isi cancel reason
-                        var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
-                        if (!string.IsNullOrEmpty(nobuk))
+                        var sSQL = "";
+                        var sSQL2 = "SELECT * INTO #TEMP FROM (";
+                        var listReason = new Dictionary<string, string>();
+                        if (ordersn_list.Count() > 50)
                         {
-                            var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
-                            if (sot01d == null)
+                            var order50 = new string[50];
+                            int i = 0;
+                            foreach (var order in listOrder.orders)
                             {
-                                EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                order50[i] = order.ordersn;
+                                i++;
+                                if (i > 50 || order == listOrder.orders.Last())
+                                {
+                                    var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                                    listReason = AddDictionary(listReason, list2);
+                                    i = 0;
+                                    order50 = new string[50];
+                                }
                             }
                         }
+                        else
+                        {
+                            listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                        }
+                        foreach (var order in listOrder.orders)
+                        {
+                            string reasonValue;
+                            if (listReason.TryGetValue(order.ordersn, out reasonValue))
+                            {
+                                if (!string.IsNullOrEmpty(sSQL))
+                                {
+                                    sSQL += " UNION ALL ";
+                                }
+                                sSQL += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
+                            }
+                        }
+                        sSQL2 += sSQL + ") ; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                        sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+                        //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
+                        //if (!string.IsNullOrEmpty(nobuk))
+                        //{
+                        //    var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
+                        //    if (sot01d == null)
+                        //    {
+                        //        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                        //    }
+                        //}
                         //end add by Tri 4 Des 2019, isi cancel reason
 
                         var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2'");
@@ -1871,6 +1911,21 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public Dictionary<TKey, TValue> AddDictionary<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (target == null) throw new ArgumentNullException("target");
+
+            foreach (var keyValuePair in source)
+            {
+                target.Add(keyValuePair.Key, keyValuePair.Value);
+            }
+
+            return target;
+        }
+
+
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
         public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
@@ -2033,11 +2088,11 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //add by Tri 4 Des 2019
-        public async Task<string> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
+        public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "";
+            Dictionary<string, string> ret = new Dictionary<string, string>();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2085,7 +2140,8 @@ namespace MasterOnline.Controllers
 
                 foreach (var order in result.orders)
                 {
-                    ret = order.tracking_no;
+                    //ret = order.tracking_no;
+                    ret.Add(order.ordersn, order.cancel_reason);
                 }
                 //}
                 //catch (Exception ex2)
@@ -3216,7 +3272,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Shopee Gagal.")]
-        public async Task<string> CancelOrder(string dbPathEra, string namaPembeli, string log_CUST, string log_ActionCategory, string log_ActionName,ShopeeAPIData iden, string ordersn, string cancelReason, string listVariable)
+        public async Task<string> CancelOrder(string dbPathEra, string namaPembeli, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string ordersn, string cancelReason, string listVariable)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -3253,12 +3309,12 @@ namespace MasterOnline.Controllers
             if (cancelReason.Contains("STOCK"))
             {
                 var listBrg = listVariable.Split('|');
-                foreach(var brg in listBrg)
+                foreach (var brg in listBrg)
                 {
                     var kodeBrg = brg.Split(';');
-                    if(kodeBrg.Length > 1)
+                    if (kodeBrg.Length > 1)
                     {
-                        if(kodeBrg[1] == "0" || string.IsNullOrEmpty(kodeBrg[1]))
+                        if (kodeBrg[1] == "0" || string.IsNullOrEmpty(kodeBrg[1]))
                         {
                             HttpBody.item_id = Convert.ToInt64(kodeBrg[0]);
                         }
@@ -3283,20 +3339,20 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             //}
             //catch (Exception ex)
             //{
@@ -3308,15 +3364,15 @@ namespace MasterOnline.Controllers
             {
                 //try
                 //{
-                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
-                    if (result.error != null)
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCancelOrderResult)) as ShopeeCancelOrderResult;
+                if (result.error != null)
+                {
+                    if (result.error != "")
                     {
-                        if (result.error != "")
-                        {
-                            //await AcceptBuyerCancellation(iden, ordersn);
-                        }
+                        //await AcceptBuyerCancellation(iden, ordersn);
                     }
+                }
                 //}
                 //catch (Exception ex2)
                 //{
@@ -3707,10 +3763,10 @@ namespace MasterOnline.Controllers
 
                             //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             //add 21 Nov 2019, check create product duplicate
-                            if(dbPathEra == "ERASOFT_120157")
+                            if (dbPathEra == "ERASOFT_120157")
                             {
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                            }                           
+                            }
                             //end add 21 Nov 2019, check create product duplicate
 
                         }
@@ -3871,15 +3927,15 @@ namespace MasterOnline.Controllers
                 }
                 else //update image only
                 {
-//#if (Debug_AWS || DEBUG)
+                    //#if (Debug_AWS || DEBUG)
                     await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
+                    //#endif
                 }
             }
 
@@ -4058,17 +4114,17 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
                 if (string.IsNullOrEmpty(resServer.error))
                 {
-//                    if (resServer.item_id == item_id)
-//                    {
-//#if (Debug_AWS || DEBUG)
-//                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //                    if (resServer.item_id == item_id)
+                    //                    {
+                    //#if (Debug_AWS || DEBUG)
+                    //                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
+                    //#endif
                     //}
                 }
             }
@@ -4393,11 +4449,13 @@ namespace MasterOnline.Controllers
                     {
                         //do nothing
                     }
-                    else {
+                    else
+                    {
                         throw new Exception(resServer.msg);
                     }
                 }
-                else {
+                else
+                {
                     if (resServer.variation_id_list != null)
                     {
                         if (resServer.variation_id_list.Count() > 0)
@@ -5679,7 +5737,7 @@ namespace MasterOnline.Controllers
                     {
                         if (item == "190917235708RJN")
                         {
-                            await GetOrderDetails(iden, ordersn_list.Where(p=> p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
+                            await GetOrderDetails(iden, ordersn_list.Where(p => p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
                         }
                     }
                     //jmlhNewOrder = filtered.Count();
@@ -6247,6 +6305,7 @@ namespace MasterOnline.Controllers
             public string ordersn { get; set; }
             public string dropshipper { get; set; }
             public string buyer_username { get; set; }
+            public string cancel_reason { get; set; }//add by Tri 9 Des 2019
         }
 
         public class ShopeeGetOrderDetailsResultRecipient_Address
