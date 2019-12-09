@@ -1516,6 +1516,11 @@ namespace MasterOnline.Controllers
                     if (order != null)
                     {
                         order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
+                        order.status_kirim = "2";
+                        if (string.IsNullOrWhiteSpace(order.TRACKING_SHIPMENT))
+                        {
+                            order.status_kirim = "1";
+                        }
                         ErasoftDbContext.SaveChanges();
 //
 //

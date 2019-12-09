@@ -37088,8 +37088,12 @@ namespace MasterOnline.Controllers
                                 listError.Add(new listErrorPacking
                                 {
                                     no_bukti_so = Nobuk,
-                                    error_msg = "Gagal, karena Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
+                                    error_msg = "Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ")."
                                 });
+                            }
+                            else
+                            {
+                                inListError.error_msg += "</br>Qty sisa untuk item [" + SOB_Brg + "] di gudang [" + gudang + "] adalah (" + Convert.ToString(qtyOnHand) + ").";
                             }
                         }
                         else

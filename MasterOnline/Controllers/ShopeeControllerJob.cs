@@ -2703,7 +2703,15 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2728,7 +2736,14 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2919,7 +2934,18 @@ namespace MasterOnline.Controllers
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+//                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+                            string dTrackNo = "";
+                            if (dTrackNo == "")
+                            {
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
+                            }
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(dTrackNo))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
                             ErasoftDbContext.SaveChanges();
 
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2938,7 +2964,14 @@ namespace MasterOnline.Controllers
                         {
                             string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = trackno;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
