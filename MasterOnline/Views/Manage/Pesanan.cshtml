@@ -7046,7 +7046,7 @@
                         //end change by nurul 29/11/2019
                         
                         //add by nurul 13/3/2019
-                        if ($('#Gudang-' + $recNum).val() != null || $('#Gudang-' + $recNum).val() != "") {
+                        if ($('#Gudang-' + $recNum).val() != null && $('#Gudang-' + $recNum).val() != "") {
                             gdSelect[0].selectize.setValue($('#Gudang-' + $recNum).val(), true);
                             $('#Gudang-Dropdown-' + $recNum).change();
                         } else {
