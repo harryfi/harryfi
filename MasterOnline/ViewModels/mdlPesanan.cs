@@ -53,6 +53,9 @@ namespace MasterOnline
 
         public string STATUS_FAKTUR { get; set; }
         public string FKT_RETUR { get; set; }
+        public string status_kirim { get; set; }
+        public string status_print { get; set; }
+        public string PACKINGNO { get; set; }
 
         //ADD BY NURUL 27/11/2019
         public DateTime? TGL_LASTEDIT { get; set; }

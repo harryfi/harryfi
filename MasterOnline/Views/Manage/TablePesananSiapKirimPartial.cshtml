@@ -112,9 +112,13 @@
                     <td class="edit-hapus-col" style="width: 50px; max-width: 50px;">
                         @if (pesanan.MARKET != "")
                         {
-                            <button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '03', '@pesanan.NOSO')">
+                            //change by calvin 28 november 2019
+                            /*<button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '03', '@pesanan.NOSO')">
                                 @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
                                 @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                            </button>*/
+                            <button class="btn btn-success ubah-packing" type="button" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" data-backdrop="static" data-keyboard="false" onclick="packingStatusSingleRecord(@pesanan.RECNUM)">
                                 <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                             </button>
                         }

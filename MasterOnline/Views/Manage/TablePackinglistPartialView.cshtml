@@ -115,6 +115,20 @@
     }
 </div>
 <script type="text/javascript">
+
+    $(document).ready(function () {
+        
+        var nameEQ = "viewpackinglist" + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) {
+                document.cookie = nameEQ +'; Max-Age=-99999999;path=/;';  
+                editPackinglist1(c.substring(nameEQ.length,c.length));
+            }
+        }
+    });
     $(function () {
         $('#tabelpackinglistpartialpager').on('click', 'a', function () {
             if (this.href != "") {
