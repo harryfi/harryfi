@@ -653,6 +653,9 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
+            //add by nurul 10/12/2019, ubah startdate
+            string startDate = "";
+            //end change by nurul 10/12/2019, ubah startdate
             switch (stat)
             {
                 case StatusOrder.Cancel:
@@ -662,6 +665,9 @@ namespace MasterOnline.Controllers
                 case StatusOrder.Paid:
                     //paid
                     status = "FP";
+                    //add by nurul 10/12/2019, ubah startdate
+                    startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-5).ToString("yyyy-MM-dd HH:mm:ss"));
+                    //end add by nurul 10/12/2019, ubah startdate
                     break;
                 //case StatusOrder.PackagingINP:
                 //    //Packaging in Progress
@@ -674,6 +680,9 @@ namespace MasterOnline.Controllers
                 case StatusOrder.Completed:
                     //Completed (Shipping)
                     status = "D";
+                    //add by nurul 10/12/2019, ubah startdate
+                    startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss"));
+                    //end add by nurul 10/12/2019, ubah startdate
                     break;
                 default:
                     break;
@@ -685,7 +694,10 @@ namespace MasterOnline.Controllers
                                                                  //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+            //change by nurul 10/12/2019, ubah startdate & enddate
+            //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&page=" + page.ToString() + "&size=10&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + startDate + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
+            //end change by nurul 10/12/2019, ubah startdate & enddate
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
