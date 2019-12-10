@@ -7481,7 +7481,9 @@
                 success: function (response) {
                     $('#search_invoicing_click')[0].disabled = false;
                     $('#table-pesanan-sudah-kirim-partial').html(response);
-                    /*$("#checkbox_all_generateFaktur").click(function () {
+                    /*
+                    remark by calvin 10 desember 2019
+                    $("#checkbox_all_generateFaktur").click(function () {
                         $(".checkbox_generateFaktur").prop('checked',
                             $(this).prop('checked'));
                         if ($("#checkbox_all_generateFaktur").prop('checked') == true) {
