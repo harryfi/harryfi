@@ -175,8 +175,7 @@
             @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
             <div class="form-group">
                 @*//add by nurul 6/12/2019*@
-                @*@Html.Label(barang.BRG, new { @class = "col-md-2 col-sm-2 col-xs-2 control-label", style = "padding-top: 11px;" })*@
-                <label class="col-md-3 col-sm-3 col-xs-3 control-label" style="padding-top: 11px;">@barang.BRG</label>
+                <label class="col-md-2 col-sm-2 col-xs-2 control-label" style="padding-top: 11px;">@barang.BRG</label>
                 @*//end add by nurul 6/12/2019*@
                 @*//change by nurul 25/9/2019*@
                 @*@Html.Label(namaBarang, new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "padding-top: 11px;" })*@
@@ -197,7 +196,7 @@
                 @Html.Label(Convert.ToString(barang.QTY), new { @class = "col-md-1 col-sm-1 col-xs-1 control-label", style = "text-align: center; padding-top: 11px;" })
                 <div class="col-md-1 col-sm-1 col-xs-1" style="padding-top:3px;padding-left:20px;padding-right:0px">
                     @Html.Hidden($"Max-Qty-{barang.NO_URUT}", barang.QTY)
-                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY_N, new { @class = "form-control gudang-qty-num-only", Value = barang.QTY_N.HasValue ? (barang.QTY_N.Value == 0 ? barang.QTY : barang.QTY_N.Value) : barang.QTY })
+                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY_N, new { @class = "form-control gudang-qty-num-only", Value = barang.QTY_N.HasValue ? (barang.QTY_N.Value == 0 ? barang.QTY : barang.QTY_N.Value) : barang.QTY , @style = "width:50px;" })
                 </div>
             </div>
         </div>
