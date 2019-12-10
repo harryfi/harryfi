@@ -3935,6 +3935,34 @@ namespace MasterOnline.Controllers
                     //                    var client = new BackgroundJobClient(sqlStorage);
                     //                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
                     //#endif
+
+                    //add by Tri 10 Des 2019 , update harga 
+                    //var ShopeeApi = new ShopeeController();
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                    if (customer != null)
+                    {
+                        //var data = new ShopeeController.ShopeeAPIData
+                        //{
+                        //    API_client_password = iden.API_client_password,
+                        //    API_client_username = iden.API_client_username,
+                        //    API_secret_key = iden.API_secret_key,
+                        //    merchant_code = iden.merchant_code,
+                        //    mta_password_password_merchant = iden.mta_password_password_merchant,
+                        //    mta_username_email_merchant = iden.mta_username_email_merchant,
+                        //    token = iden.token
+                        //};
+                        var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + customer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                        if(listBrg.Tables[0].Rows.Count > 0)
+                        {
+                            for(int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                            {
+                                await UpdateVariationPrice(iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+                            }
+                        }
+
+                    }
+                    //end add by Tri 10 Des 2019 , update harga 
+
                 }
             }
 
@@ -4766,14 +4794,14 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = seconds.ToString(),
-                REQUEST_ACTION = "Update Price",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-                REQUEST_STATUS = "Pending",
-            };
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ACTION = "Update Price",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
 
             string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
 
@@ -4798,8 +4826,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -4813,25 +4841,25 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            }
-            catch (Exception ex)
-            {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            }
+            //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
 
             if (responseFromServer != null)
             {
-                try
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                }
-                catch (Exception ex2)
-                {
-                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                }
+                //try
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
             }
             return ret;
         }
