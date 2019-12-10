@@ -1837,27 +1837,27 @@ namespace MasterOnline.Controllers
                         var sSQL = "";
                         var sSQL2 = "SELECT * INTO #TEMP FROM (";
                         var listReason = new Dictionary<string, string>();
-                        if (ordersn_list.Count() > 50)
-                        {
-                            var order50 = new string[50];
-                            int i = 0;
-                            foreach (var order in listOrder.orders)
-                            {
-                                order50[i] = order.ordersn;
-                                i++;
-                                if (i > 50 || order == listOrder.orders.Last())
-                                {
-                                    var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                                    listReason = AddDictionary(listReason, list2);
-                                    i = 0;
-                                    order50 = new string[50];
-                                }
-                            }
-                        }
-                        else
-                        {
+                        //if (ordersn_list.Count() > 50)
+                        //{
+                        //    var order50 = new string[50];
+                        //    int i = 0;
+                        //    foreach (var order in listOrder.orders)
+                        //    {
+                        //        order50[i] = order.ordersn;
+                        //        i++;
+                        //        if (i > 50 || order == listOrder.orders.Last())
+                        //        {
+                        //            var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                        //            listReason = AddDictionary(listReason, list2);
+                        //            i = 0;
+                        //            order50 = new string[50];
+                        //        }
+                        //    }
+                        //}
+                        //else
+                        //{
                             listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                        }
+                        //}
                         foreach (var order in listOrder.orders)
                         {
                             string reasonValue;
@@ -1870,7 +1870,7 @@ namespace MasterOnline.Controllers
                                 sSQL += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
                             }
                         }
-                        sSQL2 += sSQL + ") ; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                        sSQL2 += sSQL + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                         sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
                         sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                         EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
@@ -1912,18 +1912,18 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public Dictionary<TKey, TValue> AddDictionary<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> source)
-        {
-            if (source == null) throw new ArgumentNullException("source");
-            if (target == null) throw new ArgumentNullException("target");
+        //public Dictionary<TKey, TValue> AddDictionary<TKey, TValue>(this Dictionary<TKey, TValue> target, Dictionary<TKey, TValue> source)
+        //{
+        //    if (source == null) throw new ArgumentNullException("source");
+        //    if (target == null) throw new ArgumentNullException("target");
 
-            foreach (var keyValuePair in source)
-            {
-                target.Add(keyValuePair.Key, keyValuePair.Value);
-            }
+        //    foreach (var keyValuePair in source)
+        //    {
+        //        target.Add(keyValuePair.Key, keyValuePair.Value);
+        //    }
 
-            return target;
-        }
+        //    return target;
+        //}
 
 
         [AutomaticRetry(Attempts = 2)]
