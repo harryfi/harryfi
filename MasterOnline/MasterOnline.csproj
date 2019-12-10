@@ -6358,6 +6358,10 @@
     <Content Include="Views\Admin\TablePartPartial.cshtml" />
     <Content Include="Views\Admin\DetailPartPartial.cshtml" />
     <Content Include="Views\Manage\BayarPiutangLog.cshtml" />
+    <Content Include="Views\Manage\PackingListTokped.cshtml" />
+    <Content Include="Views\Manage\PackingListLazada.cshtml" />
+    <Content Include="Views\Manage\PackingListBlibli.cshtml" />
+    <Content Include="Views\Manage\PackingListShopee.cshtml" />
     <Content Include="Views\Manage\ListErrorPembayaranPiutang.cshtml" />
     <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />

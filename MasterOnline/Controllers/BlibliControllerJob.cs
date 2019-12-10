@@ -1797,6 +1797,11 @@ namespace MasterOnline.Controllers
             string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
             return quoted.Substring(1, quoted.Length - 2);
         }
+        
+        public class createPackageData
+        {
+            public List<string> orderItemIds { get; set; }
+        }
         public class fillOrderAWBData
         {
             public int type { get; set; }
@@ -1902,17 +1907,6 @@ namespace MasterOnline.Controllers
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
-            string myData = "{";
-            myData += "\"type\": 1, ";
-            myData += "\"awbNo\": \"" + awbNo + "\", ";
-            myData += "\"orderNo\": \"" + orderNo + "\", ";
-            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
-            myData += "\"combineShipping\":[{";
-            myData += "\"orderNo\": \"" + orderNo + "\", ";
-            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
-            myData += "}] ";
-            myData += "}";
-
             List<fillOrderAWBCombineShipping> combineShipping = new List<fillOrderAWBCombineShipping>();
             combineShipping.Add(new fillOrderAWBCombineShipping
             {
@@ -1927,8 +1921,8 @@ namespace MasterOnline.Controllers
             thisData.orderNo = orderNo;
             thisData.orderItemNo = orderItemNo;
             thisData.combineShipping = combineShipping;
-
-            myData = JsonConvert.SerializeObject(thisData);
+            
+            string myData = JsonConvert.SerializeObject(thisData);
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -1980,15 +1974,17 @@ namespace MasterOnline.Controllers
             //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             //}
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '2' WHERE CUST = '"+ log_CUST +"' AND NO_REFERENSI = '"+ orderNo +"'");
                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM = '1' WHERE CUST = '"+ log_CUST +"' AND NO_REFERENSI = '"+ orderNo +"'");
                     throw new Exception(result.errorMessage.Value);
                     //currentLog.REQUEST_RESULT = result.errorCode.Value;
                     //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
@@ -7683,6 +7679,127 @@ namespace MasterOnline.Controllers
             return "";
         }
 
+        public async Task<string> createPackage(string dbPathEra, BlibliAPIData iden, List<string> orderItemIDs)
+        {
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            var token = SetupContext(iden);
+            iden.token = token;
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            createPackageData thisData = new createPackageData();
+
+            thisData.orderItemIds = orderItemIDs;
+
+            string myData = JsonConvert.SerializeObject(thisData);
+            
+            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/createPackage", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/createPackage?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&storeId=10001" + "&channelId=MasterOnline&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    ret = result.value.packageId;
+                }
+            }
+            return ret;
+        }
+
+        public class BlibliShippingLabelRet {
+            public bool success { get; set; }
+            public string errorMessage { get; set; }
+            public BlibliShippingLabelRetValue value { get; set; }
+        }
+        public class BlibliShippingLabelRetValue {
+            public string document { get; set; }
+        }
+        public async Task<BlibliShippingLabelRet> GetShippingLabel(string dbPathEra, BlibliAPIData iden, string orderItemId)
+        {
+            var result = new BlibliShippingLabelRet();
+            var token = SetupContext(iden);
+            iden.token = token;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/downloadShippingLabel", iden.API_secret_key);
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/downloadShippingLabel?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString());
+            urll += "&channelId=MasterOnline";
+            urll += "&storeId=10001";
+            urll += "&orderItemId=" + Uri.EscapeDataString(orderItemId);
+            urll += "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (responseFromServer != "")
+            {
+                result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliShippingLabelRet)) as BlibliShippingLabelRet;
+            }
+            return result;
+        }
 
         public class CekProductRejectResult
         {

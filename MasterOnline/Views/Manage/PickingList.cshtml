@@ -226,7 +226,7 @@
                     @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
                             <span>Refresh</span>
                         </button>*@
-                    <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist">Tambah Baru</button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_packinglist" style="display:none">Tambah Baru</button>
                 </div>
             </div>
         </div>
@@ -989,6 +989,7 @@
                     //$('#btnPrint').prop('disabled', true);
                     $('#konfHapusPesanan').modal('hide');
                     $('#loading_spinner').hide();
+                    //add by calvin 24 okt 2019
                 },
                 error: function (xhr) {
                     console.log(xhr);

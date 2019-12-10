@@ -13,6 +13,11 @@ using System.Web;
 using System.Web.Mvc;
 using System.Xml;
 using Hangfire;
+using Hangfire.SqlServer;
+using Hangfire.Server;
+using Hangfire.Common;
+using Hangfire.Client;
+using Hangfire.States;
 using System.Xml;
 
 namespace MasterOnline.Controllers
@@ -1459,8 +1464,12 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public LazadaToDeliver GetToPacked(List<string> orderItemId, string shippingProvider, string accessToken)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Lazada Gagal.")]
+        public LazadaToDeliver GetToPackedToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string accessToken)
         {
+            SetupContext(dbPathEra, uname);
             var ret = new LazadaToDeliver();
             string ordItems = "";
             if (orderItemId.Count > 1)
@@ -1477,15 +1486,15 @@ namespace MasterOnline.Controllers
                 ordItems = orderItemId[0];
             }
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Set Status Order to Packed",
-                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
-                REQUEST_ATTRIBUTE_1 = ordItems,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Set Status Order to Packed",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = ordItems,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -1493,41 +1502,52 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("shipping_provider", shippingProvider);
             request.AddApiParameter("delivery_type", "dropship");
             request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
-            try
+            //try
+            //{
+            LazopResponse response = client.Execute(request, accessToken);
+            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+            if (ret.code.Equals("0"))
             {
-                LazopResponse response = client.Execute(request, accessToken);
-                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
-                if (ret.code.Equals("0"))
+                var orderid = orderItemId[0];
+                var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+                if (orderDetail != null)
                 {
-                    var orderid = orderItemId[0];
-                    var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
-                    if (orderDetail != null)
+                    var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == orderDetail.NO_BUKTI).FirstOrDefault();
+                    if (order != null)
                     {
-                        var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == orderDetail.NO_BUKTI).FirstOrDefault();
-                        if (order != null)
+                        order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
+                        order.status_kirim = "2";
+                        if (string.IsNullOrWhiteSpace(order.TRACKING_SHIPMENT))
                         {
-                            order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
-                            order.SHIPMENT = ret.data.order_items[0].shipment_provider;//add 12-04-2019
-                            ErasoftDbContext.SaveChanges();
+                            order.status_kirim = "1";
                         }
+                        ErasoftDbContext.SaveChanges();
+//
+//
+//                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+//                        var jobClient = new BackgroundJobClient(sqlStorage);
+//                        jobClient.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, order.NAMAPEMESAN, order.CUST, "Pesanan", "Ganti Status", uname, orderItemId, order.SHIPMENT, order.TRACKING_SHIPMENT, accessToken));
                     }
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
-                }
-                else
-                {
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                ret.message = ex.ToString();
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                var orderid = orderItemId[0];
+                var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
+                throw new Exception(ret.message);
             }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ret.message = ex.ToString();
+            //    currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //}
 
             return ret;
-
         }
 
         [AutomaticRetry(Attempts = 3)]
@@ -1575,10 +1595,18 @@ namespace MasterOnline.Controllers
             ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
             if (ret.code.Equals("0"))
             {
+                var orderid = orderItemId[0];
+                var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
             }
             else
             {
+                var orderid = orderItemId[0];
+                var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='1' WHERE NO_BUKTI = '" + orderDetail.NO_BUKTI + "'");
                 throw new Exception(ret.message);
                 //currentLog.REQUEST_EXCEPTION = ret.message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);

@@ -2347,6 +2347,132 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public class GetAirwayBillsData
+        {
+            public bool is_batch { get; set; }
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string[] ordersn_list { get; set; }
+        }
+
+
+        public class GetAirwayBillsRootResult
+        {
+            public GetAirwayBillsResult result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsResult
+        {
+            public int total_count { get; set; }
+            public GetAirwayBillsError[] errors { get; set; }
+            public GetAirwayBillsAirway_Bills[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public class GetAirwayBillsAirway_Bills
+        {
+            public string ordersn { get; set; }
+            public string airway_bill { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResult
+        {
+            public GetAirwayBillsBatchResultBatch_Result batch_result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultBatch_Result
+        {
+            public int total_count { get; set; }
+            public List<GetAirwayBillsBatchResultError> errors { get; set; }
+            public string[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            var result = new GetAirwayBillsBatchResult();
+            result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+            GetAirwayBillsData HttpBody = new GetAirwayBillsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list,
+                is_batch = true
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+
+                //var connIdARF01C = Guid.NewGuid().ToString();
+
+                //foreach (var order in result.orders)
+                //{
+                //    ret = order.tracking_no;
+                //}
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return result;
+        }
+
         public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)
         {
             int MOPartnerID = 841371;
@@ -2580,7 +2706,15 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2605,7 +2739,14 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2796,7 +2937,18 @@ namespace MasterOnline.Controllers
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+//                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+                            string dTrackNo = "";
+                            if (dTrackNo == "")
+                            {
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
+                            }
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(dTrackNo))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
                             ErasoftDbContext.SaveChanges();
 
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2815,7 +2967,14 @@ namespace MasterOnline.Controllers
                         {
                             string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = trackno;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -3763,15 +3922,15 @@ namespace MasterOnline.Controllers
                 }
                 else //update image only
                 {
-//#if (Debug_AWS || DEBUG)
+                    //#if (Debug_AWS || DEBUG)
                     await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
+                    //#endif
                 }
             }
 
@@ -3950,17 +4109,17 @@ namespace MasterOnline.Controllers
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateTierVariationResult)) as ShopeeUpdateTierVariationResult;
                 if (string.IsNullOrEmpty(resServer.error))
                 {
-//                    if (resServer.item_id == item_id)
-//                    {
-//#if (Debug_AWS || DEBUG)
-//                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
-//#else
-//                    string EDBConnID = EDB.GetConnectionString("ConnId");
-//                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    //                    if (resServer.item_id == item_id)
+                    //                    {
+                    //#if (Debug_AWS || DEBUG)
+                    //                        await AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    //#else
+                    //                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    //                    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                    var client = new BackgroundJobClient(sqlStorage);
-//                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
-//#endif
+                    //                    var client = new BackgroundJobClient(sqlStorage);
+                    //                    client.Enqueue<ShopeeControllerJob>(x => x.AddTierVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew));
+                    //#endif
                     //}
                 }
             }
@@ -4289,7 +4448,8 @@ namespace MasterOnline.Controllers
                         throw new Exception(resServer.msg);
                     }
                 }
-                else {
+                else
+                {
                     if (resServer.variation_id_list != null)
                     {
                         if (resServer.variation_id_list.Count() > 0)
@@ -5571,7 +5731,7 @@ namespace MasterOnline.Controllers
                     {
                         if (item == "190917235708RJN")
                         {
-                            await GetOrderDetails(iden, ordersn_list.Where(p=> p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
+                            await GetOrderDetails(iden, ordersn_list.Where(p => p == "190917235708RJN").ToArray(), connID, CUST, NAMA_CUST, stat);
                         }
                     }
                     //jmlhNewOrder = filtered.Count();

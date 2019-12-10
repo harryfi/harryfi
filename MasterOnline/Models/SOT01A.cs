@@ -176,6 +176,10 @@ namespace MasterOnline
 
         public double ONGKOS_KIRIM { get; set; }
 
+        public string status_kirim { get; set; }
+
+        public string status_print { get; set; }
+
         [Required]
         public DateTime? TGL_JTH_TEMPO { get; set; }
 
