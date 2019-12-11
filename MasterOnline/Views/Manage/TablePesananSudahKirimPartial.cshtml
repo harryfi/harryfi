@@ -387,8 +387,15 @@
         });
         $('#tabelpesananInvoicingpartialpager').on('click', 'a', function () {
             if (this.href != "") {
+                var link = this.href;
+                var filterby = get_pesanan_faktur_filterby();
+                var filtervalue = get_pesanan_faktur_filtervalue(filterby);
+                link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
                 $.ajax({
-                    url: this.href,
+                    url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
