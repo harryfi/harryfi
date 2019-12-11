@@ -1522,12 +1522,12 @@ namespace MasterOnline.Controllers
                             order.status_kirim = "1";
                         }
                         ErasoftDbContext.SaveChanges();
-//
-//
-//                        string EDBConnID = EDB.GetConnectionString("ConnId");
-//                        var sqlStorage = new SqlServerStorage(EDBConnID);
-//                        var jobClient = new BackgroundJobClient(sqlStorage);
-//                        jobClient.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, order.NAMAPEMESAN, order.CUST, "Pesanan", "Ganti Status", uname, orderItemId, order.SHIPMENT, order.TRACKING_SHIPMENT, accessToken));
+                        //
+                        //
+                        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //                        var jobClient = new BackgroundJobClient(sqlStorage);
+                        //                        jobClient.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, order.NAMAPEMESAN, order.CUST, "Pesanan", "Ganti Status", uname, orderItemId, order.SHIPMENT, order.TRACKING_SHIPMENT, accessToken));
                     }
                 }
             }
@@ -1913,7 +1913,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                     else
                                                     {
-                                                        InsertPembeli(order, connIDARF01C,dbPathEra, username);
+                                                        InsertPembeli(order, connIDARF01C, dbPathEra, username);
                                                         pembeliInDB = ErasoftDbContext.ARF01C.Where(m => m.TLP == order.address_billing.phone).FirstOrDefault();
                                                         if (pembeliInDB != null)
                                                         {
@@ -2829,7 +2829,7 @@ namespace MasterOnline.Controllers
             }
 
             return ret;
-        }            
+        }
 
         public void UpdateOrderUnpaidToCancel(string cust, string accessToken, string dbPathEra, string uname)
         {
@@ -2840,25 +2840,25 @@ namespace MasterOnline.Controllers
             var dmin2 = DateTime.Today.AddDays(-2);
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var connIDStok = Guid.NewGuid().ToString();
-            var listOrderUnpaid = ErasoftDbContext.SOT01A.Where(m => m.CUST == cust && m.TGL < dmin2 && m.STATUS_TRANSAKSI == "0").Select(m => new { nobuk = m.NO_BUKTI, noref = m.NO_REFERENSI}).ToList();
-            if(listOrderUnpaid.Count > 0)
+            var listOrderUnpaid = ErasoftDbContext.SOT01A.Where(m => m.CUST == cust && m.TGL < dmin2 && m.STATUS_TRANSAKSI == "0").Select(m => new { nobuk = m.NO_BUKTI, noref = m.NO_REFERENSI }).ToList();
+            if (listOrderUnpaid.Count > 0)
             {
                 //var listOrder = new List<string>();
-                foreach(var order in listOrderUnpaid)
+                foreach (var order in listOrderUnpaid)
                 {
-                    var ret = GetOrderStatus(order.noref, cust);
+                    var ret = GetOrderStatus(order.noref, accessToken);
                     if (!string.IsNullOrEmpty(ret))
                     {
                         //listOrder.Add(order.nobuk);
-                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.nobuk + "') AND STATUS_TRANSAKSI <> '11'");
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.noref + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
                         if (rowAffected > 0)
                         {
-                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.nobuk + "') AND STATUS <> '2'");
+                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.noref + "') AND STATUS <> '2' AND CUST = '" + cust + "'");
 
                             var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                               where a.NO_REFERENSI == order.nobuk
+                                               where a.NO_REFERENSI == order.noref && a.CUST == cust
                                                select new { b.BRG }).ToList();
                             foreach (var item in orderDetail)
                             {
@@ -2906,7 +2906,7 @@ namespace MasterOnline.Controllers
                 //ret = bindOrder;
                 if (bindOrder.code.Equals("0"))
                 {
-                    if( bindOrder.data.statuses[0].ToString() == "canceled")
+                    if (bindOrder.data.statuses[0].ToString() == "canceled")
                     {
                         ret = bindOrder.data.statuses[0].ToString();
                     }
