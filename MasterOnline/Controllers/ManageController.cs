@@ -2385,18 +2385,18 @@ namespace MasterOnline.Controllers
             var NilaiBatal = getBatal.bruto;
             //end add by nurul 2/12/2019, penambahan dashboard pesanan
 
-            if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
-            {
-                var vm = new PesananViewModel()
-                {
-                    //ListSubs = MoDbContext.Subscription.ToList(),
-                    //DataUsaha = dataUsaha,
-                    //ListPesanan = ceklistPesanan
-                };
-                return PartialView("AktivasiPesananStokKeMarketplace", vm);
-            }
-            else
-            {
+            //if (dataUsaha.JTRAN_RETUR != "1" && ceklistPesanan.Count() == 0)
+            //{
+            //    var vm = new PesananViewModel()
+            //    {
+            //        //ListSubs = MoDbContext.Subscription.ToList(),
+            //        //DataUsaha = dataUsaha,
+            //        //ListPesanan = ceklistPesanan
+            //    };
+            //    return PartialView("AktivasiPesananStokKeMarketplace", vm);
+            //}
+            //else
+            //{
                 var vm = new PesananViewModel
                 {
                     ListSubs = MoDbContext.Subscription.ToList(),
@@ -2414,7 +2414,7 @@ namespace MasterOnline.Controllers
                     //end add by nurul 2/12/2019, penambahan dashboard pesanan
                 };
                 return View(vm);
-            }
+            //}
             //end change by nurul 6/8/2019
 
 
@@ -3893,7 +3893,7 @@ namespace MasterOnline.Controllers
             //var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.PERSO AS PERSO ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.PERSO AS PERSO ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -17272,6 +17272,50 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by nurul 10/4/2019
+
+        //add by fauzi 06/12/2019
+        public ActionResult SaveStatusSyncPesananStok(string cust_id, string status)
+        {
+            try
+            {
+
+                //Boolean aaa = Convert.ToBoolean(status);
+                var dataCustomer = ErasoftDbContext.ARF01.Single(c => c.CUST == cust_id);
+                dataCustomer.TIDAK_HIT_UANG_R = Convert.ToBoolean(status);
+                var ada = "ada status";
+                ErasoftDbContext.SaveChanges();
+
+
+                return View("Success");
+                //ErasoftDbContext.ARF01.Add();
+                //ErasoftDbContext.SaveChanges();
+
+                //var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
+
+                //bool ubahSettingSync = false;
+                //if (dataUsaha.JTRAN_RETUR != status)
+                //{
+                //    ubahSettingSync = true;
+                //    dataUsaha.JTRAN_RETUR = status;
+                //    ErasoftDbContext.SaveChanges();
+                //}
+                //else
+                //{
+                //    var vmError = new PesananViewModel() { };
+
+                //    vmError.Errors.Add("Tidak ada perubahan status update !");
+                //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                //}
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+        //end add by fauzi 06/12/2019
 
         public ActionResult FillModalFixNotFound(string recNum)
         {

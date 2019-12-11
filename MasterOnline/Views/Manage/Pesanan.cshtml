@@ -1513,13 +1513,13 @@
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
-                    <div class="row pesanan_table_section form-group">
-                        @*@Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })*@
+                    @*<div class="row pesanan_table_section form-group">
+                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
                         @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
                             @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
                             <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                                @*<option value="default">Harap pilih</option>*@
+                                <option value="default">Harap pilih</option>
                                 @if (Model?.DataUsaha != null)
                                 {
                                     if (Model.DataUsaha.JTRAN_RETUR == "1")
@@ -1540,8 +1540,8 @@
                                 }
                             </select>
                         </div>
-                        @* remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
-                    </div>
+                         //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+                    </div>*@
                     <div class="row pesanan_table_section" style="margin-top:5px;">
                         <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
                             <div class="input-group">
@@ -3447,7 +3447,7 @@
                 //$('#DataUsaha_JTRAN_RETUR').val($(this).val());
                 if ($(this).val() == "1") {
                     //if(confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")){
-                    if (confirm("Anda akan mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+                    if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
                         $('#DataUsaha_JTRAN_RETUR').val($(this).val());
                         simpanUpdate();
                     }
@@ -3457,7 +3457,7 @@
                     }
                 }
                 else {
-                    if(confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")){
+                    if(confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")){
                         $('#DataUsaha_JTRAN_RETUR').val($(this).val());
                         simpanUpdate();
                     }
