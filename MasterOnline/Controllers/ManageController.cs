@@ -37919,20 +37919,10 @@ namespace MasterOnline.Controllers
                                     TGL = DateTime.Now,
                                     USERNAME = "AUTO_CREATE"
                                 };
-                                var listPackinglistInDb = context.SOT03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                int? lastRecNum = 0;
-                                string nobuk = "";
-                                if (listPackinglistInDb == null)
-                                {
-                                    context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT03A, RESEED, 0)");
-                                    lastRecNum++;
-                                }
-                                else
-                                {
-                                    lastRecNum = listPackinglistInDb.RecNum;
-                                    lastRecNum++;
-                                }
-                                nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
+                                
+                                string lastnobuk = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(NO_BUKTI), 5, 6), '0') FROM SOT03A WHERE NO_BUKTI LIKE 'PL19%'").First();
+                                var nobuk = "PL" + DateTime.Now.Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastnobuk) + 1).PadLeft(6, '0');
+                                
                                 newPackinglist.NO_BUKTI = nobuk;
                                 context.SOT03A.Add(newPackinglist);
                                 
