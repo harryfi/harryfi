@@ -2837,7 +2837,8 @@ namespace MasterOnline.Controllers
             var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
             var username = uname;
-            var dmin2 = DateTime.Today.AddDays(-2);
+            //var dmin2 = DateTime.Today.AddDays(-2);
+            var dmin2 = DateTime.Now.AddDays(-1);
             var brgCancelled = new List<TEMP_ALL_MP_ORDER_ITEM>();
             var connIDStok = Guid.NewGuid().ToString();
             var listOrderUnpaid = ErasoftDbContext.SOT01A.Where(m => m.CUST == cust && m.TGL < dmin2 && m.STATUS_TRANSAKSI == "0").Select(m => new { nobuk = m.NO_BUKTI, noref = m.NO_REFERENSI }).ToList();
