@@ -161,7 +161,7 @@ namespace MasterOnline.Utils
                 {
                     if (recurringJob.Job != null)
                     {
-                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, recurringJob.Cron, recurJobOpt);
                     }
                     else
                     {
