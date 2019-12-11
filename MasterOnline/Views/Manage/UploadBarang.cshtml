@@ -1398,10 +1398,10 @@
             else {
                 $("#Stf02_BRG").closest('div').append('<span class="text-danger"></span>');
             }
-            if ($("#Stf02_Deskripsi").val().length < 30) {
-                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
-                ret = false;
-            }
+            //if ($("#Stf02_Deskripsi").val().length < 30) {
+            //    addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
+            //    ret = false;
+            //}
             if (convertToAngka($("#Stf02_HJUAL").val()) <= 0) {
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
@@ -1471,6 +1471,10 @@
                 $('#Stf02_BRG').val($('#txtBrg').val());
 
                 $('#tipeBarang').val($('#cmbVar').val());
+
+                if ($("#Stf02_Deskripsi").val() == "") {
+                    $("#Stf02_Deskripsi").val('-');
+                }
 
                 var $form = $(btnClicked).parents('form');
                 var $formData = new FormData($('form').get(0));
