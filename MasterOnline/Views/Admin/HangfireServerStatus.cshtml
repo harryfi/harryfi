@@ -118,41 +118,45 @@
     }
 
     function StopActiveUserServers() {
-        var link = '@Url.Action("DeactivateRecentActiveUsers", "Admin")';
-
-        $.ajax({
-            type: "POST",
-            url: link,
-            contentType: 'application/json',
-            cache: false,
-            beforeSend: function () {
-                $('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                refreshTableLog();
-            },
-            error: function (response) {
-            }
-        });
+        if(confirm("Yakin non-aktifkan Hangfire seluruh user aktif ?")){
+            var link = '@Url.Action("DeactivateRecentActiveUsers", "Admin")';
+    
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    refreshTableLog();
+                },
+                error: function (response) {
+                }
+            });
+        }
     }
 
     function StartActiveUserServers() {
-        var link = '@Url.Action("ActivateRecentActiveUsers", "Admin")';
-
-        $.ajax({
-            type: "POST",
-            url: link,
-            contentType: 'application/json',
-            cache: false,
-            beforeSend: function () {
-                $('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                refreshTableLog();
-            },
-            error: function (response) {
-            }
-        });
+        if(confirm("Yakin aktifkan Hangfire seluruh user aktif ?")){
+            var link = '@Url.Action("ActivateRecentActiveUsers", "Admin")';
+    
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    refreshTableLog();
+                },
+                error: function (response) {
+                }
+            });
+        }
     }
 
     function adminBroadcast() {
