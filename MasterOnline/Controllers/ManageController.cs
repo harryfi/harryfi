@@ -41599,6 +41599,145 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //end add by nurul 23/12/2019
+
+        //add by nurul 11/12/2019, cetak label pesanan
+        [HttpGet]
+        public ActionResult CetakLabel(string cust, string bukti, List<string> rows_selected)
+        {
+            //string nobuk = noBukPesanan.Substring(0, 2);
+            var kota = "";
+            var provinsi = "";
+            var pos = "";
+            var al_buyer = "";
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                List<CetakLabelViewModel> listlabel = new List<CetakLabelViewModel>();
+                foreach (var so in ListStt01a)
+                {
+                    //var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                    ////#region add button cetak
+                    ////htmlString += "<button id='print-btn' >Cetak</button>";
+                    //htmlString += "<script>";
+                    //htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                    ////htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
+                    ////htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
+                    //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                    //htmlString += "x.style.height = 'auto'; ";
+                    ////htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
+                    ////htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
+                    //htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                    ////                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                    ////                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                    ////                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                    ////                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                    ////                        htmlString += " if (document.readyState!='loading') run();";
+                    ////                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                    ////                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                    //htmlString += "</script>";
+                    ////#endregion
+                    //EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
+                    //return Json(htmlString, JsonRequestBehavior.AllowGet);
+
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == so.no_bukti);
+                    var namaToko = "";
+
+                    var pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == so.no_bukti);
+
+                    if (pesanan != null)
+                    {
+                        if (pesanan.KOTA != null)
+                        {
+                            kota = pesanan.KOTA;
+                        }
+                        if (pesanan.PROPINSI != null)
+                        {
+                            provinsi = pesanan.PROPINSI;
+                        }
+                        if (pesanan.KODE_POS != null)
+                        {
+                            pos = pesanan.KODE_POS;
+                        }
+                        al_buyer = pesanan.ALAMAT_KIRIM + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                    }
+
+                    var tempcust = ErasoftDbContext.ARF01.Single(c => c.CUST == cust);
+                    var idMarket = Convert.ToInt32(tempcust.NAMA);
+                    namaToko = tempcust.PERSO;
+                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    var noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == so.no_bukti).NO_REFERENSI;
+                    var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
+                    var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == so.no_bukti).SHIPMENT;
+                    var resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == so.no_bukti).TRACKING_SHIPMENT;
+
+                    var vm = new CetakLabelViewModel()
+                    {
+                        NamaToko = namaToko,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = urlLogoMarket,
+                        Faktur = fakturInDb,
+                        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                        ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                        AlamatToko = alamat,
+                        TlpToko = tlp,
+                        noRef = noRef,
+                        Kurir = kurir,
+                        Marketplace = market,
+                        NoResi = resi,
+                        alamatPenerima = al_buyer,
+                    };
+                    listlabel.Add(vm);
+
+
+                }
+                //return View(listlabel);
+                return Json(listlabel, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                //return View("NotFoundPage");
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            //return JsonErrorMessage("Gagal Cetak Label");
+        }
+
+        //end add by nurul 11/12/2019, cetak label pesanan
+
     }
     public class smolSTF02
     {
