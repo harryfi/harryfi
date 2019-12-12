@@ -35593,8 +35593,8 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+//            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+//            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
@@ -36945,10 +36945,10 @@ namespace MasterOnline.Controllers
                                     {
                                         string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]);
                                         orderItemIds.Add(order_item_id);
-//                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
-//                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
-//                                            order_item_id);
-                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
+                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
+                                            order_item_id);
+//                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
                                     }
                                     listSuccess.Add(new listSuccessPrintLabel()
                                     {
