@@ -36945,10 +36945,10 @@ namespace MasterOnline.Controllers
                                     {
                                         string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]);
                                         orderItemIds.Add(order_item_id);
-                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
-                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
-                                            order_item_id);
-//                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
+//                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
+//                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
+//                                            order_item_id);
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
                                     }
                                     listSuccess.Add(new listSuccessPrintLabel()
                                     {
