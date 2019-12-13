@@ -17274,42 +17274,18 @@ namespace MasterOnline.Controllers
         //end add by nurul 10/4/2019
 
         //add by fauzi 06/12/2019
-        public ActionResult SaveStatusSyncPesananStok(string cust_id, string status)
+        public ActionResult SaveStatusSyncPesananStok(string data)
         {
             try
             {
-
-                //Boolean aaa = Convert.ToBoolean(status);
-                var dataCustomer = ErasoftDbContext.ARF01.Single(c => c.CUST == cust_id);
-                dataCustomer.TIDAK_HIT_UANG_R = Convert.ToBoolean(status);
-                var ada = "ada status";
+                string[] data_split = data.Split('_');
+                var vcustID = data_split[0];
+                Boolean bstatusSync = Convert.ToBoolean(data_split[1]);
+                var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == vcustID);
+                dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
                 ErasoftDbContext.SaveChanges();
-
-
-                return View("Success");
-                //ErasoftDbContext.ARF01.Add();
-                //ErasoftDbContext.SaveChanges();
-
-                //var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
-
-                //bool ubahSettingSync = false;
-                //if (dataUsaha.JTRAN_RETUR != status)
-                //{
-                //    ubahSettingSync = true;
-                //    dataUsaha.JTRAN_RETUR = status;
-                //    ErasoftDbContext.SaveChanges();
-                //}
-                //else
-                //{
-                //    var vmError = new PesananViewModel() { };
-
-                //    vmError.Errors.Add("Tidak ada perubahan status update !");
-                //    return Json(vmError, JsonRequestBehavior.AllowGet);
-                //}
-
-
-
-            }
+                return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
+             }
             catch (Exception ex)
             {
                 return View("Error");
