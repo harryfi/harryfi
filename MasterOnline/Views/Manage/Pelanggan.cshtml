@@ -2489,7 +2489,7 @@
                 //},
                 onChange: function (value) {
                     if (value == "true") {
-                        if (confirm("Anda akan mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+                        if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline mengupdate stok di akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
                             $('#Customers_TIDAK_HIT_UANG_R').val("true");
                             resultStatus = true;
                         }
@@ -2500,7 +2500,7 @@
                         simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
                     }
                     else if (value == "false") {
-                        if (confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")) {
+                        if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
                             $('#Customers_TIDAK_HIT_UANG_R').val("false");
                             resultStatus = false;
                         }
