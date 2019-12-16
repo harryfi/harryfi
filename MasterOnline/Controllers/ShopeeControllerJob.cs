@@ -4857,6 +4857,14 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != null)
             {
+                //add by Tri 16 Des 2019, return exception jika ada error
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+                if (!string.IsNullOrEmpty(resServer.error))
+                {
+                    throw new Exception(resServer.msg);
+                }
+                //end add by Tri 16 Des 2019, return exception jika ada error
+
                 //try
                 //{
                 //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
