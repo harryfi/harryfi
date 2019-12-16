@@ -731,7 +731,8 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
                         string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        if (sync_pesanan_stok == "1")
+                        //add by fauzi 25 November 2019
+                        if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
@@ -762,7 +763,8 @@ namespace MasterOnline.Controllers
                         client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
                         //end change by calvin 4 april 2019
                         #endregion
-                        if (sync_pesanan_stok == "1")
+                        //add by fauzi 25 November 2019
+                        if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
@@ -847,7 +849,8 @@ namespace MasterOnline.Controllers
                         string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        if (sync_pesanan_stok == "1")
+                        //add by fauzi 25 November 2019
+                        if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             new BlibliControllerJob().GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.PERSO);
@@ -897,7 +900,8 @@ namespace MasterOnline.Controllers
 
                     //add by calvin 2 april 2019
                     string connId_JobId = "";
-                    if (sync_pesanan_stok == "1")
+                    //add by fauzi 25 November 2019
+                    if (tblCustomer.TIDAK_HIT_UANG_R == true)
                     {
 #if (DEBUG || Debug_AWS)
                         new EleveniaControllerJob().GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username);
@@ -962,7 +966,8 @@ namespace MasterOnline.Controllers
 
                             //add by calvin 2 april 2019
                             string connId_JobId = "";
-                            if (sync_pesanan_stok == "1")
+                            //add by fauzi 25 November 2019
+                            if (tblCustomer.TIDAK_HIT_UANG_R == true)
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
@@ -1030,7 +1035,8 @@ namespace MasterOnline.Controllers
                     iden.username = username;
 
                     string connId_JobId = "";
-                    if (sync_pesanan_stok == "1")
+                    //add by fauzi 25 November 2019
+                    if (tblCustomer.TIDAK_HIT_UANG_R == true)
                     {
                         //change by nurul 10/12/2019, ubah interval
                         //connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);

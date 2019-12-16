@@ -17,6 +17,7 @@ namespace MasterOnline
         public string KODE { get; set; }
         public string NAMA { get; set; }
         public string EMAIL { get; set; }
+        public Boolean TIDAK_HIT_UANG_R { get; set; }
         public string STATUS_API { get; set; }
         public string PERSO { get; set; }
         
