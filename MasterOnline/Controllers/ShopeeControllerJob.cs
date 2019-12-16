@@ -4071,6 +4071,12 @@ namespace MasterOnline.Controllers
 #endif
                     }
                 }
+                //add by Tri 16 Des 2019, return exception jika ada error
+                else
+                {
+                    throw new Exception(resServer.msg);
+                }
+                //end add by Tri 16 Des 2019, return exception jika ada error
             }
 
             return ret;
