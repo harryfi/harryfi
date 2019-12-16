@@ -42,4 +42,12 @@ namespace MasterOnline
         public string tracking_no { get; set; }
         public int so_recnum { get; set; }
     }
+
+    public class tempBarcodeLazada
+    {
+        public string ResiApi { get; set; }
+        public string referensiApi { get; set; }
+        public string PortCodeApi { get; set; }
+        public string HargaApi { get; set; }
+    }
 }

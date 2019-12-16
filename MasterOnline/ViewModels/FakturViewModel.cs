@@ -42,6 +42,11 @@ namespace MasterOnline.ViewModels
 
         //add by nurul 11/12/2019, for cetak label mo
         public List<CetakLabelViewModel> ListCetakLabel { get; set; } = new List<CetakLabelViewModel>();
+        public string urlAl { get; set; }
+        public string urlTlp { get; set; }
+        public string urlMp { get; set; }
+        public string urlNobuk { get; set; }
+        public string urlTotal { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
     }
 
@@ -62,5 +67,13 @@ namespace MasterOnline.ViewModels
         public List<ARF01C> ListPembeli { get; set; } = new List<ARF01C>();
         public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
+        
+        public string linktotal { get; set; }
+        public string linktoko { get; set; }
+        public string linktlptoko { get; set; }
+        public string linkport { get; set; }
+        public string linkref { get; set; }
+        public string isiPort { get; set; }
+        public string isiRef { get; set; }
     }
 }
