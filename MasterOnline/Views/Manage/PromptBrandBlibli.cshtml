@@ -76,11 +76,13 @@
         });
     }
 
-    function pilihPrompt($value,$name) {
+    function pilihPrompt(sender) {
+        let value = $(sender).attr('data-value');
+        let name = $(sender).attr('data-valuename');
         self.window.close();
         window.onunload = refreshTextBox;
         function refreshTextBox() {
-            window.opener.afterPromptBrandBlibli($value, $name);
+            window.opener.afterPromptBrandBlibli(value.toString(), name.toString());
         }
     }
 </script>
