@@ -11322,6 +11322,15 @@ namespace MasterOnline.Controllers
                     newVariantData.Tgl_Input = DateTime.Today;
                     //end add by nurul 27/11/2019, add tgl last edit
 
+                    //add by Tri 9 Des 2019, kosongkan gambar varian baru
+                    newVariantData.LINK_GAMBAR_1 = "";
+                    newVariantData.LINK_GAMBAR_2 = "";
+                    newVariantData.LINK_GAMBAR_3 = "";
+                    newVariantData.Sort5 = "";
+                    newVariantData.Sort6 = "";
+                    newVariantData.Sort7 = "";
+                    //end add by Tri 9 Des 2019, kosongkan gambar varian baru
+
                     ListNewVariantData_Stf02.Add(newVariantData);
                 }
                 else
