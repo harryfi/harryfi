@@ -2492,36 +2492,39 @@
                         if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
                             $('#Customers_TIDAK_HIT_UANG_R').val("true");
                             resultStatus = true;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                         }
                         else {
                             $('#Customers_TIDAK_HIT_UANG_R').val("false");
                             resultStatus = false;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                         }
-                        simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
                     }
                     else if (value == "false") {
                         if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
                             $('#Customers_TIDAK_HIT_UANG_R').val("false");
                             resultStatus = false;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                         }
                         else {
                             $('#Customers_TIDAK_HIT_UANG_R').val("true");
                             resultStatus = true;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                         }
-                        simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
                     }
                     else if (value == "true01") {
                         $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                     }
                     else if (value == "false02") {
                         $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
                     }
                 }
             });
-
             statusSyncMarketplace[0].selectize.trigger('change', resp);
-            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
-            
         }
 
         function convertToRupiah(angka) {
