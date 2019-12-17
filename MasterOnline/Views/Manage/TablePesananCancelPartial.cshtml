@@ -50,7 +50,6 @@
             width: 37%;
         }
     }
-
 </style>
 <div id="loading_pesanan_cancel_tab">
     <div id="loading_pesanan_cancel_tab_image">
@@ -110,6 +109,21 @@
                         @pesanan.PEMBELI
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                    <td>
+                        @pesanan.CancelReason
+                        @if (!string.IsNullOrEmpty(pesanan.CancelReason))
+                        {
+                            if (pesanan.CancelReason.Length > 100)
+                            {
+                                @pesanan.CancelReason
+                            }
+                            else
+                            {
+                                @(pesanan.CancelReason.Substring(0, 97) + "...")
+                                <button onclick="alert('Alasan batal :' + @pesanan.CancelReason)"><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                            }
+                        }
+                    </td>
                     <td class="edit-hapus-col">
                         @if (pesanan.MARKET != "")
                         {
@@ -133,18 +147,18 @@
     {
         <div id="tabelpesanancancelpartialpager" class="pager">
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananCancel", new
-   {
-       page,
-       search = ViewData["searchParam"]
-   }),
-        new PagedListRenderOptions
-        {
-            LinkToFirstPageFormat = "<<",
-            LinkToPreviousPageFormat = "prev",
-            LinkToNextPageFormat = "next",
-            LinkToLastPageFormat = ">>",
-            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-        })
+            {
+                page,
+                search = ViewData["searchParam"]
+            }),
+             new PagedListRenderOptions
+             {
+                 LinkToFirstPageFormat = "<<",
+                 LinkToPreviousPageFormat = "prev",
+                 LinkToNextPageFormat = "next",
+                 LinkToLastPageFormat = ">>",
+                 DisplayEllipsesWhenNotShowingAllPageNumbers = false
+             })
             Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         </div>
     }
