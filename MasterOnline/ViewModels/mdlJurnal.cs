@@ -50,4 +50,30 @@ namespace MasterOnline
         public string PortCodeApi { get; set; }
         public string HargaApi { get; set; }
     }
+
+    public class tempLabel
+    {
+        public string CUST { get; set; }
+        //public string NAMA_CUST { get; set; }
+        public string so_bukti { get; set; }
+        public string so_referensi { get; set; }
+        public string no_resi { get; set; }
+        public string kurir { get; set; }
+        public double so_netto { get; set; }
+        public double si_netto { get; set; }
+        public double so_ongkir { get; set; }
+        public string so_kota { get; set; }
+        public string so_propinsi { get; set; }
+        public string so_pos { get; set; }
+        public string so_alamat { get; set; }
+        public string nama_pemesan { get; set; }
+        public int jumlah_item { get; set; }
+        public string si_bukti { get; set; }
+        public DateTime? si_tgl { get; set; }
+        public string perso { get; set; }
+        public string namamarket { get; set; }
+        public string logo { get; set; }
+        public string namapembeli { get; set; }
+        public string tlppembeli { get; set; }
+    }
 }

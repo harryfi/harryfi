@@ -134,6 +134,49 @@
     }
 </style>
 <style type="text/css">
+    #loading_spinner {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,.5);
+    }
+
+    #loading_spinner_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    #loading_spinner_btn {
+        display: none;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    #loading_spinner_image_btn {
+        width: 20px;
+        height: 40px;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
     .modal-dialog {
         /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         /*width: 75%;*/
@@ -465,20 +508,6 @@
                         } else {
                             alert('Please allow popups for this website');
                         }*@
-                        $postdata2 = {
-                            cust: cust,
-                            bukti: $('#packingList_NO_BUKTI').val(),
-                            rows_selected: rows_selected,
-                            toko: toko,
-                            tlptoko: tlpToko,
-                            alLink: alamat,
-                            noLink: tlp,
-                            mpLink: mp,
-                            nobukLink: nobuk,
-                            totalLink: total,
-                            portLink: port,
-                            refLink: ref,
-                        };
 
                         @*$.ajax({
                             type: "POST",
@@ -514,53 +543,70 @@
                             contentType: "application/json; charset=UTF-8",
                             cache: false,
                             data: JSON.stringify($postdata),
-                            success: function (response) {
-                                if (response != null) {
-                                    if (response.mo_error == null) {
-                                        //$('#labelContainer').html(response);
-
-                                        //window.open(response, "_self");
-                                        //var w = window.open('about:blank');
-                                        //w.document.open();
-                                        //w.document.write(response);
-                                        //w.document.close();
-                                        $.ajax({
-                            type: "POST",
-                            url: '@Url.Action("CetakLabelMo", "Manage")',
-                            contentType: "application/json; charset=UTF-8",
-                            cache: false,
-                            data: JSON.stringify($postdata2),
-                            success: function (response) {
-                                if (response != null) {
-                                    if (response.mo_error == null) {
-                                        $('#modalPrintLabelOption__' + cust).modal('hide');
-                                        var w = window.open('about:blank');
-                                        w.document.open();
-                                        w.document.write(response);
-                                        w.document.close();
-
-                                    } else {
-                                        $('#modalPrintLabelOption__' + cust).modal('hide');
-                                        alert(response.mo_error);
-                                    }
-                                }
-
-                            },
-                            error: function (xhr, status, error) {
+                            beforeSend: function () {
                                 $('#modalPrintLabelOption__' + cust).modal('hide');
-                                console.log(error);
-                            }
-                        });
+                                $('#loading_spinner').show();
+                            },
+                            success: function (response) {
+                                if (response != null) {
+                                    if (response.mo_error == null) {
+
+                                        $postdata2 = {
+                                            cust: cust,
+                                            bukti: $('#packingList_NO_BUKTI').val(),
+                                            rows_selected: rows_selected,
+                                            toko: toko,
+                                            tlptoko: tlpToko,
+                                            alLink: alamat,
+                                            noLink: tlp,
+                                            mpLink: mp,
+                                            nobukLink: nobuk,
+                                            totalLink: total,
+                                            portLink: port,
+                                            refLink: ref,
+                                            data: response
+                                        };
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                                            contentType: "application/json; charset=UTF-8",
+                                            cache: false,
+                                            beforeSend: function () {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                $('#loading_spinner').show();
+                                            },
+                                            data: JSON.stringify($postdata2),
+                                            success: function (response) {
+                                                if (response != null) {
+                                                    if (response.mo_error == null) {
+                                                        $('#loading_spinner').hide();
+                                                        var w = window.open('about:blank');
+                                                        w.document.open();
+                                                        w.document.write(response);
+                                                        w.document.close();
+
+                                                    } else {
+                                                        alert(response.mo_error);
+                                                        $('#loading_spinner').hide();
+                                                    }
+                                                }
+
+                                            },
+                                            error: function (xhr, status, error) {
+                                                console.log(error);
+                                                $('#loading_spinner').hide();
+                                            }
+                                        });
                                     } else {
                                         alert(response.mo_error);
+                                        $('#loading_spinner').hide();
                                     }
                                 }
-                                //window.open(response, "_self");
-                                //window.location.href(response);
-
                             },
                             error: function (xhr, status, error) {
                                 console.log(error);
+                                $('#loading_spinner').hide();
                             }
                         });
 
@@ -631,7 +677,7 @@
                     @*add by nurul 13/12/2019*@
                     <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
                         <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:270px;width:650px;">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
@@ -821,7 +867,7 @@
                             @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="LazadaGetLabelPerPacking('@(item.CUST)')">Print</button>*@
 
                             <div class="btn-group pull-right" role="group">
-                                <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:110px;">
+                                <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">

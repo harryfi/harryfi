@@ -204,11 +204,6 @@
             });
         });
 
-        //$('#modalPrintLabelOption__' + cust)
-        //    .off('hidden.bs.modal').on('hidden.bs.modal',
-        //        function () {
-        //            $(this).removeData('bs.modal');
-        //        });
     });
 
     function allcheckboxpackingshopeeonclick(cust){
@@ -386,12 +381,14 @@
         if (rows_selected.length <= 0) {
             alert("Mohon pilih pesanan yang mau diproses.");
         } else {
+            $postdata = {
+                cust: cust,
+                bukti: $('#packingList_NO_BUKTI').val(),
+                rows_selected: rows_selected,
+                label: label
+            };
             if (label == "1") {
-                $postdata = {
-                    cust: cust,
-                    bukti: $('#packingList_NO_BUKTI').val(),
-                    rows_selected: rows_selected
-                };
+                
 
                 $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
                 $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
@@ -543,7 +540,7 @@
                             alert('Please allow popups for this website');
                         }*@
 
-                        $postdata = {
+                        $postdata2 = {
                             cust: cust,
                             bukti: $('#packingList_NO_BUKTI').val(),
                             rows_selected: rows_selected,
@@ -564,7 +561,7 @@
                             keyboard: false
                         });
 
-                        $.ajax({
+                        @*$.ajax({
                             type: "POST",
                             url: '@Url.Action("CetakLabelMo", "Manage")',
                             contentType: "application/json; charset=UTF-8",
@@ -592,7 +589,68 @@
                                 $('#modalPrintLabelOption__' + cust).modal('hide');
                                 console.log(error);
                             }
+                        });*@
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ShopeeLabelPerPacking", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            success: function (response) {
+                                if (response.mo_error != undefined) {
+                                    $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                }
+                                else {
+                                    var textareaValue = "";
+                                    var adaError = false;
+                                    var errorValue = "";
+                                    response.ret.batch_result.errors.forEach(function (item) {
+                                        adaError = true;
+                                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                    });
+                                    if (adaError) {
+                                        textareaValue += "</br>";
+                                        textareaValue += "Error Orders :</br>";
+                                        textareaValue += errorValue;
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                    } else {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                                            contentType: "application/json; charset=UTF-8",
+                                            cache: false,
+                                            data: JSON.stringify($postdata2),
+                                            success: function (response) {
+                                                if (response != null) {
+                                                    if (response.mo_error == null) {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintShopee__' + cust).modal('hide');
+                                                        var w = window.open('about:blank');
+                                                        w.document.open();
+                                                        w.document.write(response);
+                                                        w.document.close();
+                                                    } else {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                                        alert(response.mo_error);
+                                                    }
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                console.log(error);
+                                            }
+                                        });
+                                    }
+                                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
                         });
+
                     });
                 } else {
                     alert("Mohon pilih pesanan yang mau diproses.");
@@ -623,7 +681,7 @@
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
                     <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
                         <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:270px;width:650px;">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
@@ -786,7 +844,7 @@
                             @*//change by nurul 11/12/2019*@
                             @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>*@
                             <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
-                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:115px;">
+                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">

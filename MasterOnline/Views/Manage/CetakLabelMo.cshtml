@@ -186,22 +186,21 @@
                                 string isi_port = (labelList.isiPort == null || labelList.isiPort == "" ? "-" : labelList.isiPort);
                                 string no_ref = (labelList.linkref == null || labelList.linkref == "" ? "-" : labelList.linkref);
                                 string isi_ref = (labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef);
-                                var pembeli = labelList.ListPembeli.SingleOrDefault(p => p.BUYER_CODE == labelList.Faktur.PEMESAN);
+                                //var pembeli = labelList.ListPembeli.SingleOrDefault(p => p.BUYER_CODE == labelList.Faktur.PEMESAN);
                                 <div class="row " id="fake_page">
                                     <div hidden="hidden">
                                         @Html.Label(labelList.NamaToko, new { @class = "nm_toko" })
                                         @Html.Label(labelList.TlpToko, new { @class = "no_toko" })
                                     </div>
-                                    <div class="div_faktur ">
+                                    @*<div class="div_faktur ">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <table cellpadding="0">
                                                     <tr>
-                                                        <td @*style="width:500px"*@>
+                                                        <td >
                                                             <table class="table-hover">
                                                                 <tr>
                                                                     <td style="text-align:left; width:500px">
-                                                                        @*<div  id="nama_faktur"><h1 class="bold_title_invoice">@Model.NamaToko</h1></div>*@
                                                                         <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko == null ? "" : labelList.NamaToko)</span></h1></div>
                                                                     </td>
                                                                     <td style="text-align:right; width:500px">
@@ -215,7 +214,6 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <td colspan="2">
-                                                                        @*<div id="tlp_faktur" class="col-md-12"><span>@Model.TlpToko</span></div>*@
                                                                         <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.TlpToko)</span></div>
                                                                     </td>
                                                                 </tr>
@@ -244,7 +242,7 @@
                                                         </tr>
                                                         <tr>
                                                             <td style="width:500px">
-                                                                <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(pembeli == null ? "" : pembeli.NAMA)
+                                                                <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(labelList.namaPembeli)
                                                             </td>
                                                             <td style="text-align:center; width:50px"></td>
                                                             <td style="width:250px; text-align:center">
@@ -256,20 +254,16 @@
                                                         </tr>
                                                         <tr>
                                                             <td>
-                                                                <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                                                <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(labelList.tlpPembeli)
                                                             </td>
                                                         </tr>
                                                         <tr>
-                                                            @*<td>
-                                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
-                                                                </td>*@
                                                             <td style="text-align:left; background-color:lightskyblue; width:500px">
                                                                 <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td>
-                                                                @*<span class="block_subtitle" style="margin-left:10px">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))*@
                                                                 <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
                                                             </td>
                                                         </tr>
@@ -277,9 +271,7 @@
                                                 </td>
                                             </tr>
                                         </table>
-                                        @*<br /><br />*@
                                         <table class="table">
-                                            @*<thead>*@
                                             <tr>
                                                 <th>Nama Produk</th>
                                                 <th style="text-align: right;">Jumlah Barang</th>
@@ -287,7 +279,6 @@
                                                 <th style="text-align: right;">Diskon</th>
                                                 <th style="text-align: right;">Subtotal</th>
                                             </tr>
-                                            @*</thead>*@
                                             <tbody class="barang-faktur">
                                                 @foreach (var fakturDetail in labelList.ListFakturDetail)
                                                 {
@@ -372,7 +363,7 @@
                                             <hr id="garis_potong" />
                                         </div>
                                         <br />
-                                    </div>
+                                    </div>*@
                                     <div class="div_label_pengiriman">
                                         <div class="row">
                                             <div class="col-md-7">
@@ -462,7 +453,7 @@
                                                     <span class="block_subtitle_label">Tanggal</span> @(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))
                                                 </td>
                                                 <td class="sub_title">
-                                                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                                    <span class="block_subtitle_label">No. Telepon</span> @(labelList.tlpPembeli)
                                                 </td>
                                             </tr>
                                             <tr>

@@ -75,5 +75,7 @@ namespace MasterOnline.ViewModels
         public string linkref { get; set; }
         public string isiPort { get; set; }
         public string isiRef { get; set; }
+        public string namaPembeli { get; set; }
+        public string tlpPembeli { get; set; }
     }
 }
