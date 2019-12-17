@@ -3958,12 +3958,21 @@ namespace MasterOnline.Controllers
                         //    mta_username_email_merchant = iden.mta_username_email_merchant,
                         //    token = iden.token
                         //};
-                        var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + customer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                        var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + customer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
                         if(listBrg.Tables[0].Rows.Count > 0)
                         {
-                            for(int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
+
+                            for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
                             {
-                                await UpdateVariationPrice(iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+#if (Debug_AWS || DEBUG)
+                                await UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+#else
+                                client.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+#endif
                             }
                         }
 
@@ -4798,7 +4807,11 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> UpdateVariationPrice(ShopeeAPIData iden, string brg_mp, float price)
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Berhasil. Update Harga Produk.")]
+        public async Task<string> UpdateVariationPrice(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, float price)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
