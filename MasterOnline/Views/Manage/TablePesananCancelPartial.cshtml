@@ -109,18 +109,17 @@
                         @pesanan.PEMBELI
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                    <td>
-                        @pesanan.CancelReason
+                    <td>                        
                         @if (!string.IsNullOrEmpty(pesanan.CancelReason))
                         {
-                            if (pesanan.CancelReason.Length > 100)
+                            if (pesanan.CancelReason.Length < 100)
                             {
                                 @pesanan.CancelReason
                             }
                             else
                             {
                                 @(pesanan.CancelReason.Substring(0, 97) + "...")
-                                <button onclick="alert('Alasan batal :' + @pesanan.CancelReason)"><span class="glyphicon glyphicon-option-horizontal"></span></button>
+                                <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
                             }
                         }
                     </td>
