@@ -925,82 +925,88 @@ namespace MasterOnline.Controllers
             var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
+            var ListARF01 = ErasoftDbContext.ARF01.ToList();
+            // remark by fauzi 18 desember 2019
+            // var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            // bool doAPI = false;
+            // if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
+            // change by fauzi 18 Desember 2019
+            //var Marketplaces = MoDbContext.Marketplaces;
+
+            // change by fauzi 18 Desember 2019
+            var kdBL = 8;
+            var kdLazada = 7;
+            var kdBli = 16;
+            var kdElevenia = 9;
+            var kdShopee = 17;
+            var kdTokped = 15;
+            var kdJD = 19;
+
+            string EDBConnID = EDB.GetConnectionString("ConnId");
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+            var client = new BackgroundJobClient(sqlStorage);
+
+            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'").ToList();
+
+            List<string> listBrg = new List<string>();
+            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
             {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
+                listBrg.Add(item.BRG);
             }
-            if (doAPI)
+            if (connId == "MANUAL")
             {
-                var Marketplaces = MoDbContext.Marketplaces;
-                var kdBL = 8;
-                var kdLazada = 7;
-                var kdBli = 16;
-                var kdElevenia = 9;
-                var kdShopee = 17;
-                var kdTokped = 15;
-                var kdJD = 19;
+                listBrg.Add("03.MIC00.00");
+                listBrg.Add("17.TTOT00.00.6m");
+                //listBrg.Add("1578");
+                //listBrg.Add("2004");
+                //listBrg.Add("2495");
+                //listBrg.Add("2497");
+                //listBrg.Add("SP1930.01.38");
+                //listBrg.Add("SP1930.01.39");
+                //listBrg.Add("SP1930.01.40");
+                //listBrg.Add("SP1930.02.36");
+                //listBrg.Add("SP1930.02.37");
+                //listBrg.Add("SP1930.02.38");
+                //listBrg.Add("SP1930.02.39");
+                //listBrg.Add("SP1930.02.40");
+                //listBrg.Add("SP1939.03.02");
+                //listBrg.Add("SP1939.03.03");
+                //listBrg.Add("SP1939.03.04");
+                //listBrg.Add("SP1939.03.05");
+                //listBrg.Add("SP1939.03.06");
+                //listBrg.Add("SP1939.06.02");
+                //listBrg.Add("SP1939.06.03");
+                //listBrg.Add("SP1939.06.04");
+                //listBrg.Add("SP1939.06.05");
+                //listBrg.Add("SP1939.06.06");
+                //listBrg.Add("SP1939.08.02");
+                //listBrg.Add("SP1939.08.03");
+                //listBrg.Add("SP1939.08.04");
+                //listBrg.Add("SP1939.08.05");
+                //listBrg.Add("SP1939.08.06");
+            }
 
-                string EDBConnID = EDB.GetConnectionString("ConnId");
-                var sqlStorage = new SqlServerStorage(EDBConnID);
+            foreach (string kdBrg in listBrg)
+            {
+                //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
+                var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
+                var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
 
-                var client = new BackgroundJobClient(sqlStorage);
-
-                var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'").ToList();
-
-                List<string> listBrg = new List<string>();
-                foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+                foreach (var stf02h in brgMarketplace)
                 {
-                    listBrg.Add(item.BRG);
-                }
-                if (connId == "MANUAL")
-                {
-                    listBrg.Add("03.MIC00.00");
-                    listBrg.Add("17.TTOT00.00.6m");
-                    //listBrg.Add("1578");
-                    //listBrg.Add("2004");
-                    //listBrg.Add("2495");
-                    //listBrg.Add("2497");
-                    //listBrg.Add("SP1930.01.38");
-                    //listBrg.Add("SP1930.01.39");
-                    //listBrg.Add("SP1930.01.40");
-                    //listBrg.Add("SP1930.02.36");
-                    //listBrg.Add("SP1930.02.37");
-                    //listBrg.Add("SP1930.02.38");
-                    //listBrg.Add("SP1930.02.39");
-                    //listBrg.Add("SP1930.02.40");
-                    //listBrg.Add("SP1939.03.02");
-                    //listBrg.Add("SP1939.03.03");
-                    //listBrg.Add("SP1939.03.04");
-                    //listBrg.Add("SP1939.03.05");
-                    //listBrg.Add("SP1939.03.06");
-                    //listBrg.Add("SP1939.06.02");
-                    //listBrg.Add("SP1939.06.03");
-                    //listBrg.Add("SP1939.06.04");
-                    //listBrg.Add("SP1939.06.05");
-                    //listBrg.Add("SP1939.06.06");
-                    //listBrg.Add("SP1939.08.02");
-                    //listBrg.Add("SP1939.08.03");
-                    //listBrg.Add("SP1939.08.04");
-                    //listBrg.Add("SP1939.08.05");
-                    //listBrg.Add("SP1939.08.06");
-                }
-
-                foreach (string kdBrg in listBrg)
-                {
-                    //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
-                    var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
-                    var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
-                    var ListARF01 = ErasoftDbContext.ARF01.ToList();
-
-                    foreach (var stf02h in brgMarketplace)
+                    var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
+                    if (marketPlace.NAMA.Equals(kdBL.ToString()))
                     {
-                        var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
-                        if (marketPlace.NAMA.Equals(kdBL.ToString()))
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
@@ -1008,7 +1014,11 @@ namespace MasterOnline.Controllers
                             client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
 #endif
                         }
-                        else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+
+                    }
+                    else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
@@ -1016,7 +1026,10 @@ namespace MasterOnline.Controllers
                             client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
 #endif
                         }
-                        else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             string[] imgID = new string[3];
                             for (int i = 0; i < 3; i++)
@@ -1034,6 +1047,7 @@ namespace MasterOnline.Controllers
                                         break;
                                 }
                             }
+
 
                             EleveniaProductData data = new EleveniaProductData
                             {
@@ -1057,7 +1071,10 @@ namespace MasterOnline.Controllers
                             client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null));
 #endif
                         }
-                        else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             if (!string.IsNullOrEmpty(marketPlace.Kode))
                             {
@@ -1091,8 +1108,11 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
-                        //add by calvin 18 desember 2018
-                        else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                    }
+                    //add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
                             {
@@ -1130,7 +1150,10 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             ShopeeAPIData data = new ShopeeAPIData()
                             {
@@ -1160,9 +1183,12 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        //end add by calvin 18 desember 2018
-                        //add by Tri 11 April 2019
-                        else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                    }
+                    //end add by calvin 18 desember 2018
+                    //add by Tri 11 April 2019
+                    else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             JDIDAPIData data = new JDIDAPIData()
                             {
@@ -1179,12 +1205,13 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
-                        //end add by Tri 11 April 2019
-
                     }
+                    //end add by Tri 11 April 2019
+
                 }
-                EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'");
             }
+            EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'");
+            //}
         }
 
         [AutomaticRetry(Attempts = 3)]

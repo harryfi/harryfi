@@ -1465,13 +1465,22 @@
             var link = '@Url.Action("SaveStatusSyncPesananStok", "Manage", new { data = "custID_statusSync"})';
             link = link.replace("custID", custID);
             link = link.replace("statusSync", String(status));
+            var msg = null;
 
             $.ajax({
                 type: "POST",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     if (response.Errors == null) {
-                        alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
+                        $('#loading_spinner').hide();
+                        if (response.success == true) {
+                            alert(response.status.toString());
+                        } else {
+                            alert(response.status.toString());
+                        }
                         @*var cekpesanan = @Model.ListPesanan.Count();
                         if (cekpesanan == 0) {
                             window.location.reload(true);
@@ -1481,10 +1490,12 @@
 
                         //$('#loading_spinner').hide();
                     } else {
+                        $('#loading_spinner').hide();
                         alert(response.Errors);
                     }
                 },
                 error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
                     console.log(error);
                 }
             });
