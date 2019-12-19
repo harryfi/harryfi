@@ -7182,7 +7182,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ATTRIBUTE_1 = data.kode,
                 REQUEST_ATTRIBUTE_2 = data.nama,
                 REQUEST_ATTRIBUTE_3 = jobId, //hangfire job id ( create product )
-                REQUEST_ATTRIBUTE_5 = "BLIBLI_CPRODUCT",//add by Tri 19 Des 2019, agar log create brg blibli tidak terhapus
+                //REQUEST_ATTRIBUTE_5 = "BLIBLI_CPRODUCT",//add by Tri 19 Des 2019, agar log create brg blibli tidak terhapus
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
