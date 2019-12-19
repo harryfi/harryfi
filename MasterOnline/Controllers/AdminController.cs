@@ -213,7 +213,7 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
@@ -2021,7 +2021,7 @@ namespace MasterOnline.Controllers
                 con.Close();
                 con.Dispose();
 
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {
@@ -2796,6 +2796,7 @@ namespace MasterOnline.Controllers
                     LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
                     Username = item.Username,
                     DatabasePathErasoft = item.DatabasePathErasoft,
+                    DatabaseSourceErasoft = item.DataSourcePath,
                     NamaTokoOnline = item.NamaTokoOnline,
                     TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
                     HangfireServerCount = serverList.Count(),
@@ -2903,13 +2904,13 @@ namespace MasterOnline.Controllers
                                select a).ToList();
             foreach (var item in accountInDb)
             {
-                AdminStartHangfireServer(item.DatabasePathErasoft);
+                AdminStartHangfireServer(item.DataSourcePath, item.DatabasePathErasoft);
             }
             return Json("", JsonRequestBehavior.AllowGet);
         }
 
         [SessionAdminCheck]
-        public ActionResult AdminStartHangfireServer(string nourut = "", string timer = "")
+        public ActionResult AdminStartHangfireServer(string dbsource, string nourut = "", string timer = "")
         {
             int interval = 30;
             try
@@ -2977,7 +2978,7 @@ namespace MasterOnline.Controllers
                     }
                     //run semua recurring job seperti user login
                     var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
-                    Task.Run(() => new AccountController().SyncMarketplace(nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval)).Wait();
+                    Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval)).Wait();
                 }
                 using (var connection = sqlStorage.GetConnection())
                 {
