@@ -7366,12 +7366,12 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Create Product {obj} ke Blibli Berhasil. Cek review gagal.")]
         public async Task<string> CreateProductGetProdukInReviewList(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
         {
+            long milis = CurrentTimeMillis();
+
+            var token = SetupContext(iden);
+            iden.token = token;
+
             //remark 19 Des 2019
-            //long milis = CurrentTimeMillis();
-
-            //var token = SetupContext(iden);
-            //iden.token = token;
-
             //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
             //string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
