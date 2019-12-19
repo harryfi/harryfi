@@ -1114,7 +1114,7 @@
                                                 </div>
                                             </div>
                                             // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
-                                            <div class="form-group">
+                                            <div class="form-group" id="sync-pesanan-auto">
                                                 @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
@@ -1528,6 +1528,10 @@
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
                             $('.customer_editor_section').show();
+                            //add by fauzi 19 Desember 2019
+                            $('#sync-pesanan-auto').hide();
+                            $('#Customers_TIDAK_HIT_UANG_R').val(false);
+                            //end add
                             $('#form_input').hide();
                             $('#form_subs').show();
                         });
@@ -1541,6 +1545,10 @@
                             RemoveAllAdds();
                             $('.customer_table_section').hide();
                             $('.customer_editor_section').show();
+                            //add by fauzi 19 Desember 2019
+                            $('#sync-pesanan-auto').hide();
+                            $('#Customers_TIDAK_HIT_UANG_R').val(false);
+                            //add by fauzi 19 Desember 2019
                             $('#form_input').show();
                             $('#form_subs').hide();
                             $('#generate_code').remove();
@@ -2100,6 +2108,10 @@
             $('#tambah_market').on('click', function () {
                 $('.customer_table_section').hide();
                 $('.customer_editor_section').show();
+                //add by fauzi 19 Desember 2019
+                $('#sync-pesanan-auto').hide();
+                $('#Customers_TIDAK_HIT_UANG_R').val(false);
+                //end
                 //add by nruul 18/10/2018
                 $("#Customers_TOP").keydown(
                     function () {
@@ -2224,6 +2236,9 @@
 
                     //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
                     getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
+                    //add by fauzi 19 Desember 2019
+                    $('#sync-pesanan-auto').show();
+                    //end add
                     //end by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
 
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
@@ -2859,6 +2874,10 @@
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
                             $('.customer_editor_section').show();
+                            //add by fauzi 19 Desember 2019
+                            $('#sync-pesanan-auto').hide();
+                            $('#Customers_TIDAK_HIT_UANG_R').val(false);
+                            //end
                             //add by nruul 18/10/2018
                             $("#Customers_TOP").keydown(
                                 function () {
