@@ -49,6 +49,8 @@ namespace MasterOnline
         public string referensiApi { get; set; }
         public string PortCodeApi { get; set; }
         public string HargaApi { get; set; }
+        public string urlLogoKurirApi { get; set; }
+        public string tglApi { get; set; }        
     }
 
     public class tempLabel

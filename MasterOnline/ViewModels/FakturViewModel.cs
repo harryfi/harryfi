@@ -47,6 +47,7 @@ namespace MasterOnline.ViewModels
         public string urlMp { get; set; }
         public string urlNobuk { get; set; }
         public string urlTotal { get; set; }
+        public string urlNama { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
     }
 
@@ -77,5 +78,8 @@ namespace MasterOnline.ViewModels
         public string isiRef { get; set; }
         public string namaPembeli { get; set; }
         public string tlpPembeli { get; set; }
+        public string tglKirim { get; set; }        
+        public string logoKurirApi { get; set; }
+        
     }
 }

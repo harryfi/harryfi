@@ -36694,6 +36694,8 @@ namespace MasterOnline.Controllers
                 var lastIndexReferensi = 0;
                 var lastIndexPortCode = 0;
                 var lastIndexHarga = 0;
+                var lastIndexKurir = 0;
+                var lastIndexTgl = 0;
                 //end add by nurul 16/12/2019
 
                 var listNobuk = "";
@@ -36734,12 +36736,32 @@ namespace MasterOnline.Controllers
                         {
                             while (!gakketemulagi)
                             {
+                                //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
+
+                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
+
+                                //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
+                                //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
+
+                                var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
+
+                                if (idxKurir < 0) { gakketemulagi = true; break; }
+
+                                var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
+                                var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
+                                var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
+
+                                lastIndexTgl = idxEndKurir;
+                                var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
+                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
+                                var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
+
+                                lastIndexBarcode = idxEndTgl;
                                 var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-
-                                if (idxBarcode < 0) { gakketemulagi = true; break; }
-
+                                //if (idxBarcode < 0) { gakketemulagi = true; break; }
                                 var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));                                
+                                var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
 
                                 lastIndexPortCode = idxEndBarcode;
                                 var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
@@ -36761,14 +36783,18 @@ namespace MasterOnline.Controllers
                                 lastIndexBarcode = idxEndReferensi;
                                 lastIndexPortCode = idxEndReferensi;
                                 lastIndexHarga = idxEndReferensi;
-                                lastIndexReferensi = idxEndReferensi;                                
+                                lastIndexReferensi = idxEndReferensi;
+                                lastIndexKurir = idxEndReferensi;
+                                lastIndexTgl = idxEndReferensi;
 
                                 tempResiLazada.Add(new tempBarcodeLazada()
                                 {
                                     referensiApi = noReferensi,
                                     ResiApi = noBarcode,
                                     PortCodeApi = noPortCode,
-                                    HargaApi = hargaAPI
+                                    HargaApi = hargaAPI,
+                                    urlLogoKurirApi = noKurir,
+                                    tglApi = noTgl
                                 });
 
                             }
@@ -41674,7 +41700,7 @@ namespace MasterOnline.Controllers
 
         //add by nurul 11/12/2019, cetak label pesanan
         [HttpGet]
-        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data)
+        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data)
         {
             try
             {
@@ -41726,7 +41752,8 @@ namespace MasterOnline.Controllers
                     urlTlp = noLink,
                     urlMp = mpLink,
                     urlNobuk = nobukLink,
-                    urlTotal = totalLink
+                    urlTotal = totalLink,
+                    urlNama = namaLink
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
@@ -41742,6 +41769,8 @@ namespace MasterOnline.Controllers
                         var port = "";
                         var ref1 = "";
                         var netto = so.si_netto;
+                        var logoKurir = so.kurir;
+                        var tgl = DateTime.Now.ToString("dd/MM/yyyy");
                         
                         if (so.namamarket.ToUpper() == "LAZADA")
                         {
@@ -41751,6 +41780,8 @@ namespace MasterOnline.Controllers
                                 port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
                                 ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
                                 netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
                             }
                         }
 
@@ -41778,7 +41809,9 @@ namespace MasterOnline.Controllers
                             linkport = portLink,
                             linkref = refLink,
                             isiPort = port,
-                            isiRef = ref1
+                            isiRef = ref1,
+                            tglKirim = tgl,
+                            logoKurirApi = logoKurir
                         };
 
                         ym.ListCetakLabel.Add(vm);
