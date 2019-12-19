@@ -698,8 +698,14 @@ namespace MasterOnline.Controllers
             //mid.PostReceive(dataMid);
             //add by calvin 9 oktober 2018
             //delete log API older than 7 days
-            var dtolderThan30Days = DateTime.UtcNow.AddDays(-30);
+            var dtolderThan30Days = DateTime.UtcNow.AddDays(-60);
+            ////change by Tri 19 Des 2019, agar log create brg blibli tidak terhapus
             var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME <= dtolderThan30Days && p.REQUEST_ATTRIBUTE_5 != "HANGFIRE" select p).ToList();
+            //var statusExclude = new List<string>();
+            //statusExclude.Add("HANGFIRE");
+            //statusExclude.Add("BLIBLI_CPRODUCT");
+            //var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME <= dtolderThan30Days && !statusExclude.Contains(p.REQUEST_ATTRIBUTE_5) select p).ToList();
+            ////end change by Tri 19 Des 2019, agar log create brg blibli tidak terhapus
             LocalErasoftDbContext.API_LOG_MARKETPLACE.RemoveRange(deleteOldLogs);
             LocalErasoftDbContext.SaveChanges();
             //end add by calvin 9 oktober 2018
