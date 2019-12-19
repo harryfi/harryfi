@@ -649,13 +649,6 @@ namespace MasterOnline.Controllers
             //1 januari jam 00:05 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
             recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "5 17 31 12 *", recurJobOpt);
 
-            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
-            //1 januari jam 00:05 setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
-            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-
-            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test2";
-            recurJobM.RemoveIfExists(connection_id_proses_akhir_tahun);
-
             //using (var connection = sqlStorage.GetConnection())
             //{
             //    foreach (var recurringJob in connection.GetRecurringJobs())
