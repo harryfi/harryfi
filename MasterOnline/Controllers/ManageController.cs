@@ -17251,7 +17251,7 @@ namespace MasterOnline.Controllers
                     Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
                     var accControl = new AccountController();
-                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
+                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), username, 5, null).Wait());
                 }
 
                 //change by nurul 6/8/2019
@@ -17299,7 +17299,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 10/4/2019
 
         //add by fauzi 06/12/2019
-        public ActionResult SaveStatusSyncPesananStok(string data)
+        public async Task<ActionResult> SaveStatusSyncPesananStok(string data)
         {
             try
             {
@@ -17309,11 +17309,14 @@ namespace MasterOnline.Controllers
                 var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == vcustID);
                 dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
                 ErasoftDbContext.SaveChanges();
+
+                await new AccountController().SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), usernameLogin, 5, dataCustomer.RecNum); ;
+
                 return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
-             }
+            }
             catch (Exception ex)
             {
-                return View("Error");
+                return Json(new { success = false, status = "Terjadi Kesalahan, mohon hubungi support." }, JsonRequestBehavior.AllowGet);
             }
         }
         //end add by fauzi 06/12/2019
@@ -24441,20 +24444,22 @@ namespace MasterOnline.Controllers
 
         public void updateStockMarketPlace(List<string> listBrg, string ConnId)
         {
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
+            // remark by fauzi 18 desember 2019
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
 
-            if (!doAPI)
-            {
-                ConnId = "[PENDING]" + ConnId;
-            }
+            //if (!doAPI)
+            //{
+            //    ConnId = "[PENDING]" + ConnId;
+            //}
+            // remark by fauzi 18 desember 2019
 
             string sSQLValues = "";
 
