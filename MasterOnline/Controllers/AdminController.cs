@@ -2977,7 +2977,7 @@ namespace MasterOnline.Controllers
                     }
                     //run semua recurring job seperti user login
                     var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
-                    Task.Run(() => new AccountController().SyncMarketplace(nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval)).Wait();
+                    Task.Run(() => new AccountController().SyncMarketplace(nourut, EDBConnID, "auto_start", interval, null)).Wait();
                 }
                 using (var connection = sqlStorage.GetConnection())
                 {

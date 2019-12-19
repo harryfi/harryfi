@@ -1118,7 +1118,7 @@
                                                 @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
-                                                    <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
+                                                        <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
                                                 </div>
                                             </div>
                                             // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
@@ -1453,8 +1453,6 @@
                 $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
                 var namaMarket = $('#MARKET').selectize();
                 namaMarket[0].selectize.setValue(null, true);
-                var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize();
-                statusSyncMarketplace[0].selectize.setValue(null, true);
                 resetError();
                 });
 
@@ -1465,13 +1463,22 @@
             var link = '@Url.Action("SaveStatusSyncPesananStok", "Manage", new { data = "custID_statusSync"})';
             link = link.replace("custID", custID);
             link = link.replace("statusSync", String(status));
+            var msg = null;
 
             $.ajax({
                 type: "POST",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     if (response.Errors == null) {
-                        alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
+                        $('#loading_spinner').hide();
+                        if (response.success == true) {
+                            alert(response.status.toString());
+                        } else {
+                            alert(response.status.toString());
+                        }
                         @*var cekpesanan = @Model.ListPesanan.Count();
                         if (cekpesanan == 0) {
                             window.location.reload(true);
@@ -1481,10 +1488,12 @@
 
                         //$('#loading_spinner').hide();
                     } else {
+                        $('#loading_spinner').hide();
                         alert(response.Errors);
                     }
                 },
                 error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
                     console.log(error);
                 }
             });
@@ -1516,6 +1525,9 @@
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             $('#form_input').hide();
                             $('#form_subs').show();
@@ -1529,6 +1541,9 @@
                         $('#tambah_market').on('click', function () {
                             RemoveAllAdds();
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             $('#form_input').show();
                             $('#form_subs').hide();
@@ -2088,6 +2103,9 @@
 
             $('#tambah_market').on('click', function () {
                 $('.customer_table_section').hide();
+                //add by fauzi 19 Desember 2019
+                getStatusSyncMarketplace(false);
+                //end
                 $('.customer_editor_section').show();
                 //add by nruul 18/10/2018
                 $("#Customers_TOP").keydown(
@@ -2210,10 +2228,9 @@
                     $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
                     $('#Customers_TLP').val(response.Customers.TLP);
                     $('#Customers_TOP').val(response.Customers.TOP);
-
+                   
                     //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
                     getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
-                    //end by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
 
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
@@ -2469,7 +2486,7 @@
             } else if (response == false) {
                 resp = "false02"
             }
-
+            
             var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize({
                 create: true,
                 maxItems: 1,
@@ -2525,6 +2542,13 @@
                 }
             });
             statusSyncMarketplace[0].selectize.trigger('change', resp);
+
+            if ($('#CUSTNUMBER').val() == "[AUTO]") {
+                statusSyncMarketplace[0].selectize.disable();
+            }
+            else {
+                statusSyncMarketplace[0].selectize.enable();
+            }
         }
 
         function convertToRupiah(angka) {
@@ -2847,6 +2871,9 @@
 
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             //add by nruul 18/10/2018
                             $("#Customers_TOP").keydown(

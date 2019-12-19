@@ -279,7 +279,7 @@ namespace MasterOnline.Controllers
                 bool cekSyncMarketplace = false;
                 if (cekSyncMarketplace)
                 {
-                    Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+                    Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), username, 5, null).Wait());
                 }
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -512,7 +512,7 @@ namespace MasterOnline.Controllers
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 if (username.Length > 20)
                     username = username.Substring(0, 17) + "...";
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), username, 5, null).Wait());
 
                 //end change by calvin 1 april 2019
 
@@ -524,7 +524,7 @@ namespace MasterOnline.Controllers
 
         //change by calvin 1 april 2019
         //protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
-        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username, int recurr_interval)
+        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string username, int recurr_interval, int? id_single_account)
         //end change by calvin 1 april 2019
         {
             //catatan by calvin : jika developer sedang mau mengecek API, tidak perlu menggunakan backgroundjob untuk memanggil API
@@ -561,7 +561,7 @@ namespace MasterOnline.Controllers
             }
             if (serverList.Count() == 0)
             {
-#if Debug_AWS
+#if Debug_AWS || DEBUG
                 ////note by calvin 18 mei 2019 : ingat jika ada perubahan, ubah juga di adminController AdminStartHangfireServer
                 //var optionsStatusResiServer = new BackgroundJobServerOptions
                 //{
@@ -736,8 +736,14 @@ namespace MasterOnline.Controllers
             //string username = sessionData.Account.Username;
 
             #region bukalapak
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            var kdBL = 8;
+            //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var BLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.ToString());
+            if (id_single_account.HasValue)
+            {
+                BLShop = BLShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listBLShop = BLShop.ToList();
             if (listBLShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listBLShop)
@@ -761,8 +767,14 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region lazada
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+            var kdLazada = 7;
+            //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var LazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.ToString());
+            if (id_single_account.HasValue)
+            {
+                LazadaShop = LazadaShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listLazadaShop = LazadaShop.ToList();
             //var lzdApi = new LazadaController();
             if (listLazadaShop.Count > 0)
             {
@@ -820,8 +832,15 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Blibli
-            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var listBLIShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            //change by fauzi 18 Desember 2019
+            var kdBli = 16;
+            //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var BLIShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.ToString());
+            if (id_single_account.HasValue)
+            {
+                BLIShop = BLIShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listBLIShop = BLIShop.ToList();
             if (listBLIShop.Count > 0)
             {
                 //remark by calvin 1 april 2019
@@ -898,9 +917,15 @@ namespace MasterOnline.Controllers
             }
 #endregion
 
-#region elevenia
-            var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var listELShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+            #region elevenia
+            var kdElevenia = 9;
+            //var kdElevenia = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var EleveniaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdElevenia.ToString());
+            if (id_single_account.HasValue)
+            {
+                EleveniaShop = EleveniaShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listELShop = EleveniaShop.ToList();
             if (listELShop.Count > 0)
             {
                 //var elApi = new EleveniaController();
@@ -953,9 +978,15 @@ namespace MasterOnline.Controllers
             }
 #endregion
 
-#region Tokopedia
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            var lisTokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            #region Tokopedia
+            var kdTokped = 15;
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var TokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.ToString());
+            if (id_single_account.HasValue)
+            {
+                TokpedShop = TokpedShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var lisTokpedShop = TokpedShop.ToList();
             if (lisTokpedShop.Count > 0)
             {
                 //var tokopediaApi = new TokopediaController();
@@ -1036,8 +1067,14 @@ namespace MasterOnline.Controllers
             //};
             //var ShopeeApi = new ShopeeController();
             //var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
-            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            var listShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            var kdShopee = 17;
+            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var ShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.ToString());
+            if (id_single_account.HasValue)
+            {
+                ShopeeShop = ShopeeShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var listShopeeShop = ShopeeShop.ToList();
             if (listShopeeShop.Count > 0)
             {
                 //var shopeeApi = new ShopeeController();
