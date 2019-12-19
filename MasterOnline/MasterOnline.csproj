@@ -6064,6 +6064,8 @@
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\login.py" />
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__init__.py" />
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__init__.py" />
+    <Content Include="Views\Admin\PromptAccount.cshtml" />
+    <Content Include="Views\Admin\TablePromptAkunPartial.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

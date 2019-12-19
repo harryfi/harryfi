@@ -638,8 +638,16 @@ namespace MasterOnline.Controllers
             RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
             RecurringJobOptions recurJobOpt = new RecurringJobOptions()
             {
-                QueueName = "3_general"
+                QueueName = "3_general",
             };
+
+            var connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_1";
+            //31 desember jam 23:55 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sekarang
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "55 16 31 12 *", recurJobOpt);
+            
+            connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_2";
+            //1 januari jam 00:05 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "5 17 31 12 *", recurJobOpt);
 
             //using (var connection = sqlStorage.GetConnection())
             //{
