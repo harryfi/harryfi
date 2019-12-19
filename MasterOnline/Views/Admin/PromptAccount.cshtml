@@ -1,44 +1,9 @@
 ﻿@using PagedList
 @using System.Globalization
-@using MasterOnline.ViewModels
-@model PromptBrg
-@*@using PagedList.Mvc
-    @using MasterOnline.ViewModels
-    @model PagedList.IPagedList<PromptBrgBaru>*@
-@*@{
-        var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-        var username = "";
-        var context = new MoDbContext();
-        if (dataSession?.User != null)
-        {
-            var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-            username = context.Account.Single(a => a.AccountId == accId).Username;
-        }
-        else
-        {
-            username = dataSession?.Account.Username;
-        }
-    }*@
-
-@*@{
-        ViewBag.Title = "Prompt Barang";
-        Layout = "~/Views/Shared/_LayoutManage.cshtml";
-    }*@
 
 @{
-    /**/
-
-    //string currentFilter = ViewBag.CurrentFilter;
-    //string currentSort = ViewBag.CurrentSort;
-
-
-    ViewBag.Title = "Prompt Barang";
-    Layout = "~/Views/Shared/_LayoutManage.cshtml";
-
-    //var tpNama = Model.FirstOrDefault().NAMA_BRG;
-    //var tpCust = Model.FirstOrDefault().typeBrg.Split(';')[Model.FirstOrDefault().typeBrg.Split(';').Length - 1];
-    //var tpType = Model.FirstOrDefault().typeBrg.Split(';')[Model.FirstOrDefault().typeBrg.Split(';').Length - 2];
-
+    ViewBag.Title = "Prompt Account";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
 @section styles
 {
@@ -55,56 +20,16 @@
 <div>
     <div class="col-lg-4 col-sm-6" id="div_search">
         <div class="input-group">
-            @*<input id="search_barang" type="text" value="@Model.NAMA_BRG" class="form-control" placeholder="Pencarian">*@
-            <input id="txt_Cust" value="@(Model.cust)" type="hidden" />
-            <input id="txt_Type" value="@(Model.typeBrg)" type="hidden" />
-            <input id="search_promptbarang" type="text" value="@(Model.NAMA_BRG)" class="form-control" placeholder="Pencarian">
+            <input id="search_promptakun" type="text" value="" class="form-control" placeholder="Pencarian">
             <span class="input-group-btn">
-                <button type="button" id="search_promptbarang_click" class="btn btn-primary">
+                <button type="button" id="search_promptakun_click" class="btn btn-primary">
                     <i class="fa fa-search"></i>
                 </button>
             </span>
         </div>
     </div>
     <div class="row" style="padding-left:10px; padding-right:10px;">
-        <div id="table-prompt-barang-partial">
-            @*<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                <table class="table table-striped table-bordered table-hover">
-                    //<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
-                    <thead>
-                        <tr role="row">
-                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 40px;">Kode Barang</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama Barang</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Harga Jual</th>
-                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        //@foreach (var item in Model.data)
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.KODE</td>
-                                <td>@item.NAMA</td>
-                                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", item.HARGA)</td>
-                                <td class="edit-hapus-col">
-                                    @if (item.KODE == null)
-                                    {
-                                        <button class="btn btn-primary" disabled="disabled" onclick="pilihPromptBrg('@item.KODE')">
-                                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-primary" onclick="pilihPromptBrg('@item.KODE')">
-                                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                                        </button>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>*@
+        <div id="table-prompt-akun-partial">
         </div>
     </div>
 </div>
@@ -114,57 +39,49 @@
 {
     <script type="text/javascript">
         $(document).ready(function () {
-            refreshTablePromptBarang();
-        });
-            //var table = $('#datatable').DataTable();
-            //$('#search_barang').keyup(function () {
-            //    table.search($(this).val()).draw();
-            //});
-        
-
-            $('#search_promptbarang').keypress(function (e) {
+            refreshTablePromptakun();
+            $('#search_promptakun').keypress(function (e) {
                 var key = e.which;
                 if (key == 13)// the enter key code
                 {
-                    searchTablePromptBarang();
+                    searchTablePromptakun();
                     return false;
                 }
             });
-            $('#search_promptbarang_click').click(function () {
-                searchTablePromptBarang();
+            $('#search_promptakun_click').click(function () {
+                searchTablePromptakun();
             });
+        });
 
+        function pilihPrompt(sender) {
+            let email = $(sender).attr('data-email');
+            let dbname = $(sender).attr('data-dbpath');
+            window.onunload = refreshTextBox(email,dbname);
+            self.window.close();
+        }
+        
+        function refreshTextBox(email,dbname) {
+            window.opener.afterPromptAccount(email,dbname);
+        }
 
-
-            function pilihPromptBrg($value) {
-                self.window.close();
-                window.onunload = refreshTextBox;
-                function refreshTextBox() {
-                window.opener.afterPromptDelTempBrg($value, @Model.typeBrg);
-                    @*window.opener.afterPromptDelTempBrg($value, @(Model.FirstOrDefault().typeBrg.Split(';')[Model.FirstOrDefault().typeBrg.Split(';').Length - 2]));*@
-                }
-            }
-
-            function refreshTablePromptBarang() {
-                var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Manage", new { cust = "replaceCust", typeBrg = "replaceType", page = "replaceLastPage", search = "replaceSearch" }))';
-                $link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
-                $link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
-                $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptbarang').val()));
-                $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
-
+        function refreshTablePromptakun() {
+            var $link = '@Html.Raw(Url.Action("TablePromptAkunPartial", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptakun').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
+    
             $.ajax({
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    $('#table-prompt-barang-partial').hide();
-                    $('#loading_promptbarang_tab').show();
+                    $('#table-prompt-akun-partial').hide();
+                    $('#loading_promptakun_tab').show();
                 },
                 success: function (response) {
-                    $('#table-prompt-barang-partial').html(response);
-
-                    $('#table-prompt-barang-partial').show();
-
-                    $('#loading_promptbarang_tab').hide();
+                    $('#table-prompt-akun-partial').html(response);
+    
+                    $('#table-prompt-akun-partial').show();
+    
+                    $('#loading_promptakun_tab').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -172,37 +89,26 @@
             });
         }
 
-            function searchTablePromptBarang() {
+        function searchTablePromptakun() {
+            var $link = '@Html.Raw(Url.Action("TablePromptAkunPartial", "Admin", new { search = "replaceNama" }))';
+            $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptakun').val()));
 
-                var $link = '@Html.Raw(Url.Action("TablePromptBarangPartial", "Manage", new { cust = "replaceCust", search = "replaceNama", typeBrg= "replaceType" }))';
-                $link = $link.replace("replaceCust", encodeURIComponent($('#txt_Cust').val()));
-                $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptbarang').val()));
-                $link = $link.replace("replaceType", encodeURIComponent($('#txt_Type').val()));
-                //$link = $link.replace("replaceUlang", "1");
-
-                $.ajax({
-                    url: $link,
-                    type: "GET",
-                    cache: false,
-                    beforeSend: function () {
-                        //$('#search_promptbarang_click')[0].disabled = true;
-                        $('#loading_promptbarang_tab').show();
-                        $('#table-upload-barang-partial').hide();
-                    },
-                    success: function (response) {
-
-                        //$('#search_promptbarang_click')[0].disabled = false;
-                        $('#table-prompt-barang-partial').html(response);
-                        $('#table-upload-barang-partial').show();
-                        //$FOOTER.hide()
-                        $('#loading_promptbarang_tab').hide();
-                    },
-                    error: function (xhr, status, error) {
-                        //$('#search_promptbarang_click')[0].disabled = false;
-                        console.log(error);
-                    }
-                });
-            }
+            $.ajax({
+                url: $link,
+                type: "GET",
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_promptakun_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-akun-partial').html(response);
+                    $('#loading_promptakun_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
 
     </script>
 }

@@ -5,6 +5,15 @@ using System.Web;
 
 namespace MasterOnline.ViewModels
 {
+    public class PromptAccountViewModel
+    {
+        public string era_db_path { get; set; }
+        public string data_source_path { get; set; }
+        public string email { get; set; }
+        public string nama { get; set; }
+        public string namatoko { get; set; }
+    }
+    
     public class PromptCustomerViewModel
     {
         public string KODE { get; set; }
