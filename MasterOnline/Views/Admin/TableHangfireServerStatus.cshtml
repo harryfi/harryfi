@@ -38,22 +38,20 @@
             var sourcepath = $(sender).attr('data-dbsourceera');
             var jobid = $(sender).attr('data-dbpathera');
 
-            var link = '@Html.Raw(Url.Action("AdminStartHangfireServer", "Admin"))';
-            link = link.replace("replaceNoUrut", jobid);
-            link = link.replace("replaceTimer", timerMinute);
+            var $link = '@Url.Action("AdminStartHangfireServer", "Admin")';
 
-            var postData = {
+            $postdata = {
                 dbsource : sourcepath,
-                nourut: jobid,
-                timer: timerMinute
-            }
-
+                nourut : jobid,
+                timer : timerMinute
+            };
+            
             $.ajax({
                 type: "POST",
-                url: link,
-                //todo Postdata, dan di StopHangfireServer
-                contentType: 'application/json',
+                url: $link,
+                contentType: "application/json; charset=UTF-8",
                 cache: false,
+                data: JSON.stringify($postdata),
                 beforeSend: function () {
                     $('#loading_barang_tab').show();
                 },
