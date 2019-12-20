@@ -651,7 +651,7 @@ namespace MasterOnline.Controllers
 
             connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
             //23 desember jam 12 siang
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "0 5 23 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "0 5 23 12 *", recurJobOpt);
 
             //using (var connection = sqlStorage.GetConnection())
             //{
