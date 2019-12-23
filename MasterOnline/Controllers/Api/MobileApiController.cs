@@ -861,7 +861,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var invBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
                 var vm = new InvoiceViewModel()
@@ -2648,7 +2648,7 @@ namespace MasterOnline.Controllers.Api
                 }
 
                 var dbPath = MoDbContext.Account.Single(ac => ac.AccountId == data.AccId).DatabasePathErasoft;
-                ErasoftDbContext = dbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(dbPath);
+                ErasoftDbContext = dbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", dbPath);
 
                 var selectedDate = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
                     CultureInfo.InvariantCulture) : DateTime.Today.Date);

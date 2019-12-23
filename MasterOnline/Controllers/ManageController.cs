@@ -51,6 +51,8 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string dbPathEra = "";
+        string dbSourceEra = "";
+
         string EDBConnID = "";
         string usernameLogin;
         public ManageController()
@@ -60,13 +62,15 @@ namespace MasterOnline.Controllers
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {
+                dbPathEra = sessionData.Account.DatabasePathErasoft;
+                dbSourceEra = sessionData.Account.DataSourcePath;
+
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
-                dbPathEra = sessionData.Account.DatabasePathErasoft;
                 EDBConnID = EDB.GetConnectionString("ConnID");
                 usernameLogin = sessionData.Account.Username;
 
@@ -76,10 +80,11 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    dbPathEra = accFromUser.DatabasePathErasoft;
+                    dbSourceEra = accFromUser.DataSourcePath;
+                    ErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
 
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    dbPathEra = accFromUser.DatabasePathErasoft;
                     EDBConnID = EDB.GetConnectionString("ConnID");
                     usernameLogin = sessionData.User.Username;
                 }
@@ -17226,7 +17231,7 @@ namespace MasterOnline.Controllers
             try
             {
                 var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
-
+                
                 bool ubahSettingSync = false;
                 if (dataUsaha.JTRAN_RETUR != status)
                 {
@@ -17251,7 +17256,7 @@ namespace MasterOnline.Controllers
                     Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
                     var accControl = new AccountController();
-                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
+                    Task.Run(() => accControl.SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
                 }
 
                 //change by nurul 6/8/2019
