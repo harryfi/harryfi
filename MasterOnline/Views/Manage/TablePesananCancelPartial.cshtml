@@ -50,7 +50,6 @@
             width: 37%;
         }
     }
-
 </style>
 <div id="loading_pesanan_cancel_tab">
     <div id="loading_pesanan_cancel_tab_image">
@@ -64,9 +63,11 @@
         <thead>
             <tr role="row">
                 <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Pesanan</th>
+                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 100px;">No. Referensi</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 130px;">Tanggal Pesanan</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 127px;">Marketplace</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120px;">Pembeli</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>
             </tr>
@@ -90,6 +91,7 @@
                 //}
                 <tr>
                     <td>@pesanan.NOSO</td>
+                    <td>@pesanan.REFERENSI</td>
                     <td>@(pesanan.TGL?.ToString("dd/MM/yyyy HH:mm"))</td>
                     @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                     <td>
@@ -108,6 +110,7 @@
                         @*@(buyer == null ? "" : buyer.NAMA)*@
                         @pesanan.PEMBELI
                     </td>
+                    <td>@pesanan.SHIPMENT</td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
                     <td class="edit-hapus-col">
                         @if (pesanan.MARKET != "")
@@ -132,18 +135,18 @@
     {
         <div id="tabelpesanancancelpartialpager" class="pager">
             @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananCancel", new
-   {
-       page,
-       search = ViewData["searchParam"]
-   }),
-        new PagedListRenderOptions
-        {
-            LinkToFirstPageFormat = "<<",
-            LinkToPreviousPageFormat = "prev",
-            LinkToNextPageFormat = "next",
-            LinkToLastPageFormat = ">>",
-            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-        })
+            {
+                page,
+                search = ViewData["searchParam"]
+            }),
+             new PagedListRenderOptions
+             {
+                 LinkToFirstPageFormat = "<<",
+                 LinkToPreviousPageFormat = "prev",
+                 LinkToNextPageFormat = "next",
+                 LinkToLastPageFormat = ">>",
+                 DisplayEllipsesWhenNotShowingAllPageNumbers = false
+             })
             Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
         </div>
     }
@@ -163,7 +166,7 @@
 
                 $.ajax({
                     //url: this.href,
-                    url:link,
+                    url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
