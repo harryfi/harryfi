@@ -17274,20 +17274,23 @@ namespace MasterOnline.Controllers
         //end add by nurul 10/4/2019
 
         //add by fauzi 06/12/2019
-        public async Task<ActionResult> SaveStatusSyncPesananStok(string data)
+        public async Task<ActionResult> SaveStatusSyncPesananStok(string custID = "", string statusSync = "")
         {
             try
             {
-                string[] data_split = data.Split('_');
-                var vcustID = data_split[0];
-                Boolean bstatusSync = Convert.ToBoolean(data_split[1]);
-                var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == vcustID);
-                dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
-                ErasoftDbContext.SaveChanges();
-
-                await new AccountController().SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), usernameLogin, 5, dataCustomer.RecNum); ;
-
-                return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
+                if(!string.IsNullOrWhiteSpace(custID) && !string.IsNullOrWhiteSpace(statusSync))
+                {
+                    Boolean bstatusSync = Convert.ToBoolean(statusSync);
+                    var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == custID);
+                    dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
+                    ErasoftDbContext.SaveChanges();
+                    await new AccountController().SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), usernameLogin, 5, dataCustomer.RecNum); ;
+                    return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    return Json(new { success = false, status = "Proses Update Pesanan dan Stok Ke Marketplace tidak dapat disimpan!" }, JsonRequestBehavior.AllowGet);
+                }
             }
             catch (Exception ex)
             {
