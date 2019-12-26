@@ -17321,7 +17321,7 @@ namespace MasterOnline.Controllers
                 dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
                 ErasoftDbContext.SaveChanges();
 
-                await new AccountController().SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), usernameLogin, 5, dataCustomer.RecNum); ;
+                await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"),(bstatusSync ? "1" : "0"), usernameLogin, 5, dataCustomer.RecNum);
 
                 return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
             }
