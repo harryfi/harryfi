@@ -2978,7 +2978,7 @@ namespace MasterOnline.Controllers
                     }
                     //run semua recurring job seperti user login
                     var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
-                    Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval)).Wait();
+                    Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval, null)).Wait();
                 }
                 using (var connection = sqlStorage.GetConnection())
                 {
@@ -2995,10 +2995,98 @@ namespace MasterOnline.Controllers
         [SessionAdminCheck]
         public ActionResult AdminBroadcastMessage(string pesan)
         {
-
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
             contextNotif.Clients.All.broadcastmessage(pesan);
             return Json("", JsonRequestBehavior.AllowGet);
+        }
+        
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahun(string db_name,string tahun)
+        {
+            try
+            {
+                MoDbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+
+                return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_message = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        
+        public ActionResult PromptAccount()
+        {
+            return View("PromptAccount");
+        }
+        public ActionResult TablePromptAkunPartial(int? page, string search = "")
+        {
+            try
+            {
+                int pagenumber = (page ?? 1) - 1;
+                ViewData["searchParam"] = search;
+                ViewData["LastPage"] = page;
+
+                //ADD by nurul 2/10/2019, contain search 
+                string[] getkata = search.Split(' ');
+                string sSQLnama = "";
+                string sSQLusername = "";
+                string sSQLemail = "";
+                if (getkata.Length > 0)
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLnama += " AND ";
+                            sSQLusername += " AND ";
+                            sSQLemail += " AND ";
+                        }
+
+                        sSQLnama += " A.NAMATOKOONLINE like '%" + getkata[i] + "%' ";
+                        sSQLusername += "  A.USERNAME like '%" + getkata[i] + "%' ";
+                        sSQLemail += "  A.[EMAIL] like '%" + getkata[i] + "%' ";
+                    }
+                }
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.DATABASEPATHERASOFT AS era_db_path, A.[DATASOURCEPATH] AS data_source_path, A.[EMAIL] AS email, A.[USERNAME] AS NAMA, A.[NAMATOKOONLINE] AS namatoko  ";
+                string sSQLCount = "";
+                sSQLCount += "SELECT COUNT(*) AS JUMLAH ";
+                string sSQL2 = "";
+                sSQL2 += "FROM ACCOUNT A ";
+                if (search != "")
+                {
+                    sSQL2 += " WHERE ( " + sSQLnama + " or " + sSQLusername + " or " + sSQLemail + " ) ";
+                }
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY namatoko ASC ";
+                sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+                sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+                var listSelect = MoDbContext.Database.SqlQuery<PromptAccountViewModel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+                var pageContent = new List<PromptAccountViewModel>();
+                foreach (var item in listSelect)
+                {
+                    pageContent.Add(new PromptAccountViewModel()
+                    {
+                        data_source_path = item.data_source_path,
+                        email = item.email,
+                        era_db_path = item.era_db_path,
+                        nama = item.nama,
+                        namatoko = item.namatoko
+                    });
+                }
+                var totalCount = MoDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+
+                IPagedList<PromptAccountViewModel> pageOrders = new StaticPagedList<PromptAccountViewModel>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
+                return PartialView("TablePromptAkunPartial", pageOrders);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Prompt Gagal" }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
     }
 }

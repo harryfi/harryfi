@@ -17107,6 +17107,8 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLnetto = "";
             string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
             //string sSQLstatus = "";
             if (!searchStatus)
             {
@@ -17122,6 +17124,8 @@ namespace MasterOnline.Controllers
                                 sSQLmarket += " and ";
                                 sSQLnetto += " and ";
                                 sSQLpembeli += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
                             }
 
 
@@ -17129,6 +17133,8 @@ namespace MasterOnline.Controllers
                             sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
                             sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                             sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
 
                         }
                     }
@@ -17137,7 +17143,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, A.JAMKIRIM AS TGLKIRIM, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, A.JAMKIRIM AS TGLKIRIM, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS], ISNULL(A.[USER_NAME],'') AS [USER_NAME], ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -17191,7 +17197,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") ) ";
+                    sSQL2 += " WHERE ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
                 }
             }
 
@@ -17256,7 +17262,7 @@ namespace MasterOnline.Controllers
                     Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
                     var accControl = new AccountController();
-                    Task.Run(() => accControl.SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
+                    Task.Run(() => accControl.SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5, null).Wait());
                 }
 
                 //change by nurul 6/8/2019
@@ -17304,7 +17310,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 10/4/2019
 
         //add by fauzi 06/12/2019
-        public ActionResult SaveStatusSyncPesananStok(string data)
+        public async Task<ActionResult> SaveStatusSyncPesananStok(string data)
         {
             try
             {
@@ -17314,11 +17320,14 @@ namespace MasterOnline.Controllers
                 var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == vcustID);
                 dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
                 ErasoftDbContext.SaveChanges();
+
+                await new AccountController().SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), usernameLogin, 5, dataCustomer.RecNum); ;
+
                 return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
-             }
+            }
             catch (Exception ex)
             {
-                return View("Error");
+                return Json(new { success = false, status = "Terjadi Kesalahan, mohon hubungi support." }, JsonRequestBehavior.AllowGet);
             }
         }
         //end add by fauzi 06/12/2019
@@ -17552,6 +17561,9 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLnetto = "";
             string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
+
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -17564,12 +17576,16 @@ namespace MasterOnline.Controllers
                             sSQLmarket += " AND ";
                             sSQLnetto += " AND ";
                             sSQLpembeli += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -17578,7 +17594,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -17627,7 +17643,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -17883,6 +17899,9 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLnetto = "";
             string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
+
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -17895,12 +17914,16 @@ namespace MasterOnline.Controllers
                             sSQLmarket += " AND ";
                             sSQLnetto += " AND ";
                             sSQLpembeli += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -17909,7 +17932,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -17958,7 +17981,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -18011,6 +18034,8 @@ namespace MasterOnline.Controllers
             string sSQLfaktur = "";
             string sSQLresi = "";
             string sSQLnetto = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -18025,6 +18050,8 @@ namespace MasterOnline.Controllers
                             sSQLfaktur += " and ";
                             sSQLresi += " and ";
                             sSQLnetto += " and ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -18033,6 +18060,8 @@ namespace MasterOnline.Controllers
                         sSQLfaktur += "  D.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLresi += "  A.TRACKING_SHIPMENT like '%" + getkata[i] + "%' ";
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -18040,7 +18069,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.TRACKING_SHIPMENT as RESI, ISNULL(D.NO_SO,'') as FAKTUR, ISNULL(D.TGL,'') as TGL_FAKTUR, A.CUST as CUST, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.TRACKING_SHIPMENT as RESI, ISNULL(D.NO_SO,'') as FAKTUR, ISNULL(D.TGL,'') as TGL_FAKTUR, A.CUST as CUST, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             //ADD BY CALVIN 29 NOV 2019
             sSQLSelect += ", A.status_kirim, A.status_print, ISNULL(E.NO_BUKTI,'') AS PACKINGNO ";
             //END ADD BY CALVIN 29 NOV 2019
@@ -18099,7 +18128,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%' OR A.TRACKING_SHIPMENT LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLresi + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
             }
             string sSQLSelect2 = "";
             if (filter == "tanggal" && filtervalue == "asc")
@@ -18152,6 +18181,8 @@ namespace MasterOnline.Controllers
             string sSQLnetto = "";
             string sSQLpembeli = "";
             string sSQLfaktur = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -18165,6 +18196,8 @@ namespace MasterOnline.Controllers
                             sSQLnetto += " AND ";
                             sSQLpembeli += " AND ";
                             sSQLfaktur += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
@@ -18172,6 +18205,8 @@ namespace MasterOnline.Controllers
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
                         sSQLfaktur += "  D.NO_BUKTI like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -18179,7 +18214,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, ISNULL(D.NO_BUKTI,'') AS NO_FAKTUR, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -18230,7 +18265,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR D.NO_BUKTI LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLfaktur + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -18280,6 +18315,8 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLnetto = "";
             string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -18292,12 +18329,16 @@ namespace MasterOnline.Controllers
                             sSQLmarket += " AND ";
                             sSQLnetto += " AND ";
                             sSQLpembeli += " AND ";
+                            sSQLkurir += " and ";
+                            sSQLreferensi += " and ";
                         }
 
                         sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
                         sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
                         sSQLnetto += "  A.NETTO like '%" + getkata[i] + "%' ";
                         sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                        sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
 
                     }
                 }
@@ -18305,7 +18346,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -18354,7 +18395,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") ) ";
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLnetto + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
             }
             string sSQLSelect2 = "";
             //ADD BY NURUL 4/12/2019
@@ -24446,20 +24487,22 @@ namespace MasterOnline.Controllers
 
         public void updateStockMarketPlace(List<string> listBrg, string ConnId)
         {
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
+            // remark by fauzi 18 desember 2019
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
 
-            if (!doAPI)
-            {
-                ConnId = "[PENDING]" + ConnId;
-            }
+            //if (!doAPI)
+            //{
+            //    ConnId = "[PENDING]" + ConnId;
+            //}
+            // remark by fauzi 18 desember 2019
 
             string sSQLValues = "";
 

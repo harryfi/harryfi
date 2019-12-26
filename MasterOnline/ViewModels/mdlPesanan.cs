@@ -218,7 +218,7 @@ namespace MasterOnline
         //public string KODE_POS { get; set; }
 
         //[StringLength(50)]
-        //public string SHIPMENT { get; set; }
+        public string SHIPMENT { get; set; }
 
         //[StringLength(50)]
         //public string TRACKING_SHIPMENT { get; set; }
