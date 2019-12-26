@@ -55,7 +55,8 @@ namespace MasterOnline.Controllers
             //string ret = "";
             MoDbContext = new MoDbContext();
             EDB = new DatabaseSQL(DatabasePathErasoft);
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
             username = uname;
             //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == idmarket).SingleOrDefault();
             //if (arf01inDB != null)

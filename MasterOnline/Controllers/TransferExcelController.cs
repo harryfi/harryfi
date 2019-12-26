@@ -24,6 +24,7 @@ namespace MasterOnline.Controllers
         string username;
 
         string dbPathEra = "";
+        string DataSourcePath = "";
         public TransferExcelController()
         {
             MoDbContext = new MoDbContext();
@@ -34,10 +35,11 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
+                DataSourcePath = sessionData.Account.DataSourcePath;
                 username = sessionData.Account.Username;
             }
             else
@@ -45,10 +47,10 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
-
+                    DataSourcePath = accFromUser.DataSourcePath;
                     username = accFromUser.Username;
                 }
             }
@@ -423,7 +425,7 @@ namespace MasterOnline.Controllers
                         {
                             using (ExcelPackage excelPackage = new ExcelPackage(stream))
                             {
-                                using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
@@ -796,7 +798,7 @@ namespace MasterOnline.Controllers
                             //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
                             //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
                             {
-                                using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
@@ -1064,7 +1066,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (ExcelPackage excelPackage = new ExcelPackage(stream))
                                 {
-                                    using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                    using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                     {
                                         eraDB.Database.CommandTimeout = 180;
                                         //loop all worksheets
