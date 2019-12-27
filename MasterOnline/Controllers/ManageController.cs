@@ -2405,23 +2405,23 @@ namespace MasterOnline.Controllers
             //}
             //else
             //{
-                var vm = new PesananViewModel
-                {
-                    ListSubs = MoDbContext.Subscription.ToList(),
-                    DataUsaha = dataUsaha,
-                    ListPesanan = ceklistPesanan,
-                    //add by nurul 2/12/2019, penambahan dashboard pesanan
-                    JumlahPesananBelumBayar = JumlahBelumBayar,
-                    NilaiPesananBelumBayar = NilaiBelumBayar,
-                    JumlahPesananSudahBayar = JumlahSudahBayar,
-                    NilaiPesananSudahBayar = NilaiSudahBayar,
-                    JumlahPesananSiapKirim = JumlahSiapkirim,
-                    NilaiPesananSiapKirim = NilaiSiapkirim,
-                    JumlahPesananBatal = JumlahBatal,
-                    NilaiPesananBatal = NilaiBatal
-                    //end add by nurul 2/12/2019, penambahan dashboard pesanan
-                };
-                return View(vm);
+            var vm = new PesananViewModel
+            {
+                ListSubs = MoDbContext.Subscription.ToList(),
+                DataUsaha = dataUsaha,
+                ListPesanan = ceklistPesanan,
+                //add by nurul 2/12/2019, penambahan dashboard pesanan
+                JumlahPesananBelumBayar = JumlahBelumBayar,
+                NilaiPesananBelumBayar = NilaiBelumBayar,
+                JumlahPesananSudahBayar = JumlahSudahBayar,
+                NilaiPesananSudahBayar = NilaiSudahBayar,
+                JumlahPesananSiapKirim = JumlahSiapkirim,
+                NilaiPesananSiapKirim = NilaiSiapkirim,
+                JumlahPesananBatal = JumlahBatal,
+                NilaiPesananBatal = NilaiBatal
+                //end add by nurul 2/12/2019, penambahan dashboard pesanan
+            };
+            return View(vm);
             //}
             //end change by nurul 6/8/2019
 
@@ -6501,7 +6501,7 @@ namespace MasterOnline.Controllers
                             barangInDb.AVALUE_50 = null;
                             barangInDb.ACODE_50 = null;
                             //add by nurul 27/11/2019, add tgl last edit
-                            if(getStf02 != null)
+                            if (getStf02 != null)
                             {
                                 getStf02.Tgl_Input = DateTime.Today;
                             }
@@ -10798,7 +10798,8 @@ namespace MasterOnline.Controllers
 
                 //add by nurul 27/11/2019, add tgl last edit
                 var tempBarang = ErasoftDbContext.STF02.Where(p => p.BRG == brg).FirstOrDefault();
-                if (tempBarang != null) {
+                if (tempBarang != null)
+                {
                     tempBarang.Tgl_Input = DateTime.Today;
                 }
                 //end add by nurul 27/11/2019, add tgl last edit
@@ -13758,26 +13759,31 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Faktur.RecNum == null)
             {
-                //var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
-                var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noOrder = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                //var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listFakturInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                }
-                else
-                {
-                    //var lastRecNum = listFakturInDb.Last().RecNum;
-                    var lastRecNum = listFakturInDb.RecNum;
-                    lastRecNum++;
+                //if (listFakturInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    //var lastRecNum = listFakturInDb.Last().RecNum;
+                //    var lastRecNum = listFakturInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SI", "SIT01A", "NO_BUKTI");
+                var noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 //add by calvin, validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
@@ -13917,8 +13923,37 @@ namespace MasterOnline.Controllers
                     dataVm.FakturDetail.NILAI_DISC_5 = 0;
                 }
 
-                ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
-                ErasoftDbContext.SaveChanges();
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                //ErasoftDbContext.SaveChanges();
+                try
+                {
+                    ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.NO_BUKTI == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Faktur.NO_BUKTI = noOrder;
+                            ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                            dataVm.FakturDetail.NO_BUKTI = noOrder;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.FakturDetail.NO_URUT == null)
                 {
@@ -14045,26 +14080,30 @@ namespace MasterOnline.Controllers
                 var cekREf = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_REF == dataVm.Faktur.NO_REF);
                 if (cekREf == null)
                 {
-                    //var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
-                    var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                    var digitAkhir = "";
-                    var noOrder = "";
+                    //change by nurul 23/12/2019, perbaikan no bukti
+                    ////var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                    //var listFakturInDb = ErasoftDbContext.SIT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                    //var digitAkhir = "";
+                    //var noOrder = "";
 
-                    if (listFakturInDb == null)
-                    {
-                        digitAkhir = "000001";
-                        noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                    }
-                    else
-                    {
-                        //var lastRecNum = listFakturInDb.Last().RecNum;
-                        var lastRecNum = listFakturInDb.RecNum;
-                        lastRecNum++;
+                    //if (listFakturInDb == null)
+                    //{
+                    //    digitAkhir = "000001";
+                    //    noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                    //}
+                    //else
+                    //{
+                    //    //var lastRecNum = listFakturInDb.Last().RecNum;
+                    //    var lastRecNum = listFakturInDb.RecNum;
+                    //    lastRecNum++;
 
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
+                    //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    //    noOrder = $"RJ{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //}
+                    var lastBukti = GenerateAutoNumber(ErasoftDbContext, "RJ", "SIT01A", "NO_BUKTI");
+                    var noOrder = "RJ" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     var fakturInDb = ErasoftDbContext.SIT01A.SingleOrDefault(f => f.NO_BUKTI == dataVm.Faktur.NO_REF);
 
@@ -14099,9 +14138,36 @@ namespace MasterOnline.Controllers
                     dataVm.Faktur.TGLINPUT = DateTime.Today;
                     //end add by nurul 27/11/2019, add tgl last edit
 
-                    ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
-
-                    ErasoftDbContext.SaveChanges();
+                    //change by nurul 23/12/2019, perbaikan no bukti
+                    //ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                    //ErasoftDbContext.SaveChanges();
+                    try
+                    {
+                        ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        var tempSI = ErasoftDbContext.SIT01A.Where(a => a.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Single();
+                        if (tempSI != null)
+                        {
+                            if (tempSI.NO_BUKTI == noOrder)
+                            {
+                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                lastBuktiNew++;
+                                noOrder = "RJ" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                dataVm.Faktur.NO_BUKTI = noOrder;
+                                ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                            return Json(dataVm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     //add by ega
                     returBaru = true;
@@ -15285,26 +15351,30 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Invoice.RecNum == null)
             {
-                //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
-                var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noOrder = "";
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                ////var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listInvoiceInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
-                }
-                else
-                {
-                    //var lastRecNum = listInvoiceInDb.Last().RecNum;
-                    var lastRecNum = listInvoiceInDb.RecNum;
-                    lastRecNum++;
+                //if (listInvoiceInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    //var lastRecNum = listInvoiceInDb.Last().RecNum;
+                //    var lastRecNum = listInvoiceInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "PB", "PBT01A", "INV");
+                var noOrder = "PB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Invoice.INV = noOrder;
                 dataVm.Invoice.F_PAJAK = "";
@@ -15317,8 +15387,38 @@ namespace MasterOnline.Controllers
                 //add by nurul 27/11/2019, add tgl last edit
                 dataVm.Invoice.TGLINPUT = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
-                ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
-                ErasoftDbContext.SaveChanges();
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                //ErasoftDbContext.SaveChanges();
+                try
+                {
+                    ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.PBT01A.Where(a => a.INV == dataVm.Invoice.INV).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.INV == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "PB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Invoice.INV = noOrder;
+                            ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                            dataVm.InvoiceDetail.INV = noOrder;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.InvoiceDetail.NO == null)
                 {
@@ -15396,26 +15496,30 @@ namespace MasterOnline.Controllers
                 var cekREf = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.REF == dataVm.Invoice.REF);
                 if (cekREf == null)
                 {
-                    //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
-                    var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                    var digitAkhir = "";
-                    var noOrder = "";
+                    //change by nurul 23/12/2019, perbaikan no bukti
+                    ////var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderBy(p => p.RecNum).ToList();
+                    //var listInvoiceInDb = ErasoftDbContext.PBT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                    //var digitAkhir = "";
+                    //var noOrder = "";
 
-                    if (listInvoiceInDb == null)
-                    {
-                        digitAkhir = "000001";
-                        noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
-                    }
-                    else
-                    {
-                        //var lastRecNum = listInvoiceInDb.Last().RecNum;
-                        var lastRecNum = listInvoiceInDb.RecNum;
-                        lastRecNum++;
+                    //if (listInvoiceInDb == null)
+                    //{
+                    //    digitAkhir = "000001";
+                    //    noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
+                    //}
+                    //else
+                    //{
+                    //    //var lastRecNum = listInvoiceInDb.Last().RecNum;
+                    //    var lastRecNum = listInvoiceInDb.RecNum;
+                    //    lastRecNum++;
 
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
+                    //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    //    noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //}
+                    var lastBukti = GenerateAutoNumber(ErasoftDbContext, "RB", "PBT01A", "INV");
+                    var noOrder = "RB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     //add by calvin, validasi QOH
                     var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == dataVm.Invoice.REF).ToList();
@@ -15463,7 +15567,35 @@ namespace MasterOnline.Controllers
                     dataVm.Invoice.TGLINPUT = DateTime.Today;
                     //end add by nurul 27/11/2019, add tgl last edit
 
-                    ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                    //change by nurul 23/12/2019, perbaikan no_bukti
+                    //ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                    try
+                    {
+                        ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        var tempSI = ErasoftDbContext.PBT01A.Where(a => a.INV == dataVm.Invoice.INV).Single();
+                        if (tempSI != null)
+                        {
+                            if (tempSI.INV == noOrder)
+                            {
+                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                lastBuktiNew++;
+                                noOrder = "RB" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                dataVm.Invoice.INV = noOrder;
+                                ErasoftDbContext.PBT01A.Add(dataVm.Invoice);
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                            return Json(dataVm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     //if (dataVm.InvoiceDetail.NO == null)
                     //{
@@ -16604,33 +16736,69 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Pesanan.RecNum == null)
             {
-                //var listPesananInDb = ErasoftDbContext.SOT01A.OrderBy(p => p.RecNum).ToList();
-                var listPesananInDb = ErasoftDbContext.SOT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noOrder = "";
+                //end change by nurul 23/12/2019, perbaikan no bukti
+                ////var listPesananInDb = ErasoftDbContext.SOT01A.OrderBy(p => p.RecNum).ToList();
+                //var listPesananInDb = ErasoftDbContext.SOT01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listPesananInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"SO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT01A, RESEED, 0)");
-                }
-                else
-                {
-                    //var lastRecNum = listPesananInDb.Last().RecNum;
-                    var lastRecNum = listPesananInDb.RecNum;
-                    lastRecNum++;
+                //if (listPesananInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"SO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SOT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    //var lastRecNum = listPesananInDb.Last().RecNum;
+                //    var lastRecNum = listPesananInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"SO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"SO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SO", "SOT01A", "NO_BUKTI");
+                var noOrder = "SO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
 
                 dataVm.Pesanan.NO_BUKTI = noOrder;
                 dataVm.Pesanan.STATUS_TRANSAKSI = "0";
                 dataVm.PesananDetail.NO_BUKTI = noOrder;
                 dataVm.PesananDetail.NILAI_DISC = dataVm.PesananDetail.NILAI_DISC_1 + dataVm.PesananDetail.NILAI_DISC_2;
 
+                //change by nurul 23/12/2019, perbaikan no_bukti
                 ErasoftDbContext.SOT01A.Add(dataVm.Pesanan);
+                try
+                {
+                    ErasoftDbContext.SOT01A.Add(dataVm.Pesanan);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == dataVm.Pesanan.NO_BUKTI).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.NO_BUKTI == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "SO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Pesanan.NO_BUKTI = noOrder;
+                            ErasoftDbContext.SOT01A.Add(dataVm.Pesanan);
+                            ErasoftDbContext.SaveChanges();
+                            dataVm.PesananDetail.NO_BUKTI = noOrder;
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
 
                 if (dataVm.PesananDetail.NO_URUT == null)
                 {
@@ -17663,7 +17831,8 @@ namespace MasterOnline.Controllers
             //end change by nurul 8/5/2019, paging 
         }
 
-        public ActionResult RefreshUndoStatusPesananBatch(string[] rows_selected) {
+        public ActionResult RefreshUndoStatusPesananBatch(string[] rows_selected)
+        {
             if (rows_selected == null)
             {
                 var vmError = new PesananViewModel() { };
@@ -18076,21 +18245,22 @@ namespace MasterOnline.Controllers
             {
                 case "marketplace":
                     {
-                        var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p=>p.CUST).ToList();
+                        var listCustSesuaiFilter = ErasoftDbContext.ARF01.Where(p => p.NAMA == filtervalue).Select(p => p.CUST).ToList();
                         var queryfilter = "";
                         foreach (var item in listCustSesuaiFilter)
                         {
                             if (queryfilter != "") { queryfilter += ","; }
-                            queryfilter += "'"+ item +"'";
+                            queryfilter += "'" + item + "'";
                         }
 
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03'"; 
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03'";
 
                         if (queryfilter != "")
                         {
-                            sSQLTemp += " AND CUST IN ("+ queryfilter +");" + Environment.NewLine;
+                            sSQLTemp += " AND CUST IN (" + queryfilter + ");" + Environment.NewLine;
                         }
-                        else{
+                        else
+                        {
                             sSQLTemp += " AND 0=1;" + Environment.NewLine;
                         }
                         sSQL2 += "FROM #SOT01A A ";
@@ -18098,7 +18268,7 @@ namespace MasterOnline.Controllers
                     break;
                 case "statuskirim":
                     {
-                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_KIRIM,'') = '"+ filtervalue +"';" + Environment.NewLine;
+                        sSQLTemp = "SELECT * INTO #SOT01A FROM SOT01A WHERE STATUS_TRANSAKSI = '03' AND ISNULL(STATUS_KIRIM,'') = '" + filtervalue + "';" + Environment.NewLine;
                         sSQL2 += " FROM #SOT01A A ";
                     }
                     break;
@@ -18114,7 +18284,7 @@ namespace MasterOnline.Controllers
                     }
                     break;
             }
-            
+
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI = D.NO_SO ";
@@ -18130,7 +18300,8 @@ namespace MasterOnline.Controllers
             {
                 sSQLSelect2 += "ORDER BY A.TGL ASC, A.NO_BUKTI ASC ";
             }
-            else {
+            else
+            {
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
             }
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * Convert.ToInt32(take)) + " ROWS ";
@@ -20256,9 +20427,9 @@ namespace MasterOnline.Controllers
                 {
 
                 };
-                
+
                 vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
-                
+
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
@@ -21110,30 +21281,62 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Hutang.RECNUM == null)
             {
-                //var listPesananInDb = ErasoftDbContext.APT01A.OrderBy(p => p.RECNUM).ToList();
-                var listPesananInDb = ErasoftDbContext.APT01A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
-                var digitAkhir = "";
-                var noHutang = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listPesananInDb = ErasoftDbContext.APT01A.OrderBy(p => p.RECNUM).ToList();
+                //var listPesananInDb = ErasoftDbContext.APT01A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noHutang = "";
 
-                if (listPesananInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noHutang = $"AP{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (APT01A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listPesananInDb.RECNUM;
-                    lastRecNum++;
+                //if (listPesananInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noHutang = $"AP{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (APT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listPesananInDb.RECNUM;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noHutang = $"AP{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noHutang = $"AP{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "AP", "APT01A", "INV");
+                var noHutang = "AP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Hutang.INV = noHutang;
                 dataVm.Hutang.NETTO = dataVm.Hutang.TOTAL;
 
-                ErasoftDbContext.APT01A.Add(dataVm.Hutang);
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.APT01A.Add(dataVm.Hutang);
+                try
+                {
+                    ErasoftDbContext.APT01A.Add(dataVm.Hutang);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.APT01A.Where(a => a.INV == dataVm.Hutang.INV).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.INV == noHutang)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noHutang = "AP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Hutang.INV = noHutang;
+                            ErasoftDbContext.APT01A.Add(dataVm.Hutang);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
             }
             else
             {
@@ -21370,29 +21573,62 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Piutang.RecNum == null)
             {
-                //var listPiutangInDb = ErasoftDbContext.ART01A.OrderBy(p => p.RecNum).ToList();
-                var listPiutangInDb = ErasoftDbContext.ART01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noHutang = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listPiutangInDb = ErasoftDbContext.ART01A.OrderBy(p => p.RecNum).ToList();
+                //var listPiutangInDb = ErasoftDbContext.ART01A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noHutang = "";
 
-                if (listPiutangInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noHutang = $"AR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART01A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listPiutangInDb.RecNum;
-                    lastRecNum++;
+                //if (listPiutangInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noHutang = $"AR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listPiutangInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noHutang = $"AR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noHutang = $"AR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "AR", "ART01A", "FAKTUR");
+                var noHutang = "AR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Piutang.FAKTUR = noHutang;
 
-                ErasoftDbContext.ART01A.Add(dataVm.Piutang);
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.ART01A.Add(dataVm.Piutang);
+                try
+                {
+                    ErasoftDbContext.ART01A.Add(dataVm.Piutang);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.ART01A.Where(a => a.FAKTUR == dataVm.Piutang.FAKTUR).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.FAKTUR == noHutang)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noHutang = "AR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Piutang.FAKTUR = noHutang;
+                            ErasoftDbContext.ART01A.Add(dataVm.Piutang);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
             }
             else
@@ -21816,34 +22052,38 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
-                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
-                var digitAkhir = "";
-                var noStok = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noStok = "";
 
-                if (listStokInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                }
-                else
-                {
-                    //var lastRecNum = listStokInDb.Last().ID;
-                    var lastRecNum = listStokInDb.ID;
-                    var lastKode = listStokInDb.Nobuk;
-                    lastRecNum++;
+                //if (listStokInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    //var lastRecNum = listStokInDb.Last().ID;
+                //    var lastRecNum = listStokInDb.ID;
+                //    var lastKode = listStokInDb.Nobuk;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                    if (noStok == lastKode)
-                    {
-                        lastRecNum++;
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
-                }
+                //    if (noStok == lastKode)
+                //    {
+                //        lastRecNum++;
+                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Stok.Nobuk = noStok;
                 dataVm.Stok.STATUS_LOADING = "0";
@@ -21887,7 +22127,37 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
 
-                ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                try
+                {
+                    ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.STT01A.Where(a => a.Nobuk == dataVm.Stok.Nobuk).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.Nobuk == noStok)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Stok.Nobuk = noStok;
+                            ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                            dataVm.BarangStok.Nobuk = noStok;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -22655,29 +22925,63 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Jurnal.RecNum == null)
             {
-                var listJurnalInDb = ErasoftDbContext.GLFTRAN1.OrderBy(p => p.RecNum).ToList();
-                var digitAkhir = "";
-                var noOrder = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                //var listJurnalInDb = ErasoftDbContext.GLFTRAN1.OrderBy(p => p.RecNum).ToList();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listJurnalInDb.Count == 0)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"JUR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (GLFTRAN1, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listJurnalInDb.Last().RecNum;
-                    lastRecNum++;
+                //if (listJurnalInDb.Count == 0)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"JUR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (GLFTRAN1, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listJurnalInDb.Last().RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"JUR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"JUR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "JUR", "GLFTRAN1", "bukti");
+                var noOrder = "JUR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Jurnal.bukti = noOrder;
                 dataVm.JurnalDetail.bukti = noOrder;
 
-                ErasoftDbContext.GLFTRAN1.Add(dataVm.Jurnal);
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.GLFTRAN1.Add(dataVm.Jurnal);
+                try
+                {
+                    ErasoftDbContext.GLFTRAN1.Add(dataVm.Jurnal);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.GLFTRAN1.Where(a => a.bukti == dataVm.Jurnal.bukti).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.bukti == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "JUR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Jurnal.bukti = noOrder;
+                            ErasoftDbContext.GLFTRAN1.Add(dataVm.Jurnal);
+                            dataVm.JurnalDetail.bukti = noOrder;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
 
                 if (dataVm.JurnalDetail.no == null)
                 {
@@ -23041,30 +23345,62 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Piutang.RecNum == null)
             {
-                //var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderBy(p => p.RecNum).ToList();
-                var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noOrder = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderBy(p => p.RecNum).ToList();
+                //var listBayarPiutangInDb = ErasoftDbContext.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listBayarPiutangInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listBayarPiutangInDb.RecNum;
-                    lastRecNum++;
+                //if (listBayarPiutangInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Piutang.BUKTI = noOrder;
                 dataVm.PiutangDetail.BUKTI = noOrder;
 
-                ErasoftDbContext.ART03A.Add(dataVm.Piutang);
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.ART03A.Add(dataVm.Piutang);
+                try
+                {
+                    ErasoftDbContext.ART03A.Add(dataVm.Piutang);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.ART03A.Where(a => a.BUKTI == dataVm.Piutang.BUKTI).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.BUKTI == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Piutang.BUKTI = noOrder;
+                            ErasoftDbContext.ART03A.Add(dataVm.Piutang);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 //if (dataVm.PiutangDetail.NO == null)
                 if (!string.IsNullOrEmpty(dataVm.PiutangDetail.NFAKTUR))
@@ -23597,30 +23933,64 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Hutang.RecNum == null)
             {
-                //var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderBy(p => p.RecNum).ToList();
-                var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                var digitAkhir = "";
-                var noOrder = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderBy(p => p.RecNum).ToList();
+                //var listBayarHutangInDb = ErasoftDbContext.APT03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noOrder = "";
 
-                if (listBayarHutangInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"DR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (APT03A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listBayarHutangInDb.RecNum;
-                    lastRecNum++;
+                //if (listBayarHutangInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"DR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (APT03A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listBayarHutangInDb.RecNum;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noOrder = $"DR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noOrder = $"DR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "DR", "APT03A", "BUKTI");
+                var noOrder = "DR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Hutang.BUKTI = noOrder;
                 dataVm.HutangDetail.BUKTI = noOrder;
 
-                ErasoftDbContext.APT03A.Add(dataVm.Hutang);
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.APT03A.Add(dataVm.Hutang);
+                try
+                {
+                    ErasoftDbContext.APT03A.Add(dataVm.Hutang);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.APT03A.Where(a => a.BUKTI == dataVm.Hutang.BUKTI).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.BUKTI == noOrder)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noOrder = "DR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Hutang.BUKTI = noOrder;
+                            ErasoftDbContext.APT03A.Add(dataVm.Hutang);
+                            dataVm.HutangDetail.BUKTI = noOrder;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.HutangDetail.NO == null)
                 {
@@ -24082,33 +24452,37 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
-                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
-                var digitAkhir = "";
-                var noStok = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noStok = "";
 
-                if (listStokInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listStokInDb.ID;
-                    var lastKode = listStokInDb.Nobuk;
-                    lastRecNum++;
+                //if (listStokInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listStokInDb.ID;
+                //    var lastKode = listStokInDb.Nobuk;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                    if (noStok == lastKode)
-                    {
-                        lastRecNum++;
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
-                }
+                //    if (noStok == lastKode)
+                //    {
+                //        lastRecNum++;
+                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //        noStok = $"IN{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "IN", "STT01A", "Nobuk");
+                var noStok = "IN" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Stok.Nobuk = noStok;
                 dataVm.Stok.STATUS_LOADING = "0";
@@ -24118,7 +24492,37 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
 
-                ErasoftDbContext.STT01A.Add(dataVm.Stok);
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                try
+                {
+                    ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.STT01A.Where(a => a.Nobuk == dataVm.Stok.Nobuk).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.Nobuk == noStok)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noStok = "IN" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Stok.Nobuk = noStok;
+                            ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                            dataVm.BarangStok.Nobuk = noStok;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -24547,33 +24951,37 @@ namespace MasterOnline.Controllers
 
             if (dataVm.Stok.ID == null)
             {
-                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
-                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
-                var digitAkhir = "";
-                var noStok = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noStok = "";
 
-                if (listStokInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listStokInDb.ID;
-                    var lastKode = listStokInDb.Nobuk;
-                    lastRecNum++;
+                //if (listStokInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listStokInDb.ID;
+                //    var lastKode = listStokInDb.Nobuk;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                    if (noStok == lastKode)
-                    {
-                        lastRecNum++;
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
-                }
+                //    if (noStok == lastKode)
+                //    {
+                //        lastRecNum++;
+                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //        noStok = $"KS{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "KS", "STT01A", "Nobuk");
+                var noStok = "KS" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
                 var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
@@ -24601,7 +25009,37 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
 
-                ErasoftDbContext.STT01A.Add(dataVm.Stok);
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                try
+                {
+                    ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.STT01A.Where(a => a.Nobuk == dataVm.Stok.Nobuk).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.Nobuk == noStok)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noStok = "KS" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Stok.Nobuk = noStok;
+                            ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                            dataVm.BarangStok.Nobuk = noStok;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -24997,33 +25435,37 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
-                //var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
-                var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
-                var digitAkhir = "";
-                var noStok = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                ////var listStokInDb = ErasoftDbContext.STT01A.OrderBy(p => p.ID).ToList();
+                //var listStokInDb = ErasoftDbContext.STT01A.OrderByDescending(p => p.ID).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noStok = "";
 
-                if (listStokInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listStokInDb.ID;
-                    var lastKode = listStokInDb.Nobuk;
-                    lastRecNum++;
+                //if (listStokInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listStokInDb.ID;
+                //    var lastKode = listStokInDb.Nobuk;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                    if (noStok == lastKode)
-                    {
-                        lastRecNum++;
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
-                }
+                //    if (noStok == lastKode)
+                //    {
+                //        lastRecNum++;
+                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //        noStok = $"PG{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "PG", "STT01A", "Nobuk");
+                var noStok = "PG" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Stok.Nobuk = noStok;
                 dataVm.Stok.STATUS_LOADING = "0";
@@ -25033,7 +25475,37 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.TglInput = DateTime.Today;
                 //end add by nurul 27/11/2019, add tgl last edit
 
-                ErasoftDbContext.STT01A.Add(dataVm.Stok);
+
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                try
+                {
+                    ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.STT01A.Where(a => a.Nobuk == dataVm.Stok.Nobuk).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.Nobuk == noStok)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noStok = "PG" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Stok.Nobuk = noStok;
+                            ErasoftDbContext.STT01A.Add(dataVm.Stok);
+                            dataVm.BarangStok.Nobuk = noStok;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 if (dataVm.BarangStok.No == null)
                 {
@@ -34287,32 +34759,36 @@ namespace MasterOnline.Controllers
                 dataVm.Pengiriman.JAM_KIRIM = jamkirim;
                 if (dataVm.Pengiriman.RECNUM == null)
                 {
-                    var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
-                    var digitAkhir = "";
-                    var noKirim = "";
+                    //change by nurul 23/12/2019, perbaikan no bukti
+                    //var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
+                    //var digitAkhir = "";
+                    //var noKirim = "";
 
-                    if (listKirimInDb == null)
-                    {
-                        digitAkhir = "000001";
-                        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT04A, RESEED, 0)");
-                    }
-                    else
-                    {
-                        var lastRecNum = listKirimInDb.RECNUM;
-                        var lastKode = listKirimInDb.NO_BUKTI;
-                        lastRecNum++;
+                    //if (listKirimInDb == null)
+                    //{
+                    //    digitAkhir = "000001";
+                    //    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT04A, RESEED, 0)");
+                    //}
+                    //else
+                    //{
+                    //    var lastRecNum = listKirimInDb.RECNUM;
+                    //    var lastKode = listKirimInDb.NO_BUKTI;
+                    //    lastRecNum++;
 
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    //    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                        if (noKirim == lastKode)
-                        {
-                            lastRecNum++;
-                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                            noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                        }
-                    }
+                    //    if (noKirim == lastKode)
+                    //    {
+                    //        lastRecNum++;
+                    //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    //        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    //    }
+                    //}
+                    var lastBukti = GenerateAutoNumber(ErasoftDbContext, "DO", "SIT04A", "NO_BUKTI");
+                    var noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     dataVm.Pengiriman.NO_BUKTI = noKirim;
                     dataVm.PengirimanDetail.NO_BUKTI = noKirim;
@@ -34320,7 +34796,37 @@ namespace MasterOnline.Controllers
                     #region agar field yg penting di sit04a tidak null
                     #endregion
 
-                    ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+
+                    //change by nurul 23/12/2019, perbaikan no_bukti
+                    //ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                    try
+                    {
+                        ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        var tempSI = ErasoftDbContext.SIT04A.Where(a => a.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).Single();
+                        if (tempSI != null)
+                        {
+                            if (tempSI.NO_BUKTI == noKirim)
+                            {
+                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                lastBuktiNew++;
+                                noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                dataVm.Pengiriman.NO_BUKTI = noKirim;
+                                ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                                dataVm.PengirimanDetail.NO_BUKTI = noKirim;
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                        else
+                        {
+                            dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                            return Json(dataVm, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                     if (dataVm.PengirimanDetail.NO_URUT == null)
                     {
@@ -34797,37 +35303,69 @@ namespace MasterOnline.Controllers
             DateTime? jamkirim = Convert.ToDateTime(dataVm.Pengiriman.TGL_KIRIM?.ToString("dd/MM/yyyy") + ' ' + dataVm.Pengiriman.JAM_KIRIM?.ToString("HH:mm"));
             if (dataVm.Pengiriman.RECNUM == null)
             {
-                var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
-                var digitAkhir = "";
-                var noKirim = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                //var listKirimInDb = ErasoftDbContext.SIT04A.OrderByDescending(p => p.RECNUM).FirstOrDefault();
+                //var digitAkhir = "";
+                //var noKirim = "";
 
-                if (listKirimInDb == null)
-                {
-                    digitAkhir = "000001";
-                    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT04A, RESEED, 0)");
-                }
-                else
-                {
-                    var lastRecNum = listKirimInDb.RECNUM;
-                    var lastKode = listKirimInDb.NO_BUKTI;
-                    lastRecNum++;
+                //if (listKirimInDb == null)
+                //{
+                //    digitAkhir = "000001";
+                //    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT04A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    var lastRecNum = listKirimInDb.RECNUM;
+                //    var lastKode = listKirimInDb.NO_BUKTI;
+                //    lastRecNum++;
 
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //    noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                    if (noKirim == lastKode)
-                    {
-                        lastRecNum++;
-                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    }
-                }
+                //    if (noKirim == lastKode)
+                //    {
+                //        lastRecNum++;
+                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                //        noKirim = $"DO{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "DO", "SIT04A", "NO_BUKTI");
+                var noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
                 dataVm.Pengiriman.NO_BUKTI = noKirim;
                 dataVm.Pengiriman.JAM_KIRIM = jamkirim;
 
-                ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                //change by nurul 23/12/2019, perbaikan no_bukti
+                //ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                try
+                {
+                    ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSI = ErasoftDbContext.SIT04A.Where(a => a.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).Single();
+                    if (tempSI != null)
+                    {
+                        if (tempSI.NO_BUKTI == noKirim)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.Pengiriman.NO_BUKTI = noKirim;
+                            ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                //end change by nurul 23/12/2019, perbaikan no bukti
 
             }
             else
@@ -35077,7 +35615,7 @@ namespace MasterOnline.Controllers
             {
             };
             vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
-            vm.listDetailPacking = new List<SOT03BDetailPacking>(); 
+            vm.listDetailPacking = new List<SOT03BDetailPacking>();
             var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).ToList();
 
             var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
@@ -35105,7 +35643,7 @@ namespace MasterOnline.Controllers
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
             }
-            
+
             vm.listRekapBarang = new List<RekapBarang>();
             var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
@@ -35118,7 +35656,7 @@ namespace MasterOnline.Controllers
                 };
                 vm.listRekapBarang.Add(newData);
             }
-            
+
 
             return PartialView("FormPackinglistPartial", vm);
         }
@@ -35189,7 +35727,7 @@ namespace MasterOnline.Controllers
 
             };
             vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).FirstOrDefault();
-            vm.listDetailPacking = new List<SOT03BDetailPacking>(); 
+            vm.listDetailPacking = new List<SOT03BDetailPacking>();
             var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == dataVm.packingList.NO_BUKTI).ToList();
 
             var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
@@ -35217,7 +35755,7 @@ namespace MasterOnline.Controllers
                 }
                 vm.listDetailPacking.Add(isiDetailpacking);
             }
-            
+
             vm.listRekapBarang = new List<RekapBarang>();
             var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + dataVm.packingList.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
             for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
@@ -35276,7 +35814,7 @@ namespace MasterOnline.Controllers
 
                 };
                 vm.packingList = ErasoftDbContext.SOT03A.Where(m => m.NO_BUKTI == pesananPackinglistInDb.NO_BUKTI).FirstOrDefault();
-                vm.listDetailPacking = new List<SOT03BDetailPacking>(); 
+                vm.listDetailPacking = new List<SOT03BDetailPacking>();
                 var listSOT03B = ErasoftDbContext.SOT03B.Where(m => m.NO_BUKTI == vm.packingList.NO_BUKTI).ToList();
 
                 var listPesanan = listSOT03B.Select(p => p.NO_PESANAN).ToList();
@@ -35304,7 +35842,7 @@ namespace MasterOnline.Controllers
                     }
                     vm.listDetailPacking.Add(isiDetailpacking);
                 }
-                
+
                 vm.listRekapBarang = new List<RekapBarang>();
                 var dsRekap = EDB.GetDataSet("CString", "SOT03C", "SELECT A.BRG, B.NAMA + ' ' + (ISNULL(NAMA2, '')) NAMA_BARANG, sum(QTY) QTY from SOT03C A INNER JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + pesananPackinglistInDb.NO_BUKTI + "' GROUP BY A.BRG, B.NAMA, B.NAMA2");
                 for (int i = 0; i < dsRekap.Tables[0].Rows.Count; i++)
@@ -35317,7 +35855,7 @@ namespace MasterOnline.Controllers
                     };
                     vm.listRekapBarang.Add(newData);
                 }
-                    
+
 
                 return PartialView("FormPackinglistPartial", vm);
             }
@@ -35437,16 +35975,18 @@ namespace MasterOnline.Controllers
 
             return View(retData);
         }
-        public class PackingSuccess {
+        public class PackingSuccess
+        {
             public string no_bukti { get; set; }
             public int recnum { get; set; }
         }
-        public class GeneratePacking {
+        public class GeneratePacking
+        {
             public List<listErrorPacking> errors { get; set; }
             public List<PackingSuccess> so_success { get; set; }
             public string packingNo { get; set; }
         }
-        
+
         public PesananViewModel ProsesPesananToPackingList(/*string[] rows_selected*/List<string> rows_selected)
         {
             var vmError = new PesananViewModel() { };
@@ -35613,7 +36153,7 @@ namespace MasterOnline.Controllers
                         if (getkata.Length == 1)
                         {
                             sSQL_No_Bukti += " ( A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQL_No_Ref+= " ( A.NO_REFERENSI like '%" + getkata[i] + "%' )";
+                            sSQL_No_Ref += " ( A.NO_REFERENSI like '%" + getkata[i] + "%' )";
                             sSQL_Pembeli += " ( B.PEMBELI like '%" + getkata[i] + "%' )";
                             sSQL_Shipment += " ( A.SHIPMENT like '%" + getkata[i] + "%' )";
                         }
@@ -35650,7 +36190,7 @@ namespace MasterOnline.Controllers
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH ";
             string sSQL2 = "";
-            sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '"+ bukti + "' AND A.CUST IN ('" + cust + "') ";
+            sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') ";
             if (search != "")
             {
                 sSQL2 += " AND ( " + sSQL_No_Bukti + " or " + sSQL_No_Ref + " or " + sSQL_Pembeli + " or " + sSQL_Shipment + " ) ";
@@ -35665,8 +36205,8 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-//            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
-//            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+            //            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            //            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
@@ -35708,13 +36248,13 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35725,7 +36265,8 @@ namespace MasterOnline.Controllers
                     var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
-                        if (marketPlace.STATUS_API == "1") {
+                        if (marketPlace.STATUS_API == "1")
+                        {
                             TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                             {
                                 merchant_code = marketPlace.Sort1_Cust, //FSID
@@ -35775,7 +36316,7 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
-                
+
                 var successCount = listSuccess.Count();
                 return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -35813,7 +36354,7 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
@@ -35822,7 +36363,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35861,7 +36402,8 @@ namespace MasterOnline.Controllers
                                                 no_referensi = so.no_referensi
                                             });
                                         }
-                                        else {
+                                        else
+                                        {
                                             listErrors.Add(new PackingListErrors
                                             {
                                                 keyname = so.no_referensi,
@@ -35869,7 +36411,8 @@ namespace MasterOnline.Controllers
                                             });
                                         }
                                     }
-                                    else {
+                                    else
+                                    {
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
@@ -35877,7 +36420,7 @@ namespace MasterOnline.Controllers
                                         });
                                     }
                                 }
-                                else 
+                                else
                                 {
                                     listErrors.Add(new PackingListErrors
                                     {
@@ -35886,7 +36429,8 @@ namespace MasterOnline.Controllers
                                     });
                                 }
                             }
-                            else {
+                            else
+                            {
                                 listErrors.Add(new PackingListErrors
                                 {
                                     keyname = so.no_referensi,
@@ -35894,7 +36438,7 @@ namespace MasterOnline.Controllers
                                 });
                             }
                         }
-                        
+
                         var successCount = listSuccess.Count();
                         return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
@@ -35907,7 +36451,7 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        
+
         public ActionResult RequestRTSLazadaPerPacking(string cust, string bukti, string DeliveryProvider, List<string> rows_selected)
         {
             try
@@ -35936,7 +36480,7 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
@@ -35945,7 +36489,7 @@ namespace MasterOnline.Controllers
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -35982,7 +36526,8 @@ namespace MasterOnline.Controllers
                                             no_referensi = so.no_referensi
                                         });
                                     }
-                                    else {
+                                    else
+                                    {
                                         listErrors.Add(new PackingListErrors
                                         {
                                             keyname = so.no_referensi,
@@ -35990,7 +36535,8 @@ namespace MasterOnline.Controllers
                                         });
                                     }
                                 }
-                                else {
+                                else
+                                {
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = so.no_referensi,
@@ -35998,7 +36544,8 @@ namespace MasterOnline.Controllers
                                     });
                                 }
                             }
-                            else {
+                            else
+                            {
                                 listErrors.Add(new PackingListErrors
                                 {
                                     keyname = so.no_referensi,
@@ -36006,7 +36553,7 @@ namespace MasterOnline.Controllers
                                 });
                             }
                         }
-                        
+
                         var successCount = listSuccess.Count();
                         return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
@@ -36045,11 +36592,11 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36062,10 +36609,11 @@ namespace MasterOnline.Controllers
                 var Valid = false;
                 foreach (var so in ListStt01a)
                 {
-                    if (listNobuk != "") {
+                    if (listNobuk != "")
+                    {
                         listNobuk += ",";
                     }
-                    listNobuk += "'"+ so.no_bukti +"'";
+                    listNobuk += "'" + so.no_bukti + "'";
                     if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                     {
                         if (marketPlace.STATUS_API == "1")
@@ -36100,13 +36648,13 @@ namespace MasterOnline.Controllers
                         //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
                         //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
                         htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
-//                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
-//                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
-//                        htmlString += "window.print(); }; window.onafterprint = function () {";
-//                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
-//                        htmlString += " if (document.readyState!='loading') run();";
-//                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
-//                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                        //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                        //                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                        //                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                        //                        htmlString += " if (document.readyState!='loading') run();";
+                        //                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                        //                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
                         htmlString += "</script>";
                         //#endregion
                         EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + listNobuk + ")");
@@ -36140,7 +36688,7 @@ namespace MasterOnline.Controllers
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
-                
+
                 if (rows_selected != null)
                 {
                     if (rows_selected.Count() == 0)
@@ -36163,11 +36711,11 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36182,14 +36730,16 @@ namespace MasterOnline.Controllers
                         if (marketPlace.STATUS_API == "1")
                         {
                             var pesananInDb = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == so.no_bukti).FirstOrDefault();
-                            if (pesananInDb != null) {
+                            if (pesananInDb != null)
+                            {
                                 if (!string.IsNullOrWhiteSpace(pesananInDb.NO_REFERENSI))
                                 {
                                     if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                                     {
                                         var paramsInit = await GetParameterInitLogisticShopee(pesananInDb, marketPlace.Sort1_Cust);
                                         var splitParamsInit = paramsInit[5].Split(';');
-                                        if (splitParamsInit.Contains("PICKUP")) {
+                                        if (splitParamsInit.Contains("PICKUP"))
+                                        {
                                             string pAddress = "";
                                             string pTime = "";
                                             ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
@@ -36198,9 +36748,11 @@ namespace MasterOnline.Controllers
                                                 DatabasePathErasoft = dbPathEra,
                                                 username = usernameLogin
                                             };
-                                            if (splitParamsInit.Contains("ADDRESS_ID")) {
+                                            if (splitParamsInit.Contains("ADDRESS_ID"))
+                                            {
                                                 pAddress = alamat;
-                                                if (splitParamsInit.Contains("PICKUP_TIME")) {
+                                                if (splitParamsInit.Contains("PICKUP_TIME"))
+                                                {
                                                     var firstpickuptime = await GetShopeeFirstPickupTime(pesananInDb, Convert.ToInt64(alamat), marketPlace.Sort1_Cust);
                                                     pTime = firstpickuptime.pickup_time_id;
                                                 }
@@ -36301,7 +36853,7 @@ namespace MasterOnline.Controllers
             {
                 var listErrors = new List<PackingListErrors>();
                 var listSuccess = new List<listSuccessPrintLabel>();
-                
+
                 if (rows_selected != null)
                 {
                     if (rows_selected.Count() == 0)
@@ -36324,11 +36876,11 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                 string sSQL2 = "";
-                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36384,7 +36936,8 @@ namespace MasterOnline.Controllers
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
-                                                listSuccess.Add(new listSuccessPrintLabel(){
+                                                listSuccess.Add(new listSuccessPrintLabel()
+                                                {
                                                     no_referensi = pesananInDb.NO_REFERENSI
                                                 });
                                             }
@@ -36396,7 +36949,7 @@ namespace MasterOnline.Controllers
                                                 if (splitParamsInit.Contains("DROPOFF_TRACKING_NO")) { reasonFail += "No Resi,"; }
 
                                                 reasonFail = reasonFail.Substring(0, reasonFail.Length - 1);
-                                                
+
                                                 listErrors.Add(new PackingListErrors
                                                 {
                                                     keyname = so.no_referensi,
@@ -36589,14 +37142,14 @@ namespace MasterOnline.Controllers
 
                     string_recnum += "'" + so_recnum + "'";
                 }
-                
+
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                 {
                     string sSQLSelect = "";
                     sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                     string sSQL2 = "";
-                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                    sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                     string sSQLSelect2 = "";
                     sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36630,18 +37183,20 @@ namespace MasterOnline.Controllers
                     var listSuccess = "";
                     foreach (var osn in ordersn_list)
                     {
-                        if (listSuccess != "") {
+                        if (listSuccess != "")
+                        {
                             listSuccess += ",";
                         }
                         listSuccess += "'" + osn + "'";
                     }
-                    
-                    string sSQLWhere = "";  
+
+                    string sSQLWhere = "";
                     if (listSuccess != "")
                     {
                         sSQLWhere += " no_referensi in (" + listSuccess + ")" + Environment.NewLine;
                     }
-                    else{
+                    else
+                    {
                         sSQLWhere += " 0=1" + Environment.NewLine;
                     }
                     EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
@@ -36655,7 +37210,8 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti, List<string> rows_selected) {
+        public async Task<ActionResult> BlibliCreatePackage(string cust, string bukti, List<string> rows_selected)
+        {
             try
             {
                 if (rows_selected != null)
@@ -36685,12 +37241,12 @@ namespace MasterOnline.Controllers
 
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
-                    if (tblCustomer.STATUS_API == "1") 
+                    if (tblCustomer.STATUS_API == "1")
                     {
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36726,7 +37282,8 @@ namespace MasterOnline.Controllers
                                     {
                                         orderItemIds.Add(Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]));
                                     }
-                                    if (orderItemIds.Count > 0) {
+                                    if (orderItemIds.Count > 0)
+                                    {
                                         var success = true;
                                         try
                                         {
@@ -36734,7 +37291,8 @@ namespace MasterOnline.Controllers
                                             if (!string.IsNullOrWhiteSpace(bookingAWB))
                                             {
                                                 var updated = EDB.ExecuteSQL("SConn", CommandType.Text, "UPDATE SOT01A SET TRACKING_SHIPMENT = '" + bookingAWB + "' WHERE NO_BUKTI='" + so.no_bukti + "'");
-                                                if (updated < 1) {
+                                                if (updated < 1)
+                                                {
                                                     success = false;
                                                 }
                                             }
@@ -36744,7 +37302,7 @@ namespace MasterOnline.Controllers
                                             success = false;
                                         }
 
-                                        if(!success)
+                                        if (!success)
                                         {
                                             listErrors.Add(new PackingListErrors
                                             {
@@ -36792,16 +37350,18 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        public class PackingListErrors {
+        public class PackingListErrors
+        {
             public string keyname { get; set; }
             public string errorMessage { get; set; }
         }
-        public class listSuccessPrintLabel {
+        public class listSuccessPrintLabel
+        {
             public string no_referensi { get; set; }
             public string orderItemId { get; set; }
             public string pdf64 { get; set; }
         }
-        public async Task<ActionResult> BlibliLabelPerPacking(string cust, string bukti, List<string> rows_selected) 
+        public async Task<ActionResult> BlibliLabelPerPacking(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
@@ -36816,7 +37376,7 @@ namespace MasterOnline.Controllers
                 {
                     return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                
+
                 var string_recnum = "";
                 foreach (var so_recnum in rows_selected)
                 {
@@ -36829,7 +37389,7 @@ namespace MasterOnline.Controllers
                 }
                 var tblCustomer = ErasoftDbContext.ARF01.Single(p => p.CUST == cust);
                 var EDB = new DatabaseSQL(dbPathEra);
-                
+
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
                     if (tblCustomer.STATUS_API == "1")
@@ -36863,9 +37423,9 @@ namespace MasterOnline.Controllers
                         foreach (var so in ListStt01a)
                         {
                             var dsSOT01B = EDB.GetDataSet("SConn", "SO", "SELECT ORDER_ITEM_ID FROM SOT01B NOLOCK WHERE NO_BUKTI = '" + so.no_bukti + "'");
-                            if(dsSOT01B.Tables[0].Rows.Count == 0)
+                            if (dsSOT01B.Tables[0].Rows.Count == 0)
                             {
-                                if (listErrors.Where(p=> p.keyname == so.no_referensi).Count() == 0)
+                                if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
                                 {
                                     listErrors.Add(new PackingListErrors { keyname = so.no_referensi, errorMessage = "Pesanan tidak memiliki barang." });
                                 }
@@ -36881,14 +37441,16 @@ namespace MasterOnline.Controllers
                                     var bookingAWB = await bliJob.GetShippingLabel(dbPathEra, iden, orderItemId);
                                     if (bookingAWB.success)
                                     {
-                                        listSuccess.Add( new listSuccessPrintLabel {
+                                        listSuccess.Add(new listSuccessPrintLabel
+                                        {
                                             no_referensi = so.no_referensi,
                                             pdf64 = bookingAWB.value.document,
                                             orderItemId = orderItemId
                                         });
                                         success = true;
                                     }
-                                    else {
+                                    else
+                                    {
                                         failedReason = bookingAWB.errorMessage;
                                     }
                                 }
@@ -36902,7 +37464,8 @@ namespace MasterOnline.Controllers
 
                                     if (listErrors.Where(p => p.keyname == so.no_referensi + "_" + orderItemId).Count() == 0)
                                     {
-                                        listErrors.Add(new PackingListErrors {
+                                        listErrors.Add(new PackingListErrors
+                                        {
                                             keyname = so.no_referensi + "_" + orderItemId,
                                             errorMessage = "Order [" + so.no_referensi + "] Item ID [" + orderItemId + "] gagal cetak label, karena : " + failedReason
                                         });
@@ -36913,22 +37476,24 @@ namespace MasterOnline.Controllers
                             var buktiSuccess = "";
                             foreach (var osn in listSuccess)
                             {
-                                if (buktiSuccess != "") {
+                                if (buktiSuccess != "")
+                                {
                                     buktiSuccess += ",";
                                 }
                                 buktiSuccess += "'" + osn.no_referensi + "'";
                             }
-                    
-                            string sSQLWhere = "";  
+
+                            string sSQLWhere = "";
                             if (buktiSuccess != "")
                             {
                                 sSQLWhere += " no_referensi in (" + buktiSuccess + ")" + Environment.NewLine;
                             }
-                            else{
+                            else
+                            {
                                 sSQLWhere += " 0=1" + Environment.NewLine;
                             }
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
-                            
+
                         }
                         return new JsonResult { Data = new { listErrors, listSuccess }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
@@ -36942,7 +37507,7 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        public async Task<ActionResult> BlibliBatchFulfill(string cust, string bukti, List<string> rows_selected) 
+        public async Task<ActionResult> BlibliBatchFulfill(string cust, string bukti, List<string> rows_selected)
         {
             try
             {
@@ -36973,11 +37538,12 @@ namespace MasterOnline.Controllers
                 var EDB = new DatabaseSQL(dbPathEra);
                 if (!string.IsNullOrEmpty(tblCustomer.STATUS_API))
                 {
-                    if (tblCustomer.STATUS_API == "1") {
+                    if (tblCustomer.STATUS_API == "1")
+                    {
                         string sSQLSelect = "";
                         sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item,isnull(A.status_kirim,'') AS status_kirim, isnull(A.TRACKING_SHIPMENT,'') as tracking_no ";
                         string sSQL2 = "";
-                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN ("+ string_recnum +") ";
+                        sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
                         string sSQLSelect2 = "";
                         sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -36997,7 +37563,7 @@ namespace MasterOnline.Controllers
                             DatabasePathErasoft = dbPathEra,
                             username = usernameLogin
                         };
-                        
+
                         var bliJob = new BlibliControllerJob();
                         var listErrors = new List<PackingListErrors>();
                         var listSuccess = new List<listSuccessPrintLabel>();
@@ -37017,9 +37583,9 @@ namespace MasterOnline.Controllers
                                     {
                                         string order_item_id = Convert.ToString(dsSOT01B.Tables[0].Rows[i]["ORDER_ITEM_ID"]);
                                         orderItemIds.Add(order_item_id);
-//                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
-//                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
-//                                            order_item_id);
+                                        //                                        new BlibliControllerJob().fillOrderAWB(dbPathEra, so.nama_pemesan, cust,
+                                        //                                            "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi,
+                                        //                                            order_item_id);
                                         clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, so.nama_pemesan, cust, "Pesanan", "Ganti Status", iden, so.tracking_no, so.no_referensi, order_item_id));
                                     }
                                     listSuccess.Add(new listSuccessPrintLabel()
@@ -37030,12 +37596,12 @@ namespace MasterOnline.Controllers
                                 }
                                 catch (Exception ex)
                                 {
-    
+
                                 }
-                                
-                                if (orderItemIds.Count > 0) 
+
+                                if (orderItemIds.Count > 0)
                                 {
-                                    if(!success)
+                                    if (!success)
                                     {
                                         if (listErrors.Where(p => p.keyname == so.no_referensi).Count() == 0)
                                         {
@@ -37083,7 +37649,7 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        
+
         //add by calvin 10 september 2019, update stock ulang ke seluruh marketplace
         public ActionResult MarketplaceLogRetryStock()
         {
@@ -37673,7 +38239,8 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 23/10/2019
 
-        public ActionResult UndoStatusPesananBatchTransaction(string[] get_selected) {
+        public ActionResult UndoStatusPesananBatchTransaction(string[] get_selected)
+        {
             List<listErrorPacking> listError = new List<listErrorPacking>();
             var listSuccess = new List<string>();
             var listSuccessRecnum = new List<int>();
@@ -37694,7 +38261,8 @@ namespace MasterOnline.Controllers
                     }
                 }
                 var dsSOFail = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI FROM SOT01A A LEFT JOIN SIT01A B ON A.NO_BUKTI = B.NO_SO WHERE A.RECNUM IN (" + stringListRecnum + ") AND ISNULL(B.NO_SO,'') <> '' ORDER BY A.NO_BUKTI");
-                if (dsSOFail.Tables[0].Rows.Count > 0) {
+                if (dsSOFail.Tables[0].Rows.Count > 0)
+                {
                     for (int i = 0; i < dsSOFail.Tables[0].Rows.Count; i++)
                     {
                         listError.Add(new listErrorPacking
@@ -37713,18 +38281,20 @@ namespace MasterOnline.Controllers
                     {
                         var dsSORow = dsSO.Tables[0].Rows[i];
                         var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
-                        if (listNobuk != "") {
+                        if (listNobuk != "")
+                        {
                             listNobuk += ",";
                         }
                         listNobuk += "'" + Nobuk + "'";
                     }
 
-                    string sSQLWhere = "";  
+                    string sSQLWhere = "";
                     if (listNobuk != "")
                     {
                         sSQLWhere += " NO_PESANAN IN (" + listNobuk + ")" + Environment.NewLine;
                     }
-                    else{
+                    else
+                    {
                         sSQLWhere += " 0=1" + Environment.NewLine;
                     }
                     //hapus bukti packing list yg akan kosong ( dari packing list yang dihapus sot03b nya )
@@ -37736,8 +38306,8 @@ namespace MasterOnline.Controllers
                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQLPACKING);
                     EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03B WHERE " + sSQLWhere);
                     EDB.ExecuteSQL("sConn", CommandType.Text, "DELETE FROM SOT03C WHERE " + sSQLWhere);
-                    
-                    var successRow = EDB.ExecuteSQL("sConn",CommandType.Text,"UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN ("+ listNobuk +")");
+
+                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '02' WHERE NO_BUKTI IN (" + listNobuk + ")");
                     successCount += successRow;
                 }
             }
@@ -37807,8 +38377,9 @@ namespace MasterOnline.Controllers
 
             return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
-        
-        public class listErrorPacking {
+
+        public class listErrorPacking
+        {
             public string no_bukti_so { get; set; }
             public string error_msg { get; set; }
         }
@@ -37822,13 +38393,13 @@ namespace MasterOnline.Controllers
 
             try
             {
-                
+
                 var default_gudang = "";
                 using (var context = new ErasoftContext(dbPathEra))
                 {
                     var gudang_parsys = context.SIFSYS.FirstOrDefault().GUDANG;
                     var cekgudang = context.STF18.ToList();
-                    if (cekgudang.Where(p=>p.Kode_Gudang == gudang_parsys).Count() > 0)
+                    if (cekgudang.Where(p => p.Kode_Gudang == gudang_parsys).Count() > 0)
                     {
                         default_gudang = gudang_parsys;
                     }
@@ -37841,20 +38412,23 @@ namespace MasterOnline.Controllers
                 var stringListRecnum = "";
                 for (int i = 0; i < get_selected.Length; i++)
                 {
-                    if (!string.IsNullOrWhiteSpace(get_selected[i])) {
-                        if (stringListRecnum != "") {
+                    if (!string.IsNullOrWhiteSpace(get_selected[i]))
+                    {
+                        if (stringListRecnum != "")
+                        {
                             stringListRecnum += ",";
                         }
                         stringListRecnum += "'" + get_selected[i].Trim() + "'";
                     }
                 }
-                
-                if(approved == 2){
+
+                if (approved == 2)
+                {
                     //undo alokasi stok pesanan, HANYA UNTUK YG LOKASI = DEFAULT GUDANG
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE B SET LOKASI = '', QTY_N = 0 FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE B.LOKASI = '" + default_gudang + "' AND A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '02'");
                     return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 2 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
-                
+
                 var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
@@ -37872,8 +38446,10 @@ namespace MasterOnline.Controllers
                         var SOB_Lokasi = Convert.ToString(dsSORow["LOKASI"]);
                         var SOB_RECNUM = Convert.ToInt32(dsSORow["SOB_RECNUM"]);
                         var SOA_RECNUM = Convert.ToString(dsSORow["SOA_RECNUM"]);
-                        if (lastNobuk != Nobuk) {
-                            if (validNobuk & lastNobuk != "") {
+                        if (lastNobuk != Nobuk)
+                        {
+                            if (validNobuk & lastNobuk != "")
+                            {
                                 var doUpdateSOB = "SELECT 0 NO_URUT, LOKASI INTO #TEMP_SOT01B FROM SOT01B WHERE 0=1; " + Environment.NewLine;
                                 doUpdateSOB += "INSERT INTO #TEMP_SOT01B (NO_URUT,LOKASI) VALUES " + Environment.NewLine;
                                 stringUpdateSOB = stringUpdateSOB.Substring(0, stringUpdateSOB.Length - 1) + ";" + Environment.NewLine;
@@ -37893,7 +38469,8 @@ namespace MasterOnline.Controllers
                         }
 
                         var gudang = default_gudang;
-                        if (!string.IsNullOrWhiteSpace(SOB_Lokasi)) {
+                        if (!string.IsNullOrWhiteSpace(SOB_Lokasi))
+                        {
                             gudang = SOB_Lokasi;
                         }
                         var qtyOnHand = GetQOHSTF08A(SOB_Brg, gudang);
@@ -37932,14 +38509,16 @@ namespace MasterOnline.Controllers
                         listSuccess.Add(lastNobuk);
                     }
                 }
-                
+
                 successCount = listSuccess.Count();
-                if (listError.Count() > 0 && approved == 0){
+                if (listError.Count() > 0 && approved == 0)
+                {
                     if (successCount > 0)
                     {
                         return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount, need_approval = 1 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
-                    else{
+                    else
+                    {
                         return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                 }
@@ -37951,90 +38530,134 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
-    		                    var validContinue = true;
-        	                    var listSemuaSO = context.SOT01A.Where(p => listSuccessRecnum.Contains(p.RecNum.Value)).ToList();
-        	                    foreach (var gagal in listSemuaSO)
+                                var validContinue = true;
+                                var listSemuaSO = context.SOT01A.Where(p => listSuccessRecnum.Contains(p.RecNum.Value)).ToList();
+                                foreach (var gagal in listSemuaSO)
                                 {
-            	                    if(gagal.STATUS_TRANSAKSI != "02"){
-            		                    validContinue = false;
-            		                    listError.Add(new listErrorPacking {
-					                        error_msg = "Status pesanan bukan packing",
-					                        no_bukti_so = gagal.NO_BUKTI
-					                    });
-            	                    }
-                                    var cekNoSOExist = context.SIT01A.Where(p => p.NO_SO == gagal.NO_BUKTI).FirstOrDefault();
-                                    if(cekNoSOExist != null){
+                                    if (gagal.STATUS_TRANSAKSI != "02")
+                                    {
                                         validContinue = false;
-        		                        listError.Add(new listErrorPacking {
-				                            error_msg = "Pesanan sudah memiliki faktur",
-				                            no_bukti_so = gagal.NO_BUKTI
-				                        });
+                                        listError.Add(new listErrorPacking
+                                        {
+                                            error_msg = "Status pesanan bukan packing",
+                                            no_bukti_so = gagal.NO_BUKTI
+                                        });
+                                    }
+                                    var cekNoSOExist = context.SIT01A.Where(p => p.NO_SO == gagal.NO_BUKTI).FirstOrDefault();
+                                    if (cekNoSOExist != null)
+                                    {
+                                        validContinue = false;
+                                        listError.Add(new listErrorPacking
+                                        {
+                                            error_msg = "Pesanan sudah memiliki faktur",
+                                            no_bukti_so = gagal.NO_BUKTI
+                                        });
                                     }
                                 }
 
-			                    var listPackinglistinDB = context.SOT03B.Where(p=> listSuccess.Contains(p.NO_PESANAN)).ToList();
+                                var listPackinglistinDB = context.SOT03B.Where(p => listSuccess.Contains(p.NO_PESANAN)).ToList();
                                 foreach (var item in listPackinglistinDB)
                                 {
                                     validContinue = false;
-                                    listError.Add(new listErrorPacking {
+                                    listError.Add(new listErrorPacking
+                                    {
                                         error_msg = "Pesanan sudah pernah dibuatkan packing list. [" + item.NO_BUKTI + "]",
                                         no_bukti_so = item.NO_PESANAN
                                     });
                                 }
 
                                 //check jika ada error
-        	                    if (!validContinue){ 
-        		                    transaction.Rollback(); 
-	                                return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-    		                    }
+                                if (!validContinue)
+                                {
+                                    transaction.Rollback();
+                                    return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                }
 
-    		                    var newPackinglist = new SOT03A
+                                var newPackinglist = new SOT03A
                                 {
                                     TGL = DateTime.Now,
                                     USERNAME = "AUTO_CREATE"
                                 };
+
+                                //change by nurul 23/12/2019, perbaikan no bukti
+                                //string lastnobuk = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(NO_BUKTI), 5, 6), '0') FROM SOT03A WHERE NO_BUKTI LIKE 'PL19%'").First();
+                                //var nobuk = "PL" + DateTime.Now.Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastnobuk) + 1).PadLeft(6, '0');
+                                var lastBukti = GenerateAutoNumber(context, "PL", "SOT03A", "NO_BUKTI");
+                                var nobuk = "PL" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                //end change by nurul 23/12/2019, perbaikan no bukti
                                 
-                                string lastnobuk = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(NO_BUKTI), 5, 6), '0') FROM SOT03A WHERE NO_BUKTI LIKE 'PL19%'").First();
-                                var nobuk = "PL" + DateTime.Now.Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastnobuk) + 1).PadLeft(6, '0');
-                                
+
                                 newPackinglist.NO_BUKTI = nobuk;
-                                context.SOT03A.Add(newPackinglist);
-                                
-                                var newpackingdetail = new List<SOT03B>();
-                                var newpackingbrgdetail = new List<SOT03C>();
 
-    		                    foreach (var eachSO in listSemuaSO)
+                                //change by nurul 23/12/2019, perbaikan no_bukti
+                                //context.SOT03A.Add(newPackinglist);
+                                try
                                 {
-            	                    var pesananInDb = context.SOT01A.Where(p => p.RecNum == eachSO.RecNum).Single();
-	                                var dataVm = new FakturViewModel()
-	                                {
-	                                    Faktur = new SIT01A()
-	                                };
-                                    
-                                    var digitAkhir = "";
-                                    var noOrder = "";
-
-                                    var listFakturInDb = context.SIT01A.Max(p => p.RecNum);
-
-                                    if (!listFakturInDb.HasValue)
+                                    context.SOT03A.Add(newPackinglist);
+                                    context.SaveChanges();
+                                }
+                                catch (Exception ex)
+                                {
+                                    var tempSI = context.SOT03A.Where(a => a.NO_BUKTI == newPackinglist.NO_BUKTI).Single();
+                                    if (tempSI != null)
                                     {
-                                        digitAkhir = "000001";
-                                        noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                        context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                                        if (tempSI.NO_BUKTI == nobuk)
+                                        {
+                                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                            lastBuktiNew++;
+                                            nobuk = "PL" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                            newPackinglist.NO_BUKTI = nobuk;
+                                            context.SOT03A.Add(newPackinglist);
+                                            context.SaveChanges();
+                                        }
                                     }
                                     else
                                     {
-                                        var lastSIRecnum = listFakturInDb.Value;
-
-                                        if (lastSIRecnum == 0)
-                                        {
-                                            lastSIRecnum = 1;
-                                        }
-                                        lastSIRecnum++;
-
-                                        digitAkhir = lastSIRecnum.ToString().PadLeft(6, '0');
-                                        noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                     }
+                                }
+                                //end change by nurul 23/12/2019, perbaikan no bukti
+
+                                var newpackingdetail = new List<SOT03B>();
+                                var newpackingbrgdetail = new List<SOT03C>();
+
+                                foreach (var eachSO in listSemuaSO)
+                                {
+                                    var pesananInDb = context.SOT01A.Where(p => p.RecNum == eachSO.RecNum).Single();
+                                    var dataVm = new FakturViewModel()
+                                    {
+                                        Faktur = new SIT01A()
+                                    };
+
+                                    //change by nurul 23/12/2019, perbaikan no bukti
+                                    //var digitAkhir = "";
+                                    //var noOrder = "";
+
+                                    //var listFakturInDb = context.SIT01A.Max(p => p.RecNum);
+
+                                    //if (!listFakturInDb.HasValue)
+                                    //{
+                                    //    digitAkhir = "000001";
+                                    //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                    //    context.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                                    //}
+                                    //else
+                                    //{
+                                    //    var lastSIRecnum = listFakturInDb.Value;
+
+                                    //    if (lastSIRecnum == 0)
+                                    //    {
+                                    //        lastSIRecnum = 1;
+                                    //    }
+                                    //    lastSIRecnum++;
+
+                                    //    digitAkhir = lastSIRecnum.ToString().PadLeft(6, '0');
+                                    //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                    //}
+                                    var lastBuktiSI = GenerateAutoNumber(context, "SI", "SIT01A", "NO_BUKTI");
+                                    var noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiSI) + 1).PadLeft(6, '0');
+                                    //end change by nurul 23/12/2019, perbaikan no bukti
+
                                     var pesanan_bruto = 0d;
                                     var pesanan_netto = 0d;
                                     var pesanan_nilai_ppn = 0d;
@@ -38179,8 +38802,8 @@ namespace MasterOnline.Controllers
                                     pesananInDb.STATUS_TRANSAKSI = "03";
                                     pesananInDb.status_kirim = "0";
                                     pesananInDb.status_print = "0";
-				                    
-				                    var pesanan = new SOT03B();
+
+                                    var pesanan = new SOT03B();
                                     pesanan.NO_PESANAN = pesananInDb.NO_BUKTI;
                                     pesanan.TGL_PESANAN = pesananInDb.TGL.Value;
                                     pesanan.PEMBELI = pesananInDb.NAMAPEMESAN;
@@ -38296,7 +38919,41 @@ namespace MasterOnline.Controllers
                                     newSIT01A.NILAI_PPN = pesanan_nilai_ppn;
                                     newSIT01A.NETTO = pesanan_netto;
 
-                                    context.SIT01A.Add(newSIT01A);
+
+                                    //change by nurul 23/12/2019, perbaikan no_bukti
+                                    //context.SIT01A.Add(newSIT01A);
+                                    try
+                                    {
+                                        context.SIT01A.Add(newSIT01A);
+                                        context.SaveChanges();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        var tempSI = context.SIT01A.Where(a => a.NO_BUKTI == newSIT01A.NO_BUKTI).Single();
+                                        if (tempSI != null)
+                                        {
+                                            if (tempSI.NO_BUKTI == noOrder)
+                                            {
+                                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                lastBuktiNew++;
+                                                noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                newSIT01A.NO_BUKTI = noOrder;
+                                                context.SIT01A.Add(newSIT01A);
+                                                foreach(var updateDetail in listSIT01B)
+                                                {
+                                                    updateDetail.NO_BUKTI = noOrder;
+                                                }
+                                                //listSIT01B.NO_BUKTI = noOrder;
+                                                context.SaveChanges();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                        }
+                                    }
+                                    //end change by nurul 23/12/2019, perbaikan no bukti
+
                                     context.SIT01B.AddRange(listSIT01B);
                                     context.SaveChanges();
                                 }
@@ -38321,7 +38978,8 @@ namespace MasterOnline.Controllers
             }
             return new JsonResult { Data = new { error_packing_list = false, listError, successCount = successCount, packingNo = packingNo, need_approval = 0 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
-        public class retGenerateFakturFromPesanan {
+        public class retGenerateFakturFromPesanan
+        {
             public bool success { get; set; }
             public string errorMsg { get; set; }
         }
@@ -40673,6 +41331,20 @@ namespace MasterOnline.Controllers
             return PartialView("TableTransaksiBuyerPartial", pageOrders);
         }
         //end add by nurul 20/11/2019
+
+        //add by nurul 23/12/2019, ubah logic buat no bukti 
+        public string GenerateAutoNumber(ErasoftContext context, string Prefix, string TableName, string FieldName)
+        {
+            string ret = "";
+            string tahun = DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2);
+            string startIndex = (Prefix.Length + 3).ToString();
+
+            //string lastnobuk = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
+            //var nobuk = Prefix + tahun + Convert.ToString(Convert.ToInt32(lastnobuk) + 1).PadLeft(6, '0');
+            ret = context.Database.SqlQuery<string>("SELECT ISNULL(SUBSTRING(MAX(" + FieldName + "), " + startIndex + ", 6), '0') FROM " + TableName + " WHERE " + FieldName + " LIKE '" + Prefix + tahun + "%'").First();
+            return ret;
+        }
+        //end add by nurul 23/12/2019
     }
     public class smolSTF02
     {
