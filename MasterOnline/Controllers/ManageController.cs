@@ -23350,7 +23350,7 @@ namespace MasterOnline.Controllers
                         {
                             var lastBuktiNew = Convert.ToInt32(lastBukti);
                             lastBuktiNew++;
-                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
                             dataVm.Piutang.BUKTI = noOrder;
                             ErasoftDbContext.ART03A.Add(dataVm.Piutang);
                             ErasoftDbContext.SaveChanges();
@@ -26446,23 +26446,27 @@ namespace MasterOnline.Controllers
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
-                var digitAkhir = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                //var digitAkhir = "";
                 var noOrder = "";
-                var lastRecNum = 0;
-                if (listFakturInDb.Count == 0)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                }
-                else
-                {
-                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
-                    if (lastRecNum == 0)
-                    {
-                        lastRecNum = 1;
-                    }
-                }
+                //var lastRecNum = 0;
+                //if (listFakturInDb.Count == 0)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                //    if (lastRecNum == 0)
+                //    {
+                //        lastRecNum = 1;
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SI", "SIT01A", "NO_BUKTI");
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
                 string buyercode = "";
                 string al2 = "";
                 string al3 = "";
@@ -26588,9 +26592,10 @@ namespace MasterOnline.Controllers
                         buyercode = "";
                         if (!string.IsNullOrWhiteSpace(faktur.Invoice))
                         {
-                            lastRecNum++;
-                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            //lastRecNum++;
+                            //digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            //noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                         }
 
                         #region insert pembeli
@@ -27174,23 +27179,27 @@ namespace MasterOnline.Controllers
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
-                var digitAkhir = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                //var digitAkhir = "";
                 var noOrder = "";
-                var lastRecNum = 0;
-                if (listFakturInDb.Count == 0)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                }
-                else
-                {
-                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
-                    if (lastRecNum == 0)
-                    {
-                        lastRecNum = 1;
-                    }
-                }
+                //var lastRecNum = 0;
+                //if (listFakturInDb.Count == 0)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                //    if (lastRecNum == 0)
+                //    {
+                //        lastRecNum = 1;
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SI", "SIT01A", "NO_BUKTI");
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
                 string buyercode = "";
                 string al2 = "";
                 string al3 = "";
@@ -27310,9 +27319,10 @@ namespace MasterOnline.Controllers
                         buyercode = "";
                         if (!string.IsNullOrWhiteSpace(faktur.IDTransaksi))
                         {
-                            lastRecNum++;
-                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            //lastRecNum++;
+                            //digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            //noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                         }
 
                         #region insert pembeli
@@ -27486,6 +27496,38 @@ namespace MasterOnline.Controllers
                             //if (newFakturs.Where(m => m.NO_REF == faktur_invoice).ToList().Count() == 0)
                             //{
                             newFakturs.Add(newfaktur);
+
+                            //change by nurul 23/12/2019, perbaikan no_bukti
+                            //ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                            //try
+                            //{
+                            //    newFakturs.SIT04A.Add(dataVm.Pengiriman);
+                            //    newFakturs.SaveChanges();
+                            //}
+                            //catch (Exception ex)
+                            //{
+                            //    var tempSI = ErasoftDbContext.SIT04A.Where(a => a.NO_BUKTI == dataVm.Pengiriman.NO_BUKTI).Single();
+                            //    if (tempSI != null)
+                            //    {
+                            //        if (tempSI.NO_BUKTI == noKirim)
+                            //        {
+                            //            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            //            lastBuktiNew++;
+                            //            noKirim = "DO" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            //            dataVm.Pengiriman.NO_BUKTI = noKirim;
+                            //            ErasoftDbContext.SIT04A.Add(dataVm.Pengiriman);
+                            //            dataVm.PengirimanDetail.NO_BUKTI = noKirim;
+                            //            ErasoftDbContext.SaveChanges();
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                            //        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                            //    }
+                            //}
+                            //END change by nurul 23/12/2019, perbaikan no_bukti
+
                             //ErasoftDbContext.SIT01A.Add(newfaktur);
                             lastFakturInUpload = faktur_invoice;
                             lastFakturDateInUpload = Convert.ToDateTime(faktur.Tanggal);
@@ -27762,23 +27804,27 @@ namespace MasterOnline.Controllers
                 //end change 18/10/2019, tuning
                 var listSTF02H = ErasoftDbContext.STF02H.Where(p => listBRGItem.Contains(p.BRG) && p.IDMARKET == market.RecNum).ToList();
 
-                var digitAkhir = "";
+                //change by nurul 23/12/2019, perbaikan no bukti
+                //var digitAkhir = "";
                 var noOrder = "";
-                var lastRecNum = 0;
-                if (listFakturInDb.Count == 0)
-                {
-                    digitAkhir = "000001";
-                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-                }
-                else
-                {
-                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
-                    if (lastRecNum == 0)
-                    {
-                        lastRecNum = 1;
-                    }
-                }
+                //var lastRecNum = 0;
+                //if (listFakturInDb.Count == 0)
+                //{
+                //    digitAkhir = "000001";
+                //    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                //}
+                //else
+                //{
+                //    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                //    if (lastRecNum == 0)
+                //    {
+                //        lastRecNum = 1;
+                //    }
+                //}
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "SI", "SIT01A", "NO_BUKTI");
+                //end change by nurul 23/12/2019, perbaikan no bukti
+
                 string buyercode = "";
                 string al2 = "";
                 string al3 = "";
@@ -27851,9 +27897,10 @@ namespace MasterOnline.Controllers
                         buyercode = "";
                         if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
                         {
-                            lastRecNum++;
-                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            //lastRecNum++;
+                            //digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            //noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                            noOrder = "SI" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                         }
 
 
@@ -37781,41 +37828,73 @@ namespace MasterOnline.Controllers
                                                         CUST = cust_id
                                                     };
 
-                                                    var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                                    var digitAkhir = "";
-                                                    var noOrder = "";
+                                                    //change by nurul 23/12/2019, perbaikan no bukti
+                                                    //var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                                    //var digitAkhir = "";
+                                                    //var noOrder = "";
 
-                                                    if (listBayarPiutangInDb == null)
-                                                    {
-                                                        digitAkhir = "000001";
-                                                        noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                        ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                                                    }
-                                                    else
-                                                    {
-                                                        var lastRecNum = listBayarPiutangInDb.RecNum;
-                                                        lastRecNum++;
+                                                    //if (listBayarPiutangInDb == null)
+                                                    //{
+                                                    //    digitAkhir = "000001";
+                                                    //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                    //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                                    //}
+                                                    //else
+                                                    //{
+                                                    //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                                                    //    lastRecNum++;
 
-                                                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                        noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                    }
+                                                    //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                                    //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                    //}
+                                                    var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                                                    var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                    //end change by nurul 23/12/2019, perbaikan no bukti
 
                                                     art03a.BUKTI = noOrder;
                                                     bukti = noOrder;
-                                                    eraDB.ART03A.Add(art03a);
+
+                                                    //change by nurul 23/12/2019, perbaikan no_bukti
+                                                    //eraDB.ART03A.Add(art03a);
+                                                    //try
+                                                    //{
+                                                    //    //save header
+                                                    //    eraDB.SaveChanges();
+                                                    //}
+                                                    //catch (Exception ex)
+                                                    //{
+                                                    //var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                    //ret.Errors.Add(errMsg);
+                                                    //return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    //}
                                                     try
                                                     {
-                                                        //save header
+                                                        eraDB.ART03A.Add(art03a);
                                                         eraDB.SaveChanges();
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                                        ret.Errors.Add(errMsg);
-                                                        //message = errMsg + System.Environment.NewLine;
-                                                        //tw.WriteLine(message);
-                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        var tempSI = eraDB.ART03A.Where(a => a.BUKTI == art03a.BUKTI).Single();
+                                                        if (tempSI != null)
+                                                        {
+                                                            if (tempSI.BUKTI == noOrder)
+                                                            {
+                                                                var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                                lastBuktiNew++;
+                                                                noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                                art03a.BUKTI = noOrder;
+                                                                eraDB.ART03A.Add(art03a);
+                                                                eraDB.SaveChanges();
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                            ret.Errors.Add(errMsg);
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
                                                     }
+                                                    //end change by nurul 23/12/2019, perbaikan no bukti
                                                     #endregion
 
                                                     //loop all rows
@@ -39486,39 +39565,73 @@ namespace MasterOnline.Controllers
                                             CUST = cust_id
                                         };
 
-                                        var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                        var digitAkhir = "";
-                                        var noOrder = "";
+                                        //change by nurul 23/12/2019, perbaikan no bukti
+                                        //var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                        //var digitAkhir = "";
+                                        //var noOrder = "";
 
-                                        if (listBayarPiutangInDb == null)
-                                        {
-                                            digitAkhir = "000001";
-                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                                        }
-                                        else
-                                        {
-                                            var lastRecNum = listBayarPiutangInDb.RecNum;
-                                            lastRecNum++;
+                                        //if (listBayarPiutangInDb == null)
+                                        //{
+                                        //    digitAkhir = "000001";
+                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                        //}
+                                        //else
+                                        //{
+                                        //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                                        //    lastRecNum++;
 
-                                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                        }
+                                        //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //}
+                                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                                        var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
 
                                         art03a.BUKTI = noOrder;
                                         bukti = noOrder;
-                                        eraDB.ART03A.Add(art03a);
+
+                                        //change by nurul 23/12/2019, perbaikan no_bukti
+                                        //eraDB.ART03A.Add(art03a);
+                                        //try
+                                        //{
+                                        //    //save header
+                                        //    eraDB.SaveChanges();
+                                        //}
+                                        //catch (Exception ex)
+                                        //{
+                                        //    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                        //    ret.Errors.Add(errMsg);
+                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                        //}
                                         try
                                         {
-                                            //save header
+                                            eraDB.ART03A.Add(art03a);
                                             eraDB.SaveChanges();
                                         }
                                         catch (Exception ex)
                                         {
-                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                            ret.Errors.Add(errMsg);
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                            var tempSI = eraDB.ART03A.Where(a => a.BUKTI == art03a.BUKTI).Single();
+                                            if (tempSI != null)
+                                            {
+                                                if (tempSI.BUKTI == noOrder)
+                                                {
+                                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                    lastBuktiNew++;
+                                                    noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                    art03a.BUKTI = noOrder;
+                                                    eraDB.ART03A.Add(art03a);
+                                                    eraDB.SaveChanges();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                ret.Errors.Add(errMsg);
+                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                            }
                                         }
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
                                         #endregion
 
                                         #region detail
@@ -39913,39 +40026,73 @@ namespace MasterOnline.Controllers
                                                             CUST = cust_id
                                                         };
 
-                                                        var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                                        var digitAkhir = "";
-                                                        var noOrder = "";
+                                                        //change by nurul 23/12/2019, perbaikan no bukti
+                                                        //var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                                        //var digitAkhir = "";
+                                                        //var noOrder = "";
 
-                                                        if (listBayarPiutangInDb == null)
-                                                        {
-                                                            digitAkhir = "000001";
-                                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                            ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                                                        }
-                                                        else
-                                                        {
-                                                            var lastRecNum = listBayarPiutangInDb.RecNum;
-                                                            lastRecNum++;
+                                                        //if (listBayarPiutangInDb == null)
+                                                        //{
+                                                        //    digitAkhir = "000001";
+                                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                        //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                                        //}
+                                                        //else
+                                                        //{
+                                                        //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                                                        //    lastRecNum++;
 
-                                                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                        }
+                                                        //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                        //}
+                                                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                                                        var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                        //end change by nurul 23/12/2019, perbaikan no bukti
 
                                                         art03a.BUKTI = noOrder;
                                                         bukti = noOrder;
-                                                        eraDB.ART03A.Add(art03a);
+                                                        
+                                                        //change by nurul 23/12/2019, perbaikan no_bukti
+                                                        //eraDB.ART03A.Add(art03a);
+                                                        //try
+                                                        //{
+                                                        //    //save header
+                                                        //    eraDB.SaveChanges();
+                                                        //}
+                                                        //catch (Exception ex)
+                                                        //{
+                                                        //    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                        //    ret.Errors.Add(errMsg);
+                                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        //}
                                                         try
                                                         {
-                                                            //save header
+                                                            eraDB.ART03A.Add(art03a);
                                                             eraDB.SaveChanges();
                                                         }
                                                         catch (Exception ex)
                                                         {
-                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                                            ret.Errors.Add(errMsg);
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            var tempSI = eraDB.ART03A.Where(a => a.BUKTI == art03a.BUKTI).Single();
+                                                            if (tempSI != null)
+                                                            {
+                                                                if (tempSI.BUKTI == noOrder)
+                                                                {
+                                                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                                    lastBuktiNew++;
+                                                                    noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                                    art03a.BUKTI = noOrder;
+                                                                    eraDB.ART03A.Add(art03a);
+                                                                    eraDB.SaveChanges();
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                                ret.Errors.Add(errMsg);
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
                                                         }
+                                                        //end change by nurul 23/12/2019, perbaikan no bukti
                                                         #endregion
 
                                                         #region detail
@@ -40504,39 +40651,73 @@ namespace MasterOnline.Controllers
                                             CUST = cust_id
                                         };
 
-                                        var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                        var digitAkhir = "";
-                                        var noOrder = "";
+                                        //change by nurul 23/12/2019, perbaikan no bukti
+                                        //var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                        //var digitAkhir = "";
+                                        //var noOrder = "";
 
-                                        if (listBayarPiutangInDb == null)
-                                        {
-                                            digitAkhir = "000001";
-                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                            ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                                        }
-                                        else
-                                        {
-                                            var lastRecNum = listBayarPiutangInDb.RecNum;
-                                            lastRecNum++;
+                                        //if (listBayarPiutangInDb == null)
+                                        //{
+                                        //    digitAkhir = "000001";
+                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                        //}
+                                        //else
+                                        //{
+                                        //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                                        //    lastRecNum++;
 
-                                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                        }
+                                        //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                        //}
+                                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                                        var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
 
                                         art03a.BUKTI = noOrder;
                                         bukti = noOrder;
-                                        eraDB.ART03A.Add(art03a);
+                                        
+                                        //change by nurul 23/12/2019, perbaikan no_bukti
+                                        //eraDB.ART03A.Add(art03a);
+                                        //try
+                                        //{
+                                        //    //save header
+                                        //    eraDB.SaveChanges();
+                                        //}
+                                        //catch (Exception ex)
+                                        //{
+                                        //    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                        //    ret.Errors.Add(errMsg);
+                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                        //}
                                         try
                                         {
-                                            //save header
+                                            eraDB.ART03A.Add(art03a);
                                             eraDB.SaveChanges();
                                         }
                                         catch (Exception ex)
                                         {
-                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                            ret.Errors.Add(errMsg);
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                            var tempSI = eraDB.ART03A.Where(a => a.BUKTI == art03a.BUKTI).Single();
+                                            if (tempSI != null)
+                                            {
+                                                if (tempSI.BUKTI == noOrder)
+                                                {
+                                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                    lastBuktiNew++;
+                                                    noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                    art03a.BUKTI = noOrder;
+                                                    eraDB.ART03A.Add(art03a);
+                                                    eraDB.SaveChanges();
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                ret.Errors.Add(errMsg);
+                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                            }
                                         }
+                                        //end change by nurul 23/12/2019, perbaikan no bukti
                                         #endregion
 
                                         #region detail
@@ -40909,39 +41090,73 @@ namespace MasterOnline.Controllers
                                                             CUST = cust_id
                                                         };
 
-                                                        var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
-                                                        var digitAkhir = "";
-                                                        var noOrder = "";
+                                                        //change by nurul 23/12/2019, perbaikan no bukti
+                                                        //var listBayarPiutangInDb = eraDB.ART03A.OrderByDescending(p => p.RecNum).FirstOrDefault();
+                                                        //var digitAkhir = "";
+                                                        //var noOrder = "";
 
-                                                        if (listBayarPiutangInDb == null)
-                                                        {
-                                                            digitAkhir = "000001";
-                                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                            ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
-                                                        }
-                                                        else
-                                                        {
-                                                            var lastRecNum = listBayarPiutangInDb.RecNum;
-                                                            lastRecNum++;
+                                                        //if (listBayarPiutangInDb == null)
+                                                        //{
+                                                        //    digitAkhir = "000001";
+                                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                        //    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ART03A, RESEED, 0)");
+                                                        //}
+                                                        //else
+                                                        //{
+                                                        //    var lastRecNum = listBayarPiutangInDb.RecNum;
+                                                        //    lastRecNum++;
 
-                                                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                            noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                        }
+                                                        //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                                        //    noOrder = $"CR{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                        //}
+                                                        var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
+                                                        var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                        //end change by nurul 23/12/2019, perbaikan no bukti
 
                                                         art03a.BUKTI = noOrder;
                                                         bukti = noOrder;
-                                                        eraDB.ART03A.Add(art03a);
+                                                        
+                                                        //change by nurul 23/12/2019, perbaikan no_bukti
+                                                        //eraDB.ART03A.Add(art03a);
+                                                        //try
+                                                        //{
+                                                        //    //save header
+                                                        //    eraDB.SaveChanges();
+                                                        //}
+                                                        //catch (Exception ex)
+                                                        //{
+                                                        //    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                        //    ret.Errors.Add(errMsg);
+                                                        //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        //}
                                                         try
                                                         {
-                                                            //save header
+                                                            eraDB.ART03A.Add(art03a);
                                                             eraDB.SaveChanges();
                                                         }
                                                         catch (Exception ex)
                                                         {
-                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                                            ret.Errors.Add(errMsg);
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            var tempSI = eraDB.ART03A.Where(a => a.BUKTI == art03a.BUKTI).Single();
+                                                            if (tempSI != null)
+                                                            {
+                                                                if (tempSI.BUKTI == noOrder)
+                                                                {
+                                                                    var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                                    lastBuktiNew++;
+                                                                    noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                                    art03a.BUKTI = noOrder;
+                                                                    eraDB.ART03A.Add(art03a);
+                                                                    eraDB.SaveChanges();
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                                ret.Errors.Add(errMsg);
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
                                                         }
+                                                        //end change by nurul 23/12/2019, perbaikan no bukti
                                                         #endregion
 
                                                         #region detail
