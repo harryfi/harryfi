@@ -470,10 +470,18 @@
                                                     </td>
                                                     @if (Model?.urlNama != null && Model?.urlNama == "1")
                                                     {
-                                                        <td class="sub_title col-md-6">
-                                                            @*<span class="block_subtitle_label">Nama Penjual</span> @(Model.NamaToko)*@
-                                                            <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko == null ? "" : labelList.NamaToko)</span>
-                                                        </td>
+                                                        if (labelList.linktoko != null && labelList.linktoko != "")
+                                                        {
+                                                            <td class="sub_title col-md-6">
+                                                                <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko)</span>
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="sub_title col-md-6">
+                                                                <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.NamaToko == null ? "" : labelList.NamaToko)</span>
+                                                            </td>
+                                                        }
                                                     }
                                                 </tr>
                                                 <tr class="col-md-12">
@@ -493,14 +501,24 @@
                                                     <td class="sub_title col-md-6" style="width:500px">
                                                         <span class="block_subtitle_label">No. Telepon</span> @(labelList.tlpPembeli)
                                                     </td>
-                                                    @if (Model?.urlAl != null && Model?.urlAl == "1")
+                                                    @if (Model?.urlTlp != null && Model?.urlTlp == "1")
                                                     {
-                                                        <td class="sub_title col-md-6">
-                                                            <div class="tlp_label">
-                                                                @*<span class="block_subtitle_label">No. Telepon Penjual</span> @(Model.TlpToko)*@
-                                                                <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.TlpToko)</span>
-                                                            </div>
-                                                        </td>
+                                                        if (labelList.linktlptoko != null && labelList.linktlptoko != "")
+                                                        {
+                                                            <td class="sub_title col-md-6">
+                                                                <div class="tlp_label">
+                                                                    <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span>
+                                                                </div>
+                                                            </td>
+                                                        }
+                                                        else
+                                                        {
+                                                            <td class="sub_title col-md-6">
+                                                                <div class="tlp_label">
+                                                                    <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span>
+                                                                </div>
+                                                            </td>
+                                                        }
                                                     }
                                                 </tr>
                                             </table>
