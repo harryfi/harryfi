@@ -20504,7 +20504,7 @@ namespace MasterOnline.Controllers
                     var no = Convert.ToInt32(ErasoftDbContext.ARF01.SingleOrDefault(a => a.CUST == cekCust).NAMA);
                     cekMP = MoDbContext.Marketplaces.Single(a => a.IdMarket == no).NamaMarket;
                 }
-                else if(market != null && market != "")
+                else if (market != null && market != "")
                 {
                     cekMP = market.ToUpper();
                 }
@@ -36689,6 +36689,7 @@ namespace MasterOnline.Controllers
 
                 //add by nurul 16/12/2019
                 bool gakketemulagi = false;
+                bool JNEgakketemulagi = false;
                 var tempResiLazada = new List<tempBarcodeLazada>();
                 var lastIndexBarcode = 0;
                 var lastIndexReferensi = 0;
@@ -36734,7 +36735,7 @@ namespace MasterOnline.Controllers
                         //add by nurul 16/12/2019
                         if (label == "2")
                         {
-                            while (!gakketemulagi)
+                            while (!gakketemulagi) //lex - ninja
                             {
                                 //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
 
@@ -36745,7 +36746,7 @@ namespace MasterOnline.Controllers
 
                                 var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
 
-                                if (idxKurir < 0) { gakketemulagi = true; break; }
+                                if (idxKurir < 0){ gakketemulagi = true; break; }
 
                                 var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
                                 var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
@@ -36778,7 +36779,7 @@ namespace MasterOnline.Controllers
                                 lastIndexReferensi = idxEndHarga;
                                 var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
                                 var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
-                                var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));                                
+                                var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
 
                                 lastIndexBarcode = idxEndReferensi;
                                 lastIndexPortCode = idxEndReferensi;
@@ -36799,6 +36800,50 @@ namespace MasterOnline.Controllers
 
                             }
 
+                            while (!JNEgakketemulagi) //JNE
+                            {
+                                var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
+
+                                if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
+
+                                var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
+                                var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
+                                var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
+
+                                lastIndexBarcode = JNEidxEndReferensi;
+                                var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
+                                //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
+                                var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
+                                var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
+
+                                lastIndexKurir = JNEidxEndBarcode;
+                                var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
+                                var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
+                                var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
+                                var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
+
+                                lastIndexHarga = JNEidxEndKurir;
+                                var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
+                                var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
+                                var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
+                                var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
+
+                                lastIndexBarcode = JNEidxEndReferensi;
+                                lastIndexHarga = JNEidxEndReferensi;
+                                lastIndexReferensi = JNEidxEndReferensi;
+                                lastIndexKurir = JNEidxEndReferensi;
+
+                                tempResiLazada.Add(new tempBarcodeLazada()
+                                {
+                                    referensiApi = JNEnoReferensi,
+                                    ResiApi = JNEnoBarcode,
+                                    //PortCodeApi = noPortCode,
+                                    HargaApi = JNEhargaAPI,
+                                    urlLogoKurirApi = JNEnoKurir,
+                                    //tglApi = noTgl
+                                });
+
+                            }
                         }
                         //end add by nurul 16/12/2019
 
@@ -36838,7 +36883,8 @@ namespace MasterOnline.Controllers
                         if (label == "1")
                         {
                             return Json(htmlString, JsonRequestBehavior.AllowGet);
-                        }else if(label == "2")
+                        }
+                        else if (label == "2")
                         {
                             return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                         }
@@ -37385,7 +37431,7 @@ namespace MasterOnline.Controllers
                     EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where " + sSQLWhere);
 
                     return new JsonResult { Data = new { listErrors, ret }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    
+
                 }
                 return new JsonResult { Data = new { mo_error = "Status Link ke Marketplace tidak aktif." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
@@ -38832,8 +38878,10 @@ namespace MasterOnline.Controllers
                                         return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                     }
                                 }
-                                //end change by nurul 23/12/2019, perbaikan no bukti
-
+                                nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
+                                newPackinglist.NO_BUKTI = nobuk;
+                                context.SOT03A.Add(newPackinglist);
+                                
                                 var newpackingdetail = new List<SOT03B>();
                                 var newpackingbrgdetail = new List<SOT03C>();
 
@@ -41747,7 +41795,8 @@ namespace MasterOnline.Controllers
                 var alamat1 = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                 var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
 
-                var ym = new FakturViewModel() {
+                var ym = new FakturViewModel()
+                {
                     urlAl = alLink,
                     urlTlp = noLink,
                     urlMp = mpLink,
@@ -41759,64 +41808,63 @@ namespace MasterOnline.Controllers
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
                 var faktur = ErasoftDbContext.SIT01A.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
                 var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
-                
-                    foreach (var so in ListSot01a)
+
+                foreach (var so in ListSot01a)
+                {
+                    var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+                    var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
+                    var resi = so.no_resi;
+                    var port = "";
+                    var ref1 = "";
+                    var netto = so.si_netto;
+                    var logoKurir = so.kurir;
+                    var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+
+                    if (so.namamarket.ToUpper() == "LAZADA")
                     {
-                        var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
-                        var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
-                        var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
-                        var resi = so.no_resi;
-                        var port = "";
-                        var ref1 = "";
-                        var netto = so.si_netto;
-                        var logoKurir = so.kurir;
-                        var tgl = DateTime.Now.ToString("dd/MM/yyyy");
-                        
-                        if (so.namamarket.ToUpper() == "LAZADA")
+                        if (data.Count() > 0)
                         {
-                            if (data.Count() > 0)
-                            {
-                                resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
-                                port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
-                                ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
-                                netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
-                                logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
-                                tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
-                            }
+                            resi = data.Single(a => a.referensiApi == so.so_referensi).ResiApi;
+                            port = data.Single(a => a.referensiApi == so.so_referensi).PortCodeApi;
+                            ref1 = data.Single(a => a.referensiApi == so.so_referensi).referensiApi;
+                            netto = Convert.ToDouble(data.Single(a => a.referensiApi == so.so_referensi).HargaApi);
+                            logoKurir = data.Single(a => a.referensiApi == so.so_referensi).urlLogoKurirApi;
+                            tgl = Convert.ToDateTime(data.Single(a => a.referensiApi == so.so_referensi).tglApi).ToString("dd/MM/yyyy");
                         }
-
-
-                        var vm = new CetakLabelViewModel()
-                        {
-                            NamaToko = so.perso,
-                            NamaPerusahaan = namaPT,
-                            LogoMarket = so.logo,
-                            Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
-                            namaPembeli = so.namapembeli,
-                            tlpPembeli = so.tlppembeli,
-                            ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
-                            ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
-                            AlamatToko = alamat1,
-                            TlpToko = tlp,
-                            noRef = so.so_referensi,
-                            Kurir = so.kurir,
-                            Marketplace = so.namamarket,
-                            NoResi = resi,
-                            alamatPenerima = al_buyer,
-                            linktotal = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (netto))}",
-                            linktoko = toko,
-                            linktlptoko = tlpToko,
-                            linkport = portLink,
-                            linkref = refLink,
-                            isiPort = port,
-                            isiRef = ref1,
-                            tglKirim = tgl,
-                            logoKurirApi = logoKurir
-                        };
-
-                        ym.ListCetakLabel.Add(vm);
                     }
-                
+
+                    var vm = new CetakLabelViewModel()
+                    {
+                        NamaToko = so.perso,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = so.logo,
+                        Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
+                        namaPembeli = so.namapembeli,
+                        tlpPembeli = so.tlppembeli,
+                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        AlamatToko = alamat1,
+                        TlpToko = tlp,
+                        noRef = so.so_referensi,
+                        Kurir = so.kurir,
+                        Marketplace = so.namamarket,
+                        NoResi = resi,
+                        alamatPenerima = al_buyer,
+                        linktotal = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (netto))}",
+                        linktoko = toko,
+                        linktlptoko = tlpToko,
+                        linkport = portLink,
+                        linkref = refLink,
+                        isiPort = port,
+                        isiRef = ref1,
+                        tglKirim = (tgl == null || tgl == "01-01-0001" || tgl == "01/01/0001" ? DateTime.Now.ToString("dd/MM/yyyy") : tgl),
+                        logoKurirApi = logoKurir
+                    };
+
+                    ym.ListCetakLabel.Add(vm);
+                }
+
                 return View(ym);
             }
             catch (Exception ex)
