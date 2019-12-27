@@ -184,31 +184,26 @@ namespace MasterOnline.Controllers
             {
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
+                var tujuan = "54.179.169.195\\SQLEXPRESS";
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+                accInDb.DataSourcePath = tujuan;
 
-                var path = Server.MapPath("~/Content/admin/");
+                //var path = Server.MapPath("~/Content/admin/");
+                var path = "C:\\BAK_new_user\\";
+                var pathRestore = "C:\\DB_user";
                 sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
-#if AWS
-            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                "user id=masteronline;password=M@ster123;");
-#elif Debug_AWS
-                            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                                  "user id=masteronline;password=M@ster123;");
-#else
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                      "user id=masteronline;password=M@ster123;");
-#endif
+                      $" WITH MOVE 'erasoft' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
+
+                SqlConnection con = new SqlConnection("Server="+ tujuan +",1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=sa;password=admin123^;");
                 SqlCommand command = new SqlCommand(sql, con);
 
                 con.Open();
                 command.ExecuteNonQuery();
                 con.Close();
                 con.Dispose();
-
-
 
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
@@ -222,7 +217,6 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
-
 
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
