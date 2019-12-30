@@ -2994,18 +2994,45 @@ namespace MasterOnline.Controllers
             return Json("", JsonRequestBehavior.AllowGet);
         }
         
-        [Queue("3_general")]
-        public ActionResult ProsesAkhirTahun(string db_name,string tahun)
+        public ActionResult ProsesAkhirTahunPrepare(string tahun)
         {
             try
             {
-                MoDbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+
+                var MoDbContext = new MoDbContext();
+
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   &&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
+
+                return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahun(string db_source, string db_name,string tahun)
+        {
+            try
+            {
+                var RemoteMODbContext = new MoDbContext(db_source);
+                RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
 
                 return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_message = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         
