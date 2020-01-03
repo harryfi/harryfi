@@ -2607,11 +2607,11 @@ namespace MasterOnline.Controllers
                                    //select new { a.NO_REFERENSI }).ToList();
                                    select a.NO_REFERENSI).ToList();
 
-            GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, 0, orderUnpaidList);
+            GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, 0, orderUnpaidList, 0);
 
             return ret;
         }
-        public BindingBase GetOrdersCancelledWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, List<string> orderUnpaidList)
+        public BindingBase GetOrdersCancelledWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, List<string> orderUnpaidList, int jmlhOrder)
         {
             //order unpaid yang cancelled
             var ret = new BindingBase();
@@ -2669,6 +2669,7 @@ namespace MasterOnline.Controllers
 
                             if (rowAffected > 0)
                             {
+                                jmlhOrder = jmlhOrder + rowAffected;
                                 //add by Tri 4 Des 2019, isi cancel reason
                                 var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == order.order_id && m.CUST == cust).Select(m => m.NO_BUKTI).FirstOrDefault();
                                 if (!string.IsNullOrEmpty(nobuk))
@@ -2685,7 +2686,8 @@ namespace MasterOnline.Controllers
 
                                 var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                    join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                                   where a.NO_REFERENSI == order.order_id
+                                                   //where a.NO_REFERENSI == order.order_id
+                                                   where a.NO_REFERENSI == order.order_id && b.BRG != "NOT_FOUND"
                                                    select new { b.BRG }).ToList();
                                 foreach (var item in orderDetail)
                                 {
@@ -2699,7 +2701,12 @@ namespace MasterOnline.Controllers
                     }
                     if (bindOrder.data.orders.Count >= 100)
                     {
-                        GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, page + 1, orderUnpaidList);
+                        GetOrdersCancelledWithPage(cust, accessToken, dbPathEra, uname, page + 1, orderUnpaidList, jmlhOrder);
+                    }
+                    else
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Lazada dibatalkan.");
                     }
                 }
             }
@@ -2786,7 +2793,8 @@ namespace MasterOnline.Controllers
                 foreach (var item in brgCancelled)
                 {
                     indexCount = indexCount + 1;
-                    sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                    //sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                    sSQL += "SELECT '" + item.BRG + "' AS BRG, '" + item.CONN_ID + "' AS CONN_ID " + System.Environment.NewLine;
                     if (indexCount < itemCount)
                     {
                         sSQL += "UNION ALL " + System.Environment.NewLine;
