@@ -36667,14 +36667,26 @@ namespace MasterOnline.Controllers
                         //#region add button cetak
                         //htmlString += "<button id='print-btn' >Cetak</button>";
                         htmlString += "<script>";
-                        htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                        //change by nurul 6/1/2020
+                        ////htmlString += "document.getElementsByClassName('awb lex')[0].style.width = '90%'; ";
+                        htmlString += "var awb = document.getElementsByClassName('awb lex'); ";
+                        htmlString += "for (var a = 0; a < awb.length; a++){ awb[a].style.width = '95%'; } ; ";
+                        //end change by nurul 6/1/2020
                         //htmlString += "document.getElementsByClassName('item_quantity')[2].style.display = 'block'; ";
                         //htmlString += "document.getElementsByClassName('item_quantity')[2].style.fontSize  = 'small'; ";
-                        htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
-                        htmlString += "x.style.height = 'auto'; ";
+                        //remark by nurul 6/1/2020
+                        //htmlString += "var x = document.getElementById('item-desc-table').parentElement; ";
+                        //htmlString += "x.style.height = 'auto'; ";
+                        //end remark by nurul 6/1/2020
                         //htmlString += "document.getElementsByClassName('item_sku')[0].style.fontSize  = 'small'; ";
                         //htmlString += "document.getElementsByClassName('item_name')[0].style.fontSize  = 'small'; ";
-                        htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                        //change by nurul 6/1/2020
+                        ////htmlString += "document.getElementsByClassName('order_item_table')[0].style.fontSize  = 'small'; ";
+                        htmlString += "var item = document.getElementsByClassName('order_item_table'); ";
+                        htmlString += "for (var b = 0; b < item.length; b++){ item[b].style.fontSize  = 'xx-small'; } ; ";
+                        htmlString += "var harga = document.getElementsByClassName('box text-left'); ";
+                        htmlString += "for (var d = 0; d < harga.length; d++){ harga[d].style.fontSize  = '10px'; } ; ";
+                        //end change by nurul 6/1/2020
                         //                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
                         //                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
                         //                        htmlString += "window.print(); }; window.onafterprint = function () {";
