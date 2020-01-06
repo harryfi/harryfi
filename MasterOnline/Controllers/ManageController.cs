@@ -1726,11 +1726,13 @@ namespace MasterOnline.Controllers
                 vmError.Errors.Add("Dari Tanggal tidak boleh lebih besar dari S/d Tanggal !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
-            if (Convert.ToDateTime(drTgl).Year != Convert.ToDateTime(sdTgl).Year)
-            {
-                vmError.Errors.Add("Dari Tanggal dan S/d Tanggal harus dalam tahun yang sama !");
-                return Json(vmError, JsonRequestBehavior.AllowGet);
-            }
+            //remark by nurul 2/1/2020
+            //if (Convert.ToDateTime(drTgl).Year != Convert.ToDateTime(sdTgl).Year)
+            //{
+            //    vmError.Errors.Add("Dari Tanggal dan S/d Tanggal harus dalam tahun yang sama !");
+            //    return Json(vmError, JsonRequestBehavior.AllowGet);
+            //}
+            //end remark by nurul 2/1/2020
 
             var vm = new DashboardViewModel()
             {
