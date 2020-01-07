@@ -14,6 +14,10 @@ namespace MasterOnline
         public string GD { get; set; }
         public string Nama_Gudang { get; set; }
         public double QOH { get; set; }
+        //add by nurul 7/1/2020
+        public double QSO { get; set; }
+        public double SISA { get; set; }
+        //end add by nurul 7/1/2020
     }
     public partial class QOO_PER_BRG
     {
