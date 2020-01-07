@@ -1461,9 +1461,9 @@
         //add by fauzi 06/12/2019
         function simpanStatusSyncPesananStok(custID, status) {
             @*var link = '@Url.Action("SaveStatusSyncPesananStok", "Manage", new { data = "custID_statusSync"})';*@
-             var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "custID", statusSync = "statusSync" }))';
-            $link = $link.replace("custID", custID);
-            $link = $link.replace("statusSync", String(status));
+             var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';
+            $link = $link.replace("cust_ID", custID);
+            $link = $link.replace("status_Sync", String(status));
             var msg = null;
 
             $.ajax({

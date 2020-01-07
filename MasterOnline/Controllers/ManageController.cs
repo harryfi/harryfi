@@ -17274,7 +17274,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 10/4/2019
 
         //add by fauzi 06/12/2019
-        public async Task<ActionResult> SaveStatusSyncPesananStok(string custID = "", string statusSync = "")
+        public async Task<ActionResult> SaveStatusSyncPesananStok(string custID, string statusSync)
         {
             try
             {
