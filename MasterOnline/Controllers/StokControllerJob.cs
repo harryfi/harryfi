@@ -693,27 +693,38 @@ namespace MasterOnline.Controllers
             var MoDbContext = new MoDbContext();
             var ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
-            {
-                var Marketplaces = MoDbContext.Marketplaces;
-                var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
-                var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
-                var kdBli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
-                var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
-                var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
-                var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
-                var kdJD = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket;
+            // remark by fauzi tgl 07 Januari 2020
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
+            //var Marketplaces = MoDbContext.Marketplaces;
+            //var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
+            //var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
+            //var kdBli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
+            //var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
+            //var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
+            //var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
+            //var kdJD = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket;
+            // remark by fauzi tgl 07 Januari 2020
+            // change by fauzi 07 Januari 2020
+            var kdBL = 8;
+            var kdLazada = 7;
+            var kdBli = 16;
+            var kdElevenia = 9;
+            var kdShopee = 17;
+            var kdTokped = 15;
+            var kdJD = 19;
+            // change by fauzi 07 Januari 2020
 
-                string EDBConnID = EDB.GetConnectionString("ConnId");
+            string EDBConnID = EDB.GetConnectionString("ConnId");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
 
                 var client = new BackgroundJobClient(sqlStorage);
@@ -736,7 +747,9 @@ namespace MasterOnline.Controllers
                     foreach (var stf02h in brgMarketplace)
                     {
                         var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
-                        if (marketPlace.NAMA.Equals(kdBL.ToString()))
+                    if (marketPlace.NAMA.Equals(kdBL.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null);
@@ -744,7 +757,10 @@ namespace MasterOnline.Controllers
                             client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
 #endif
                         }
-                        else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
                             Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null);
@@ -752,7 +768,10 @@ namespace MasterOnline.Controllers
                             client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
 #endif
                         }
-                        else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             string[] imgID = new string[3];
                             for (int i = 0; i < 3; i++)
@@ -789,7 +808,10 @@ namespace MasterOnline.Controllers
                             //eleApi.UpdateProductQOH_Price(data);
                             client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stok", data, uname, null));
                         }
-                        else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             if (!string.IsNullOrEmpty(marketPlace.Kode))
                             {
@@ -823,8 +845,11 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
-                        //add by calvin 18 desember 2018
-                        else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                    }
+                    //add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
                             {
@@ -862,7 +887,10 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    }
+                    else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             ShopeeAPIData data = new ShopeeAPIData()
                             {
@@ -892,9 +920,12 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        //end add by calvin 18 desember 2018
-                        //add by Tri 11 April 2019
-                        else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                    }
+                    //end add by calvin 18 desember 2018
+                    //add by Tri 11 April 2019
+                    else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
                         {
                             JDIDAPIData data = new JDIDAPIData()
                             {
@@ -911,11 +942,12 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
+                    }
                         //end add by Tri 11 April 2019
 
                     }
                 }
-            }
+            //}
         }
 
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
