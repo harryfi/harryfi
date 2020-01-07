@@ -149,8 +149,9 @@ namespace MasterOnline.Controllers
                 System.Collections.Generic.List<string> ListSupport = new System.Collections.Generic.List<string>();
 
                 ListSupport.Add("marlakhy@yahoo.com");
-                ListSupport.Add("calvintes2@email.com");
-                ListSupport.Add("rahmamk@gmail.com");
+                //ListSupport.Add("calvintes2@email.com");
+                //ListSupport.Add("rahmamk@gmail.com");
+                ListSupport.Add("supportmo@gmail.com");
 
                 if (!ListSupport.Contains(admin.Email.ToLower()))
                 {
@@ -303,8 +304,9 @@ namespace MasterOnline.Controllers
 
             System.Collections.Generic.List<string> ListSupport = new System.Collections.Generic.List<string>();
             ListSupport.Add("marlakhy@yahoo.com");
-            ListSupport.Add("calvintes2@email.com");
-            ListSupport.Add("rahmamk@gmail.com");
+            //ListSupport.Add("calvintes2@email.com");
+            //ListSupport.Add("rahmamk@gmail.com");
+            ListSupport.Add("supportmo@gmail.com");
 
             if (!ListSupport.Contains(admin.Email.ToLower()))
             {
