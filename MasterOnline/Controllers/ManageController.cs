@@ -13791,7 +13791,7 @@ namespace MasterOnline.Controllers
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
                 {
-                    dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
+                    dataVm.Errors.Add("Qty penjualan melebihi qty siap jual ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(dataVm, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
@@ -21957,6 +21957,48 @@ namespace MasterOnline.Controllers
 
             return Json(listGudang, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 7/1/2020
+        [HttpGet]
+        public ActionResult GetGudangBarangFaktur(string brgId)
+        {
+
+            if (brgId != "")
+            {                                
+                var cekgudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
+                var gudang = "";
+                if (cekgudang.Count() > 0)
+                {
+                    gudang = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG;
+                }
+                else
+                {
+                    gudang = ErasoftDbContext.STF18.FirstOrDefault().Kode_Gudang;
+                }
+
+                string sSQL = "select A.BRG, A.GD, A.Nama_Gudang, A.QOH,A.QSO,A.QOO, SUM( CASE WHEN A.GD='" + gudang + "' THEN ISNULL((A.QOH - A.QSO),0) WHEN A.QSO > 0 THEN ISNULL((A.QOH - A.QOO),0) ELSE A.QOH END) AS SISA from ( ";
+                sSQL += "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) , ISNULL(C.QSO,0) AS QSO, ISNULL(D.QSO,0) AS QOO ";
+                sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang ";
+                sSQL += "LEFT JOIN (SELECT BRG, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') AND ISNULL(B.LOKASI,'') = '' GROUP BY BRG) C ON A.BRG=C.BRG ";
+                sSQL += "LEFT JOIN (SELECT BRG, GD=B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A(NOLOCK) A INNER JOIN SOT01B(NOLOCK) B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A(NOLOCK) D ON A.NO_BUKTI = D.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(D.NO_BUKTI,'') = '' AND B.BRG IN ('" + brgId + "') GROUP BY BRG, B.LOKASI) D ON A.BRG=D.BRG AND D.GD=A.GD ";
+                sSQL += "WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brgId + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang, C.QSO, D.QSO ";
+                sSQL += ")A GROUP BY BRG,A.GD, A.Nama_Gudang,A.QOH,A.QSO,A.QOO ";
+
+                var vm = new FakturViewModel()
+                {
+                    ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList(),
+                    setGd = gudang
+                };
+                return Json(vm, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                var listGudang = ErasoftDbContext.STF18.ToList();
+                return Json(listGudang, JsonRequestBehavior.AllowGet);
+            }
+        }
+        //end add by nurul 7/1/2020
+
         //add by nurul 13/12/2018
         [HttpGet]
         public ActionResult GetGudangBarang(string brgId)
