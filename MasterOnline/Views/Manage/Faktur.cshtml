@@ -3774,12 +3774,13 @@
                                 //change by nurul 2/10/2018
                                 //$("#Faktur_CUST").val(value);
                                 $("#Faktur_CUST").val(value).trigger('change');
-                                $statusAPI = $objSup[0].stat;
+                                
                                 //end change
                                 //add by nurul 26/6/2019
                                 //$("#status_api").val(stat);
                                 //end add by nurul 26/6/2019
                                 if ($objSup[0] != null) {
+                                    $statusAPI = $objSup[0].stat;
                                     $("#Faktur_TERM").val($objSup[0].term).change();
                                 }
                                 //add by nurul 2/10/2018
@@ -3987,7 +3988,7 @@
                                         id: item.GD,
                                         //text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                         text: item.Nama_Gudang + " (Qty Siap Jual : " + item.SISA + ")",
-                                        qty: item.SISA
+                                        sisa: item.SISA
                                     };
                                     if (defaultGd == item.GD) {
                                         link = true;
@@ -4012,7 +4013,9 @@
 
                                     // Otomatis masuk ke field Qty setelah pilih gudang
                                     $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.qty-barang').click();
-                                    $tempQty = $objSup[0].qty;
+                                    if ($objSup[0] != null) {
+                                        $tempQty = $objSup[0].sisa;
+                                    }
                                 } else {
                                     $('#gudang-kode').text('-');
                                 }
