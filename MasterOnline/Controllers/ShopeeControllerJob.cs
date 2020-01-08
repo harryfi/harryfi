@@ -2090,9 +2090,33 @@ namespace MasterOnline.Controllers
         //add by Tri 4 Des 2019
         public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
         {
+            Dictionary<string, string> ret = new Dictionary<string, string>();
+            if (ordersn_list.Count() > 50)
+            {
+                var arrayLength = ordersn_list.Count();
+                int skip = 0;
+                while (arrayLength > 0)
+                {
+                    var take = arrayLength;
+                    if (take > 50)
+                        take = 50;
+                    var listOrder = ordersn_list.Skip(skip).Take(take).ToList().ToArray();
+                    ret = await GetOrderDetailsForCancelReasonAPI(iden, listOrder, ret);
+                    skip = skip + take;
+                    arrayLength = arrayLength - take;
+                }
+            }
+            else
+            {
+                ret = await GetOrderDetailsForCancelReasonAPI(iden,ordersn_list,ret);
+            }
+            return ret;
+        }
+        public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReasonAPI(ShopeeAPIData iden, string[] ordersn_list, Dictionary<string, string> ret)
+        {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            Dictionary<string, string> ret = new Dictionary<string, string>();
+            //Dictionary<string, string> ret = new Dictionary<string, string>();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
