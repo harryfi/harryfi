@@ -41747,7 +41747,6 @@ namespace MasterOnline.Controllers
         //end add by nurul 23/12/2019
 
         //add by nurul 11/12/2019, cetak label pesanan
-        [HttpGet]
         public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data)
         {
             try
