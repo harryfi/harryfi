@@ -491,19 +491,6 @@
                                                 </tr>
                                                 <tr class="col-md-12" style="width:650px !important;">
                                                     <td class="sub_title col-md-6" style="width:350px !important">
-                                                        <span class="block_subtitle_label">Alamat Penerima</span> @(labelList.alamatPenerima)
-                                                    </td>
-                                                    @if (Model?.urlAl != null && Model?.urlAl == "1")
-                                                    {
-                                                        <td class="sub_title col-md-6" style="width:300px !important">
-                                                            <div class="alamat_label">
-                                                                <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
-                                                            </div>
-                                                        </td>
-                                                    }
-                                                </tr>
-                                                <tr class="col-md-12" style="width:650px !important;">
-                                                    <td class="sub_title col-md-6" style="width:350px !important">
                                                         <span class="block_subtitle_label">No. Telepon</span> @(labelList.tlpPembeli)
                                                     </td>
                                                     @if (Model?.urlTlp != null && Model?.urlTlp == "1")
@@ -524,6 +511,19 @@
                                                                 </div>
                                                             </td>
                                                         }
+                                                    }
+                                                </tr>
+                                                <tr class="col-md-12" style="width:650px !important;">
+                                                    <td class="sub_title col-md-6" style="width:350px !important">
+                                                        <span class="block_subtitle_label">Alamat Penerima</span> @(labelList.alamatPenerima)
+                                                    </td>
+                                                    @if (Model?.urlAl != null && Model?.urlAl == "1")
+                                                    {
+                                                        <td class="sub_title col-md-6" style="width:300px !important">
+                                                            <div class="alamat_label">
+                                                                <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
+                                                            </div>
+                                                        </td>
                                                     }
                                                 </tr>
                                             </table>
