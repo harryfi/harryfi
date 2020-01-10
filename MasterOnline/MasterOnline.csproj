@@ -6363,6 +6363,7 @@
     <Content Include="Views\Manage\TableDashboardArusKas.cshtml" />
     <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />
     <Content Include="Views\Manage\TableTransaksiBuyerPartial.cshtml" />
+    <Content Include="Views\Manage\CetakLabelMo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

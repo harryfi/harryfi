@@ -7,6 +7,149 @@
     string currentSort = ViewBag.CurrentSort;
 
 }
+<style>
+    .cetak_label {
+        color: orange;
+        font-weight: bold;
+    }
+
+    .dropdown-hover:hover {
+        background-color: gainsboro !important;
+    }
+
+    #modal-print-option {
+        margin: auto;
+    }
+
+        #modal-print-option .modal-content .modal-header {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border: none;
+            background-color: white;
+        }
+
+        #modal-print-option .modal-content .modal-body {
+            height: 125px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            background-color: white;
+        }
+
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    @@media only screen and (max-width: 767px) {
+        #modal-print-option {
+            margin-top: 21px;
+            /* margin: auto; */
+            margin-left: -49px;
+            width: 40%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+
+        .modal-content {
+            width: 75%;
+        }
+    }
+
+    @@media only screen and (max-width: 440px) {
+        .snip1404 .plan {
+            width: 100%;
+        }
+
+        .modal-dialog {
+            width: 52%;
+            margin: 0;
+        }
+    }
+</style>
+<style type="text/css">
+    .modal-dialog {
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
+        height: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
+        padding: 0;
+    }
+
+    .modal-content {
+        margin-top: 35px;
+        height: auto;
+        min-height: 100%;
+        border-radius: 0;
+    }
+</style>
 <script type="text/javascript">
     $(document).ready(function () {
         if ($('#PackingListShopeeFound')) {
@@ -20,7 +163,7 @@
             }
         }
 
-    
+
         $('.selectShopeeResiPickupAddress').each(function (i, item) {
 
             var cust = $(item).attr("data-kodecust");
@@ -60,6 +203,7 @@
                 }
             });
         });
+
     });
 
     function allcheckboxpackingshopeeonclick(cust){
@@ -71,7 +215,7 @@
     }
     function RequestPickupPackingShopee(cust) {
         $('#btnProsesPickupShopee__' + cust).attr("disabled", true);
-        
+
         if ($('#select-shopee-resi-pickup-address-' + cust).val()) {
             $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
             $('#modalPrintShopee__label__' + cust).html('Proses Pickup Pesanan Shopee');
@@ -80,7 +224,7 @@
                 backdrop: 'static',
                 keyboard: false
             });
-            
+
             var $link = '@Url.Action("RequestPickupShopeePerPacking", "Manage")';
 
             var rows_selected = [];
@@ -89,14 +233,14 @@
                     rows_selected.push($(this).attr("data-recnum"));
                 }
             });
-            
+
             $postdata = {
                 cust : cust,
                 bukti : $('#packingList_NO_BUKTI').val(),
                 alamat : $('#select-shopee-resi-pickup-address-' + cust).val(),
                 rows_selected : rows_selected
             };
-            
+
             $.ajax({
                 type: "POST",
                 url: $link,
@@ -142,7 +286,7 @@
                     console.log(error);
                 }
             });
-        } 
+        }
         else {
             alert('Silahkan pilih alamat Pickup terlebih dahulu.');
             $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
@@ -157,7 +301,7 @@
             backdrop: 'static',
             keyboard: false
         });
-        
+
         var $link = '@Url.Action("RequestDropoffShopeePerPacking", "Manage")';
 
         var rows_selected = [];
@@ -166,13 +310,13 @@
                 rows_selected.push($(this).attr("data-recnum"));
             }
         });
-        
+
         $postdata = {
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
             rows_selected : rows_selected
         };
-            
+
         $.ajax({
             type: "POST",
             url: $link,
@@ -186,9 +330,9 @@
                 //$('#loading_barang_tab').hide();
                 if (!response.mo_error) {
                     var textareaValue = "";
-    
+
                     textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
-    
+
                     var adaError = false;
                     var errorValue = "";
                     response.listErrors.forEach(function (item) {
@@ -202,7 +346,7 @@
                     }
                     $('#modalPrintShopee__textarea__' + cust).show();
                     $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
-    
+
                     // if(response.successCount > 0){
                     //     refreshTableSudahDibayar();
                     // }
@@ -220,92 +364,307 @@
         });
     }
 
-    function ShopeeGetLabelPerPacking(cust) {
-        $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
-        $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
-        $('#modalPrintShopee__' + cust).modal({
-            show: true,
-            backdrop: 'static',
-            keyboard: false
-        });
+    function ShopeeGetLabelPerPacking(cust,label) {
 
-        var $link = '@Url.Action("ShopeeLabelPerPacking", "Manage")';
 
         var rows_selected = [];
+        var row_bukti = [];
         $('.checkbox_packing_shopee').each( function() {
             if($(this).attr("data-cust") == cust && $(this).is(":checked")){
                 rows_selected.push($(this).attr("data-recnum"));
-            }
-        });
-        
-        $postdata = {
-            cust : cust,
-            bukti : $('#packingList_NO_BUKTI').val(),
-            rows_selected : rows_selected
-        };
-        $.ajax({
-            type: "POST",
-            url: $link,
-            contentType: "application/json; charset=UTF-8",
-            cache: false,
-            data: JSON.stringify($postdata),
-            success: function (response) {
-                if (response.mo_error != undefined) {
-                    $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
-                }
-                else {
-                    var textareaValue = "";
-
-                    var adaUrl = false;
-                    var urlValue = "";
-                    var countUrl = 0;
-                    response.ret.batch_result.airway_bills.forEach(function (item) {
-                        adaUrl = true;
-                        //urlValue += item + " \n";
-                        countUrl++;
-                        //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
-                        //    .hide()                               // make it invisible
-                        //    .attr("src", item) // point the iframe to the page you want to print
-                        //    .appendTo("body");
-
-                        var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
-                        urlValue += buttonHtml;
-                    });
-                    if (adaUrl) {
-                        textareaValue += "Url AWB :</br>";
-                        textareaValue += urlValue;
-                    }
-
-                    var adaError = false;
-                    var errorValue = "";
-                    response.ret.batch_result.errors.forEach(function (item) {
-                        adaError = true;
-                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
-                    });
-                    if (adaError) {
-                        textareaValue += "</br>";
-                        textareaValue += "Error Orders :</br>";
-                        textareaValue += errorValue;
-                    }
-                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.log(error);
+                row_bukti.push($(this).attr("data-bukti"));
             }
         });
 
-        //function shopeePrint(url) {
-        //    //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
-        //    var newWin = window.open(url, 'Print-Window');
-        //    newWin.document.open();
-        //    newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
-        //    newWin.document.close();
-        //    setTimeout(function () {
-        //        newWin.close();
-        //    }, 10);
-        //}
-        
+
+
+        if (rows_selected.length <= 0) {
+            alert("Mohon pilih pesanan yang mau diproses.");
+        } else {
+            $postdata = {
+                cust: cust,
+                bukti: $('#packingList_NO_BUKTI').val(),
+                rows_selected: rows_selected,
+                label: label
+            };
+            if (label == "1") {
+                
+
+                $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
+                $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                $('#modalPrintShopee__' + cust).modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+
+                var $link = '@Url.Action("ShopeeLabelPerPacking", "Manage")';
+
+                $.ajax({
+                    type: "POST",
+                    url: $link,
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    data: JSON.stringify($postdata),
+                    success: function (response) {
+                        if (response.mo_error != undefined) {
+                            $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                        }
+                        else {
+                            var textareaValue = "";
+
+                            var adaUrl = false;
+                            var urlValue = "";
+                            var countUrl = 0;
+                            response.ret.batch_result.airway_bills.forEach(function (item) {
+                                adaUrl = true;
+                                //urlValue += item + " \n";
+                                countUrl++;
+                                //$("<iframe id='iframe_" + countUrl + "_" + cust + "'>")                             // create a new iframe element
+                                //    .hide()                               // make it invisible
+                                //    .attr("src", item) // point the iframe to the page you want to print
+                                //    .appendTo("body");
+
+                                var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + item + "'>Print</a> </br>";
+                                urlValue += buttonHtml;
+                            });
+                            if (adaUrl) {
+                                textareaValue += "Url AWB :</br>";
+                                textareaValue += urlValue;
+                            }
+
+                            var adaError = false;
+                            var errorValue = "";
+                            response.ret.batch_result.errors.forEach(function (item) {
+                                adaError = true;
+                                errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                            });
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                textareaValue += "Error Orders :</br>";
+                                textareaValue += errorValue;
+                            }
+                            $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+
+                //function shopeePrint(url) {
+                //    //var divToPrint = document.getElementById("iframe_" + countUrl + "_" + cust + "");
+                //    var newWin = window.open(url, 'Print-Window');
+                //    newWin.document.open();
+                //    newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+                //    newWin.document.close();
+                //    setTimeout(function () {
+                //        newWin.close();
+                //    }, 10);
+                //}
+            } else if (label == "2") {
+                if (row_bukti.length > 0) {
+
+                    $('#modalPrintLabelOption__' + cust).modal({
+                        show: true,
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    $('#cetak_label__' + cust).text(row_bukti);
+                    $('#ctk_alamat__' + cust).attr('checked', true);
+                    $('#ctk_tlp__' + cust).attr('checked', true);
+                    $('#ctk_mp__' + cust).attr('checked', true);
+                    $('#ctk_nobuk__' + cust).attr('checked', true);
+                    $('#ctk_total__' + cust).attr('checked', true);
+                    $('#ctk_nama__' + cust).attr('checked', true);
+                    $('#nama_toko__' + cust).val("");
+                    $('#tlp_toko__' + cust).val("");
+
+                    $('#btn-print-faktur__' + cust).off('click').on('click', function () {
+                    var toko = $('#nama_toko__' + cust).val();
+                    var $toko = '&toko=' + encodeURIComponent(toko);
+                    var tlpToko = $('#tlp_toko__' + cust).val();
+                    var $tlpToko = '&tlpToko=' + encodeURIComponent(tlpToko);
+                        var alamat = "0";
+                        var tlp = "0";
+                        var mp = "0";
+                        var nobuk = "0";
+                        var total = "0";
+                        var nama = "0";
+
+                    if ($("#ctk_alamat__" + cust).is(":checked") == true) {
+                        alamat = "1";
+                    } else if ($("#ctk_alamat__" + cust).is(":checked") == false) {
+                        alamat = "0";
+                    }
+                    if ($('#ctk_tlp__' + cust).is(":checked") == true) {
+                        tlp = "1";
+                    } else if ($('#ctk_tlp__' + cust).is(":checked") == false) {
+                        tlp = "0";
+                        }
+
+                        if ($("#ctk_mp__" + cust).is(":checked") == true) {
+                            mp = "1";
+                        } else if ($("#ctk_mp__" + cust).is(":checked") == false) {
+                            mp = "0";
+                        }
+                        if ($('#ctk_nobuk__' + cust).is(":checked") == true) {
+                            nobuk = "1";
+                        } else if ($('#ctk_nobuk__' + cust).is(":checked") == false) {
+                            nobuk = "0";
+                        }
+                        if ($('#ctk_total__' + cust).is(":checked") == true) {
+                            total = "1";
+                        } else if ($('#ctk_total__' + cust).is(":checked") == false) {
+                            total = "0";
+                        }
+                        if ($('#ctk_nama__' + cust).is(":checked") == true) {
+                            nama = "1";
+                        } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
+                            nama = "0";
+                        }
+
+                    var $alamat = '&alamat=' + alamat;
+                        var $tlp = '&tlp=' + tlp;
+                        var $mp = '&mp=' + mp;
+                        var $nobuk = '&nobuk=' + nobuk;
+                        var $total = '&total=' + total;
+                        
+                    @*var $link = '@Html.Raw(Url.Action("CetakLabelMo", "Manage", new { cust = "replaceCust", bukti = "replaceBukti", rows_selected = "replaceSelect", toko = "replaceToko", tlptoko = "replaceTlpToko" }))';
+                        $link = $link.replace("replaceCust", encodeURIComponent(cust));
+                        $link = $link.replace("replaceBukti", encodeURIComponent($('#packingList_NO_BUKTI').val()));
+                        $link = $link.replace("replaceSelect", rows_selected);
+                        $link = $link.replace("replaceToko", toko);
+                        $link = $link.replace("replaceTlpToko", tlpToko);
+
+                        var win = encodeURIComponent(window.open($link += $alamat += $tlp += $mp += $nobuk += $total , '_blank'));
+                        $('#modalPrintLabelOption__' + cust).modal({
+                            show: false,
+                        });
+                        if (win) {
+                            win.focus();
+                        } else {
+                            alert('Please allow popups for this website');
+                        }*@
+
+                        $postdata2 = {
+                            cust: cust,
+                            bukti: $('#packingList_NO_BUKTI').val(),
+                            rows_selected: rows_selected,
+                            toko: toko,
+                            tlptoko: tlpToko,
+                            alLink: alamat,
+                            noLink: tlp,
+                            namaLink: nama,
+                            mpLink: mp,
+                            nobukLink: nobuk,
+                            totalLink: total,
+                        };
+
+                        $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
+                        $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+                        $('#modalPrintShopee__' + cust).modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+
+                        @*$.ajax({
+                            type: "POST",
+                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            success: function (response) {
+                                if (response != null) {
+                                    if (response.mo_error == null) {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintShopee__' + cust).modal('hide');
+                                        var w = window.open('about:blank');
+                                        w.document.open();
+                                        w.document.write(response);
+                                        w.document.close();
+
+                                    } else {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                        alert(response.mo_error);
+                                    }
+                                }
+
+                            },
+                            error: function (xhr, status, error) {
+                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                console.log(error);
+                            }
+                        });*@
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("ShopeeLabelPerPacking", "Manage")',
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            data: JSON.stringify($postdata),
+                            success: function (response) {
+                                if (response.mo_error != undefined) {
+                                    $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                }
+                                else {
+                                    var textareaValue = "";
+                                    var adaError = false;
+                                    var errorValue = "";
+                                    response.ret.batch_result.errors.forEach(function (item) {
+                                        adaError = true;
+                                        errorValue += item.ordersn + " : " + item.error_description + ". </br>";
+                                    });
+                                    if (adaError) {
+                                        textareaValue += "</br>";
+                                        textareaValue += "Error Orders :</br>";
+                                        textareaValue += errorValue;
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                    } else {
+                                        $.ajax({
+                                            type: "POST",
+                                            url: '@Url.Action("CetakLabelMo", "Manage")',
+                                            contentType: "application/json; charset=UTF-8",
+                                            cache: false,
+                                            data: JSON.stringify($postdata2),
+                                            success: function (response) {
+                                                if (response != null) {
+                                                    if (response.mo_error == null) {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintShopee__' + cust).modal('hide');
+                                                        var w = window.open('about:blank');
+                                                        w.document.open();
+                                                        w.document.write(response);
+                                                        w.document.close();
+                                                    } else {
+                                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                        $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                                                        alert(response.mo_error);
+                                                    }
+                                                }
+                                            },
+                                            error: function (xhr, status, error) {
+                                                $('#modalPrintLabelOption__' + cust).modal('hide');
+                                                console.log(error);
+                                            }
+                                        });
+                                    }
+                                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
+
+                    });
+                } else {
+                    alert("Mohon pilih pesanan yang mau diproses.");
+                }
+            }
+        }
     }
 </script>
 @{
@@ -328,6 +687,130 @@
             {
                 <div id="shopee_tab_content__@(item.CUST)" class="tab-pane fade in shopee_packing_tab_content">
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                        <div class="modal-dialog" id="modal-print-option" role="document">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
+                                    <hr />
+                                    <div>
+                                        <h5>Apakah Anda yakin ingin mencetak label <span class="cetak_label" id="cetak_label__@(item.CUST)"></span>?</h5>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Nama Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="nama_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>No Telepon Toko(Dropship) </label>
+                                        </div>
+                                        <div class="col-md-6" style="text-align:left">
+                                            <input id="tlp_toko__@(item.CUST)" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
+                                        </div>
+                                        <div class="col-md-2"></div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-4" style="text-align:left">
+                                            <label>Pilihan Cetak : </label>
+                                        </div>
+                                        <div class="col-md-8"></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_mp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_mp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Marketplace
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_alamat__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_alamat__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Alamat Toko
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_tlp__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_tlp__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Telepon Toko
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nama__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_nama__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Nama Toko
+                                        </div>                                        
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_nobuk__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                                <span id="ctk_nobuk__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            No Bukti Pesanan
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_total__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_total__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-3" style="padding-top: 7px;">
+                                            Total Harga
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="modal fade" id="modalPrintShopee__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="modalPrintShopee__label__@(item.CUST)">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
@@ -361,9 +844,9 @@
                         </div>
                         <div class="col-md-4">
                             @*<input id="txtShipment__@(item.CUST)" disabled="disabled" required="required" class="form-control" maxlength="30" data_val_length_max="30">
-                        <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
-                            <span class="glyphicon glyphicon-option-horizontal"></span>
-                        </button>*@
+                                <button id="btnShipment__@(item.CUST)" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvShopee('@(item.CUST)')">
+                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                </button>*@
                             <div class="form-group">
                                 <div id="shopee-resi-pickup-address-@(item.CUST)">
                                     <select id="select-shopee-resi-pickup-address-@(item.CUST)" class="selectShopeeResiPickupAddress" data-kodecust="@(item.CUST)" placeholder="Pickup Address" required="required"></select>
@@ -372,9 +855,25 @@
                             @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
                         </div>
                         <div class="col-md-4" style="text-align:right">
-                            <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
-                            <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Drop Off</button>
-                            <button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>
+                            <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
+                            <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Drop Off</button>
+
+                            @*//change by nurul 11/12/2019*@
+                            @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>*@
+                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                                    Print <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
+                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label Marketplace</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','2')">
+                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label MasterOnline</span>
+                                    </button>
+                                </div>
+                            </div>
+                            @*//end change by nurul 11/12/2019*@
                         </div>
                     </div>
                     <div class="hscroll table-responsive">
@@ -395,7 +894,7 @@
                                 @foreach (var order in Model.Where(p => p.CUST == item.CUST).ToList())
                                 {
                                     var status_kirim = "Dalam Proses";
-                                    
+
                                     switch (order.status_kirim)
                                     {
                                         case "0":
@@ -413,7 +912,7 @@
                                     }
                                     <tr>
                                         <td style="text-align:center">
-                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_shopee" data-cust="@order.CUST" data-recnum="@order.so_recnum" style="align-self:flex-start; width:30px; height:28px;" />
+                                            <input type="checkbox" class="dt-checkboxes center checkbox_packing_shopee" data-cust="@order.CUST" data-recnum="@order.so_recnum" data-bukti="@order.no_bukti" style="align-self:flex-start; width:30px; height:28px;" />
                                         </td>
                                         <td>@order.no_bukti</td>
                                         <td>@order.no_referensi</td>
@@ -432,4 +931,5 @@
         </div>
     </div>
 </div>
-            
+
+
