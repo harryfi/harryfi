@@ -20525,6 +20525,116 @@ namespace MasterOnline.Controllers
             return new BarcodeResult(resiBr);
         }
 
+        //add by nurul 10/1/2020, cetak label di faktur
+        public ActionResult CetakLabelMoFaktur(string[] rows_selected, string toko, string tlpToko, string kertas, string ctkFaktur, string ctkLabel, string alLink, string noLink, string mpLink, string nobukLink, string totalLink, string namaLink)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih faktur yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih faktur yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as so_bukti,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,'')) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,'')) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,'')) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,'')) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
+                sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
+                sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS si_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
+                sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
+                sSQLSelect += "ISNULL(F.NAMA,'') AS namapembeli, ISNULL(F.TLP,'')AS tlppembeli ";
+                string sSQL2 = "";
+                //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+                sSQL2 += "FROM SIT01A A LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI AND A.RECNUM IN (" + string_recnum + ") ";
+                //sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
+                sSQL2 += "LEFT JOIN ARF01C F ON D.PEMESAN = F.BUYER_CODE ";
+                sSQL2 += "LEFT JOIN ARF01 H ON A.CUST=H.CUST ";
+                sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I ON H.NAMA=I.IDMARKET ";
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                var alamat1 = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+
+                var ym = new FakturViewModel()
+                {
+                    urlAl = alLink,
+                    urlTlp = noLink,
+                    urlMp = mpLink,
+                    urlNobuk = nobukLink,
+                    urlTotal = totalLink,
+                    urlNama = namaLink,
+                    urlFaktur = ctkFaktur,
+                    urlLabel=ctkLabel
+                };
+
+                var listSi = ListSot01a.Select(p => p.si_bukti).ToList();
+                var faktur = ErasoftDbContext.SIT01A.Where(a => listSi.Contains(a.NO_BUKTI)).ToList();
+                var detailFaktur = ErasoftDbContext.SIT01B.Where(a => listSi.Contains(a.NO_BUKTI)).ToList(); ;
+
+                foreach (var so in ListSot01a)
+                {
+                    var detailFakturIndb = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList();
+                    var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
+                    var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
+                    var resi = so.no_resi;
+                    var netto = so.si_netto;
+                    var logoKurir = so.kurir;
+                    var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+
+                    var vm = new CetakLabelViewModel()
+                    {
+                        NamaToko = so.perso,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = so.logo,
+                        Faktur = faktur.Where(a => a.NO_BUKTI == so.si_bukti).SingleOrDefault(),
+                        namaPembeli = so.namapembeli,
+                        tlpPembeli = so.tlppembeli,
+                        ListBarang = ErasoftDbContext.STF02.Where(a => listBarangInFakturDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                        ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
+                        AlamatToko = alamat1,
+                        TlpToko = tlp,
+                        noRef = so.so_referensi,
+                        Kurir = so.kurir,
+                        Marketplace = so.namamarket,
+                        NoResi = resi,
+                        alamatPenerima = al_buyer,
+                        linktotal = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (netto))}",
+                        linktoko = toko,
+                        linktlptoko = tlpToko,
+                        tglKirim = (tgl == null || tgl == "01-01-0001" || tgl == "01/01/0001" ? DateTime.Now.ToString("dd/MM/yyyy") : tgl),
+                    };
+
+                    ym.ListCetakLabel.Add(vm);
+                }
+
+                return PartialView("CetakLabelMo", ym);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 10/1/2020, cetak label di faktur
+
         [HttpGet]
         public ActionResult LihatFaktur(string noBukPesanan)
         {

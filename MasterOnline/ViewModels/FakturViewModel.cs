@@ -48,6 +48,8 @@ namespace MasterOnline.ViewModels
         public string urlNobuk { get; set; }
         public string urlTotal { get; set; }
         public string urlNama { get; set; }
+        public string urlFaktur { get; set; }
+        public string urlLabel { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
     }
 
