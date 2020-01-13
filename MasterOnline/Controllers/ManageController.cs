@@ -18040,6 +18040,21 @@ namespace MasterOnline.Controllers
 
             //end change by nurul 8/5/2019, paging
         }
+        
+        //add by Tri 13 jan 2020
+        public ActionResult findCancelReason(string reqId)
+        {
+            if (reqId != null || reqId != "")
+            {
+                var ex = ErasoftDbContext.SOT01D.Where(a => a.NO_BUKTI == reqId).FirstOrDefault();
+                if (ex != null)
+                {
+                    return Json(ex.CATATAN_1, JsonRequestBehavior.AllowGet);
+                }
+            }
+            return Json("Gagal mendapatkan pesan error.", JsonRequestBehavior.AllowGet);
+        }
+        //end add by Tri 13 jan 2020
 
         public ActionResult RefreshPesananForm()
         {

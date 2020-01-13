@@ -2830,6 +2830,21 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalErrorLabel">Keterangan</h4>
+            </div>
+            <div class="modal-body edit-content">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -3095,6 +3110,27 @@
                 }
             });
         }
+
+        //add by Tri 13 Jan 2020
+        function LihatException($req_id) {
+        var $link = '@Html.Raw(Url.Action("findCancelReason", "Manage", new { reqId = "replaceID" }))';
+        $link = $link.replace("replaceID", encodeURIComponent($req_id));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                },
+                success: function (value) {
+                    $('#modalError').find('.edit-content').html(value);
+                    $('#modalError').modal('show');
+                    $('#loading_error').hide();
+                },
+                error: function (xhr, status, error) {
+                }
+            });
+        }
+        //end add by Tri 13 Jan 2020
 
         function LazadaGetResi() {
             var link = '@Url.Action("LazadaGetResi", "Manage", new { recnum = "replaceRecNum" })';

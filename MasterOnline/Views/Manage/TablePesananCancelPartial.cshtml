@@ -88,6 +88,15 @@
                 //{
                 //    NamaMarket = market.NamaMarket;
                 //}
+                var req_ex = "";
+                if (pesanan.CancelReason.Length < 100)
+                {
+                    req_ex = pesanan.CancelReason;
+                }
+                else
+                {
+                    req_ex = pesanan.CancelReason.Substring(0, 100) + "...";
+                }
                 <tr>
                     <td>@pesanan.NOSO</td>
                     <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
@@ -109,19 +118,22 @@
                         @pesanan.PEMBELI
                     </td>
                     <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
-                    <td>                        
+                    <td>
                         @if (!string.IsNullOrEmpty(pesanan.CancelReason))
-                        {
-                            if (pesanan.CancelReason.Length < 100)
-                            {
-                                @pesanan.CancelReason
-                            }
-                            else
-                            {
-                                @(pesanan.CancelReason.Substring(0, 97) + "...")
-                                <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
-                            }
-                        }
+    {
+                    @*if (pesanan.CancelReason.Length < 100)
+    {
+        @pesanan.CancelReason
+    }
+    else
+    {
+        @(pesanan.CancelReason.Substring(0, 97) + "...")
+        <button onclick="alert('Alasan batal :' + '@pesanan.CancelReason')"><span class="glyphicon glyphicon-option-horizontal"></span></button>
+    }*@
+                            <div data-tip="'@req_ex' + ' KLIK UNTUK LIHAT DETAIL'">
+                                <a class="user-link" href="#" data-toggle="modal" data-target="#modalError" onclick="LihatException('@pesanan.NOSO')">@req_ex</a>
+                            </div>
+}
                     </td>
                     <td class="edit-hapus-col">
                         @if (pesanan.MARKET != "")
