@@ -20554,9 +20554,9 @@ namespace MasterOnline.Controllers
                 }
 
                 string sSQLSelect = "";
-                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as so_bukti,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,'')) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,'')) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,'')) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,'')) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
-                sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
-                sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS si_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,'')) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,'')) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,'')) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,'')) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
+                //sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
+                sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS so_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
                 sSQLSelect += "ISNULL(F.NAMA,'') AS namapembeli, ISNULL(F.TLP,'')AS tlppembeli ";
                 string sSQL2 = "";
@@ -20567,6 +20567,7 @@ namespace MasterOnline.Controllers
                 sSQL2 += "LEFT JOIN ARF01 H ON A.CUST=H.CUST ";
                 sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I ON H.NAMA=I.IDMARKET ";
                 string sSQLSelect2 = "";
+                sSQLSelect2 += "WHERE A.RECNUM IN (" + string_recnum + ") ";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
                 var ListSot01a = ErasoftDbContext.Database.SqlQuery<tempLabel>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
@@ -41862,7 +41863,7 @@ namespace MasterOnline.Controllers
         //end add by nurul 23/12/2019
 
         //add by nurul 11/12/2019, cetak label pesanan
-        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data)
+        public ActionResult CetakLabelMo(string cust, string bukti, string[] rows_selected, string toko, string tlpToko, string ctkLabel, string alLink, string noLink, string namaLink, string mpLink, string nobukLink, string totalLink, string portLink, string refLink, List<tempBarcodeLazada> data)
         {
             try
             {
@@ -41916,7 +41917,8 @@ namespace MasterOnline.Controllers
                     urlMp = mpLink,
                     urlNobuk = nobukLink,
                     urlTotal = totalLink,
-                    urlNama = namaLink
+                    urlNama = namaLink,
+                    urlLabel=ctkLabel
                 };
 
                 var listSi = ListSot01a.Select(p => p.si_bukti).ToList();

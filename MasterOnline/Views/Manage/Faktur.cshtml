@@ -498,7 +498,7 @@
             }
 
             .fakturctkfaktur {
-                width: 45%;
+                /*width: 45%;*/
                 margin-left: 89px;
             }
 
@@ -1692,17 +1692,17 @@
 </div>
 @*add by nurul 3/12/2018 - tambah cetak faktur*@
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
-    <div class="modal-dialog" id="modal-print-option" role="document">
+    <div class="modal-dialog" id="modal-print-option" role="document" >
         @*//change by nurul 25/6/2019*@
         @*<div class="modal-content modalresponsive" style="margin:auto">*@
-        <div class="modal-content fakturctkfaktur">
+        <div class="modal-content " style="margin:auto;height:450px;width:650px;">
             @*//end change by nurul 25/6/2019*@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
             </div>
             <div class="modal-body">
-                <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Faktur <span id="cetakfaktur_label"></span>?</h5>
+                <h5>Apakah Anda yakin ingin mencetak Faktur dengan No. Faktur <span id="cetakfaktur_label"></span>?</h5>
                 <br />
                 <div class="row">
                     @*<div class="col-md-1">
@@ -1731,9 +1731,7 @@
                 @*//add by nurul 24/6/2019*@
                 <br />
                 @*//add by nurul 2/5/2019*@
-                <div class="row">
-                    @*<div class="col-md-1">
-            </div>*@
+                @*<div class="row">
                     <div class="col-md-4" style="text-align:left">
                         <label>Pilih Format Kertas </label>
                     </div>
@@ -1744,7 +1742,7 @@
                         </select>
                     </div>
                     <div class="col-md-2"></div>
-                </div>
+                </div>*@
                 @*//end add by nurul 2/5/2019*@
                 <div class="row">
                     <div class="col-md-4" style="text-align:left">
@@ -1851,7 +1849,7 @@
                     </div>
                 </div>
                 @*//add by nurul 2/5/2019*@
-                <div id="cetakA5Form">
+                @*<div id="cetakA5Form">
                     <div class="row">
                         <div class="col-md-1">
                         </div>
@@ -1943,15 +1941,15 @@
                         <div class="col-md-1">
                         </div>
                     </div>
-                </div>
+                </div>*@
                 @*//end add by nurul 2/5/2019*@
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                     </div>
-                    <div class="col-md-8" style="padding-top:10px">
+                    <div class="col-md-10" style="padding-top:10px">
                         <button id="btn-print-faktur" type="button" class="btn btn-success btn-block">Cetak</button>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                     </div>
                 </div>
             </div>
@@ -5079,27 +5077,27 @@
 
             $('#modalPrintOption').modal('show');
             //add by nurul 2/5/2019
-            $('#LayoutSize').val() == "1";
+            //$('#LayoutSize').val() == "1";
             $('#cetakA4Form').show();
-            $('#cetakA5Form').hide();
-            $('#LayoutSize').change(function () {
-                if ($('#LayoutSize').val() == "1") {
-                    $('#cetakA4Form').show();
-                    $('#cetakA5Form').hide();
-                } else if ($('#LayoutSize').val() == "2") {
-                    $('#cetakA4Form').hide();
-                    $('#cetakA5Form').show();
-                }
-            });
-            if ($('#LayoutSize').val() == "1") {
-                $('#cetakA4Form').show();
-                $('#cetakA5Form').hide();
-            } else if ($('#LayoutSize').val() == "2") {
-                $('#cetakA4Form').hide();
-                $('#cetakA5Form').show();
-            }
-            $('#ctk_alamat1').attr('checked', true);
-            $('#ctk_tlp1').attr('checked', true);
+            //$('#cetakA5Form').hide();
+            //$('#LayoutSize').change(function () {
+            //    if ($('#LayoutSize').val() == "1") {
+            //        $('#cetakA4Form').show();
+            //        $('#cetakA5Form').hide();
+            //    } else if ($('#LayoutSize').val() == "2") {
+            //        $('#cetakA4Form').hide();
+            //        $('#cetakA5Form').show();
+            //    }
+            //});
+            //if ($('#LayoutSize').val() == "1") {
+            //    $('#cetakA4Form').show();
+            //    $('#cetakA5Form').hide();
+            //} else if ($('#LayoutSize').val() == "2") {
+            //    $('#cetakA4Form').hide();
+            //    $('#cetakA5Form').show();
+            //}
+            //$('#ctk_alamat1').attr('checked', true);
+            //$('#ctk_tlp1').attr('checked', true);
             //end add by nurul 2/5/2019
 
             //add by nurul 7/12/2018
@@ -5117,10 +5115,10 @@
             $('#ctk_nobuk').attr('checked', true);
             $('#ctk_total').attr('checked', true);
 
-            $('#ctk_nama1').attr('checked', true);
-            $('#ctk_mp1').attr('checked', true);
-            $('#ctk_nobuk1').attr('checked', true);
-            $('#ctk_total1').attr('checked', true);
+            //$('#ctk_nama1').attr('checked', true);
+            //$('#ctk_mp1').attr('checked', true);
+            //$('#ctk_nobuk1').attr('checked', true);
+            //$('#ctk_total1').attr('checked', true);
             //end add by nurul 10/1/2020
 
             $('#btn-print-faktur').off('click').on('click', function () {
@@ -5139,7 +5137,7 @@
                 var total = "0";
                 var nama = "0";
                 var jenisKertas = "0";
-                if ($('#LayoutSize').val() == "1") {
+                //if ($('#LayoutSize').val() == "1") {
                     @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
                     jenisKertas = "0";
@@ -5184,9 +5182,9 @@
                     } else if ($('#ctk_total').is(":checked") == false) {
                         total = "0";
                     }
-                } else if ($('#LayoutSize').val() == "2") {
-                    @*var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
-                    link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));*@
+                @*} else if ($('#LayoutSize').val() == "2") {
+                    var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                    link = link.replace('replaceNoBuk', encodeURIComponent(nobuk));
                     jenisKertas = "1";
                     if ($('[name="ctk_A5"]:radio:checked').val() == "1") {
                         faktur = "1";
@@ -5228,7 +5226,7 @@
                     } else if ($('#ctk_total1').is(":checked") == false) {
                         total = "0";
                     }
-                }
+                }*@
                 ////end add by nurul 2/5/2019
 
                 ////change by nurul 30/11/2018
@@ -5271,9 +5269,11 @@
                                             cache: false,
                                             beforeSend: function () {
                                                 $('#loading_spinner').show();
+                                                $('#modalPrintOption').modal('hide');
                                             },
                                             data: JSON.stringify($postdata2),
                                             success: function (response) {
+                                                
                                                 if (response != null) {
                                                     if (response.mo_error == null) {
                                                         $('#loading_spinner').hide();
