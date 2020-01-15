@@ -38878,9 +38878,10 @@ namespace MasterOnline.Controllers
                                         return new JsonResult { Data = new { error_packing_list = true }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                                     }
                                 }
-                                nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
-                                newPackinglist.NO_BUKTI = nobuk;
-                                context.SOT03A.Add(newPackinglist);
+
+                                //nobuk = "PL" + lastRecNum.ToString().PadLeft(6, '0');
+                                //newPackinglist.NO_BUKTI = nobuk;
+                                //context.SOT03A.Add(newPackinglist);
                                 
                                 var newpackingdetail = new List<SOT03B>();
                                 var newpackingbrgdetail = new List<SOT03C>();
