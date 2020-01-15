@@ -8748,9 +8748,14 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                //add by nurul 14/1/2020, handle deskripsi enter2x
+                var note = dataBarang.Stf02.Deskripsi.Replace("\r\n", "");
+                //add by nurul 14/1/2020, handle deskripsi enter2x
+
                 BrgViewModel dataLazada = new BrgViewModel
                 {
-                    deskripsi = dataBarang.Stf02.Deskripsi,
+                    //deskripsi = dataBarang.Stf02.Deskripsi,
+                    deskripsi = note,
                     harga = dataBarang.Stf02.HJUAL.ToString(),
                     height = dataBarang.Stf02.TINGGI.ToString(),
                     kdBrg = barangInDb.BRG,
@@ -9144,7 +9149,7 @@ namespace MasterOnline.Controllers
                                                 ShopeeController shoAPI = new ShopeeController();
 
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
-                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
                                                 //end remark by calvin 26 februari 2019
                                                 Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
