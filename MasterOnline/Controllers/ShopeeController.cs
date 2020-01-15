@@ -3745,8 +3745,10 @@ namespace MasterOnline.Controllers
                 category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
                 condition = "NEW",
                 name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
+                //change by nurul 15/1/2020, handle <p> dan enter double di shopee
                 //description = brgInDb.Deskripsi.Replace("’", "`"),
-                description = brgInDb.Deskripsi.Replace("’", "`").Replace("\r\n", ""),
+                description = brgInDb.Deskripsi.Replace("’", "`").Replace("<p>","").Replace("</p>","").Replace("&nbsp;\r\n\r\n", "\r\n").Replace("\r\n\r\n", "\n"),
+                //change by nurul 15/1/2020, handle <p> dan enter double di shopee
                 package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
                 package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
                 package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
