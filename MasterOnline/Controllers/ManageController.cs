@@ -18670,19 +18670,23 @@ namespace MasterOnline.Controllers
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
             var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
+            //remark by fauzi tgl 16 Januari 2020
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
+            //var blAPI = new BukaLapakController();
+            //var lzdAPI = new LazadaController();
+            //add by fauzi tgl 16 Januari 2020
+            if (marketPlace.TIDAK_HIT_UANG_R == true)
             {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
-            {
-                //var blAPI = new BukaLapakController();
-                //var lzdAPI = new LazadaController();
                 switch (status)
                 {
                     case "11"://cancel
