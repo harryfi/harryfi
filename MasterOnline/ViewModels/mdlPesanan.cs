@@ -61,6 +61,10 @@ namespace MasterOnline
         public DateTime? TGL_LASTEDIT { get; set; }
         //END ADD BY NURUL 27/11/2019
 
+        //add by nurul 16/1/2020
+        public double SISA_FAKTUR { get; set; }
+        //end add by nurul 16/1/2020
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }
