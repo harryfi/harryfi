@@ -206,7 +206,7 @@
                                         </div>
                                         @if (CetakFaktur == "1")
                                         {
-                                            <div class="div_faktur " >
+                                            <div class="div_faktur ">
                                                 <div class="row" style="width:650px !important;">
                                                     <div class="col-md-12">
                                                         <table cellpadding="0">
@@ -214,23 +214,47 @@
                                                                 <td>
                                                                     <table class="table-hover">
                                                                         <tr style="width:650px !important;">
-                                                                            <td style="text-align:left; width:325px !important; padding-left:10px !important;">
-                                                                                <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko == null ? "" : labelList.NamaToko)</span></h1></div>
-                                                                            </td>
+                                                                            @if (labelList.linktoko != null && labelList.linktoko != "")
+                                                                            {
+                                                                                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.linktoko)</span></h1></div>
+                                                                                </td>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <td style="text-align:left; width:325px !important; padding-left:10px !important;">
+                                                                                    <div class="nama_faktur"><h1 class="bold_title_invoice" style="padding-top:unset"><span class="nama_toko">@(labelList.NamaToko)</span></h1></div>
+                                                                                </td>
+                                                                            }
                                                                             <td style="text-align:right; width:325px !important">
                                                                                 <h1 class="bold_title_invoice" style="margin-right:10px; padding-top:unset">INVOICE</h1>
                                                                             </td>
                                                                         </tr>
-                                                                        <tr style="width:650px !important;">
-                                                                            <td colspan="2">
-                                                                                <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <tr style="width:650px !important;">
-                                                                            <td colspan="2">
-                                                                                <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.TlpToko)</span></div>
-                                                                            </td>
-                                                                        </tr>
+                                                                        @if (Model?.urlAl != null && Model?.urlAl == "1")
+                                                                        {
+                                                                            <tr style="width:650px !important;">
+                                                                                <td colspan="2">
+                                                                                    <div id="alamat_faktur" class="col-md-12 alamat_faktur"><span>@labelList.AlamatToko</span></div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                        @if (Model?.urlTlp != null && Model?.urlTlp == "1")
+                                                                        {
+                                                                            <tr style="width:650px !important;">
+                                                                                @if (labelList.linktlptoko != null && labelList.linktlptoko != "")
+                                                                                {
+                                                                                    <td colspan="2">
+                                                                                        <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.linktlptoko == null ? "" : labelList.linktlptoko)</span></div>
+                                                                                    </td>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <td colspan="2">
+                                                                                        <div id="tlp_faktur" class="col-md-12 tlp_faktur"><span class="tlp_toko"> @(labelList.TlpToko == null ? "" : labelList.TlpToko)</span></div>
+                                                                                    </td>
+                                                                                }
+                                                                            </tr>
+                                                                        }
                                                                     </table>
                                                                 </td>
                                                             </tr>
@@ -326,7 +350,7 @@
                                                     </tbody>
                                                 </table>
                                                 <hr style="width:619px !important;" />
-                                                <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;"> 
+                                                <table class="table-hover rincian_faktur" id="rincian_faktur" style="width:619px !important;">
                                                     <thead>
                                                         <tr>
                                                             <td style="width: 160px; "></td>
@@ -381,7 +405,7 @@
                                         }
                                         @if (CetakLabel == "1")
                                         {
-                                            <div class="div_label_pengiriman" >
+                                            <div class="div_label_pengiriman">
                                                 <div class="row">
                                                     <div class="col-md-7">
                                                         @if (no_resi != "-")
