@@ -20554,18 +20554,19 @@ namespace MasterOnline.Controllers
                 }
 
                 string sSQLSelect = "";
-                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,'')) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,'')) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,'')) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,'')) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(D.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,ISNULL(J.NAMA_KABKOT,''))) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,ISNULL(J.NAMA_PROV,''))) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,ISNULL(J.KODEPOS,''))) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,ISNULL(J.AL,''))) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
                 //sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
-                sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS so_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
+                sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS so_bukti,ISNULL(A.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
-                sSQLSelect += "ISNULL(F.NAMA,'') AS namapembeli, ISNULL(F.TLP,'')AS tlppembeli ";
+                sSQLSelect += "ISNULL(F.NAMA,ISNULL(J.NAMA,'')) AS namapembeli, ISNULL(F.TLP,ISNULL(J.TLP,''))AS tlppembeli ";
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "FROM SIT01A A LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI AND A.RECNUM IN (" + string_recnum + ") ";
                 //sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
-                sSQL2 += "LEFT JOIN ARF01C F ON D.PEMESAN = F.BUYER_CODE ";
+                sSQL2 += "LEFT JOIN ARF01C F ON A.PEMESAN = F.BUYER_CODE ";
                 sSQL2 += "LEFT JOIN ARF01 H ON A.CUST=H.CUST ";
                 sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I ON H.NAMA=I.IDMARKET ";
+                sSQL2 += "LEFT JOIN ARF01C J ON J.BUYER_CODE = D.PEMESAN ";
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "WHERE A.RECNUM IN (" + string_recnum + ") ";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
@@ -41895,13 +41896,14 @@ namespace MasterOnline.Controllers
                 sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
                 sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS si_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
-                sSQLSelect += "ISNULL(F.NAMA,'') AS namapembeli, ISNULL(F.TLP,'')AS tlppembeli ";
+                sSQLSelect += "ISNULL(F.NAMA,ISNULL(J.NAMA,'')) AS namapembeli, ISNULL(F.TLP,ISNULL(J.TLP,''))AS tlppembeli ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
                 sSQL2 += "LEFT JOIN ARF01C F ON D.PEMESAN = F.BUYER_CODE ";
                 sSQL2 += "LEFT JOIN ARF01 H ON A.CUST=H.CUST ";
                 sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE I ON H.NAMA=I.IDMARKET ";
+                sSQL2 += "LEFT JOIN ARF01C J ON J.BUYER_CODE = A.PEMESAN ";
                 string sSQLSelect2 = "";
                 sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
 
