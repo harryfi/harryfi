@@ -14326,41 +14326,22 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                            sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' )";
-                            sSQLpembeli += " ( A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLmarket += " and ";
+                            sSQLref += " and ";
+                            sSQLpembeli += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
-                                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%'";
-                                sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%'";
-                                sSQLpembeli += "( A.NAMAPEMESAN like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                                sSQLref += " and A.NO_REF like '%" + getkata[i] + "%' )";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                                sSQLref += " and A.NO_REF like '%" + getkata[i] + "%' ";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
+                        sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
+                        sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -14437,37 +14418,20 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                            sSQLpembeli += " ( A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLmarket += " and ";
+                            sSQLpembeli += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
-                                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%'";
-                                sSQLpembeli += "( A.NAMAPEMESAN like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
+                        sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( (D.NETTO + D.DEBET - D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -14475,6 +14439,9 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.TGL_JT_TEMPO AS TGLJTTEMPO ";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect += ",ISNULL(SUM(D.NETTO + D.DEBET - D.KREDIT - D.BAYAR),0) AS SISA_FAKTUR ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -14489,6 +14456,9 @@ namespace MasterOnline.Controllers
                 sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " ) ";
             }
             string sSQLSelect2 = "";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
@@ -14542,37 +14512,20 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                            sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                            sSQLpembeli += " ( A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLmarket += " and ";
+                            sSQLpembeli += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%'";
-                                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%'";
-                                sSQLpembeli += "( A.NAMAPEMESAN like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' )";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' )";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.NO_BUKTI like '%" + getkata[i] + "%' ";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
-                                sSQLpembeli += " and A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.NO_BUKTI like '%" + getkata[i] + "%' ) ";
+                        sSQLmarket += "  ( (isnull(C.NamaMarket,'') + ' (' + isnull(B.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ) ";
+                        sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( (D.NETTO + D.DEBET - D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -14580,19 +14533,26 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.TGL_JT_TEMPO AS TGLJTTEMPO ";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect += ",ISNULL(SUM(D.NETTO + D.DEBET - D.KREDIT - D.BAYAR),0) AS SISA_FAKTUR ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM SIT01A A ";
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
-            sSQL2 += "WHERE A.JENIS_FORM = '2' AND (A.TGL_JT_TEMPO <= '" + tglNow + "') ";
+            sSQL2 += "LEFT JOIN ART01D D ON A.NO_BUKTI = D.FAKTUR ";
+            sSQL2 += "WHERE A.JENIS_FORM = '2' AND (A.TGL_JT_TEMPO <= '" + tglNow + "') AND (D.NETTO - D.KREDIT > 0) ";
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.TGL_JT_TEMPO LIKE '%" + search + "%') ";
                 sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLpembeli + " or " + sSQLnetto + " ) ";
             }
             string sSQLSelect2 = "";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.NO_BUKTI, A.TGL, C.NamaMarket, B.PERSO, A.NAMAPEMESAN, A.NETTO, A.TGL_JT_TEMPO ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
@@ -15767,33 +15727,18 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.INV like '%" + getkata[i] + "%' )";
-                            sSQLnama += " ( A.NAMA like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.INV like '%" + getkata[i] + "%'";
-                                sSQLnama += "( A.NAMA like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' )";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' ";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.INV like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( A.NAMA like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -15863,33 +15808,18 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.INV like '%" + getkata[i] + "%' )";
-                            sSQLnama += " ( A.NAMA like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.INV like '%" + getkata[i] + "%'";
-                                sSQLnama += "( A.NAMA like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' )";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' ";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.INV like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( A.NAMA like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( (D.NETTO - D.DEBET + D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -15897,6 +15827,9 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.TGJT AS TGLJTTEMPO ";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect += ",ISNULL(SUM(D.NETTO + D.KREDIT - D.DEBET - D.BAYAR),0) AS SISA_FAKTUR ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -15909,6 +15842,9 @@ namespace MasterOnline.Controllers
                 sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLnetto + " ) ";
             }
             string sSQLSelect2 = "";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.INV, A.TGL, A.NAMA, A.NETTO,A.TGJT ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
@@ -15959,33 +15895,18 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLkode += "( A.INV like '%" + getkata[i] + "%' )";
-                            sSQLnama += " ( A.NAMA like '%" + getkata[i] + "%' )";
-                            sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                            sSQLnetto += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLkode += " ( A.INV like '%" + getkata[i] + "%'";
-                                sSQLnama += "( A.NAMA like '%" + getkata[i] + "%'";
-                                sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' )";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' )";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLkode += " and A.INV like '%" + getkata[i] + "%' ";
-                                sSQLnama += " and A.NAMA like '%" + getkata[i] + "%' ";
-                                sSQLnetto += " and A.NETTO like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( A.INV like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( A.NAMA like '%" + getkata[i] + "%' ) ";
+                        sSQLnetto += " ( (D.NETTO - D.DEBET + D.KREDIT - D.BAYAR) like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -15993,17 +15914,24 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.TGJT AS TGLJTTEMPO ";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect += ",ISNULL(SUM(D.NETTO + D.KREDIT - D.DEBET - D.BAYAR),0) AS SISA_FAKTUR ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM PBT01A A ";
-            sSQL2 += "WHERE A.JENISFORM = '1' AND A.TGJT <= '" + tglNow + "' ";
+            sSQL2 += "LEFT JOIN APT01D D ON A.INV = D.INV ";
+            sSQL2 += "WHERE A.JENISFORM = '1' AND A.TGJT <= '" + tglNow + "' AND D.NETTO - D.DEBET > 0 ";
             if (search != "")
             {
                 //sSQL2 += "AND (A.INV LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR A.NAMA LIKE '%" + search + "%' OR A.TGJT LIKE '%" + search + "%' ) ";
                 sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLnetto + " ) ";
             }
             string sSQLSelect2 = "";
+            //add by nurul 16/1/2020, tampil sisa faktur
+            sSQLSelect2 += "GROUP BY A.RECNUM, A.INV, A.TGL, A.NAMA, A.NETTO,A.TGJT ";
+            //end add by nurul 16/1/2020, tampil sisa faktur
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
@@ -24077,7 +24005,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetInvoiceBelumLunas(string noSupp)
         {
-            var listInvoiceBelumLunas = ErasoftDbContext.APT01D.Where(f => f.SUPP == noSupp && (f.NETTO + f.DEBET - f.KREDIT - f.BAYAR) > 0).ToList();
+            var listInvoiceBelumLunas = ErasoftDbContext.APT01D.Where(f => f.SUPP == noSupp && (f.NETTO - f.DEBET + f.KREDIT - f.BAYAR) > 0).ToList();
             var listKodeInvoice = new List<InvoiceJson>();
 
             foreach (var invoice in listInvoiceBelumLunas)
