@@ -29867,11 +29867,12 @@ namespace MasterOnline.Controllers
                         //add by nurul 27/11/2019, add tgl last edit
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
-                        var tokped = 15;
-
-                        if (customer.NAMA != Convert.ToString(tokped))
-                        {
-                            if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
+                        //remark 21 jan 2020, tokped sudah bisa dapat tipe barang
+                        //var tokped = 15;
+                        //if (customer.NAMA != Convert.ToString(tokped))
+                        //{
+                        //end remark 21 jan 2020, tokped sudah bisa dapat tipe barang
+                        if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
                             {
                                 bool createSTF02Induk = true;
                                 var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == data.TempBrg.KODE_BRG_INDUK).FirstOrDefault();
@@ -30165,8 +30166,9 @@ namespace MasterOnline.Controllers
 
 
                             }
-
-                        }
+                        //remark 21 jan 2020, tokped sudah bisa dapat tipe barang
+                        //}
+                        //end remark 21 jan 2020, tokped sudah bisa dapat tipe barang
                         var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
