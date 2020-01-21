@@ -2998,7 +2998,7 @@ namespace MasterOnline.Controllers
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
 #endif
                         //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                     }
