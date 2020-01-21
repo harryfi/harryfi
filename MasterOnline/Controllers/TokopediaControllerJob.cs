@@ -2727,6 +2727,28 @@ namespace MasterOnline.Controllers
                                             REQUEST_ID = log_request_id
                                         };
                                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                                        //add by Tri 21 Jan 2019, update stok setelah create product sukses                                            
+                                        StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                        {
+                                            merchant_code = iden.merchant_code, //FSID
+                                            API_client_password = iden.API_client_password, //Client ID
+                                            API_client_username = iden.API_client_username, //Client Secret
+                                            API_secret_key = iden.API_secret_key, //Shop ID 
+                                            token = iden.token,
+                                            idmarket = iden.idmarket
+                                        };
+                                        StokControllerJob stokAPI = new StokControllerJob();
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
+#else
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                            var Jobclient = new BackgroundJobClient(sqlStorage);
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
+#endif
+                                        //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                                     }
                                 }
                             }
@@ -2958,6 +2980,27 @@ namespace MasterOnline.Controllers
                     foreach (var item in result.data.children)
                     {
                         var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                        //add by Tri 21 Jan 2019, update stok setelah create product sukses                                            
+                        StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                        {
+                            merchant_code = iden.merchant_code, //FSID
+                            API_client_password = iden.API_client_password, //Client ID
+                            API_client_username = iden.API_client_username, //Client Secret
+                            API_secret_key = iden.API_secret_key, //Shop ID 
+                            token = iden.token,
+                            idmarket = iden.idmarket
+                        };
+                        StokControllerJob stokAPI = new StokControllerJob();
+#if (DEBUG || Debug_AWS)
+                        Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
+#else
+                                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                                            var Jobclient = new BackgroundJobClient(sqlStorage);
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
+#endif
+                        //end add by Tri 21 Jan 2019, update stok setelah create product sukses
                     }
 
                     MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
