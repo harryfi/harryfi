@@ -8664,9 +8664,16 @@ namespace MasterOnline.Controllers
                         }
                     }
 
+                    //add by nurul 14/1/2020, handle deskripsi enter2x
+                    var note = barangInDb.Deskripsi.Replace("\r\n", "");
+                    //add by nurul 14/1/2020, handle deskripsi enter2x
+
                     BrgViewModel dataLazada = new BrgViewModel
                     {
-                        deskripsi = barangInDb.Deskripsi,
+                        //add by nurul 14/1/2020, handle deskripsi enter2x
+                        //deskripsi = barangInDb.Deskripsi,
+                        deskripsi = note,
+                        //end add by nurul 14/1/2020, handle deskripsi enter2x
                         harga = barangInDb.HJUAL.ToString(),
                         height = barangInDb.TINGGI.ToString(),
                         kdBrg = barangInDb.BRG,
@@ -9152,10 +9159,14 @@ namespace MasterOnline.Controllers
 
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
                                                 //unremark by nurul 15/1/2020, biar bisa update deskripsi
-                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
+                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                Task.Run(() => shoAPI.UpdateProduct(iden, temp_brg, tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
                                                 //end unremark by nurul 15/1/2020, biar bisa update deskripsi
                                                 //end remark by calvin 26 februari 2019
-                                                Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+                                                ShopeeController shoAPI2 = new ShopeeController();
+                                                Task.Run(() => shoAPI2.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 if (updateHarga)
                                                 {
