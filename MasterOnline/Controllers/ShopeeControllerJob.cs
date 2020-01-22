@@ -1871,7 +1871,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         sSQL2 += sSQL + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                        sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
                         sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                         EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
                         //var nobuk = ErasoftDbContext.SOT01A.Where(m => m.NO_REFERENSI == ordersn && m.CUST == CUST).Select(m => m.NO_BUKTI).FirstOrDefault();
@@ -2091,15 +2091,18 @@ namespace MasterOnline.Controllers
         public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
-            if (ordersn_list.Count() > 50)
+            //if (ordersn_list.Count() > 50) //debug loop shopee
+            if (ordersn_list.Count() > 1)
             {
                 var arrayLength = ordersn_list.Count();
                 int skip = 0;
                 while (arrayLength > 0)
                 {
                     var take = arrayLength;
-                    if (take > 50)
-                        take = 50;
+                    //if (take > 50)
+                    //    take = 50;
+                    if (take > 1)
+                        take = 1;
                     var listOrder = ordersn_list.Skip(skip).Take(take).ToList().ToArray();
                     ret = await GetOrderDetailsForCancelReasonAPI(iden, listOrder, ret);
                     skip = skip + take;

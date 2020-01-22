@@ -2661,6 +2661,8 @@ namespace MasterOnline.Controllers
             {
                 if (bindOrder.code.Equals("0"))
                 {
+                    string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
+                    string sSQL2 = "";
                     foreach (var order in bindOrder.data.orders)
                     {
                         if (orderUnpaidList.Contains(order.order_id))
@@ -2677,7 +2679,8 @@ namespace MasterOnline.Controllers
                                     var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
                                     if (sot01d == null)
                                     {
-                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                        //EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
+                                        sSQL2 += "('" + nobuk + "','" + order.reason + "','AUTO_LAZADA'),";
                                     }
                                 }
                                 //end add by Tri 4 Des 2019, isi cancel reason
@@ -2698,6 +2701,11 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
+                    }
+                    if (!string.IsNullOrEmpty(sSQL2))
+                    {
+                        sSQL += sSQL2.Substring(0, sSQL2.Length - 1);
+                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL);
                     }
                     if (bindOrder.data.orders.Count >= 100)
                     {
