@@ -1322,12 +1322,11 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
                         //await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
-                        //string EDBConnID = EDB.GetConnectionString("ConnId");
-                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                        //var Jobclient = new BackgroundJobClient(sqlStorage);
-                        //Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
-                        await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
                         //end change by calvin 9 juni 2019
                     }
                     else
