@@ -1322,12 +1322,16 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
                         //await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+#if (DEBUG || Debug_AWS)
+                        await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+#else
                         string EDBConnID = EDB.GetConnectionString("ConnId");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
                         Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
                         //end change by calvin 9 juni 2019
+#endif
                     }
                     else
                     {
@@ -2672,9 +2676,9 @@ namespace MasterOnline.Controllers
                                     {
                                         if (item.childs.Count() > 0)
                                         {
-    #if (DEBUG || Debug_AWS)
+#if (DEBUG || Debug_AWS)
                                             await new TokopediaControllerJob().GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id);
-    #else
+#else
                                             //change by calvin 9 juni 2019
                                             //await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -2683,7 +2687,7 @@ namespace MasterOnline.Controllers
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
                                             Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id));
                                             //end change by calvin 9 juni 2019
-    #endif
+#endif
                                         }
                                         else
                                         {
