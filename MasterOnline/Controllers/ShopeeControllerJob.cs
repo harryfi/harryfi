@@ -2091,18 +2091,15 @@ namespace MasterOnline.Controllers
         public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
-            //if (ordersn_list.Count() > 50) //debug loop shopee
-            if (ordersn_list.Count() > 1)
+            if (ordersn_list.Count() > 50) 
             {
                 var arrayLength = ordersn_list.Count();
                 int skip = 0;
                 while (arrayLength > 0)
                 {
                     var take = arrayLength;
-                    //if (take > 50)
-                    //    take = 50;
-                    if (take > 1)
-                        take = 1;
+                    if (take > 50)
+                        take = 50;
                     var listOrder = ordersn_list.Skip(skip).Take(take).ToList().ToArray();
                     ret = await GetOrderDetailsForCancelReasonAPI(iden, listOrder, ret);
                     skip = skip + take;
