@@ -42,7 +42,6 @@
     <!--add by calvin 1 april 2019-->
     <link href="~/Content/jquery.notify.css" rel="stylesheet" />
     <!--end add by calvin 1 april 2019-->
-
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
 
     @RenderSection("styles", required: false)
@@ -315,15 +314,18 @@
     </script>
     <!-- Facebook Pixel Code -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window,document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-         fbq('init', '2320855488162974');
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '2320855488162974');
         fbq('track', 'PageView');
     </script>
     <noscript>
@@ -386,24 +388,24 @@
                                     if (parent.Show)
                                     {
                                         <li class="parent-li" id="@parent.ScrId">
-                                            <a @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                            <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
                                                 <i class="fa @parent.Icon"></i> @parent.NamaForm
                                                 @if (parent.HaveChild)
                                                 {
                                                     <span class="fa fa-chevron-down"></span>
                                                 }
-                                                //add by calvin 5 april 2019
-                                                else
-                                                {
-                                                    if (parent.ScrId == 9) //Pesanan
+                                                @*//add by calvin 5 april 2019
+                                                    else
                                                     {
-                                                        <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
-                                                    }
-                                                    if (parent.ScrId == 1056) //Log Error
-                                                    {
-                                                        <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
-                                                    }
-                                                }
+                                                        if (parent.ScrId == 9) //Pesanan
+                                                        {
+                                                            <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                        }
+                                                        if (parent.ScrId == 1056) //Log Error
+                                                        {
+                                                            <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                        }
+                                                    }*@
                                             </a>
                                             @*<ul class="nav child_menu">
                                                     @foreach (var child in listChild)
@@ -447,10 +449,68 @@
 
                                                         if (child.ParentId == parent.ScrId && secUserMenu != null)
                                                         {
-                                                            if (child.Show)
+                                                            //change by nurul 22/1/2020, perbaikan tampilan navbar jika login user
+                                                            @*if (child.Show)
+                                                                {
+                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                }*@
+
+                                                            if (child.Show && !child.HaveChild)
                                                             {
-                                                                <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                <li>
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        @if (child.Icon != null)
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                </li>
                                                             }
+                                                            else
+                                                            {
+                                                                <li class="parent-li" id="@child.ScrId">
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                    <ul class="nav child_menu">
+                                                                        @foreach (var childFromChild in listChildFromChild)
+                                                                        {
+                                                                            if (listSec.Count > 0)
+                                                                            {
+                                                                                var secUserMenuChild = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                if (childFromChild.ParentId == child.ScrId && secUserMenuChild != null)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                if (childFromChild.ParentId == child.ScrId)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    </ul>
+                                                                </li>
+                                                            }
+                                                            //end change by nurul 22/1/2020, perbaikan tampilan navbar jika login user
                                                         }
                                                     }
                                                     else
