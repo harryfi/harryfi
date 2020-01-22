@@ -2703,15 +2703,31 @@ namespace MasterOnline.Controllers
                                             {
                                                 if (customer.TIDAK_HIT_UANG_R)
                                                 {
+                                                    //StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                                    //{
+                                                    //    merchant_code = iden.merchant_code, //FSID
+                                                    //    API_client_password = iden.API_client_password, //Client ID
+                                                    //    API_client_username = iden.API_client_username, //Client Secret
+                                                    //    API_secret_key = iden.API_secret_key, //Shop ID 
+                                                    //    token = iden.token,
+                                                    //    idmarket = iden.idmarket
+                                                    //};
                                                     StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                                     {
-                                                        merchant_code = iden.merchant_code, //FSID
-                                                        API_client_password = iden.API_client_password, //Client ID
-                                                        API_client_username = iden.API_client_username, //Client Secret
-                                                        API_secret_key = iden.API_secret_key, //Shop ID 
-                                                        token = iden.token,
-                                                        idmarket = iden.idmarket
+                                                        //merchant_code = iden.merchant_code, //FSID
+                                                        //API_client_password = iden.API_client_password, //Client ID
+                                                        //API_client_username = iden.API_client_username, //Client Secret
+                                                        //API_secret_key = iden.API_secret_key, //Shop ID 
+                                                        //token = iden.token,
+                                                        //idmarket = iden.idmarket
                                                     };
+                                                    data.merchant_code = iden.merchant_code; //FSID
+                                                    data.API_client_password = iden.API_client_password; //Client ID
+                                                    data.API_client_username = iden.API_client_username; //Client Secret
+                                                    data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                                    data.token = iden.token;
+                                                    data.idmarket = iden.idmarket;
+
                                                     StokControllerJob stokAPI = new StokControllerJob();
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
@@ -2743,8 +2759,8 @@ namespace MasterOnline.Controllers
                                         {
                                             if (customer.TIDAK_HIT_UANG_R)
                                             {
-                                                try
-                                                {
+                                                //try
+                                                //{
                                                     StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                                     {
                                                         //merchant_code = iden.merchant_code, //FSID
@@ -2770,11 +2786,11 @@ namespace MasterOnline.Controllers
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
                                             Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
 #endif
-                                                }
-                                                catch (Exception ex)
-                                                {
+                                                //}
+                                                //catch (Exception ex)
+                                                //{
 
-                                                }
+                                                //}
 
 
                                             }
@@ -3019,13 +3035,20 @@ namespace MasterOnline.Controllers
                             {
                                 StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
                                 {
-                                    merchant_code = iden.merchant_code, //FSID
-                                    API_client_password = iden.API_client_password, //Client ID
-                                    API_client_username = iden.API_client_username, //Client Secret
-                                    API_secret_key = iden.API_secret_key, //Shop ID 
-                                    token = iden.token,
-                                    idmarket = iden.idmarket
+                                    //merchant_code = iden.merchant_code, //FSID
+                                    //API_client_password = iden.API_client_password, //Client ID
+                                    //API_client_username = iden.API_client_username, //Client Secret
+                                    //API_secret_key = iden.API_secret_key, //Shop ID 
+                                    //token = iden.token,
+                                    //idmarket = iden.idmarket
                                 };
+                                data.merchant_code = iden.merchant_code; //FSID
+                                data.API_client_password = iden.API_client_password; //Client ID
+                                data.API_client_username = iden.API_client_username; //Client Secret
+                                data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                data.token = iden.token;
+                                data.idmarket = iden.idmarket;
+
                                 StokControllerJob stokAPI = new StokControllerJob();
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
