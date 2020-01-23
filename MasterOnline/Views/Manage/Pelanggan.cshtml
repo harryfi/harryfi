@@ -1688,6 +1688,7 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
+                                
 
                                 if (@bklapak != value && @tokped != value && @shopee != value && @others != value) {
                                 @*if (@bklapak != value && @shopee != value) {*@
@@ -1752,6 +1753,11 @@
 
                                 if (@blibli == value) {
                                     showHideBlibliForm(true);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#BlibliMerchantID').show();
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').show();
+                                    // end
                                 }
                                 else {
                                     showHideBlibliForm(false);
@@ -1759,6 +1765,16 @@
                                 //unremark by nurul 25/3/2019
                                 if (@tokped == value) {
                                     showHideTokpedForm(true);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#JDAppSecret').hide();
+                                    $('#JDAccessToken').hide();
+                                    $('#BlibliMerchantID').hide();
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').hide();
+                                    $('#Customers_Sort1_Cust').val('13072'); // FSID MO : 13072
+                                    $('#Customers_API_CLIENT_U').val(''); // Client ID : 36bc3d7bcc13404c9e670a84f0c61676
+                                    $('#Customers_API_CLIENT_P').val('8a76adc52d144a9fa1ef4f96b59b7419'); // Client secret : 8a76adc52d144a9fa1ef4f96b59b7419
+                                    //end fauzi 23 Januari 2020
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
                                     $('#descAPIKey').hide();
@@ -1766,6 +1782,12 @@
                                 }
                                 else {
                                     showHideTokpedForm(false);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#Customers_Sort1_Cust').val('');
+                                    $('#Customers_API_CLIENT_U').val('');
+                                    $('#Customers_API_CLIENT_P').val('');
+                                    // end
+
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
                                     $('#descAPIKey').show();
@@ -1773,6 +1795,8 @@
                                 }
                                 if (@jd == value) {
                                     showHideJDForm(true);
+                                    $('#JDAppSecret').show();
+                                    $('#JDAccessToken').show();
                                 } else {
                                     showHideJDForm(false);
                                 }
@@ -1933,8 +1957,8 @@
             $('#txtTOKEN').remove();
             $('#labelAPP_SECRET').remove();
             $('#txtAPP_SECRET').remove();
-            //JDAppSecret
-            //JDAccessToken
+
+
             if (show) {
 
                 var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
@@ -2015,6 +2039,7 @@
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+
                 $('#lbl_Customers_API_KEY').html("API Secret Key *");
                 $('#labelAPI_CLIENT_U').html("API client username *");
             }
@@ -2035,6 +2060,11 @@
             $('#descAPIKey2').show();
             $('#labelKetTokped1').remove();
             $('#labelKetTokped2').remove();
+
+            //add by fauzi 23 Januari 2020
+            $('#Customers_API_CLIENT_U').val('36bc3d7bcc13404c9e670a84f0c61676'); // Client ID : 36bc3d7bcc13404c9e670a84f0c61676
+            //end fauzi 23 Januari 2020
+
             if (show) {
                 var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
 
@@ -2077,6 +2107,7 @@
                 //end add by nurul 25/3/2019
                 //$('#descAPIKey').hide();
                 //$('#descAPIKey2').hide();
+                
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
@@ -2233,6 +2264,12 @@
                     //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
                     getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
 
+                    //add fauzi
+                    //$('#formdivAPIKey').show();
+                    $('#divAPIKey').show();
+                    $('#JDAppSecret').show();
+                    $('#JDAccessToken').show();
+
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
                     $('#form_input').show();
@@ -2346,6 +2383,11 @@
                     $('#txtTOKEN').remove();
                     $('#labelAPP_SECRET').remove();
                     $('#txtAPP_SECRET').remove();
+
+                    //add by fauzi 23 Januari 2020
+                    $('#JDAppSecret').show();
+                    $('#JDAccessToken').show();
+
                     @{
                         var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
                     }
@@ -2378,10 +2420,15 @@
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                         $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        //add by fauzi 23 Januari 2020
+                        $('#divAPIKey').show();
+                        $('#BlibliMerchantID').show();
+                        $('#BlibliClient').show();
+                        $('#BlibliClientPass').show();
+                        //end add
                         $('#labelAPI_CLIENT_U').html("API client username *");
                     }
                     if (@tokped == response.Customers.NAMA) {
-
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
 
                         var valuetxtSort1_Cust = "";
@@ -2426,6 +2473,13 @@
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                         $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        // add by fauzi 23 Januari 2020
+                        $('#JDAppSecret').hide();
+                        $('#JDAccessToken').hide();
+                        $('#BlibliMerchantID').hide();
+                        $('#BlibliClient').show();
+                        $('#BlibliClientPass').hide();
+                        // end by fauzi 23 Januari 2020
                         $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
                         //$('#LabelTokped1').append(labelKetTokped1);
                         //$('#LabelTokped2').append(labelKetTokped2);
