@@ -2685,7 +2685,7 @@ namespace MasterOnline.Controllers
                                 }
                                 //end add by Tri 4 Des 2019, isi cancel reason
 
-                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2'");
+                                var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.order_id + "') AND STATUS <> '2' AND ST_POSTING = 'T'");
 
                                 var orderDetail = (from a in ErasoftDbContext.SOT01A
                                                    join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
