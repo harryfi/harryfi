@@ -229,6 +229,9 @@
             if ($('#cke_' + item.id).length == 0) {
                 CKEDITOR.replace(item.id);
             }
+        });        
+        $(window).on('load', function () {
+            $('#cke_' + item.id).CKEDITOR();
         });
     }
     $(document).ready(function () {
