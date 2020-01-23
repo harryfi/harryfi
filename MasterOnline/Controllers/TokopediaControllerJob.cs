@@ -2727,7 +2727,7 @@ namespace MasterOnline.Controllers
                                                     data.token = iden.token;
                                                     data.idmarket = iden.idmarket;
 
-                                                    StokControllerJob stokAPI = new StokControllerJob();
+                                                    StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
                                                     Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
 #else
@@ -2775,9 +2775,9 @@ namespace MasterOnline.Controllers
                                                     data.API_secret_key = iden.API_secret_key; //Shop ID 
                                                     data.token = iden.token;
                                                     data.idmarket = iden.idmarket;
-                                                    StokControllerJob stokAPI = new StokControllerJob();
+                                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
+                                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -3048,7 +3048,7 @@ namespace MasterOnline.Controllers
                                 data.token = iden.token;
                                 data.idmarket = iden.idmarket;
 
-                                StokControllerJob stokAPI = new StokControllerJob();
+                                StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
                                 Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
 #else
