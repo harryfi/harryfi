@@ -38667,8 +38667,10 @@ namespace MasterOnline.Controllers
                         });
                     }
                 }
-
-                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '04' ORDER BY A.NO_BUKTI");
+                //change by nurul 24/1/2020
+                //var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '04' ORDER BY A.NO_BUKTI");
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT * FROM SOT01A A WHERE A.RECNUM IN (" + stringListRecnum + ") AND A.STATUS_TRANSAKSI = '03' ORDER BY A.NO_BUKTI");
+                //end change by nurul 24/1/2020
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
                     string listNobuk = "";
@@ -38682,7 +38684,10 @@ namespace MasterOnline.Controllers
                         }
                         listNobuk += "'" + Nobuk + "'";
                     }
-                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
+                    //change by nurul 24/1/2020
+                    //var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
+                    var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '03'");
+                    //end change by nurul 24/1/2020
                     successCount += successRow;
                 }
             }
