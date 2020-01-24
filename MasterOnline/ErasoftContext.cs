@@ -15,7 +15,7 @@ namespace MasterOnline
         }
         
         public ErasoftContext(string dbSourceEra, string dbPathEra)
-            : base($"Server={dbSourceEra}, 1433;initial catalog={dbPathEra};" +
+            : base($"Server={dbSourceEra};initial catalog={dbPathEra};" +
                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {

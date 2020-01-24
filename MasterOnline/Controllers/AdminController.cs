@@ -3025,7 +3025,10 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var RemoteMODbContext = new MoDbContext(db_source);
+                //change by fauzi 24 Januari 2020
+                //var RemoteMODbContext = new MoDbContext(db_source);
+                var RemoteMODbContext = new MoDbContext();
+                //end
                 RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
 
                 return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
