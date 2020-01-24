@@ -700,6 +700,8 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             var MoDbContext = new MoDbContext();
             var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
             // remark by fauzi tgl 07 Januari 2020
             //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
             //bool doAPI = false;

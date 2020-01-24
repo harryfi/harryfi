@@ -48,12 +48,12 @@ namespace MasterOnline
         {
         }
 
-        public MoDbContext(string dbSourceEra)
-            : base($"Server={dbSourceEra}, 1433;initial catalog=MO;" +
-                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
-                   $"application name=EntityFramework")
-        {
-        }
+        //public MoDbContext(string dbSourceEra)
+        //    : base($"Server=13.250.232.74, 1433;initial catalog=MO;" +
+        //           $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+        //           $"application name=EntityFramework")
+        //{
+        //}
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
