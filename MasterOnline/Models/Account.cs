@@ -94,5 +94,8 @@ namespace MasterOnline.Models
         //end add by Iman 15/04/2019
 
         public DateTime? LAST_LOGIN_DATE { get; set; }
+
+        public string DataSourcePath { get; set; }
+
     }
 }

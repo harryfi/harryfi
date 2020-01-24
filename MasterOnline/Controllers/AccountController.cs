@@ -230,22 +230,26 @@ namespace MasterOnline.Controllers
             DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;
             string dbPathEra = "";
+            string dbSourceEra = "";
             if (_viewModel?.Account != null)
             {
-                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+                dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                dbSourceEra = _viewModel.Account.DataSourcePath;
+                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
-                dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
                 //end add by calvin 1 april 2019
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                dbPathEra = accFromUser.DatabasePathErasoft;
+                dbSourceEra = accFromUser.DataSourcePath;
+
+                erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                dbPathEra = accFromUser.DatabasePathErasoft;
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
@@ -280,7 +284,7 @@ namespace MasterOnline.Controllers
                 bool cekSyncMarketplace = false;
                 if (cekSyncMarketplace)
                 {
-                    Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), username, 5, null).Wait());
+                    Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5,null).Wait());
                 }
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -479,13 +483,15 @@ namespace MasterOnline.Controllers
             DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;
             string dbPathEra = "";
+            string dbSourceEra = "";
 
             if (_viewModel?.Account != null)
             {
-                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+                dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                dbSourceEra = _viewModel.Account.DataSourcePath;
+                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
-                dbPathEra = _viewModel.Account.DatabasePathErasoft;
                 accFromDb.LAST_LOGIN_DATE = DateTime.UtcNow;
                 MoDbContext.SaveChanges();
                 //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
@@ -494,10 +500,12 @@ namespace MasterOnline.Controllers
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                dbPathEra = accFromUser.DatabasePathErasoft;
+                dbSourceEra = accFromUser.DataSourcePath;
+
+                erasoftContext = new ErasoftContext(dbSourceEra, dbPathEra);
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                dbPathEra = accFromUser.DatabasePathErasoft;
                 accFromUser.LAST_LOGIN_DATE = DateTime.UtcNow;
                 MoDbContext.SaveChanges();
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
@@ -514,7 +522,7 @@ namespace MasterOnline.Controllers
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 if (username.Length > 20)
                     username = username.Substring(0, 17) + "...";
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), username, 5, null).Wait());
+                Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5, null).Wait());
 
                 //end change by calvin 1 april 2019
 
@@ -526,7 +534,7 @@ namespace MasterOnline.Controllers
 
         //change by calvin 1 april 2019
         //protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
-        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string username, int recurr_interval, int? id_single_account)
+        public async Task<string> SyncMarketplace(string dbSourceEra, string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username, int recurr_interval, int? id_single_account)
         //end change by calvin 1 april 2019
         {
             //catatan by calvin : jika developer sedang mau mengecek API, tidak perlu menggunakan backgroundjob untuk memanggil API
@@ -538,7 +546,7 @@ namespace MasterOnline.Controllers
 
             //MoDbContext = new MoDbContext();
             bool lakukanHapusServer = false;
-            ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbPathEra);
+            ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
             MoDbContext = new MoDbContext();
 
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -645,15 +653,15 @@ namespace MasterOnline.Controllers
 
             var connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_1";
             //31 desember jam 23:55 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sekarang
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "55 16 31 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "55 16 31 12 *", recurJobOpt);
             
             connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_2";
             //1 januari jam 00:05 (UTC+7) setiap tahun, jalankan proses akhir tahun untuk tahun sebelumnya
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "5 17 31 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, (DateTime.UtcNow.AddHours(7).Year - 1).ToString())), "5 17 31 12 *", recurJobOpt);
 
             connection_id_proses_akhir_tahun = dbPathEra + "_proses_akhir_tahun_test";
             //23 desember jam 12 siang
-            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "0 5 23 12 *", recurJobOpt);
+            recurJobM.AddOrUpdate(connection_id_proses_akhir_tahun, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesAkhirTahun(dbSourceEra, dbPathEra, DateTime.UtcNow.AddHours(7).Year.ToString())), "0 5 23 12 *", recurJobOpt);
 
             //using (var connection = sqlStorage.GetConnection())
             //{
@@ -1512,7 +1520,7 @@ namespace MasterOnline.Controllers
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))

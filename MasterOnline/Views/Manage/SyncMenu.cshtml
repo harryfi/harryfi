@@ -12,7 +12,7 @@
     {
         //change by nurul 3/10/2018
         //erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
-        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
         username = dataSession.Account.Username;
     }
     else
@@ -21,7 +21,7 @@
         username = accFromUser.Username;
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(accFromUser.UserId);
-        erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
     }
 
     //var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);

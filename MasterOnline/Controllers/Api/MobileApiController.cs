@@ -146,12 +146,12 @@ namespace MasterOnline.Controllers.Api
 
             if (_viewModel?.Account != null)
             {
-                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.UserId);
+                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DataSourcePath,_viewModel.Account.UserId);
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+                ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.UserId);
             }
 
             result = new JsonApi()
@@ -544,7 +544,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new PesananViewModel()
                 {
@@ -654,7 +654,7 @@ namespace MasterOnline.Controllers.Api
                 return Json(result);
             }
 
-            ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+            ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == data.RecNumPesanan);
 
             if (data.StatusTransaksi == "04") // validasi di tab Siap dikirim
@@ -765,7 +765,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new InvoiceViewModel()
                 {
@@ -861,7 +861,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var invBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
                 var vm = new InvoiceViewModel()
@@ -1050,7 +1050,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new InvoiceViewModel()
                 {
@@ -1144,7 +1144,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BayarHutangViewModel()
                 {
@@ -1237,7 +1237,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new FakturViewModel()
                 {
@@ -1354,7 +1354,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var fakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
 
@@ -1475,7 +1475,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new FakturViewModel()
                 {
@@ -1593,7 +1593,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new FakturViewModel()
                 {
@@ -1710,7 +1710,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BayarPiutangViewModel()
                 {
@@ -1806,7 +1806,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("",data.DbPath);
 
                 var vm = new BarangViewModel()
                 {
@@ -1899,7 +1899,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BarangViewModel()
                 {
@@ -2012,7 +2012,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BarangViewModel()
                 {
@@ -2116,7 +2116,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BarangViewModel()
                 {
@@ -2228,7 +2228,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new BarangViewModel()
                 {
@@ -2330,7 +2330,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new PromosiViewModel()
                 {
@@ -2421,7 +2421,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new HargaJualViewModel()
                 {
@@ -2523,7 +2523,7 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(data.DbPath);
+                ErasoftDbContext = data.DbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", data.DbPath);
 
                 var vm = new JurnalViewModel()
                 {
@@ -2648,7 +2648,7 @@ namespace MasterOnline.Controllers.Api
                 }
 
                 var dbPath = MoDbContext.Account.Single(ac => ac.AccountId == data.AccId).DatabasePathErasoft;
-                ErasoftDbContext = dbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext(dbPath);
+                ErasoftDbContext = dbPath == "ERASOFT" ? new ErasoftContext() : new ErasoftContext("", dbPath);
 
                 var selectedDate = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
                     CultureInfo.InvariantCulture) : DateTime.Today.Date);

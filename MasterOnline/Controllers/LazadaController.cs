@@ -52,7 +52,7 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
 
@@ -63,7 +63,7 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
                     DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                 }
             }
@@ -113,12 +113,13 @@ namespace MasterOnline.Controllers
             string url;
             url = "https://auth.lazada.com/rest";
             DatabaseSQL EDB = new DatabaseSQL(user);
+            string EraServerName = EDB.GetServerName("sConn");
             ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest("/auth/token/create");
             request.SetHttpMethod("GET");
             request.AddApiParameter("code", accessToken);
 
-            ErasoftDbContext = new ErasoftContext(user);
+            ErasoftDbContext = new ErasoftContext(EraServerName, user);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
