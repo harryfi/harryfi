@@ -1795,6 +1795,7 @@ namespace MasterOnline.Controllers
                                                 newrecord.PICKUP_POINT = Convert.ToString(dataBrg.menu.id);
                                             }
                                         }
+                                        if(dataBrg.pictures != null)
                                         if (dataBrg.pictures.Length > 0)
                                         {
                                             newrecord.IMAGE = dataBrg.pictures[0].OriginalURL;
