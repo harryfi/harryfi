@@ -1021,10 +1021,14 @@ namespace MasterOnline.Controllers
                             //add by calvin 2 april 2019
                             string connId_JobId = "";
                             //add by fauzi 25 November 2019
+                            //moved by Tri 24 jan 2020, fungsi untuk cek status update barang
+                            connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                            //end moved by Tri 24 jan 2020, fungsi untuk cek status update barang
                             if (tblCustomer.TIDAK_HIT_UANG_R == true)
                             {
-                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                                //connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.CheckPendings(data)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                                 //change by nurul 10/12/2019, ubah interval hangfire pesanan dan tambah get pesanan cancel
                                 //connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
