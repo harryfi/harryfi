@@ -29447,16 +29447,28 @@ namespace MasterOnline.Controllers
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer.NAMA.Equals(kdBlibli))
             {
-                if (hargaJualIndukBaru < 1100)
+                //change 24 jan 2020, change min price to 1000
+                //if (hargaJualIndukBaru < 1100)
+                //{
+                //    ret.message = "Harga Jual minimal 1100.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
+                //if (hargaJualPromosiBaru < 1100)
+                //{
+                //    ret.message = "Harga Jual minimal 1100.";
+                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                //}
+                if (hargaJualIndukBaru < 1000)
                 {
-                    ret.message = "Harga Jual minimal 1100.";
+                    ret.message = "Harga Jual minimal 1000.";
                     return Json(ret, JsonRequestBehavior.AllowGet);
                 }
-                if (hargaJualPromosiBaru < 1100)
+                if (hargaJualPromosiBaru < 1000)
                 {
-                    ret.message = "Harga Jual minimal 1100.";
+                    ret.message = "Harga Jual minimal 1000.";
                     return Json(ret, JsonRequestBehavior.AllowGet);
                 }
+                //end change 24 jan 2020, change min price to 1000
             }
             brg.HJUAL = hargaJualIndukBaru;
             //add by nurul 27/11/2019, add tgl last edit
@@ -34794,11 +34806,18 @@ namespace MasterOnline.Controllers
                     }
                     break;
                 case "16"://Blibli
-                    if (price < 1100)
+                          //change 24 jan 2020, change min price to 1000
+                          //if (price < 1100)
+                          //{
+                          //    ret.status = 0;
+                          //    ret.message = "Harga Jual harus lebih dari 1100.";
+                          //}
+                    if (price < 1000)
                     {
                         ret.status = 0;
-                        ret.message = "Harga Jual harus lebih dari 1100.";
+                        ret.message = "Harga Jual harus lebih dari 1000.";
                     }
+                    //end change 24 jan 2020, change min price to 1000
                     break;
                 case "17"://Shopee
                     if (price < 100)
