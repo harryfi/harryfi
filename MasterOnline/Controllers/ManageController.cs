@@ -8665,7 +8665,7 @@ namespace MasterOnline.Controllers
                     }
 
                     //add by nurul 14/1/2020, handle deskripsi enter2x
-                    var note = barangInDb.Deskripsi.Replace("\r\n", "");
+                    var note = barangInDb.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
                     //add by nurul 14/1/2020, handle deskripsi enter2x
 
                     BrgViewModel dataLazada = new BrgViewModel
@@ -8756,7 +8756,7 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by nurul 14/1/2020, handle deskripsi enter2x
-                var note = dataBarang.Stf02.Deskripsi.Replace("\r\n", "");
+                var note = dataBarang.Stf02.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
                 //add by nurul 14/1/2020, handle deskripsi enter2x
 
                 BrgViewModel dataLazada = new BrgViewModel

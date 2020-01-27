@@ -3484,9 +3484,12 @@ namespace MasterOnline.Controllers
             //end add by calvin 10 mei 2019
 
             //add by nurul 20/1/2020, handle <p> dan enter double di shopee
-            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r","\r\n");
-            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n");
-            HttpBody.description = HttpBody.description.Replace("\r\n", "");
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
             //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             //add by calvin 10 september 2019
@@ -3494,8 +3497,8 @@ namespace MasterOnline.Controllers
             HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
-            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
-            HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+            //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
@@ -3981,6 +3984,23 @@ namespace MasterOnline.Controllers
 #endif
                             }
                         }
+
+                        //add by nurul 27/1/2020, tambah update deskripsi dll
+                        if (!string.IsNullOrEmpty(customer.Sort1_Cust))
+                        {
+                            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == customer.RecNum).FirstOrDefault();
+                            if (stf02h != null)
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    iden.merchant_code = customer.Sort1_Cust;
+                                    //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                    //Task.Run(() => shoAPI.UpdateProduct(idenNew, brg, customer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                    await UpdateProduct(iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
+                                }
+                            }
+                        }
+                        //end add by nuurl 27/1/2020, tambah update deskripsi dll
 
                     }
                     //end add by Tri 10 Des 2019 , update harga 
@@ -4592,7 +4612,10 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //change by nurul 27/1/2020
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                //end change by nurul 27/1/2020
                 REQUEST_ACTION = "Update Product",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -4633,6 +4656,25 @@ namespace MasterOnline.Controllers
                 attributes = new List<ShopeeAttributeClass>(),
                 logistics = logistics
             };
+
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             try
             {
