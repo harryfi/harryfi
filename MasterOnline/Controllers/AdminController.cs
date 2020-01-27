@@ -180,27 +180,26 @@ namespace MasterOnline.Controllers
             accInDb.Status = !accInDb.Status;
 
 
-            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.Status == true && accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
+                //var tujuan = "54.179.169.195\\SQLEXPRESS";
+                var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+                accInDb.DataSourcePath = tujuan;
 
-                var path = Server.MapPath("~/Content/admin/");
+                //var path = Server.MapPath("~/Content/admin/");
+                var path = "C:\\BAK_new_user\\";
+                var pathRestore = "C:\\DB_user";
                 sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
-#if AWS
-            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                "user id=masteronline;password=M@ster123;");
-#elif Debug_AWS
-                            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                                  "user id=masteronline;password=M@ster123;");
-#else
-                SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                      "user id=masteronline;password=M@ster123;");
-#endif
+                      $" WITH MOVE 'erasoft' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
+
+                SqlConnection con = new SqlConnection("Server="+ tujuan +";Initial Catalog=master;persist security info=True;" +
+                                                      "user id=sa;password=admin123^;");
                 SqlCommand command = new SqlCommand(sql, con);
 
                 con.Open();
@@ -208,12 +207,10 @@ namespace MasterOnline.Controllers
                 con.Close();
                 con.Dispose();
 
-
-
                 //add by Tri 20-09-2018, save nama toko ke SIFSYS
                 //change by calvin 3 oktober 2018
                 //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
                 //end change by calvin 3 oktober 2018
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
@@ -222,7 +219,6 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
                 //end add by Tri 20-09-2018, save nama toko ke SIFSYS
-
 
                 //add by Tri, set free trials 14 hari
                 if (accInDb.Status)
@@ -1993,7 +1989,7 @@ namespace MasterOnline.Controllers
             }
             accInDb.Status = !accInDb.Status;
 
-            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.Status == true && accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
@@ -2021,7 +2017,7 @@ namespace MasterOnline.Controllers
                 con.Close();
                 con.Dispose();
 
-                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DataSourcePath, accInDb.DatabasePathErasoft);
                 var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
                 if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
                 {
@@ -2796,6 +2792,7 @@ namespace MasterOnline.Controllers
                     LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
                     Username = item.Username,
                     DatabasePathErasoft = item.DatabasePathErasoft,
+                    DatabaseSourceErasoft = item.DataSourcePath,
                     NamaTokoOnline = item.NamaTokoOnline,
                     TGL_SUBSCRIPTION = item.TGL_SUBSCRIPTION,
                     HangfireServerCount = serverList.Count(),
@@ -2903,13 +2900,13 @@ namespace MasterOnline.Controllers
                                select a).ToList();
             foreach (var item in accountInDb)
             {
-                AdminStartHangfireServer(item.DatabasePathErasoft);
+                AdminStartHangfireServer(item.DataSourcePath, item.DatabasePathErasoft);
             }
             return Json("", JsonRequestBehavior.AllowGet);
         }
 
         [SessionAdminCheck]
-        public ActionResult AdminStartHangfireServer(string nourut = "", string timer = "")
+        public ActionResult AdminStartHangfireServer(string dbsource, string nourut = "", string timer = "")
         {
             int interval = 30;
             try
@@ -2977,7 +2974,7 @@ namespace MasterOnline.Controllers
                     }
                     //run semua recurring job seperti user login
                     var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
-                    Task.Run(() => new AccountController().SyncMarketplace(nourut, EDBConnID, "auto_start", interval, null)).Wait();
+                    Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, sifsys_jtranretur, "auto_start", interval, null)).Wait();
                 }
                 using (var connection = sqlStorage.GetConnection())
                 {
@@ -2999,18 +2996,48 @@ namespace MasterOnline.Controllers
             return Json("", JsonRequestBehavior.AllowGet);
         }
         
-        [Queue("3_general")]
-        public ActionResult ProsesAkhirTahun(string db_name,string tahun)
+        public ActionResult ProsesAkhirTahunPrepare(string tahun)
         {
             try
             {
-                MoDbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                var datenow = DateTime.UtcNow.AddHours(7);
+
+                var MoDbContext = new MoDbContext();
+
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                                   &&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select new { db_name = a.DatabasePathErasoft, db_source = a.DataSourcePath, onlineshopname = a.NamaTokoOnline }).ToList();
+
+                return new JsonResult { Data = new { arraydbname = accountInDb }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        [Queue("3_general")]
+        public ActionResult ProsesAkhirTahun(string db_source, string db_name,string tahun)
+        {
+            try
+            {
+                //change by fauzi 24 Januari 2020
+                //var RemoteMODbContext = new MoDbContext(db_source);
+                var RemoteMODbContext = new MoDbContext();
+                //end
+                RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
 
                 return new JsonResult { Data = new { mo_message = "Sukses memproses akhir tahun." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_message = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
         

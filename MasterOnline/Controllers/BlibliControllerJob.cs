@@ -75,8 +75,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(data.DatabasePathErasoft);
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             username = data.username;
             DatabasePathErasoft = data.DatabasePathErasoft;
 
