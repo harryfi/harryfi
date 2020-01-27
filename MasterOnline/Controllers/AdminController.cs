@@ -180,11 +180,13 @@ namespace MasterOnline.Controllers
             accInDb.Status = !accInDb.Status;
 
 
-            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.Status == true && accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
-                var tujuan = "54.179.169.195\\SQLEXPRESS";
+                //var tujuan = "54.179.169.195\\SQLEXPRESS";
+                var tujuan = "13.250.232.74\\SQLEXPRESS, 1433";
+                //var tujuan = "13.251.222.53\\SQLEXPRESS, 1433";
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
                 accInDb.DataSourcePath = tujuan;
@@ -196,7 +198,7 @@ namespace MasterOnline.Controllers
                       $" WITH MOVE 'erasoft' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.mdf'," +
                       $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
 
-                SqlConnection con = new SqlConnection("Server="+ tujuan +",1433;Initial Catalog=master;persist security info=True;" +
+                SqlConnection con = new SqlConnection("Server="+ tujuan +";Initial Catalog=master;persist security info=True;" +
                                                       "user id=sa;password=admin123^;");
                 SqlCommand command = new SqlCommand(sql, con);
 
@@ -1987,7 +1989,7 @@ namespace MasterOnline.Controllers
             }
             accInDb.Status = !accInDb.Status;
 
-            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+            if (accInDb.Status == true && accInDb.DatabasePathErasoft == null || accInDb.Status == true && accInDb.DatabasePathErasoft == "")
             {
                 string sql = "";
                 var userId = Convert.ToString(accInDb.AccountId);
