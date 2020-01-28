@@ -1766,7 +1766,11 @@ namespace MasterOnline.Controllers
                         insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                         var kabKot = "3174";
                         var prov = "31";
-                        insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        var nama = order.recipient.name.Replace("'", "`");
+                        if (nama.Length > 30)
+                            nama = nama.Substring(0, 30);
+                        //insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "('" + nama + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full.Replace("'", "`") + "', 0, 0, 0, 0, '1', 0, 0, ";
                         insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code.Replace("'", "`") + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
@@ -1802,7 +1806,8 @@ namespace MasterOnline.Controllers
                                     buyer_phone = order.buyer.phone,
                                     shop_id = order.shop_id,
                                     payment_id = order.payment_id,
-                                    recipient_name = order.recipient.name,
+                                    //recipient_name = order.recipient.name,
+                                    recipient_name = nama,
                                     recipient_address_address_full = order.recipient.address.address_full,
                                     recipient_address_district = order.recipient.address.district,
                                     recipient_address_district_id = order.recipient.address.district_id,
