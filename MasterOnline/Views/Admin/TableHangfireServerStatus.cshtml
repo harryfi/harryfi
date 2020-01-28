@@ -83,39 +83,41 @@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Pesanan</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Product</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Heartbeat</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">IP Server DB</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 45px;">Action</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var aktivitas in Model)
         {
-            <tr>
-                <td style="text-align:center">@aktivitas.Username</td>
-                <td style="text-align:center">@aktivitas.NamaTokoOnline</td>
-                <td style="text-align:center">@aktivitas.Email</td>
-                <td style="text-align:center">@aktivitas.LAST_LOGIN_DATE</td>
-                <td style="text-align:center">@aktivitas.TGL_SUBSCRIPTION</td>
-                <td style="text-align:center">@aktivitas.StokJobEnqueued</td>
-                <td style="text-align:center">@aktivitas.PesananJobEnqueued</td>
-                <td style="text-align:center">@aktivitas.CreateProductJobEnqueued</td>
-                <td style="text-align:center">@aktivitas.LAST_HEARTBEAT</td>
-                <td style="text-align:center">
-                    @if (aktivitas.HangfireServerCount > 0)
-                    {
-                        <button class="btn btn-danger" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Stop Recurring Jobs"
-                                onclick="StopHangfireServer(this)">
-                            <span>Shutdown</span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
-                                onclick="StartHangfireServer(this)">
-                            <span>Activate</span>
-                        </button>
-                    }
-                </td>
-            </tr>
+        <tr>
+            <td style="text-align:center">@aktivitas.Username</td>
+            <td style="text-align:center">@aktivitas.NamaTokoOnline</td>
+            <td style="text-align:center">@aktivitas.Email</td>
+            <td style="text-align:center">@aktivitas.LAST_LOGIN_DATE</td>
+            <td style="text-align:center">@aktivitas.TGL_SUBSCRIPTION</td>
+            <td style="text-align:center">@aktivitas.StokJobEnqueued</td>
+            <td style="text-align:center">@aktivitas.PesananJobEnqueued</td>
+            <td style="text-align:center">@aktivitas.CreateProductJobEnqueued</td>
+            <td style="text-align:center">@aktivitas.LAST_HEARTBEAT</td>
+            <td style="text-align:center">@aktivitas.DatabaseSourceErasoft</td>
+            <td style="text-align:center">
+                @if (aktivitas.HangfireServerCount > 0)
+                {
+                    <button class="btn btn-danger" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Stop Recurring Jobs"
+                            onclick="StopHangfireServer(this)">
+                        <span>Shutdown</span>
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-primary" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                            onclick="StartHangfireServer(this)">
+                        <span>Activate</span>
+                    </button>
+                }
+            </td>
+        </tr>
         }
     </tbody>
 </table>
