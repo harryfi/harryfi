@@ -1062,11 +1062,15 @@ namespace MasterOnline.Controllers
 
                                     var kabKot = "3174";
                                     var prov = "31";
+                                    var nama = result.value.custName.Replace("'", "`");
+                                    if (nama.Length > 30)
+                                        nama = nama.Substring(0, 30);
 
                                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                    insertPembeli += "('" + result.value.custName + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    //insertPembeli += "('" + result.value.custName + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    insertPembeli += "('" + nama + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                                     insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
                                     insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode + "', '" + result.value.customerEmail + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
