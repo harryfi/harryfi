@@ -76,8 +76,9 @@ namespace MasterOnline.Controllers
         {
             //string ret = "";
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
             username = uname;
             //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == idmarket).SingleOrDefault();
             //if (arf01inDB != null)
@@ -136,8 +137,8 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest("/auth/token/create");
             request.SetHttpMethod("GET");
             request.AddApiParameter("code", accessToken);
-
-            ErasoftDbContext = new ErasoftContext(user);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, user);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1796,8 +1797,9 @@ namespace MasterOnline.Controllers
             ret.recordCount = 0;
 
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
 
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
@@ -2284,8 +2286,9 @@ namespace MasterOnline.Controllers
         private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra, string username)
         {
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
             var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
 
@@ -2344,8 +2347,9 @@ namespace MasterOnline.Controllers
             ret.recordCount = 0;
 
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
 
             var jmlhNewOrder = 0;//add by calvin 1 april 2019
@@ -2639,8 +2643,9 @@ namespace MasterOnline.Controllers
             var toDt = DateTime.Now.AddDays(1);
 
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             //var username = uname;
 
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
@@ -2671,8 +2676,9 @@ namespace MasterOnline.Controllers
             var toDt = DateTime.Now.AddDays(1);
             //SetupContext(dbPathEra, uname);
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -2839,8 +2845,9 @@ namespace MasterOnline.Controllers
         public void UpdateOrderUnpaidToCancel(string cust, string accessToken, string dbPathEra, string uname)
         {
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
             //var dmin2 = DateTime.Today.AddDays(-2);
             var dmin2 = DateTime.Now.AddDays(-1);
@@ -2927,8 +2934,9 @@ namespace MasterOnline.Controllers
             ret.status = 0;
 
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
 
             List<string> listID = new List<string>();
@@ -3725,8 +3733,9 @@ namespace MasterOnline.Controllers
             ret.recordCount = 0;
 
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
             var EDB = new DatabaseSQL(dbPathEra);
+            string EraServerName = EDB.GetServerName("sConn");
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             var username = uname;
 
             string connectionID = Guid.NewGuid().ToString();

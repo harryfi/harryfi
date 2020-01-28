@@ -188,14 +188,12 @@
         }
     }
     
-    function ProsesAkhirTahunAccount() {
-        let dbname = $('#txtDbName').val();
+    function ProsesAkhirTahunPrepare() {
         let tahun = $('#txtTahun').val();
-        if(dbname && tahun){
-            var $link = '@Url.Action("ProsesAkhirTahun", "Admin")';
+        if(tahun){
+            var $link = '@Url.Action("ProsesAkhirTahunPrepare", "Admin")';
 
             $postdata = {
-                db_name : dbname,
                 tahun : tahun
             };
             
@@ -209,18 +207,77 @@
                     // $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    alert(response.mo_message)
+                    $('#txtTahun').attr('disabled', true);
+                    $('#btnSyncAll').attr('disabled', true);
+                    $('#btnCloseProsesAkhirTahun').attr('disabled', true);
+                    
+                    $('#proses_akhir_tahun_log').val('');
+                    $('#proses_akhir_tahun_label').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccount(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
                 },
                 complete: function () {
-                    $('#btnProsesPickupShopee__' + cust).attr("disabled", false);
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
             });
         }else{
-            alert('Silahkan pilih akun dan tahun proses terlebih dahulu.');
+            alert('Silahkan isi tahun proses terlebih dahulu.');
         }
+    }
+
+    function ProsesAkhirTahunAccount(listdb, db_source, db_name, shopname) {
+        let local_listdb = listdb;
+        let tahun = $('#txtTahun').val();
+
+        var $link = '@Url.Action("ProsesAkhirTahun", "Admin")';
+
+        $postdata = {
+            db_source: db_source,
+            db_name: db_name,
+            shopname: shopname,
+            tahun: tahun
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                // $('#loading_spinner').show();
+            },
+            success: function (response) {
+
+                if (!response.mo_error) {
+                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] berhasil diproses.');
+                }
+                else {
+                    $('#proses_akhir_tahun_log').val($('#proses_akhir_tahun_log').val() + '\n' + '[' + shopname + '] gagal memproses akhir tahun. Internal Server Error.');
+                }
+
+                if (local_listdb.length === 1) {
+                    $('#proses_akhir_tahun_label').html('All account processed.');
+                    $('#txtTahun').attr('disabled', false);
+                    $('#btnSyncAll').attr('disabled', false);
+                    $('#btnCloseProsesAkhirTahun').attr('disabled', false);
+
+                } else if (local_listdb.length > 0) {
+                    local_listdb = local_listdb.splice(1, local_listdb.length - 1);
+
+                    $('#proses_akhir_tahun_label').html(local_listdb.length + ' accounts left, processing [' + local_listdb[0].onlineshopname + '] ');
+                    ProsesAkhirTahunAccount(local_listdb, local_listdb[0].db_source, local_listdb[0].db_name, local_listdb[0].onlineshopname);
+                }
+            },
+            complete: function () {
+
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
     }
     function PromptAccountUser() {
         var $link = '@Url.Action("PromptAccount", "Admin")';
@@ -229,6 +286,13 @@
     function afterPromptAccount(val,val2) {
         $('#txtCustomer').val(val);
         $('#txtDbName').val(val2);
+    }
+    function popupProsesAkhirTahun() {
+        $('#konfTarikData').modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
     }
 </script>
 <div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
@@ -242,7 +306,7 @@
                 <div class="row text-center">
                     <h4 id="txtDeskripsi">Pilih akun dan tahun proses.</h4>
                 </div>
-                <div class="row text-center">
+                <div class="row text-center" style="display:none;">
                     <div class="col-md-2 col-sm-2 col-xs-12">Akun</div>
                     <div class="col-md-8 col-sm-4 col-xs-12">
                         <div class="input-group text">
@@ -278,10 +342,20 @@
                         </div>
                     </div>
                 </div>
+                <div class="row text-center">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="input-group text">
+                            <label id="proses_akhir_tahun_label">Proses akhir tahun siap dimulai</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <textarea id="proses_akhir_tahun_log" style="width:100%" rows="12"></textarea>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                <button type="button" id="btnSyncAll" class="btn btn-success" onclick="ProsesAkhirTahunAccount();">Proses</button>
+                <button type="button" id="btnCloseProsesAkhirTahun" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" id="btnSyncAll" class="btn btn-success" onclick="ProsesAkhirTahunPrepare();">Proses</button>
             </div>
         </div>
     </div>
@@ -311,7 +385,7 @@
             </div>
             <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12" style="text-align: right">
                 <button class="btn btn-primary" type="button" style="height:34px; border:1px;padding:2px 8px 2px 8px;margin:0px" title="Proses Akhir Tahun"
-                        onclick="$('#konfTarikData').modal('show');">
+                        onclick="popupProsesAkhirTahun()">
                     <span>Akhir Tahun</span>
                 </button>
             </div>
