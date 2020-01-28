@@ -989,7 +989,9 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters.Add(new SqlParameter("@logisticsOptionName", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@destinationLongitude", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@destinationLatitude", SqlDbType.NVarChar, 200));
-
+                            var nama = result.value.custName.Replace("'", "`");
+                            if (nama.Length > 30)
+                                nama = nama.Substring(0, 30);
                             try
                             {
                                 oCommand.Parameters[0].Value = CUST;
@@ -1008,7 +1010,8 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@total"].Value = result.value.total;
                                 oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg;
 
-                                oCommand.Parameters["@custName"].Value = result.value.custName;
+                                //oCommand.Parameters["@custName"].Value = result.value.custName;
+                                oCommand.Parameters["@custName"].Value = nama;
                                 oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
                                 oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString != null ? result.value.orderStatusString : "";
                                 oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress : "";
@@ -1062,9 +1065,9 @@ namespace MasterOnline.Controllers
 
                                     var kabKot = "3174";
                                     var prov = "31";
-                                    var nama = result.value.custName.Replace("'", "`");
-                                    if (nama.Length > 30)
-                                        nama = nama.Substring(0, 30);
+                                    //var nama = result.value.custName.Replace("'", "`");
+                                    //if (nama.Length > 30)
+                                    //    nama = nama.Substring(0, 30);
 
                                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
