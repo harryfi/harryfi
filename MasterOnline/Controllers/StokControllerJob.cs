@@ -399,10 +399,10 @@ namespace MasterOnline.Controllers
         protected string SetupContextBlibli(string DatabasePathErasoft, string uname, BlibliAPIData data)
         {
             string ret = "";
+            dbPathEra = DatabasePathErasoft;
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-            dbPathEra = DatabasePathErasoft;
             username = uname;
 
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
@@ -504,10 +504,10 @@ namespace MasterOnline.Controllers
         {
 
             string ret = "";
+            dbPathEra = DatabasePathErasoft;
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-            dbPathEra = DatabasePathErasoft;
             username = uname;
 
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
