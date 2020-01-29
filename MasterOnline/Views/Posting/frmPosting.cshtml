@@ -263,6 +263,7 @@
             //});
 
             $('#process-posting').click(function () {
+                $('#infoPosting').val('');
                 $('.labelPosting').html('Status : Proses sedang dimulai..');
                 $('#bannerPembelian').attr('class', 'list-group-item list-group-item-light');
                 $('#bannerPersediaan').attr('class', 'list-group-item list-group-item-light');
@@ -362,9 +363,6 @@
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
-                    beforeSend: function () {
-                        $('#infoPosting').val('');
-                    },
                     success: function (data) {
                         $("<iframe id='LoadPostingMO' width='802px' height='90px' frameBorder='0'>")// create a new iframe element
                             .hide()//invisible
