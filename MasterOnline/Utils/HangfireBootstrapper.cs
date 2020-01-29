@@ -49,27 +49,30 @@ namespace MasterOnline.Utils
                                    select a).ToList();
                 foreach (var item in accountInDb)
                 {
-                    var EDB = new DatabaseSQL(item.DatabasePathErasoft);
-
-                    string EDBConnID = EDB.GetConnectionString("ConnID");
-                    var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                    var monitoringApi = sqlStorage.GetMonitoringApi();
-                    var serverList = monitoringApi.Servers();
-
-                    if (serverList.Count() == 0)
+                    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
                     {
-                        startHangfireServer(sqlStorage);
-                    }
-                    else
-                    {
-                        foreach (var server in serverList)
+                        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+
+                        string EDBConnID = EDB.GetConnectionString("ConnID");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var monitoringApi = sqlStorage.GetMonitoringApi();
+                        var serverList = monitoringApi.Servers();
+
+                        if (serverList.Count() == 0)
                         {
-                            var serverConnection = sqlStorage.GetConnection();
-                            serverConnection.RemoveServer(server.Name);
-                            serverConnection.Dispose();
+                            startHangfireServer(sqlStorage);
                         }
-                        startHangfireServer(sqlStorage);
+                        else
+                        {
+                            foreach (var server in serverList)
+                            {
+                                var serverConnection = sqlStorage.GetConnection();
+                                serverConnection.RemoveServer(server.Name);
+                                serverConnection.Dispose();
+                            }
+                            startHangfireServer(sqlStorage);
+                        }
                     }
                 }
 #else
@@ -88,27 +91,30 @@ namespace MasterOnline.Utils
                                    select a).ToList();
                 foreach (var item in accountInDb)
                 {
-                    var EDB = new DatabaseSQL(item.DatabasePathErasoft);
-
-                    string EDBConnID = EDB.GetConnectionString("ConnID");
-                    var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                    var monitoringApi = sqlStorage.GetMonitoringApi();
-                    var serverList = monitoringApi.Servers();
-
-                    if (serverList.Count() == 0)
+                    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
                     {
-                        startHangfireServer(sqlStorage);
-                    }
-                    else
-                    {
-                        foreach (var server in serverList)
+                        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+
+                        string EDBConnID = EDB.GetConnectionString("ConnID");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var monitoringApi = sqlStorage.GetMonitoringApi();
+                        var serverList = monitoringApi.Servers();
+
+                        if (serverList.Count() == 0)
                         {
-                            var serverConnection = sqlStorage.GetConnection();
-                            serverConnection.RemoveServer(server.Name);
-                            serverConnection.Dispose();
+                            startHangfireServer(sqlStorage);
                         }
-                        startHangfireServer(sqlStorage);
+                        else
+                        {
+                            foreach (var server in serverList)
+                            {
+                                var serverConnection = sqlStorage.GetConnection();
+                                serverConnection.RemoveServer(server.Name);
+                                serverConnection.Dispose();
+                            }
+                            startHangfireServer(sqlStorage);
+                        }
                     }
                 } 
 #endif
