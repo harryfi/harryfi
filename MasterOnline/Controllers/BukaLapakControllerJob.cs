@@ -801,10 +801,19 @@ namespace MasterOnline.Controllers
                                 //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                                 //jmlhNewOrder++;
 
+                                var nama = order.buyer.name.Replace('\'', '`');
+                                if (nama.Length > 30)
+                                    nama = nama.Substring(0, 30);
+                                var nama2 = order.consignee.name.Replace('\'', '`');
+                                if (nama2.Length > 30)
+                                    nama2 = nama2.Substring(0, 30);
+
                                 insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier.Replace('\'', '`') + "','" + order.buyer_notes.Replace('\'', '`') + "'," + order.shipping_fee + ",";
                                 insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service.Replace('\'', '`') + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + /*Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + /*Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                                insertQ += order.buyer.email.Replace('\'', '`') + "','" + order.buyer.id + "','" + order.buyer.name.Replace('\'', '`') + "','" + order.buyer.username.Replace('\'', '`') + "','" + order.buyer_logistic_choice.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.area.Replace('\'', '`') + "','" + order.consignee.city.Replace('\'', '`') + "','";
-                                insertQ += order.consignee.name.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.consignee.post_code.Replace('\'', '`') + "','" + order.consignee.province.Replace('\'', '`') + "','" + Cust + "','" + username + "','" + connectionID + "')";
+                                //insertQ += order.buyer.email.Replace('\'', '`') + "','" + order.buyer.id + "','" + order.buyer.name.Replace('\'', '`') + "','" + order.buyer.username.Replace('\'', '`') + "','" + order.buyer_logistic_choice.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.area.Replace('\'', '`') + "','" + order.consignee.city.Replace('\'', '`') + "','";
+                                insertQ += order.buyer.email.Replace('\'', '`') + "','" + order.buyer.id + "','" + nama + "','" + order.buyer.username.Replace('\'', '`') + "','" + order.buyer_logistic_choice.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.area.Replace('\'', '`') + "','" + order.consignee.city.Replace('\'', '`') + "','";
+                                //insertQ += order.consignee.name.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.consignee.post_code.Replace('\'', '`') + "','" + order.consignee.province.Replace('\'', '`') + "','" + Cust + "','" + username + "','" + connectionID + "')";
+                                insertQ += nama2 + "','" + order.consignee.phone + "','" + order.consignee.post_code.Replace('\'', '`') + "','" + order.consignee.province.Replace('\'', '`') + "','" + Cust + "','" + username + "','" + connectionID + "')";
 
                                 if (order.products != null)
                                 {
@@ -836,7 +845,8 @@ namespace MasterOnline.Controllers
                                 if (tblKabKot.Tables[0].Rows.Count > 0)
                                     kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                                insertPembeli += "('" + order.buyer.name.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                //insertPembeli += "('" + order.buyer.name.Replace('\'', '`') + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                insertPembeli += "('" + nama + "','" + order.consignee.address.Replace('\'', '`') + "','" + order.consignee.phone + "','" + order.buyer.email.Replace('\'', '`') + "',0,0,'0','01',";
                                 insertPembeli += "1, 'IDR', '01', '" + order.consignee.address.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
                                 insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.consignee.post_code.Replace('\'', '`') + "', '" + order.buyer.email.Replace('\'', '`') + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city.Replace('\'', '`') + "', '" + order.consignee.province.Replace('\'', '`') + "', '" + connIDARF01C + "')";
 
