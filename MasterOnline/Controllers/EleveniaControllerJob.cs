@@ -1360,9 +1360,17 @@ namespace MasterOnline.Controllers
                                 {
                                     potonganDiskon = Convert.ToDouble(dataOrder.sellerDscPrc);
                                 }
+                                var nama = dataOrder.ordNm.Replace("'", "`");
+                                if (nama.Length > 30)
+                                    nama = nama.Substring(0, 30);
+                                var nama2 = dataOrder.rcvrNm.Replace("'", "`");
+                                if (nama2.Length > 30)
+                                    nama2 = nama2.Substring(0, 30);
+
                                 sSQL += "('" + dataOrder.dlvNo + "','" + dataOrder.dlvMthdCd + "','" + dataOrder.dlvEtprsCd + "','" + dataOrder.dlvEtprsNm + "','" + dataOrder.ordNo + "',";
                                 //sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + dataOrder.orderAmt + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
-                                sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
+                                //sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
+                                sSQL += "'" + nama2 + "','" + dataOrder.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
                                 sSQL += "'" + dataOrder.rcvrTlphn + "','" + Convert.ToDecimal(dataOrder.lstDlvCst) + "','" + dataOrder.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + dataOrder.prdNm + "','" + dataOrder.ordDlvReqCont + "')";//17 desember 2018
                                 //PESANAN_DI_ELEVENIA += "'" + dataOrder.dlvNo + "',";
                                 PESANAN_DI_ELEVENIA += "'" + dataOrder.ordNo + "',";
@@ -1376,7 +1384,8 @@ namespace MasterOnline.Controllers
                                 //if (tblKabKot.Tables[0].Rows.Count > 0)
                                 //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                                insertPembeli += "('" + dataOrder.ordNm + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                //insertPembeli += "('" + dataOrder.ordNm + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "('" + nama + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                                 insertPembeli += "1, 'IDR', '01', '" + dataOrder.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
                                 insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + dataOrder.rcvrPostalCode + "', '" + dataOrder.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
 
@@ -1429,9 +1438,17 @@ namespace MasterOnline.Controllers
                                 {
                                     potonganDiskon = Convert.ToDouble(res2.Orders.order.sellerDscPrc);
                                 }
+                                var nama = res2.Orders.order.ordNm.Replace("'", "`");
+                                if (nama.Length > 30)
+                                    nama = nama.Substring(0, 30);
+                                var nama2 = res2.Orders.order.rcvrNm.Replace("'", "`");
+                                if (nama2.Length > 30)
+                                    nama2 = nama2.Substring(0, 30);
+
                                 sSQL += "('" + res2.Orders.order.dlvNo + "','" + res2.Orders.order.dlvMthdCd + "','" + res2.Orders.order.dlvEtprsCd + "','" + res2.Orders.order.dlvEtprsNm + "','" + res2.Orders.order.ordNo + "',";
                                 //sSQL += "'" + res2.Orders.order.ordNm + "','" + res2.Orders.order.ordDt + "'," + res2.Orders.order.orderAmt + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
-                                sSQL += "'" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
+                                //sSQL += "'" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
+                                sSQL += "'" + nama2 + "','" + res2.Orders.order.ordDt + "'," + (hargaNormal - potonganDiskon) + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
                                 sSQL += "'" + res2.Orders.order.rcvrTlphn + "'," + Convert.ToDecimal(res2.Orders.order.lstDlvCst) + ",'" + res2.Orders.order.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + res2.Orders.order.prdNm + "','" + res2.Orders.order.ordDlvReqCont + "')";//17 desember 2018
 
                                 //PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.dlvNo + "'";
@@ -1440,7 +1457,8 @@ namespace MasterOnline.Controllers
                                 var kabKot = "3174";
                                 var prov = "31";
 
-                                insertPembeli += "('" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                //insertPembeli += "('" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "('" + nama + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                                 insertPembeli += "1, 'IDR', '01', '" + res2.Orders.order.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
                                 insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + res2.Orders.order.rcvrPostalCode + "', '" + res2.Orders.order.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
                                 jmlhNewOrder++;
