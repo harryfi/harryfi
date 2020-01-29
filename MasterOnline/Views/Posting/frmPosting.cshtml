@@ -362,6 +362,9 @@
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
+                    beforeSend: function () {
+                        $('#infoPosting').val('');
+                    },
                     success: function (data) {
                         $("<iframe id='LoadPostingMO' width='802px' height='90px' frameBorder='0'>")// create a new iframe element
                             .hide()//invisible
