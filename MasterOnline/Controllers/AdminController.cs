@@ -1996,17 +1996,26 @@ namespace MasterOnline.Controllers
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
 
-                var path = Server.MapPath("~/Content/admin/");
+                //remark by fauzi 29 Januari 2020
+                //var path = Server.MapPath("~/Content/admin/");
+                var path = "C:\\BAK_new_user\\";
+                var pathRestore = "C:\\DB_user";
                 sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+                      $" WITH MOVE 'erasoft' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{pathRestore}\\{accInDb.DatabasePathErasoft}.ldf';";
 #if AWS
-            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                //add by fauzi 29 Januari 2020
+                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
 #elif Debug_AWS
-            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                  "user id=masteronline;password=M@ster123;");
+                //add by fauzi 29 Januari 2020
+                accInDb.DataSourcePath = "13.250.232.74\\SQLEXPRESS, 1433";
+                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
 #else
+                //add by fauzi 29 Januari 2020
+                accInDb.DataSourcePath = "13.251.222.53\\SQLEXPRESS, 1433";
                 SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                       "user id=masteronline;password=M@ster123;");
 #endif
