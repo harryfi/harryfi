@@ -1794,9 +1794,13 @@ namespace MasterOnline.Controllers
                                         myData += "\"gdnSku\": \"" + skuUpdate + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
-                                        myData += "\"price\": " + data.Price + ", ";
-                                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                                                                                              //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
+                                        //change by Tri 30 Jan 2020, harga dan harga promo ikut harga di blibli saja karena function ini untuk update stok
+                                        //myData += "\"price\": " + data.Price + ", ";
+                                        //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                                        //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
+                                        myData += "\"price\": " + result.value.items[0].prices[0].price + ", ";
+                                        myData += "\"salePrice\": " + result.value.items[0].prices[0].salePrice + ", ";
+                                        //end change by Tri 30 Jan 2020, harga dan harga promo ikut harga di blibli saja karena function ini untuk update stok
                                         myData += "\"buyable\": " + data.display + ", ";
                                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";
