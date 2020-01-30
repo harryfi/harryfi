@@ -9175,7 +9175,7 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                                 Task.Run(() => shoAPI2.UpdateProduct(data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
 #else
-                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
 #endif
                                                 //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 //end remark by calvin 26 februari 2019

@@ -4003,7 +4003,7 @@ namespace MasterOnline.Controllers
 #if (Debug_AWS || DEBUG)
                                     await UpdateProduct(iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
 #else
-                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(iden, brg, customer.CUST, new List<ShopeeLogisticsClass>()));
+                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, brg, customer.CUST, "Barang", "Update Produk", iden, brg, customer.CUST, new List<ShopeeLogisticsClass>()));
 #endif
                                 }
                             }
@@ -4600,7 +4600,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 2)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Product {obj} ke Shopee Gagal.")]
-        public async Task<string> UpdateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        public async Task<string> UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
         {
             string ret = "";
             //add by nurul 28/1/2020
