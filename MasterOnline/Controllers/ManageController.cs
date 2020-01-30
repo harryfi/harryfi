@@ -9173,7 +9173,7 @@ namespace MasterOnline.Controllers
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
 #if (Debug_AWS || DEBUG)
-                                                Task.Run(() => shoAPI2.UpdateProduct(data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+                                                Task.Run(() => shoAPI2.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
 #else
                                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
 #endif

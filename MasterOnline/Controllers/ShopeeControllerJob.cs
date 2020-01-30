@@ -4001,7 +4001,7 @@ namespace MasterOnline.Controllers
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
                                     var client = new BackgroundJobClient(sqlStorage);
 #if (Debug_AWS || DEBUG)
-                                    await UpdateProduct(iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
+                                    await UpdateProduct(dbPathEra, brg, customer.CUST, "Barang", "Update Produk", iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
 #else
                                     client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, brg, customer.CUST, "Barang", "Update Produk", iden, brg, customer.CUST, new List<ShopeeLogisticsClass>()));
 #endif
