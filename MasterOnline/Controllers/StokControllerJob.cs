@@ -1842,6 +1842,20 @@ namespace MasterOnline.Controllers
                             if (responseFromServer != null)
                             {
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                                //add by Tri 31 jan 2019
+                                MasterOnline.API_LOG_MARKETPLACE saveQueID = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok",
+                                    REQUEST_DATETIME = DateTime.Now,
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(data.Qty), //updating to stock
+                                    REQUEST_ATTRIBUTE_3 = Convert.ToString(result2.requestId), //requestid
+                                    REQUEST_STATUS = "Pending",
+                                };
+                                var ErasoftDbContext2 = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext2, log_CUST, saveQueID, "Blibli");
+                                //end add by Tri 31 jan 2019
                                 //add by calvin 28 oktober 2019
                                 if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
                                 {
