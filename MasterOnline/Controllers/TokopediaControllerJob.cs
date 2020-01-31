@@ -396,20 +396,20 @@ namespace MasterOnline.Controllers
                     must_insurance = false,
                     returnable = false,
                     //sku = brg_stf02.BRG,
-                    stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
+                    //stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
                     product_wholesale_price = null,
                     product_preorder = null,
                     product_video = null,
                     images = new List<CreateProduct_Images>()
                 };
 
-                //add by calvin 1 mei 2019
-                var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
-                if (qty_stock > 0)
-                {
-                    newDataProduct.stock = Convert.ToInt32(qty_stock);
-                }
-                //end add by calvin 1 mei 2019
+                ////add by calvin 1 mei 2019
+                //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+                //if (qty_stock > 0)
+                //{
+                //    newDataProduct.stock = Convert.ToInt32(qty_stock);
+                //}
+                ////end add by calvin 1 mei 2019
 
                 int etalase_id = Convert.ToInt32(brg_stf02h.PICKUP_POINT);
 
@@ -3050,13 +3050,13 @@ namespace MasterOnline.Controllers
 
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
+                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, Convert.ToString(item.sku), log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, Convert.ToString(item.sku), log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
 #endif
                             }
                         }
@@ -4446,7 +4446,7 @@ namespace MasterOnline.Controllers
             public bool must_insurance { get; set; }
             public bool returnable { get; set; }
             public string sku { get; set; }
-            public int stock { get; set; }
+            //public int stock { get; set; }
             public CreateProduct_Etalase etalase { get; set; }
             public CreateProduct_Product_Wholesale_Price[] product_wholesale_price { get; set; }
             public CreateProduct_Product_Preorder product_preorder { get; set; }
