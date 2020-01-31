@@ -27618,8 +27618,11 @@ namespace MasterOnline.Controllers
                                 JENIS = "1",
                                 TUKAR = 1,
                                 TUKAR_PPN = 1,
-                                SOPIR = "-",
+                                SOPIR = "-",                                
                                 //KET = "Catatan Dari Pembeli : " + faktur.Notes,
+                                //add by nurul 31/1/2020, ket dibuat blank biar ga error saat posting
+                                KET = "",
+                                //end add by nurul 31/1/2020, ket dibuat blank biar ga error saat posting
                                 PPNBM = 0,
                                 NILAI_PPNBM = 0,
                                 KODE_SALES = "-",
