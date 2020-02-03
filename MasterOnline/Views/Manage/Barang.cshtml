@@ -3954,33 +3954,66 @@
         function cekValidasi() {
             var ret = true;
             var validCategory = true;
-            if ($("#Stf02_Deskripsi").val().length < 30) {
-                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
-                ret = false;
-            }
+
             if (convertToAngka($("#Stf02_HJUAL").val()) <= 0) {
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
+                document.getElementById("Stf02_HJUAL").focus();
                 ret = false;
             }
 
             //add by nurul 27/6/2019
-            if (convertToAngka($("#Stf02_BERAT").val()) <= 0) {
-                addError($("#Stf02_BERAT").parent().parent(), "Berat harus lebih dari 0.");
-                ret = false;
-            }
-            if (convertToAngka($("#Stf02_PANJANG").val()) <= 0) {
-                addError($("#Stf02_PANJANG").parent().parent(), "Panjang harus lebih dari 0.");
-                ret = false;
-            }
-            if (convertToAngka($("#Stf02_LEBAR").val()) <= 0) {
-                addError($("#Stf02_LEBAR").parent().parent(), "Lebar harus lebih dari 0.");
-                ret = false;
-            }
-            if (convertToAngka($("#Stf02_TINGGI").val()) <= 0) {
+            if (convertToAngka($("#Stf02_TINGGI").val()) <= 0 || $("#Stf02_TINGGI").val() == "") {
                 addError($("#Stf02_TINGGI").parent().parent(), "Tinggi harus lebih dari 0.");
+                document.getElementById("Stf02_TINGGI").focus();
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_LEBAR").val()) <= 0 || $("#Stf02_LEBAR").val() == "") {
+                addError($("#Stf02_LEBAR").parent().parent(), "Lebar harus lebih dari 0.");
+                document.getElementById("Stf02_LEBAR").focus();
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_PANJANG").val()) <= 0 || $("#Stf02_PANJANG").val() == "") {
+                addError($("#Stf02_PANJANG").parent().parent(), "Panjang harus lebih dari 0.");
+                document.getElementById("Stf02_PANJANG").focus();
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_BERAT").val()) <= 0 || $("#Stf02_BERAT").val() == "") {
+                addError($("#Stf02_BERAT").parent().parent(), "Berat harus lebih dari 0.");
+                document.getElementById("Stf02_BERAT").focus();
                 ret = false;
             }
             //end add by nurul 27/6/2019
+            if ($("#Stf02_Deskripsi").val().length < 30) {
+                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
+                ret = false;
+            }
+
+            //add by nurul 31/1/2020
+            if ($("#Stf02_MINI").val() == "") {
+                document.getElementById("Stf02_MINI").focus();
+                ret = false;
+            }
+            if ($("#Stf02_STN2").val() == "") {
+                document.getElementById("Stf02_STN2").focus();
+                ret = false;
+            }
+            if ($("#MERK").val().length == "") {
+                document.getElementById("MERK").focus();
+                ret = false;
+            }
+            if ($("#KATEGORI").val() == "") {
+                document.getElementById("KATEGORI").focus();
+                ret = false;
+            }
+            if ($("#Stf02_NAMA").val() == "") {
+                document.getElementById("Stf02_NAMA").focus();
+                ret = false;
+            }
+            if ($("#Stf02_BRG").val() == "") {
+                document.getElementById("Stf02_BRG").focus();
+                ret = false;
+            }
+            //end add by nurul 31/1/2020
 
             //add by calvin 23 april 2019
             var belumSetFocus = true;
