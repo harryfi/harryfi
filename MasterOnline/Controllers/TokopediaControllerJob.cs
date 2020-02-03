@@ -2261,20 +2261,20 @@ namespace MasterOnline.Controllers
                     jmlhOrder = jmlhOrder + rowAffected;
                     if (rowAffected > 0)
                     {
-                        var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11'");
+                        var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11'");
                         if (dsOrders.Tables[0].Rows.Count > 0)
                         {
                             string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
                             string sSQL2 = "";
                             for (int i = 0; i < dsOrders.Tables[0].Rows.Count; i++)
                             {
-                                var nobuk = dsOrders.Tables[0].Rows[i]["NO_BUKTI"].ToString().Split(';');
+                                var nobuk = dsOrders.Tables[0].Rows[i]["NO_REFERENSI"].ToString().Split(';');
                                 var cancelReason = "";
                                 if (nobuk.Length > 1)
                                     cancelReason = await GetCancelReason(iden, nobuk[1]);
                                 if (!string.IsNullOrEmpty(cancelReason))
                                 {
-                                    sSQL2 += "('" + nobuk + "','" + cancelReason + "','AUTO_TOKPED'),";
+                                    sSQL2 += "('" + dsOrders.Tables[0].Rows[i]["NO_BUKTI"].ToString() + "','" + cancelReason + "','AUTO_TOKPED'),";
                                 }
                             }
                             if (!string.IsNullOrEmpty(sSQL2))
