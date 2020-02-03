@@ -2621,7 +2621,7 @@
             });
         }
         function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
-            debugger;
+            //debugger;
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
             @*var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
@@ -4656,7 +4656,7 @@
         var PromptBrandBlibliTextBox = "";
         function PromptBrandBlibli(i, r) {
             PromptBrandBlibliTextBox = i;
-            debugger;
+            //debugger;
             var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
             if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
                 var ValueCategory = $(getCategory).val();

@@ -8669,9 +8669,16 @@ namespace MasterOnline.Controllers
                         }
                     }
 
+                    //add by nurul 14/1/2020, handle deskripsi enter2x
+                    var note = barangInDb.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
+                    //add by nurul 14/1/2020, handle deskripsi enter2x
+
                     BrgViewModel dataLazada = new BrgViewModel
                     {
-                        deskripsi = barangInDb.Deskripsi,
+                        //add by nurul 14/1/2020, handle deskripsi enter2x
+                        //deskripsi = barangInDb.Deskripsi,
+                        deskripsi = note,
+                        //end add by nurul 14/1/2020, handle deskripsi enter2x
                         harga = barangInDb.HJUAL.ToString(),
                         height = barangInDb.TINGGI.ToString(),
                         kdBrg = barangInDb.BRG,
@@ -8753,9 +8760,16 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                //add by nurul 14/1/2020, handle deskripsi enter2x
+                var note = dataBarang.Stf02.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
+                //add by nurul 14/1/2020, handle deskripsi enter2x
+
                 BrgViewModel dataLazada = new BrgViewModel
                 {
-                    deskripsi = dataBarang.Stf02.Deskripsi,
+                    //add by nurul 14/1/2020, handle deskripsi enter2x
+                    //deskripsi = dataBarang.Stf02.Deskripsi,
+                    deskripsi = note,
+                    //end add by nurul 14/1/2020, handle deskripsi enter2x
                     harga = dataBarang.Stf02.HJUAL.ToString(),
                     height = dataBarang.Stf02.TINGGI.ToString(),
                     kdBrg = barangInDb.BRG,
@@ -9154,12 +9168,34 @@ namespace MasterOnline.Controllers
                                                 {
                                                     merchant_code = tblCustomer.Sort1_Cust,
                                                 };
-                                                ShopeeController shoAPI = new ShopeeController();
+                                                //add by nurul 29/1/2020
+                                                ShopeeControllerJob shoAPI2 = new ShopeeControllerJob();
+                                                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust,
+                                                    DatabasePathErasoft = dbPathEra,
+                                                    username = usernameLogin
+                                                };
+                                                //end add by nurul 29/1/2020
 
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
+                                                //unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
+                                                var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
                                                 //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                //Task.Run(() => shoAPI2.UpdateProduct(data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                                Task.Run(() => shoAPI2.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+#else
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
+                                                //end unremark by nurul 15/1/2020, biar bisa update deskripsi, tapi panjang lebar dan tinggi harus <= 40 cm
                                                 //end remark by calvin 26 februari 2019
-                                                Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+
+                                                ShopeeController shoAPI = new ShopeeController();
+                                                Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 if (updateHarga)
                                                 {
