@@ -447,6 +447,7 @@ namespace MasterOnline.Controllers
                     images = new List<CreateProduct_Images>()
                 };
 
+                newDataProduct.description = newDataProduct.description.Replace("<p>","").Replace("</p>","").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
                 ////add by calvin 1 mei 2019
                 //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                 //if (qty_stock > 0)
