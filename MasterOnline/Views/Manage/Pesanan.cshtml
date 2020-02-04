@@ -4080,6 +4080,195 @@
                 refreshTableSudahKirim("1");
             });
             //end add by nurul 1/8/2019
+
+            //add by nurul 4/12/2019
+            $('#filter_pesanan_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_field_tanggal_div').show();
+                        $('#filter_pesanan_field_marketplace_div').hide();
+                        searchTablePesanan();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_marketplace_div').show();
+                        if ($('#filter_pesanan_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesanan();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_field_tanggal_div').hide();
+                        $('#filter_pesanan_field_marketplace_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_pesanan_field_tanggal').change(function () {
+                searchTablePesanan();
+            });
+            $('#filter_pesanan_field_marketplace').change(function () {
+                searchTablePesanan();
+            })
+            $('#filter_pesanan_dibayar_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').show();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        searchTablePesananSudahDibayar();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').show();
+                        if ($('#filter_pesanan_dibayar_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSudahDibayar();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
+                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_pesanan_dibayar_field_tanggal').change(function () {
+                searchTablePesananSudahDibayar();
+            });
+            $('#filter_pesanan_dibayar_field_marketplace').change(function () {
+                searchTablePesananSudahDibayar();
+            })
+
+            $('#filter_pesanan_packing_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_packing_field_tanggal_div').show();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        searchTablePesananPacking();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_packing_field_tanggal_div').hide();
+                        $('#filter_pesanan_packing_field_marketplace_div').show();
+                        if ($('#filter_pesanan_packing_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananPacking();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_packing_field_tanggal_div').hide();
+                        $('#filter_pesanan_packing_field_marketplace_div').hide();
+                        break;
+                }
+
+            });
+            $('#filter_pesanan_packing_field_tanggal').change(function () {
+                searchTablePesananPacking();
+            });
+            $('#filter_pesanan_packing_field_marketplace').change(function () {
+                searchTablePesananPacking();
+            })
+
+            //add by calvin 29 nov 2019
+            $('#filter_pesanan_faktur_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_faktur_field_tanggal_div').show();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').show();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "statuskirim":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').show();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                    case "statusprint":
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').show();
+                        break;
+                    default:
+                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
+                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
+                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
+                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
+                        break;
+                }
+                $('#search_invoicing_click').click();
+            });
+            $('#filter_pesanan_faktur_field_tanggal, ' +
+                '#filter_pesanan_faktur_field_marketplace, ' +
+                '#filter_pesanan_faktur_field_statuskirim, ' +
+                '#filter_pesanan_faktur_field_statusprint').change(function () {
+                    $('#search_invoicing_click').click();
+                });
+            //end add by calvin 29 nov 2019
+
+            $('#filter_pesanan_selesai_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_selesai_field_tanggal_div').show();
+                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        searchTablePesananSelesai();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
+                        $('#filter_pesanan_selesai_field_marketplace_div').show();
+                        if ($('#filter_pesanan_selesai_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananSelesai();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
+                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
+                        break;
+                }
+            });
+            $('#filter_pesanan_selesai_field_tanggal').change(function () {
+                searchTablePesananSelesai();
+            });
+            $('#filter_pesanan_selesai_field_marketplace').change(function () {
+                searchTablePesananSelesai();
+            })
+
+            $('#filter_pesanan_cancel_field').change(function () {
+                var filterBy = $(this).val();
+                switch (filterBy) {
+                    case "tanggal":
+                        $('#filter_pesanan_cancel_field_tanggal_div').show();
+                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        searchTablePesananCancel();
+                        break;
+                    case "marketplace":
+                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_field_marketplace_div').show();
+                        if ($('#filter_pesanan_cancel_field_marketplace').val() != "Harap Pilih") {
+                            searchTablePesananCancel();
+                        }
+                        break;
+                    default:
+                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
+                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
+                        break;
+                }
+            });
+            $('#filter_pesanan_cancel_field_tanggal').change(function () {
+                searchTablePesananCancel();
+            });
+            $('#filter_pesanan_cancel_field_marketplace').change(function () {
+                searchTablePesananCancel();
+            });
+            //end add by nurul 4/12/2019
         });
 
         //add by Tri 11 Nov 2019, set combo box untuk cancel reason
@@ -4209,36 +4398,6 @@
                 sHTML += '</div>';
                 $('#divCbCancel').append(sHTML);
 
-            //add by nurul 4/12/2019
-            $('#filter_pesanan_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_field_tanggal_div').show();
-                        $('#filter_pesanan_field_marketplace_div').hide();
-                        searchTablePesanan();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_field_tanggal_div').hide();
-                        $('#filter_pesanan_field_marketplace_div').show();
-                        if ($('#filter_pesanan_field_marketplace').val() != "Harap Pilih") {
-                            searchTablePesanan();
-                        }
-                        break;
-                    default:
-                        $('#filter_pesanan_field_tanggal_div').hide();
-                        $('#filter_pesanan_field_marketplace_div').hide();
-                        break;
-                }
-                
-            });
-            $('#filter_pesanan_field_tanggal').change(function () {
-                searchTablePesanan();
-            });
-            $('#filter_pesanan_field_marketplace').change(function () {
-                searchTablePesanan();
-            })
-
                 var link = '@Url.Action("GetCancelReasonLazada", "Manage")';
                 link += '?nobuk=' + encodeURIComponent($('#konfBatalPesanan  .no_pesanan').text());
 
@@ -4279,169 +4438,7 @@
             }
         }
         //end add by Tri, call midtrans api get token
-            $('#filter_pesanan_dibayar_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_dibayar_field_tanggal_div').show();
-                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
-                        searchTablePesananSudahDibayar();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
-                        $('#filter_pesanan_dibayar_field_marketplace_div').show();
-                        if ($('#filter_pesanan_dibayar_field_marketplace').val() != "Harap Pilih") {
-                            searchTablePesananSudahDibayar();
-                        }
-                        break;
-                    default:
-                        $('#filter_pesanan_dibayar_field_tanggal_div').hide();
-                        $('#filter_pesanan_dibayar_field_marketplace_div').hide();
-                        break;
-                }
-                
-            });
-            $('#filter_pesanan_dibayar_field_tanggal').change(function () {
-                searchTablePesananSudahDibayar();
-            });
-            $('#filter_pesanan_dibayar_field_marketplace').change(function () {
-                searchTablePesananSudahDibayar();
-            })
-
-            $('#filter_pesanan_packing_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_packing_field_tanggal_div').show();
-                        $('#filter_pesanan_packing_field_marketplace_div').hide();
-                        searchTablePesananPacking();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_packing_field_tanggal_div').hide();
-                        $('#filter_pesanan_packing_field_marketplace_div').show();
-                        if ($('#filter_pesanan_packing_field_marketplace').val() != "Harap Pilih") {
-                            searchTablePesananPacking();
-                        }
-                        break;
-                    default:
-                        $('#filter_pesanan_packing_field_tanggal_div').hide();
-                        $('#filter_pesanan_packing_field_marketplace_div').hide();
-                        break;
-                }
-                
-            });
-            $('#filter_pesanan_packing_field_tanggal').change(function () {
-                searchTablePesananPacking();
-            });
-            $('#filter_pesanan_packing_field_marketplace').change(function () {
-                searchTablePesananPacking();
-            })
-
-            //add by calvin 29 nov 2019
-            $('#filter_pesanan_faktur_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_faktur_field_tanggal_div').show();
-                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
-                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
-                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
-                        $('#filter_pesanan_faktur_field_marketplace_div').show();
-                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
-                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
-                        break;
-                    case "statuskirim":
-                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
-                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
-                        $('#filter_pesanan_faktur_field_statuskirim_div').show();
-                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
-                        break;
-                    case "statusprint":
-                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
-                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
-                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
-                        $('#filter_pesanan_faktur_field_statusprint_div').show();
-                        break;
-                    default:
-                        $('#filter_pesanan_faktur_field_tanggal_div').hide();
-                        $('#filter_pesanan_faktur_field_marketplace_div').hide();
-                        $('#filter_pesanan_faktur_field_statuskirim_div').hide();
-                        $('#filter_pesanan_faktur_field_statusprint_div').hide();
-                        break;
-                }
-                $('#search_invoicing_click').click();
-            });
-            $('#filter_pesanan_faktur_field_tanggal, ' +
-             '#filter_pesanan_faktur_field_marketplace, ' +
-              '#filter_pesanan_faktur_field_statuskirim, ' +
-               '#filter_pesanan_faktur_field_statusprint').change(function () {
-                $('#search_invoicing_click').click();
-            });
-            //end add by calvin 29 nov 2019
-
-            $('#filter_pesanan_selesai_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_selesai_field_tanggal_div').show();
-                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
-                        searchTablePesananSelesai();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
-                        $('#filter_pesanan_selesai_field_marketplace_div').show();
-                        if ($('#filter_pesanan_selesai_field_marketplace').val() != "Harap Pilih") {
-                            searchTablePesananSelesai();
-                        }
-                        break;
-                    default:
-                        $('#filter_pesanan_selesai_field_tanggal_div').hide();
-                        $('#filter_pesanan_selesai_field_marketplace_div').hide();
-                        break;
-                }
-                
-            });
-            $('#filter_pesanan_selesai_field_tanggal').change(function () {
-                searchTablePesananSelesai();
-            });
-            $('#filter_pesanan_selesai_field_marketplace').change(function () {
-                searchTablePesananSelesai();
-            })
-
-            $('#filter_pesanan_cancel_field').change(function () {
-                var filterBy = $(this).val();
-                switch (filterBy) {
-                    case "tanggal":
-                        $('#filter_pesanan_cancel_field_tanggal_div').show();
-                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
-                        searchTablePesananCancel();
-                        break;
-                    case "marketplace":
-                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
-                        $('#filter_pesanan_cancel_field_marketplace_div').show();
-                        if ($('#filter_pesanan_cancel_field_marketplace').val() != "Harap Pilih") {
-                            searchTablePesananCancel();
-                        }
-                        break;
-                    default:
-                        $('#filter_pesanan_cancel_field_tanggal_div').hide();
-                        $('#filter_pesanan_cancel_field_marketplace_div').hide();
-                        break;
-                }
-                
-            });
-            $('#filter_pesanan_cancel_field_tanggal').change(function () {
-                searchTablePesananCancel();
-            });
-            $('#filter_pesanan_cancel_field_marketplace').change(function () {
-                searchTablePesananCancel();
-            })
-            //end add by nurul 4/12/2019
-        });
-
+            
         //add by Tri, call midtrans api get token
 
         function changeUser(val) {

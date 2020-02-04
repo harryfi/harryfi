@@ -2887,33 +2887,60 @@ namespace MasterOnline.Controllers
             if (listOrderUnpaid.Count > 0)
             {
                 //var listOrder = new List<string>();
+                var listOrderCancel = "";
+                var sSQL3 = "";
+                var sSQL2 = "SELECT * INTO #TEMP FROM (";
                 foreach (var order in listOrderUnpaid)
                 {
                     var ret = GetOrderStatus(order.noref, accessToken);
                     if (!string.IsNullOrEmpty(ret))
                     {
-                        //listOrder.Add(order.nobuk);
-                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.noref + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                        //change by Tri 4 Feb 2020, tuning
+                        ////listOrder.Add(order.nobuk);
+                        //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.noref + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
 
-                        if (rowAffected > 0)
+                        //if (rowAffected > 0)
+                        //{
+                        //    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.noref + "') AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
+
+                        //    var orderDetail = (from a in ErasoftDbContext.SOT01A
+                        //                       join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                        //                       where a.NO_REFERENSI == order.noref && a.CUST == cust
+                        //                       select new { b.BRG }).ToList();
+                        //    foreach (var item in orderDetail)
+                        //    {
+                        //        if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
+                        //        {
+                        //            brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
+                        //        }
+                        //    }
+                        //}
+                        listOrderCancel += "'" + order.noref + "',";
+                        if (!string.IsNullOrEmpty(sSQL3))
                         {
-                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.noref + "') AND STATUS <> '2' AND CUST = '" + cust + "'");
-
-                            var orderDetail = (from a in ErasoftDbContext.SOT01A
-                                               join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                                               where a.NO_REFERENSI == order.noref && a.CUST == cust
-                                               select new { b.BRG }).ToList();
-                            foreach (var item in orderDetail)
-                            {
-                                if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
-                                {
-                                    brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
-                                }
-                            }
+                            sSQL3 += " UNION ALL ";
                         }
+                        sSQL3 += " SELECT '" + order.nobuk + "' NO_REFERENSI, '" + ret + "' ALASAN ";
+                        //end change by Tri 4 Feb 2020, tuning
                     }
                 }
 
+                if (!string.IsNullOrEmpty(listOrderCancel))
+                {
+                    listOrderCancel = listOrderCancel.Substring(0, listOrderCancel.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + listOrderCancel + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                    if (rowAffected > 0)
+                    {
+                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + listOrderCancel + "') AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
+
+                    }
+
+                    sSQL2 += sSQL3 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                    sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_LAZADA' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
+                    sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
+
+                }
                 var itemCount = brgCancelled.Count();
                 if (itemCount > 0)
                 {
@@ -2951,7 +2978,15 @@ namespace MasterOnline.Controllers
                 {
                     if (bindOrder.data.statuses[0].ToString() == "canceled")
                     {
-                        ret = bindOrder.data.statuses[0].ToString();
+                        //ret = bindOrder.data.statuses[0].ToString();
+                        if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                        {
+                            ret = bindOrder.data.reason;
+                        }
+                        else
+                        {
+                            ret = "CANCEL_REASON_EMPTY";
+                        }
                     }
                 }
             }
