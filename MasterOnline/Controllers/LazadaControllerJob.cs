@@ -2714,7 +2714,7 @@ namespace MasterOnline.Controllers
             var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
             if (bindOrder != null)
             {
-                if (bindOrder.code.Equals("0"))
+                if (bindOrder.code.Equals("0") && bindOrder.data.orders != null)
                 {
                     foreach (var order in bindOrder.data.orders)
                     {
