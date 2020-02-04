@@ -35,5 +35,16 @@ namespace MasterOnline.ViewModels
         //add by Tri 19/9/19
         public int createPackinglist { get; set; }
         //end add by Tri 19/9/19
+
+        //add by nurul 2/12/2019, tambah dashboard pesanan
+        public int? JumlahPesananBelumBayar { get; set; }
+        public double? NilaiPesananBelumBayar { get; set; }
+        public int? JumlahPesananSudahBayar { get; set; }
+        public double? NilaiPesananSudahBayar { get; set; }
+        public int? JumlahPesananSiapKirim { get; set; }
+        public double? NilaiPesananSiapKirim { get; set; }
+        public int? JumlahPesananBatal { get; set; }
+        public double? NilaiPesananBatal { get; set; }
+        //end add by nurul 2/12/2019, tambah dashboard pesanan
     }
 }

@@ -6,19 +6,48 @@
     var nama = "";
     var namaPerAccount = "";//add by calvin 1 april 2019
 
+    //add by nurul 26/7/2019
+    DateTime? drTgl = null;
+    DateTime? sdTgl = null;
+    string member = "";
+    string nmMember = "";
+    //end add by nurul 26/7/2019
+
     if (dataSession?.Account != null)
     {
         nama = dataSession.Account.Username;
         namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
+
+        //add by nurul 26/7/2019
+        sdTgl = dataSession.Account.TGL_SUBSCRIPTION;
+        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == dataSession.Account.Email).ToList();
+        if (cekHistoryPembayaran.Count() > 0)
+        {
+            drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+        }
+        member = dataSession.Account.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
+        //end add by nurul 26/7/2019
     }
     else
     {
         nama = dataSession?.User.Username;
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
+
+        //add by nurul 26/7/2019
+        sdTgl = accFromUser.TGL_SUBSCRIPTION;
+        var cekHistoryPembayaran = context.AktivitasSubscription.Where(a => a.Email == accFromUser.Email).ToList();
+        if (cekHistoryPembayaran.Count() > 0)
+        {
+            drTgl = cekHistoryPembayaran.OrderByDescending(a => a.TanggalBayar).FirstOrDefault().DrTGL;
+        }
+        member = accFromUser.KODE_SUBSCRIPTION;
+        nmMember = context.Subscription.Where(a => a.KODE == member).Single().KETERANGAN;
+        //end add by nurul 26/7/2019
     }
 
-    var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).OrderBy(m => m.ScrId).ToList();
 }
 
 <!DOCTYPE html>
@@ -42,7 +71,6 @@
     <!--add by calvin 1 april 2019-->
     <link href="~/Content/jquery.notify.css" rel="stylesheet" />
     <!--end add by calvin 1 april 2019-->
-
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
 
     @RenderSection("styles", required: false)
@@ -115,6 +143,20 @@
         </style>*@
 
     <style>
+        .member-profile {
+            color: #5E6974 !important;
+            border-radius: 50%;
+            background: none !important;
+        }
+
+        .member-label-gold {
+            color: goldenrod;
+        }
+
+        .member-label-silver {
+            color: darkgrey;
+        }
+
         [data-tip] {
             position: relative;
         }
@@ -315,15 +357,18 @@
     </script>
     <!-- Facebook Pixel Code -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window,document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-         fbq('init', '2320855488162974');
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '2320855488162974');
         fbq('track', 'PageView');
     </script>
     <noscript>
@@ -368,12 +413,230 @@
                                 <li>
                                     <a href="@Url.Action("Index", "Manage")"><i class="fa fa-home"></i> Dashboard</a>
                                 </li>
+                                @*//change by nurul 23/1/2020, samain dg layoutmanage*@
+                                @*@{
+                                        var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
+                                        var listChild = listAnak.ToList();
+                                        //add by nurul 26/7/2018
+                                        var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
+                                        //end add
+                                        var listSec = new List<SecUser>();
+
+                                        if (dataSession?.User != null)
+                                        {
+                                            listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
+                                        }
+                                    }
+                                    @foreach (var parent in listParent)
+                                    {
+                                        if (parent.Show)
+                                        {
+                                            <li class="parent-li" id="@parent.ScrId">
+                                                <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                    @if (parent.HaveChild)
+                                                    {
+                                                        <span class="fa fa-chevron-down"></span>
+                                                    }
+                                                    @*//add by calvin 5 april 2019
+                                                        else
+                                                        {
+                                                            if (parent.ScrId == 9) //Pesanan
+                                                            {
+                                                                <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                            }
+                                                            if (parent.ScrId == 1056) //Log Error
+                                                            {
+                                                                <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                            }
+                                                        }
+                                                </a>
+                                                @*<ul class="nav child_menu">
+                                                        @foreach (var child in listChild)
+                                                        {
+                                                            if (listSec.Count > 0)
+                                                            {
+                                                                var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+
+                                                                if (child.ParentId == parent.ScrId && secUserMenu != null)
+                                                                {
+                                                                    if (child.Show)
+                                                                    {
+                                                                        <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                if (child.ParentId == parent.ScrId)
+                                                                {
+                                                                    if (child.Show)
+                                                                    {
+                                                                        <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    </ul>
+
+                                                            @*change by nurul 26/7/2018
+
+                                                <ul class="nav child_menu">
+                                                    @foreach (var child in listChild)
+                                                    {
+                                                        if (listSec.Count > 0)
+                                                        {
+                                                            //change by nurul 21/1/2020, ubah jadi firstordefault karna master nya ada 2 pilihan
+                                                            //var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+                                                            var secUserMenu = listSec.FirstOrDefault(s => s.FormId == child.ScrId);
+                                                            //end change by nurul 21/1/2020, ubah jadi firstordefault karna master nya ada 2 pilihan
+
+                                                            if (child.ParentId == parent.ScrId && secUserMenu != null)
+                                                            {
+                                                                //change by nurul 22/1/2020, perbaikan tampilan navbar jika login user
+                                                                @*if (child.Show)
+                                                                    {
+                                                                        <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                    }
+
+                                                                if (child.Show && !child.HaveChild)
+                                                                {
+                                                                    <li>
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (child.Icon != null)
+                                                                            {
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li class="parent-li" id="@child.ScrId">
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                        <ul class="nav child_menu">
+                                                                            @foreach (var childFromChild in listChildFromChild)
+                                                                            {
+                                                                                if (listSec.Count > 0)
+                                                                                {
+                                                                                    var secUserMenuChild = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                    if (childFromChild.ParentId == child.ScrId && secUserMenuChild != null)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (childFromChild.ParentId == child.ScrId)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </ul>
+                                                                    </li>
+                                                                }
+                                                                //end change by nurul 22/1/2020, perbaikan tampilan navbar jika login user
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (child.ParentId == parent.ScrId)
+                                                            {
+                                                                if (child.Show && !child.HaveChild)
+                                                                {
+                                                                    <li>
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (child.Icon != null)
+                                                                            {
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li class="parent-li" id="@child.ScrId">
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                        <ul class="nav child_menu">
+                                                                            @foreach (var childFromChild in listChildFromChild)
+                                                                            {
+                                                                                if (listSec.Count > 0)
+                                                                                {
+                                                                                    //change by nurul 21/1/2020, ubah jadi firstordefault karna master nya ada 2 pilihan
+                                                                                    //var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                                    var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                                    //end change by nurul 21/1/2020, ubah jadi firstordefault karna master nya ada 2 pilihan
+
+                                                                                    if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (childFromChild.ParentId == child.ScrId)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </ul>
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>
+
+                                                @*end change
+                                            </li>
+                                        }
+                                    }*@
+
                                 @{
-                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    //change by Tri, sort by scrid
+                                    //var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0).OrderBy(m => m.ScrId);
+                                    //end change by Tri, sort by scrid
                                     var listChild = listAnak.ToList();
-                                    //add by nurul 26/7/2018
                                     var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
-                                    //end add
+
                                     var listSec = new List<SecUser>();
 
                                     if (dataSession?.User != null)
@@ -381,54 +644,37 @@
                                         listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
                                     }
                                 }
+
                                 @foreach (var parent in listParent)
                                 {
-                                    if (parent.Show)
+                                    if (parent.Show && dataSession.User == null)
                                     {
                                         <li class="parent-li" id="@parent.ScrId">
-                                            <a @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                            <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
                                                 <i class="fa @parent.Icon"></i> @parent.NamaForm
                                                 @if (parent.HaveChild)
                                                 {
                                                     <span class="fa fa-chevron-down"></span>
                                                 }
-                                            </a>
-                                            @*<ul class="nav child_menu">
-                                                    @foreach (var child in listChild)
+                                                //add by calvin 5 april 2019
+                                                else
+                                                {
+                                                    if (parent.ScrId == 9) //Pesanan
                                                     {
-                                                        if (listSec.Count > 0)
-                                                        {
-                                                            var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
-
-                                                            if (child.ParentId == parent.ScrId && secUserMenu != null)
-                                                            {
-                                                                if (child.Show)
-                                                                {
-                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
-                                                                }
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            if (child.ParentId == parent.ScrId)
-                                                            {
-                                                                if (child.Show)
-                                                                {
-                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
-                                                                }
-                                                            }
-                                                        }
+                                                        <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
                                                     }
-                                                </ul>*@
-
-                                            @*change by nurul 26/7/2018*@
-
+                                                    if (parent.ScrId == 1056) //Log Error
+                                                    {
+                                                        <img id="new_log_error_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                    }
+                                                }
+                                            </a>
                                             <ul class="nav child_menu">
                                                 @foreach (var child in listChild)
                                                 {
                                                     if (listSec.Count > 0)
                                                     {
-                                                        var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+                                                        var secUserMenu = listSec.FirstOrDefault(s => s.FormId == child.ScrId);
 
                                                         if (child.ParentId == parent.ScrId && secUserMenu != null)
                                                         {
@@ -461,7 +707,7 @@
                                                             else
                                                             {
                                                                 <li class="parent-li" id="@child.ScrId">
-                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                    <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
                                                                         <i class="fa @child.Icon"></i> @child.NamaForm
                                                                         @if (child.HaveChild)
                                                                         {
@@ -473,7 +719,7 @@
                                                                         {
                                                                             if (listSec.Count > 0)
                                                                             {
-                                                                                var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                                var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
 
                                                                                 if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
                                                                                 {
@@ -501,11 +747,93 @@
                                                     }
                                                 }
                                             </ul>
-
-                                            @*end change*@
                                         </li>
                                     }
+                                    else
+                                    {
+                                        var secMenu = listSec.FirstOrDefault(s => s.FormId == parent.ScrId);
+                                        if (secMenu != null)
+                                        {
+                                            var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
+
+                                            <li id="@parent.ScrId">
+                                                <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                    @if (parent.HaveChild)
+                                                    {
+                                                        <span class="fa fa-chevron-down"></span>
+                                                    }
+                                                </a>
+                                                <ul class="nav child_menu">
+                                                    @foreach (var child in listChild)
+                                                    {
+                                                        var childOfSecMenu = listChildOfSecMenu?.FirstOrDefault(c => c.FormId == child.ScrId);
+
+                                                        if (childOfSecMenu != null)
+                                                        {
+                                                            if (child.Show && !child.HaveChild)
+                                                            {
+                                                                <li>
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        @if (child.Icon != null)
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            else
+                                                            {
+                                                                <li id="@child.ScrId">
+                                                                    <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                    <ul class="nav child_menu">
+                                                                        @foreach (var childFromChild in listChildFromChild)
+                                                                        {
+                                                                            if (listSec.Count > 0)
+                                                                            {
+                                                                                var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                if (childFromChild.ParentId == child.ScrId)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    </ul>
+                                                                </li>
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>
+                                            </li>
+                                        }
+                                    }
                                 }
+                                @*//end change by nurul 23/1/2020, samain dg layoutmanage*@
                             </ul>
                         </div>
                     </div>
@@ -519,9 +847,37 @@
                         <div class="nav toggle">
                             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
                         </div>
-                        <ul class="nav navbar-nav navbar-right">
-                            <li class="">
-                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <ul class="nav navbar-nav pull-right">
+                            @*//add by nurul 26/7/2019*@
+                            <li class="center">
+                                <a class="member-profile center">
+                                    @if (member == "01")
+                                    {
+                                        <label>@nmMember </label>
+                                    }
+                                    else if (member == "02")
+                                    {
+                                        <label class="member-label-silver">@nmMember </label>
+                                    }
+                                    else if (member == "03")
+                                    {
+                                        <label class="member-label-gold">@nmMember </label>
+                                    }
+                                    @if (drTgl != null)
+                                    {
+                                        <label> @(drTgl?.ToString("dd/MM/yyyy")) s/d @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                        //}
+                                    }
+                                    else
+                                    {
+
+                                        <label> @(sdTgl?.ToString("dd/MM/yyyy"))</label>
+                                    }
+                                </a>
+                            </li>
+                            @*//end add by nurul 26/7/2019*@
+                            <li class="pull-right">
+                                <a href="javascript:;" class="user-profile dropdown-toggle pull-right" data-toggle="dropdown" aria-expanded="false">
                                     <img src="~/Content/Images/temp-ava.png" alt="">@nama
                                     <span class=" fa fa-angle-down"></span>
                                 </a>

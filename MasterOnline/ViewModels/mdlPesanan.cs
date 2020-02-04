@@ -53,6 +53,17 @@ namespace MasterOnline
 
         public string STATUS_FAKTUR { get; set; }
         public string FKT_RETUR { get; set; }
+        public string status_kirim { get; set; }
+        public string status_print { get; set; }
+        public string PACKINGNO { get; set; }
+
+        //ADD BY NURUL 27/11/2019
+        public DateTime? TGL_LASTEDIT { get; set; }
+        //END ADD BY NURUL 27/11/2019
+
+        //add by nurul 16/1/2020
+        public double SISA_FAKTUR { get; set; }
+        //end add by nurul 16/1/2020
 
         //add by Tri 2/12/2019
         public string CancelReason { get; set; }
@@ -215,7 +226,7 @@ namespace MasterOnline
         //public string KODE_POS { get; set; }
 
         //[StringLength(50)]
-        //public string SHIPMENT { get; set; }
+        public string SHIPMENT { get; set; }
 
         //[StringLength(50)]
         //public string TRACKING_SHIPMENT { get; set; }

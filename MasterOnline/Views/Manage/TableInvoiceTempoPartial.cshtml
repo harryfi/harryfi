@@ -84,7 +84,7 @@
                     <td>@(invoice.TGL?.ToString("dd/MM/yyyy"))</td>
                     <td>@(invoice.TGLJTTEMPO?.ToString("dd/MM/yyyy"))</td>
                     <td>@invoice.SUPPLIER</td>
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.TOTAL)</td>
+                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.SISA_FAKTUR)</td>
                     @*<td>@(Convert.ToString(invoice.POSTING) == "Y" ? "Sudah" : "Belum")</td>
                         <td class="edit-hapus-col">
                             @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)

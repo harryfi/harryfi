@@ -39,5 +39,49 @@ namespace MasterOnline.ViewModels
         public string setGd { get; set; }
         public string alamatPenerima { get; set; }
         //end add by nurul 8/3/2019
+
+        //add by nurul 11/12/2019, for cetak label mo
+        public List<CetakLabelViewModel> ListCetakLabel { get; set; } = new List<CetakLabelViewModel>();
+        public string urlAl { get; set; }
+        public string urlTlp { get; set; }
+        public string urlMp { get; set; }
+        public string urlNobuk { get; set; }
+        public string urlTotal { get; set; }
+        public string urlNama { get; set; }
+        public string urlFaktur { get; set; }
+        public string urlLabel { get; set; }
+        //end add by nurul 11/12/2019, for cetak label mo
+    }
+
+    public class CetakLabelViewModel
+    {
+        public string NamaToko { get; set; }
+        public string LogoMarket { get; set; }
+        public string NamaPerusahaan { get; set; }
+        public string AlamatToko { get; set; }
+        public string TlpToko { get; set; }
+        public string noRef { get; set; }
+        public string Kurir { get; set; }
+        public string Marketplace { get; set; }
+        public string LogoKurir { get; set; }
+        public string NoResi { get; set; }
+        public string alamatPenerima { get; set; }
+        public SIT01A Faktur { get; set; }
+        public List<ARF01C> ListPembeli { get; set; } = new List<ARF01C>();
+        public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
+        public List<STF02> ListBarang { get; set; } = new List<STF02>();
+        
+        public string linktotal { get; set; }
+        public string linktoko { get; set; }
+        public string linktlptoko { get; set; }
+        public string linkport { get; set; }
+        public string linkref { get; set; }
+        public string isiPort { get; set; }
+        public string isiRef { get; set; }
+        public string namaPembeli { get; set; }
+        public string tlpPembeli { get; set; }
+        public string tglKirim { get; set; }        
+        public string logoKurirApi { get; set; }
+        
     }
 }

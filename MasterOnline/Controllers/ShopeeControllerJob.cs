@@ -82,8 +82,9 @@ namespace MasterOnline.Controllers
         {
             //string ret = "";
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(data.DatabasePathErasoft);
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             username = data.username;
             //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
             //if (arf01inDB != null)
@@ -1642,7 +1643,10 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //change by nurul 10/12/2019, change create_time_from
+            //long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-3).ToUnixTimeSeconds();
+            //change add by nurul 10/12/2019, change create_time_from
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -2418,7 +2422,10 @@ namespace MasterOnline.Controllers
                             ordersn = order.ordersn,
                             order_status = order.order_status,
                             payment_method = order.payment_method,
-                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                            //change by nurul 5/12/2019, local time 
+                            //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
+                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime.AddHours(7),
+                            //end change by nurul 5/12/2019, local time 
                             Recipient_Address_country = order.recipient_address.country,
                             Recipient_Address_state = order.recipient_address.state,
                             Recipient_Address_city = order.recipient_address.city,
@@ -2505,6 +2512,132 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public class GetAirwayBillsData
+        {
+            public bool is_batch { get; set; }
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string[] ordersn_list { get; set; }
+        }
+
+
+        public class GetAirwayBillsRootResult
+        {
+            public GetAirwayBillsResult result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsResult
+        {
+            public int total_count { get; set; }
+            public GetAirwayBillsError[] errors { get; set; }
+            public GetAirwayBillsAirway_Bills[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public class GetAirwayBillsAirway_Bills
+        {
+            public string ordersn { get; set; }
+            public string airway_bill { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResult
+        {
+            public GetAirwayBillsBatchResultBatch_Result batch_result { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultBatch_Result
+        {
+            public int total_count { get; set; }
+            public List<GetAirwayBillsBatchResultError> errors { get; set; }
+            public string[] airway_bills { get; set; }
+        }
+
+        public class GetAirwayBillsBatchResultError
+        {
+            public string ordersn { get; set; }
+            public string error_description { get; set; }
+            public string error_code { get; set; }
+        }
+
+        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            var result = new GetAirwayBillsBatchResult();
+            result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+            GetAirwayBillsData HttpBody = new GetAirwayBillsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list,
+                is_batch = true
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+                result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+
+                //var connIdARF01C = Guid.NewGuid().ToString();
+
+                //foreach (var order in result.orders)
+                //{
+                //    ret = order.tracking_no;
+                //}
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return result;
+        }
+
         public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)
         {
             int MOPartnerID = 841371;
@@ -2738,7 +2871,15 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2763,7 +2904,14 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2954,7 +3102,18 @@ namespace MasterOnline.Controllers
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+//                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+                            string dTrackNo = "";
+                            if (dTrackNo == "")
+                            {
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
+                            }
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(dTrackNo))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
                             ErasoftDbContext.SaveChanges();
 
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
@@ -2973,7 +3132,14 @@ namespace MasterOnline.Controllers
                         {
                             string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
-                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = trackno;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -3509,13 +3675,22 @@ namespace MasterOnline.Controllers
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
 
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
             //add by calvin 10 september 2019
             HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
             HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
-            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
-            HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+            //HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
 
             HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
             //end add by calvin 10 september 2019
@@ -3898,7 +4073,14 @@ namespace MasterOnline.Controllers
                     //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                     //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                     //ErasoftDbContext.SaveChanges();
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    //change by Tri 16 Des 2019, isi link status
+                    //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception                     
+                    var sSQL = "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+                    sSQL += "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error;
+                    sSQL += "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ";
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, sSQL);
+                    //end change by Tri 16 Des 2019, isi link status
                     if (result > 0)
                     {
                         adaPerbaikanBrgMP = true;
@@ -3952,7 +4134,8 @@ namespace MasterOnline.Controllers
                 else //update image only
                 {
                     //#if (Debug_AWS || DEBUG)
-                    await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
+                    if (tier_variation != null)
+                        await UpdateImageTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation);
                     //#else
                     //                    string EDBConnID = EDB.GetConnectionString("ConnId");
                     //                    var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -3960,6 +4143,68 @@ namespace MasterOnline.Controllers
                     //                    var client = new BackgroundJobClient(sqlStorage);
                     //                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateTierVariationList(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation, MOVariation));
                     //#endif
+
+                    //add by Tri 10 Des 2019 , update harga 
+                    //var ShopeeApi = new ShopeeController();
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                    if (customer != null)
+                    {
+                        //var data = new ShopeeController.ShopeeAPIData
+                        //{
+                        //    API_client_password = iden.API_client_password,
+                        //    API_client_username = iden.API_client_username,
+                        //    API_secret_key = iden.API_secret_key,
+                        //    merchant_code = iden.merchant_code,
+                        //    mta_password_password_merchant = iden.mta_password_password_merchant,
+                        //    mta_username_email_merchant = iden.mta_username_email_merchant,
+                        //    token = iden.token
+                        //};
+                        var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + customer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
+                        if(listBrg.Tables[0].Rows.Count > 0)
+                        {
+                            string EDBConnID = EDB.GetConnectionString("ConnId");
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                            var client = new BackgroundJobClient(sqlStorage);
+
+                            for (int i = 0; i < listBrg.Tables[0].Rows.Count; i++)
+                            {
+#if (Debug_AWS || DEBUG)
+                                await UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString()));
+#else
+                                client.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice(dbPathEra, listBrg.Tables[0].Rows[i]["BRG"].ToString(), log_CUST, log_ActionCategory, log_ActionName, iden, listBrg.Tables[0].Rows[i]["BRG_MP"].ToString(), float.Parse(listBrg.Tables[0].Rows[i]["HJUAL"].ToString())));
+#endif
+                            }
+                        }
+
+                        //add by nurul 27/1/2020, tambah update deskripsi dll
+                        if (!string.IsNullOrEmpty(customer.Sort1_Cust))
+                        {
+                            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == customer.RecNum).FirstOrDefault();
+                            if (stf02h != null)
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    iden.merchant_code = customer.Sort1_Cust;
+                                    //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                    //Task.Run(() => shoAPI.UpdateProduct(idenNew, brg, customer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                    //await UpdateProduct(iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
+                                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var client = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                    await UpdateProduct(dbPathEra, brg, customer.CUST, "Barang", "Update Produk", iden, brg, customer.CUST, new List<ShopeeLogisticsClass>());
+#else
+                                    client.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, brg, customer.CUST, "Barang", "Update Produk", iden, brg, customer.CUST, new List<ShopeeLogisticsClass>()));
+#endif
+                                }
+                            }
+                        }
+                        //end add by nuurl 27/1/2020, tambah update deskripsi dll
+
+                    }
+                    //end add by Tri 10 Des 2019 , update harga 
+
                 }
             }
 
@@ -4068,6 +4313,12 @@ namespace MasterOnline.Controllers
 #endif
                     }
                 }
+                //add by Tri 16 Des 2019, return exception jika ada error
+                else
+                {
+                    throw new Exception(resServer.msg);
+                }
+                //end add by Tri 16 Des 2019, return exception jika ada error
             }
 
             return ret;
@@ -4472,6 +4723,17 @@ namespace MasterOnline.Controllers
                     if (resServer.msg.Contains("there is no tier_variation level change")) //add by calvin 14 november 2019, req by pak richard
                     {
                         //do nothing
+                        //add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
+#if (DEBUG || Debug_AWS)
+                        await GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog);
+#else
+                    string EDBConnID = EDB.GetConnectionString("ConnId");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    var client = new BackgroundJobClient(sqlStorage);
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetVariation(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, log_ActionName, iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation, currentLog));
+#endif
+                        //end add by Tri 4 Des 2019, case user tambah varian tanpa ubah tier
                     }
                     else
                     {
@@ -4527,9 +4789,16 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> UpdateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Product {obj} ke Shopee Gagal.")]
+        public async Task<string> UpdateProduct(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
         {
             string ret = "";
+            //add by nurul 28/1/2020
+            SetupContext(iden);
+            //end add by nurul 28/1/2020
+
             var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
             var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
             if (brgInDb == null || marketplace == null)
@@ -4548,14 +4817,27 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
+            //change by nurul 28/1/2020
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    //REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+            //    REQUEST_ACTION = "Update Product",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
+
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = seconds.ToString(),
                 REQUEST_ACTION = "Update Product",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_1 = brg,
+                REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
                 REQUEST_STATUS = "Pending",
             };
+            //end change by nurul 28/1/2020
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/update";
 
@@ -4587,10 +4869,33 @@ namespace MasterOnline.Controllers
                 package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
                 package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
                 package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
-                weight = brgInDb.BERAT / 1000,
+                weight = (brgInDb.BERAT / 1000),
                 attributes = new List<ShopeeAttributeClass>(),
                 logistics = logistics
             };
+
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+            //HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ").Replace("</em>&nbsp;", " ");
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", " ").Replace("</em>", "").Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+            //add by calvin 10 september 2019
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+            //HttpBody.description = HttpBody.description.Replace("&nbsp;", "");
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             try
             {
@@ -4632,65 +4937,96 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
+
+            //try
+            //{
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
             {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
-                {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
             }
-            catch (Exception ex)
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
             }
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
 
             if (responseFromServer != "")
             {
-                try
+                //try
+                //{
+                //change by nurul 28/1/2020, tampilin log error
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                if (resServer != null)
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    //var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
-                    //if (resServer != null)
-                    //{
-                    //    if (string.IsNullOrEmpty(resServer.error))
-                    //    {
-                    //        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
-                    //        if (item != null)
-                    //        {
-                    //            item.BRG_MP = resServer.item_id.ToString() + ";0";
-                    //            ErasoftDbContext.SaveChanges();
-                    //            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    //        }
-                    //        else
-                    //        {
-                    //            currentLog.REQUEST_EXCEPTION = "item not found";
-                    //            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
-                    //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    //    }
-                    //}
+                    if (string.IsNullOrEmpty(resServer.error))
+                    {
+                        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                        if (item != null)
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = "item not found";
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception("item not found");
+                        }
+                    }
+                    else
+                    {
+                        //currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
+                        currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
+                        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg + "\n Update barang Shopee memiliki ketentuan panjang, lebar dan tinggi max 40cm dan berat max 5 kg.";
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(currentLog.REQUEST_EXCEPTION);
+                    }
+                }
+                //end change by nurul 28/1/2020, tampilin log error
 
-                }
-                catch (Exception ex2)
-                {
-                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                }
+                //var resserver = jsonconvert.deserializeobject(responsefromserver, typeof(shopeecreateprodresponse)) as shopeecreateprodresponse;
+                //if (resServer != null)
+                //{
+                //    if (string.IsNullOrEmpty(resServer.error))
+                //    {
+                //        var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                //        if (item != null)
+                //        {
+                //            item.BRG_MP = resServer.item_id.ToString() + ";0";
+                //            ErasoftDbContext.SaveChanges();
+                //            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //        }
+                //        else
+                //        {
+                //            currentLog.REQUEST_EXCEPTION = "item not found";
+                //            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //        }
+                //    }
+                //    else
+                //    {
+                //        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+                //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    }
+                //}
+
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
             }
             return ret;
         }
@@ -4771,7 +5107,11 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> UpdateVariationPrice(ShopeeAPIData iden, string brg_mp, float price)
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Variasi Product {obj} ke Shopee Berhasil. Update Harga Produk.")]
+        public async Task<string> UpdateVariationPrice(string dbPathEra, string kodeProduk, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, float price)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -4780,14 +5120,14 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = seconds.ToString(),
-                REQUEST_ACTION = "Update Price",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-                REQUEST_STATUS = "Pending",
-            };
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = seconds.ToString(),
+            //    REQUEST_ACTION = "Update Price",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+            //    REQUEST_STATUS = "Pending",
+            //};
 
             string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
 
@@ -4812,8 +5152,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -4827,25 +5167,33 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            }
-            catch (Exception ex)
-            {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            }
+            //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
 
             if (responseFromServer != null)
             {
-                try
+                //add by Tri 16 Des 2019, return exception jika ada error
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+                if (!string.IsNullOrEmpty(resServer.error))
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(resServer.msg);
                 }
-                catch (Exception ex2)
-                {
-                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                }
+                //end add by Tri 16 Des 2019, return exception jika ada error
+
+                //try
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
             }
             return ret;
         }

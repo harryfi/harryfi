@@ -14,14 +14,14 @@
     {
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(dataSession.Account.UserId);
-        erasoftContext = new ErasoftContext(dataSession.Account.DatabasePathErasoft);
+        erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
     }
     else
     {
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         //change by nurul 3/10/2018
         //erasoftContext = new ErasoftContext(accFromUser.UserId);
-        erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
 
     }
 }

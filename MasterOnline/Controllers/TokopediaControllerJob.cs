@@ -60,8 +60,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(data.DatabasePathErasoft);
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             username = data.username;
             return ret;
         }
@@ -69,8 +70,9 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(data.DatabasePathErasoft);
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
             username = data.username;
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.RecNum == data.idmarket).SingleOrDefault();
             if (arf01inDB != null)
@@ -1322,12 +1324,16 @@ namespace MasterOnline.Controllers
                         //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                         //change by calvin 9 juni 2019
                         //await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+#if (DEBUG || Debug_AWS)
+                        await CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+#else
                         string EDBConnID = EDB.GetConnectionString("ConnId");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
                         Jobclient.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, kodeProduk, log_CUST, log_ActionCategory, "Link Produk (Tahap 1 / 2 )", iden, brg, result.data.upload_id, currentLog.REQUEST_ID));
                         //end change by calvin 9 juni 2019
+#endif
                     }
                     else
                     {
@@ -1505,10 +1511,11 @@ namespace MasterOnline.Controllers
 
             //}
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                 contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
+                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '"+ NO_BUKTI_SOT01A +"'");
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
@@ -1762,7 +1769,11 @@ namespace MasterOnline.Controllers
                         insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                         var kabKot = "3174";
                         var prov = "31";
-                        insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        var nama = order.recipient.name.Replace("'", "`");
+                        if (nama.Length > 30)
+                            nama = nama.Substring(0, 30);
+                        //insertPembeli += "('" + order.recipient.name.Replace("'", "`") + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "('" + nama + "','" + order.recipient.address.address_full.Replace("'", "`") + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full.Replace("'", "`") + "', 0, 0, 0, 0, '1', 0, 0, ";
                         insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code.Replace("'", "`") + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
@@ -1798,7 +1809,8 @@ namespace MasterOnline.Controllers
                                     buyer_phone = order.buyer.phone,
                                     shop_id = order.shop_id,
                                     payment_id = order.payment_id,
-                                    recipient_name = order.recipient.name,
+                                    //recipient_name = order.recipient.name,
+                                    recipient_name = nama,
                                     recipient_address_address_full = order.recipient.address.address_full,
                                     recipient_address_district = order.recipient.address.district,
                                     recipient_address_district_id = order.recipient.address.district_id,

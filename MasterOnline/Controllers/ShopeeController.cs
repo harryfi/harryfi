@@ -61,7 +61,7 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
@@ -72,7 +72,7 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                     username = accFromUser.Username;
@@ -453,7 +453,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
         protected async Task<BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden, bool insert_1st_img)
-        {
+        {            
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
             string brand = "OEM";
@@ -539,7 +539,10 @@ namespace MasterOnline.Controllers
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += detailBrg.item.weight * 1000 + "," + detailBrg.item.package_length + "," + detailBrg.item.package_width + "," + detailBrg.item.package_height + ", '";
-            sSQL += cust + "' , '" + detailBrg.item.description.Replace('\'', '`') + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            //change by nurul 22/1/2020, tambah paragraf
+            //sSQL += cust + "' , '" + detailBrg.item.description.Replace('\'', '`') + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            sSQL += cust + "' , '" + "<p>" + detailBrg.item.description.Replace('\'', '`').Replace("\n", "</p><p>") + "</p>" + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            //end change by nurul 22/1/2020, tambah paragraf
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
             //add kode brg induk dan type brg
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
@@ -2110,7 +2113,7 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -2972,6 +2975,22 @@ namespace MasterOnline.Controllers
             HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
             //end add by calvin 10 mei 2019
 
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
+
             //add by calvin 1 mei 2019
             var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
             if (qty_stock > 0)
@@ -3734,7 +3753,7 @@ namespace MasterOnline.Controllers
                 });
             }
             //end add by calvin 21 desember 2018, default nya semua logistic enabled
-
+            
             ShopeeUpdateProductData HttpBody = new ShopeeUpdateProductData
             {
                 item_id = item_id,
@@ -3753,6 +3772,25 @@ namespace MasterOnline.Controllers
                 attributes = new List<ShopeeAttributeClass>(),
                 logistics = logistics
             };
+
+            //add by nurul 20/1/2020, handle <p> dan enter double di shopee
+            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+
+            HttpBody.description = HttpBody.description.Replace("<p>", "").Replace("</p>", "").Replace("\r", "\r\n").Replace("strong", "b");
+            HttpBody.description = HttpBody.description.Replace("<li>", "- ").Replace("</li>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<ul>", "").Replace("</ul>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("&nbsp;\r\n\r\n", "\n").Replace("&nbsp;<em>", " ");
+            HttpBody.description = HttpBody.description.Replace("</em>&nbsp;", " ").Replace("&nbsp;", " ").Replace("</em>", "");
+            HttpBody.description = HttpBody.description.Replace("<br />\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("\r\n", "");
+
+            HttpBody.description = HttpBody.description.Replace("<h1>", "\r\n").Replace("</h1>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h2>", "\r\n").Replace("</h2>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<h3>", "\r\n").Replace("</h3>", "\r\n");
+            HttpBody.description = HttpBody.description.Replace("<p>", "\r\n").Replace("</p>", "\r\n");
+
+
+            HttpBody.description = System.Text.RegularExpressions.Regex.Replace(HttpBody.description, "<.*?>", String.Empty);
+            //end add by nurul 20/1/2020, handle <p> dan enter double di shopee
 
             try
             {
@@ -4680,6 +4718,62 @@ namespace MasterOnline.Controllers
                 catch (Exception ex2)
                 {
                 }
+            }
+            return ret;
+        }
+        public async Task<ShopeeGetTimeSlotResult> GetLabel(ShopeeAPIData iden, bool is_batch, List<string> ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            var ret = new ShopeeGetTimeSlotResult();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+            ShopeeGetAirwayBill HttpBody = new ShopeeGetAirwayBill
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                is_batch = is_batch,
+                ordersn_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //}
+
+            if (responseFromServer != "")
+            {
+
             }
             return ret;
         }
@@ -5811,6 +5905,14 @@ namespace MasterOnline.Controllers
             public long partner_id { get; set; }
             public long shopid { get; set; }
             public long timestamp { get; set; }
+        }
+        public class ShopeeGetAirwayBill
+        {
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
+            public long timestamp { get; set; }
+            public bool is_batch { get; set; }
+            public List<string> ordersn_list { get; set; } = new List<string>();
         }
         public class ShopeeGetTimeSlotData
         {

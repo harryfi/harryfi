@@ -1,0 +1,114 @@
+﻿@using PagedList
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Prompt Account";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+    </style>
+}
+<div>
+    <div class="col-lg-4 col-sm-6" id="div_search">
+        <div class="input-group">
+            <input id="search_promptakun" type="text" value="" class="form-control" placeholder="Pencarian">
+            <span class="input-group-btn">
+                <button type="button" id="search_promptakun_click" class="btn btn-primary">
+                    <i class="fa fa-search"></i>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="row" style="padding-left:10px; padding-right:10px;">
+        <div id="table-prompt-akun-partial">
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            refreshTablePromptakun();
+            $('#search_promptakun').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePromptakun();
+                    return false;
+                }
+            });
+            $('#search_promptakun_click').click(function () {
+                searchTablePromptakun();
+            });
+        });
+
+        function pilihPrompt(sender) {
+            let email = $(sender).attr('data-email');
+            let dbname = $(sender).attr('data-dbpath');
+            window.onunload = refreshTextBox(email,dbname);
+            self.window.close();
+        }
+        
+        function refreshTextBox(email,dbname) {
+            window.opener.afterPromptAccount(email,dbname);
+        }
+
+        function refreshTablePromptakun() {
+            var $link = '@Html.Raw(Url.Action("TablePromptAkunPartial", "Admin", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_promptakun').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_1').val()));
+    
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-prompt-akun-partial').hide();
+                    $('#loading_promptakun_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-akun-partial').html(response);
+    
+                    $('#table-prompt-akun-partial').show();
+    
+                    $('#loading_promptakun_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTablePromptakun() {
+            var $link = '@Html.Raw(Url.Action("TablePromptAkunPartial", "Admin", new { search = "replaceNama" }))';
+            $link = $link.replace("replaceNama", encodeURIComponent($('#search_promptakun').val()));
+
+            $.ajax({
+                url: $link,
+                type: "GET",
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_promptakun_tab').show();
+                },
+                success: function (response) {
+                    $('#table-prompt-akun-partial').html(response);
+                    $('#loading_promptakun_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+    </script>
+}

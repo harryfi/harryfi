@@ -71,6 +71,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Supplier</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Terakhir Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
             </tr>
@@ -90,6 +91,7 @@
                         <td>@invoice.SUPPLIER</td>
                         <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.TOTAL)</td>
                         <td>@(Convert.ToString(invoice.POSTING) == "Y" ? "Sudah" : "Belum")</td>
+                        <td>@(invoice.TGL_LASTEDIT?.ToString("dd/MM/yyyy"))</td>
                         <td class="edit-hapus-col">
                             @if (Convert.ToString(invoice.POSTING) == "Y" || invoice.PEMBAYARAN != "")
                             {

@@ -42,7 +42,7 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 username = sessionData.Account.Username;
@@ -52,7 +52,7 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     username = accFromUser.Username;
                 }
@@ -2430,6 +2430,7 @@ namespace MasterOnline.Controllers
                         string desc = Convert.ToString(result.value.description).Replace('\'', '`').Replace("<!DOCTYPE html>\n<html>\n<head>\n</head>\n<body>", "").Replace("</body>\n</html>", "");
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
+                        string blibliBrand = result.value.brand.ToString();
                         //remark 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                         //if (string.IsNullOrEmpty(merchantSku))
                         //    merchantSku = result.value.items[0].skuCode;
@@ -2444,13 +2445,13 @@ namespace MasterOnline.Controllers
                         if (numVarian > 1)
                         {
                             ////change 19/9/19, varian ambil 2 barang
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '' , '', '', ''";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "\'\'") + "' , '" + urlImage + "' , '' , '', '', ''";
                             //sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "', '', '', ''";
                             ////end change 19/9/19, varian ambil 2 barang
                         }
                         else
                         {
-                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
+                            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + blibliBrand.Replace("\'", "\'\'") + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + urlImage4 + "' , '" + urlImage5 + "'";
                         }
                         //end change 21/8/2019, barang varian ambil 1 gambar saja
                         //add kode brg induk dan type brg

@@ -70,8 +70,9 @@ namespace MasterOnline.Controllers
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext();
-            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+            ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
             username = uname;
         }
 
@@ -1158,7 +1159,12 @@ namespace MasterOnline.Controllers
                                             break;
                                     }
 
-                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
+                                    var nama = order.customerName.Replace('\'', '`');
+                                    if (nama.Length > 30)
+                                        nama = nama.Substring(0, 30);
+
+                                    //insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
+                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + nama + "','";
                                     insertQ += order.deliveryAddr.Replace('\'', '`') + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
                                     insertQ += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
                                     insertQ += order.sendPay + "','" + order.state.Replace('\'', '`') + "'," + order.totalPrice + ",'" + order.userPin + "','" + cust + "','" + username + "','" + conn_id + "') ,";
@@ -1184,7 +1190,8 @@ namespace MasterOnline.Controllers
                                     if (tblKabKot.Tables[0].Rows.Count > 0)
                                         kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                                    insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                    //insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                    insertPembeli += "('" + nama + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
                                     insertPembeli += "1, 'IDR', '01', '" + order.address.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
                                     insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.postCode.Replace('\'', '`') + "', '" + order.email.Replace('\'', '`') + "', '" + kabKot + "', '" + prov + "', '" + order.city.Replace('\'', '`') + "', '" + order.state.Replace('\'', '`') + "', '" + conn_id + "') ,";
 

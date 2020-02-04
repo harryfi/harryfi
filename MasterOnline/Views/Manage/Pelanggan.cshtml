@@ -1073,6 +1073,7 @@
                                             @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
                                             @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
                                             @Html.HiddenFor(m => m.Customers.TOP, new { Value = "1" })
+
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
@@ -1112,54 +1113,64 @@
                                                     @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
                                                 </div>
                                             </div>
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6">
-                                                        <h5>Hari</h5>
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
+                                            // add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.TIDAK_HIT_UANG_R, "Status Sync Pesanan & Stok", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.TIDAK_HIT_UANG_R)
+                                                        <select style="display:none" single class="selectize-dropdown single" id="Customers_TIDAK_HIT_UANG_R" placeholder="Harap pilih" required="disabled"></select>
                                                 </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>*@
+                                            </div>
+                                            // end add by fauzi, add selection untuk setting status sync pesanan stok marketplace 25 November 2019
+
                                             @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                                </div>*@
+                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.TOP, "Term Of Payment (TOP) *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6">
+                    <h5>Hari</h5>
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>*@
+                                            @*<div class="form-group">
+                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+            </div>*@
                                             <div class="form-group">
                                                 <div id="divAPIKey"></div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
@@ -1447,6 +1458,51 @@
 
             });
 
+        //add by fauzi 06/12/2019
+        function simpanStatusSyncPesananStok(custID, status) {
+            @*var link = '@Url.Action("SaveStatusSyncPesananStok", "Manage", new { data = "custID_statusSync"})';*@
+             var $link = '@Html.Raw(Url.Action("SaveStatusSyncPesananStok", "Manage", new { custID = "cust_ID", statusSync = "status_Sync" }))';
+            $link = $link.replace("cust_ID", custID);
+            $link = $link.replace("status_Sync", String(status));
+            var msg = null;
+
+            $.ajax({
+                type: "POST",
+                url: $link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#loading_spinner').hide();
+                        if (response.success == true) {
+                            alert(response.status.toString());
+                        } else {
+                            alert(response.status.toString());
+                        }
+                        @*var cekpesanan = @Model.ListPesanan.Count();
+                        if (cekpesanan == 0) {
+                            window.location.reload(true);
+                        } else {
+                            $('#pesanan-tab').click();
+                        }*@
+
+                        //$('#loading_spinner').hide();
+                    } else {
+                        $('#loading_spinner').hide();
+                        alert(response.Errors);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+        //end add by fauzi 06/12/2019
+
         function cekJumlahMarketplace() {
             //change by nurul 21/2/2019
             @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
@@ -1470,6 +1526,9 @@
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             $('#form_input').hide();
                             $('#form_subs').show();
@@ -1483,6 +1542,9 @@
                         $('#tambah_market').on('click', function () {
                             RemoveAllAdds();
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             $('#form_input').show();
                             $('#form_subs').hide();
@@ -1626,6 +1688,7 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
+                                
 
                                 if (@bklapak != value && @tokped != value && @shopee != value && @others != value) {
                                 @*if (@bklapak != value && @shopee != value) {*@
@@ -1690,6 +1753,11 @@
 
                                 if (@blibli == value) {
                                     showHideBlibliForm(true);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#BlibliMerchantID').show();
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').show();
+                                    // end
                                 }
                                 else {
                                     showHideBlibliForm(false);
@@ -1697,6 +1765,16 @@
                                 //unremark by nurul 25/3/2019
                                 if (@tokped == value) {
                                     showHideTokpedForm(true);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#JDAppSecret').hide();
+                                    $('#JDAccessToken').hide();
+                                    $('#BlibliMerchantID').hide();
+                                    $('#BlibliClient').show();
+                                    $('#BlibliClientPass').hide();
+                                    $('#Customers_Sort1_Cust').val('13072'); // FSID MO : 13072
+                                    $('#Customers_API_CLIENT_U').val(''); // Client ID : 36bc3d7bcc13404c9e670a84f0c61676
+                                    $('#Customers_API_CLIENT_P').val('8a76adc52d144a9fa1ef4f96b59b7419'); // Client secret : 8a76adc52d144a9fa1ef4f96b59b7419
+                                    //end fauzi 23 Januari 2020
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
                                     $('#descAPIKey').hide();
@@ -1704,6 +1782,12 @@
                                 }
                                 else {
                                     showHideTokpedForm(false);
+                                    //add by fauzi 23 Januari 2020
+                                    $('#Customers_Sort1_Cust').val('');
+                                    $('#Customers_API_CLIENT_U').val('');
+                                    $('#Customers_API_CLIENT_P').val('');
+                                    // end
+
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
                                     $('#descAPIKey').show();
@@ -1711,6 +1795,8 @@
                                 }
                                 if (@jd == value) {
                                     showHideJDForm(true);
+                                    $('#JDAppSecret').show();
+                                    $('#JDAccessToken').show();
                                 } else {
                                     showHideJDForm(false);
                                 }
@@ -1871,8 +1957,8 @@
             $('#txtTOKEN').remove();
             $('#labelAPP_SECRET').remove();
             $('#txtAPP_SECRET').remove();
-            //JDAppSecret
-            //JDAccessToken
+
+
             if (show) {
 
                 var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
@@ -1953,6 +2039,7 @@
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+
                 $('#lbl_Customers_API_KEY').html("API Secret Key *");
                 $('#labelAPI_CLIENT_U').html("API client username *");
             }
@@ -1973,6 +2060,11 @@
             $('#descAPIKey2').show();
             $('#labelKetTokped1').remove();
             $('#labelKetTokped2').remove();
+
+            //add by fauzi 23 Januari 2020
+            $('#Customers_API_CLIENT_U').val('36bc3d7bcc13404c9e670a84f0c61676'); // Client ID : 36bc3d7bcc13404c9e670a84f0c61676
+            //end fauzi 23 Januari 2020
+
             if (show) {
                 var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
 
@@ -2010,17 +2102,18 @@
                 var txtAPI_KeyTokped = '<div id="txtAPI_KeyTokped" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Shop ID must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100" value="' + valuetxtAPI_Key + '"></div>';
 
                 //<div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
-                var labelKetTokped1 = '<label id="labelKetTokped1" >1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
-                var labelKetTokped2 = '<label id="labelKetTokped2" >2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
+                //var labelKetTokped1 = '<label id="labelKetTokped1" >1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
+                //var labelKetTokped2 = '<label id="labelKetTokped2" >2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
                 //end add by nurul 25/3/2019
                 //$('#descAPIKey').hide();
                 //$('#descAPIKey2').hide();
+                
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
                 $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
-                $('#LabelTokped1').append(labelKetTokped1);
-                $('#LabelTokped2').append(labelKetTokped2);
+                //$('#LabelTokped1').append(labelKetTokped1);
+                //$('#LabelTokped2').append(labelKetTokped2);
             }
         }
         function Initialize() {
@@ -2042,6 +2135,9 @@
 
             $('#tambah_market').on('click', function () {
                 $('.customer_table_section').hide();
+                //add by fauzi 19 Desember 2019
+                getStatusSyncMarketplace(false);
+                //end
                 $('.customer_editor_section').show();
                 //add by nruul 18/10/2018
                 $("#Customers_TOP").keydown(
@@ -2164,6 +2260,16 @@
                     $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
                     $('#Customers_TLP').val(response.Customers.TLP);
                     $('#Customers_TOP').val(response.Customers.TOP);
+                   
+                    //add by fauzi 06/12/2019 function for onchange selectize and change db arf01 TIDAK_HIT_UANG_R (sync_pesanan_dan_stok)
+                    getStatusSyncMarketplace(response.Customers.TIDAK_HIT_UANG_R);
+
+                    //add fauzi
+                    //$('#formdivAPIKey').show();
+                    $('#divAPIKey').show();
+                    $('#JDAppSecret').show();
+                    $('#JDAccessToken').show();
+
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
                     $('#form_input').show();
@@ -2277,6 +2383,11 @@
                     $('#txtTOKEN').remove();
                     $('#labelAPP_SECRET').remove();
                     $('#txtAPP_SECRET').remove();
+
+                    //add by fauzi 23 Januari 2020
+                    $('#JDAppSecret').show();
+                    $('#JDAccessToken').show();
+
                     @{
                         var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
                     }
@@ -2309,10 +2420,15 @@
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                         $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        //add by fauzi 23 Januari 2020
+                        $('#divAPIKey').show();
+                        $('#BlibliMerchantID').show();
+                        $('#BlibliClient').show();
+                        $('#BlibliClientPass').show();
+                        //end add
                         $('#labelAPI_CLIENT_U').html("API client username *");
                     }
                     if (@tokped == response.Customers.NAMA) {
-
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
 
                         var valuetxtSort1_Cust = "";
@@ -2349,17 +2465,24 @@
                         var txtAPI_KeyTokped = '<div id="txtAPI_KeyTokped" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Shop ID must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100" value="' + valuetxtAPI_Key + '"></div>';
 
                         //<div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
-                        var labelKetTokped1 = '<label id="labelKetTokped1">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
-                        var labelKetTokped2 = '<label id="labelKetTokped2">2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
+                        //var labelKetTokped1 = '<label id="labelKetTokped1">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
+                        //var labelKetTokped2 = '<label id="labelKetTokped2">2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
                         //end add by nurul 25/3/2019
                         $('#descAPIKey').hide();
                         $('#descAPIKey2').hide();
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                         $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        // add by fauzi 23 Januari 2020
+                        $('#JDAppSecret').hide();
+                        $('#JDAccessToken').hide();
+                        $('#BlibliMerchantID').hide();
+                        $('#BlibliClient').show();
+                        $('#BlibliClientPass').hide();
+                        // end by fauzi 23 Januari 2020
                         $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
-                        $('#LabelTokped1').append(labelKetTokped1);
-                        $('#LabelTokped2').append(labelKetTokped2);
+                        //$('#LabelTokped1').append(labelKetTokped1);
+                        //$('#LabelTokped2').append(labelKetTokped2);
                     }
                     if (@jd == response.Customers.NAMA) {
                         var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
@@ -2408,6 +2531,80 @@
             });
         }
         //add by Tri, call midtrans api get token
+
+        // add by fauzi 27 November 2019
+        function getStatusSyncMarketplace(response) {
+            var resp = false;
+            var resultStatus = false;
+            if (response == true) {
+                resp = "true01"
+            } else if (response == false) {
+                resp = "false02"
+            }
+            
+            var statusSyncMarketplace = $('#Customers_TIDAK_HIT_UANG_R').selectize({
+                create: true,
+                maxItems: 1,
+                multiple: false,
+                addOption: false,
+                sortField: 'text',
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text'],
+                options: [
+                    { value: "true", text: "Aktif", selected: true },
+                    { value: "false", text: "Tidak Aktif", selected: true },
+                ],
+                selectedField: "selected",
+                //onInitialize: function () {
+                //this.trigger('change', resp);
+                //},
+                onChange: function (value) {
+                    if (value == "true") {
+                        if (confirm("Anda akan menghidupkan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda dengan stok yang sudah Anda lengkapi di Master Online.\n\nLanjutkan ?")) {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                            resultStatus = true;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                        else {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                            resultStatus = false;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                    }
+                    else if (value == "false") {
+                        if (confirm("Anda akan mematikan fitur sync pesanan dan stok dari MasterOnline ke akun marketplace Anda.\n\nLanjutkan ?")) {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                            resultStatus = false;
+                            simpanStatusSyncPesananStok($('#Customers_CUST').val(), String(resultStatus));
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                        else {
+                            $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                            resultStatus = true;
+                            statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                        }
+                    }
+                    else if (value == "true01") {
+                        $('#Customers_TIDAK_HIT_UANG_R').val("true");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                    }
+                    else if (value == "false02") {
+                        $('#Customers_TIDAK_HIT_UANG_R').val("false");
+                        statusSyncMarketplace[0].selectize.setValue($('#Customers_TIDAK_HIT_UANG_R').val(), true);
+                    }
+                }
+            });
+            statusSyncMarketplace[0].selectize.trigger('change', resp);
+
+            if ($('#CUSTNUMBER').val() == "[AUTO]") {
+                statusSyncMarketplace[0].selectize.disable();
+            }
+            else {
+                statusSyncMarketplace[0].selectize.enable();
+            }
+        }
 
         function convertToRupiah(angka) {
             //change by calvin 26 september 2018
@@ -2729,6 +2926,9 @@
 
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
+                            //add by fauzi 19 Desember 2019
+                            getStatusSyncMarketplace(false);
+                            //end
                             $('.customer_editor_section').show();
                             //add by nruul 18/10/2018
                             $("#Customers_TOP").keydown(

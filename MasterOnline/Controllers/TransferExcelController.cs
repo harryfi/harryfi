@@ -24,6 +24,7 @@ namespace MasterOnline.Controllers
         string username;
 
         string dbPathEra = "";
+        string DataSourcePath = "";
         public TransferExcelController()
         {
             MoDbContext = new MoDbContext();
@@ -34,10 +35,11 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DataSourcePath, sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
+                DataSourcePath = sessionData.Account.DataSourcePath;
                 username = sessionData.Account.Username;
             }
             else
@@ -45,10 +47,10 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
-
+                    DataSourcePath = accFromUser.DataSourcePath;
                     username = accFromUser.Username;
                 }
             }
@@ -423,7 +425,7 @@ namespace MasterOnline.Controllers
                         {
                             using (ExcelPackage excelPackage = new ExcelPackage(stream))
                             {
-                                using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
@@ -796,7 +798,7 @@ namespace MasterOnline.Controllers
                             //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
                             //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
                             {
-                                using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
                                     eraDB.Database.CommandTimeout = 180;
                                     //loop all worksheets
@@ -868,46 +870,84 @@ namespace MasterOnline.Controllers
                                                     JAM = 1
                                                 };
 
-                                                var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
-                                                var digitAkhir = "";
-                                                var noStok = "";
+                                                //change by nurul 23/12/2019, perbaikan no bukti
+                                                //var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
+                                                //var digitAkhir = "";
+                                                //var noStok = "";
 
-                                                if (listStokInDb.Count == 0)
-                                                {
-                                                    digitAkhir = "000001";
-                                                    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                                                }
-                                                else
-                                                {
-                                                    var lastRecNum = listStokInDb.Last().ID;
-                                                    var lastKode = listStokInDb.Last().Nobuk;
-                                                    lastRecNum++;
+                                                //if (listStokInDb.Count == 0)
+                                                //{
+                                                //    digitAkhir = "000001";
+                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                //    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                                                //}
+                                                //else
+                                                //{
+                                                //    var lastRecNum = listStokInDb.Last().ID;
+                                                //    var lastKode = listStokInDb.Last().Nobuk;
+                                                //    lastRecNum++;
 
-                                                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                                                    if (noStok == lastKode)
-                                                    {
-                                                        lastRecNum++;
-                                                        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                    }
-                                                }
+                                                //    if (noStok == lastKode)
+                                                //    {
+                                                //        lastRecNum++;
+                                                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                                //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                                //    }
+                                                //}
+                                                var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                                                //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
+                                                var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                                                //end change by nurul 23/12/2019, perbaikan no bukti
 
                                                 stt01a.Nobuk = noStok;
-                                                eraDB.STT01A.Add(stt01a);
+
+
+                                                //change by nurul 23/12/2019, perbaikan no_bukti
+                                                //eraDB.STT01A.Add(stt01a);
+                                                //try
+                                                //{
+                                                //    //save header
+                                                //    eraDB.SaveChanges();
+                                                //}
+                                                //catch (Exception ex)
+                                                //{
+                                                //    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                //    ret.Errors.Add(errMsg);
+                                                //    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                //}
                                                 try
                                                 {
-                                                    //save header
+                                                    eraDB.STT01A.Add(stt01a);
                                                     eraDB.SaveChanges();
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                                                    ret.Errors.Add(errMsg);
-                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    var tempSI = eraDB.STT01A.Where(a => a.Nobuk == stt01a.Nobuk).Single();
+                                                    if (tempSI != null)
+                                                    {
+                                                        if (tempSI.Nobuk == noStok)
+                                                        {
+                                                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                                                            lastBuktiNew++;
+                                                            noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                                                            stt01a.Nobuk = noStok;
+                                                            eraDB.STT01A.Add(stt01a);
+                                                            eraDB.SaveChanges();
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                        ret.Errors.Add(errMsg);
+                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    }
                                                 }
+                                                //end change by nurul 23/12/2019, perbaikan no bukti
+
+                                                
                                                 #endregion
                                                 //loop all rows
                                                 for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
@@ -1064,7 +1104,7 @@ namespace MasterOnline.Controllers
                             {
                                 using (ExcelPackage excelPackage = new ExcelPackage(stream))
                                 {
-                                    using (ErasoftContext eraDB = new ErasoftContext(dbPathEra))
+                                    using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                     {
                                         eraDB.Database.CommandTimeout = 180;
                                         //loop all worksheets

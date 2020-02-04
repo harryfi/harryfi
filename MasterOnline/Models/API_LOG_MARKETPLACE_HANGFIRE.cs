@@ -22,6 +22,7 @@ namespace MasterOnline
         public string Username { get; set; }
         public string Email { get; set; }
         public string NamaTokoOnline{ get; set; }
+        public string DatabaseSourceErasoft{ get; set; }
         public string DatabasePathErasoft{ get; set; }
         public int HangfireServerCount { get; set; }
         public DateTime? LAST_LOGIN_DATE { get; set; }
