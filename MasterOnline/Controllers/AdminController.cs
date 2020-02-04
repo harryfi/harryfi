@@ -2902,25 +2902,38 @@ namespace MasterOnline.Controllers
         [SessionAdminCheck]
         public ActionResult AdminStopHangfireServer(string nourut = "")
         {
-            var EDB = new DatabaseSQL(nourut);
-
-            string EDBConnID = EDB.GetConnectionString("ConnID");
-            var sqlStorage = new SqlServerStorage(EDBConnID);
-
-            var monitoringApi = sqlStorage.GetMonitoringApi();
-            var serverList = monitoringApi.Servers();
-
-            if (serverList.Count() > 0)
+            try
             {
-                foreach (var server in serverList)
-                {
-                    var serverConnection = sqlStorage.GetConnection();
-                    serverConnection.RemoveServer(server.Name);
-                    serverConnection.Dispose();
-                }
-            }
+                var vsuccess = false;
+                var vstatus = "";
+                var EDB = new DatabaseSQL(nourut);
 
-            return Json("", JsonRequestBehavior.AllowGet);
+                string EDBConnID = EDB.GetConnectionString("ConnID");
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                var monitoringApi = sqlStorage.GetMonitoringApi();
+                var serverList = monitoringApi.Servers();
+
+                if (serverList.Count() > 0)
+                {
+                    foreach (var server in serverList)
+                    {
+                        //var serverConnection = sqlStorage.GetConnection().RemoveServer(server.Name);
+                        sqlStorage.GetMonitoringApi().Servers().Remove(server);
+                        sqlStorage.GetMonitoringApi().Servers().Clear();
+                        sqlStorage.GetConnection().RemoveServer(server.Name);
+                        sqlStorage.GetConnection().Dispose();
+
+                        vsuccess = true;
+                        vstatus = "Hangfire berhasil dinonaktifkan.";
+                    }
+                }
+                return Json(new { success = vsuccess, status = vstatus }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, status = ex.Message.ToString() }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [SessionAdminCheck]
@@ -2949,84 +2962,113 @@ namespace MasterOnline.Controllers
         public ActionResult AdminStartHangfireServer(string dbsource, string nourut = "", string timer = "")
         {
             int interval = 30;
+            var vstatus = "";
+            var vsuccess = false;
             try
             {
                 interval = Convert.ToInt32(timer);
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var datenow = DateTime.UtcNow.AddHours(7);
+
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   (a.DatabasePathErasoft == nourut)
+                                   &&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select a).ToList();
+                if (accountInDb.Count() > 0)
+                {
+                    foreach (var item in accountInDb)
+                    {
+                        var EDB = new DatabaseSQL(nourut);
+
+                        string EDBConnID = EDB.GetConnectionString("ConnID");
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                        var monitoringApi = sqlStorage.GetMonitoringApi();
+                        var serverList = monitoringApi.Servers();
+
+                        if (serverList.Count() == 0)
+                        {
+                            var optionsStatusResiServer = new BackgroundJobServerOptions
+                            {
+                                ServerName = "StatusResiPesanan",
+                                Queues = new[] { "1_manage_pesanan" },
+                                WorkerCount = 1,
+
+                            };
+                            var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
+
+                            var options = new BackgroundJobServerOptions
+                            {
+                                ServerName = "Account",
+                                Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+                                WorkerCount = 1,
+                            };
+                            var newserver = new BackgroundJobServer(options, sqlStorage);
+
+                            var optionsStokServer = new BackgroundJobServerOptions
+                            {
+                                ServerName = "Stok",
+                                Queues = new[] { "1_update_stok" },
+                                WorkerCount = 2,
+                            };
+                            var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+
+                            var optionsBarangServer = new BackgroundJobServerOptions
+                            {
+                                ServerName = "Product",
+                                Queues = new[] { "1_create_product" },
+                                WorkerCount = 1,
+                            };
+                            var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
+
+                            RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                            RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+                            {
+                                QueueName = "3_general"
+                            };
+                            using (var connection = sqlStorage.GetConnection())
+                            {
+                                //remove semua recurring job
+                                foreach (var recurringJob in connection.GetRecurringJobs())
+                                {
+                                    recurJobM.RemoveIfExists(recurringJob.Id);
+                                }
+                                //run semua recurring job seperti user login
+                                //remark by fauzi 28 Januari 2020
+                                //var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
+                                Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, "", "auto_start", interval, null)).Wait();
+                            }
+                            using (var connection = sqlStorage.GetConnection())
+                            {
+                                //update semua recurring job dengan interval sesuai setting timer
+                                foreach (var recurringJob in connection.GetRecurringJobs())
+                                {
+                                    recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
+                                }
+                            }
+                            vsuccess = true;
+                            vstatus = "Hangfire untuk account " + item.Email.ToString() + " telah diaktifkan.";
+                        }
+                        else
+                        {
+                            vstatus = "Hangfire untuk account " + item.Email.ToString() + " sudah aktif.";
+                        }
+                    }
+                }
+                else
+                {
+                    vsuccess = false;
+                    vstatus = "Hangfire tidak dapat diaktifkan dikarenakan account sudah expired.";
+                }
+                return Json(new { success = vsuccess, status = vstatus }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-
+                return Json(new { success = false, status = ex.Message.ToString() }, JsonRequestBehavior.AllowGet);
             }
-            var EDB = new DatabaseSQL(nourut);
-
-            string EDBConnID = EDB.GetConnectionString("ConnID");
-            var sqlStorage = new SqlServerStorage(EDBConnID);
-
-            var monitoringApi = sqlStorage.GetMonitoringApi();
-            var serverList = monitoringApi.Servers();
-
-            if (serverList.Count() == 0)
-            {
-                var optionsStatusResiServer = new BackgroundJobServerOptions
-                {
-                    ServerName = "StatusResiPesanan",
-                    Queues = new[] { "1_manage_pesanan" },
-                    WorkerCount = 1,
-
-                };
-                var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
-
-                var options = new BackgroundJobServerOptions
-                {
-                    ServerName = "Account",
-                    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
-                    WorkerCount = 1,
-                };
-                var newserver = new BackgroundJobServer(options, sqlStorage);
-
-                var optionsStokServer = new BackgroundJobServerOptions
-                {
-                    ServerName = "Stok",
-                    Queues = new[] { "1_update_stok" },
-                    WorkerCount = 2,
-                };
-                var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
-
-                var optionsBarangServer = new BackgroundJobServerOptions
-                {
-                    ServerName = "Product",
-                    Queues = new[] { "1_create_product" },
-                    WorkerCount = 1,
-                };
-                var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
-
-                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
-                RecurringJobOptions recurJobOpt = new RecurringJobOptions()
-                {
-                    QueueName = "3_general"
-                };
-                using (var connection = sqlStorage.GetConnection())
-                {
-                    //remove semua recurring job
-                    foreach (var recurringJob in connection.GetRecurringJobs())
-                    {
-                        recurJobM.RemoveIfExists(recurringJob.Id);
-                    }
-                    //run semua recurring job seperti user login
-                    //remark by fauzi 28 Januari 2020
-                    //var sifsys_jtranretur = Convert.ToString(EDB.GetFieldValue("ConnID", "SIFSYS", "1=1", "JTRAN_RETUR"));
-                    Task.Run(() => new AccountController().SyncMarketplace(dbsource, nourut, EDBConnID, "", "auto_start", interval, null)).Wait();
-                }
-                using (var connection = sqlStorage.GetConnection())
-                {
-                    //update semua recurring job dengan interval sesuai setting timer
-                    foreach (var recurringJob in connection.GetRecurringJobs())
-                    {
-                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(interval), recurJobOpt);
-                    }
-                }
-            }
-            return Json("", JsonRequestBehavior.AllowGet);
         }
 
         [SessionAdminCheck]

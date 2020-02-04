@@ -2716,7 +2716,7 @@ namespace MasterOnline.Controllers
             var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
             if (bindOrder != null)
             {
-                if (bindOrder.code.Equals("0"))
+                if (bindOrder.code.Equals("0") && bindOrder.data.orders != null)
                 {
                     string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
                     string sSQL2 = "";

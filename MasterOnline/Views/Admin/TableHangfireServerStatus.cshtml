@@ -12,26 +12,31 @@
 
     function StopHangfireServer(sender) {
         var jobid = $(sender).attr('data-dbpathera');
+        var email = $(sender).attr('data-email');
+        if (confirm("Apakah Anda yakin untuk menonaktifkan hangfire akun " + email.toString() +"? \n\nLanjutkan ?")) {
+            var link = '@Url.Action("AdminStopHangfireServer", "Admin", new { nourut = "replaceNoUrut" })';
+            link = link.replace("replaceNoUrut", jobid);
 
-        var link = '@Url.Action("AdminStopHangfireServer", "Admin", new { nourut = "replaceNoUrut" })';
-        link = link.replace("replaceNoUrut", jobid);
-
-        $.ajax({
-            type: "POST",
-            url: link,
-            contentType: 'application/json',
-            cache: false,
-            beforeSend: function () {
-                $('#loading_barang_tab').show();
-            },
-            success: function (response) {
-                refreshTableLog();
-            },
-            error: function (response) {
-                retryid.attr("disabled", false);
-            }
-        });
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    alert(response.status.toString());
+                    refreshTableLog();
+                },
+                error: function (response) {
+                    alert(response.status.toString());
+                    retryid.attr("disabled", false);
+                }
+            });
+        }
     }
+
     function StartHangfireServer(sender) {
         var timerMinute = prompt("Recurring Job Interval ?", "30");
         if (timerMinute != null && timerMinute != "") {
@@ -56,9 +61,11 @@
                     $('#loading_barang_tab').show();
                 },
                 success: function (response) {
+                    alert(response.status.toString());
                     refreshTableLog();
                 },
                 error: function (response) {
+                    alert(response.status.toString());
                 }
             });
         }
@@ -104,14 +111,14 @@
             <td style="text-align:center">
                 @if (aktivitas.HangfireServerCount > 0)
                 {
-                    <button class="btn btn-danger" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Stop Recurring Jobs"
+                    <button class="btn btn-danger" data-email="@aktivitas.Email" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Stop Recurring Jobs"
                             onclick="StopHangfireServer(this)">
                         <span>Shutdown</span>
                     </button>
                 }
                 else
                 {
-                    <button class="btn btn-primary" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
+                    <button class="btn btn-primary" data-email="@aktivitas.Email" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Start Recurring Jobs"
                             onclick="StartHangfireServer(this)">
                         <span>Activate</span>
                     </button>
