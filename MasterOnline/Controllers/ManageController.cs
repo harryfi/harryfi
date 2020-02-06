@@ -39343,6 +39343,10 @@ namespace MasterOnline.Controllers
 
                                     context.SIT01B.AddRange(listSIT01B);
                                     context.SaveChanges();
+
+                                    //add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
+                                    context.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = newSIT01A.BRUTO });                                    
+                                    //end add by nurul 6/2/2020, tambah update sit01a untuk trigger create art01d
                                 }
                                 context.SOT03B.AddRange(newpackingdetail);
                                 context.SOT03C.AddRange(newpackingbrgdetail);
