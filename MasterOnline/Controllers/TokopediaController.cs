@@ -2271,7 +2271,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 200)
+                if (result.header.error_code == 0)
                 {
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
                     var success_induk = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
@@ -2346,7 +2346,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 200)
+                if (result.header.error_code == 0)
                 {
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
 
