@@ -136,14 +136,34 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
                 }
             }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+                throw new Exception(err);
+            }
+
             //}
             //catch (Exception ex)
             //{
@@ -447,8 +467,10 @@ namespace MasterOnline.Controllers
                     images = new List<CreateProduct_Images>()
                 };
 
-                newDataProduct.description = newDataProduct.description.Replace("<p>","").Replace("</p>","").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
-                ////add by calvin 1 mei 2019
+                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+
+                //remark by nurul 4/2/2020
+                //add by calvin 1 mei 2019
                 //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                 //if (qty_stock > 0)
                 //{
@@ -899,6 +921,10 @@ namespace MasterOnline.Controllers
                     product_video = null,
                     images = new List<CreateProduct_Images>()
                 };
+
+                //add by nurul 6/2/2020
+                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                //end add by nurul 6/2/2020
 
                 //add by calvin 1 mei 2019
                 var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
