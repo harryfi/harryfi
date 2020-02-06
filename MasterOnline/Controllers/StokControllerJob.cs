@@ -2268,9 +2268,9 @@ namespace MasterOnline.Controllers
 
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
 
-                    if (!string.IsNullOrWhiteSpace(result.header.messages))
+                    if (result.data.failed_rows > 0 && result.data.succeed_rows == 0)
                     {
-                        throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
+                        throw new Exception(result.header.messages + ";failed_rows_data:" + result.data.failed_rows_data);
                     }
                     else
                     {
