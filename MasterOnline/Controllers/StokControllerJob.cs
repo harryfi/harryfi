@@ -2292,11 +2292,11 @@ namespace MasterOnline.Controllers
                                         rowFailedMessage = rowFailedMessage + Convert.ToString(itemRow.message) + " product id:" + Convert.ToString(itemRow.product_id) + ";";
                                     }
                                 }
-                                throw new Exception(result.header.messages + ";failed_rows_data:" + rowFailedMessage);
+                                throw new Exception("failed_rows_data:" + rowFailedMessage);
                             }
                             else
                             {
-                                throw new Exception(result.header.messages + ";failed_rows:" + Convert.ToString(result.data.failed_rows));
+                                throw new Exception("failed_rows:" + Convert.ToString(result.data.failed_rows));
                             }
                             
                         }
