@@ -136,7 +136,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-
+            string err = "";
             try
             {
                 using (WebResponse response = await myReq.GetResponseAsync())
@@ -150,7 +150,7 @@ namespace MasterOnline.Controllers
             }
             catch (WebException e)
             {
-                string err = "";
+                
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 if (e.Status == WebExceptionStatus.ProtocolError)
@@ -160,10 +160,55 @@ namespace MasterOnline.Controllers
                     {
                         err = sr.ReadToEnd();
                     }
+                    
                 }
-                throw new Exception(err);
+                else
+                {
+                    throw new Exception(err);
+                }
             }
-
+            if (err != "")
+            {
+                var resultErr = Newtonsoft.Json.JsonConvert.DeserializeObject(err, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
+                if (resultErr.header.messages != "" && resultErr.header.reason == "error get upload id")
+                {
+                    var token1 = SetupContext(iden);
+                    iden.token = token1;
+                    long milis1 = CurrentTimeMillis();
+                    DateTime milisBack1 = DateTimeOffset.FromUnixTimeMilliseconds(milis1).UtcDateTime.AddHours(7);
+                    string urll1 = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
+                    
+                    HttpWebRequest myReq1 = (HttpWebRequest)WebRequest.Create(urll1);
+                    myReq.Method = "GET";
+                    myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+                    myReq.Accept = "application/x-www-form-urlencoded";
+                    myReq.ContentType = "application/json";
+                    try
+                    {
+                        using (WebResponse response = await myReq1.GetResponseAsync())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (WebException ex)
+                    {
+                        string err1 = "";
+                        if (ex.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp1 = ex.Response;
+                            using (StreamReader sr1 = new StreamReader(resp1.GetResponseStream()))
+                            {
+                                err1 = sr1.ReadToEnd();
+                            }
+                        }
+                        throw new Exception(err1);
+                    }
+                }
+            }
             //}
             //catch (Exception ex)
             //{
