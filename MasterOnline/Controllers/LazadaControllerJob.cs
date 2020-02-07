@@ -2241,7 +2241,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -2587,7 +2587,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -2928,7 +2928,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID, string dbPathEra, string uname)
+        public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID, string dbPathEra, string uname, string cust)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -3104,7 +3104,7 @@ namespace MasterOnline.Controllers
                 SqlCommand CommandSQL = new SqlCommand();
                 CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                 CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
+                CommandSQL.Parameters.Add("@customer", SqlDbType.VarChar).Value = cust;
 
                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
@@ -3115,7 +3115,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        public BindingBase getMultiOrderItems2WithQueue(string dbPathEra, string uname, List<string> orderIds, string accessToken, string connectionID)
+        public BindingBase getMultiOrderItems2WithQueue(string dbPathEra, string uname, List<string> orderIds, string accessToken, string connectionID, string cust)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -3286,7 +3286,7 @@ namespace MasterOnline.Controllers
                 SqlCommand CommandSQL = new SqlCommand();
                 CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                 CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
+                CommandSQL.Parameters.Add("@customer", SqlDbType.VarChar).Value = cust;
 
                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
