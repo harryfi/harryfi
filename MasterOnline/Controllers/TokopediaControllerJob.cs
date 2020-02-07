@@ -257,12 +257,12 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
 
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(EditProductGetStatusResult)) as EditProductGetStatusResult;
                 if (result.header.error_code == 0)
                 {
-                    if (result.data.upload_data.Count() > 0)
+                    if (result.data.Count() > 0)
                     {
-                        foreach (var item in result.data.upload_data)
+                        foreach (var item in result.data)
                         {
                             if (item.unprocessed_rows > 0)
                             {
@@ -329,6 +329,7 @@ namespace MasterOnline.Controllers
         {
             public CreateProductGetStatusResultUpload_Data[] upload_data { get; set; }
         }
+        
 
         public class CreateProductGetStatusResultUpload_Data
         {
@@ -343,6 +344,47 @@ namespace MasterOnline.Controllers
         }
 
         public class CreateProductGetStatusResultFailed_Rows_Data
+        {
+            public string product_name { get; set; }
+            public int product_price { get; set; }
+            public string sku { get; set; }
+            public string error { get; set; }
+        }
+
+
+        public class EditProductGetStatusResult
+        {
+            public EditProductGetStatusResultHeader header { get; set; }
+            public EditProductGetStatusResultData[] data { get; set; }
+        }
+
+        public class EditProductGetStatusResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class EditProductGetStatusResultData
+        {
+            public int upload_id { get; set; }
+            public string status { get; set; }
+            public int total_data { get; set; }
+            public int unprocessed_rows { get; set; }
+            public int success_rows { get; set; }
+            public EditProductGetStatusResultSuccess_Rows_Data[] success_rows_data { get; set; }
+            public EditProductGetStatusResultFailed_Rows_Data[] failed_rows_data { get; set; }
+            public int failed_rows { get; set; }
+            public int processed { get; set; }
+        }
+
+        public class EditProductGetStatusResultSuccess_Rows_Data
+        {
+            public int product_id { get; set; }
+        }
+
+        public class EditProductGetStatusResultFailed_Rows_Data
         {
             public string product_name { get; set; }
             public int product_price { get; set; }
@@ -2771,21 +2813,21 @@ namespace MasterOnline.Controllers
                                             {
                                                 //try
                                                 //{
-                                                    StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
-                                                    {
-                                                        //merchant_code = iden.merchant_code, //FSID
-                                                        //API_client_password = iden.API_client_password, //Client ID
-                                                        //API_client_username = iden.API_client_username, //Client Secret
-                                                        //API_secret_key = iden.API_secret_key, //Shop ID 
-                                                        //token = iden.token,
-                                                        //idmarket = iden.idmarket
-                                                    };
-                                                    data.merchant_code = iden.merchant_code; //FSID
-                                                    data.API_client_password = iden.API_client_password; //Client ID
-                                                    data.API_client_username = iden.API_client_username; //Client Secret
-                                                    data.API_secret_key = iden.API_secret_key; //Shop ID 
-                                                    data.token = iden.token;
-                                                    data.idmarket = iden.idmarket;
+                                                StokControllerJob.TokopediaAPIData data = new StokControllerJob.TokopediaAPIData()
+                                                {
+                                                    //merchant_code = iden.merchant_code, //FSID
+                                                    //API_client_password = iden.API_client_password, //Client ID
+                                                    //API_client_username = iden.API_client_username, //Client Secret
+                                                    //API_secret_key = iden.API_secret_key, //Shop ID 
+                                                    //token = iden.token,
+                                                    //idmarket = iden.idmarket
+                                                };
+                                                data.merchant_code = iden.merchant_code; //FSID
+                                                data.API_client_password = iden.API_client_password; //Client ID
+                                                data.API_client_username = iden.API_client_username; //Client Secret
+                                                data.API_secret_key = iden.API_secret_key; //Shop ID 
+                                                data.token = iden.token;
+                                                data.idmarket = iden.idmarket;
                                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
                                                 Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
