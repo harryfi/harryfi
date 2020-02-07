@@ -4580,6 +4580,7 @@ namespace MasterOnline.Controllers
             public bool returnable { get; set; }
             public string sku { get; set; }
             //public int stock { get; set; }
+            //tes
             public CreateProduct_Etalase etalase { get; set; }
             public CreateProduct_Product_Wholesale_Price[] product_wholesale_price { get; set; }
             public CreateProduct_Product_Preorder product_preorder { get; set; }
