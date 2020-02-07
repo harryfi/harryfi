@@ -1885,9 +1885,17 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
                 bool adaError = false;
-                if (!string.IsNullOrEmpty(result.header.messages))
+                //if (!string.IsNullOrEmpty(result.header.messages))
+                //{
+                //    adaError = true;
+
+                //}
+                if (result.data != null)
                 {
-                    adaError = true;
+                    if (result.data.Count() == 0)
+                    {
+                        adaError = true;
+                    }
 
                 }
                 if (!adaError)
