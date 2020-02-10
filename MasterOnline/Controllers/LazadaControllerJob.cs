@@ -2964,9 +2964,16 @@ namespace MasterOnline.Controllers
                 {
                     addOrderID += ids + ",";
                 }
-                addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
-                listID.Add(addOrderID);
+                //remark 10 Feb 2020
+                //addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+                //listID.Add(addOrderID);
+                //end remark 10 Feb 2020
             }
+            //add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+            addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
+            listID.Add(addOrderID);
+            //end add by Tri 10 Feb 2020, untuk data lebih dari 100 belum di add
+
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
