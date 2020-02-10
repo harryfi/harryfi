@@ -29133,54 +29133,77 @@ namespace MasterOnline.Controllers
             string sSQLmarket = "";
             string sSQLharga = "";
             string sSQLhpokok = "";
+            //if (getkata.Length > 0)
+            //{
+            //    if (search != "")
+            //    {
+            //        for (int i = 0; i < getkata.Length; i++)
+            //        {
+            //            if (getkata.Length == 1)
+            //            {
+            //                sSQLnama += " ( (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' )";
+            //                sSQLkode += " ( A.BRG like '%" + getkata[i] + "%' )";
+            //                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' )";
+            //                sSQLharga += " ( A.HJUAL like '%" + getkata[i] + "%' )";
+            //                //sSQLhpokok += " ( ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' )";
+            //            }
+            //            else
+            //            {
+            //                if (getkata[i] == getkata.First())
+            //                {
+            //                    sSQLnama += " ( (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%'";
+            //                    sSQLkode += " ( A.BRG like '%" + getkata[i] + "%'";
+            //                    sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
+            //                    sSQLharga += " ( A.HJUAL like '%" + getkata[i] + "%' ";
+            //                    //sSQLhpokok += " ( ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' ";
+            //                }
+            //                else if (getkata[i] == getkata.Last())
+            //                {
+            //                    sSQLnama += " and (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' )";
+            //                    sSQLkode += " and A.BRG like '%" + getkata[i] + "%' )";
+            //                    sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' )";
+            //                    sSQLharga += " and A.HJUAL like '%" + getkata[i] + "%' )";
+            //                    //sSQLhpokok += " and ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' )";
+            //                }
+            //                else
+            //                {
+            //                    sSQLnama += " and (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
+            //                    sSQLkode += " and A.BRG like '%" + getkata[i] + "%' ";
+            //                    sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
+            //                    sSQLharga += " and A.HJUAL like '%" + getkata[i] + "%' ";
+            //                    //sSQLhpokok += " and ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' ";
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
             if (getkata.Length > 0)
             {
                 if (search != "")
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLnama += " ( (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' )";
-                            sSQLkode += " ( A.BRG like '%" + getkata[i] + "%' )";
-                            sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' )";
-                            sSQLharga += " ( A.HJUAL like '%" + getkata[i] + "%' )";
-                            sSQLhpokok += " ( ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' )";
+                            sSQLnama += " AND ";
+                            sSQLkode += " AND ";
+                            sSQLmarket += " AND ";
+                            sSQLharga += " AND ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLnama += " ( (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%'";
-                                sSQLkode += " ( A.BRG like '%" + getkata[i] + "%'";
-                                sSQLmarket += " ( (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
-                                sSQLharga += " ( A.HJUAL like '%" + getkata[i] + "%' ";
-                                sSQLhpokok += " ( ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLnama += " and (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' )";
-                                sSQLkode += " and A.BRG like '%" + getkata[i] + "%' )";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' )";
-                                sSQLharga += " and A.HJUAL like '%" + getkata[i] + "%' )";
-                                sSQLhpokok += " and ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLnama += " and (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
-                                sSQLkode += " and A.BRG like '%" + getkata[i] + "%' ";
-                                sSQLmarket += " and (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
-                                sSQLharga += " and A.HJUAL like '%" + getkata[i] + "%' ";
-                                sSQLhpokok += " and ISNULL(E.HPOKOK,'') like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+                        sSQLnama += " (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
+                        sSQLkode += "  A.BRG like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
+                        sSQLharga += "  A.HJUAL like '%" + getkata[i] + "%' ";
                     }
                 }
             }
             //end add by nurul 2/10/2019
 
+
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK, D.HJUAL AS STF02_HJUAL ";
+            //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK, D.HJUAL AS STF02_HJUAL ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, D.HJUAL AS STF02_HJUAL ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -29188,13 +29211,16 @@ namespace MasterOnline.Controllers
             sSQL2 += "LEFT JOIN ARF01 B ON A.IDMARKET = B.RecNum ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
             sSQL2 += "LEFT JOIN STF02 D ON A.BRG = D.BRG ";
-            sSQL2 += "LEFT JOIN STF10 E ON A.BRG = E.BRG ";
+            //remark by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
+            //sSQL2 += "LEFT JOIN STF10 E ON A.BRG = E.BRG ";
+            //end remark by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
             sSQL2 += "WHERE D.TYPE = '3' ";
             if (search != "")
             {
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR D.NAMA LIKE '%" + search + "%' OR D.NAMA2 LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR (D.NAMA + D.NAMA2) LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " or " + sSQLhpokok + " ) ";
+                //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " or " + sSQLhpokok + " ) ";
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " ) ";
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.BRG ASC ";
@@ -29204,6 +29230,14 @@ namespace MasterOnline.Controllers
             var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlHargaJual>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
+            //add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
+            foreach (var item in listFakturNew)
+            {
+                var sql3 = "select top 1 isnull(b.hbeli,0) as hbeli from pbt01a a inner join pbt01b b on a.inv=b.inv where b.brg='" + item.BRG + "' order by a.tgl desc, b.no desc";
+                double getHbeli = ErasoftDbContext.Database.SqlQuery<double>(sql3).FirstOrDefault();
+                item.HPOKOK = getHbeli;
+            }
+            //end add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
             IPagedList<mdlHargaJual> pageOrders = new StaticPagedList<mdlHargaJual>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableHargaJualPartial", pageOrders);
         }
