@@ -180,6 +180,37 @@
             $('#preview_Nama').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
         });
         //end add by nurul 10/9/2019, buat preview nama barang 
+
+        //add by nurul 11/2/2020
+        $('#cbxStf02Type').on('click', function () {
+            if ($("#cbxStf02Type").is(":checked") == true) {
+                if ($("#Stf02_BRG").val().length > 11) {
+                    $("#Stf02_BRG").addClass('has-error');
+                    $("#Stf02_BRG").css('border', 'solid 1px #a94442');
+                    addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
+                    alert('Kode barang induk lebih dari 11 karakter.');
+                    document.getElementById("Stf02_BRG").focus();
+                } else if ($("#Stf02_BRG").val().length <= 11) {
+                    $("#Stf02_BRG").removeClass('has-error');
+                    $("#Stf02_BRG").css('border', 'solid 1px #808080');
+                }
+            }
+        });
+        $('#Stf02_BRG').change(function () {
+            if ($("#cbxStf02Type").is(":checked") == true) {
+                if ($("#Stf02_BRG").val().length <= 11) {
+                    $("#Stf02_BRG").removeClass('has-error');
+                    $("#Stf02_BRG").css('border', 'solid 1px #808080');
+                } else if ($("#Stf02_BRG").val().length > 11) {
+                    $("#Stf02_BRG").addClass('has-error');
+                    $("#Stf02_BRG").css('border', 'solid 1px #a94442');
+                    addError($("#Stf02_BRG").parent().parent(), "Kode barang induk maximal 11 karakter.");
+                    alert('Kode barang induk lebih dari 11 karakter.');
+                    document.getElementById("Stf02_BRG").focus();
+                }
+            }
+        });
+        //end add by nurul 11/2/2020
     });
 
     function getFotoProdukBlibli() {
@@ -227,7 +258,8 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.BRG, "Kode Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 11, @data_val_length_max = 11, required = "required" })
+                                                @*@Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 11, @data_val_length_max = 11, required = "required" })*@
+                                                @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 20, @data_val_length_max = 20, required = "required" })
                                             </div>
                                         </div>
                                         @*//CHANGE BY NURUL 10/9/2019, buat preview nama barang*@
