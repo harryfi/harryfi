@@ -36849,9 +36849,13 @@ namespace MasterOnline.Controllers
                             string[] referensi = item.no_referensi.Split(';');
                             if (referensi.Count() > 0)
                             {
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => new TokopediaControllerJob().PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+#else
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
+#endif
                                 listSuccess.Add(new listSuccessPrintLabel
                                 {
                                     no_referensi = item.no_bukti
