@@ -968,7 +968,7 @@ namespace MasterOnline.Controllers
                 };
 
                 //add by nurul 6/2/2020
-                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
                 //end add by nurul 6/2/2020
 
                 //add by calvin 1 mei 2019
@@ -1284,7 +1284,10 @@ namespace MasterOnline.Controllers
                         {
                             st = 1,
                             stock = 1,
-                            price_var = (float)item_var.HJUAL,
+                            //change by nurul 11/2/2020, ambil harga jual barang per variasi
+                            //price_var = (float)item_var.HJUAL,
+                            price_var = (float)price_var.HJUAL,
+                            //end change by nurul 11/2/2020, ambil harga jual barang per variasi
                             sku = item_var.BRG,
                             opt = new List<int>()
                         };
