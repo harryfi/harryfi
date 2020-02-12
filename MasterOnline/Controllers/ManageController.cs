@@ -29485,7 +29485,10 @@ namespace MasterOnline.Controllers
                         username = usernameLogin
                     };
 
-                    Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
+                    //change by nurul 12/2/2020
+                    //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
+                    Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
+                    //end change by nurul 12/2/2020
                 }
                 //end add by calvin 18 desember 2018
                 //}
