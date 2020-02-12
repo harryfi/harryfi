@@ -141,6 +141,9 @@ namespace MasterOnline.Controllers
                         {
                             //update REQUEST_STATUS = 'FAILED', DATE, FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            //add by nurul 12/2/2020, update exception terbaru
+                            sSQL += ", REQUEST_EXCEPTION = '" + exceptionMessage.Replace("'", "`") + "' ";
+                            //end add by nurul 12/2/2020, update exception terbaru
                             sSQL += "FROM API_LOG_MARKETPLACE B WHERE B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND B.REQUEST_STATUS = 'RETRYING' AND B.REQUEST_ID = '" + jobId + "'";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
