@@ -2615,7 +2615,10 @@ namespace MasterOnline.Controllers
             return "";
         }
 
-        public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, float price)
+        //change by nurul 12/2/2020, price (int)
+        //public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, float price)
+        //end change by nurul 12/2/2020
+        public async Task<string> UpdatePrice(TokopediaAPIData iden, int product_id, int price)
         {
             var token = SetupContext(iden);
             iden.token = token;
@@ -4334,8 +4337,10 @@ namespace MasterOnline.Controllers
         {
             public string sku { get; set; }
             public int product_id { get; set; }
-            public float new_price { get; set; }
-
+            //change by nurul 12/2/2020
+            //public float new_price { get; set; }
+            public int new_price { get; set; }
+            //end change by nurul 12/2/2020
         }
 
 
