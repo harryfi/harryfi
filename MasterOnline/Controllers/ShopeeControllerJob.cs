@@ -4796,11 +4796,21 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        //currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
-                        currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
-                        currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg + "\n Update barang Shopee memiliki ketentuan panjang, lebar dan tinggi max 40cm dan berat max 5 kg.";
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                        throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        if (resServer.msg.Contains("weight") || resServer.msg.Contains("package_height") || resServer.msg.Contains("package_length") || resServer.msg.Contains("package_width"))
+                        {
+                            //currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
+                            currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
+                            currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg + "\n Update barang Shopee memiliki ketentuan panjang, lebar dan tinggi max 40cm dan berat max 5 kg.";
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = "Update Product " + brg + " ke Shopee Gagal.";
+                            currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        }
                     }
                 }
                 //end change by nurul 28/1/2020, tampilin log error
