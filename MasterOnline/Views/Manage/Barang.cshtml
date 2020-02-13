@@ -4109,17 +4109,20 @@
             $this = obj;
             $this.closest('.form-group').addClass('has-error');
             if (!$this.closest('div').find('.text-danger').length) {
-                $this.closest('div').append('<span class="text-danger">'+msg+'</span>');
+                //$this.closest('div').append('<span class="text-danger">'+msg+'</span>');
+                $this.closest('div').append('<span class="text-danger span-error">' + msg + '</span>');
             }
         }
 
-        function RemoveError(obj, msg) {
+        //add by nurul 13/2/2020
+        function RemoveError(obj, msg, nmclass) {
             $this = obj;
             $this.closest('.form-group').removeClass('has-error');
             if ($this.closest('div').find('.text-danger').length) {
-                $this.closest('div').remove('<span class="text-danger">' + msg + '</span>');
+                $('span.' + nmclass).remove();
             }
         }
+        //end add by nurul 13/2/2020
 
         var errorShopee = 0;
         var errorTokped= 0;
