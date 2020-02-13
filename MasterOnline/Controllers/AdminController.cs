@@ -30,7 +30,7 @@ namespace MasterOnline.Controllers
 
         public AdminController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
         }
 
         protected override void Dispose(bool disposing)
@@ -3087,7 +3087,7 @@ namespace MasterOnline.Controllers
                 var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
                 var datenow = DateTime.UtcNow.AddHours(7);
 
-                var MoDbContext = new MoDbContext();
+                var MoDbContext = new MoDbContext("");
 
                 var accountInDb = (from a in MoDbContext.Account
                                    where
@@ -3112,7 +3112,7 @@ namespace MasterOnline.Controllers
             {
                 //change by fauzi 24 Januari 2020
                 //var RemoteMODbContext = new MoDbContext(db_source);
-                var RemoteMODbContext = new MoDbContext();
+                var RemoteMODbContext = new MoDbContext("");
                 //end
                 RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
 

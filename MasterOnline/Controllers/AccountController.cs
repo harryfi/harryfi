@@ -68,7 +68,7 @@ namespace MasterOnline.Controllers
 
         public AccountController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             _viewModel = new AccountUserViewModel();
         }
 
@@ -547,7 +547,7 @@ namespace MasterOnline.Controllers
             //MoDbContext = new MoDbContext();
             bool lakukanHapusServer = false;
             ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
 
             var sqlStorage = new SqlServerStorage(EDBConnID);
             var monitoringApi = sqlStorage.GetMonitoringApi();

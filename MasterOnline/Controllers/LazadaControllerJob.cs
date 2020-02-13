@@ -75,7 +75,7 @@ namespace MasterOnline.Controllers
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             //string ret = "";
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1796,7 +1796,7 @@ namespace MasterOnline.Controllers
             ret.status = 0;
             ret.recordCount = 0;
 
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2285,7 +2285,7 @@ namespace MasterOnline.Controllers
         }
         private void InsertPembeli(Order order, string connIDARF01C, string dbPathEra, string username)
         {
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2346,7 +2346,7 @@ namespace MasterOnline.Controllers
             ret.status = 0;
             ret.recordCount = 0;
 
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2642,7 +2642,7 @@ namespace MasterOnline.Controllers
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
 
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2675,7 +2675,7 @@ namespace MasterOnline.Controllers
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
             //SetupContext(dbPathEra, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2844,7 +2844,7 @@ namespace MasterOnline.Controllers
 
         public void UpdateOrderUnpaidToCancel(string cust, string accessToken, string dbPathEra, string uname)
         {
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2933,7 +2933,7 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
 
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -3739,7 +3739,7 @@ namespace MasterOnline.Controllers
             ret.status = 0;
             ret.recordCount = 0;
 
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);

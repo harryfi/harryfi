@@ -8,7 +8,7 @@
 
     long accId;
     var username = "";
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     if (dataSession?.User != null)
     {
         accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;

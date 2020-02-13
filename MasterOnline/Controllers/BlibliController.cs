@@ -34,7 +34,7 @@ namespace MasterOnline.Controllers
         string username;
         public BlibliController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)

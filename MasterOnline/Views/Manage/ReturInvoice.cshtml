@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 
     ErasoftContext erasoftContext = null;
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
 
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 

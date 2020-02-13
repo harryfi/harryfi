@@ -31,7 +31,7 @@ namespace MasterOnline.Controllers
         string DatabasePathErasoft;
         public TokopediaController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)

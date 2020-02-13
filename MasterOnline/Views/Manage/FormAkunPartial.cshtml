@@ -3,7 +3,7 @@
 @{
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
     //add by nurul 8/2/2019
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     var accountId = new long();
     if (dataSession?.Account != null)
     {

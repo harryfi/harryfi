@@ -6,7 +6,7 @@
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 
     //add by nurul 1/3/2019
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     long accId;

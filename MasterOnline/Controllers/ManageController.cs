@@ -57,7 +57,7 @@ namespace MasterOnline.Controllers
         string usernameLogin;
         public ManageController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             usernameLogin = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)

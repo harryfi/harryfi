@@ -21,7 +21,7 @@ namespace MasterOnline.Controllers
         [System.Web.Mvc.HttpGet]
         public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId, int? accCount)
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             var accInDB = new Account();
             var dtNow = DateTime.Now;
             var retError = new bindMidtrans();
@@ -127,7 +127,7 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(bindTransferCharge.token))
                         {
-                            MoDbContext = new MoDbContext();
+                            MoDbContext = new MoDbContext("");
 
                             var dataTrans = new TransaksiMidtrans();
                             dataTrans.NO_TRANSAKSI = noTrans;
@@ -220,7 +220,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                MoDbContext = new MoDbContext();
+                MoDbContext = new MoDbContext("");
                 if (notification_data != null)
                 {
                     var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID == notification_data.transaction_id && m.STATUS_CODE == notification_data.status_code);

@@ -1,7 +1,7 @@
 ﻿@using MasterOnline.Models
 @using MasterOnline.ViewModels
 @{
-    MoDbContext context = new MoDbContext();
+    MoDbContext context = new MoDbContext("");
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
     var nama = "";
     var namaPerAccount = "";//add by calvin 1 april 2019

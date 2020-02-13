@@ -2,7 +2,7 @@
 @using MasterOnline.Models
 @using MasterOnline.ViewModels
 @{
-    MoDbContext context = new MoDbContext();
+    MoDbContext context = new MoDbContext("");
     ErasoftContext erasoftContext = null;
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
     var nama = "";
