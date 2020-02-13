@@ -2184,11 +2184,11 @@ namespace MasterOnline.Controllers
 
         public async Task<string> FixPemesanNullSOT01A(ShopeeAPIData iden, string[] ordersn_list, string CUST, string NAMA_CUST)
         {
-            //SetupContext(iden);
-            var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(iden.DatabasePathErasoft);
-            var EDB = new DatabaseSQL(iden.DatabasePathErasoft);
-            var username = iden.username;
+            SetupContext(iden);
+            //var MoDbContext = new MoDbContext();
+            //var ErasoftDbContext = new ErasoftContext(iden.DatabasePathErasoft);
+            //var EDB = new DatabaseSQL(iden.DatabasePathErasoft);
+            //var username = iden.username;
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -3467,11 +3467,11 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
-
-            var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
-            var EDB = new DatabaseSQL(dbPathEra);
-            var username = iden.username;
+            SetupContext(iden);
+            //var MoDbContext = new MoDbContext();
+            //var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            //var EDB = new DatabaseSQL(dbPathEra);
+            //var username = iden.username;
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
