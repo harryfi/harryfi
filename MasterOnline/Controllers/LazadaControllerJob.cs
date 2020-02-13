@@ -2770,8 +2770,12 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                        contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Lazada dibatalkan.");
+                        if(jmlhOrder > 0)
+                        {
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(dbPathEra).moNewOrder("" + Convert.ToString(jmlhOrder) + " Pesanan dari Lazada dibatalkan.");
+                        }
+                        
                     }
                 }
             }
