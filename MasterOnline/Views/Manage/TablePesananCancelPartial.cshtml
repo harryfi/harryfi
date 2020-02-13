@@ -91,13 +91,16 @@
                 //    NamaMarket = market.NamaMarket;
                 //}
                 var req_ex = "";
-                if (pesanan.CancelReason.Length < 100)
+                if (!string.IsNullOrEmpty(pesanan.CancelReason))
                 {
-                    req_ex = pesanan.CancelReason;
-                }
-                else
-                {
-                    req_ex = pesanan.CancelReason.Substring(0, 100) + "...";
+                    if (pesanan.CancelReason.Length < 100)
+                    {
+                        req_ex = pesanan.CancelReason;
+                    }
+                    else
+                    {
+                        req_ex = pesanan.CancelReason.Substring(0, 100) + "...";
+                    }
                 }
                 <tr>
                     <td>@pesanan.NOSO</td>
