@@ -512,9 +512,10 @@ namespace MasterOnline.Controllers
                     images = new List<CreateProduct_Images>()
                 };
 
-                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                //add by nurul 6/2/2020
+                newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
+                //end add by nurul 6/2/2020
 
-                //remark by nurul 4/2/2020
                 //add by calvin 1 mei 2019
                 //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                 //if (qty_stock > 0)
@@ -745,7 +746,10 @@ namespace MasterOnline.Controllers
                         {
                             st = 1,
                             stock = 1,
-                            price_var = (float)item_var.HJUAL,
+                            //change by nurul 13/2/2020
+                            //price_var = (float)item_var.HJUAL,
+                            price_var = (float)price_var.HJUAL,
+                            //end change by nurul 13/2/2020
                             sku = item_var.BRG,
                             opt = new List<int>()
                         };
