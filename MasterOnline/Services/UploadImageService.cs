@@ -151,6 +151,20 @@ namespace MasterOnline.Services
                     inputSteram = ResizeImageFile(imageStream, 1024);
                 }
 
+                //add by nurul 13/2/2020, penambahan type file 
+                if(url.Split('.')[1] == "jpeg")
+                {
+                    path = path + ".jpeg";
+                }else if(url.Split('.')[1] == "png")
+                {
+                    path = path + ".png";
+                }
+                else
+                {
+                    path = path + ".jpg";
+                }
+                //end add by nurul 13/2/2020, penambahan type file 
+
                 using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
                 {
                     var request = new PutObjectRequest()
