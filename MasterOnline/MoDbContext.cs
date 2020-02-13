@@ -48,16 +48,7 @@ namespace MasterOnline
         {
         }
 
-#if (DEBUG || Dev)
-
-        public MoDbContext(string dbSourceEra)
-            : base($"Server=13.251.222.53, 1433;initial catalog=MO;" +
-                   $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
-                   $"application name=EntityFramework")
-        {
-        }
-
-#else
+#if (AWS || Debug_AWS)
 
         public MoDbContext(string dbSourceEra)
             : base($"Server=13.250.232.74, 1433;initial catalog=MO;" +
@@ -65,7 +56,16 @@ namespace MasterOnline
                    $"application name=EntityFramework")
         {
         }
-        
+
+#elif (DEV || DEBUG)
+
+        public MoDbContext(string dbSourceEra)
+             : base($"Server=13.251.222.53, 1433;initial catalog=MO;" +
+                    $"user id=sa;password=admin123^;multipleactiveresultsets=True;" +
+                    $"application name=EntityFramework")
+        {
+        }
+
 #endif
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
