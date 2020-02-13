@@ -14,7 +14,7 @@ namespace MasterOnline.Controllers
 
         public HomeController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
             {

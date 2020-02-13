@@ -698,7 +698,7 @@ namespace MasterOnline.Controllers
         public void updateStockMarketPlace_ForItemInSTF08A(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -962,7 +962,7 @@ namespace MasterOnline.Controllers
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1262,7 +1262,7 @@ namespace MasterOnline.Controllers
         public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string log_CUST, string log_ActionCategory, string log_ActionName, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1349,7 +1349,7 @@ namespace MasterOnline.Controllers
         public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1468,7 +1468,7 @@ namespace MasterOnline.Controllers
         public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);

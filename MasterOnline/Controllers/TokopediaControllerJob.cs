@@ -59,7 +59,7 @@ namespace MasterOnline.Controllers
         protected string SetupContextForGetToken(TokopediaAPIData data)
         {
             string ret = "";
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);
@@ -69,7 +69,7 @@ namespace MasterOnline.Controllers
         protected string SetupContext(TokopediaAPIData data)
         {
             string ret = "";
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);

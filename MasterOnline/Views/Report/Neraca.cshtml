@@ -5,7 +5,7 @@
 
     ViewBag.Title = "Neraca";
     Layout = "~/Views/Shared/_LayoutReport.cshtml";
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     var userId = "";

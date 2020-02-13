@@ -5,7 +5,7 @@
     ViewBag.Title = "Laporan Packing List";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-    var context_ = new MoDbContext();
+    var context_ = new MoDbContext("");
 
 }
 @section styles

@@ -50,7 +50,7 @@ namespace MasterOnline.Controllers
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             //string ret = "";
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);

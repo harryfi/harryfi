@@ -25,7 +25,7 @@ namespace MasterOnline.Controllers
 
         public BukaLapakController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")

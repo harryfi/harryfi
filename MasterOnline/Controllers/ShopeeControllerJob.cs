@@ -81,7 +81,7 @@ namespace MasterOnline.Controllers
         protected void SetupContext(ShopeeAPIData data)
         {
             //string ret = "";
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             EDB = new DatabaseSQL(data.DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             ErasoftDbContext = new ErasoftContext(EraServerName, data.DatabasePathErasoft);

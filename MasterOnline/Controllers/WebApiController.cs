@@ -21,7 +21,7 @@ namespace MasterOnline.Controllers
 
         public WebApiController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             _viewModel = new AccountUserViewModel();
         }
 

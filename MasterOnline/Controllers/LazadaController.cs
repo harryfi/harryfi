@@ -46,7 +46,7 @@ namespace MasterOnline.Controllers
 
         public LazadaController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             if (sessionData?.Account != null)
             {
                 if (sessionData.Account.UserId == "admin_manage")
