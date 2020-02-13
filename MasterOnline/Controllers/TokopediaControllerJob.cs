@@ -3740,8 +3740,11 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             var MoDbContext = new MoDbContext();
-            var ErasoftDbContext = new ErasoftContext(dbPathEra);
-            var EDB = new DatabaseSQL(dbPathEra);
+            //var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            //var EDB = new DatabaseSQL(dbPathEra);
+            var token = SetupContext(data);
+            data.token = token;
+
             var username = uname;
 
             long milis = CurrentTimeMillis();
