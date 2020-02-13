@@ -152,7 +152,7 @@ namespace MasterOnline.Services
                 }
 
                 //add by nurul 13/2/2020, penambahan type file 
-                if(url.Split('.').Last() != "jpeg" && url.Split('.').Last() != "png" && url.Split('.').Last() != "gif")
+                if(url.Split('.').Last() != "jpeg" && url.Split('.').Last() != "png" && url.Split('.').Last() != "jpg" && url.Split('.').Last() != "gif")
                 {                    
                     path = path + ".jpg";
                 }
