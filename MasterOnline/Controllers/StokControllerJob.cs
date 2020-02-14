@@ -2659,6 +2659,7 @@ namespace MasterOnline.Controllers
             };
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+            var dateNowLog = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/get";
 
@@ -2714,7 +2715,7 @@ namespace MasterOnline.Controllers
                         {
                             if (item.status.ToLower() == "deleted")
                             {
-                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false', LINK_STATUS = 'Barang dihapus oleh Shopee', LINK_ERROR = '0;Status;;', LINK_DATETIME = '" + dateNowLog + "' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                                 var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                                 if (rowsAffected > 0)
                                 {
@@ -2733,7 +2734,7 @@ namespace MasterOnline.Controllers
                     {
                         if (detailBrg.item.status.ToLower() == "deleted")
                         {
-                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false', LINK_STATUS = 'Barang dihapus oleh Shopee', LINK_ERROR = '0;Status;;', LINK_DATETIME = '" + dateNowLog + "' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                             var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                             if (rowsAffected > 0)
                             {
@@ -2753,7 +2754,8 @@ namespace MasterOnline.Controllers
                 {
                     REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                     REQUEST_ACTION = requestAction,
-                    REQUEST_DATETIME = DateTime.Now,
+                    //REQUEST_DATETIME = DateTime.Now,
+                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7), // update to +7 hour
                     REQUEST_ATTRIBUTE_1 = stf02_brg,
                     REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(MO_qty), //updating to stock
                     REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(ret.recordCount), //marketplace stock
