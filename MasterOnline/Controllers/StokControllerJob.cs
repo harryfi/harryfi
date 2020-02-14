@@ -2473,6 +2473,7 @@ namespace MasterOnline.Controllers
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     if (msg.Contains("not allowed to edit"))
                     {
+                       
 #if (DEBUG || Debug_AWS)
                         await ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty);
 #else
@@ -2648,6 +2649,8 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
+            var statusProduct = "";
+            var requestAction = "Selisih Stok";
 
             var ret = new BindingBase
             {
@@ -2711,12 +2714,14 @@ namespace MasterOnline.Controllers
                         {
                             if (item.status.ToLower() == "deleted")
                             {
-                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                                 var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                                 if (rowsAffected > 0)
                                 {
+                                    requestAction = "Unlink Product";
+                                    statusProduct = "Barang " + stf02_brg + " telah dihapus oleh Shopee. Unlink Otomatis barang di akun Shopee " + personame + " sudah selesai.";
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                                    contextNotif.Clients.Group(dbPathEra).monotification(statusProduct.ToString());
                                 }
                             }
                         }
@@ -2728,12 +2733,14 @@ namespace MasterOnline.Controllers
                     {
                         if (detailBrg.item.status.ToLower() == "deleted")
                         {
-                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                             var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                             if (rowsAffected > 0)
                             {
+                                requestAction = "Unlink Product";
+                                statusProduct = "Barang " + stf02_brg + " telah dihapus oleh Shopee. Unlink Otomatis barang di akun Shopee " + personame + " sudah selesai.";
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                                contextNotif.Clients.Group(dbPathEra).monotification(statusProduct.ToString());
                             }
                         }
                     }
@@ -2745,12 +2752,13 @@ namespace MasterOnline.Controllers
                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
                     REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                    REQUEST_ACTION = "Selisih Stok",
+                    REQUEST_ACTION = requestAction,
                     REQUEST_DATETIME = DateTime.Now,
                     REQUEST_ATTRIBUTE_1 = stf02_brg,
                     REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(MO_qty), //updating to stock
                     REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(ret.recordCount), //marketplace stock
                     REQUEST_STATUS = "Pending",
+                    REQUEST_EXCEPTION = statusProduct
                 };
                 var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");
