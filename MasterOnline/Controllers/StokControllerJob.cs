@@ -141,11 +141,17 @@ namespace MasterOnline.Controllers
                         {
                             //update REQUEST_STATUS = 'FAILED', DATE, FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            //add by nurul 12/2/2020, update exception terbaru
+                            sSQL += ", REQUEST_RESULT = '" + this._deskripsi.Replace("{obj}", subjectDescription) + "', REQUEST_EXCEPTION = '" + exceptionMessage.Replace("'", "`") + "' ";
+                            //end add by nurul 12/2/2020, update exception terbaru
                             sSQL += "FROM API_LOG_MARKETPLACE B WHERE B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND B.REQUEST_STATUS = 'RETRYING' AND B.REQUEST_ID = '" + jobId + "'";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
                             //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + jobId + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            //add by nurul 12/2/2020, update exception terbaru
+                            sSQL += ", REQUEST_RESULT = '" + this._deskripsi.Replace("{obj}", subjectDescription) + "', REQUEST_EXCEPTION = '" + exceptionMessage.Replace("'", "`") + "' ";
+                            //end add by nurul 12/2/2020, update exception terbaru
                             sSQL += "FROM API_LOG_MARKETPLACE B INNER JOIN ";
                             sSQL += "( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
                             sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + context.BackgroundJob.CreatedAt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
