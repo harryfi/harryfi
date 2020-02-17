@@ -2988,19 +2988,23 @@ namespace MasterOnline.Controllers
                     if (bindOrder.code.Equals("0"))
                     {
                         //if (bindOrder.data.statuses[0].ToString() == "canceled")
-                        if (bindOrder.data[0].status.ToString() == "canceled")
+                        ret = "CANCEL_REASON_EMPTY";
+                        foreach (var ordItem in bindOrder.data)
                         {
-                            //ret = bindOrder.data.statuses[0].ToString();
-                            //if (!string.IsNullOrEmpty(bindOrder.data.reason))
-                            if (!string.IsNullOrEmpty(bindOrder.data[0].reason))
+                            if (ordItem.status.ToString() == "canceled")
                             {
-                                ret = bindOrder.data[0].reason;
+                                //ret = bindOrder.data.statuses[0].ToString();
+                                //if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                                if (!string.IsNullOrEmpty(ordItem.reason))
+                                {
+                                    ret = ordItem.reason;
+                                }
+                                //else
+                                //{
+                                //    ret = "CANCEL_REASON_EMPTY";
+                                //}
                             }
-                            else
-                            {
-                                ret = "CANCEL_REASON_EMPTY";
-                            }
-                        }
+                        }                        
                     }
                 }
             }
@@ -3015,19 +3019,31 @@ namespace MasterOnline.Controllers
                         if (bindOrder.code.Equals("0"))
                         {
                             //if (bindOrder.data.statuses[0].ToString() == "canceled")
-                            if (bindOrder.data[0].order_items[0].status.ToString() == "canceled")
+                            if(bindOrder.data != null)
                             {
-                                //ret = bindOrder.data.statuses[0].ToString();
-                                //if (!string.IsNullOrEmpty(bindOrder.data.reason))
-                                if (!string.IsNullOrEmpty(bindOrder.data[0].order_items[0].reason))
-                                {
-                                    ret = bindOrder.data[0].order_items[0].reason;
-                                }
-                                else
+                                if(bindOrder.data[0].order_items != null)
                                 {
                                     ret = "CANCEL_REASON_EMPTY";
+                                    foreach (var ordItem in bindOrder.data[0].order_items)
+                                    {
+                                        if (ordItem.status.ToString() == "canceled")
+                                        {
+                                            //ret = bindOrder.data.statuses[0].ToString();
+                                            //if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                                            if (!string.IsNullOrEmpty(ordItem.reason))
+                                            {
+                                                ret = ordItem.reason;
+                                            }
+                                            //else
+                                            //{
+                                            //    ret = "CANCEL_REASON_EMPTY";
+                                            //}
+                                        }
+                                    }
+
                                 }
                             }
+                            
                         }
                     }
                 }
