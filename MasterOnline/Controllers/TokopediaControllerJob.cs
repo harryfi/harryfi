@@ -1675,6 +1675,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
+            //unremark by nurul 17/2/2020
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = milis.ToString(),
@@ -1687,17 +1688,22 @@ namespace MasterOnline.Controllers
             //};
 
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            RequestPickup newData = new RequestPickup()
+            //unremark by nurul 17/2/2020
+            RequestPickup newData = new RequestPickup() 
             {
                 order_id = Convert.ToInt32(NO_REFERENSI_SOT01A),
                 shop_id = Convert.ToInt32(iden.API_secret_key),
+                //change by nurul 17/2/2020
                 //request_time = DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss")
                 request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                //end change by nurul 17/2/2020
             };
             List<RequestPickup> newDataList = new List<RequestPickup>();
             newDataList.Add(newData);
+            //change by nurul 17/2/2020
             //string myData = JsonConvert.SerializeObject(newDataList.ToArray());
             string myData = JsonConvert.SerializeObject(newData);
+            //end change by nurul 17/2/2020
 
             //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             //myReq.Method = "POST";
@@ -1759,12 +1765,19 @@ namespace MasterOnline.Controllers
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+                                        
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Gagal Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
                     //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+
+                    //currentLog.REQUEST_RESULT = result.header.reason;
+                    //currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(result.header.messages + ";" + result.header.reason);
                 }
             }
             return ret;
