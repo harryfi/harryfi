@@ -2736,6 +2736,10 @@ namespace MasterOnline.Controllers
                                     var sot01d = ErasoftDbContext.SOT01D.Where(m => m.NO_BUKTI == nobuk).FirstOrDefault();
                                     if (sot01d == null)
                                     {
+                                        if (string.IsNullOrEmpty(order.reason))
+                                        {
+                                            order.reason = GetOrderStatus(order.order_id, accessToken);
+                                        }
                                         //EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "INSERT INTO SOT01D(NO_BUKTI, CATATAN_1, USERNAME) VALUES ('" + nobuk + "','" + order.reason + "','AUTO LAZADA')");
                                         sSQL2 += "('" + nobuk + "','" + order.reason + "','AUTO_LAZADA'),";
                                     }
@@ -2970,30 +2974,69 @@ namespace MasterOnline.Controllers
             string ret = "";
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
-            request.SetApiName("/order/get");
+            request.SetApiName("/order/items/get");
             request.SetHttpMethod("GET");
             request.AddApiParameter("order_id", orderid);
             LazopResponse response = client.Execute(request, accessToken);
-            var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
-            if (bindOrder != null)
+            //var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+            try
             {
-                //ret = bindOrder;
-                if (bindOrder.code.Equals("0"))
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetOrderItem)) as LazadaGetOrderItem;
+                if (bindOrder != null)
                 {
-                    if (bindOrder.data.statuses[0].ToString() == "canceled")
+                    //ret = bindOrder;
+                    if (bindOrder.code.Equals("0"))
                     {
-                        //ret = bindOrder.data.statuses[0].ToString();
-                        if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                        //if (bindOrder.data.statuses[0].ToString() == "canceled")
+                        if (bindOrder.data[0].status.ToString() == "canceled")
                         {
-                            ret = bindOrder.data.reason;
-                        }
-                        else
-                        {
-                            ret = "CANCEL_REASON_EMPTY";
+                            //ret = bindOrder.data.statuses[0].ToString();
+                            //if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                            if (!string.IsNullOrEmpty(bindOrder.data[0].reason))
+                            {
+                                ret = bindOrder.data[0].reason;
+                            }
+                            else
+                            {
+                                ret = "CANCEL_REASON_EMPTY";
+                            }
                         }
                     }
                 }
             }
+            catch(Exception ex)
+            {
+                try
+                {
+                    var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                    if (bindOrder != null)
+                    {
+                        //ret = bindOrder;
+                        if (bindOrder.code.Equals("0"))
+                        {
+                            //if (bindOrder.data.statuses[0].ToString() == "canceled")
+                            if (bindOrder.data[0].order_items[0].status.ToString() == "canceled")
+                            {
+                                //ret = bindOrder.data.statuses[0].ToString();
+                                //if (!string.IsNullOrEmpty(bindOrder.data.reason))
+                                if (!string.IsNullOrEmpty(bindOrder.data[0].order_items[0].reason))
+                                {
+                                    ret = bindOrder.data[0].order_items[0].reason;
+                                }
+                                else
+                                {
+                                    ret = "CANCEL_REASON_EMPTY";
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(Exception er)
+                {
+                    ret = "CANCEL_REASON_EXCEPTION;" + er.InnerException == null ? er.Message : er.InnerException.Message;
+                }
+            }
+            
             return ret;
         }
 

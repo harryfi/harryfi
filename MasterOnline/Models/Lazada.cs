@@ -350,6 +350,63 @@ namespace MasterOnline.Models
         public string order_id { get; set; }
         public string status { get; set; }
     }
+
+
+    public class LazadaGetOrderItem
+    {
+        public LazadaGetOrderItemData[] data { get; set; }
+        public string code { get; set; }
+        public string request_id { get; set; }
+    }
+
+    public class LazadaGetOrderItemData
+    {
+        public float paid_price { get; set; }
+        public string product_main_image { get; set; }
+        public float tax_amount { get; set; }
+        public int voucher_platform { get; set; }
+        public string reason { get; set; }
+        public DateTime sla_time_stamp { get; set; }
+        public string product_detail_url { get; set; }
+        public string promised_shipping_time { get; set; }
+        public string warehouse_code { get; set; }
+        public string purchase_order_id { get; set; }
+        public int voucher_seller { get; set; }
+        public string shipping_type { get; set; }
+        public string created_at { get; set; }
+        public string voucher_code { get; set; }
+        public string package_id { get; set; }
+        public string variation { get; set; }
+        public string updated_at { get; set; }
+        public string purchase_order_number { get; set; }
+        public string currency { get; set; }
+        public string shipping_provider_type { get; set; }
+        public string sku { get; set; }
+        public string invoice_number { get; set; }
+        public string order_type { get; set; }
+        public string cancel_return_initiator { get; set; }
+        public string shop_sku { get; set; }
+        public int is_digital { get; set; }
+        public float item_price { get; set; }
+        public int shipping_service_cost { get; set; }
+        public string stage_pay_status { get; set; }
+        public string tracking_code_pre { get; set; }
+        public string tracking_code { get; set; }
+        public float shipping_amount { get; set; }
+        public long order_item_id { get; set; }
+        public string reason_detail { get; set; }
+        public string shop_id { get; set; }
+        public string order_flag { get; set; }
+        public string return_status { get; set; }
+        public string name { get; set; }
+        public string shipment_provider { get; set; }
+        public float voucher_amount { get; set; }
+        public string digital_delivery_info { get; set; }
+        public string extra_attributes { get; set; }
+        public long order_id { get; set; }
+        public string status { get; set; }
+    }
+
     #endregion
 
     public class AttributeBody : LazadaCommonRes
