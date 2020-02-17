@@ -70,7 +70,7 @@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 100px;">Kurir</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Reason: activate to sort column ascending" style="width: 150px;">Alasan Batal</th>
-                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>
+                @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>*@
             </tr>
         </thead>
         <tbody>
@@ -142,7 +142,7 @@
                             </div>
 }
                     </td>
-                    <td class="edit-hapus-col">
+                    @*<td class="edit-hapus-col">
                         @if (pesanan.MARKET != "")
                         {
                             <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
@@ -155,7 +155,7 @@
                                 <span class="glyphicon glyphicon-arrow-left" aria-hidden="false"></span>
                             </button>
                         }
-                    </td>
+                    </td>*@
                 </tr>
             }
         </tbody>

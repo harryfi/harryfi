@@ -16936,6 +16936,8 @@ namespace MasterOnline.Controllers
                     sot01d = new SOT01D();
                     sot01d.NO_BUKTI = pesananInDb.NO_BUKTI;
                     sot01d.USERNAME = usernameLogin;
+                    ErasoftDbContext.SOT01D.Add(sot01d);
+                    ErasoftDbContext.SaveChanges();
                 }
                 var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
                 if (customer != null)
@@ -17053,6 +17055,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
+
             }
             //end add 19 Nov 2019, validasi cancel reason
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
