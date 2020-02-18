@@ -881,11 +881,15 @@ namespace MasterOnline.Controllers
                     {
                         //change by calvin 9 juni 2019
                         //await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
+#if (DEBUG || Debug_AWS)
+                        await EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
+#else
                         string EDBConnID = EDB.GetConnectionString("ConnId");
                         var sqlStorage = new SqlServerStorage(EDBConnID);
 
                         var Jobclient = new BackgroundJobClient(sqlStorage);
                         Jobclient.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Edit Produk Get Status", iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id));
+#endif
                         //end change by calvin 9 juni 2019
                     }
                     else
@@ -1061,7 +1065,7 @@ namespace MasterOnline.Controllers
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
-                    #region variant lv 1
+#region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -1077,7 +1081,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.variant.Count > 0)
                             {
@@ -1093,7 +1097,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1112,7 +1116,7 @@ namespace MasterOnline.Controllers
                                 };
                                 newOpt.image.Add(gambarVariant);
 
-                                #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1124,7 +1128,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-                                #endregion
+#endregion
 
                                 newVariasi.opt.Add(newOpt);
 
@@ -1137,7 +1141,7 @@ namespace MasterOnline.Controllers
                                         image_description = ""
                                     });
 
-                                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1157,15 +1161,15 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-                                    #endregion
+#endregion
                                 }
                             }
                         }
                         product_variant.variant.Add(newVariasi);
                     }
-                    #endregion
+#endregion
 
-                    #region variant lv 2
+#region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -1181,7 +1185,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.variant.Count > 0)
                             {
@@ -1197,7 +1201,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1216,7 +1220,7 @@ namespace MasterOnline.Controllers
                                 };
                                 newOpt.image.Add(gambarVariant);
 
-                                #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1228,7 +1232,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-                                #endregion
+#endregion
 
                                 newVariasi.opt.Add(newOpt);
 
@@ -1240,7 +1244,7 @@ namespace MasterOnline.Controllers
                                         image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
                                         image_description = ""
                                     });
-                                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1260,7 +1264,7 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-                                    #endregion
+#endregion
                                 }
                             }
                         }
@@ -1278,7 +1282,7 @@ namespace MasterOnline.Controllers
                             product_variant.variant.Add(newVariasi);
                         }
                     }
-                    #endregion
+#endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
