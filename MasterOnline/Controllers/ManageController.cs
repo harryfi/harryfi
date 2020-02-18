@@ -36847,21 +36847,26 @@ namespace MasterOnline.Controllers
                                 username = usernameLogin
                             };
 
-                            var tokpedController = new TokopediaControllerJob();
+                            
                             string[] referensi = item.no_referensi.Split(';');
                             if (referensi.Count() > 0)
                             {
-#if (DEBUG || Debug_AWS)
-                                Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
-#else
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
-#endif
-                                listSuccess.Add(new listSuccessPrintLabel
+                                //#if (DEBUG || Debug_AWS)
+                                //Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+                                TokopediaControllerJob tokpedController = new TokopediaControllerJob();
+                                var retController = Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+                                //#else
+                                //                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                //                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
+                                //#endif
+                                if (retController.ToString() != "")
                                 {
-                                    no_referensi = item.no_bukti
-                                });
+                                    listSuccess.Add(new listSuccessPrintLabel
+                                    {
+                                        no_referensi = item.no_bukti
+                                    });
+                                }
                             }
                             else
                             {
