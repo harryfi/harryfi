@@ -36860,12 +36860,15 @@ namespace MasterOnline.Controllers
                                 //                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
                                 //#endif
-                                if (retController.ToString() != "")
+                                if (retController != null)
                                 {
-                                    listSuccess.Add(new listSuccessPrintLabel
+                                    if (retController.ToString() != "")
                                     {
-                                        no_referensi = item.no_bukti
-                                    });
+                                        listSuccess.Add(new listSuccessPrintLabel
+                                        {
+                                            no_referensi = item.no_bukti
+                                        });
+                                    }
                                 }
                             }
                             else
