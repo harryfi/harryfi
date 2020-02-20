@@ -3756,17 +3756,20 @@ namespace MasterOnline.Controllers
 
                                 foreach (var unit in attribs.units)
                                 {
-                                    foreach (var opt in unit.values)
+                                    if(unit.values != null)
                                     {
-                                        ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
-                                        newRecordOpt["VALUE_ID"] = opt.value_id;
-                                        newRecordOpt["UNIT_ID"] = unit.unit_id;
-                                        newRecordOpt["VALUE"] = opt.value;
-                                        newRecordOpt["HEX_CODE"] = opt.hex_code;
-                                        newRecordOpt["ICON"] = opt.icon;
-                                        newRecordOpt["VARIANT_ID"] = attribs.variant_id;
-                                        ret.attribute_opt.Add(newRecordOpt);
-                                    }
+                                        foreach (var opt in unit.values)
+                                        {
+                                            ATTRIBUTE_OPT_TOKPED newRecordOpt = new ATTRIBUTE_OPT_TOKPED();
+                                            newRecordOpt["VALUE_ID"] = opt.value_id;
+                                            newRecordOpt["UNIT_ID"] = unit.unit_id;
+                                            newRecordOpt["VALUE"] = opt.value;
+                                            newRecordOpt["HEX_CODE"] = opt.hex_code;
+                                            newRecordOpt["ICON"] = opt.icon;
+                                            newRecordOpt["VARIANT_ID"] = attribs.variant_id;
+                                            ret.attribute_opt.Add(newRecordOpt);
+                                        }
+                                    }                                    
                                 }
                             }
                             i = i + 1;
