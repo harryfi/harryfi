@@ -22810,34 +22810,34 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            if (lisTokpedShop.Count > 0)
-            {
-                //var tokopediaApi = new TokopediaController();
-                foreach (var tblCustomer in lisTokpedShop)
-                {
-                    if (tblCustomer.Sort1_Cust != "")
-                    {
-                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                        {
-                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-                            {
-                                merchant_code = tblCustomer.Sort1_Cust, //FSID
-                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                idmarket = tblCustomer.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = "Support"
-                            };
-                            var tokpedController = new TokopediaControllerJob();
-                            await tokpedController.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-                            //await tokpedController.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-                        }
-                    }
-                }
-            }
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            //if (lisTokpedShop.Count > 0)
+            //{
+            //    //var tokopediaApi = new TokopediaController();
+            //    foreach (var tblCustomer in lisTokpedShop)
+            //    {
+            //        if (tblCustomer.Sort1_Cust != "")
+            //        {
+            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //            {
+            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+            //                {
+            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //                    idmarket = tblCustomer.RecNum.Value,
+            //                    DatabasePathErasoft = dbPathEra,
+            //                    username = "Support"
+            //                };
+            //                var tokpedController = new TokopediaControllerJob();
+            //                await tokpedController.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+            //                //await tokpedController.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+            //            }
+            //        }
+            //    }
+            //}
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
             //if (listBLIShop.Count > 0)
