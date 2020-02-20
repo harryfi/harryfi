@@ -233,11 +233,14 @@
                         </div>
                         <div class="row" style="margin-top:10px;">
                             <div class="col-md-6 file_upload_section">
-                                <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);" multiple
+                                <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);"
                                        accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             </div>
                             <div class="col-md-4">
-                                <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
+                                @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
+            <span>Upload</span>
+        </button>*@
+                                <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
                                     <span>Upload</span>
                                 </button>
                             </div>
@@ -344,7 +347,7 @@
                 }
             });
 
-
+            document.getElementById('file_upload_excel').onclick = function (e) { e.preventDefault(); alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');};
 
             $('#search_stok').keypress(function (e) {
                 var key = e.which;
