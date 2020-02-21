@@ -2034,7 +2034,10 @@ namespace MasterOnline.Controllers
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
             string[] brg_mp = data.kode_mp.Split(';');
-            if (brg_mp.Length == 2)
+            //change by Tri 21 Feb 2020, brg mp bisa tidak ada product code ny
+            //if (brg_mp.Length == 2)
+            if (brg_mp.Length >= 1)
+            //end change by Tri 21 Feb 2020, brg mp bisa tidak ada product code ny
             {
                 string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
 
