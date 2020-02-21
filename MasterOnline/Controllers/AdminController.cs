@@ -3143,7 +3143,7 @@ namespace MasterOnline.Controllers
                     "<p>Hi Kak {0},</p>" +
                     "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
                     "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
-                    "<p>- Nama akun: {2}) akan expired pada {3} atau {4} hari lagi</p>" +
+                    "<p style='background - color: #FFFF00'>- Nama akun: {2} {1} akan expired pada {3} atau {4} hari lagi</p>" +
                     "<p>Cara melakukan link ulang di Master Online:</p>" +
                     "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
                     "<p>2. Edit akun Marketplace Anda</p>" +
