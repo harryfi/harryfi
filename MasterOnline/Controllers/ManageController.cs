@@ -9732,7 +9732,8 @@ namespace MasterOnline.Controllers
                                                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                                 data.display = display ? "true" : "false";
-                                                                Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                                                                var BliApi2 = new BlibliController();
+                                                                Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
                                                             }
                                                         }                                                        
                                                     }                                                    
