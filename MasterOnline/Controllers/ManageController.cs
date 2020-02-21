@@ -9712,19 +9712,31 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-#region update
-                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    #region update
+                                                    var listvar = ErasoftDbContext.STF02.Where(m => m.PART == barangInDb.BRG).ToList();
+                                                    foreach(var varian in listvar)
                                                     {
-                                                        kode = barangInDb.BRG,
-                                                        kode_mp = stf02h.BRG_MP,
-                                                        Qty = Convert.ToString(qtyOnHand),
-                                                        MinQty = "0"
-                                                    };
-                                                    data.Price = barangInDb.HJUAL.ToString();
-                                                    data.MarketPrice = stf02h.HJUAL.ToString();
-                                                    var display = Convert.ToBoolean(stf02h.DISPLAY);
-                                                    data.display = display ? "true" : "false";
-                                                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                                                        stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == varian.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                                        if(stf02h != null)
+                                                        {
+                                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                                            {
+                                                                BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                                {
+                                                                    kode = barangInDb.BRG,
+                                                                    kode_mp = stf02h.BRG_MP,
+                                                                    Qty = Convert.ToString(qtyOnHand),
+                                                                    MinQty = "0"
+                                                                };
+                                                                data.Price = barangInDb.HJUAL.ToString();
+                                                                data.MarketPrice = stf02h.HJUAL.ToString();
+                                                                var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                                data.display = display ? "true" : "false";
+                                                                var BliApi2 = new BlibliController();
+                                                                Task.Run(() => BliApi2.UpdateProdukQOH_Display(iden, data).Wait());
+                                                            }
+                                                        }                                                        
+                                                    }                                                    
 #endregion
                                                 }
                                             }
