@@ -752,6 +752,9 @@ namespace MasterOnline.Controllers
             //}
             //string username = sessionData.Account.Username;
 
+            //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
+            var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired";
+
             #region bukalapak
             var kdBL = 8;
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
@@ -792,7 +795,7 @@ namespace MasterOnline.Controllers
                 LazadaShop = LazadaShop.Where(m => m.RecNum.Value == id_single_account.Value);
             }
             var listLazadaShop = LazadaShop.ToList();
-            //var lzdApi = new LazadaController();
+            var lzdApi = new LazadaControllerJob();
             if (listLazadaShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLazadaShop)
@@ -801,10 +804,19 @@ namespace MasterOnline.Controllers
                     {
                         #region refresh token lazada
                         //change by calvin 4 april 2019
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+                        lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
                         //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
+                        //client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
                         //end change by calvin 4 april 2019
+
+                        //add by fauzi 20 Februari 2020
+                        if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
+                        {
+                            //recurJobM.RemoveIfExists(connection_id_proses_checktoken);
+                            //recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(dbSourceEra, dbPathEra, tblCustomer.TGL_EXPIRED)), "55 16 31 12 *", recurJobOpt);
+                            Task.Run(() => new AdminController().ProsesCheckToken(tblCustomer.USERNAME, tblCustomer.EMAIL, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                        }
+                        //end by fauzi 20 Februari 2020
                         #endregion
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)

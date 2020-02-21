@@ -3908,7 +3908,7 @@ namespace MasterOnline.Controllers
             //var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlCustomer>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.PERSO AS PERSO ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA AS KODE, ISNULL(C.NamaMarket,'') AS NAMA, A.EMAIL AS EMAIL, A.STATUS_API AS STATUS_API, A.TIDAK_HIT_UANG_R AS TIDAK_HIT_UANG_R, A.TGL_EXPIRED AS TGL_EXPIRED, A.PERSO AS PERSO ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";

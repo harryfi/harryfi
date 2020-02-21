@@ -99,6 +99,8 @@ namespace MasterOnline
 
         public bool TIDAK_HIT_UANG_R { get; set; }
 
+        public DateTime? TGL_EXPIRED { get; set; }
+
         [StringLength(10)]
         public string Sort1_Area { get; set; }
 
