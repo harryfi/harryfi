@@ -2089,7 +2089,14 @@ namespace MasterOnline.Controllers
                                     }
                                     //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                                     #endregion convert status
-                                    insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                    var nama1 = order.customer_first_name.Replace("'", "`");
+                                    if (nama1.Length > 30)
+                                        nama1 = nama1.Substring(0, 30);
+                                    var nama2 = order.customer_last_name.Replace("'", "`");
+                                    if (nama2.Length > 30)
+                                        nama2 = nama2.Substring(0, 30);
+                                    //insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                    insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
                                     //change by nurul 4/12/2019, local time
                                     //insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
                                     insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
@@ -2497,7 +2504,14 @@ namespace MasterOnline.Controllers
                                             break;
                                     }
                                     #endregion convert status
-                                    insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                    var nama1 = order.customer_first_name.Replace("'", "`");
+                                    if (nama1.Length > 30)
+                                        nama1 = nama1.Substring(0, 30);
+                                    var nama2 = order.customer_last_name.Replace("'", "`");
+                                    if (nama2.Length > 30)
+                                        nama2 = nama2.Substring(0, 30);
+                                    //insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                    insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
                                     //change by nurul 4/12/2019, local time
                                     //insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
                                     insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + tempCreated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + tempUpdated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
