@@ -36890,6 +36890,10 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
+                if(orderItemIds.Count() > 100)
+                {
+                    return new JsonResult { Data = new { mo_error = "Maximal barang yang bisa diproses adalah 100. Barang yang diproses saat ini " + orderItemIds.Count() + "." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
                 if (Valid)
                 {
                     var lzdApi = new LazadaController();
