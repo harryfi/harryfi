@@ -3137,8 +3137,7 @@ namespace MasterOnline.Controllers
 
                 if ((countResult == -7) || (countResult == -3) || (countResult == -1))
                 {
-                    //var email = new MailAddress(semail);
-                    var email = new MailAddress("muhammadfauzimilad213@gmail.com");
+                    var email = new MailAddress(semail);
                     var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
                     "<p>Hi Kak {0},</p>" +
                     "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +

@@ -1123,11 +1123,11 @@ namespace MasterOnline.Controllers
 
                     #region refresh token shopee
                     //add by fauzi 20 Februari 2020
-                    ShopeeController.ShopeeAPIData ident2 = new ShopeeController.ShopeeAPIData();
-                    iden.merchant_code = tblCustomer.Sort1_Cust;
-                    iden.DatabasePathErasoft = dbPathEra;
-                    iden.username = username;
-                    client.Enqueue<ShopeeController>(x => x.GetTokenShop(ident2, dbPathEra, tblCustomer.CUST));
+                    //ShopeeController.ShopeeAPIData ident2 = new ShopeeController.ShopeeAPIData();
+                    //iden.merchant_code = tblCustomer.Sort1_Cust;
+                    //iden.DatabasePathErasoft = dbPathEra;
+                    //iden.username = username;
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
