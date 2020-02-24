@@ -2578,6 +2578,18 @@ namespace MasterOnline.Controllers
                                 ret.status = 1;
                                 //ret.message = a.ToString();
 
+                                //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                if (getDetail.status == 1)
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                }
+                                else
+                                {
+                                    throw new Exception(getDetail.message);
+                                }
+                                //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+
                                 SqlCommand CommandSQL = new SqlCommand();
 
                                 //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -2604,7 +2616,11 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+
+                                //remark 24 feb 2020, gabung sp header dan detail move order
+                                //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                //end remark 24 feb 2020, gabung sp header dan detail move order
+
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
