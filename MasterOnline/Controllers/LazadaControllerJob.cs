@@ -229,8 +229,11 @@ namespace MasterOnline.Controllers
                 ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
                 if (!response.IsError())
                 {
+                    // add by fauzi 20 februari 2020
+                    var dateExpired = DateTime.UtcNow.AddSeconds(ret.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+
                     //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1'  WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
