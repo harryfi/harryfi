@@ -752,9 +752,6 @@ namespace MasterOnline.Controllers
             //}
             //string username = sessionData.Account.Username;
 
-            //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
-            var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired";
-
             #region bukalapak
             var kdBL = 8;
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
@@ -813,6 +810,8 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                         {
                             var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
+                            //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
+                            var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada";
                             recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                             recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 6 * * *", recurJobOpt);
                             //Task.Run(() => new AdminController().ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
@@ -1132,6 +1131,8 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
+                        //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
+                        var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee";
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                         recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 6 * * *", recurJobOpt);
                         //Task.Run(() => new AdminController().ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
