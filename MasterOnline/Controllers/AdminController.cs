@@ -3126,7 +3126,7 @@ namespace MasterOnline.Controllers
 
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]
-        public async Task<ActionResult> ProsesCheckToken(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, string expired_date)
+        public async Task<ActionResult> ReminderEmailExpiredAccountMP(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, string expired_date)
         {
             try
             {
@@ -3178,12 +3178,27 @@ namespace MasterOnline.Controllers
                         await smtp.SendMailAsync(message);
                     }
                 }
-                return new JsonResult { Data = new { mo_message = "Check token running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_message = "Reminder expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Check token not running. Because internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Reminder expired not running. Because internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
+        }
+
+        public ActionResult ReminderNotifyExpiredAccountMP(string dbPathEra,  string snamatoko, string smarketplace, string expired_date)
+        {
+            var dateExpired = Convert.ToDateTime(expired_date);
+            var dateExpiredEmail = Convert.ToDateTime(expired_date).ToString("dd MMMM yyyy HH:mm tt");
+            var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired);
+            var countResult = countDays.Days;
+
+            if ((countResult == -7) || (countResult == -3) || (countResult == -1))
+            {
+                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countResult.ToString().Replace("-", "") + " hari lagi.");
+            }
+            return new JsonResult { Data = new { mo_message = "Notify expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
         public ActionResult PromptAccount()
