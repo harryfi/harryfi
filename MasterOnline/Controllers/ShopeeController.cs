@@ -1624,15 +1624,14 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    //REQUEST_ID = seconds.ToString(),
-            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-            //    REQUEST_ACTION = "Get Token Shopee", //ganti
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-            //    REQUEST_STATUS = "Pending",
-            //};
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                REQUEST_ACTION = "Refresh Token Shopee", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
 
             //ganti
             string urll = "https://partner.shopeemobile.com/api/v1/shop/get_partner_shop";
@@ -1670,11 +1669,13 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
             if (responseFromServer != null)
@@ -1682,41 +1683,48 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult)) as ShopeeGetTokenShopResult;
-                    // expire_time Use this field to indicate the expiration date for shop authorization.
-                    var msg = "";
-                    if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString())){
-                        if(result.authed_shops.Length > 0)
+                    if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString()))
+                    {
+                        if (result.authed_shops.Length > 0)
                         {
                             foreach (var item in result.authed_shops)
                             {
-                                if(item.shopid.ToString() == iden.merchant_code.ToString())
+                                if (item.shopid.ToString() == iden.merchant_code.ToString())
                                 {
-                                    msg = "success";
-                                    // add by fauzi 20 februari 2020
                                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(item.expire_time).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                     DatabaseSQL EDB = new DatabaseSQL(sdb_source);
                                     var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" + iden.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "' WHERE CUST = '" + sno_cust + "'");
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    if (resultquery != 0)
+                                    {
+                                        currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    }
+                                    else
+                                    {
+                                        currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                        currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                    }
                                 }
                             }
                         }
-                    }else
+                    }
+                    else
                     {
                         if (!string.IsNullOrWhiteSpace(result.msg.ToString()))
                         {
-                            msg = result.msg.ToString();
+                            currentLog.REQUEST_EXCEPTION = result.msg.ToString();
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
-                
             }
-
             return ret;
-
         }
 
         public async Task<string> GetAttribute(ShopeeAPIData iden)
@@ -5320,6 +5328,8 @@ namespace MasterOnline.Controllers
             public string mta_username_email_merchant { get; set; }
             public string mta_password_password_merchant { get; set; }
             public string token { get; set; }
+            public string DatabasePathErasoft { get; set; }
+            public string username { get; set; }
         }
         public class ShopeeGetAttributeData
         {

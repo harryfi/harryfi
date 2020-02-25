@@ -3126,7 +3126,7 @@ namespace MasterOnline.Controllers
 
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]
-        public async Task<ActionResult> ProsesCheckToken(string susername, string semail, string snamatoko, string smarketplace, string expired_date)
+        public async Task<ActionResult> ProsesCheckToken(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, string expired_date)
         {
             try
             {
@@ -3137,6 +3137,9 @@ namespace MasterOnline.Controllers
 
                 if ((countResult == -7) || (countResult == -3) || (countResult == -1))
                 {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countResult.ToString().Replace("-", "") + " hari lagi.");
+
                     var email = new MailAddress(semail);
                     var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
                     "<p>Hi Kak {0},</p>" +
@@ -3160,7 +3163,7 @@ namespace MasterOnline.Controllers
                 message.Subject = "Master Online x "+ smarketplace + " Announcement";
                 message.Body = string.Format(body, susername, smarketplace, snamatoko, expired_date.ToString(), countResult.ToString().Replace("-", ""));
                 message.IsBodyHtml = true;
-                    
+
                     using (var smtp = new SmtpClient())
                     {
                         var credential = new NetworkCredential
@@ -3175,7 +3178,6 @@ namespace MasterOnline.Controllers
                         await smtp.SendMailAsync(message);
                     }
                 }
-
                 return new JsonResult { Data = new { mo_message = "Check token running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)

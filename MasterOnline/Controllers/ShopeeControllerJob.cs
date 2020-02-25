@@ -1489,7 +1489,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        //add by fauzi 21 Februari 2020
+        //add by fauzi 21 Februari 2020 fungsi untuk ambil token dari api shopee agar tgl expired dari akun marketplace termonitor.
         [AutomaticRetry(Attempts = 3)]
         [Queue("2_get_token")]
         public async Task<string> GetTokenShop(ShopeeAPIData iden, string dbPathEra, string sno_cust)
@@ -1502,15 +1502,14 @@ namespace MasterOnline.Controllers
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    //REQUEST_ID = seconds.ToString(),
-            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-            //    REQUEST_ACTION = "Get Token Shopee", //ganti
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = iden.merchant_code,
-            //    REQUEST_STATUS = "Pending",
-            //};
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                REQUEST_ACTION = "Refresh Token Shopee", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
 
             //ganti
             string urll = "https://partner.shopeemobile.com/api/v1/shop/get_partner_shop";
@@ -1548,11 +1547,13 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
             if (responseFromServer != null)
@@ -1560,8 +1561,6 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult)) as ShopeeGetTokenShopResult;
-                    // expire_time Use this field to indicate the expiration date for shop authorization.
-                    var msg = "";
                     if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString()))
                     {
                         if (result.authed_shops.Length > 0)
@@ -1570,12 +1569,20 @@ namespace MasterOnline.Controllers
                             {
                                 if (item.shopid.ToString() == iden.merchant_code.ToString())
                                 {
-                                    msg = "success";
-                                    // add by fauzi 20 februari 2020
                                     var dateExpired = DateTimeOffset.FromUnixTimeSeconds(item.expire_time).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
                                     DatabaseSQL EDB = new DatabaseSQL(dbPathEra);
                                     var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" + iden.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "' WHERE CUST = '" + sno_cust + "'");
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    if (resultquery != 0)
+                                    {
+                                        currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    }
+                                    else
+                                    {
+                                        currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                        currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                    }
                                 }
                             }
                         }
@@ -1584,19 +1591,18 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrWhiteSpace(result.msg.ToString()))
                         {
-                            msg = result.msg.ToString();
+                            currentLog.REQUEST_EXCEPTION = result.msg.ToString();
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
-
             }
-
             return ret;
-
         }
 
         public async Task<string> GetAttribute(ShopeeAPIData iden)

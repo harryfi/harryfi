@@ -813,8 +813,8 @@ namespace MasterOnline.Controllers
                             //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
                             var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada";
                             recurJobM.RemoveIfExists(connection_id_proses_checktoken);
-                            recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 6 * * *", recurJobOpt);
-                            //Task.Run(() => new AdminController().ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                            recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
+                            //Task.Run(() => new AdminController().ProsesCheckToken(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
                         }
                         //end by fauzi 20 Februari 2020
                         #endregion
@@ -1123,19 +1123,22 @@ namespace MasterOnline.Controllers
 
                     #region refresh token shopee
                     //add by fauzi 20 Februari 2020
-                    //ShopeeController.ShopeeAPIData ident2 = new ShopeeController.ShopeeAPIData();
-                    //iden.merchant_code = tblCustomer.Sort1_Cust;
-                    //iden.DatabasePathErasoft = dbPathEra;
-                    //iden.username = username;
+                    //ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
+                    //iden2.merchant_code = tblCustomer.Sort1_Cust;
+                    //iden2.DatabasePathErasoft = dbPathEra;
+                    //iden2.username = username;
+                    //new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST);
+
                     client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
+                    
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                         //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee";
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
-                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 6 * * *", recurJobOpt);
-                        //Task.Run(() => new AdminController().ProsesCheckToken(tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ProsesCheckToken(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
+                        //new AdminController().ProsesCheckToken(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString());
                     }
                     //end by fauzi 20 Februari 2020
                     #endregion

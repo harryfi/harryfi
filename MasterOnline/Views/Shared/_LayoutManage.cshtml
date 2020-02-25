@@ -325,6 +325,11 @@
                                                     <i class="fa @parent.Icon"></i> @parent.NamaForm
                                                     @if (parent.HaveChild)
                                                     {
+                                                        //add by fauzi 24 Februari 2020
+                                                        if (parent.ScrId == 38) //Expired Akun Marketplace
+                                                        {
+                                                            <img id="new_expired_mp_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                        }
                                                         <span class="fa fa-chevron-down"></span>
                                                     }
                                                     //add by calvin 5 april 2019
@@ -368,6 +373,10 @@
                                                                                 <i class="fa @child.Icon"></i>
                                                                             }
                                                                             @child.NamaForm
+                                                                            @if (parent.ScrId == 38 && child.ParentId == 38) //Expired Akun Marketplace
+                                                                            {
+                                                                            <img id="new_expired_mp_sub_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                                            }
                                                                             @if (child.HaveChild)
                                                                             {
                                                                                 <span class="fa fa-chevron-down"></span>
@@ -774,6 +783,23 @@
                     dir: 'ltr',
                     autoClose: true,
                     duration: 4000,
+                    onOpen: null,
+                    onClose: null
+                });
+
+            };
+
+            masterOnlineR.client.notifAccountExpired = function (x) {
+                //add by fauzi 24 Februari 2020
+                $('#new_expired_mp_icon').show();
+                $('#new_expired_mp_sub_icon').show();
+
+                $.notify({
+                    jswrapper: 'body',
+                    message: x,
+                    dir: 'ltr',
+                    autoClose: true,
+                    duration: 5000,
                     onOpen: null,
                     onClose: null
                 });
