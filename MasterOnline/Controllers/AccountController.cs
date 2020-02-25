@@ -752,6 +752,8 @@ namespace MasterOnline.Controllers
             //}
             //string username = sessionData.Account.Username;
 
+            var AdminController = new AdminController();
+
             #region bukalapak
             var kdBL = 8;
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
@@ -792,7 +794,7 @@ namespace MasterOnline.Controllers
                 LazadaShop = LazadaShop.Where(m => m.RecNum.Value == id_single_account.Value);
             }
             var listLazadaShop = LazadaShop.ToList();
-            //var lzdApi = new LazadaControllerJob();
+            var lzdApi = new LazadaControllerJob();
             if (listLazadaShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLazadaShop)
@@ -801,27 +803,42 @@ namespace MasterOnline.Controllers
                     {
                         #region refresh token lazada
                         //change by calvin 4 april 2019
-                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
                         //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                        client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
-                        //end change by calvin 4 april 2019
+                       //end change by calvin 4 april 2019
 
                         //add by fauzi 20 Februari 2020
                         if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                         {
+                            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+                            if (dateNow >= tblCustomer.TGL_EXPIRED)
+                            {
+#if (AWS || DEV)
+                                client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
+#else
+                                lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
+#endif
+                            }
                             var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                             //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
                             var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada";
-#if ( AWS || DEV)
+#if (AWS || DEV)
                             recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                             recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
 #else
-                            Task.Run(() => new AdminController().ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                            Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
 #endif
-                            new AdminController().ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString());
+                            AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString());
+                        }
+                        else
+                        {
+#if (AWS || DEV)
+                            client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
+#else
+                            lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
+#endif
                         }
                         //end by fauzi 20 Februari 2020
-#endregion
+                        #endregion
                         //add by fauzi 25 November 2019
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
@@ -1120,23 +1137,29 @@ namespace MasterOnline.Controllers
                 //var shopeeApi = new ShopeeController();
                 foreach (ARF01 tblCustomer in listShopeeShop)
                 {
+#region refresh token shopee
+                    //add by fauzi 20 Februari 2020
                     ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
                     iden.merchant_code = tblCustomer.Sort1_Cust;
                     iden.DatabasePathErasoft = dbPathEra;
                     iden.username = username;
 
-#region refresh token shopee
-                    //add by fauzi 20 Februari 2020
-                    //ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
-                    //iden2.merchant_code = tblCustomer.Sort1_Cust;
-                    //iden2.DatabasePathErasoft = dbPathEra;
-                    //iden2.username = username;
-                    //new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST);
+                    ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
+                    iden2.merchant_code = tblCustomer.Sort1_Cust;
+                    iden2.DatabasePathErasoft = dbPathEra;
+                    iden2.username = username;
 
-                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
-                    
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
+                        DateTime dateNow = DateTime.UtcNow.AddHours(7);
+                        if (dateNow >= tblCustomer.TGL_EXPIRED)
+                        {
+#if (AWS || DEV)
+                            client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
+#else
+                            Task.Run(() => new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST)).Wait();
+#endif
+                        }
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                         //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee";
@@ -1144,9 +1167,17 @@ namespace MasterOnline.Controllers
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                         recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
 #else
-                        Task.Run(() => new AdminController().ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                        Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
 #endif
-                        new AdminController().ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString());
+                        AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString());
+                    }
+                    else
+                    {
+#if (AWS || DEV)
+                        client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
+#else
+                        Task.Run(() => new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST)).Wait();
+#endif
                     }
                     //end by fauzi 20 Februari 2020
 #endregion
