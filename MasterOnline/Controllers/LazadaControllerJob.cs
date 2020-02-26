@@ -2928,7 +2928,7 @@ namespace MasterOnline.Controllers
                         {
                             sSQL3 += " UNION ALL ";
                         }
-                        sSQL3 += " SELECT '" + order.nobuk + "' NO_REFERENSI, '" + ret + "' ALASAN ";
+                        sSQL3 += " SELECT '" + order.nobuk + "' NO_BUKTI, '" + ret + "' ALASAN ";
                         //end change by Tri 4 Feb 2020, tuning
                     }
                 }
@@ -2936,16 +2936,16 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(listOrderCancel))
                 {
                     listOrderCancel = listOrderCancel.Substring(0, listOrderCancel.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + listOrderCancel + "') AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2',STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + listOrderCancel + ") AND STATUS_TRANSAKSI <> '11' AND CUST = '" + cust + "'");
                     if (rowAffected > 0)
                     {
-                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + listOrderCancel + "') AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
+                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listOrderCancel + ") AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
 
                     }
 
                     sSQL2 += sSQL3 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
-                    sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_LAZADA' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
-                    sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
+                    sSQL2 += " SELECT T.NO_BUKTI, ALASAN, 'AUTO_LAZADA' FROM ";
+                    sSQL2 += " #TEMP T LEFT JOIN SOT01D D ON T.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                     EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
 
                 }

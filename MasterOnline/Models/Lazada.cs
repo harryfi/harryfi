@@ -366,7 +366,7 @@ namespace MasterOnline.Models
         public float tax_amount { get; set; }
         public int voucher_platform { get; set; }
         public string reason { get; set; }
-        public DateTime sla_time_stamp { get; set; }
+        public DateTime? sla_time_stamp { get; set; }
         public string product_detail_url { get; set; }
         public string promised_shipping_time { get; set; }
         public string warehouse_code { get; set; }
