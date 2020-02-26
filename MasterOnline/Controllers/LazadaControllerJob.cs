@@ -191,72 +191,91 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("2_get_token")]
-        public LazadaAuth GetRefToken(string cust, string refreshToken, string dbPathEra, string uname)
+        public LazadaAuth GetRefToken(string cust, string refreshToken, string dbPathEra, string uname, DateTime? tgl_expired, bool bForceRefresh)
         {
             LazadaAuth ret = new LazadaAuth();
-            string url;
-            url = "https://auth.lazada.com/rest";
-            SetupContext(dbPathEra, uname);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
 
-            ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest("/auth/token/refresh");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("refresh_token", refreshToken);
-            //moved to inside try catch
-            //LazopResponse response = client.Execute(request);
-            //end moved to inside try catch
-
-            ////Console.WriteLine(response.IsError());
-            ////Console.WriteLine(response.Body);
-
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            if (!string.IsNullOrWhiteSpace(tgl_expired.ToString()))
             {
-                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Refresh Token",
-                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
-                REQUEST_ATTRIBUTE_1 = cust,
-                REQUEST_ATTRIBUTE_2 = refreshToken,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
-            try
-            {
-                LazopResponse response = client.Execute(request);
-                //Console.WriteLine(response.IsError());
-                //Console.WriteLine(response.Body);
-
-
-                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
-                if (!response.IsError())
+                if (dateNow >= tgl_expired)
                 {
-                    // add by fauzi 20 februari 2020
-                    var dateExpired = DateTime.UtcNow.AddSeconds(ret.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-
-                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
-                    if (result == 1)
-                    {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
-                    }
-                    else
-                    {
-                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
-                    }
-                }
-                else
-                {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
-                    currentLog.REQUEST_EXCEPTION = response.Body;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                    TokenExpired = true;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
-                return null;
+                TokenExpired = true;
             }
+
+            if (TokenExpired || bForceRefresh)
+                {
+                    string url;
+                    url = "https://auth.lazada.com/rest";
+                    SetupContext(dbPathEra, uname);
+
+                    ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
+                    LazopRequest request = new LazopRequest("/auth/token/refresh");
+                    request.SetHttpMethod("GET");
+                    request.AddApiParameter("refresh_token", refreshToken);
+                    //moved to inside try catch
+                    //LazopResponse response = client.Execute(request);
+                    //end moved to inside try catch
+
+                    ////Console.WriteLine(response.IsError());
+                    ////Console.WriteLine(response.Body);
+
+                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    {
+                        REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
+                        REQUEST_ACTION = "Refresh Token",
+                        REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                        REQUEST_ATTRIBUTE_1 = cust,
+                        REQUEST_ATTRIBUTE_2 = refreshToken,
+                        REQUEST_STATUS = "Pending",
+                    };
+                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
+                    try
+                    {
+                        LazopResponse response = client.Execute(request);
+                        //Console.WriteLine(response.IsError());
+                        //Console.WriteLine(response.Body);
+
+
+                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
+                        if (!response.IsError())
+                        {
+                            // add by fauzi 20 februari 2020
+                            var dateExpired = DateTime.UtcNow.AddSeconds(ret.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+
+                            //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
+                            if (result == 1)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                            }
+                        }
+                        else
+                        {
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
+                            currentLog.REQUEST_EXCEPTION = response.Body;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        currentLog.REQUEST_EXCEPTION = ex.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
+                        return null;
+                    }
+                }
+            
             return ret;
         }
 
