@@ -1143,25 +1143,27 @@ namespace MasterOnline.Controllers
                     iden.merchant_code = tblCustomer.Sort1_Cust;
                     iden.DatabasePathErasoft = dbPathEra;
                     iden.username = username;
+                    iden.no_cust = tblCustomer.CUST;
+                    iden.tgl_expired = tblCustomer.TGL_EXPIRED;
 
                     ShopeeController.ShopeeAPIData iden2 = new ShopeeController.ShopeeAPIData();
                     iden2.merchant_code = tblCustomer.Sort1_Cust;
                     iden2.DatabasePathErasoft = dbPathEra;
                     iden2.username = username;
+                    iden2.no_cust = tblCustomer.CUST;
+                    iden2.tgl_expired = tblCustomer.TGL_EXPIRED;
 
+                    // proses cek dan get token
+#if (AWS || DEV)
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden));
+#else
+                    Task.Run(() => new ShopeeController().GetTokenShopee(iden2)).Wait();
+#endif
+
+                    // proses reminder expired token
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
-                        DateTime dateNow = DateTime.UtcNow.AddHours(7);
-                        if (dateNow >= tblCustomer.TGL_EXPIRED)
-                        {
-#if (AWS || DEV)
-                            client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
-#else
-                            Task.Run(() => new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST)).Wait();
-#endif
-                        }
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
-                        //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee";
 #if (AWS || DEV)
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
@@ -1170,14 +1172,6 @@ namespace MasterOnline.Controllers
                         Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
 #endif
                         AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString());
-                    }
-                    else
-                    {
-#if (AWS || DEV)
-                        client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShop(iden, dbPathEra, tblCustomer.CUST));
-#else
-                        Task.Run(() => new ShopeeController().GetTokenShop(iden2, dbPathEra, tblCustomer.CUST)).Wait();
-#endif
                     }
                     //end by fauzi 20 Februari 2020
 #endregion
