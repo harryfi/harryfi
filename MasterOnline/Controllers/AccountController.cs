@@ -794,7 +794,7 @@ namespace MasterOnline.Controllers
                 LazadaShop = LazadaShop.Where(m => m.RecNum.Value == id_single_account.Value);
             }
             var listLazadaShop = LazadaShop.ToList();
-            var lzdApi = new LazadaControllerJob();
+            //var lzdApi = new LazadaControllerJob();
             if (listLazadaShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLazadaShop)
@@ -809,7 +809,7 @@ namespace MasterOnline.Controllers
 #if (AWS || DEV)
                                 client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false));
 #else
-                        lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false);
+                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false);
 #endif
 
                         //add by fauzi 20 Februari 2020
