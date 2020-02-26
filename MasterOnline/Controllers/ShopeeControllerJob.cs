@@ -107,7 +107,7 @@ namespace MasterOnline.Controllers
                     DatabasePathErasoft = param[0],
                     no_cust = param[1],
                 };
-                Task.Run(() => GetTokenShopee(dataSp)).Wait();
+                Task.Run(() => GetTokenShopee(dataSp, true)).Wait();
             }
             return View("ShopeeAuth");
         }
@@ -1490,13 +1490,24 @@ namespace MasterOnline.Controllers
         //add by fauzi 21 Februari 2020 fungsi untuk ambil token dari api shopee agar tgl expired dari akun marketplace termonitor.
         [AutomaticRetry(Attempts = 3)]
         [Queue("2_get_token")]
-        public async Task<string> GetTokenShopee(ShopeeAPIData dataAPI)
+        public async Task<string> GetTokenShopee(ShopeeAPIData dataAPI, bool bForceRefresh)
         {
             string ret = "";
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
             if (!string.IsNullOrWhiteSpace(dataAPI.tgl_expired.ToString()))
             {
-                DateTime dateNow = DateTime.UtcNow.AddHours(7);
                 if (dateNow >= dataAPI.tgl_expired)
+                {
+                    TokenExpired = true;
+                }
+            }
+            else
+            {
+                TokenExpired = true;
+            }
+
+            if (TokenExpired || bForceRefresh)
                 {
                     int MOPartnerID = 841371;
                     string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1607,7 +1618,6 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }
             return ret;
         }
 

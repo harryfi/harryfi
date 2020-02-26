@@ -804,23 +804,20 @@ namespace MasterOnline.Controllers
                         #region refresh token lazada
                         //change by calvin 4 april 2019
                         //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
-                       //end change by calvin 4 april 2019
+                        //end change by calvin 4 april 2019
+
+#if (AWS || DEV)
+                                client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false));
+#else
+                        lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username, tblCustomer.TGL_EXPIRED, false);
+#endif
 
                         //add by fauzi 20 Februari 2020
                         if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                         {
-                            DateTime dateNow = DateTime.UtcNow.AddHours(7);
-                            if (dateNow >= tblCustomer.TGL_EXPIRED)
-                            {
-#if (AWS || DEV)
-                                client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
-#else
-                                lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
-#endif
-                            }
                             var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
                             //add by fauzi 20 Februari 2020 untuk declare connection id hangfire job check token expired.
-                            var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada";
+                            var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada_" + tblCustomer.CUST.ToString();
 #if (AWS || DEV)
                             recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                             recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
@@ -828,14 +825,6 @@ namespace MasterOnline.Controllers
                             Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
 #endif
                             AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString());
-                        }
-                        else
-                        {
-#if (AWS || DEV)
-                            client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
-#else
-                            lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username);
-#endif
                         }
                         //end by fauzi 20 Februari 2020
                         #endregion
@@ -903,7 +892,7 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                     {
                         //change by calvin 1 april 2019
-                        //BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        //BlibliController.BlibliAPIData data1 = new BlibliController.BlibliAPIData()
                         //{
                         //    API_client_username = tblCustomer.API_CLIENT_U,
                         //    API_client_password = tblCustomer.API_CLIENT_P,
@@ -914,7 +903,7 @@ namespace MasterOnline.Controllers
                         //    token = tblCustomer.TOKEN,
                         //    idmarket = tblCustomer.RecNum.Value
                         //};
-                        //BliApi.GetToken(data, true, false);
+                        //BliApi.GetToken(data1, true, false);
                         ////Task.Run(() => BliApi.GetCategoryTree(data)).Wait();
                         BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
                         {
@@ -1155,16 +1144,16 @@ namespace MasterOnline.Controllers
 
                     // proses cek dan get token
 #if (AWS || DEV)
-                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden));
+                    client.Enqueue<ShopeeControllerJob>(x => x.GetTokenShopee(iden, false));
 #else
-                    Task.Run(() => new ShopeeController().GetTokenShopee(iden2)).Wait();
+                    Task.Run(() => new ShopeeControllerJob().GetTokenShopee(iden, false)).Wait();
 #endif
 
                     // proses reminder expired token
                     if (!string.IsNullOrWhiteSpace(tblCustomer.TGL_EXPIRED.ToString()))
                     {
                         var accFromMoDB = MoDbContext.Account.Single(a => a.DatabasePathErasoft == dbPathEra);
-                        var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee";
+                        var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee_" + tblCustomer.CUST.ToString();
 #if (AWS || DEV)
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
                         recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
