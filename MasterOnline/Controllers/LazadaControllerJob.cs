@@ -191,72 +191,91 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("2_get_token")]
-        public LazadaAuth GetRefToken(string cust, string refreshToken, string dbPathEra, string uname)
+        public LazadaAuth GetRefToken(string cust, string refreshToken, string dbPathEra, string uname, DateTime? tgl_expired, bool bForceRefresh)
         {
             LazadaAuth ret = new LazadaAuth();
-            string url;
-            url = "https://auth.lazada.com/rest";
-            SetupContext(dbPathEra, uname);
+            DateTime dateNow = DateTime.UtcNow.AddHours(7);
+            bool TokenExpired = false;
 
-            ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest("/auth/token/refresh");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("refresh_token", refreshToken);
-            //moved to inside try catch
-            //LazopResponse response = client.Execute(request);
-            //end moved to inside try catch
-
-            ////Console.WriteLine(response.IsError());
-            ////Console.WriteLine(response.Body);
-
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            if (!string.IsNullOrWhiteSpace(tgl_expired.ToString()))
             {
-                REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Refresh Token",
-                REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
-                REQUEST_ATTRIBUTE_1 = cust,
-                REQUEST_ATTRIBUTE_2 = refreshToken,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
-            try
-            {
-                LazopResponse response = client.Execute(request);
-                //Console.WriteLine(response.IsError());
-                //Console.WriteLine(response.Body);
-
-
-                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
-                if (!response.IsError())
+                if (dateNow >= tgl_expired)
                 {
-                    // add by fauzi 20 februari 2020
-                    var dateExpired = DateTime.UtcNow.AddSeconds(ret.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
-
-                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
-                    if (result == 1)
-                    {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
-                    }
-                    else
-                    {
-                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
-                    }
-                }
-                else
-                {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
-                    currentLog.REQUEST_EXCEPTION = response.Body;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                    TokenExpired = true;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
-                return null;
+                TokenExpired = true;
             }
+
+            if (TokenExpired || bForceRefresh)
+                {
+                    string url;
+                    url = "https://auth.lazada.com/rest";
+                    SetupContext(dbPathEra, uname);
+
+                    ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
+                    LazopRequest request = new LazopRequest("/auth/token/refresh");
+                    request.SetHttpMethod("GET");
+                    request.AddApiParameter("refresh_token", refreshToken);
+                    //moved to inside try catch
+                    //LazopResponse response = client.Execute(request);
+                    //end moved to inside try catch
+
+                    ////Console.WriteLine(response.IsError());
+                    ////Console.WriteLine(response.Body);
+
+                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                    {
+                        REQUEST_ID = DateTime.UtcNow.AddHours(7).ToString("yyyyMMddHHmmssfff"),
+                        REQUEST_ACTION = "Refresh Token",
+                        REQUEST_DATETIME = DateTime.UtcNow.AddHours(7),
+                        REQUEST_ATTRIBUTE_1 = cust,
+                        REQUEST_ATTRIBUTE_2 = refreshToken,
+                        REQUEST_STATUS = "Pending",
+                    };
+                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
+                    try
+                    {
+                        LazopResponse response = client.Execute(request);
+                        //Console.WriteLine(response.IsError());
+                        //Console.WriteLine(response.Body);
+
+
+                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
+                        if (!response.IsError())
+                        {
+                            // add by fauzi 20 februari 2020
+                            var dateExpired = DateTime.UtcNow.AddSeconds(ret.expires_in).ToString("yyyy-MM-dd HH:mm:ss");
+
+                            //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1', TGL_EXPIRED = '" + dateExpired + "'  WHERE CUST = '" + cust + "'");
+                            if (result == 1)
+                            {
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                            }
+                        }
+                        else
+                        {
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
+                            currentLog.REQUEST_EXCEPTION = response.Body;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        currentLog.REQUEST_EXCEPTION = ex.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
+                        return null;
+                    }
+                }
+            
             return ret;
         }
 
@@ -2205,6 +2224,19 @@ namespace MasterOnline.Controllers
                                 if (adaInsert)
                                 {
                                     var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                                    //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                    var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                    if(getDetail.status == 1)
+                                    {
+                                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(getDetail.message);
+                                    }
+                                    //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+
                                     CommandSQL = new SqlCommand();
                                     CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                                     CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
@@ -2251,7 +2283,11 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+
+                                //remark by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                //end remark by Tri 21 Feb 2020, gabung sp header dan detail move order
+
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -2578,6 +2614,18 @@ namespace MasterOnline.Controllers
                                 ret.status = 1;
                                 //ret.message = a.ToString();
 
+                                //add by Tri 21 Feb 2020, gabung sp header dan detail move order
+                                var getDetail = getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                if (getDetail.status == 1)
+                                {
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, getDetail.message);
+                                }
+                                else
+                                {
+                                    throw new Exception(getDetail.message);
+                                }
+                                //end add by Tri 21 Feb 2020, gabung sp header dan detail move order
+
                                 SqlCommand CommandSQL = new SqlCommand();
 
                                 //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -2604,7 +2652,11 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
-                                getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+
+                                //remark 24 feb 2020, gabung sp header dan detail move order
+                                //getMultiOrderItems2(listOrderId, accessToken, connectionID, dbPathEra, uname, cust);
+                                //end remark 24 feb 2020, gabung sp header dan detail move order
+
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
@@ -3123,14 +3175,18 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(sSQL_Value))
             {
                 insertQ = insertQ + sSQL_Value.Substring(0, sSQL_Value.Length - 1);
-                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                //change by Tri 21 Feb 2020, gabung sp header dan detail move order
+                ret.status = 1;
+                ret.message = insertQ;
+                //var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
 
-                SqlCommand CommandSQL = new SqlCommand();
-                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                CommandSQL.Parameters.Add("@customer", SqlDbType.VarChar).Value = cust;
+                //SqlCommand CommandSQL = new SqlCommand();
+                //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                //CommandSQL.Parameters.Add("@customer", SqlDbType.VarChar).Value = cust;
 
-                EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                //end change by Tri 21 Feb 2020, gabung sp header dan detail move order
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
             }
 
