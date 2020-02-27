@@ -2799,11 +2799,20 @@ namespace MasterOnline.Controllers
                         if (getfirstserver != null)
                         {
                             lastHeartbeat = getfirstserver.Heartbeat;
+                            // add by fauzi 11 Februari 2020
+                            DateTime vDatetime = lastHeartbeat.Value;
+                            lastHeartbeat = vDatetime.AddHours(7);
+                            // end
                         }
+                        // add by fauzi 11 Februari 2020
+                        DateTime vDtlastlogin = item.LAST_LOGIN_DATE.Value;
+                        vDtlastlogin = vDtlastlogin.AddHours(7);
+                        // end
                         var data = new HANGFIRE_SERVER_STATUS()
                         {
                             Email = item.Email,
-                            LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
+                            //LAST_LOGIN_DATE = item.LAST_LOGIN_DATE, // remark by fauzi 11 Februari 2020
+                            LAST_LOGIN_DATE = vDtlastlogin,
                             Username = item.Username,
                             DatabasePathErasoft = item.DatabasePathErasoft,
                             DatabaseSourceErasoft = item.DataSourcePath,
