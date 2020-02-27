@@ -37811,6 +37811,24 @@ namespace MasterOnline.Controllers
                                                     no_referensi = pesananInDb.NO_REFERENSI
                                                 });
                                             }
+                                            //add by nurul 21/2/2020
+                                            else if (splitParamsInit.Contains("SENDER_REAL_NAME"))
+                                            {
+                                                ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
+                                                {
+                                                    branch_id = 0,
+                                                    sender_real_name = marketPlace.PERSO,
+                                                    tracking_no = ""
+                                                };
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+                                                listSuccess.Add(new listSuccessPrintLabel()
+                                                {
+                                                    no_referensi = pesananInDb.NO_REFERENSI
+                                                });
+                                            }
+                                            //end add by nurul 21/2/2020
                                             else
                                             {
                                                 var reasonFail = "Karena memerlukan data : ";
