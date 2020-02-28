@@ -7311,6 +7311,13 @@ namespace MasterOnline.Controllers
         }
         //end add by nurul 28/2/2020
 
+        //add by nurul 28/2/2020
+        public class getJOBShopee
+        {
+            public List<string> job_ordersn_list = new List<string>();
+        }
+        //end add by nurul 28/2/2020
+
         public class GetEscrowDetailResult
         {
             public Order order { get; set; }
