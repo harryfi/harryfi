@@ -2421,6 +2421,14 @@ namespace MasterOnline.Controllers
                                 CUST = CUST,
                                 NAMA_CUST = NAMA_CUST
                             };
+                            if (!string.IsNullOrEmpty(item.promotion_type))
+                            {
+                                if (item.promotion_type == "bundle_deal")
+                                {
+                                    var promoPrice = await GetEscrowDetail(iden, order.ordersn, item.item_id, item.variation_id);
+                                    newOrderItem.variation_discounted_price = promoPrice;
+                                }
+                            }
                             batchinsertItem.Add(newOrderItem);
                         }
                         batchinsert = (newOrder);
@@ -2469,6 +2477,78 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "0";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/my_income";
+
+            GetEscrowDetailsData HttpBody = new GetEscrowDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn
+                //ordersn_list = ordersn_list_test.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                //GetEscrowDetailResult
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetEscrowDetailResult)) as GetEscrowDetailResult;
+                if(result != null)
+                {
+                    if(result.order != null)
+                    {
+                        if(result.order.activity != null)
+                        {
+                            foreach(var act in result.order.activity)
+                            {
+                                foreach(var item in act.items)
+                                {
+                                    if(item.item_id == itemId && item.variation_id == variationId)
+                                    {
+                                       var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
+                                        return hargapromo.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
         public class GetAirwayBillsData
         {
             public bool is_batch { get; set; }
@@ -2827,15 +2907,15 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-                            
-//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+
+                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             pesananInDb.status_kirim = "2";
                             if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                             {
                                 pesananInDb.status_kirim = "1";
                             }
-                            
+
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -2860,14 +2940,14 @@ namespace MasterOnline.Controllers
                             {
                                 nilaiTRACKING_SHIPMENT = "";
                             }
-//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             pesananInDb.status_kirim = "2";
                             if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                             {
                                 pesananInDb.status_kirim = "1";
                             }
-                            
+
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -3058,7 +3138,7 @@ namespace MasterOnline.Controllers
                         var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                         if (pesananInDb != null)
                         {
-//                            pesananInDb.TRACKING_SHIPMENT = savedParam;
+                            //                            pesananInDb.TRACKING_SHIPMENT = savedParam;
                             string dTrackNo = "";
                             if (dTrackNo == "")
                             {
@@ -3088,14 +3168,14 @@ namespace MasterOnline.Controllers
                         {
                             string nilaiTRACKING_SHIPMENT = "P[;]" + data.address_id + "[;]" + data.pickup_time_id + "[;]" + trackno;
 
-//                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
                             pesananInDb.TRACKING_SHIPMENT = trackno;
                             pesananInDb.status_kirim = "2";
                             if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
                             {
                                 pesananInDb.status_kirim = "1";
                             }
-                            
+
                             ErasoftDbContext.SaveChanges();
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(namaPemesan) + " ke Shopee.");
@@ -4086,7 +4166,7 @@ namespace MasterOnline.Controllers
                         //    token = iden.token
                         //};
                         var listBrg = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT A.BRG, BRG_MP, B.HJUAL FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE PART = '" + brg + "' AND IDMARKET = " + customer.RecNum + " AND ISNULL(BRG_MP, '') <> ''");
-                        if(listBrg.Tables[0].Rows.Count > 0)
+                        if (listBrg.Tables[0].Rows.Count > 0)
                         {
                             string EDBConnID = EDB.GetConnectionString("ConnId");
                             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -5090,19 +5170,19 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
-                }
+            }
             //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             //}
             //catch (Exception ex)
@@ -6413,6 +6493,14 @@ namespace MasterOnline.Controllers
             public string[] ordersn_list { get; set; }
         }
 
+        public class GetEscrowDetailsData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string ordersn { get; set; }
+        }
+
         public class ShopeeGetItemListData
         {
             public int partner_id { get; set; }
@@ -6665,6 +6753,7 @@ namespace MasterOnline.Controllers
             public int variation_quantity_purchased { get; set; }
             public string variation_sku { get; set; }
             public string variation_original_price { get; set; }
+            public string promotion_type { get; set; }
         }
         public class ShopeeGetParameterForInitLogisticResult
         {
@@ -7178,6 +7267,101 @@ namespace MasterOnline.Controllers
         {
             public long variation_id { get; set; }
             public int[] tier_index { get; set; }
+        }
+
+        public class GetEscrowDetailResult
+        {
+            public Order order { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class Order
+        {
+            public Activity[] activity { get; set; }
+            public string payee_id { get; set; }
+            public string shipping_carrier { get; set; }
+            public string exchange_rate { get; set; }
+            public Bank_Account bank_account { get; set; }
+            public Income_Details income_details { get; set; }
+            public string country { get; set; }
+            public string escrow_currency { get; set; }
+            public string escrow_channel { get; set; }
+            public Item1[] items { get; set; }
+            public string ordersn { get; set; }
+            public string fm_tn { get; set; }
+        }
+
+        public class Bank_Account
+        {
+            public string bank_name { get; set; }
+            public string bank_account_number { get; set; }
+            public string bank_account_country { get; set; }
+        }
+
+        public class Income_Details
+        {
+            public string seller_return_refund_amount { get; set; }
+            public bool is_completed { get; set; }
+            public string voucher_name { get; set; }
+            public string voucher_type { get; set; }
+            public string final_shipping_fee { get; set; }
+            public string voucher { get; set; }
+            public string seller_coin_cash_back { get; set; }
+            public string coin { get; set; }
+            public string seller_rebate { get; set; }
+            public string cross_border_tax { get; set; }
+            public string commission_fee { get; set; }
+            public string buyer_shopee_kredit { get; set; }
+            public string voucher_seller { get; set; }
+            public string escrow_amount { get; set; }
+            public string shipping_fee_rebate { get; set; }
+            public string service_fee { get; set; }
+            public string voucher_code { get; set; }
+            public string local_currency { get; set; }
+            public string credit_card_transaction_fee { get; set; }
+            public string total_amount { get; set; }
+            public string credit_card_promotion { get; set; }
+            public string escrow_tax { get; set; }
+            public string actual_shipping_cost { get; set; }
+        }
+
+        public class Activity
+        {
+            public string discounted_price { get; set; }
+            public string original_price { get; set; }
+            public int activity_id { get; set; }
+            public Item2[] items { get; set; }
+            public string activity_type { get; set; }
+        }
+
+        public class Item2
+        {
+            public long item_id { get; set; }
+            public string original_price { get; set; }
+            public int quantity_purchased { get; set; }
+            public long variation_id { get; set; }
+        }
+
+        public class Item1
+        {
+            public float original_price { get; set; }
+            public int quantity_purchased { get; set; }
+            public object deal_price { get; set; }
+            public object credit_card_promotion { get; set; }
+            public string item_name { get; set; }
+            public object discount_from_coin { get; set; }
+            public string item_sku { get; set; }
+            public long variation_id { get; set; }
+            public string variation_name { get; set; }
+            public int add_on_deal_id { get; set; }
+            public bool is_add_on_deal { get; set; }
+            public long item_id { get; set; }
+            public object discounted_price { get; set; }
+            public int discount_from_voucher_seller { get; set; }
+            public string variation_sku { get; set; }
+            public int discount_from_voucher { get; set; }
+            public bool is_main_item { get; set; }
+            public object seller_rebate { get; set; }
         }
 
     }
