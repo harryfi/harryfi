@@ -8718,9 +8718,14 @@ namespace MasterOnline.Controllers
                         string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         //var result = lzdApi.CreateProduct(dataLazada);
+                        LazadaControllerJob test = new LazadaControllerJob();
+#if (DEBUG || Debug_AWS)
+                        Task.Run(() => test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada)).Wait();
+#else
                         var sqlStorage = new SqlServerStorage(EDBConnID);
                         var clientJobServer = new BackgroundJobClient(sqlStorage);
                         clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
+#endif
                         //var test = new LazadaControllerJob();
                         //test.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada);
                     }
@@ -9712,7 +9717,7 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-                                                    #region update
+#region update
                                                     var listvar = ErasoftDbContext.STF02.Where(m => m.PART == barangInDb.BRG).ToList();
                                                     foreach(var varian in listvar)
                                                     {
