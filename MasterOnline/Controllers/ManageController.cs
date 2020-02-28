@@ -9025,9 +9025,13 @@ namespace MasterOnline.Controllers
                                                         {
                                                             //change by calvin 9 juni 2019
                                                             //Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+#if (DEBUG || Debug_AWS)
+                                                            Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+#else
                                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                             clientJobServer.Enqueue<TokopediaControllerJob>(x => x.CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]));
+#endif
                                                             //end change by calvin 9 juni 2019
                                                         }
                                                     }
@@ -9038,19 +9042,35 @@ namespace MasterOnline.Controllers
                                                     {
                                                         //change by calvin 9 juni 2019
                                                         //Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+
+#if (DEBUG || Debug_AWS)
+                                                        Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+#else
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
                                                         var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]));
+#endif
                                                         //end change by calvin 9 juni 2019
                                                     }
                                                     else
                                                     {
-                                                        //change by calvin 9 juni 2019
-                                                        //Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                        //change by nurul 3/2/2020
+                                                        ////change by calvin 9 juni 2019
+                                                        ////Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                        //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                        //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                        //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
+                                                        ////end change by calvin 9 juni 2019
+
+#if (DEBUG || Debug_AWS)
+                                                        Task.Run(() => new TokopediaControllerJob().EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+#else
                                                         var sqlStorage = new SqlServerStorage(EDBConnID);
                                                         var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                         clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
                                                         //end change by calvin 9 juni 2019
+#endif
+                                                        //end change by nurul 3/2/2020
                                                     }
                                                 }
                                             }
