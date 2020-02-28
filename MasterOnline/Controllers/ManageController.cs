@@ -38072,11 +38072,14 @@ namespace MasterOnline.Controllers
                     ShopeeControllerJob.getJOBShopee temp_job = new ShopeeControllerJob.getJOBShopee(){};
                     foreach (var resi in ListStt01a)
                     {
-                        temp_job.job_ordersn_list.Add(resi.tracking_no);
+                        temp_job.job_ordersn_list.Add(resi.no_referensi);
                     };
                     //END ADD BY NURUL 28/2/2020, untuk job
-                    ShopeeControllerJob shoAPI = new ShopeeControllerJob();                    
+                    ShopeeControllerJob shoAPI = new ShopeeControllerJob();
+                    //change by nurul 28/2/2020, untuk job
+                    //var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
                     var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray(), temp_job);
+                    //end change by nurul 28/2/2020, untuk job
                     var listErrors = new List<PackingListErrors>();
                     foreach (var item in ret.batch_result.errors)
                     {
