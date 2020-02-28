@@ -348,7 +348,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var faktur in Model.ListFakturDetail.Where(pb => pb.NO_BUKTI == Model?.Faktur?.NO_BUKTI).ToList())
+                        @foreach (var faktur in Model.ListFakturDetail.Where(pb => pb.NO_BUKTI == Model?.Faktur?.NO_BUKTI).ToList().OrderBy(data => data.NO_URUT))
                         {
                             <tr data-barang-id="brg-@faktur.NO_URUT">
                                 @{

@@ -327,7 +327,7 @@
                             var listBarang = Model.ListBarang.ToList();
                             var iPd = 0;
                         }
-                        @foreach (var invoice in Model.ListInvoiceDetail.Where(pb => pb.INV == Model?.Invoice?.INV).ToList())
+                        @foreach (var invoice in Model.ListInvoiceDetail.Where(pb => pb.INV == Model?.Invoice?.INV).ToList().OrderBy(data => data.NO))
                         {
                             <tr data-barang-id="brg-@invoice.NO">
                                 @{
