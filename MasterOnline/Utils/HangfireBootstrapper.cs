@@ -33,7 +33,7 @@ namespace MasterOnline.Utils
 
                 HostingEnvironment.RegisterObject(this);
 
-#if (DEBUG || Debug_AWS || DEV )
+#if (DEBUG || Debug_AWS || DEV)
                 //var lastYear = DateTime.UtcNow.AddYears(-1);
                 //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
                 //var datenow = DateTime.UtcNow.AddHours(7);
