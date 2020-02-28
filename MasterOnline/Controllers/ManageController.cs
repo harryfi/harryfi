@@ -22991,34 +22991,35 @@ namespace MasterOnline.Controllers
             //                }
             //            }
 
-#region fix pemesan null di pesanan shopee
-            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
-            //if (listShopeeShop.Count > 0)
-            //{
-            //    //var shopeeApi = new ShopeeController();
-            //    foreach (ARF01 tblCustomer in listShopeeShop)
-            //    {
-            //        ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
-            //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        iden.DatabasePathErasoft = dbPathEra;
-            //        iden.username = "Calvin Support";
+            #region fix pemesan null di pesanan shopee
+            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            if (listShopeeShop.Count > 0)
+            {
+                //var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopeeShop)
+                {
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
+                    iden.merchant_code = tblCustomer.Sort1_Cust;
+                    iden.DatabasePathErasoft = dbPathEra;
+                    iden.username = "Calvin Support";
 
-            //        //var getOrderJOB = ErasoftDbContext.SOT01A.Where(p => (p.NO_REFERENSI ?? "") == "19102215547FMSP").Select(p => p.NO_REFERENSI).ToList();
-            //        List<string> getOrderJOB = new List<string>();
-            //        getOrderJOB.Add("19102215547FMSP");
-            //        await new ShopeeControllerJob().GetAirwayBills(iden, getOrderJOB.ToArray());
-            //        //string connId_JobId = "";
-            //        //var getOrderPemesanKosong = ErasoftDbContext.SOT01A.Where(p => (p.PEMESAN ?? "") == "").Select(p => p.NO_REFERENSI).ToList();
-
-            //        //var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
-            //        //for (int i = 0; i < paging; i++)
-            //        //{
-            //        //await new ShopeeControllerJob().CekBrutoOrderCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
-            //        //}
-            //    }
-            //}
-#endregion
+                    //var getOrderJOB = ErasoftDbContext.SOT01A.Where(p => (p.NO_REFERENSI ?? "") == "19102215547FMSP").Select(p => p.NO_REFERENSI).ToList();
+                    //List<string> getOrderJOB = new List<string>();
+                    //getOrderJOB.Add("19102215547FMSP");
+                    //await new ShopeeControllerJob().GetAirwayBills(iden, getOrderJOB.ToArray());
+                    //string connId_JobId = "";
+                    //var getOrderPemesanKosong = ErasoftDbContext.SOT01A.Where(p => (p.PEMESAN ?? "") == "").Select(p => p.NO_REFERENSI).ToList();
+                    var ShopeeGetLogisticsResult = await new ShopeeControllerJob().GetLogisticInfo(iden, "200227DWA76V1G");
+                    //var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
+                    //for (int i = 0; i < paging; i++)
+                    //{
+                    //await new ShopeeControllerJob().CekBrutoOrderCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                    //}
+                }
+            }
+            
+            #endregion
 #endif
 
             return View();
@@ -37803,16 +37804,21 @@ namespace MasterOnline.Controllers
                                                     sender_real_name = "",
                                                     tracking_no = ""
                                                 };
+#if (DEBUG || Debug_AWS)
+                                                var shoApi = new ShopeeControllerJob();
+                                                var notrack = Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+#else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+#endif
                                                 listSuccess.Add(new listSuccessPrintLabel()
                                                 {
                                                     no_referensi = pesananInDb.NO_REFERENSI
                                                 });
                                             }
                                             //add by nurul 21/2/2020
-                                            else if (splitParamsInit.Contains("SENDER_REAL_NAME"))
+                                            else if (splitParamsInit.Contains("SENDER"))
                                             {
                                                 ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
                                                 {
@@ -37820,13 +37826,19 @@ namespace MasterOnline.Controllers
                                                     sender_real_name = marketPlace.PERSO,
                                                     tracking_no = ""
                                                 };
+#if (DEBUG || Debug_AWS)
+                                                var shoApi = new ShopeeControllerJob();
+                                                Task.Run(() => shoApi.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", "")).Wait();
+#else
                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
                                                 clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", data, pesananInDb.NO_REFERENSI, detail, pesananInDb.RecNum.Value, "", "", ""));
+#endif
+
                                                 listSuccess.Add(new listSuccessPrintLabel()
-                                                {
-                                                    no_referensi = pesananInDb.NO_REFERENSI
-                                                });
+                                                    {
+                                                        no_referensi = pesananInDb.NO_REFERENSI
+                                                    });
                                             }
                                             //end add by nurul 21/2/2020
                                             else
