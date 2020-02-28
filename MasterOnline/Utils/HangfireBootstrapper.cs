@@ -34,47 +34,47 @@ namespace MasterOnline.Utils
                 HostingEnvironment.RegisterObject(this);
 
 #if (DEBUG || Debug_AWS)
-                var lastYear = DateTime.UtcNow.AddYears(-1);
-                var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
-                var datenow = DateTime.UtcNow.AddHours(7);
+                //var lastYear = DateTime.UtcNow.AddYears(-1);
+                //var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
+                //var datenow = DateTime.UtcNow.AddHours(7);
 
-                MoDbContext = new MoDbContext();
+                //MoDbContext = new MoDbContext();
 
-                var accountInDb = (from a in MoDbContext.Account
-                                   where
-                                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
-                                   &&
-                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
-                                   orderby a.LAST_LOGIN_DATE descending
-                                   select a).ToList();
-                foreach (var item in accountInDb)
-                {
-                    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
-                    {
-                        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
+                //var accountInDb = (from a in MoDbContext.Account
+                //                   where
+                //                   (a.LAST_LOGIN_DATE ?? lastYear) >= last2Week
+                //                   &&
+                //                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                //                   orderby a.LAST_LOGIN_DATE descending
+                //                   select a).ToList();
+                //foreach (var item in accountInDb)
+                //{
+                //    if (!string.IsNullOrEmpty(item.DataSourcePath) && !string.IsNullOrEmpty(item.DatabasePathErasoft))
+                //    {
+                //        var EDB = new DatabaseSQL(item.DatabasePathErasoft);
 
-                        string EDBConnID = EDB.GetConnectionString("ConnID");
-                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                //        string EDBConnID = EDB.GetConnectionString("ConnID");
+                //        var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                        var monitoringApi = sqlStorage.GetMonitoringApi();
-                        var serverList = monitoringApi.Servers();
+                //        var monitoringApi = sqlStorage.GetMonitoringApi();
+                //        var serverList = monitoringApi.Servers();
 
-                        if (serverList.Count() == 0)
-                        {
-                            startHangfireServer(sqlStorage);
-                        }
-                        else
-                        {
-                            foreach (var server in serverList)
-                            {
-                                var serverConnection = sqlStorage.GetConnection();
-                                serverConnection.RemoveServer(server.Name);
-                                serverConnection.Dispose();
-                            }
-                            startHangfireServer(sqlStorage);
-                        }
-                    }
-                }
+                //        if (serverList.Count() == 0)
+                //        {
+                //            startHangfireServer(sqlStorage);
+                //        }
+                //        else
+                //        {
+                //            foreach (var server in serverList)
+                //            {
+                //                var serverConnection = sqlStorage.GetConnection();
+                //                serverConnection.RemoveServer(server.Name);
+                //                serverConnection.Dispose();
+                //            }
+                //            startHangfireServer(sqlStorage);
+                //        }
+                //    }
+                //}
 #else
                 var lastYear = DateTime.UtcNow.AddYears(-1);
                 var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
