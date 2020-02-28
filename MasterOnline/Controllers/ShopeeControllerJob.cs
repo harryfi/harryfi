@@ -2581,6 +2581,9 @@ namespace MasterOnline.Controllers
             public int shopid { get; set; }
             public long timestamp { get; set; }
             public string[] ordersn_list { get; set; }
+            //add by nurul 28/2/2020, untuk job
+            public object extinfo { get; set; }
+            //end add by nurul 28/2/2020, untuk job
         }
 
 
@@ -2630,7 +2633,7 @@ namespace MasterOnline.Controllers
             public string error_code { get; set; }
         }
 
-        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list)
+        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list, getJOBShopee temp_job)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -2650,8 +2653,11 @@ namespace MasterOnline.Controllers
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 ordersn_list = ordersn_list,
-                is_batch = true
+                is_batch = true,
                 //ordersn_list = ordersn_list_test.ToArray()
+                //add by nurul 28/2/2020, untuk job
+                extinfo = temp_job
+                //end add by nurul 28/2/2020, untuk job
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -7297,6 +7303,13 @@ namespace MasterOnline.Controllers
             public long variation_id { get; set; }
             public int[] tier_index { get; set; }
         }
+
+        //add by nurul 28/2/2020
+        public class getJOBShopee
+        {
+            public List<string> job_ordersn_list = new List<string>();
+        }
+        //end add by nurul 28/2/2020
 
         public class GetEscrowDetailResult
         {
