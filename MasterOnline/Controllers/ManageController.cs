@@ -36944,7 +36944,7 @@ namespace MasterOnline.Controllers
                             var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == so.no_bukti).ToList();
                             if (sot01b.Count > 0)
                             {
-                                if ((orderItemIds.Count() + sot01b.Count()) > 100)
+                                if ((orderItemIds.Count() + sot01b.Count()) > 50)
                                 {
                                         var lzdApi = new LazadaController();
                                         var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -37141,7 +37141,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
 
-                                if (orderItemIds.Count() == 100 || orderItemIds.Count() == hitungDetail)
+                                if (orderItemIds.Count() == 50 || orderItemIds.Count() == hitungDetail)
                                 {
                                     var lzdApi = new LazadaController();
                                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
@@ -37317,6 +37317,14 @@ namespace MasterOnline.Controllers
                                         }
                                         temp_strmsg.Add(strmsg);
                                         //return new JsonResult { Data = new { mo_error = strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                                    }
+
+                                    hitungDetail = hitungDetail - orderItemIds.Count();
+                                    orderItemIds.Clear();
+                                    foreach (SOT01B item in sot01b)
+                                    {
+                                        orderItemIds.Add(item.ORDER_ITEM_ID);
+                                        //Valid = true;
                                     }
                                 }
                             }
