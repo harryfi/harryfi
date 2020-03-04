@@ -2757,6 +2757,7 @@
                                     getTanggal();
                                     getMarketplace();
                                     getBuyer();
+                                    getExpedisi();
 
                                     //refreshInputan();
                                     //refreshNetto();
@@ -4418,6 +4419,7 @@
                     getDataBarang();
                     //getGudang();
                     getGudangForBarang();
+                    getExpedisi();
 
 
                     //change by nurul 20/02/2019
@@ -4530,6 +4532,7 @@
                     getDataBarang();
                     //getGudang();
                     getGudangForBarang();
+                    getExpedisi();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -4762,6 +4765,7 @@
                                 //getGudang();
                                 getGudangForBarang();
                                 getMarketplace();
+                                getExpedisi();
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
                                 //change by nurul 15/10/2018
@@ -5299,6 +5303,53 @@
             //end change by calvin 28 nov 2018, print dialog
         }
         //end add
+
+        //add by nurul 4/3/2020
+        function getExpedisi() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetEkspedisi", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var listEkspedisi = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listEkspedisi[i] = {
+                                id: item.RecNum,
+                                text: item.NamaEkspedisi
+                            };
+                        });
+
+                    var expedisiSelect = $('#EXPEDISI').selectize({
+                        id:'cbExpedisi',
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listEkspedisi,
+                        onChange: function(value) {
+                            $('#Faktur_PENGIRIM').val(value);
+                            //change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            //$('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            $('#Faktur_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            //end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            $('#btn-simpan-perubahan-row').show();
+                        }
+                    });
+
+                    expedisiSelect[0].selectize.setValue($('#Faktur_PENGIRIM').val());
+                    $('#btn-simpan-perubahan-row').hide();
+                    //add 16 April 2019
+                    //$('#EXPEDISI').show();
+                    $('#cbExpedisi').show();
+                    //end add 16 April 2019
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 4/3/2020
     </script>
     <script>
         //Disable Enter Key Submit Form

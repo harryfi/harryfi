@@ -65,6 +65,10 @@ namespace MasterOnline
         public double SISA_FAKTUR { get; set; }
         //end add by nurul 16/1/2020
 
+        //add by nurul 4/3/2020
+        public string KURIR { get; set; }
+        //end add by nurul 4/3/2020
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }
