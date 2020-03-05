@@ -214,7 +214,7 @@
         <div class="col-md-6">
             <div class="form-group">
                 @Html.LabelFor(m => m.Faktur.PENGIRIM, "Kurir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
-                <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
+                <div class="col-md-6 col-sm-6 col-xs-12" >
                     @Html.HiddenFor(m => m.Faktur.PENGIRIM)
                     @Html.HiddenFor(m => m.Faktur.NAMAPENGIRIM)
                     <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
@@ -479,7 +479,7 @@
                                 <span id="gudang-kode">-</span>
                                 <div id="gudang-select" style="display: none;">
                                     @*<select id="GUDANG" placeholder="Harap pilih" required="required"></select>*@
-                                    <select id="GUDANG" placeholder="Pilih" required="required"></select>
+                                    <select id="GUDANG" placeholder="Pilih" required="required" class="gudang_detail"></select>
                                 </div>
                                 @Html.HiddenFor(m => m.FakturDetail.GUDANG)
                             </td>

@@ -15177,6 +15177,10 @@ namespace MasterOnline.Controllers
             fakturInDb.PEMESAN = dataUpdate.Buyer;
             fakturInDb.TGL_JT_TEMPO = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+            //ADD BY NURUL 5/3/2020
+            fakturInDb.PENGIRIM = dataUpdate.Kurir;
+            fakturInDb.NAMAPENGIRIM = dataUpdate.NamaKurir;
+            //ADD BY NURUL 5/3/2020
 
             ErasoftDbContext.SaveChanges();
 
@@ -20622,6 +20626,8 @@ namespace MasterOnline.Controllers
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+                    var ambilRefTokped = so.so_referensi.Split(';');
+                    var refNew = ambilRefTokped.Last();
 
                     var vm = new CetakLabelViewModel()
                     {
@@ -20635,7 +20641,8 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
-                        noRef = so.so_referensi,
+                        //noRef = so.so_referensi,
+                        noRef = refNew,
                         Kurir = so.kurir,
                         Marketplace = so.namamarket,
                         NoResi = resi,
@@ -42475,6 +42482,8 @@ namespace MasterOnline.Controllers
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+                    var ambilRefTokped = so.so_referensi.Split(';');
+                    var refNew = ambilRefTokped.Last();
 
                     if (so.namamarket.ToUpper() == "LAZADA")
                     {
@@ -42501,7 +42510,8 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
-                        noRef = so.so_referensi,
+                        //noRef = so.so_referensi,
+                        noRef = refNew,
                         Kurir = so.kurir,
                         Marketplace = so.namamarket,
                         NoResi = resi,
