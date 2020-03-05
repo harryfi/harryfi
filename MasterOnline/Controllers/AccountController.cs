@@ -820,11 +820,11 @@ namespace MasterOnline.Controllers
                             var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_lazada_" + tblCustomer.CUST.ToString();
 #if (AWS || DEV)
                             recurJobM.RemoveIfExists(connection_id_proses_checktoken);
-                            recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
+                            recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
 #else
-                            Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                            Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)).Wait();
 #endif
-                            AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED.ToString());
+                            AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED);
                         }
                         //end by fauzi 20 Februari 2020
                         #endregion
@@ -1126,7 +1126,7 @@ namespace MasterOnline.Controllers
                 //var shopeeApi = new ShopeeController();
                 foreach (ARF01 tblCustomer in listShopeeShop)
                 {
-#region refresh token shopee
+                    #region refresh token shopee
                     //add by fauzi 20 Februari 2020
                     ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
                     iden.merchant_code = tblCustomer.Sort1_Cust;
@@ -1156,14 +1156,14 @@ namespace MasterOnline.Controllers
                         var connection_id_proses_checktoken = dbPathEra + "_proses_checktoken_expired_shopee_" + tblCustomer.CUST.ToString();
 #if (AWS || DEV)
                         recurJobM.RemoveIfExists(connection_id_proses_checktoken);
-                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())), "0 1 * * *", recurJobOpt);
+                        recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
 #else
-                        Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString())).Wait();
+                        Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)).Wait();
 #endif
-                        AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED.ToString());
+                        AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED);
                     }
                     //end by fauzi 20 Februari 2020
-#endregion
+                    #endregion
 
                     string connId_JobId = "";
                     //add by fauzi 25 November 2019

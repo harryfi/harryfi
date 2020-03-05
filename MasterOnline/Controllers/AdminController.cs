@@ -3126,19 +3126,19 @@ namespace MasterOnline.Controllers
 
         //add by fauzi 21 Februari 2020
         [Queue("3_general")]
-        public async Task<ActionResult> ReminderEmailExpiredAccountMP(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, string expired_date)
+        public async Task<ActionResult> ReminderEmailExpiredAccountMP(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, DateTime? expired_date)
         {
+            var currentTimeRequest = (long)DateTimeOffset.UtcNow.AddHours(7).ToUnixTimeSeconds();
             try
             {
-                var dateExpired = Convert.ToDateTime(expired_date);
+                DateTime dateExpired = Convert.ToDateTime(expired_date);
                 var dateExpiredEmail = Convert.ToDateTime(expired_date).ToString("dd MMMM yyyy HH:mm tt");
-                var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired);
-                var countResult = countDays.Days;
+                var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired).Days.ToString();
 
-                if ((countResult == -7) || (countResult == -3) || (countResult == -1))
+                if ((countDays == "-7") || (countDays == "-3") || (countDays == "-1"))
                 {
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                    contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countResult.ToString().Replace("-", "") + " hari lagi.");
+                    contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countDays.ToString().Replace("-", "") + " hari lagi.");
 
                     var email = new MailAddress(semail);
                     var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
@@ -3157,12 +3157,12 @@ namespace MasterOnline.Controllers
                     "<p>&nbsp;</p>" +
                     "<p>Master Online.</p>";
 
-                var message = new MailMessage();
-                message.To.Add(email);
-                message.From = new MailAddress("csmasteronline@gmail.com");
-                message.Subject = "Master Online x "+ smarketplace + " Announcement";
-                message.Body = string.Format(body, susername, smarketplace, snamatoko, expired_date.ToString(), countResult.ToString().Replace("-", ""));
-                message.IsBodyHtml = true;
+                    var message = new MailMessage();
+                    message.To.Add(email);
+                    message.From = new MailAddress("csmasteronline@gmail.com");
+                    message.Subject = "Master Online x " + smarketplace + " Announcement";
+                    message.Body = string.Format(body, susername, smarketplace, snamatoko, dateExpiredEmail.ToString(), countDays.ToString().Replace("-", ""));
+                    message.IsBodyHtml = true;
 
                     using (var smtp = new SmtpClient())
                     {
@@ -3178,25 +3178,23 @@ namespace MasterOnline.Controllers
                         await smtp.SendMailAsync(message);
                     }
                 }
-                return new JsonResult { Data = new { mo_message = "Reminder expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_message = "Success: Reminder expired running. Remaining days : " + countDays.ToString() + " timestamp:" + currentTimeRequest.ToString() }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             catch (Exception ex)
             {
-                return new JsonResult { Data = new { mo_error = "Reminder expired not running. Because internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                return new JsonResult { Data = new { mo_error = "Failed: Reminder expired not running. Because internal Server Error. " + ex.Message.ToString() + " timestamp:" + currentTimeRequest.ToString() }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
 
-        public ActionResult ReminderNotifyExpiredAccountMP(string dbPathEra,  string snamatoko, string smarketplace, string expired_date)
+        public ActionResult ReminderNotifyExpiredAccountMP(string dbPathEra, string snamatoko, string smarketplace, DateTime? expired_date)
         {
-            var dateExpired = Convert.ToDateTime(expired_date);
-            var dateExpiredEmail = Convert.ToDateTime(expired_date).ToString("dd MMMM yyyy HH:mm tt");
-            var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired);
-            var countResult = countDays.Days;
+            DateTime dateExpired = Convert.ToDateTime(expired_date);
+            var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired).Days.ToString();
 
-            if ((countResult == -7) || (countResult == -3) || (countResult == -1))
+            if ((countDays == "-7") || (countDays == "-3") || (countDays == "-1"))
             {
                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countResult.ToString().Replace("-", "") + " hari lagi.");
+                contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countDays.ToString().Replace("-", "") + " hari lagi.");
             }
             return new JsonResult { Data = new { mo_message = "Notify expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
