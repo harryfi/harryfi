@@ -2757,6 +2757,7 @@
                                     getTanggal();
                                     getMarketplace();
                                     getBuyer();
+                                    getExpedisi();
 
                                     //refreshInputan();
                                     //refreshNetto();
@@ -3080,6 +3081,7 @@
                     //getBuyer();
                     //getDataBarang();
                     getMarketplace();
+                    //$('#EXPEDISI').attr('disabled', 'disabled');
 
                     //change by nurul 20/02/2019
                     //$('#tambah_faktur').click();
@@ -3328,6 +3330,8 @@
                         Term: $('#Faktur_TERM').val(),
                         Buyer: $('#Faktur_PEMESAN').val(),
                         Tempo: $('#Faktur_TGL_JT_TEMPO').val(),
+                        Kurir: $('#Faktur_PENGIRIM').val(),
+                        NamaKurir: $('#Faktur_NAMAPENGIRIM').val(),
                         OngkosKirim: convertToAngka($('#Faktur_MATERAI').val()),
                         Bruto: convertToAngka($('#Faktur_BRUTO').val())
                     }),
@@ -4130,11 +4134,11 @@
                         });
                         //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
                         if (link == false || listGd.length == 0) {
-                            $(".selectize-input input[placeholder]").attr('placeholder', 'Harap pilih');
-                            $(".selectize-input input[placeholder]").attr('style', 'width: 66px !important');
+                            $(".selectize-input gudang_detail input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input gudang_detail input[placeholder]").attr('style', 'width: 66px !important');
                             gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
                         } else if (link == true && listGd.length > 0) {
-                            $(".selectize-input input[placeholder]").attr('placeholder', nama);
+                            $(".selectize-input gudang_detail input[placeholder]").attr('placeholder', nama);
                             $('#gudang-kode').text(gudang);
                             //change by calvin 11 april 2019
                             //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
@@ -4418,7 +4422,8 @@
                     getDataBarang();
                     //getGudang();
                     getGudangForBarang();
-
+                    getExpedisi();
+                    //$('#EXPEDISI').attr('disabled', 'disabled');
 
                     //change by nurul 20/02/2019
                     //$('#tambah_faktur').click();
@@ -4530,6 +4535,7 @@
                     getDataBarang();
                     //getGudang();
                     getGudangForBarang();
+                    getExpedisi();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -4711,6 +4717,7 @@
                 if ($('#Faktur_TGL').val() != '' &&
                     $('#Faktur_CUST').val() != '' &&
                     $('#Faktur_TERM').val() != '' &&
+                    $('#Faktur_PENGIRIM').val() != '' &&
                     $('#Faktur_PEMESAN').val() != ''
                 ) {
                     $modeEditDetail = 0;
@@ -4762,6 +4769,8 @@
                                 //getGudang();
                                 getGudangForBarang();
                                 getMarketplace();
+                                getExpedisi();
+                                //$('#EXPEDISI').attr('disabled', 'disabled');
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
                                 //change by nurul 15/10/2018
@@ -4795,6 +4804,9 @@
                     }
                     if ($('#Faktur_TERM').val() == '') {
                         messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Faktur_PENGIRIM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
                     }
                     if ($('#Faktur_PEMESAN').val() == '') {
                         messageErrorKosong = messageErrorKosong + "Pembeli,";
@@ -5299,6 +5311,53 @@
             //end change by calvin 28 nov 2018, print dialog
         }
         //end add
+
+        //add by nurul 4/3/2020
+        function getExpedisi() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetEkspedisi", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var listEkspedisi = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listEkspedisi[i] = {
+                                id: item.RecNum,
+                                text: item.NamaEkspedisi
+                            };
+                        });
+
+                    var expedisiSelect = $('#EXPEDISI').selectize({
+                        id:'cbExpedisi',
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listEkspedisi,
+                        onChange: function(value) {
+                            $('#Faktur_PENGIRIM').val(value);
+                            //change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            //$('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            $('#Faktur_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            //end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            $('#btn-simpan-perubahan-row').show();
+                        }
+                    });
+
+                    expedisiSelect[0].selectize.setValue($('#Faktur_PENGIRIM').val());
+                    $('#btn-simpan-perubahan-row').hide();
+                    //add 16 April 2019
+                    //$('#EXPEDISI').show();
+                    $('#cbExpedisi').show();
+                    //end add 16 April 2019
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 4/3/2020
     </script>
     <script>
         //Disable Enter Key Submit Form

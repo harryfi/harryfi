@@ -14406,6 +14406,7 @@ namespace MasterOnline.Controllers
             string sSQLref = "";
             string sSQLpembeli = "";
             string sSQLnetto = "";
+            string sSQLkurir = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
@@ -14419,6 +14420,7 @@ namespace MasterOnline.Controllers
                             sSQLref += " and ";
                             sSQLpembeli += " and ";
                             sSQLnetto += " and ";
+                            sSQLkurir += " and ";
                         }
 
 
@@ -14427,6 +14429,7 @@ namespace MasterOnline.Controllers
                         sSQLref += " ( A.NO_REF like '%" + getkata[i] + "%' ) ";
                         sSQLpembeli += "  ( A.NAMAPEMESAN like '%" + getkata[i] + "%' ) ";
                         sSQLnetto += " ( A.NETTO like '%" + getkata[i] + "%' ) ";
+                        sSQLkurir += " ( ISNULL(A.NAMAPENGIRIM,'') LIKE '%" + getkata[i] + "%' ) ";
 
                     }
                 }
@@ -14436,6 +14439,9 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.NO_BUKTI,'') AS PEMBAYARAN, ISNULL(A.STATUS,'') AS STATUS_FAKTUR, ISNULL(F.BUKTI_RET,'') AS FKT_RETUR ";
+            //ADD BY NURUL 4/3/2020
+            sSQLSelect += ",ISNULL(A.NAMAPENGIRIM,'') AS KURIR ";
+            //END ADD BY NURUL 4/3/2020
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -14450,7 +14456,7 @@ namespace MasterOnline.Controllers
             if (search != "")
             {
                 //sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.NO_REF LIKE '%" + search + "%') ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLref + " or " + sSQLpembeli + " or " + sSQLnetto + " ) ";
+                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLmarket + " or " + sSQLref + " or " + sSQLpembeli + " or " + sSQLnetto + " OR " + sSQLkurir + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
@@ -15171,6 +15177,10 @@ namespace MasterOnline.Controllers
             fakturInDb.PEMESAN = dataUpdate.Buyer;
             fakturInDb.TGL_JT_TEMPO = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+            //ADD BY NURUL 5/3/2020
+            fakturInDb.PENGIRIM = dataUpdate.Kurir;
+            fakturInDb.NAMAPENGIRIM = dataUpdate.NamaKurir;
+            //ADD BY NURUL 5/3/2020
 
             ErasoftDbContext.SaveChanges();
 
@@ -20568,7 +20578,8 @@ namespace MasterOnline.Controllers
                 }
 
                 string sSQLSelect = "";
-                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(D.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,ISNULL(J.NAMA_KABKOT,''))) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,ISNULL(J.NAMA_PROV,''))) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,ISNULL(J.KODEPOS,''))) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,ISNULL(J.AL,''))) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
+                //sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,'-') as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(D.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,ISNULL(J.NAMA_KABKOT,''))) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,ISNULL(J.NAMA_PROV,''))) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,ISNULL(J.KODEPOS,''))) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,ISNULL(J.AL,''))) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as si_bukti ,ISNULL(A.NO_REF,ISNULL(D.NO_REFERENSI,'-')) as so_referensi,ISNULL(D.SHIPMENT,ISNULL(A.NAMAPENGIRIM,'-')) as kurir,ISNULL(D.TRACKING_SHIPMENT,'-') AS no_resi,ISNULL(D.NETTO,0) AS so_netto,ISNULL(D.KOTA,ISNULL(F.NAMA_KABKOT,ISNULL(J.NAMA_KABKOT,''))) AS so_kota,ISNULL(D.PROPINSI,ISNULL(F.NAMA_PROV,ISNULL(J.NAMA_PROV,''))) AS so_propinsi,ISNULL(D.KODE_POS,ISNULL(F.KODEPOS,ISNULL(J.KODEPOS,''))) AS so_pos,ISNULL(D.ALAMAT_KIRIM, ISNULL(F.AL,ISNULL(J.AL,''))) AS so_alamat,ISNULL(A.MATERAI,0) AS so_ongkir, ";
                 //sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
                 sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS so_bukti,ISNULL(A.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
@@ -20615,6 +20626,8 @@ namespace MasterOnline.Controllers
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+                    var ambilRefTokped = so.so_referensi.Split(';');
+                    var refNew = ambilRefTokped.Last();
 
                     var vm = new CetakLabelViewModel()
                     {
@@ -20628,7 +20641,8 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
-                        noRef = so.so_referensi,
+                        //noRef = so.so_referensi,
+                        noRef = refNew,
                         Kurir = so.kurir,
                         Marketplace = so.namamarket,
                         NoResi = resi,
@@ -39620,6 +39634,11 @@ namespace MasterOnline.Controllers
 
                                     newSIT01A.TGLINPUT = DateTime.Now;
 
+                                    //add by nurul 4/3/2020
+                                    newSIT01A.PENGIRIM = pesananInDb.EXPEDISI;
+                                    newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
+                                    //end add by nurul 4/3/2020
+
 #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
                                     if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
                                     {
@@ -40000,7 +40019,12 @@ namespace MasterOnline.Controllers
 
                                 newSIT01A.TGLINPUT = DateTime.Now;
 
-#region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+                                //add by nurul 4/3/2020
+                                newSIT01A.PENGIRIM = pesananInDb.EXPEDISI;
+                                newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
+                                //end add by nurul 4/3/2020
+
+                                #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
                                 if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
                                 {
                                     newSIT01A.NILAI_DISC = 0;
@@ -42412,7 +42436,8 @@ namespace MasterOnline.Controllers
                 }
 
                 string sSQLSelect = "";
-                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as so_bukti,A.NO_REFERENSI as so_referensi,A.SHIPMENT as kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(A.KOTA,'') AS so_kota,ISNULL(A.PROPINSI,'') AS so_propinsi,ISNULL(A.KODE_POS,'') AS so_pos,ISNULL(A.ALAMAT_KIRIM,'') AS so_alamat,ISNULL(A.ONGKOS_KIRIM,0) AS so_ongkir, ";
+                //sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as so_bukti,A.NO_REFERENSI as so_referensi,A.SHIPMENT as kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(A.KOTA,'') AS so_kota,ISNULL(A.PROPINSI,'') AS so_propinsi,ISNULL(A.KODE_POS,'') AS so_pos,ISNULL(A.ALAMAT_KIRIM,'') AS so_alamat,ISNULL(A.ONGKOS_KIRIM,0) AS so_ongkir, ";
+                sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as so_bukti,A.NO_REFERENSI as so_referensi,ISNULL(A.SHIPMENT, ISNULL(D.NAMAPENGIRIM, '-')) as kurir,ISNULL(A.TRACKING_SHIPMENT,'') AS no_resi,ISNULL(A.NETTO,0) AS so_netto,ISNULL(A.KOTA,'') AS so_kota,ISNULL(A.PROPINSI,'') AS so_propinsi,ISNULL(A.KODE_POS,'') AS so_pos,ISNULL(A.ALAMAT_KIRIM,'') AS so_alamat,ISNULL(A.ONGKOS_KIRIM,0) AS so_ongkir, ";                
                 sSQLSelect += "B.PEMBELI as nama_pemesan, 0 as jumlah_item , ";
                 sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS si_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
@@ -42458,6 +42483,8 @@ namespace MasterOnline.Controllers
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
+                    var ambilRefTokped = so.so_referensi.Split(';');
+                    var refNew = ambilRefTokped.Last();
 
                     if (so.namamarket.ToUpper() == "LAZADA")
                     {
@@ -42484,7 +42511,8 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = detailFaktur.Where(a => a.NO_BUKTI == so.si_bukti).ToList(),
                         AlamatToko = alamat1,
                         TlpToko = tlp,
-                        noRef = so.so_referensi,
+                        //noRef = so.so_referensi,
+                        noRef = refNew,
                         Kurir = so.kurir,
                         Marketplace = so.namamarket,
                         NoResi = resi,
