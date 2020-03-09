@@ -37718,7 +37718,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<ActionResult> RequestDropoffShopeePerPacking(string cust, string bukti, List<string> rows_selected)
+        public async Task<ActionResult> RequestDropoffShopeePerPacking(string cust, string bukti, List<string> rows_selected, string job)
         {
             try
             {
@@ -37796,7 +37796,7 @@ namespace MasterOnline.Controllers
                                                 DatabasePathErasoft = dbPathEra,
                                                 username = usernameLogin
                                             };
-                                            if (!splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("DROPOFF_TRACKING_NO"))
+                                            if (job == "0" && !splitParamsInit.Contains("BRANCH_ID") && !splitParamsInit.Contains("SENDER_REAL_NAME") && !splitParamsInit.Contains("DROPOFF_TRACKING_NO"))
                                             {
                                                 ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
                                                 {
@@ -37818,7 +37818,7 @@ namespace MasterOnline.Controllers
                                                 });
                                             }
                                             //add by nurul 21/2/2020
-                                            else if (splitParamsInit.Contains("SENDER"))
+                                            else if (job == "1" && splitParamsInit.Contains("SENDER"))
                                             {
                                                 ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
                                                 {
