@@ -1508,116 +1508,116 @@ namespace MasterOnline.Controllers
             }
 
             if (TokenExpired || bForceRefresh)
+            {
+                int MOPartnerID = 841371;
+                string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+
+                SetupContext(dataAPI);
+
+                long seconds = CurrentTimeSecond();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
-                    int MOPartnerID = 841371;
-                    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                    REQUEST_ACTION = "Refresh Token Shopee", //ganti
+                    REQUEST_DATETIME = milisBack,
+                    REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
+                    REQUEST_STATUS = "Pending",
+                };
 
-                    SetupContext(dataAPI);
+                //ganti
+                string urll = "https://partner.shopeemobile.com/api/v1/shop/get_partner_shop";
 
-                    long seconds = CurrentTimeSecond();
-                    DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+                //ganti
+                ShopeeGetTokenShop HttpBody = new ShopeeGetTokenShop
+                {
+                    partner_id = MOPartnerID,
+                    shopid = Convert.ToInt32(dataAPI.merchant_code),
+                    timestamp = seconds
+                };
 
-                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                string myData = JsonConvert.SerializeObject(HttpBody);
+
+                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", signature);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
+                {
+                    myReq.ContentLength = myData.Length;
+                    using (var dataStream = myReq.GetRequestStream())
                     {
-                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
-                        REQUEST_ACTION = "Refresh Token Shopee", //ganti
-                        REQUEST_DATETIME = milisBack,
-                        REQUEST_ATTRIBUTE_1 = dataAPI.merchant_code,
-                        REQUEST_STATUS = "Pending",
-                    };
-
-                    //ganti
-                    string urll = "https://partner.shopeemobile.com/api/v1/shop/get_partner_shop";
-
-                    //ganti
-                    ShopeeGetTokenShop HttpBody = new ShopeeGetTokenShop
+                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                    }
+                    using (WebResponse response = await myReq.GetResponseAsync())
                     {
-                        partner_id = MOPartnerID,
-                        shopid = Convert.ToInt32(dataAPI.merchant_code),
-                        timestamp = seconds
-                    };
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                    currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
+                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                }
+                catch (Exception ex)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                }
 
-                    string myData = JsonConvert.SerializeObject(HttpBody);
-
-                    string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                    myReq.Method = "POST";
-                    myReq.Headers.Add("Authorization", signature);
-                    myReq.Accept = "application/json";
-                    myReq.ContentType = "application/json";
-                    string responseFromServer = "";
+                if (responseFromServer != null)
+                {
                     try
                     {
-                        myReq.ContentLength = myData.Length;
-                        using (var dataStream = myReq.GetRequestStream())
+                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult)) as ShopeeGetTokenShopResult;
+                        if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString()))
                         {
-                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                        }
-                        using (WebResponse response = await myReq.GetResponseAsync())
-                        {
-                            using (Stream stream = response.GetResponseStream())
+                            if (result.authed_shops.Length > 0)
                             {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
+                                foreach (var item in result.authed_shops)
+                                {
+                                    if (item.shopid.ToString() == dataAPI.merchant_code.ToString())
+                                    {
+                                        var dateExpired = DateTimeOffset.FromUnixTimeSeconds(item.expire_time).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+                                        DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
+                                        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                                        if (resultquery != 0)
+                                        {
+                                            currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                                        }
+                                        else
+                                        {
+                                            currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                            currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                                        }
+                                    }
+                                }
                             }
                         }
-                        currentLog.REQUEST_RESULT = "Process Get API Token Shopee";
-                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, dataAPI, currentLog);
+                        else
+                        {
+                            if (!string.IsNullOrWhiteSpace(result.msg.ToString()))
+                            {
+                                currentLog.REQUEST_EXCEPTION = result.msg.ToString();
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
                         currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                         manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
                     }
-
-                    if (responseFromServer != null)
-                    {
-                        try
-                        {
-                            var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTokenShopResult)) as ShopeeGetTokenShopResult;
-                            if (result.error == null && !string.IsNullOrWhiteSpace(result.ToString()))
-                            {
-                                if (result.authed_shops.Length > 0)
-                                {
-                                    foreach (var item in result.authed_shops)
-                                    {
-                                        if (item.shopid.ToString() == dataAPI.merchant_code.ToString())
-                                        {
-                                            var dateExpired = DateTimeOffset.FromUnixTimeSeconds(item.expire_time).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
-                                            DatabaseSQL EDB = new DatabaseSQL(dataAPI.DatabasePathErasoft);
-                                            var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" + dataAPI.merchant_code + "', TGL_EXPIRED = '" + dateExpired + "' WHERE CUST = '" + dataAPI.no_cust + "'");
-                                            if (resultquery != 0)
-                                            {
-                                                currentLog.REQUEST_RESULT = "Update Status API Complete";
-                                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
-                                            }
-                                            else
-                                            {
-                                                currentLog.REQUEST_RESULT = "Update Status API Failed";
-                                                currentLog.REQUEST_EXCEPTION = "Failed Update Table";
-                                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (!string.IsNullOrWhiteSpace(result.msg.ToString()))
-                                {
-                                    currentLog.REQUEST_EXCEPTION = result.msg.ToString();
-                                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
-                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, dataAPI, currentLog);
-                        }
-                    }
                 }
+            }
             return ret;
         }
 
@@ -2897,6 +2897,7 @@ namespace MasterOnline.Controllers
             //try
             //{
             myReq.ContentLength = myData.Length;
+            System.Threading.Thread.Sleep(5000);
             using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
@@ -2924,37 +2925,8 @@ namespace MasterOnline.Controllers
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                 if ((result.error == null ? "" : result.error) == "")
                 {
-                    if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
-                    {
-                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-                        if (pesananInDb != null)
-                        {
-                            if (dTrackNo == "")
-                            {
-                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
-                            }
-                            string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
-                            {
-                                nilaiTRACKING_SHIPMENT = "";
-                            }
-
-                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
-                            pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
-                            {
-                                pesananInDb.status_kirim = "1";
-                            }
-
-                            ErasoftDbContext.SaveChanges();
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
-                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                        }
-                    }
                     //add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
-                    else if (string.IsNullOrWhiteSpace(result.tracking_no) && result.request_id != "")
+                    if ((string.IsNullOrWhiteSpace(result.tracking_number) || string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "")
                     {
                         myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -2972,6 +2944,7 @@ namespace MasterOnline.Controllers
                         {
                             dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                         }
+                        System.Threading.Thread.Sleep(5000);
                         using (WebResponse response = await myReq.GetResponseAsync())
                         {
                             using (Stream stream = response.GetResponseStream())
@@ -3052,6 +3025,35 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
+                    else if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
+                    {
+                        var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        if (pesananInDb != null)
+                        {
+                            if (dTrackNo == "")
+                            {
+                                dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
+                            }
+                            string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                            if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                            {
+                                nilaiTRACKING_SHIPMENT = "";
+                            }
+
+                            //                            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                            pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                            pesananInDb.status_kirim = "2";
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+
+                            ErasoftDbContext.SaveChanges();
+                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
                     else
                     {
                         List<string> list_ordersn = new List<string>();

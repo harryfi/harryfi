@@ -22993,7 +22993,7 @@ namespace MasterOnline.Controllers
 
             #region fix pemesan null di pesanan shopee
             var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString() && m.CUST == "000022").ToList();
             if (listShopeeShop.Count > 0)
             {
                 //var shopeeApi = new ShopeeController();
@@ -23002,7 +23002,7 @@ namespace MasterOnline.Controllers
                     ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
                     iden.merchant_code = tblCustomer.Sort1_Cust;
                     iden.DatabasePathErasoft = dbPathEra;
-                    iden.username = "Calvin Support";
+                    iden.username = "Nurul Support";
 
                     //var getOrderJOB = ErasoftDbContext.SOT01A.Where(p => (p.NO_REFERENSI ?? "") == "19102215547FMSP").Select(p => p.NO_REFERENSI).ToList();
                     //List<string> getOrderJOB = new List<string>();
@@ -23010,7 +23010,10 @@ namespace MasterOnline.Controllers
                     //await new ShopeeControllerJob().GetAirwayBills(iden, getOrderJOB.ToArray());
                     //string connId_JobId = "";
                     //var getOrderPemesanKosong = ErasoftDbContext.SOT01A.Where(p => (p.PEMESAN ?? "") == "").Select(p => p.NO_REFERENSI).ToList();
-                    var ShopeeGetLogisticsResult = await new ShopeeControllerJob().GetLogisticInfo(iden, "200227DWA76V1G");
+                    //var ShopeeGetLogisticsResult = await new ShopeeControllerJob().GetLogisticInfo(iden, "200227DWA76V1G");
+                    List<string> list_ordersn = new List<string>();
+                    list_ordersn.Add("200309CXREXUNP");
+                    var trackno = await new ShopeeControllerJob().GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
                     //var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
                     //for (int i = 0; i < paging; i++)
                     //{
