@@ -109,6 +109,17 @@
 <script type="text/javascript">
 
     var validImageVar = ["image/jpeg"];
+    var imageContainerInduk = [];
+    var imageContainerVar = [];
+    var imageContainerVar2 = [];
+    var imageContainerBlibli = [];
+    var tempImageContainer = [];
+    var tempDataBrgId = [];
+    var tempSuccessSaveImage = [];
+
+    var tempImageContainerBlibli = [];
+    var tempDataBrgIdBlibli = [];
+    var tempSuccessSaveImageBlibli = [];
 
     $(document).ready(function () {
         $(function () {
@@ -195,6 +206,270 @@
                 return;
             });
         });
+
+        //$('.foto_produk_var').each(function (i, item) {
+        //    var data_barang_id = $(item).attr("data-barang-id");
+        //    $('#foto_produk_var_' + data_barang_id).hide();
+        //    $('#foto_produk_var_' + data_barang_id).off('change').on('change', function () {
+        //        //var file = this.files[0];
+        //        //var fileType = file["type"];
+        //        //if ($.inArray(fileType, validImageVar) < 0) {
+        //        //    alert('Hanya boleh file berformat .jpg!');
+        //        //    return;
+        //        //}
+        //        //var reader = new FileReader();
+        //        //reader.onloadend = function () {
+        //        //    $('#box_upload_var_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+        //        //        .css('background-size', 'cover');
+        //        //    $('#box_upload_var_' + data_barang_id + ' span').hide();
+        //        //    $('#btn_hapus_var_' + data_barang_id).show();
+        //        //}
+        //        //if (file) {
+        //        //    reader.readAsDataURL(file);
+        //        //}
+
+        //        var tempFoto = this;
+        //        var file = this.files[0];
+        //        var fileName = file["name"];
+        //        var fileType = file["type"];
+        //        if ($.inArray(fileType, validImageVar) < 0) {
+        //            alert('Hanya boleh file berformat .jpg!');
+        //            return;
+        //        }
+
+        //        var reader = new FileReader();
+        //        if (file) {
+        //            reader.readAsDataURL(file);
+        //        }
+        //        reader.onloadend = function () {
+
+        //            //add by nurul 3/3/2020
+        //            var image = new Image();
+        //            image.src = reader.result;//result is base64-encoded Data URI
+        //            var finalFile = reader.result;
+        //            //image.name = reader.name;//set name (optional)
+        //            //image.size = reader.size;//set size (optional)
+
+        //            image.onload = function () {
+        //                var maxWidth = 350,
+        //                    maxHeight = 350,
+        //                    imageWidth = image.width,
+        //                    imageHeight = image.height;
+
+        //                if (image.width > maxWidth) {
+        //                    var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                    oc.width = image.width;
+        //                    oc.height = image.height;
+        //                    octx.drawImage(image, 0, 0);
+        //                    while (oc.width * 0.5 > maxWidth) {
+        //                        oc.width *= 0.5;
+        //                        oc.height *= 0.5;
+        //                        octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                    }
+        //                    oc.width = maxWidth;
+        //                    oc.height = oc.width * image.height / image.width;
+        //                    octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                    //document.getElementById('great-image').src = oc.toDataURL();
+        //                    finalFile = oc.toDataURL();
+        //                } else {
+        //                    //document.getElementById('small-image').src = img.src;
+        //                    finalFile = reader.result;
+        //                }
+
+
+
+
+        //                //if (imageWidth > imageHeight) {
+        //                //    if (imageWidth > maxWidth) {
+        //                //        imageHeight *= maxWidth / imageWidth;
+        //                //        imageWidth = maxWidth;
+        //                //    }
+        //                //}
+        //                //else {
+        //                //    if (imageHeight > maxHeight) {
+        //                //        imageWidth *= maxHeight / imageHeight;
+        //                //        imageHeight = maxHeight;
+        //                //    }
+        //                //}
+
+        //                //var canvas = document.createElement('canvas');
+        //                //canvas.width = imageWidth;
+        //                //canvas.height = imageHeight;
+
+        //                //var ctx = canvas.getContext("2d");
+        //                //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //                //// The resized file ready for upload
+        //                //var finalFile = canvas.toDataURL(fileType);
+        //                ////document.getElementById('uploadPreview_induk_1').src = canvas.toDataURL(fileType);
+        //                ////file = canvas.toDataURL(fileType);
+        //                ////$('#foto_produk_induk_1').files[0] = dataURLtoFile(finalFile, fileName);
+        //                var name = fileName.split('.');
+        //                var NewName = "";
+        //                for (var i = 0; i < name.length; i++) {
+        //                    if (i + 1 == name.length) {
+        //                        NewName += "_mo." + name[i];
+        //                    } else {
+        //                        NewName += name[i];
+        //                    }
+        //                }
+        //                file = dataURLtoFile(finalFile, NewName);
+        //                //file = dataURLtoFile(finalFile, fileName);
+        //                //tempFoto.files[0] = file;
+        //                //reader.readAsDataURL(file);
+        //                if (file) {
+        //                    var noone = 0;
+        //                    for (var a = 0; a <= imageContainerVar.length; a++) {
+        //                        if (imageContainerVar[a] != file) {
+        //                            noone = noone + 1;
+        //                        }
+        //                    }
+        //                    if (noone == imageContainerVar.length + 1) {
+        //                        imageContainerVar.push(file);
+        //                    }
+        //                }
+        //                $('#box_upload_var_' + data_barang_id).css('background-image', 'url("' + finalFile + '")')
+        //                    .css('background-size', 'cover');
+        //                $('#box_upload_var_' + data_barang_id + ' span').hide();
+        //                $('#btn_hapus_var_' + data_barang_id).show();
+        //            }
+        //            //end add by nurul 3/3/2020
+
+        //        }
+
+        //    });
+        //});
+
+        //$('.foto_produk_var_2').each(function (i, item) {
+        //    var data_barang_id = $(item).attr("data-barang-id");
+        //    $('#foto_produk_var2_' + data_barang_id).hide();
+        //    $('#foto_produk_var2_' + data_barang_id).off('change').on('change', function () {
+        //        //var file = this.files[0];
+        //        //var fileType = file["type"];
+        //        //if ($.inArray(fileType, validImageVar) < 0) {
+        //        //    alert('Hanya boleh file berformat .jpg!');
+        //        //    return;
+        //        //}
+        //        //var reader = new FileReader();
+        //        //reader.onloadend = function () {
+        //        //    $('#box_upload_var2_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+        //        //        .css('background-size', 'cover');
+        //        //    $('#box_upload_var2_' + data_barang_id + ' span').hide();
+        //        //    $('#btn_hapus_var2_' + data_barang_id).show();
+        //        //}
+        //        //if (file) {
+        //        //    reader.readAsDataURL(file);
+        //        //}
+
+        //        var tempFoto = this;
+        //        var file = this.files[0];
+        //        var fileName = file["name"];
+        //        var fileType = file["type"];
+        //        if ($.inArray(fileType, validImageVar) < 0) {
+        //            alert('Hanya boleh file berformat .jpg!');
+        //            return;
+        //        }
+
+        //        var reader = new FileReader();
+        //        if (file) {
+        //            reader.readAsDataURL(file);
+        //        }
+        //        reader.onloadend = function () {
+
+        //            //add by nurul 3/3/2020
+        //            var image = new Image();
+        //            image.src = reader.result;//result is base64-encoded Data URI
+        //            var finalFile = reader.result;
+        //            //image.name = reader.name;//set name (optional)
+        //            //image.size = reader.size;//set size (optional)
+
+        //            image.onload = function () {
+        //                var maxWidth = 350,
+        //                    maxHeight = 350,
+        //                    imageWidth = image.width,
+        //                    imageHeight = image.height;
+
+        //                if (image.width > maxWidth) {
+        //                    var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                    oc.width = image.width;
+        //                    oc.height = image.height;
+        //                    octx.drawImage(image, 0, 0);
+        //                    while (oc.width * 0.5 > maxWidth) {
+        //                        oc.width *= 0.5;
+        //                        oc.height *= 0.5;
+        //                        octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                    }
+        //                    oc.width = maxWidth;
+        //                    oc.height = oc.width * image.height / image.width;
+        //                    octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                    //document.getElementById('great-image').src = oc.toDataURL();
+        //                    finalFile = oc.toDataURL();
+        //                } else {
+        //                    //document.getElementById('small-image').src = img.src;
+        //                    finalFile = reader.result;
+        //                }
+
+        //                //if (imageWidth > imageHeight) {
+        //                //    if (imageWidth > maxWidth) {
+        //                //        imageHeight *= maxWidth / imageWidth;
+        //                //        imageWidth = maxWidth;
+        //                //    }
+        //                //}
+        //                //else {
+        //                //    if (imageHeight > maxHeight) {
+        //                //        imageWidth *= maxHeight / imageHeight;
+        //                //        imageHeight = maxHeight;
+        //                //    }
+        //                //}
+
+        //                //var canvas = document.createElement('canvas');
+        //                //canvas.width = imageWidth;
+        //                //canvas.height = imageHeight;
+
+        //                //var ctx = canvas.getContext("2d");
+        //                //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //                //// The resized file ready for upload
+        //                //var finalFile = canvas.toDataURL(fileType);
+        //                ////document.getElementById('uploadPreview_induk_1').src = canvas.toDataURL(fileType);
+        //                ////file = canvas.toDataURL(fileType);
+        //                ////$('#foto_produk_induk_1').files[0] = dataURLtoFile(finalFile, fileName);
+        //                var name = fileName.split('.');
+        //                var NewName = "";
+        //                for (var i = 0; i < name.length; i++) {
+        //                    if (i + 1 == name.length) {
+        //                        NewName += "_mo." + name[i];
+        //                    } else {
+        //                        NewName += name[i];
+        //                    }
+        //                }
+        //                file = dataURLtoFile(finalFile, NewName);
+        //                //file = dataURLtoFile(finalFile, fileName);
+        //                tempFoto.files[0] = file;
+        //                //reader.readAsDataURL(file);
+        //                if (file) {
+        //                    var noone = 0;
+        //                    for (var a = 0; a <= imageContainerVar2.length; a++) {
+        //                        if (imageContainerVar2[a] != file) {
+        //                            noone = noone + 1;
+        //                        }
+        //                    }
+        //                    if (noone == imageContainerVar2.length + 1) {
+        //                        imageContainerVar2.push(file);
+        //                    }
+        //                }
+        //                $('#box_upload_var2_' + data_barang_id).css('background-image', 'url("' + finalFile + '")')
+        //                    .css('background-size', 'cover');
+        //                $('#box_upload_var2_' + data_barang_id + ' span').hide();
+        //                $('#box_upload_var2_' + data_barang_id).show();
+        //            }
+        //            //end add by nurul 3/3/2020
+
+
+        //        }
+
+        //    });
+        //});
 
         $('.foto_produk_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
@@ -546,6 +821,565 @@
                 return;
         });
 
+        //$('#foto_produk_induk_1').off('change').on('change', function () {
+        //    var tempFoto = this;
+        //    var file = this.files[0];
+        //    var fileName = file["name"];
+        //    var fileType = file["type"];
+        //    if ($.inArray(fileType, validImageVar) < 0) {
+        //        alert('Hanya boleh file berformat .jpg!');
+        //        return;
+        //    }
+
+        //    var reader = new FileReader();
+        //    if (file) {
+        //        reader.readAsDataURL(file);
+        //    }
+        //    reader.onloadend = function () {
+
+        //        //add by nurul 3/3/2020
+        //        var image = new Image();
+        //        image.src = reader.result;//result is base64-encoded Data URI
+        //        var finalFile = reader.result;
+        //        //image.name = reader.name;//set name (optional)
+        //        //image.size = reader.size;//set size (optional)
+
+        //        image.onload = function () {
+        //            var maxWidth = 350,
+        //                maxHeight = 350,
+        //                imageWidth = image.width,
+        //                imageHeight = image.height;
+
+        //            if (image.width > maxWidth) {
+        //                var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                oc.width = image.width;
+        //                oc.height = image.height;
+        //                octx.drawImage(image, 0, 0);
+        //                while (oc.width * 0.5 > maxWidth) {
+        //                    oc.width *= 0.5;
+        //                    oc.height *= 0.5;
+        //                    octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                }
+        //                oc.width = maxWidth;
+        //                oc.height = oc.width * image.height / image.width;
+        //                octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                //document.getElementById('great-image').src = oc.toDataURL();
+        //                finalFile = oc.toDataURL();
+        //            } else {
+        //                //document.getElementById('small-image').src = img.src;
+        //                finalFile = reader.result;
+        //            }
+
+        //            //if (imageWidth > imageHeight) {
+        //            //    if (imageWidth > maxWidth) {
+        //            //        imageHeight *= maxWidth / imageWidth;
+        //            //        imageWidth = maxWidth;
+        //            //    }
+        //            //}
+        //            //else {
+        //            //    if (imageHeight > maxHeight) {
+        //            //        imageWidth *= maxHeight / imageHeight;
+        //            //        imageHeight = maxHeight;
+        //            //    }
+        //            //}
+
+        //            //var canvas = document.createElement('canvas');
+        //            //canvas.width = imageWidth;
+        //            //canvas.height = imageHeight;
+
+        //            //var ctx = canvas.getContext("2d");
+        //            //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //            //// The resized file ready for upload
+        //            //var finalFile = canvas.toDataURL(fileType);
+        //            ////document.getElementById('uploadPreview_induk_1').src = canvas.toDataURL(fileType);
+        //            ////file = canvas.toDataURL(fileType);
+        //            ////$('#foto_produk_induk_1').files[0] = dataURLtoFile(finalFile, fileName);
+        //            var name = fileName.split('.');
+        //            var NewName = "";
+        //            for (var i = 0; i < name.length; i++) {
+        //                if (i + 1 == name.length) {
+        //                    NewName += "_mo." + name[i];
+        //                } else {
+        //                    NewName += name[i];
+        //                }
+        //            }
+        //            file = dataURLtoFile(finalFile, NewName);
+        //            //file = dataURLtoFile(finalFile, fileName);
+        //            tempFoto.files[0] = file;
+        //            //reader.readAsDataURL(file);
+        //            if (file) {
+        //                var noone = 0;
+        //                for (var a = 0; a <= imageContainerInduk.length; a++) {
+        //                    if (imageContainerInduk[a] != file) {
+        //                        noone = noone + 1;
+        //                    }
+        //                }
+        //                if (noone == imageContainerInduk.length + 1) {
+        //                    imageContainerInduk.push(file);
+        //                }
+        //            }
+        //            $('#box_upload_induk_1').css('background-image', 'url("' + finalFile + '")')
+        //                .css('background-size', 'cover');
+        //            $('#box_upload_induk_1 span').hide();
+        //            $('#btn_hapus_induk_1').show();
+        //            //reader = finalFile;
+        //            //file = finalFile;
+        //        }
+        //        //image.src = readerEvent.target.result;
+        //        //end add by nurul 3/3/2020
+
+
+        //    }
+
+        //});
+        //$('#foto_produk_induk_2').off('change').on('change', function () {
+        //    var tempFoto = this;
+        //    var file = this.files[0];
+        //    var fileName = file["name"];
+        //    var fileType = file["type"];
+        //    if ($.inArray(fileType, validImageVar) < 0) {
+        //        alert('Hanya boleh file berformat .jpg!');
+        //        return;
+        //    }
+
+        //    var reader = new FileReader();
+        //    if (file) {
+        //        reader.readAsDataURL(file);
+        //    }
+        //    reader.onloadend = function () {
+
+        //        //add by nurul 3/3/2020
+        //        var image = new Image();
+        //        image.src = reader.result;//result is base64-encoded Data URI
+        //        var finalFile = reader.result;
+        //        //image.name = reader.name;//set name (optional)
+        //        //image.size = reader.size;//set size (optional)
+
+        //        image.onload = function () {
+        //            var maxWidth = 350,
+        //                maxHeight = 350,
+        //                imageWidth = image.width,
+        //                imageHeight = image.height;
+
+        //            if (image.width > maxWidth) {
+        //                var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                oc.width = image.width;
+        //                oc.height = image.height;
+        //                octx.drawImage(image, 0, 0);
+        //                while (oc.width * 0.5 > maxWidth) {
+        //                    oc.width *= 0.5;
+        //                    oc.height *= 0.5;
+        //                    octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                }
+        //                oc.width = maxWidth;
+        //                oc.height = oc.width * image.height / image.width;
+        //                octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                //document.getElementById('great-image').src = oc.toDataURL();
+        //                finalFile = oc.toDataURL();
+        //            } else {
+        //                //document.getElementById('small-image').src = img.src;
+        //                finalFile = reader.result;
+        //            }
+
+        //            //if (imageWidth > imageHeight) {
+        //            //    if (imageWidth > maxWidth) {
+        //            //        imageHeight *= maxWidth / imageWidth;
+        //            //        imageWidth = maxWidth;
+        //            //    }
+        //            //}
+        //            //else {
+        //            //    if (imageHeight > maxHeight) {
+        //            //        imageWidth *= maxHeight / imageHeight;
+        //            //        imageHeight = maxHeight;
+        //            //    }
+        //            //}
+
+        //            //var canvas = document.createElement('canvas');
+        //            //canvas.width = imageWidth;
+        //            //canvas.height = imageHeight;
+
+        //            //var ctx = canvas.getContext("2d");
+        //            //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //            //// The resized file ready for upload
+        //            //var finalFile = canvas.toDataURL(fileType);
+        //            ////document.getElementById('uploadPreview_induk_2').src = canvas.toDataURL(fileType);
+        //            ////file = canvas.toDataURL(fileType);
+        //            ////$('#foto_produk_induk_2').files[0] = dataURLtoFile(finalFile, fileName);
+        //            var name = fileName.split('.');
+        //            var NewName = "";
+        //            for (var i = 0; i < name.length; i++) {
+        //                if (i + 1 == name.length) {
+        //                    NewName += "_mo." + name[i];
+        //                } else {
+        //                    NewName += name[i];
+        //                }
+        //            }
+        //            file = dataURLtoFile(finalFile, NewName);
+        //            //file = dataURLtoFile(finalFile, fileName);
+        //            tempFoto.files[0] = file;
+        //            //reader.readAsDataURL(file);
+        //            if (file) {
+        //                var noone = 0;
+        //                for (var a = 0; a <= imageContainerInduk.length; a++) {
+        //                    if (imageContainerInduk[a] != file) {
+        //                        noone = noone + 1;
+        //                    }
+        //                }
+        //                if (noone == imageContainerInduk.length + 1) {
+        //                    imageContainerInduk.push(file);
+        //                }
+        //            }
+        //            $('#box_upload_induk_2').css('background-image', 'url("' + finalFile + '")')
+        //                .css('background-size', 'cover');
+        //            $('#box_upload_induk_2 span').hide();
+        //            $('#btn_hapus_induk_2').show();
+        //            //reader = finalFile;
+
+        //        }
+        //        //image.src = readerEvent.target.result;
+        //        //end add by nurul 3/3/2020
+
+
+        //    }
+
+        //});
+        //$('#foto_produk_induk_3').off('change').on('change', function () {
+        //    var tempFoto = this;
+        //    var file = this.files[0];
+        //    var fileName = file["name"];
+        //    var fileType = file["type"];
+        //    if ($.inArray(fileType, validImageVar) < 0) {
+        //        alert('Hanya boleh file berformat .jpg!');
+        //        return;
+        //    }
+
+        //    var reader = new FileReader();
+        //    if (file) {
+        //        reader.readAsDataURL(file);
+        //    }
+        //    reader.onloadend = function () {
+
+        //        //add by nurul 3/3/2020
+        //        var image = new Image();
+        //        image.src = reader.result;//result is base64-encoded Data URI
+        //        var finalFile = reader.result;
+        //        //image.name = reader.name;//set name (optional)
+        //        //image.size = reader.size;//set size (optional)
+
+        //        image.onload = function () {
+        //            var maxWidth = 350,
+        //                maxHeight = 350,
+        //                imageWidth = image.width,
+        //                imageHeight = image.height;
+
+        //            if (image.width > maxWidth) {
+        //                var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                oc.width = image.width;
+        //                oc.height = image.height;
+        //                octx.drawImage(image, 0, 0);
+        //                while (oc.width * 0.5 > maxWidth) {
+        //                    oc.width *= 0.5;
+        //                    oc.height *= 0.5;
+        //                    octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                }
+        //                oc.width = maxWidth;
+        //                oc.height = oc.width * image.height / image.width;
+        //                octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                //document.getElementById('great-image').src = oc.toDataURL();
+        //                finalFile = oc.toDataURL();
+        //            } else {
+        //                //document.getElementById('small-image').src = img.src;
+        //                finalFile = reader.result;
+        //            }
+
+        //            //if (imageWidth > imageHeight) {
+        //            //    if (imageWidth > maxWidth) {
+        //            //        imageHeight *= maxWidth / imageWidth;
+        //            //        imageWidth = maxWidth;
+        //            //    }
+        //            //}
+        //            //else {
+        //            //    if (imageHeight > maxHeight) {
+        //            //        imageWidth *= maxHeight / imageHeight;
+        //            //        imageHeight = maxHeight;
+        //            //    }
+        //            //}
+
+        //            //var canvas = document.createElement('canvas');
+        //            //canvas.width = imageWidth;
+        //            //canvas.height = imageHeight;
+
+        //            //var ctx = canvas.getContext("2d");
+        //            //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //            //// The resized file ready for upload
+        //            //var finalFile = canvas.toDataURL(fileType);
+        //            ////document.getElementById('uploadPreview_induk_3').src = canvas.toDataURL(fileType);
+        //            ////file = canvas.toDataURL(fileType);
+        //            ////$('#foto_produk_induk_3').files[0] = dataURLtoFile(finalFile, fileName);
+        //            var name = fileName.split('.');
+        //            var NewName = "";
+        //            for (var i = 0; i < name.length; i++) {
+        //                if (i + 1 == name.length) {
+        //                    NewName += "_mo." + name[i];
+        //                } else {
+        //                    NewName += name[i];
+        //                }
+        //            }
+        //            file = dataURLtoFile(finalFile, NewName);
+        //            //file = dataURLtoFile(finalFile, fileName);
+        //            tempFoto.files[0] = file;
+        //            //reader.readAsDataURL(file);
+        //            if (file) {
+        //                var noone = 0;
+        //                for (var a = 0; a <= imageContainerInduk.length; a++) {
+        //                    if (imageContainerInduk[a] != file) {
+        //                        noone = noone + 1;
+        //                    }
+        //                }
+        //                if (noone == imageContainerInduk.length + 1) {
+        //                    imageContainerInduk.push(file);
+        //                }
+        //            }
+        //            $('#box_upload_induk_3').css('background-image', 'url("' + finalFile + '")')
+        //                .css('background-size', 'cover');
+        //            $('#box_upload_induk_3 span').hide();
+        //            $('#btn_hapus_induk_3').show();
+        //            //reader = finalFile;
+        //            //file = finalFile;
+        //        }
+        //        //image.src = readerEvent.target.result;
+        //        //end add by nurul 3/3/2020
+
+
+        //    }
+
+        //});
+        //$('#foto_produk_induk_4').off('change').on('change', function () {
+        //    var tempFoto = this;
+        //    var file = this.files[0];
+        //    var fileName = file["name"];
+        //    var fileType = file["type"];
+        //    if ($.inArray(fileType, validImageVar) < 0) {
+        //        alert('Hanya boleh file berformat .jpg!');
+        //        return;
+        //    }
+        //    var reader = new FileReader();
+        //    if (file) {
+        //        reader.readAsDataURL(file);
+        //    }
+        //    reader.onloadend = function () {
+
+        //        //add by nurul 3/3/2020
+        //        var image = new Image();
+        //        image.src = reader.result;//result is base64-encoded Data URI
+        //        var finalFile = reader.result;
+        //        //image.name = reader.name;//set name (optional)
+        //        //image.size = reader.size;//set size (optional)
+
+        //        image.onload = function () {
+        //            var maxWidth = 350,
+        //                maxHeight = 350,
+        //                imageWidth = image.width,
+        //                imageHeight = image.height;
+
+        //            if (image.width > maxWidth) {
+        //                var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                oc.width = image.width;
+        //                oc.height = image.height;
+        //                octx.drawImage(image, 0, 0);
+        //                while (oc.width * 0.5 > maxWidth) {
+        //                    oc.width *= 0.5;
+        //                    oc.height *= 0.5;
+        //                    octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                }
+        //                oc.width = maxWidth;
+        //                oc.height = oc.width * image.height / image.width;
+        //                octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                //document.getElementById('great-image').src = oc.toDataURL();
+        //                finalFile = oc.toDataURL();
+        //            } else {
+        //                //document.getElementById('small-image').src = img.src;
+        //                finalFile = reader.result;
+        //            }
+
+        //            //if (imageWidth > imageHeight) {
+        //            //    if (imageWidth > maxWidth) {
+        //            //        imageHeight *= maxWidth / imageWidth;
+        //            //        imageWidth = maxWidth;
+        //            //    }
+        //            //}
+        //            //else {
+        //            //    if (imageHeight > maxHeight) {
+        //            //        imageWidth *= maxHeight / imageHeight;
+        //            //        imageHeight = maxHeight;
+        //            //    }
+        //            //}
+
+        //            //var canvas = document.createElement('canvas');
+        //            //canvas.width = imageWidth;
+        //            //canvas.height = imageHeight;
+
+        //            //var ctx = canvas.getContext("2d");
+        //            //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //            //// The resized file ready for upload
+        //            //var finalFile = canvas.toDataURL(fileType);
+        //            ////document.getElementById('uploadPreview_induk_4').src = canvas.toDataURL(fileType);
+        //            ////file = canvas.toDataURL(fileType);
+        //            ////$('#foto_produk_induk_4').files[0] = dataURLtoFile(finalFile, fileName);
+        //            var name = fileName.split('.');
+        //            var NewName = "";
+        //            for (var i = 0; i < name.length; i++) {
+        //                if (i + 1 == name.length) {
+        //                    NewName += "_mo." + name[i];
+        //                } else {
+        //                    NewName += name[i];
+        //                }
+        //            }
+        //            file = dataURLtoFile(finalFile, NewName);
+        //            //file = dataURLtoFile(finalFile, fileName);
+        //            tempFoto.files[0] = file;
+        //            //reader.readAsDataURL(file);
+        //            if (file) {
+        //                var noone = 0;
+        //                for (var a = 0; a <= imageContainerInduk.length; a++) {
+        //                    if (imageContainerInduk[a] != file) {
+        //                        noone = noone + 1;
+        //                    }
+        //                }
+        //                if (noone == imageContainerInduk.length +1) {
+        //                    imageContainerInduk.push(file);
+        //                }
+        //            }
+        //            $('#box_upload_induk_4').css('background-image', 'url("' + finalFile + '")')
+        //                .css('background-size', 'cover');
+        //            $('#box_upload_induk_4 span').hide();
+        //            $('#btn_hapus_induk_4').show();
+        //            //reader = finalFile;
+        //            //file = finalFile;
+        //        }
+        //        //image.src = readerEvent.target.result;
+        //        //end add by nurul 3/3/2020
+
+
+        //    }
+
+        //});
+        //$('#foto_produk_induk_5').off('change').on('change', function () {
+        //    var tempFoto = this;
+        //    var file = this.files[0];
+        //    var fileName = file["name"];
+        //    var fileType = file["type"];
+        //    if ($.inArray(fileType, validImageVar) < 0) {
+        //        alert('Hanya boleh file berformat .jpg!');
+        //        return;
+        //    }
+        //    var reader = new FileReader();
+        //    if (file) {
+        //        reader.readAsDataURL(file);
+        //    }
+        //    reader.onloadend = function () {
+
+        //        //add by nurul 3/3/2020
+        //        var image = new Image();
+        //        image.src = reader.result;//result is base64-encoded Data URI
+        //        var finalFile = reader.result;
+        //        //image.name = reader.name;//set name (optional)
+        //        //image.size = reader.size;//set size (optional)
+
+        //        image.onload = function () {
+        //            var maxWidth = 350,
+        //                maxHeight = 350,
+        //                imageWidth = image.width,
+        //                imageHeight = image.height;
+
+        //            if (image.width > maxWidth) {
+        //                var oc = document.createElement('canvas'), octx = oc.getContext('2d');
+        //                oc.width = image.width;
+        //                oc.height = image.height;
+        //                octx.drawImage(image, 0, 0);
+        //                while (oc.width * 0.5 > maxWidth) {
+        //                    oc.width *= 0.5;
+        //                    oc.height *= 0.5;
+        //                    octx.drawImage(oc, 0, 0, oc.width, oc.height);
+        //                }
+        //                oc.width = maxWidth;
+        //                oc.height = oc.width * image.height / image.width;
+        //                octx.drawImage(image, 0, 0, oc.width, oc.height);
+        //                //document.getElementById('great-image').src = oc.toDataURL();
+        //                finalFile = oc.toDataURL();
+        //            } else {
+        //                //document.getElementById('small-image').src = img.src;
+        //                finalFile = reader.result;
+        //            }
+
+        //            //if (imageWidth > imageHeight) {
+        //            //    if (imageWidth > maxWidth) {
+        //            //        imageHeight *= maxWidth / imageWidth;
+        //            //        imageWidth = maxWidth;
+        //            //    }
+        //            //}
+        //            //else {
+        //            //    if (imageHeight > maxHeight) {
+        //            //        imageWidth *= maxHeight / imageHeight;
+        //            //        imageHeight = maxHeight;
+        //            //    }
+        //            //}
+
+        //            //var canvas = document.createElement('canvas');
+        //            //canvas.width = imageWidth;
+        //            //canvas.height = imageHeight;
+
+        //            //var ctx = canvas.getContext("2d");
+        //            //ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
+
+        //            //// The resized file ready for upload
+        //            //var finalFile = canvas.toDataURL(fileType);
+        //            ////document.getElementById("uploadPreview_induk_5").src = canvas.toDataURL(fileType);
+        //            ////file = canvas.toDataURL(fileType);
+        //            ////$('#foto_produk_induk_5').files[0] = dataURLtoFile(finalFile, fileName);
+        //            var name = fileName.split('.');
+        //            var NewName = "";
+        //            for (var i = 0; i < name.length; i++) {
+        //                if (i + 1 == name.length) {
+        //                    NewName += "_mo." + name[i];
+        //                } else {
+        //                    NewName += name[i];
+        //                }
+        //            }
+        //            file = dataURLtoFile(finalFile, NewName);
+        //            //file = dataURLtoFile(finalFile, fileName);
+        //            tempFoto.files[0] = file;
+        //            //reader.readAsDataURL(file);
+        //            if (file) {
+        //                var noone = 0;
+        //                for (var a = 0; a <= imageContainerInduk.length; a++) {
+        //                    if (imageContainerInduk[a] != file) {
+        //                        noone = noone + 1;
+        //                    }
+        //                }
+        //                if (noone == imageContainerInduk.length + 1) {
+        //                    imageContainerInduk.push(file);
+        //                }
+        //            }
+        //            $('#box_upload_induk_5').css('background-image', 'url("' + finalFile + '")')
+        //                .css('background-size', 'cover');
+        //            $('#box_upload_induk_5 span').hide();
+        //            $('#btn_hapus_induk_5').show();
+        //            //reader = finalFile;
+        //            //file = finalFile;
+        //        }
+        //        //image.src = readerEvent.target.result;
+        //        //end add by nurul 3/3/2020
+
+
+        //    }
+
+        //});
+
         $('#foto_produk_induk_1').off('change').on('change', function () {
             var file = this.files[0];
             var fileType = file["type"];
@@ -636,6 +1470,7 @@
                 reader.readAsDataURL(file);
             }
         });
+
         $('#box_upload_induk_1').off('click').on('click', function () {
             $('#foto_produk_induk_1').click();
         });
@@ -647,7 +1482,7 @@
         $('#box_upload_induk_3').off('click').on('click', function () {
             $('#foto_produk_induk_3').click();
         });
-        
+
         $('#box_upload_induk_4').off('click').on('click', function () {
             $('#foto_produk_induk_4').click();
         });
@@ -789,9 +1624,18 @@
     function UpdateGambarVariantBarangBlibli() {
         var listGambarVariant = new FormData();
 
+        //$('.foto_produk_var_blibli').each(function (i, item) {
+        //    var data_barang_id = $(item).attr("data-barang-id");
+        //    listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+        //});
+        tempDataBrgIdBlibli.length = 0;
+        tempImageContainerBlibli.length = 0;
+        tempSuccessSaveImageBlibli.length = 0;
         $('.foto_produk_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
             listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+            tempDataBrgIdBlibli.push(data_barang_id);
+            tempImageContainerBlibli.push($(item)[0].files[0]);
         });
 
         //$('.foto_produk_var_blibli_2').each(function (i, item) {
@@ -799,7 +1643,7 @@
         //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
         //});
 
-        $.ajax({
+        @*$.ajax({
             type: "POST",
             url: '@Url.Action("UpdateGambarVariantBlibli", "Manage")',
             data: listGambarVariant,
@@ -812,7 +1656,32 @@
             error: function (xhr) {
                 console.log(xhr);
             }
-        });
+        });*@
+
+        if (tempDataBrgIdBlibli.length == tempImageContainerBlibli.length) {
+                    for (var i = 0; i < tempImageContainerBlibli.length; i++) {
+                        var listGambarVariant2 = new FormData();
+                        listGambarVariant2.append(tempDataBrgIdBlibli[i], tempImageContainerBlibli[i]);
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("UpdateGambarVariantBlibli", "Manage")',
+                            data: listGambarVariant2,
+                            dataType: 'json',
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                tempSuccessSaveImageBlibli.push(tempImageContainerBlibli[i]);
+                                if (tempSuccessSaveImageBlibli.length == tempImageContainerBlibli.length) {
+                                        UpdateHjualVariantBarang();
+                                }
+                            },
+                            error: function (xhr) {
+                                console.log(xhr);
+                            }
+                        });
+                    }
+
+        }
     }
 
     var validasi_simpanBarangVariant = true;
@@ -825,16 +1694,33 @@
                 var idBarang = $('#gambarInduk_ID').val();
                 var listGambarVariant = new FormData();
 
+                tempDataBrgId.length = 0;
+                tempImageContainer.length = 0;
+                tempSuccessSaveImage.length = 0;
+
                 var index_gambar = 1;
                 $('.foto_produk_induk').each(function (i, item) {
                     var data_barang_id = $(item).attr("data-barang-id");
                     listGambarVariant.append(data_barang_id + '_' + index_gambar, $(item)[0].files[0]);
+                    tempDataBrgId.push(data_barang_id + '_' + index_gambar);
+                    tempImageContainer.push($(item)[0].files[0]);
                     index_gambar = index_gambar + 1;
+                    //if (imageContainerInduk[i]) {
+                    //    listGambarVariant.append(data_barang_id + '_' + index_gambar, imageContainerInduk[i]);
+                    //    index_gambar = index_gambar + 1;
+                    //    totalSizeUpload = totalSizeUpload + imageContainerInduk[i].size;
+                    //}
                 });
 
                 $('.foto_produk_var').each(function (i, item) {
                     var data_barang_id = $(item).attr("data-barang-id");
                     listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+                    tempDataBrgId.push(data_barang_id);
+                    tempImageContainer.push($(item)[0].files[0]);
+                    //if (imageContainerVar[i]) {
+                    //    listGambarVariant.append(data_barang_id, imageContainerVar[i]);
+                    //    totalSizeUpload = totalSizeUpload + imageContainerInduk[i].size;
+                    //}
                 });
 
                 //$('.foto_produk_var_2').each(function (i, item) {
@@ -842,27 +1728,40 @@
                 //    listGambarVariant.append(data_barang_id + '_2', $(item)[0].files[0]);
                 //});
 
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("UpdateGambarVariantBarang", "Manage")',
-                    data: listGambarVariant,
-                    dataType: 'json',
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-
-                        if ($('.foto_produk_var_blibli').length > 0) {
-                            UpdateGambarVariantBarangBlibli();
-                        }
-                        else {
-                            UpdateHjualVariantBarang();
-                        }
-
-                    },
-                    error: function (xhr) {
-                        console.log(xhr);
+                //if (totalSizeUpload > 4194304) {
+                //    alert("Max size upload 4194304. Size " + totalSizeUpload + ".")
+                //} else {
+                if (tempDataBrgId.length == tempImageContainer.length) {
+                    for (var i = 0; i < tempImageContainer.length; i++) {
+                        var listGambarVariant1 = new FormData();
+                        listGambarVariant1.append(tempDataBrgId[i], tempImageContainer[i]);
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("UpdateGambarVariantBarang", "Manage")',
+                            //data: listGambarVariant,
+                            data: listGambarVariant1,
+                            dataType: 'json',
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                tempSuccessSaveImage.push(tempImageContainer[i]);
+                                if (tempSuccessSaveImage.length == tempImageContainer.length) {
+                                    if ($('.foto_produk_var_blibli').length > 0) {
+                                        UpdateGambarVariantBarangBlibli();
+                                    }
+                                    else {
+                                        UpdateHjualVariantBarang();
+                                    }
+                                }
+                            },
+                            error: function (xhr) {
+                                console.log(xhr);
+                            }
+                        });
                     }
-                });
+
+                }
+                //}
             }
             else {
                 if (message_validasi_autoloadStf02Variant != "") {
@@ -919,6 +1818,17 @@
             }
         });
     }
+
+    //add by nurul 6/3/2020
+    function dataURLtoFile(dataurl, filename) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], filename, { type: mime });
+    }
+    //end add by nurul 6/3/2020
 
 </script>
 <div class="form-horizontal">
