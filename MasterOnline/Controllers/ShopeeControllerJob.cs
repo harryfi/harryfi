@@ -2928,101 +2928,104 @@ namespace MasterOnline.Controllers
                     //add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
                     if ((string.IsNullOrWhiteSpace(result.tracking_number) || string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "")
                     {
-                        myData = JsonConvert.SerializeObject(HttpBody);
+                        //DIGANTI PAKE THROW UNTUK RETRY NYA 
+                        throw new Exception("Tracking Number Null");
+                        //myData = JsonConvert.SerializeObject(HttpBody);
 
-                        signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-                        responseFromServer = "";
+                        //signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+                        //responseFromServer = "";
 
-                        myReq = (HttpWebRequest)WebRequest.Create(urll);
-                        myReq.Method = "POST";
-                        myReq.Headers.Add("Authorization", signature);
-                        myReq.Accept = "application/json";
-                        myReq.ContentType = "application/json";
+                        //myReq = (HttpWebRequest)WebRequest.Create(urll);
+                        //myReq.Method = "POST";
+                        //myReq.Headers.Add("Authorization", signature);
+                        //myReq.Accept = "application/json";
+                        //myReq.ContentType = "application/json";
 
-                        myReq.ContentLength = myData.Length;
-                        using (var dataStream = myReq.GetRequestStream())
-                        {
-                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                        }
-                        System.Threading.Thread.Sleep(5000);
-                        using (WebResponse response = await myReq.GetResponseAsync())
-                        {
-                            using (Stream stream = response.GetResponseStream())
-                            {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
-                            }
-                        }
+                        //myReq.ContentLength = myData.Length;
+                        //using (var dataStream = myReq.GetRequestStream())
+                        //{
+                        //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        //}
+                        //System.Threading.Thread.Sleep(5000);
+                        //using (WebResponse response = await myReq.GetResponseAsync())
+                        //{
+                        //    using (Stream stream = response.GetResponseStream())
+                        //    {
+                        //        StreamReader reader = new StreamReader(stream);
+                        //        responseFromServer = reader.ReadToEnd();
+                        //    }
+                        //}
 
-                        if (responseFromServer != "")
-                        {
-                            result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-                            if ((result.error == null ? "" : result.error) == "")
-                            {
-                                if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
-                                {
-                                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-                                    if (pesananInDb != null)
-                                    {
-                                        if (dTrackNo == "")
-                                        {
-                                            dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
-                                        }
-                                        string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-                                        if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
-                                        {
-                                            nilaiTRACKING_SHIPMENT = "";
-                                        }
+                        //if (responseFromServer != "")
+                        //{
+                        //    result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
+                        //    if ((result.error == null ? "" : result.error) == "")
+                        //    {
+                        //        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
+                        //        {
+                        //            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        //            if (pesananInDb != null)
+                        //            {
+                        //                if (dTrackNo == "")
+                        //                {
+                        //                    dTrackNo = string.IsNullOrEmpty(result.tracking_no) ? result.tracking_number : result.tracking_no;
+                        //                }
+                        //                string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                        //                if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                        //                {
+                        //                    nilaiTRACKING_SHIPMENT = "";
+                        //                }
 
-                                        pesananInDb.TRACKING_SHIPMENT = dTrackNo;
-                                        pesananInDb.status_kirim = "2";
-                                        if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
-                                        {
-                                            pesananInDb.status_kirim = "1";
-                                        }
+                        //                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                        //                pesananInDb.status_kirim = "2";
+                        //                if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                        //                {
+                        //                    pesananInDb.status_kirim = "1";
+                        //                }
 
-                                        ErasoftDbContext.SaveChanges();
-                                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
-                                    }
-                                }
-                                else
-                                {
-                                    List<string> list_ordersn = new List<string>();
-                                    list_ordersn.Add(ordersn);
-                                    var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
+                        //                ErasoftDbContext.SaveChanges();
+                        //                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                        //            }
+                        //        }
+                        //        else
+                        //        {
+                        //            List<string> list_ordersn = new List<string>();
+                        //            list_ordersn.Add(ordersn);
+                        //            var trackno = await GetOrderDetailsForTrackNo(iden, list_ordersn.ToArray());
 
-                                    var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
-                                    if (pesananInDb != null)
-                                    {
-                                        if (dTrackNo == "")
-                                        {
-                                            dTrackNo = trackno;
-                                        }
-                                        string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
-                                        if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
-                                        {
-                                            nilaiTRACKING_SHIPMENT = "";
-                                        }
-                                        pesananInDb.TRACKING_SHIPMENT = dTrackNo;
-                                        pesananInDb.status_kirim = "2";
-                                        if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
-                                        {
-                                            pesananInDb.status_kirim = "1";
-                                        }
+                        //            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                        //            if (pesananInDb != null)
+                        //            {
+                        //                if (dTrackNo == "")
+                        //                {
+                        //                    dTrackNo = trackno;
+                        //                }
+                        //                string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                        //                if (nilaiTRACKING_SHIPMENT == "D[;][;][;]")
+                        //                {
+                        //                    nilaiTRACKING_SHIPMENT = "";
+                        //                }
+                        //                pesananInDb.TRACKING_SHIPMENT = dTrackNo;
+                        //                pesananInDb.status_kirim = "2";
+                        //                if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                        //                {
+                        //                    pesananInDb.status_kirim = "1";
+                        //                }
 
-                                        ErasoftDbContext.SaveChanges();
-                                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(result.msg);
+                        //                ErasoftDbContext.SaveChanges();
+                        //                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        //                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Update Resi Pesanan " + Convert.ToString(pesananInDb.NO_BUKTI) + " ke Shopee.");
+                        //            }
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        throw new Exception(result.msg);
 
-                            }
-                        }
+                        //    }
+                        //}
+                        //end DIGANTI PAKE THROW UNTUK RETRY NYA
                     }
                     //end add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
                     else if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
