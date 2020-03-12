@@ -1802,7 +1802,7 @@ namespace MasterOnline.Controllers
 
             while (more)
             {
-                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page);
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "pending");
                 page++;
                 if (count.recordCount < 100)
                 {
@@ -1812,7 +1812,28 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public BindingBase GetOrdersRTS(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            //SetupContext(dbPathEra, uname);
+            int page = 0;
+            var more = true;
+
+            while (more)
+            {
+                var count = GetOrdersWithPage(cust, accessToken, dbPathEra, uname, page, "ready_to_ship");
+                page++;
+                if (count.recordCount < 100)
+                {
+                    more = false;
+                }
+            }
+            return ret;
+        }
+
+        public BindingBase GetOrdersWithPage(string cust, string accessToken, string dbPathEra, string uname, int page, string statusLzd)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1852,9 +1873,12 @@ namespace MasterOnline.Controllers
             //request.AddApiParameter("offset", "0");
             request.AddApiParameter("offset", (page * 100).ToString());
             request.AddApiParameter("limit", "100");
+            //change by Tri 12 Maret, ambil pesanan sesuai status dari param
             //add by Tri 4 Nov 2019, ambil pesanan baru saja
-            request.AddApiParameter("status", "pending");
+            //request.AddApiParameter("status", "pending");
+            request.AddApiParameter("status", statusLzd);
             //end add by Tri 4 Nov 2019, ambil pesanan baru saja
+            //end change by Tri 12 Maret, ambil pesanan sesuai status dari param
             request.AddApiParameter("sort_by", "created_at");
             try
             {
@@ -2071,7 +2095,10 @@ namespace MasterOnline.Controllers
                                             statusEra = "01";
                                             break;
                                         case "ready_to_ship":
-                                            statusEra = "03";
+                                            //change by Tri 12 mar 2020, status rts juga masuk ke MO untuk handle customer yang ubah status pesanan di lazada langsung
+                                            //statusEra = "03";
+                                            statusEra = "01";
+                                            //end change by Tri 12 mar 2020, status rts juga masuk ke MO untuk handle customer yang ubah status pesanan di lazada langsung
                                             break;
                                         case "delivered":
                                         //statusEra = "03";
@@ -3888,7 +3915,10 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
+                            //change by Tri 12 mar 2020, shipped akan menggunakan status lain, bukan selesai/04
+                            //if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
+                            if (order.statuses[0].ToString() == "delivered")
+                            //end change by Tri 12 mar 2020, shipped akan menggunakan status lain, bukan selesai/04
                             {
                                 if (orderMO.STATUS_TRANSAKSI != "04")
                                 {
