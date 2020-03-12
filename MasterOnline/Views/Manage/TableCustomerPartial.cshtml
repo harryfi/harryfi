@@ -66,6 +66,16 @@
         {
             //var idMarket = Convert.ToInt32(customer.NAMA);
             //var namaMarket = context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
+            var dateConvert = "";
+            if (!string.IsNullOrWhiteSpace(customer.TGL_EXPIRED.ToString()))
+            {
+                dateConvert = Convert.ToDateTime(customer.TGL_EXPIRED).ToString("dd MMMM yyyy HH:mm");
+            }
+            else
+            {
+                dateConvert = "";
+            }
+
         <tr>
             @*<td>@namaMarket</td>*@
             <td>@customer.NAMA</td>
@@ -111,9 +121,9 @@
             </td>
             <td>
                 @{
-                    if (!string.IsNullOrWhiteSpace(customer.TGL_EXPIRED.ToString()))
+                    if (!string.IsNullOrWhiteSpace(dateConvert))
                     {
-                        <text><center>@customer.TGL_EXPIRED.ToString().Replace("AM", "").Replace("PM", "")</center></text>
+                        <text><center>@dateConvert.ToString()</center></text>
                     }
                     else
                     {
