@@ -1097,7 +1097,12 @@
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
                     alert('Hanya boleh file berformat .jpg!');
-                    return;
+                    return false;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    return false;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
@@ -1116,7 +1121,12 @@
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
                     alert('Hanya boleh file berformat .jpg!');
-                    return;
+                    return false;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    return false;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
@@ -1135,7 +1145,12 @@
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
                     alert('Hanya boleh file berformat .jpg!');
-                    return;
+                    return false;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    return false;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
@@ -1155,7 +1170,12 @@
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
                     alert('Hanya boleh file berformat .jpg!');
-                    return;
+                    return false;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    return false;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
@@ -1174,7 +1194,12 @@
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
                     alert('Hanya boleh file berformat .jpg!');
-                    return;
+                    return false;
+                }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    return false;
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
