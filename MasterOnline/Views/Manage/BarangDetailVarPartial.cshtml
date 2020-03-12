@@ -484,6 +484,7 @@
                 var fileSize = file["size"];
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
+                    $('#btn_hapus_var_' + data_barang_id).click();
                     return false;
                 }
                 var reader = new FileReader();
@@ -508,6 +509,7 @@
                 var fileSize = file["size"];
                 if (fileSize > 4000000) {
                     alert('Maximal size 4MB');
+                    $('#btn_hapus_var2_' + data_barang_id).click();
                     return false;
                 }
                 if ($.inArray(fileType, validImageVar) < 0) {
@@ -1401,6 +1403,7 @@
             var fileSize = file["size"];
             if (fileSize > 4000000) {
                 alert('Maximal size 4MB');
+                $('#btn_hapus_induk_1').click();
                 return false;
             }
             var reader = new FileReader();
@@ -1424,6 +1427,7 @@
             var fileSize = file["size"];
             if (fileSize > 4000000) {
                 alert('Maximal size 4MB');
+                $('#btn_hapus_induk_2').click();
                 return false;
             }
             var reader = new FileReader();
@@ -1447,6 +1451,7 @@
             var fileSize = file["size"];
             if (fileSize > 4000000) {
                 alert('Maximal size 4MB');
+                $('#btn_hapus_induk_3').click();
                 return false;
             }
             var reader = new FileReader();
@@ -1470,6 +1475,7 @@
             var fileSize = file["size"];
             if (fileSize > 4000000) {
                 alert('Maximal size 4MB');
+                $('#btn_hapus_induk_4').click();
                 return false;
             }
             var reader = new FileReader();
@@ -1493,6 +1499,7 @@
             var fileSize = file["size"];
             if (fileSize > 4000000) {
                 alert('Maximal size 4MB');
+                $('#btn_hapus_induk_5').click();
                 return false;
             }
             var reader = new FileReader();

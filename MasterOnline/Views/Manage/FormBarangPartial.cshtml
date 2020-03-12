@@ -148,6 +148,12 @@
                     alert('Hanya boleh file berformat .jpg!');
                     return;
                 }
+                var fileSize = file["size"];
+                if (fileSize > 4000000) {
+                    alert('Maximal size 4MB');
+                    $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).click();
+                    return false;
+                }
                 var reader = new FileReader();
                 reader.onloadend = function () {
                     $('#box_upload_blibli_' + data_barang_level + '_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
