@@ -1208,7 +1208,7 @@ namespace MasterOnline.Controllers
                         {
                             //var namaPemesan = LocalErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == ordersn_list.FirstOrDefault()).Select(a => a.NAMAPEMESAN);
                             connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(dbPathEra, tblCustomer.PERSO, tblCustomer.CUST, "Pesanan", "Update Resi JOB", iden, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list)), Cron.MinuteInterval(5), recurJobOpt);
                         }
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing

@@ -2170,7 +2170,7 @@ namespace MasterOnline.Controllers
         //add by nurul 17/3/2020, hangfire update resi job 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderDetailsForUpdateResiJOB(string dbPathEra, string namaCust, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string CUST, string NAMA_CUST, string[] ordersn_list)
+        public async Task<string> GetOrderDetailsForUpdateResiJOB(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, string[] ordersn_list)
         {
             //List<string> ordersn_list = new List<string>();
             //var ordersn_list = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == CUST).Select(a => a.NO_REFERENSI).ToList();
@@ -2178,6 +2178,7 @@ namespace MasterOnline.Controllers
             //{
             //    ordersn_list.ToArray();
             //}
+            SetupContext(iden);
 
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";

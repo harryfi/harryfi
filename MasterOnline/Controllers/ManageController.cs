@@ -23016,7 +23016,7 @@ namespace MasterOnline.Controllers
                     //List<string> list_ordersn = new List<string>();
                     //list_ordersn.Add("200309CXREXUNP");
                     //var namaPemesan = ErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == ordersn_list.FirstOrDefault()).Select(a => a.NAMAPEMESAN);
-                    await new ShopeeControllerJob().GetOrderDetailsForUpdateResiJOB(dbPathEra, tblCustomer.PERSO, tblCustomer.CUST, "Pesanan", "Update Resi JOB", iden, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list);
+                    await new ShopeeControllerJob().GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list);
                     //var paging = Math.Ceiling(Convert.ToDouble(getOrderPemesanKosong.Count()) / Convert.ToDouble(50));
                     //for (int i = 0; i < paging; i++)
                     //{
