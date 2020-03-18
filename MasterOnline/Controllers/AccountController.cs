@@ -284,7 +284,7 @@ namespace MasterOnline.Controllers
                 bool cekSyncMarketplace = false;
                 if (cekSyncMarketplace)
                 {
-                    Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5,null).Wait());
+                    Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5, null).Wait());
                 }
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -419,7 +419,7 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by nurul 9/8/2019
-                if(accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
+                if (accInDb.DatabasePathErasoft == null || accInDb.DatabasePathErasoft == "")
                 {
                     ModelState.AddModelError(string.Empty, @"Database tidak ditemukan");
                     return View("Login", account);
@@ -876,9 +876,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region Blibli
+            #region Blibli
             //change by fauzi 18 Desember 2019
             var kdBli = 16;
             //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
@@ -962,9 +962,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region elevenia
+            #region elevenia
             var kdElevenia = 9;
             //var kdElevenia = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var EleveniaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdElevenia.ToString());
@@ -1023,9 +1023,9 @@ namespace MasterOnline.Controllers
                     //end add by calvin 2 april 2019
                 }
             }
-#endregion
+            #endregion
 
-#region Tokopedia
+            #region Tokopedia
             var kdTokped = 15;
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var TokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.ToString());
@@ -1107,9 +1107,9 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
 
-#region Shopee
+            #region Shopee
             //debug
             //ShopeeController.ShopeeAPIData dataaa = new ShopeeController.ShopeeAPIData()
             //{
@@ -1202,15 +1202,10 @@ namespace MasterOnline.Controllers
                         //end change by nurul 10/12/2019, ubah interval
 
                         //add by nurul 17/3/2020
-                        var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
-                        if (list_ordersn.Count() > 0)
+                        if (tblCustomer != null)
                         {
-                            var ordersn_list = list_ordersn.ToArray();
-                            if (tblCustomer != null)
-                            {
-                                connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list)), Cron.MinuteInterval(30), recurJobOpt);
-                            }
+                            connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
                         }
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing
@@ -1235,7 +1230,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-#endregion
+            #endregion
             return "";
         }
 
@@ -1523,7 +1518,7 @@ namespace MasterOnline.Controllers
             return View();
         }
         //end add by nurul 14/8/2019
-        
+
         //[AutomaticRetry(Attempts = 2)]
         //[Queue("2_general")]
         protected async Task<string> TesSendEmail(MailAddress email, string account_Email, string originPassword, string nama)
