@@ -1203,12 +1203,14 @@ namespace MasterOnline.Controllers
 
                         //add by nurul 17/3/2020
                         var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
-                        var ordersn_list = list_ordersn.ToArray();
-                        if (tblCustomer != null)
+                        if (list_ordersn.Count() > 0)
                         {
-                            //var namaPemesan = LocalErasoftDbContext.SOT01A.Where(a => a.NO_REFERENSI == ordersn_list.FirstOrDefault()).Select(a => a.NAMAPEMESAN);
-                            connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list)), Cron.MinuteInterval(5), recurJobOpt);
+                            var ordersn_list = list_ordersn.ToArray();
+                            if (tblCustomer != null)
+                            {
+                                connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, ordersn_list)), Cron.MinuteInterval(30), recurJobOpt);
+                            }
                         }
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing
