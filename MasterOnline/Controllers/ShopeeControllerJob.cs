@@ -3152,7 +3152,11 @@ namespace MasterOnline.Controllers
                                 pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             }
                             pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
                             {
                                 pesananInDb.status_kirim = "1";
                             }
@@ -3194,7 +3198,11 @@ namespace MasterOnline.Controllers
                                 pesananInDb.TRACKING_SHIPMENT = dTrackNo;
                             }
                             pesananInDb.status_kirim = "2";
-                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+                            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT) && set_job != "1")
+                            {
+                                pesananInDb.status_kirim = "1";
+                            }
+                            if (string.IsNullOrWhiteSpace(pesananInDb.NO_PO_CUST) && set_job == "1")
                             {
                                 pesananInDb.status_kirim = "1";
                             }
