@@ -671,6 +671,9 @@ namespace MasterOnline.Controllers
                     //add by nurul 10/12/2019, ubah startdate
                     startDate = Uri.EscapeDataString(DateTime.UtcNow.AddDays(-5).ToString("yyyy-MM-dd HH:mm:ss"));
                     //end add by nurul 10/12/2019, ubah startdate
+                    //add by Tri 17 mar 2020, insert pesanan dengan status PF dan PU
+                    status = "FP,PF,PU";
+                    //end add by Tri 17 mar 2020, insert pesanan dengan status PF dan PU
                     break;
                 //case StatusOrder.PackagingINP:
                 //    //Packaging in Progress

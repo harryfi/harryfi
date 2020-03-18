@@ -1874,6 +1874,15 @@ namespace MasterOnline.Controllers
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
                 var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
+                //add by Tri 17 mar 2020, insert pesanan dengan status 450
+                var orderWaitingPickUp = result.data.Where(p => p.order_status == 450).ToList();
+                if(orderWaitingPickUp != null)
+                {
+                    if(orderWaitingPickUp.Count > 0)
+                        orderAccepted.AddRange(orderWaitingPickUp);
+
+                }
+                //end add by Tri 17 mar 2020, insert pesanan dengan status 450
                 var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
 
                 var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
@@ -2021,12 +2030,17 @@ namespace MasterOnline.Controllers
 
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
 
+                        var nama2 = order.recipient.name.Replace("'", "`");
+                        if (nama2.Length > 30)
+                            nama2 = nama2.Substring(0, 30);
+
                         string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                         insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                         insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                         var kabKot = "3174";
                         var prov = "31";
-                        insertPembeli += "('" + order.recipient.name + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        //insertPembeli += "('" + order.recipient.name + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "('" + nama2 + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full + "', 0, 0, 0, 0, '1', 0, 0, ";
                         insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
