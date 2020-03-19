@@ -43,7 +43,7 @@ namespace MasterOnline.Controllers
 
         public JDIDController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)

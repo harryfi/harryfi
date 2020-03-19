@@ -31,7 +31,7 @@ namespace MasterOnline.Controllers
         string DatabasePathErasoft;
         public TokopediaController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             username = "";
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
@@ -1885,9 +1885,17 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
                 bool adaError = false;
-                if (!string.IsNullOrEmpty(result.header.messages))
+                //if (!string.IsNullOrEmpty(result.header.messages))
+                //{
+                //    adaError = true;
+
+                //}
+                if (result.data != null)
                 {
-                    adaError = true;
+                    if (result.data.Count() == 0)
+                    {
+                        adaError = true;
+                    }
 
                 }
                 if (!adaError)
@@ -2409,7 +2417,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 200)
+                if (result.header.error_code == 0)
                 {
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
                     var success_induk = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
@@ -2484,7 +2492,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
-                if (result.header.error_code == 200)
+                if (result.header.error_code == 0)
                 {
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
 

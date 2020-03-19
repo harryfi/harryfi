@@ -73,6 +73,9 @@
                 @*add by nurul 7/11/2018*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 90px;">No. Referensi</th>
                 @*end add by nurul*@
+                @*add by nurul 4/3/2020*@
+                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 70px;">Kurir</th>
+                @*end add by nurul 4/3/2020*@
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
                 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Status</th>
@@ -130,6 +133,9 @@
                 @*add by nurul 7/11/2018*@
                 <td>@faktur.REFERENSI</td>
                 @*end add by nurul*@
+                @*add by nurul 4/3/2020*@
+                <td>@faktur.KURIR</td>
+                @*end add by nurul 4/3/2020*@
                 <td>
                     @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                     @*@((buyer == null ? "" : buyer.NAMA) + " (" + pelanggan.PERSO + ")")*@
@@ -142,11 +148,13 @@
                 @if (faktur.STATUS_FAKTUR == "2")
                 {
                     <td>Batal</td>
-                }else if (faktur.FKT_RETUR != "")
+                }
+                else if (faktur.FKT_RETUR != "")
                 {
                     <td>Retur</td>
                 }
-                else {
+                else
+                {
                     <td>Selesai</td>
                 }
                 @if (Convert.ToString(faktur.POSTING) == "Y")

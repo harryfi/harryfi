@@ -65,6 +65,10 @@ namespace MasterOnline
         public double SISA_FAKTUR { get; set; }
         //end add by nurul 16/1/2020
 
+        //add by nurul 4/3/2020
+        public string KURIR { get; set; }
+        //end add by nurul 4/3/2020
+
         //add by Tri 2/12/2019
         public string CancelReason { get; set; }
         //end add by Tri 2/12/2019

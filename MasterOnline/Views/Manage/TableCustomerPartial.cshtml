@@ -8,7 +8,7 @@
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
 
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
 
 
 }
@@ -53,6 +53,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 25px;">Sync Pesanan & Stok</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 25px;">Link Marketplace</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 25px;">Tanggal Expired</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Alamat</th>*@
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">No. HP</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
@@ -65,23 +66,33 @@
         {
             //var idMarket = Convert.ToInt32(customer.NAMA);
             //var namaMarket = context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
+            var dateConvert = "";
+            if (!string.IsNullOrWhiteSpace(customer.TGL_EXPIRED.ToString()))
+            {
+                dateConvert = Convert.ToDateTime(customer.TGL_EXPIRED).ToString("dd MMMM yyyy HH:mm");
+            }
+            else
+            {
+                dateConvert = "";
+            }
+
         <tr>
             @*<td>@namaMarket</td>*@
-            <td>@customer.NAMA</td>
+            <td>@customer.NAMA (@customer.PERSO)</td>
             <td>@customer.EMAIL</td>
             <td>
                 @{
                     if (customer.TIDAK_HIT_UANG_R.Equals(true))
                     {
-                        <text>Aktif</text>
+                        <text><center>Aktif</center></text>
                     }
                     else if (customer.TIDAK_HIT_UANG_R.Equals(false))
                     {
-                        <text>Tidak Aktif</text>
+                        <text><center>Tidak Aktif</center></text>
                     }
                     else
                     {
-                        <text>Tidak Aktif</text>
+                        <text><center>Tidak Aktif</center></text>
                     }
                 }
             </td>
@@ -91,20 +102,32 @@
                     {
                         if (customer.STATUS_API.Equals("1"))
                         {
-                            <text>Aktif</text>
+                            <text><center>Aktif</center></text>
                         }
                         else if (customer.STATUS_API.Equals("2"))
                         {
-                            <text>Ekspired</text>
+                            <text><center>Ekspired</center></text>
                         }
                         else
                         {
-                            <text>Tidak Aktif</text>
+                            <text><center>Tidak Aktif</center></text>
                         }
                     }
                     else
                     {
-                        <text>Tidak Aktif</text>
+                        <text><center>Tidak Aktif</center></text>
+                    }
+                }
+            </td>
+            <td>
+                @{
+                    if (!string.IsNullOrWhiteSpace(dateConvert))
+                    {
+                        <text><center>@dateConvert.ToString()</center></text>
+                    }
+                    else
+                    {
+                        <text><center>~</center></text>
                     }
                 }
             </td>

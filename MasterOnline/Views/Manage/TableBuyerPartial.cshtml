@@ -12,7 +12,7 @@
     string currentFilter = ViewBag.CurrentFilter;
     string currentSort = ViewBag.CurrentSort;
 
-    var context_ = new MoDbContext();
+    var context_ = new MoDbContext("");
     var prov = context_.Provinsi.ToList();
     var kota = context_.KabupatenKota.ToList();
 }

@@ -7,7 +7,7 @@
     var username = "";
     if (dataSession?.User != null)
     {
-        var context = new MoDbContext();
+        var context = new MoDbContext("");
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         context.Dispose();

@@ -2,7 +2,7 @@
 @using MasterOnline.ViewModels
 @model BayarHutangViewModel
 @{
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     var username = "";

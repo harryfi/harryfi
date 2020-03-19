@@ -19,7 +19,7 @@ namespace MasterOnline.Controllers
 
         public ScrapperController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             _viewModel = new AccountUserViewModel();
 
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;

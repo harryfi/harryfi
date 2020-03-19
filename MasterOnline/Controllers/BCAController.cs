@@ -91,7 +91,7 @@ namespace MasterOnline.Controllers
             {
                 //if (sessionData?.User != null)
                 //{
-                    MoDbContext MoDbContext = new MoDbContext();
+                    MoDbContext MoDbContext = new MoDbContext("");
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 //}
@@ -166,7 +166,7 @@ namespace MasterOnline.Controllers
                 {
                     //if (sessionData?.User != null)
                     //{
-                    MoDbContext MoDbContext = new MoDbContext();
+                    MoDbContext MoDbContext = new MoDbContext("");
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     //}
@@ -303,7 +303,7 @@ namespace MasterOnline.Controllers
             {
                 //if (sessionData?.User != null)
                 //{
-                MoDbContext MoDbContext = new MoDbContext();
+                MoDbContext MoDbContext = new MoDbContext("");
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 //}

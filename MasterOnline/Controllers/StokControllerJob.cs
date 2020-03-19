@@ -141,11 +141,17 @@ namespace MasterOnline.Controllers
                         {
                             //update REQUEST_STATUS = 'FAILED', DATE, FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            //add by nurul 12/2/2020, update exception terbaru
+                            sSQL += ", REQUEST_RESULT = '" + this._deskripsi.Replace("{obj}", subjectDescription) + "', REQUEST_EXCEPTION = '" + exceptionMessage.Replace("'", "`") + "' ";
+                            //end add by nurul 12/2/2020, update exception terbaru
                             sSQL += "FROM API_LOG_MARKETPLACE B WHERE B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND B.REQUEST_STATUS = 'RETRYING' AND B.REQUEST_ID = '" + jobId + "'";
                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
                             //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
                             sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + jobId + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            //add by nurul 12/2/2020, update exception terbaru
+                            sSQL += ", REQUEST_RESULT = '" + this._deskripsi.Replace("{obj}", subjectDescription) + "', REQUEST_EXCEPTION = '" + exceptionMessage.Replace("'", "`") + "' ";
+                            //end add by nurul 12/2/2020, update exception terbaru
                             sSQL += "FROM API_LOG_MARKETPLACE B INNER JOIN ";
                             sSQL += "( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
                             sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + context.BackgroundJob.CreatedAt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
@@ -698,7 +704,7 @@ namespace MasterOnline.Controllers
         public void updateStockMarketPlace_ForItemInSTF08A(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -734,28 +740,28 @@ namespace MasterOnline.Controllers
             // change by fauzi 07 Januari 2020
 
             string EDBConnID = EDB.GetConnectionString("ConnId");
-                var sqlStorage = new SqlServerStorage(EDBConnID);
+            var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                var client = new BackgroundJobClient(sqlStorage);
+            var client = new BackgroundJobClient(sqlStorage);
 
-                var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
+            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT DISTINCT BRG, 'ALL_ITEM_WITH_MUTATION' AS CONN_ID FROM STF08A").ToList();
 
-                List<string> listBrg = new List<string>();
-                foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            List<string> listBrg = new List<string>();
+            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            {
+                listBrg.Add(item.BRG);
+            }
+
+            var ListARF01 = ErasoftDbContext.ARF01.ToList();
+            foreach (string kdBrg in listBrg)
+            {
+                //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
+                var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
+                var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+
+                foreach (var stf02h in brgMarketplace)
                 {
-                    listBrg.Add(item.BRG);
-                }
-
-                var ListARF01 = ErasoftDbContext.ARF01.ToList();
-                foreach (string kdBrg in listBrg)
-                {
-                    //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
-                    var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
-                    var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
-
-                    foreach (var stf02h in brgMarketplace)
-                    {
-                        var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
+                    var marketPlace = ListARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
                     if (marketPlace.NAMA.Equals(kdBL.ToString()))
                     {
                         if (marketPlace.TIDAK_HIT_UANG_R == true)
@@ -952,17 +958,17 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                        //end add by Tri 11 April 2019
+                    //end add by Tri 11 April 2019
 
-                    }
                 }
+            }
             //}
         }
 
         public void updateStockMarketPlace(string connId, string DatabasePathErasoft, string uname)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1262,7 +1268,7 @@ namespace MasterOnline.Controllers
         public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string log_CUST, string log_ActionCategory, string log_ActionName, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1349,7 +1355,7 @@ namespace MasterOnline.Controllers
         public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -1468,7 +1474,7 @@ namespace MasterOnline.Controllers
         public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
-            var MoDbContext = new MoDbContext();
+            var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, DatabasePathErasoft);
@@ -2043,9 +2049,20 @@ namespace MasterOnline.Controllers
         public class Tokped_updateStockResultData
         {
             public int failed_rows { get; set; }
-            public object[] failed_rows_data { get; set; }
+            public failed_rows_data[] failed_rows_data { get; set; }
             public int succeed_rows { get; set; }
         }
+
+
+        public class failed_rows_data
+        {
+            public int product_id { get; set; }
+            public string sku { get; set; }
+            public string product_url { get; set; }
+            public int new_stock { get; set; }
+            public string message { get; set; }
+        }
+
 
 
         public class TokpedGetProductInfoRootobject
@@ -2268,55 +2285,72 @@ namespace MasterOnline.Controllers
 
                     var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(Tokped_updateStockResult)) as Tokped_updateStockResult;
 
-                    if (!string.IsNullOrWhiteSpace(result.header.messages))
-                    {
-                        throw new Exception(result.header.messages + ";error_code:" + result.header.error_code);
-                    }
-                    else
-                    {
-                        try
+                    if (result.data != null)
+                        if (result.data.failed_rows > 0 && result.data.succeed_rows == 0)
                         {
-                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                            if (result.data.failed_rows_data.Length > 0)
                             {
-                                var a = await TokpedCheckUpdateStock(iden, product_id);
-                                if (a < stok || a > stok)
+                                var rowFailedMessage = "";
+                                foreach (var itemRow in result.data.failed_rows_data)
                                 {
-                                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                    if(!string.IsNullOrEmpty(itemRow.message) && itemRow.product_id != 0)
                                     {
-                                        REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                                        REQUEST_ACTION = "Selisih Stok",
-                                        REQUEST_DATETIME = DateTime.Now,
-                                        REQUEST_ATTRIBUTE_1 = stf02_brg,
-                                        REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
-                                        REQUEST_ATTRIBUTE_3 = "Tokped Stock : " + Convert.ToString(a), //marketplace stock
-                                        REQUEST_STATUS = "Pending",
-                                    };
-                                    var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                                        rowFailedMessage = rowFailedMessage + Convert.ToString(itemRow.message) + " product id:" + Convert.ToString(itemRow.product_id) + ";";
+                                    }
+                                }
+                                throw new Exception("failed_rows_data:" + rowFailedMessage);
+                            }
+                            else
+                            {
+                                throw new Exception("failed_rows:" + Convert.ToString(result.data.failed_rows));
+                            }
+                            
+                        }
+                        else
+                        {
+                            try
+                            {
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                                {
+                                    var a = await TokpedCheckUpdateStock(iden, product_id);
+                                    if (a < stok || a > stok)
+                                    {
+                                        MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                        {
+                                            REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                            REQUEST_ACTION = "Selisih Stok",
+                                            REQUEST_DATETIME = DateTime.Now,
+                                            REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                            REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                            REQUEST_ATTRIBUTE_3 = "Tokped Stock : " + Convert.ToString(a), //marketplace stock
+                                            REQUEST_STATUS = "Pending",
+                                        };
+                                        var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+                                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                                    }
                                 }
                             }
-                        }
-                        catch (Exception ex)
-                        {
-                            string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            catch (Exception ex)
                             {
-                                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                                REQUEST_ACTION = "Selisih Stok",
-                                REQUEST_DATETIME = DateTime.Now,
-                                REQUEST_ATTRIBUTE_1 = stf02_brg,
-                                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
-                                REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
-                                REQUEST_STATUS = "Pending",
-                                REQUEST_EXCEPTION = msg
-                            };
-                            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
-                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                                {
+                                    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                                    REQUEST_ACTION = "Selisih Stok",
+                                    REQUEST_DATETIME = DateTime.Now,
+                                    REQUEST_ATTRIBUTE_1 = stf02_brg,
+                                    REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(stok), //updating to stock
+                                    REQUEST_ATTRIBUTE_3 = "Exception", //marketplace stock
+                                    REQUEST_STATUS = "Pending",
+                                    REQUEST_EXCEPTION = msg
+                                };
+                                var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+                                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Tokped");
+                            }
                         }
-                    }
                 }
             }
-            
+
             //}
             //catch (Exception ex)
             //{
@@ -2445,6 +2479,7 @@ namespace MasterOnline.Controllers
                     string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     if (msg.Contains("not allowed to edit"))
                     {
+                       
 #if (DEBUG || Debug_AWS)
                         await ShopeeUnlinkProduct(DatabasePathErasoft, stf02_brg, log_CUST, uname, iden, Convert.ToInt64(brg_mp_split[0]), Convert.ToInt64(0), qty);
 #else
@@ -2620,6 +2655,8 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
             var EDB = new DatabaseSQL(DatabasePathErasoft);
             string EraServerName = EDB.GetServerName("sConn");
+            var statusProduct = "";
+            var requestAction = "Selisih Stok";
 
             var ret = new BindingBase
             {
@@ -2628,6 +2665,7 @@ namespace MasterOnline.Controllers
             };
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+            var dateNowLog = DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
             string urll = "https://partner.shopeemobile.com/api/v1/item/get";
 
@@ -2683,12 +2721,14 @@ namespace MasterOnline.Controllers
                         {
                             if (item.status.ToLower() == "deleted")
                             {
-                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                                var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false', LINK_STATUS = 'Barang dihapus oleh Shopee', LINK_ERROR = '0;Status;;', LINK_DATETIME = '" + dateNowLog + "' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                                 var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                                 if (rowsAffected > 0)
                                 {
+                                    requestAction = "Unlink Product";
+                                    statusProduct = "Barang " + stf02_brg + " telah dihapus oleh Shopee. Unlink Otomatis barang di akun Shopee " + personame + " sudah selesai.";
                                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                    contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                                    contextNotif.Clients.Group(dbPathEra).monotification(statusProduct.ToString());
                                 }
                             }
                         }
@@ -2700,12 +2740,14 @@ namespace MasterOnline.Controllers
                     {
                         if (detailBrg.item.status.ToLower() == "deleted")
                         {
-                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
+                            var rowsAffected = EDB.ExecuteSQL("ConnId", CommandType.Text, "UPDATE STF02H SET BRG_MP = '', DISPLAY = 'false', LINK_STATUS = 'Barang dihapus oleh Shopee', LINK_ERROR = '0;Status;;', LINK_DATETIME = '" + dateNowLog + "' WHERE BRG_MP = '" + Convert.ToString(item_id) + ";" + Convert.ToString(variation_id) + "' AND BRG = '" + stf02_brg + "'");
                             var personame = Convert.ToString(EDB.GetFieldValue("ConnId", "ARF01", "CUST = '" + log_CUST + "'", "PERSO"));
                             if (rowsAffected > 0)
                             {
+                                requestAction = "Unlink Product";
+                                statusProduct = "Barang " + stf02_brg + " telah dihapus oleh Shopee. Unlink Otomatis barang di akun Shopee " + personame + " sudah selesai.";
                                 var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                                contextNotif.Clients.Group(dbPathEra).monotification("Unlink Otomatis barang " + stf02_brg + " di akun Shopee " + personame + " sudah selesai.");
+                                contextNotif.Clients.Group(dbPathEra).monotification(statusProduct.ToString());
                             }
                         }
                     }
@@ -2717,12 +2759,14 @@ namespace MasterOnline.Controllers
                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
                     REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                    REQUEST_ACTION = "Selisih Stok",
-                    REQUEST_DATETIME = DateTime.Now,
+                    REQUEST_ACTION = requestAction,
+                    //REQUEST_DATETIME = DateTime.Now,
+                    REQUEST_DATETIME = DateTime.UtcNow.AddHours(7), // update to +7 hour
                     REQUEST_ATTRIBUTE_1 = stf02_brg,
                     REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(MO_qty), //updating to stock
                     REQUEST_ATTRIBUTE_3 = "Shopee Stock : " + Convert.ToString(ret.recordCount), //marketplace stock
                     REQUEST_STATUS = "Pending",
+                    REQUEST_EXCEPTION = statusProduct
                 };
                 var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, log_CUST, currentLog, "Shopee");

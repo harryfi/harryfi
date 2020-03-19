@@ -30,7 +30,7 @@ namespace MasterOnline.Controllers
 
         public AdminController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
         }
 
         protected override void Dispose(bool disposing)
@@ -2799,11 +2799,20 @@ namespace MasterOnline.Controllers
                         if (getfirstserver != null)
                         {
                             lastHeartbeat = getfirstserver.Heartbeat;
+                            // add by fauzi 11 Februari 2020
+                            DateTime vDatetime = lastHeartbeat.Value;
+                            lastHeartbeat = vDatetime.AddHours(7);
+                            // end
                         }
+                        // add by fauzi 11 Februari 2020
+                        DateTime vDtlastlogin = item.LAST_LOGIN_DATE.Value;
+                        vDtlastlogin = vDtlastlogin.AddHours(7);
+                        // end
                         var data = new HANGFIRE_SERVER_STATUS()
                         {
                             Email = item.Email,
-                            LAST_LOGIN_DATE = item.LAST_LOGIN_DATE,
+                            //LAST_LOGIN_DATE = item.LAST_LOGIN_DATE, // remark by fauzi 11 Februari 2020
+                            LAST_LOGIN_DATE = vDtlastlogin,
                             Username = item.Username,
                             DatabasePathErasoft = item.DatabasePathErasoft,
                             DatabaseSourceErasoft = item.DataSourcePath,
@@ -3087,7 +3096,7 @@ namespace MasterOnline.Controllers
                 var last2Week = DateTime.UtcNow.AddHours(7).AddDays(-14);
                 var datenow = DateTime.UtcNow.AddHours(7);
 
-                var MoDbContext = new MoDbContext();
+                var MoDbContext = new MoDbContext("");
 
                 var accountInDb = (from a in MoDbContext.Account
                                    where
@@ -3112,7 +3121,7 @@ namespace MasterOnline.Controllers
             {
                 //change by fauzi 24 Januari 2020
                 //var RemoteMODbContext = new MoDbContext(db_source);
-                var RemoteMODbContext = new MoDbContext();
+                var RemoteMODbContext = new MoDbContext("");
                 //end
                 RemoteMODbContext.Database.ExecuteSqlCommand("exec [PROSES_AKHIR_TAHUN] @db_name, @tahun", new SqlParameter("@db_name", db_name), new SqlParameter("@tahun", tahun));
 
@@ -3123,7 +3132,82 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses akhir tahun. Internal Server Error." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
         }
-        
+
+        //add by fauzi 21 Februari 2020
+        [Queue("3_general")]
+        public async Task<ActionResult> ReminderEmailExpiredAccountMP(string dbPathEra, string susername, string semail, string snamatoko, string smarketplace, DateTime? expired_date)
+        {
+            var currentTimeRequest = (long)DateTimeOffset.UtcNow.AddHours(7).ToUnixTimeSeconds();
+            try
+            {
+                DateTime dateExpired = Convert.ToDateTime(expired_date);
+                var dateExpiredEmail = Convert.ToDateTime(expired_date).ToString("dd MMMM yyyy HH:mm tt");
+                var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired).Days.ToString();
+
+                if ((countDays == "-7") || (countDays == "-3") || (countDays == "-1"))
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countDays.ToString().Replace("-", "") + " hari lagi.");
+
+                    var email = new MailAddress(semail);
+                    var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                    "<p>Hi Kak {0},</p>" +
+                    "<p>Untuk menjaga keamanan data Toko, pihak Marketplace secara berkala melakukan pembaharuan / Refresh API Token. Integrasi Marketplace akan otomatis terputus saat API Token Marketplace tersebut sudah expired.</p>" +
+                    "<p>Akun Marketplace Kakak yang akan expired adalah sebagai berikut, mohon lakukan link ulang di Master Online :</p>" +
+                    "<p><span style='background-color: #FFFF00;text-decoration: underline;'>- Nama akun: {2} {1} akan expired pada {3} atau {4} hari lagi</span></p>" +
+                    "<p>Cara melakukan link ulang di Master Online:</p>" +
+                    "<p>1. Masuk menu Pengaturan > Link ke Marketplace</p>" +
+                    "<p>2. Edit akun Marketplace Anda</p>" +
+                    "<p>3. Lengkapi data Toko</p>" +
+                    "<p>4. Klik Simpan.</p>" +
+                    "<p>Terima kasih atas perhatian dan kerjasama nya. Sukses selalu bersama Master Online.</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Best regards,</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>Master Online.</p>";
+
+                    var message = new MailMessage();
+                    message.To.Add(email);
+                    message.From = new MailAddress("csmasteronline@gmail.com");
+                    message.Subject = "Master Online x " + smarketplace + " Announcement";
+                    message.Body = string.Format(body, susername, smarketplace, snamatoko, dateExpiredEmail.ToString(), countDays.ToString().Replace("-", ""));
+                    message.IsBodyHtml = true;
+
+                    using (var smtp = new SmtpClient())
+                    {
+                        var credential = new NetworkCredential
+                        {
+                            UserName = "csmasteronline@gmail.com",
+                            Password = "kmblwexkeretrwxv"
+                        };
+                        smtp.Credentials = credential;
+                        smtp.Host = "smtp.gmail.com";
+                        smtp.Port = 587;
+                        smtp.EnableSsl = true;
+                        await smtp.SendMailAsync(message);
+                    }
+                }
+                return new JsonResult { Data = new { mo_message = "Success: Reminder expired running. Remaining days : " + countDays.ToString() + " timestamp:" + currentTimeRequest.ToString() }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Failed: Reminder expired not running. Because internal Server Error. " + ex.Message.ToString() + " timestamp:" + currentTimeRequest.ToString() }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+
+        public ActionResult ReminderNotifyExpiredAccountMP(string dbPathEra, string snamatoko, string smarketplace, DateTime? expired_date)
+        {
+            DateTime dateExpired = Convert.ToDateTime(expired_date);
+            var countDays = DateTime.UtcNow.AddHours(7).Subtract(dateExpired).Days.ToString();
+
+            if ((countDays == "-7") || (countDays == "-3") || (countDays == "-1"))
+            {
+                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                contextNotif.Clients.Group(dbPathEra).notifAccountExpired("Reminder: Status akun marketplace " + snamatoko + " (" + smarketplace + ") akan expired " + countDays.ToString().Replace("-", "") + " hari lagi.");
+            }
+            return new JsonResult { Data = new { mo_message = "Notify expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
         public ActionResult PromptAccount()
         {
             return View("PromptAccount");

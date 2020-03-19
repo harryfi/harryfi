@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Analisa Laba/Rugi Penjualan";
     Layout = "~/Views/Shared/_LayoutReport.cshtml";
-    var context = new MoDbContext();
+    var context = new MoDbContext("");
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     var userId = "";
@@ -122,7 +122,7 @@
     <div class="col-md-2">
         @Html.Label("", "Dari Barang")
         <div class="input-group text">
-            @Html.TextBox("FromBrg", "", new { @class = "form-control", @MaxLength = "10" })
+            @Html.TextBox("FromBrg", "", new { @class = "form-control", @MaxLength = "20" })
             <span class="input-group-btn">
                 <button id="prompt-daribrg" class="btn btn-default" type="button" style="height: 34px;">
                     <span class="glyphicon glyphicon-option-horizontal"></span>
@@ -133,7 +133,7 @@
     <div class="col-md-2">
         @Html.Label("", "Sampai Barang")
         <div class="input-group text">
-            @Html.TextBox("ToBrg", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            @Html.TextBox("ToBrg", "ZZZ", new { @class = "form-control", @MaxLength = "20" })
             <span class="input-group-btn">
                 <button id="prompt-sdbrg" class="btn btn-default" type="button" style="height: 34px;">
                     <span class="glyphicon glyphicon-option-horizontal"></span>

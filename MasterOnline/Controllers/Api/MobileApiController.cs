@@ -29,7 +29,7 @@ namespace MasterOnline.Controllers.Api
 
         public MobileApiController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             _viewModel = new AccountUserViewModel();
         }
 

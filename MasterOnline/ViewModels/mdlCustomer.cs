@@ -19,6 +19,7 @@ namespace MasterOnline
         public string EMAIL { get; set; }
         public Boolean TIDAK_HIT_UANG_R { get; set; }
         public string STATUS_API { get; set; }
+        public DateTime? TGL_EXPIRED { get; set; }
         public string PERSO { get; set; }
         
     }

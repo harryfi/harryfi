@@ -18,7 +18,7 @@ namespace MasterOnline.Controllers
 
         public PostingController()
         {
-            MoDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext("");
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
 			{
