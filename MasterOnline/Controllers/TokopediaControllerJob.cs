@@ -2206,9 +2206,9 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, int daysFrom, int daysTo)
         {
             //request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
-            //var fixedDate = new DateTime(2020, 1, 27);
-            //if (DateTimeOffset.UtcNow.AddDays(daysFrom) < fixedDate)
-            //    return "";
+            var fixedDate = new DateTime(2020, 3, 20);
+            if (DateTimeOffset.UtcNow.AddDays(daysFrom) < fixedDate)
+                return "";
             //end request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
