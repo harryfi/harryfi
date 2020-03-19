@@ -16729,6 +16729,7 @@ namespace MasterOnline.Controllers
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
             var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
+            var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.NO_URUT, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
             {
@@ -16737,9 +16738,26 @@ namespace MasterOnline.Controllers
                 Marketplace = namaAkunMarket,
                 Pembeli = namaBuyer,
                 Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO),
-                allowContinue = pesananDetailInDb == null ? 1 : 0
+                allowContinue = pesananDetailInDb == null ? 1 : 0,
+                //add by Tri 12 Nov 2019, untuk cancel order
+                ID_MARKETPLACE = marketInDb.NAMA,
+                listBrg = new List<string>()
+                //end add by Tri 12 Nov 2019, untuk cancel order
             };
+            if (listBarang.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < listBarang.Tables[0].Rows.Count; i++)
+                {
+                    string namaBarang = listBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                    var catatan_split = listBarang.Tables[0].Rows[i]["NAMA"].ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
 
+                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                    {
+                        namaBarang = catatan_split[1];
+                    }
+                    infoPesanan.listBrg.Add(listBarang.Tables[0].Rows[i]["NO_URUT"].ToString() + ";" + namaBarang);
+                }
+            }
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
         }
 
@@ -16894,7 +16912,7 @@ namespace MasterOnline.Controllers
             //end change by nurul 13/5/2019
         }
 
-        public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus)
+        public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus, string cancelReason, string[] listData)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             if (tipeStatus == "04") // validasi di tab Siap dikirim
@@ -16955,6 +16973,138 @@ namespace MasterOnline.Controllers
             }
             //end add
 
+            //add 19 Nov 2019, validasi cancel reason
+            string listVariable = "";
+            if (tipeStatus == "11")
+            {
+                var sot01d = ErasoftDbContext.SOT01D.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).FirstOrDefault();
+                if (sot01d == null)
+                {
+                    sot01d = new SOT01D();
+                    sot01d.NO_BUKTI = pesananInDb.NO_BUKTI;
+                    sot01d.USERNAME = usernameLogin;
+                    ErasoftDbContext.SOT01D.Add(sot01d);
+                    ErasoftDbContext.SaveChanges();
+                }
+                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == pesananInDb.CUST).FirstOrDefault();
+                if (customer != null)
+                {
+                    if (customer.STATUS_API == "1")
+                    {
+                        if (customer.NAMA == "17")//shopee
+                        {
+                            if (!string.IsNullOrEmpty(cancelReason))
+                            {
+                                if (cancelReason.Contains("STOCK") && string.IsNullOrEmpty(listData[0]))
+                                {
+                                    var vmError = new StokViewModel();
+                                    vmError.Errors.Add("Anda belum memilih barang yang stoknya habis di pesanan ini.");
+                                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < listData.Count(); i++)
+                                    {
+                                        var data = listData[i];
+                                        var detail = ErasoftDbContext.SOT01B.Where(p => p.NO_URUT.ToString() == data).FirstOrDefault();
+                                        if (detail != null)
+                                        {
+                                            if (detail.BRG == "NOT_FOUND")
+                                            {
+                                                var catatan_split = detail.CATATAN.ToString().Split(new string[] { "_;_" }, StringSplitOptions.None);
+
+                                                if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                                                {
+                                                    listVariable += catatan_split[2] + "|";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                var kdBrgMp = ErasoftDbContext.STF02H.Where(m => m.BRG == detail.BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                                                if (kdBrgMp != null)
+                                                {
+                                                    listVariable += kdBrgMp.BRG_MP + "|";
+                                                }
+                                            }
+                                        }
+                                    }
+                                    sot01d.CATATAN_1 = cancelReason;
+                                }
+                            }
+                            else
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Pilih alasan anda membatalkan pesanan ini.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                        else if (customer.NAMA == "15")//tokopedia
+                        {
+                            if (!string.IsNullOrEmpty(cancelReason))
+                            {
+                                if ((cancelReason == "04" || cancelReason == "05" || cancelReason == "06") && string.IsNullOrEmpty(listData[0]))
+                                {
+                                    var vmError = new StokViewModel();
+                                    vmError.Errors.Add("Lengkapi field yang ada untuk membatalkan pesanan dengan alasan ini.");
+                                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                                }
+                                else
+                                {
+                                    string reason = cancelReason;
+                                    switch (cancelReason)
+                                    {
+                                        case "01":
+                                            reason = "Empty stock";
+                                            break;
+                                        case "02":
+                                            reason = "Empty variants";
+                                            break;
+                                        case "03":
+                                            reason = "Product price or weight is not matched";
+                                            break;
+                                        case "04":
+                                            reason = "Shop closed";
+                                            break;
+                                        case "05":
+                                            reason = "Courrier problem";
+                                            break;
+                                        case "06":
+                                            reason = "Request from buyer";
+                                            break;
+                                    }
+                                    sot01d.CATATAN_1 = cancelReason;
+                                }
+                            }
+                            else
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Pilih alasan anda membatalkan pesanan ini.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                        else if (customer.NAMA == "7")//tokopedia
+                        {
+                            if (!string.IsNullOrEmpty(cancelReason))
+                            {
+                                var splitReason = cancelReason.Split(';');
+                                if (splitReason.Count() == 2)
+                                {
+                                    sot01d.CATATAN_1 = splitReason[1];
+                                }
+
+                            }
+                            else
+                            {
+                                var vmError = new StokViewModel();
+                                vmError.Errors.Add("Pilih alasan anda membatalkan pesanan ini.");
+                                return Json(vmError, JsonRequestBehavior.AllowGet);
+                            }
+                        }
+                    }
+                }
+
+            }
+            //end add 19 Nov 2019, validasi cancel reason
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
 
@@ -16973,10 +17123,47 @@ namespace MasterOnline.Controllers
             //end add by calvin 29 nov 2018
 
             //add by Tri, call marketplace api to update order status
-            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false);
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, cancelReason, listVariable);
             //end add by Tri, call marketplace api to update order status
             return new EmptyResult();
         }
+
+        //add by Tri 27 Nov 2019
+        public ActionResult GetCancelReasonLazada(string nobuk)
+        {
+            var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == nobuk).FirstOrDefault();
+            if (order != null)
+            {
+                var cust = order.CUST;
+                var customer = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
+                if (customer != null)
+                {
+                    if (customer.STATUS_API == "1")
+                    {
+                        var lzdApi = new LazadaControllerJob();
+                        var ret = lzdApi.getCancelReason(customer.TOKEN);
+                        if (ret.Count > 0)
+                        {
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
+                        else
+                        {
+                            return JsonErrorMessage("Tidak berhasil mendapat Cancel Reason dari API Lazada");
+                        }
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Akun Lazada untuk pesanan ini tidak aktif, silahkan cek akun Lazada anda di Link ke Marketplace");
+                    }
+                }
+                else
+                {
+                    return JsonErrorMessage("Akun dari pesanan ini tidak ditemukan");
+                }
+            }
+            return JsonErrorMessage("Pesanan ini tidak ditemukan");
+        }
+        //end add by Tri 27 Nov 2019
 
         //add by nurul 18/3/2019
         public ActionResult UbahStatusPesananDibayar(string[] get_selected)
@@ -16998,7 +17185,7 @@ namespace MasterOnline.Controllers
                             pesananInDb.STATUS_TRANSAKSI = "02";
                             ErasoftDbContext.SaveChanges();
                             //add by Tri, call marketplace api to update order status
-                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false);
+                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "", "");
                             //end add by Tri, call marketplace api to update order status
                         }
                     }
@@ -17157,7 +17344,7 @@ namespace MasterOnline.Controllers
 
                             ErasoftDbContext.SaveChanges();
                             //add by Tri, call marketplace api to update order status
-                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false);
+                            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI, false, "", "");
                             //end add by Tri, call marketplace api to update order status
 
                             //add by nurul 5/9/2019, langsung generate faktur
@@ -18541,7 +18728,7 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 27/9/2019
 
             string sSQLSelect = "";
-            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT] ";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, [USER_NAME], A.NO_BUKTI AS NOSO, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.STATUS_TRANSAKSI AS [STATUS] ,ISNULL(NO_REFERENSI, '') AS [REFERENSI], ISNULL(SHIPMENT, '') AS [SHIPMENT], D.CATATAN_1 AS CancelReason ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -18586,6 +18773,9 @@ namespace MasterOnline.Controllers
             //END ADD BY NURUL 4/12/2019
             sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
             sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            //add by Tri 2 Des 2019, tambah cancel reason
+            sSQL2 += "LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI ";
+            //end add by Tri 2 Des 2019, tambah cancel reason
             sSQL2 += "WHERE A.STATUS_TRANSAKSI='11' ";
             if (search != "")
             {
@@ -18615,6 +18805,21 @@ namespace MasterOnline.Controllers
 
             //end change by nurul 8/5/2019, paging
         }
+        
+        //add by Tri 13 jan 2020
+        public ActionResult findCancelReason(string reqId)
+        {
+            if (reqId != null || reqId != "")
+            {
+                var ex = ErasoftDbContext.SOT01D.Where(a => a.NO_BUKTI == reqId).FirstOrDefault();
+                if (ex != null)
+                {
+                    return Json(ex.CATATAN_1, JsonRequestBehavior.AllowGet);
+                }
+            }
+            return Json("Gagal mendapatkan pesan error.", JsonRequestBehavior.AllowGet);
+        }
+        //end add by Tri 13 jan 2020
 
         public ActionResult RefreshPesananForm()
         {
@@ -18688,7 +18893,7 @@ namespace MasterOnline.Controllers
         }
         //add by Tri, call marketplace api to change status
         [HttpGet]
-        public void ChangeStatusPesanan(string nobuk, string status, bool lazadaPickup)
+        public void ChangeStatusPesanan(string nobuk, string status, bool lazadaPickup, string cancelReason, string listVariable)
         {
             var pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
@@ -18731,9 +18936,10 @@ namespace MasterOnline.Controllers
                                     username = usernameLogin
                                 };
 
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
+                                //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
+                                Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable).Wait());
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
@@ -18747,11 +18953,34 @@ namespace MasterOnline.Controllers
                                     foreach (var tbl in sot01b)
                                     {
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                        //lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
-                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin));
+                                        new LazadaControllerJob().SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason);
+                                        //clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
+                            }
+
+                            if (mp.NamaMarket.ToUpper().Contains("TOKOPEDIA"))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
+                                };
+
+                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                //lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.SetStatusToCanceled(iden, dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, usernameLogin));
+                                //end change by calvin 10 april 2019, jadi pakai backgroundjob
+
                             }
                         }
                         break;
@@ -19436,7 +19665,7 @@ namespace MasterOnline.Controllers
             //remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
             //if (changeStat)
             //end remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
-            ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/);
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/, "", "");
             //end add by Tri, call mp api if user input new resi
 
             return new EmptyResult();
@@ -23530,7 +23759,6 @@ namespace MasterOnline.Controllers
 
             return Json(listKodeFaktur, JsonRequestBehavior.AllowGet);
         }
-
 
         public ActionResult SaveBayarPiutang(BayarPiutangViewModel dataVm)
         {

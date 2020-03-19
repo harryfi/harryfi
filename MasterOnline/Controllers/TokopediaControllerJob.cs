@@ -1065,7 +1065,7 @@ namespace MasterOnline.Controllers
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
-#region variant lv 1
+                    #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -1081,7 +1081,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.variant.Count > 0)
                             {
@@ -1097,7 +1097,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1167,9 +1167,9 @@ namespace MasterOnline.Controllers
                         }
                         product_variant.variant.Add(newVariasi);
                     }
-#endregion
+                    #endregion
 
-#region variant lv 2
+                    #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -1185,7 +1185,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.variant.Count > 0)
                             {
@@ -1201,7 +1201,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1282,7 +1282,7 @@ namespace MasterOnline.Controllers
                             product_variant.variant.Add(newVariasi);
                         }
                     }
-#endregion
+                    #endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
@@ -2344,6 +2344,11 @@ namespace MasterOnline.Controllers
         }
         public async Task<string> GetOrderListCancel3days(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, int daysFrom, int daysTo)
         {
+            //request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
+            var fixedDate = new DateTime(2020, 3, 20);
+            if (DateTimeOffset.UtcNow.AddDays(daysFrom) < fixedDate)
+                return "";
+            //end request by Pak Richard, cek pesanan cancel tokped mulai dari tgl publish agar tidak menumpuk antrian hangfire
             string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
@@ -2373,33 +2378,67 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                var orderCancel = result.data.Where(p => p.order_status == 0).ToList();
-                var orderRefund = result.data.Where(p => p.order_status == 800).ToList();
-                var orderRollback = result.data.Where(p => p.order_status == 801).ToList();
-
-                var connIdARF01C = Guid.NewGuid().ToString();
-                rowCount = result.data.Count();
-
-                string ordersn = "";
-                foreach (var item in orderCancel)
+                if (result.data != null)
                 {
-                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
-                }
-                foreach (var item in orderRefund)
-                {
-                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
-                }
-                foreach (var item in orderRollback)
-                {
-                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
-                }
+                    var orderCancel = result.data.Where(p => p.order_status == 0).ToList();
+                    var orderRefund = result.data.Where(p => p.order_status == 800).ToList();
+                    var orderRollback = result.data.Where(p => p.order_status == 801).ToList();
+                    var orderCancelBySeller = result.data.Where(p => p.order_status == 10).ToList();
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    rowCount = result.data.Count();
 
-                if (ordersn != "")
-                {
-                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                    string ordersn = "";
+                    foreach (var item in orderCancel)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    foreach (var item in orderRefund)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    foreach (var item in orderRollback)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    foreach (var item in orderCancelBySeller)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
 
-                    jmlhOrder = jmlhOrder + rowAffected;
+                    if (ordersn != "")
+                    {
+                        ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                        var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
+                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                        jmlhOrder = jmlhOrder + rowAffected;
+                        if (rowAffected > 0)
+                        {
+                            var dsOrders = EDB.GetDataSet("MOConnectionString", "SOT01", "SELECT A.NO_BUKTI, A.NO_REFERENSI FROM SOT01A A LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = '' AND NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '11'");
+                            if (dsOrders.Tables[0].Rows.Count > 0)
+                            {
+                                string sSQL = "INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) VALUES ";
+                                string sSQL2 = "";
+                                for (int i = 0; i < dsOrders.Tables[0].Rows.Count; i++)
+                                {
+                                    var nobuk = dsOrders.Tables[0].Rows[i]["NO_REFERENSI"].ToString().Split(';');
+                                    var cancelReason = "";
+                                    if (nobuk.Length > 1)
+                                        cancelReason = await GetCancelReason(iden, nobuk[1]);
+                                    if (!string.IsNullOrEmpty(cancelReason))
+                                    {
+                                        sSQL2 += "('" + dsOrders.Tables[0].Rows[i]["NO_BUKTI"].ToString() + "','" + cancelReason + "','AUTO_TOKPED'),";
+                                    }
+                                }
+                                if (!string.IsNullOrEmpty(sSQL2))
+                                {
+                                    sSQL += sSQL2.Substring(0, sSQL2.Length - 1);
+                                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL);
+                                }
+                            }
+                        }
+                        new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
+                    }
                 }
             }
             if (rowCount > 99)
@@ -2434,6 +2473,67 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        //add by Tri 22 Jan 2020, cancel reason
+        public async Task<string> GetCancelReason(TokopediaAPIData iden, string nobuk)
+        {
+            var ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            long milis = CurrentTimeMillis();
+            string urll = "https://fs.tokopedia.net/v2/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/order?invoice_num=" + nobuk;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaSingleOrder)) as TokopediaSingleOrder;
+                if (result != null)
+                {
+                    if (result.header.error_code == 0)
+                    {
+                        if (result.data.cancel_request_info != null)
+                        {
+                            ret = result.data.cancel_request_info.reason.Replace('\'', '`');
+                        }
+                        else
+                        {
+                            if (result.data.order_info.order_history != null)
+                            {
+                                ret = result.data.order_info.order_history[0].comment.Replace('\'', '`');
+                            }
+                            else
+                            {
+                                ret = result.data.comment.Replace('\'', '`');
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+        //end add by Tri 22 Jan 2020, cancel reason
 
         public async Task<BindingBase> GetItemListSemua(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)
         {
@@ -3902,6 +4002,59 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        //add by Tri 11 Nov 2019, cancel order
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Tokopedia Gagal.")]
+        public BindingBase SetStatusToCanceled(TokopediaAPIData data, string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string uname)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            var MoDbContext = new MoDbContext();
+            //var ErasoftDbContext = new ErasoftContext(dbPathEra);
+            //var EDB = new DatabaseSQL(dbPathEra);
+            var token = SetupContext(data);
+            data.token = token;
+
+            var username = uname;
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(orderId) + "/fs/" + Uri.EscapeDataString(data.merchant_code) + "/nack";
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            //try
+            //{
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+
+            //}
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
+                //res = result.data.etalase;
+            }
+
+            return ret;
+
+        }
+        //end add by Tri 11 Nov 2019, cancel order
+
         public enum StatusOrder
         {
             Cancel = 1,
@@ -4767,6 +4920,294 @@ namespace MasterOnline.Controllers
         {
             public int upload_id { get; set; }
         }
+        //add 22 jan 2020, get cancel reason
 
+        public class TokopediaSingleOrder
+        {
+            public TokopediaSingleOrderHeader header { get; set; }
+            public TokopediaSingleOrderData data { get; set; }
+        }
+
+        public class TokopediaSingleOrderHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class TokopediaSingleOrderData
+        {
+            public long order_id { get; set; }
+            public long buyer_id { get; set; }
+            public long seller_id { get; set; }
+            public long payment_id { get; set; }
+            public bool is_affiliate { get; set; }
+            public bool is_fulfillment { get; set; }
+            //public Order_Warehouse order_warehouse { get; set; }
+            public int order_status { get; set; }
+            public string invoice_number { get; set; }
+            public string invoice_pdf { get; set; }
+            public string invoice_url { get; set; }
+            public int open_amt { get; set; }
+            public int lp_amt { get; set; }
+            public int cashback_amt { get; set; }
+            public string info { get; set; }
+            public string comment { get; set; }
+            public int item_price { get; set; }
+            public Buyer_Info buyer_info { get; set; }
+            //public Shop_Info shop_info { get; set; }
+            //public Shipment_Fulfillment shipment_fulfillment { get; set; }
+            //public Preorder preorder { get; set; }
+            public Order_Info order_info { get; set; }
+            //public Origin_Info origin_info { get; set; }
+            //public Payment_Info payment_info { get; set; }
+            //public Insurance_Info insurance_info { get; set; }
+            //public object hold_info { get; set; }
+            public Cancel_Request_Info cancel_request_info { get; set; }
+            public DateTime create_time { get; set; }
+            //public object shipping_date { get; set; }
+            public DateTime update_time { get; set; }
+            public DateTime payment_date { get; set; }
+            //public object delivered_date { get; set; }
+            //public object est_shipping_date { get; set; }
+            //public object est_delivery_date { get; set; }
+            //public object related_invoices { get; set; }
+            //public object custom_fields { get; set; }
+        }
+
+        public class Order_Warehouse
+        {
+            public int warehouse_id { get; set; }
+            public int fulfill_by { get; set; }
+            public Meta_Data meta_data { get; set; }
+        }
+
+        public class Meta_Data
+        {
+            public int warehouse_id { get; set; }
+            public int partner_id { get; set; }
+            public int shop_id { get; set; }
+            public string warehouse_name { get; set; }
+            public int district_id { get; set; }
+            public string district_name { get; set; }
+            public int city_id { get; set; }
+            public string city_name { get; set; }
+            public int province_id { get; set; }
+            public string province_name { get; set; }
+            public int status { get; set; }
+            public string postal_code { get; set; }
+            public int is_default { get; set; }
+            public string latlon { get; set; }
+            public string latitude { get; set; }
+            public string longitude { get; set; }
+            public string email { get; set; }
+            public string address_detail { get; set; }
+            public string country_name { get; set; }
+            public bool is_fulfillment { get; set; }
+        }
+
+        public class Buyer_Info
+        {
+            public int buyer_id { get; set; }
+            public string buyer_fullname { get; set; }
+            public string buyer_email { get; set; }
+            public string buyer_phone { get; set; }
+        }
+
+        public class Shop_Info
+        {
+            public int shop_owner_id { get; set; }
+            public string shop_owner_email { get; set; }
+            public string shop_owner_phone { get; set; }
+            public string shop_name { get; set; }
+            public string shop_domain { get; set; }
+            public int shop_id { get; set; }
+        }
+
+        public class Shipment_Fulfillment
+        {
+            public int id { get; set; }
+            public int order_id { get; set; }
+            public DateTime payment_date_time { get; set; }
+            public bool is_same_day { get; set; }
+            public DateTime accept_deadline { get; set; }
+            public DateTime confirm_shipping_deadline { get; set; }
+            public Item_Delivered_Deadline item_delivered_deadline { get; set; }
+            public bool is_accepted { get; set; }
+            public bool is_confirm_shipping { get; set; }
+            public bool is_item_delivered { get; set; }
+            public int fulfillment_status { get; set; }
+        }
+
+        public class Item_Delivered_Deadline
+        {
+            public DateTime Time { get; set; }
+            public bool Valid { get; set; }
+        }
+
+        public class Preorder
+        {
+            public int order_id { get; set; }
+            public int preorder_type { get; set; }
+            public int preorder_process_time { get; set; }
+            public DateTime preorder_process_start { get; set; }
+            public DateTime preorder_deadline { get; set; }
+            public int shop_id { get; set; }
+            public int customer_id { get; set; }
+        }
+
+        public class Order_Info
+        {
+            public Order_Detail[] order_detail { get; set; }
+            public Order_History[] order_history { get; set; }
+            public int order_age_day { get; set; }
+            public int shipping_age_day { get; set; }
+            public int delivered_age_day { get; set; }
+            public bool partial_process { get; set; }
+            public Shipping_Info shipping_info { get; set; }
+            public Destination destination { get; set; }
+            public bool is_replacement { get; set; }
+            public int replacement_multiplier { get; set; }
+        }
+
+        public class Shipping_Info
+        {
+            public int sp_id { get; set; }
+            public int shipping_id { get; set; }
+            public string logistic_name { get; set; }
+            public string logistic_service { get; set; }
+            public int shipping_price { get; set; }
+            public int shipping_price_rate { get; set; }
+            public int shipping_fee { get; set; }
+            public int insurance_price { get; set; }
+            public int fee { get; set; }
+            public bool is_change_courier { get; set; }
+            public int second_sp_id { get; set; }
+            public int second_shipping_id { get; set; }
+            public string second_logistic_name { get; set; }
+            public string second_logistic_service { get; set; }
+            public int second_agency_fee { get; set; }
+            public int second_insurance { get; set; }
+            public int second_rate { get; set; }
+            public string awb { get; set; }
+            public int autoresi_cashless_status { get; set; }
+            public string autoresi_awb { get; set; }
+            public int autoresi_shipping_price { get; set; }
+            public int count_awb { get; set; }
+            public bool isCashless { get; set; }
+            public bool is_fake_delivery { get; set; }
+        }
+
+        public class Destination
+        {
+            public string receiver_name { get; set; }
+            public string receiver_phone { get; set; }
+            public string address_street { get; set; }
+            public string address_district { get; set; }
+            public string address_city { get; set; }
+            public string address_province { get; set; }
+            public string address_postal { get; set; }
+            public int customer_address_id { get; set; }
+            public int district_id { get; set; }
+            public int city_id { get; set; }
+            public int province_id { get; set; }
+        }
+
+        public class Order_Detail
+        {
+            public int order_detail_id { get; set; }
+            public int product_id { get; set; }
+            public string product_name { get; set; }
+            public string product_desc_pdp { get; set; }
+            public string product_desc_atc { get; set; }
+            public int product_price { get; set; }
+            public int subtotal_price { get; set; }
+            public int weight { get; set; }
+            public int total_weight { get; set; }
+            public int quantity { get; set; }
+            public int quantity_deliver { get; set; }
+            public int quantity_reject { get; set; }
+            public bool is_free_returns { get; set; }
+            public int insurance_price { get; set; }
+            public int normal_price { get; set; }
+            public int currency_id { get; set; }
+            public int currency_rate { get; set; }
+            public int min_order { get; set; }
+            public int child_cat_id { get; set; }
+            public string campaign_id { get; set; }
+            public string product_picture { get; set; }
+            public string snapshot_url { get; set; }
+        }
+
+        public class Order_History
+        {
+            public string action_by { get; set; }
+            public int hist_status_code { get; set; }
+            public string message { get; set; }
+            public DateTime timestamp { get; set; }
+            public string comment { get; set; }
+            public int create_by { get; set; }
+            public string update_by { get; set; }
+            public string ip_address { get; set; }
+        }
+
+        public class Origin_Info
+        {
+            public string sender_name { get; set; }
+            public int origin_province { get; set; }
+            public string origin_province_name { get; set; }
+            public int origin_city { get; set; }
+            public string origin_city_name { get; set; }
+            public string origin_address { get; set; }
+            public int origin_district { get; set; }
+            public string origin_district_name { get; set; }
+            public string origin_postal_code { get; set; }
+            public string origin_geo { get; set; }
+            public string receiver_name { get; set; }
+            public string destination_address { get; set; }
+            public int destination_province { get; set; }
+            public int destination_city { get; set; }
+            public int destination_district { get; set; }
+            public string destination_postal_code { get; set; }
+            public string destination_geo { get; set; }
+            public Destination_Loc destination_loc { get; set; }
+        }
+
+        public class Destination_Loc
+        {
+            public int lat { get; set; }
+            public int lon { get; set; }
+        }
+
+        public class Payment_Info
+        {
+            public int payment_id { get; set; }
+            public string payment_ref_num { get; set; }
+            public DateTime payment_date { get; set; }
+            public int payment_method { get; set; }
+            public string payment_status { get; set; }
+            public int payment_status_id { get; set; }
+            public DateTime create_time { get; set; }
+            public int pg_id { get; set; }
+            public string gateway_name { get; set; }
+            public int discount_amount { get; set; }
+            public string voucher_code { get; set; }
+            public int voucher_id { get; set; }
+        }
+
+        public class Insurance_Info
+        {
+            public int insurance_type { get; set; }
+        }
+
+        public class Cancel_Request_Info
+        {
+            public DateTime create_time { get; set; }
+            public string reason { get; set; }
+            public int status { get; set; }
+        }
+
+        //end 22 jan 2020, get cancel reason
     }
 }

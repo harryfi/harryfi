@@ -69,6 +69,10 @@ namespace MasterOnline
         public string KURIR { get; set; }
         //end add by nurul 4/3/2020
 
+        //add by Tri 2/12/2019
+        public string CancelReason { get; set; }
+        //end add by Tri 2/12/2019
+
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

@@ -12,7 +12,7 @@ namespace MasterOnline
         [StringLength(15)]
         public string NO_BUKTI { get; set; }
 
-        [StringLength(40)]
+        [StringLength(255)]
         public string CATATAN_1 { get; set; }
 
         [StringLength(40)]
