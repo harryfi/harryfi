@@ -767,7 +767,7 @@
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             Nama Toko
                                         </div>
-                                        
+
                                         <div class="col-md-1">
                                         </div>
                                     </div>
@@ -875,9 +875,9 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-4" style="text-align:right">
-                            <button id="btnProsesPackingLazada__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="cekValidasiPackingLazada('@(item.CUST)')">Ambil Resi</button>
-                            <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="cekValidasiRTSLazada('@(item.CUST)')">Ready To Ship</button>
+                        <div class="col-md-4 pull-right" style="text-align:right">
+                            <button id="btnProsesPackingLazada__@(item.CUST)" type="button" class="btn btn-primary " onclick="cekValidasiPackingLazada('@(item.CUST)')">Ambil Resi</button>
+                            <button id="btnProsesLazada__@(item.CUST)" type="button" class="btn btn-primary " onclick="cekValidasiRTSLazada('@(item.CUST)')">Ready To Ship</button>
                             @*</div>
                                 <div class="col-md-2" style="text-align:right">*@
                             @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintLazada__@(item.CUST)">Print</button>*@
@@ -885,20 +885,38 @@
                             @*//change by nurul 11/12/2019*@
                             @*<button id="btnPrintLazada__@(item.CUST)" type="button" class="btn btn-primary" onclick="LazadaGetLabelPerPacking('@(item.CUST)')">Print</button>*@
 
+                            @*<div class="btn-group pull-right" role="group">
+                                    <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                                        Print <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','1')">
+                                            <span aria-hidden="true"> Label Marketplace</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','2')">
+                                            <span aria-hidden="true"> Label MasterOnline</span>
+                                        </button>
+                                    </div>
+                                </div>*@
+                            @*//end change by nurul 11/12/2019*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9"></div>
+                        <div class="col-md-3 pull-right" style="text-align:right">
                             <div class="btn-group pull-right" role="group">
                                 <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','1')">
-                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label Marketplace</span>
+                                        <span aria-hidden="true"> Label Marketplace</span>
                                     </button>
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOLazada__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="LazadaGetLabelPerPacking('@(item.CUST)','2')">
-                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label MasterOnline</span>
+                                        <span aria-hidden="true"> Label MasterOnline</span>
                                     </button>
                                 </div>
                             </div>
-                            @*//end change by nurul 11/12/2019*@
                         </div>
                     </div>
                     <div class="hscroll table-responsive tbljurnal">

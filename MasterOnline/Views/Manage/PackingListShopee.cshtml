@@ -314,7 +314,8 @@
         $postdata = {
             cust : cust,
             bukti : $('#packingList_NO_BUKTI').val(),
-            rows_selected : rows_selected
+            rows_selected: rows_selected,
+            job: "0",
         };
 
         $.ajax({
@@ -357,6 +358,79 @@
             },
             complete: function () {
                 $('#btnProsesDropoffShopee__' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function RequestJOBPackingShopee(cust) {
+        $('#btnProsesJOBShopee__' + cust).attr("disabled", true);
+        $('#modalPrintShopee__textarea__' + cust).html('Sedang diproses. mohon menunggu');
+        $('#modalPrintShopee__label__' + cust).html('Proses Dropoff Pesanan Shopee');
+        $('#modalPrintShopee__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("RequestDropoffShopeePerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_shopee').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected: rows_selected,
+            job: "1",
+        };
+
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintShopee__textarea__' + cust).show();
+                    $('#modalPrintShopee__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintShopee__textarea__' + cust).show();
+                    $('#modalPrintShopee__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#btnProsesJOBShopee__' + cust).attr("disabled", false);
             },
             error: function (xhr, status, error) {
                 console.log(error);
@@ -855,26 +929,46 @@
                             </div>
                             @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintShopee">Print</button>*@
                         </div>
-                        <div class="col-md-4" style="text-align:right">
-                            <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestPickupPackingShopee('@(item.CUST)')">Request Pickup</button>
-                            <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestDropoffPackingShopee('@(item.CUST)')">Drop Off</button>
+                        <div class="col-md-4 pull-right" style="text-align:right">
+                            @*<button id="btnProsesJOBShopee__@(item.CUST)" type="button" class="btn btn-primary pull-left" onclick="RequestJOBPackingShopee('@(item.CUST)')" style="width:50px; text-align:center;">JOB</button>*@
+                            <button id="btnProsesPickupShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestPickupPackingShopee('@(item.CUST)')" @*style="width:121px; text-align:center;"*@>Request Pickup</button>
+                            <button id="btnProsesDropoffShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestDropoffPackingShopee('@(item.CUST)')" @*style="width:75px; text-align:center;"*@>Drop Off</button>
 
                             @*//change by nurul 11/12/2019*@
                             @*<button id="btnPrintShopee__@(item.CUST)" type="button" class="btn btn-primary" onclick="ShopeeGetLabelPerPacking('@(item.CUST)')">Print</button>*@
-                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
-                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                            @*<div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:73px;">
                                     Print <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu">
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
-                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label Marketplace</span>
+                                        <span aria-hidden="true"> Label Marketplace</span>
                                     </button>
                                     <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','2')">
-                                        <span @*class="glyphicon glyphicon-eye-open"*@ aria-hidden="true"> Label MasterOnline</span>
+                                        <span aria-hidden="true"> Label MasterOnline</span>
+                                    </button>
+                                </div>
+                            </div>*@
+                            @*//end change by nurul 11/12/2019*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9"></div>
+                        <div class="col-md-3 pull-right" style="text-align:right">
+                            <button id="btnProsesJOBShopee__@(item.CUST)" type="button" class="btn btn-primary " onclick="RequestJOBPackingShopee('@(item.CUST)')" @*style="width:50px; text-align:center;"*@>JOB</button>
+                            <div class=" btn-group pull-right" role="group" style="vertical-align: top;">
+                                <button id="pl_shopee_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" @*style="width:73px;"*@>
+                                    Print <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','1')">
+                                        <span aria-hidden="true"> Label Marketplace</span>
+                                    </button>
+                                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOShopee__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="ShopeeGetLabelPerPacking('@(item.CUST)','2')">
+                                        <span aria-hidden="true"> Label MasterOnline</span>
                                     </button>
                                 </div>
                             </div>
-                            @*//end change by nurul 11/12/2019*@
                         </div>
                     </div>
                     <div class="hscroll table-responsive">
