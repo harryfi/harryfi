@@ -2889,14 +2889,15 @@ namespace MasterOnline.Controllers
             public string error_code { get; set; }
         }
 
-        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list, getJOBShopee temp_job)
+        public async Task<string> GetAirwayBillsJOB(ShopeeAPIData iden, string[] ordersn_list, getJOBShopee temp_job)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            var result = new GetAirwayBillsBatchResult();
-            result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
-            result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
-            result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+            //var result = new GetAirwayBillsBatchResult();
+            var result = "";
+            //result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            //result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            //result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2943,7 +2944,8 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+                //result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+                result = responseFromServer;
 
                 //var connIdARF01C = Guid.NewGuid().ToString();
 
@@ -2957,6 +2959,219 @@ namespace MasterOnline.Controllers
                 //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
                 //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
+            }
+            return result;
+        }
+        public async Task<GetAirwayBillsBatchResult> GetAirwayBills(ShopeeAPIData iden, string[] ordersn_list, getJOBShopee temp_job, bool adaJOB)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            var result = new GetAirwayBillsBatchResult();
+            result.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+
+            var result1 = new GetAirwayBillsBatchResult();
+            result1.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result1.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result1.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+
+            var result2 = new GetAirwayBillsBatchResult();
+            result2.batch_result = new GetAirwayBillsBatchResultBatch_Result();
+            result2.batch_result.errors = new List<GetAirwayBillsBatchResultError>();
+            result2.batch_result.errors.Add(new GetAirwayBillsBatchResultError { error_code = "MO_Internal", error_description = "Internal Server Error.", ordersn = "" });
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/airway_bill/get_mass";
+
+            GetAirwayBillsData HttpBody = new GetAirwayBillsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                //ordersn_list = ordersn_list,
+                is_batch = true,
+                //extinfo = new getJOBShopee(),
+            };
+            var NewListOrder = new List<string>();
+            var order_sn = new List<string>();
+            var job_sn = new List<string>();
+            getJOBShopee kirim_job = new getJOBShopee() { };
+            string responseFromServer1 = "";
+            string responseFromServer = "";
+            if (adaJOB == false)
+            {
+                HttpBody.ordersn_list = ordersn_list;
+                HttpBody.extinfo = new getJOBShopee();
+
+                string myData = JsonConvert.SerializeObject(HttpBody);
+
+                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "POST";
+                myReq.Headers.Add("Authorization", signature);
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+
+
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            else
+            {
+
+                if (ordersn_list.Count() == temp_job.job_ordersn_list.Count())
+                {
+                    for (int i = 0; i < temp_job.job_ordersn_list.Count(); i++)
+                    {
+                        if (temp_job.job_ordersn_list[i] != "")
+                        {
+                            order_sn.Add(ordersn_list[i]);
+                            job_sn.Add(temp_job.job_ordersn_list[i]);
+                            kirim_job.job_ordersn_list.Add(temp_job.job_ordersn_list[i]);
+                        }
+                        else
+                        {
+                            NewListOrder.Add(ordersn_list[i]);
+                        }
+                    }
+                }
+            }
+
+            if (NewListOrder.Count() > 0)
+            {
+                HttpBody.ordersn_list = NewListOrder.ToArray();
+                HttpBody.extinfo = new getJOBShopee();
+                string myData1 = JsonConvert.SerializeObject(HttpBody);
+
+                string signature1 = CreateSign(string.Concat(urll, "|", myData1), MOPartnerKey);
+
+                HttpWebRequest myReq1 = (HttpWebRequest)WebRequest.Create(urll);
+                myReq1.Method = "POST";
+                myReq1.Headers.Add("Authorization", signature1);
+                myReq1.Accept = "application/json";
+                myReq1.ContentType = "application/json";
+
+
+                myReq1.ContentLength = myData1.Length;
+                using (var dataStream = myReq1.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData1), 0, myData1.Length);
+                }
+                using (WebResponse response = await myReq1.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer1 = reader.ReadToEnd();
+                    }
+                }
+            }
+
+            var ret = "";
+            if (order_sn.Count() > 0)
+            {
+                ret = await GetAirwayBillsJOB(iden, order_sn.ToArray(), kirim_job);
+                if (ret != "")
+                {
+                    result2 = JsonConvert.DeserializeObject(ret, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+                }
+            }
+            if (responseFromServer1 != "")
+            {
+                if (responseFromServer1 != "")
+                {
+                    result1 = JsonConvert.DeserializeObject(responseFromServer1, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+                }
+            }
+
+            if (responseFromServer != "")
+            {
+
+                result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetAirwayBillsBatchResult)) as GetAirwayBillsBatchResult;
+                if (responseFromServer1 != "")
+                {
+                    result.batch_result.total_count += result1.batch_result.total_count;
+                    var temp1 = result.batch_result.airway_bills.ToList();
+                    foreach (var AB in result1.batch_result.airway_bills)
+                    {
+                        temp1.Add(AB);
+                    }
+                    result.batch_result.airway_bills = temp1.ToArray();
+                    result.batch_result.errors.AddRange(result1.batch_result.errors.ToList());
+                }
+                if (ret != "")
+                {
+                    result.batch_result.total_count += result2.batch_result.total_count;
+                    var temp1 = result.batch_result.airway_bills.ToList();
+                    foreach (var AB in result2.batch_result.airway_bills)
+                    {
+                        temp1.Add(AB);
+                    }
+                    result.batch_result.airway_bills = temp1.ToArray();
+                    result.batch_result.errors.AddRange(result2.batch_result.errors.ToList());
+                }
+
+                //var connIdARF01C = Guid.NewGuid().ToString();
+
+                //foreach (var order in result.orders)
+                //{
+                //    ret = order.tracking_no;
+                //}
+                //}
+                //catch (Exception ex2)
+                //{
+                //    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            else if (responseFromServer1 != "" || ret != "")
+            {
+                if (ret != "") //result2
+                {
+                    result = result2;
+                    if (responseFromServer1 != "")
+                    {
+                        result.batch_result.total_count += result1.batch_result.total_count;
+                        var temp1 = result.batch_result.airway_bills.ToList();
+                        foreach (var AB in result1.batch_result.airway_bills)
+                        {
+                            temp1.Add(AB);
+                        }
+                        result.batch_result.airway_bills = temp1.ToArray();
+                        result.batch_result.errors.AddRange(result1.batch_result.errors.ToList());
+                    }
+                }
+                if (responseFromServer != "") //result1
+                {
+                    result = result1;
+                    if (ret != "")
+                    {
+                        result.batch_result.total_count += result2.batch_result.total_count;
+                        var temp1 = result.batch_result.airway_bills.ToList();
+                        foreach (var AB in result2.batch_result.airway_bills)
+                        {
+                            temp1.Add(AB);
+                        }
+                        result.batch_result.airway_bills = temp1.ToArray();
+                        result.batch_result.errors.AddRange(result2.batch_result.errors.ToList());
+                    }
+                }
+
             }
             return result;
         }
@@ -3191,10 +3406,13 @@ namespace MasterOnline.Controllers
                 if ((result.error == null ? "" : result.error) == "")
                 {
                     //add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
-                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "" && set_job == "1")
+                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "" )
                     {
                         //DIGANTI PAKE THROW UNTUK RETRY NYA 
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        if (set_job == "1")
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
                         throw new Exception("Tracking Number Null");
                         //myData = JsonConvert.SerializeObject(HttpBody);
 

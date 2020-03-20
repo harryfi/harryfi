@@ -1208,15 +1208,15 @@ namespace MasterOnline.Controllers
                         //end change by nurul 10/12/2019, ubah interval
 
                         //add by nurul 17/3/2020
-                        var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
-                        if (list_ordersn.Count() > 0)
-                        {
+                        //var list_ordersn = LocalErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == tblCustomer.CUST).Select(a => a.NO_REFERENSI).ToList();
+                        //if (list_ordersn.Count() > 0)
+                        //{
                             if (tblCustomer != null)
                             {
                                 connId_JobId = dbPathEra + "_shopee_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderDetailsForUpdateResiJOB(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
                             }
-                        }
+                        //}
                         //end add by nurul 17/3/2020
                         ////hanya untuk testing
                         //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
