@@ -150,7 +150,7 @@ namespace MasterOnline.Controllers
             }
             catch (WebException e)
             {
-                
+
                 //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 if (e.Status == WebExceptionStatus.ProtocolError)
@@ -160,7 +160,7 @@ namespace MasterOnline.Controllers
                     {
                         err = sr.ReadToEnd();
                     }
-                    
+
                 }
                 else
                 {
@@ -177,7 +177,7 @@ namespace MasterOnline.Controllers
                     long milis1 = CurrentTimeMillis();
                     DateTime milisBack1 = DateTimeOffset.FromUnixTimeMilliseconds(milis1).UtcDateTime.AddHours(7);
                     string urll1 = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
-                    
+
                     HttpWebRequest myReq1 = (HttpWebRequest)WebRequest.Create(urll1);
                     myReq.Method = "GET";
                     myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
@@ -394,7 +394,7 @@ namespace MasterOnline.Controllers
         {
             public CreateProductGetStatusResultUpload_Data[] upload_data { get; set; }
         }
-        
+
 
         public class CreateProductGetStatusResultUpload_Data
         {
@@ -1116,7 +1116,7 @@ namespace MasterOnline.Controllers
                                 };
                                 newOpt.image.Add(gambarVariant);
 
-#region 6/9/2019, barang varian 2 gambar
+                                #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1128,7 +1128,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-#endregion
+                                #endregion
 
                                 newVariasi.opt.Add(newOpt);
 
@@ -1141,7 +1141,7 @@ namespace MasterOnline.Controllers
                                         image_description = ""
                                     });
 
-#region 6/9/2019, barang varian 2 gambar
+                                    #region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1161,7 +1161,7 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-#endregion
+                                    #endregion
                                 }
                             }
                         }
@@ -1220,7 +1220,7 @@ namespace MasterOnline.Controllers
                                 };
                                 newOpt.image.Add(gambarVariant);
 
-#region 6/9/2019, barang varian 2 gambar
+                                #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1232,7 +1232,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-#endregion
+                                #endregion
 
                                 newVariasi.opt.Add(newOpt);
 
@@ -1244,7 +1244,7 @@ namespace MasterOnline.Controllers
                                         image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
                                         image_description = ""
                                     });
-#region 6/9/2019, barang varian 2 gambar
+                                    #region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1264,7 +1264,7 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-#endregion
+                                    #endregion
                                 }
                             }
                         }
@@ -1876,9 +1876,9 @@ namespace MasterOnline.Controllers
                 var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
                 //add by Tri 17 mar 2020, insert pesanan dengan status 450
                 var orderWaitingPickUp = result.data.Where(p => p.order_status == 450).ToList();
-                if(orderWaitingPickUp != null)
+                if (orderWaitingPickUp != null)
                 {
-                    if(orderWaitingPickUp.Count > 0)
+                    if (orderWaitingPickUp.Count > 0)
                         orderAccepted.AddRange(orderWaitingPickUp);
 
                 }
@@ -3953,7 +3953,7 @@ namespace MasterOnline.Controllers
 
                                 foreach (var unit in attribs.units)
                                 {
-                                    if(unit.values != null)
+                                    if (unit.values != null)
                                     {
                                         foreach (var opt in unit.values)
                                         {
@@ -3966,7 +3966,7 @@ namespace MasterOnline.Controllers
                                             newRecordOpt["VARIANT_ID"] = attribs.variant_id;
                                             ret.attribute_opt.Add(newRecordOpt);
                                         }
-                                    }                                    
+                                    }
                                 }
                             }
                             i = i + 1;
@@ -4007,7 +4007,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Tokopedia Gagal.")]
-        public BindingBase SetStatusToCanceled(TokopediaAPIData data, string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string uname)
+        public async Task<BindingBase> SetStatusToCanceled(TokopediaAPIData data, string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string uname, string cancelReason)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -4018,11 +4018,36 @@ namespace MasterOnline.Controllers
             data.token = token;
 
             var username = uname;
-
+            string myData = "";
+            var spltReason = cancelReason.Split(';');
+            if (spltReason.Count() == 2)
+            {
+                myData = "{ \"reason_code\":" + spltReason[0] + ", \"reason\": \"" + spltReason[1] + "\" }";
+            }
+            else if (spltReason.Count() == 3)
+            {
+                myData = "{ \"reason_code\":" + spltReason[0] + ", \"reason\": \"" + spltReason[2] + "\" }";
+            }
+            else if (spltReason.Count() == 4)
+            {
+                myData = "{ \"reason_code\":" + spltReason[0] + ", \"reason\": \"" + spltReason[1] + "\",";
+                myData += "\"shop_close_end_date\": \"" + (Convert.ToDateTime(spltReason[3])).ToString("dd/MM/yyyy") + "\", \"shop_close_note\": \"" + spltReason[2] + "\" }";
+            }
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            List<UpdatePriceData> HttpBodies = new List<UpdatePriceData>();
 
-            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(orderId) + "/fs/" + Uri.EscapeDataString(data.merchant_code) + "/nack";
+            //UpdatePriceData HttpBody = new UpdatePriceData()
+            //{
+            //    sku = "",
+            //    product_id = product_id,
+            //    new_price = price
+            //};
+            //HttpBodies.Add(HttpBody);
+
+            //string myData = JsonConvert.SerializeObject(HttpBodies);
+            var ordID = orderId.Split(';');
+            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(ordID[0]) + "/fs/" + Uri.EscapeDataString(data.merchant_code) + "/nack";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
             myReq.Headers.Add("Authorization", ("Bearer " + data.token));
@@ -4031,7 +4056,20 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            using (WebResponse response = myReq.GetResponse())
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
+            {
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -4040,9 +4078,19 @@ namespace MasterOnline.Controllers
                 }
             }
             //}
-            //catch (Exception ex)
+            //catch (WebException e)
             //{
-
+            //    string err = "";
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //    if (e.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        WebResponse resp = e.Response;
+            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            //        {
+            //            err = sr.ReadToEnd();
+            //        }
+            //    }
             //}
             if (responseFromServer != "")
             {

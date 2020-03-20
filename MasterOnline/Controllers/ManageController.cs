@@ -17042,7 +17042,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(cancelReason))
                             {
-                                if ((cancelReason == "04" || cancelReason == "05" || cancelReason == "06") && string.IsNullOrEmpty(listData[0]))
+                                if ((cancelReason == "0" || cancelReason == "4" || cancelReason == "7" || cancelReason == "8") && string.IsNullOrEmpty(listData[0]))
                                 {
                                     var vmError = new StokViewModel();
                                     vmError.Errors.Add("Lengkapi field yang ada untuk membatalkan pesanan dengan alasan ini.");
@@ -17051,28 +17051,40 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     string reason = cancelReason;
+                                    listVariable = cancelReason + ";";
                                     switch (cancelReason)
                                     {
-                                        case "01":
-                                            reason = "Empty stock";
+                                        case "0":
+                                            reason = "Only for reject shipping case";
                                             break;
-                                        case "02":
-                                            reason = "Empty variants";
+                                        case "1":
+                                            reason = "Product(s) out of stock";
                                             break;
-                                        case "03":
-                                            reason = "Product price or weight is not matched";
+                                        case "2":
+                                            reason = "Product variant unavailable";
                                             break;
-                                        case "04":
+                                        case "3":
+                                            reason = "Wrong price or weight";
+                                            break;
+                                        case "4":
                                             reason = "Shop closed";
                                             break;
-                                        case "05":
+                                        case "5":
+                                            reason = "Others";
+                                            break;
+                                        case "7":
                                             reason = "Courrier problem";
                                             break;
-                                        case "06":
+                                        case "8":
                                             reason = "Request from buyer";
                                             break;
                                     }
-                                    sot01d.CATATAN_1 = cancelReason;
+                                    sot01d.CATATAN_1 = reason;
+                                    listVariable += reason;
+                                    if (cancelReason == "0" || cancelReason == "4" || cancelReason == "7" || cancelReason == "8")
+                                    {
+                                        listVariable += ";" + listData[0];
+                                    }
                                 }
                             }
                             else
@@ -17082,7 +17094,7 @@ namespace MasterOnline.Controllers
                                 return Json(vmError, JsonRequestBehavior.AllowGet);
                             }
                         }
-                        else if (customer.NAMA == "7")//tokopedia
+                        else if (customer.NAMA == "7")//lazada
                         {
                             if (!string.IsNullOrEmpty(cancelReason))
                             {
@@ -18936,10 +18948,11 @@ namespace MasterOnline.Controllers
                                     username = usernameLogin
                                 };
 
-                                //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
                                 //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI));
-                                Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable).Wait());
+                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable));
+                                //Task.Run(() => new ShopeeControllerJob().CancelOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", data, pesanan.NO_REFERENSI, cancelReason, listVariable).Wait());
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
@@ -18953,8 +18966,8 @@ namespace MasterOnline.Controllers
                                     foreach (var tbl in sot01b)
                                     {
                                         //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                        new LazadaControllerJob().SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason);
-                                        //clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason));
+                                        //new LazadaControllerJob().SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason);
+                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin, cancelReason));
                                         //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
@@ -18977,8 +18990,8 @@ namespace MasterOnline.Controllers
                                 };
 
                                 //change by calvin 10 april 2019, jadi pakai backgroundjob
-                                //lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.SetStatusToCanceled(iden, dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, usernameLogin));
+                                //Task.Run(() => new TokopediaControllerJob().SetStatusToCanceled(iden, dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, usernameLogin, listVariable).Wait());
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.SetStatusToCanceled(iden, dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, usernameLogin, listVariable));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
 
                             }
