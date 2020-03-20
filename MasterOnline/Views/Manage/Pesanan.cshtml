@@ -2190,7 +2190,7 @@
                     <input id="txtCancelReason" type="text" style="display:none" />
                 </div>
                 <div id="cancel_tokped" class="row">
-                    <div id="cancel_tokped_date" class="row">
+                    <div id="cancel_tokped_date" class="row" style="display:none">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
                                 <span style="font-weight:bold;display:inline-block;font-size:16px;">Tgl toko buka:</span>
@@ -2205,7 +2205,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="cancel_tokped_note" class="row">
+                    <div id="cancel_tokped_note" class="row" style="display:none">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
                                 <span style="font-weight:bold;display:inline-block;font-size:16px;">Keterangan:</span>
@@ -4269,6 +4269,28 @@
                 searchTablePesananCancel();
             });
             //end add by nurul 4/12/2019
+
+            $('#dtTokpedCancelOpenDate').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                if ($(this).val() == '') {
+                    $('#dtTokpedCancelOpenDate').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                $('#dtTokpedCancelOpenDate').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
+
+            });
+
+            $('#dtTokpedCancelOpenDate').change(function () {
+                $('#dtTokpedCancelOpenDate').val($(this).val());
+                $(this).datepicker('hide');
+            });
         });
 
         //add by Tri 11 Nov 2019, set combo box untuk cancel reason
@@ -9800,9 +9822,9 @@
                 });
             } else if (cancelIDMarket == "15") {
                 if ($('#txtCancelReason').val() == "7" || $('#txtCancelReason').val() == "8" || $('#txtCancelReason').val() == "0") {
-                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val());
+                    rows_selected[0] = encodeURIComponent($('#txtTokpedCancelNote').val());
                 } else if ($('#txtCancelReason').val() == "4"){
-                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val() + ";" + $('#cancel_tokped_date').val());
+                    rows_selected[0] = encodeURIComponent($('#txtTokpedCancelNote').val() + ";" + $('#dtTokpedCancelOpenDate').val());
                 }
             }
 

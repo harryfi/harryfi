@@ -4056,15 +4056,15 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            //using (WebResponse response = myReq.GetResponse())
-            //{
-            //    using (Stream stream = response.GetResponseStream())
-            //    {
-            //        StreamReader reader = new StreamReader(stream);
-            //        responseFromServer = reader.ReadToEnd();
-            //    }
-            //}
-            myReq.ContentLength = myData.Length;
+                //using (WebResponse response = myReq.GetResponse())
+                //{
+                //    using (Stream stream = response.GetResponseStream())
+                //    {
+                //        StreamReader reader = new StreamReader(stream);
+                //        responseFromServer = reader.ReadToEnd();
+                //    }
+                //}
+                myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
@@ -4094,7 +4094,7 @@ namespace MasterOnline.Controllers
             //}
             if (responseFromServer != "")
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
+                //var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
                 //res = result.data.etalase;
             }
 
