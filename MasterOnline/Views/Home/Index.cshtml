@@ -109,6 +109,20 @@
 
         }
 
+        #header_images_resolusi {
+            background-image: url('https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/content-image/header_image12.png');
+            background-repeat: no-repeat;
+            background-size: cover;
+            width: 1000px !important;
+            height: 636px;
+        }
+
+        @@media screen and (min-width: 1000px) {
+            #header_images_resolusi {
+                /*height: 116vh;*/
+            }
+        }
+
         @@media screen and (min-width: 1024px) {
 
             .videoWrapper {
@@ -118,6 +132,18 @@
             .#btn-daftar-pc {
                 margin-top: -127px;
             }
+
+            #header_images_resolusi {
+                /*height: 117vh !important;*/
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+
+        @@media screen and (min-width: 1200px) {
+            #header_images_resolusi {
+                /*height: 115vh !important;*/
+            }
         }
 
             @@media screen and (min-width: 1440px) {
@@ -125,7 +151,17 @@
                 .videoWrapper {
                     margin-top: -350px;
                 }
+
+                #header_images_resolusi {
+                    /*height: 116vh !important;*/
+                }
             }
+
+        @@media screen and (min-width: 2560px) {
+            #header_images_resolusi {
+                /*height: 84vh !important;*/
+            }
+        }
 
             @@media screen and (max-width: 479px) {
                 /* start of phone styles */
@@ -633,7 +669,7 @@
 </a>
 <!--Start Top Slogan-->
 <div class="container-fluid" style="margin-top: 105px;">
-    <div class="row" style="background:#F1F0F1;">
+    <div class="row" style="background:#FFFFFF;">
         <div class="hero">
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12" style="background-image: linear-gradient(to top right, #EE1A3B, #A0193A);">
                 <h2 class="hidden-md hidden-lg mobile-title" style="color: #fff;line-height: 32px; letter-spacing: 1px;">
@@ -663,10 +699,13 @@
                     </div>
                 </div>
             </div>
-                <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 header_images2">
-                    <img src="~/Content/Images/header_image12.png" class="img-responsive" alt="" />
-                </div>
+            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12" id="header_images_resolusi">
+                @*<img src="~/Content/Images/header_image12.png" style="width: 100%;" id="header_images_resolusi" class="img-responsive" alt="" />*@
             </div>
+            @*<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 header_images2">
+                <img src="~/Content/Images/header_image12.png" style="width: 100%;" id="header_images_resolusi" class="img-responsive" alt="" />
+            </div>*@
+        </div>
     </div>
 </div>
 
@@ -700,14 +739,14 @@
         <br />
         <div class="row" style="margin-left: 180px;">
             <div class="col-md-2"></div>
-            <div class="mp-logo col-md-2" style="margin-left: 15px;">
+            <div class="mp-logo col-md-2" style="margin-left: 15px; margin-top: 30px;">
                 <img src="~/Content/Images/logo-blibli.png" width="65%" style="display: block; margin: 0 auto;" alt="blibli" class="img-responsive">
             </div>
-            <div class="mp-logo col-md-2" style="margin-left: 15px;">
+            <div class="mp-logo col-md-2" style="margin-left: 15px; margin-top: 25px;">
                 <img src="~/Content/Images/logo-jdid.png" style="display: block; margin: 0 auto;" alt="jdid" class="img-responsive">
             </div>
-            <div class="mp-logo col-md-2">
-                <img src="~/Content/Images/logo-elevania.png" style="display: block; margin: 0 auto; padding-left:0px;" alt="elevania" class="img-responsive">
+            <div class="mp-logo col-md-2" style="margin-top: 20px;">
+                <img src="~/Content/Images/logo-elevania.png" style="display: block; margin: 0 auto; padding-left:0px;" alt="elevenia" class="img-responsive">
             </div>
             <div class="col-md-2"></div>
         </div>
@@ -715,14 +754,14 @@
         <br />
         <div class="row" style="margin-left: 180px;">
             <div class="col-md-2"></div>
+            <div class="mp-logo col-md-2" style="margin-left: 15px; margin-top: 40px;">
+                <img src="~/Content/Images/logo-woocommerce.png" width="80%" height="80%" style="display: block; margin: 0 auto;" alt="woocommerce" class="img-responsive">
+            </div>
             <div class="mp-logo col-md-2" style="margin-left: 15px; margin-top: 30px;">
-                <img src="~/Content/Images/logo-woocommerce.png" width="65%" style="display: block; margin: 0 auto;" alt="woocommerce" class="img-responsive">
+                <img src="~/Content/Images/logo-shopify.png" width="80%" height="80%" style="display: block; margin: 0 auto;" alt="shopify" class="img-responsive">
             </div>
-            <div class="mp-logo col-md-2" style="margin-left: 15px;">
-                <img src="~/Content/Images/logo-shopify.png" style="display: block; margin: 0 auto;" alt="shopify" class="img-responsive">
-            </div>
-            <div class="mp-logo col-md-2">
-                <img src="~/Content/Images/logo-82cart.png" style="display: block; margin: 0 auto; padding-left:0px;" alt="82cart" class="img-responsive">
+            <div class="mp-logo col-md-2" style="margin-top: 20px;">
+                <img src="~/Content/Images/logo-82cart.png" width="80%" height="80%" style="display: block; margin: 0 auto; padding-left:0px;" alt="82cart" class="img-responsive">
             </div>
             <div class="col-md-2"></div>
         </div>
