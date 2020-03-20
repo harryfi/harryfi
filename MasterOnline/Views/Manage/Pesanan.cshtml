@@ -2190,7 +2190,7 @@
                     <input id="txtCancelReason" type="text" style="display:none" />
                 </div>
                 <div id="cancel_tokped" class="row">
-                    <div id="cancel_tokped_date" class="row">
+                    <div id="cancel_tokped_date" class="row" style="display:none">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
                                 <span style="font-weight:bold;display:inline-block;font-size:16px;">Tgl toko buka:</span>
@@ -2205,7 +2205,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="cancel_tokped_note" class="row">
+                    <div id="cancel_tokped_note" class="row" style="display:none">
                         <div class="col-md-5 col-sm-5 col-xs-12" style="margin-top:5px;">
                             <p>
                                 <span style="font-weight:bold;display:inline-block;font-size:16px;">Keterangan:</span>
@@ -4269,6 +4269,28 @@
                 searchTablePesananCancel();
             });
             //end add by nurul 4/12/2019
+
+            $('#dtTokpedCancelOpenDate').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                if ($(this).val() == '') {
+                    $('#dtTokpedCancelOpenDate').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                $('#dtTokpedCancelOpenDate').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
+
+            });
+
+            $('#dtTokpedCancelOpenDate').change(function () {
+                $('#dtTokpedCancelOpenDate').val($(this).val());
+                $(this).datepicker('hide');
+            });
         });
 
         //add by Tri 11 Nov 2019, set combo box untuk cancel reason
@@ -4349,27 +4371,35 @@
                 });
 
                 listReason[0] = {
-                    id: "01",
-                    text: "Empty stock"
+                    id: "0",
+                    text: "Only for reject shipping case"
                 };
                 listReason[1] = {
-                    id: "02",
-                    text: "Empty variants"
+                    id: "1",
+                    text: "Product(s) out of stock"
                 };
                 listReason[2] = {
-                    id: "03",
-                    text: "Product price or weight is not matched"
+                    id: "2",
+                    text: "Product variant unavailable"
                 };
                 listReason[3] = {
-                    id: "04",
-                    text: "Shop closed"
+                    id: "3",
+                    text: "Wrong price or weight"
                 };
                 listReason[4] = {
-                    id: "05",
-                    text: "Courrier problem"
+                    id: "4",
+                    text: "Shop closed"
                 };
                 listReason[5] = {
-                    id: "06",
+                    id: "5",
+                    text: "Others"
+                };
+                listReason[6] = {
+                    id: "7",
+                    text: "Courrier problem"
+                };
+                listReason[7] = {
+                    id: "8",
                     text: "Request from buyer"
                 };
 
@@ -4382,10 +4412,10 @@
                         $('#cancel_tokped_note').hide();
                         $('#cancel_tokped_date').hide();
                         //$('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
-                        if (value == "05" || value == "06") {
+                        if (value == "7" || value == "8" || value == "0") {
                             $('#cancel_tokped_note').show();
                         }
-                        else if (value == "04") {
+                        else if (value == "4") {
                             $('#cancel_tokped_note').show();
                             $('#cancel_tokped_date').show();
                         }
@@ -9791,10 +9821,10 @@
                     }
                 });
             } else if (cancelIDMarket == "15") {
-                if ($('#txtCancelReason').val() == "05" || $('#txtCancelReason').val() == "06") {
-                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val());
-                } else if ($('#txtCancelReason').val() == "04"){
-                    rows_selected[0] = encodeURIComponent($('#cancel_tokped_note').val() + ";" + $('#cancel_tokped_date').val());
+                if ($('#txtCancelReason').val() == "7" || $('#txtCancelReason').val() == "8" || $('#txtCancelReason').val() == "0") {
+                    rows_selected[0] = encodeURIComponent($('#txtTokpedCancelNote').val());
+                } else if ($('#txtCancelReason').val() == "4"){
+                    rows_selected[0] = encodeURIComponent($('#txtTokpedCancelNote').val() + ";" + $('#dtTokpedCancelOpenDate').val());
                 }
             }
 
