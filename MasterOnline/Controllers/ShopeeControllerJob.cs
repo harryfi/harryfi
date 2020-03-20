@@ -3406,10 +3406,13 @@ namespace MasterOnline.Controllers
                 if ((result.error == null ? "" : result.error) == "")
                 {
                     //add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
-                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "" && set_job == "1")
+                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "" )
                     {
                         //DIGANTI PAKE THROW UNTUK RETRY NYA 
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        if (set_job == "1")
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
                         throw new Exception("Tracking Number Null");
                         //myData = JsonConvert.SerializeObject(HttpBody);
 
