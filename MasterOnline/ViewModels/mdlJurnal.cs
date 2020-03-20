@@ -41,6 +41,10 @@ namespace MasterOnline
         public string status_kirim { get; set; }
         public string tracking_no { get; set; }
         public int so_recnum { get; set; }
+
+        //add by nurul 20/3/2020, job
+        public string no_job { get; set; }
+        //end add by nurul 20/3/2020
     }
 
     public class tempBarcodeLazada

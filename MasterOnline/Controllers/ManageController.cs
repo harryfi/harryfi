@@ -38277,7 +38277,7 @@ namespace MasterOnline.Controllers
                     string sSQLSelect = "";
                     sSQLSelect += "SELECT A.CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
                     //add by nurul 28/2/2020, untuk job
-                    sSQLSelect += ", A.TRACKING_SHIPMENT as tracking_no ";
+                    sSQLSelect += ", A.TRACKING_SHIPMENT as tracking_no, A.NO_PO_CUST AS no_job ";
                     //end add by nurul 28/2/2020, untuk job
                     string sSQL2 = "";
                     sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
@@ -38297,16 +38297,25 @@ namespace MasterOnline.Controllers
                     };
                     //ADD BY NURUL 28/2/2020, untuk job
                     //List<string> string_job = new List<string>();
-                    ShopeeControllerJob.getJOBShopee temp_job = new ShopeeControllerJob.getJOBShopee(){};
+                    var adaJOB = false;
+                    ShopeeControllerJob.getJOBShopee temp_job = new ShopeeControllerJob.getJOBShopee() { };
                     foreach (var resi in ListStt01a)
                     {
-                        temp_job.job_ordersn_list.Add(resi.no_referensi);
+                        if (!string.IsNullOrWhiteSpace(resi.no_job))
+                        {
+                            adaJOB = true;
+                            temp_job.job_ordersn_list.Add(resi.no_referensi);
+                        }
+                        else
+                        {
+                            temp_job.job_ordersn_list.Add("");
+                        }
                     };
                     //END ADD BY NURUL 28/2/2020, untuk job
                     ShopeeControllerJob shoAPI = new ShopeeControllerJob();
                     //change by nurul 28/2/2020, untuk job
                     //var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray());
-                    var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray(), temp_job);
+                    var ret = await shoAPI.GetAirwayBills(iden, ordersn_list.ToArray(), temp_job, adaJOB);
                     //end change by nurul 28/2/2020, untuk job
                     var listErrors = new List<PackingListErrors>();
                     foreach (var item in ret.batch_result.errors)
