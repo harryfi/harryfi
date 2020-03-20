@@ -38877,6 +38877,21 @@ namespace MasterOnline.Controllers
             return Json(detail, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult UploadFileBackground()
+        {
+            var progress = 0;
+            try
+            {
+                UploadFileServices.UploadFile("~/Content/Uploaded/ERASOFT_rahmamk_BayarBukalapak_20191125_1040480377.csv");
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+            
+            return Json(progress, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult UploadXcelBayar1()
         {
             BindUploadExcel ret = new BindUploadExcel();
