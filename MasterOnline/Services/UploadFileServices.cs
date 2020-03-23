@@ -45,7 +45,7 @@ namespace MasterOnline.Services
                         InputStream = inputSteram
                     };
 
-                    ret = _amazonS3PublicUrl + "/uploaded-file/" + string.Format(file.FileName);
+                    ret = _amazonS3PublicUrl + "uploaded-file/" + string.Format(file.FileName);
                     client.PutObject(putRequest);
                 }
                             
