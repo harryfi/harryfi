@@ -1870,7 +1870,8 @@
 
                 var url = "";
                 if ($tempMP1.toUpperCase() == "SHOPEE") {
-                    url = '@Url.Action("UploadXcelBayar1", "Manage")';
+                    @*url = '@Url.Action("UploadXcelBayar1", "Manage")';*@
+                    url = '@Url.Action("UploadFileBackground", "Manage")';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
                     url = '@Url.Action("UploadXcelBayarTokped", "Manage")';
