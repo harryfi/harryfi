@@ -86,82 +86,104 @@
 
     <style>
 
-        @@media screen and (min-width: 768px) {
-            .videoWrapper iframe {
-                top: -82px;
-            }
-            .videoWrapper {
-                margin-top: -538px;
-                left: 0;
-            }
-
-
-            #btn-daftar-mobile {
-                font-size: 21px;
-                margin-top: -79px;
-            }
-
-            .header_images2 {
-                padding-left: 0px;
-                padding-right: 0px;
-                margin-bottom: -20px;
-            }
-
-        }
-
-        #header_images_resolusi {
-            background-image: url('https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/content-image/header_image12.png');
-            background-repeat: no-repeat;
-            background-size: cover;
-            width: 1000px !important;
-            height: 636px;
-        }
-
-        @@media screen and (min-width: 1000px) {
-            #header_images_resolusi {
-                /*height: 116vh;*/
+        @@media screen and (min-width: 768px) and (max-width: 991px) {
+            #image_header {
+                width: 100%;
+                height: 100%;
             }
         }
 
-        @@media screen and (min-width: 1024px) {
-
-            .videoWrapper {
-                margin-top: -240px;
-            }
-
-            .#btn-daftar-pc {
-                margin-top: -127px;
-            }
-
-            #header_images_resolusi {
-                /*height: 117vh !important;*/
-                -webkit-transform: scale(1);
-                transform: scale(1);
+        @@media screen and (min-width: 992px) and (max-width: 1023px) {
+            #image_header {
+                width: 100%;
+                height: 500px;
             }
         }
 
-        @@media screen and (min-width: 1200px) {
-            #header_images_resolusi {
-                /*height: 115vh !important;*/
+        @@media screen and (min-width: 1024px) and (max-width: 1199px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
             }
         }
 
+        @@media screen and (min-width: 1200px) and (max-width: 1400px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
+            }
+        }
+
+        @@media screen and (min-width: 1401px) and (max-width: 1439px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
+            }
+        }
+
+        @@media screen and (min-width: 1440px) and (max-width: 1800px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
+            }
+        }
+
+        @@media screen and (min-width: 1801px) and (max-width: 1999px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
+            }
+        }
+
+        @@media screen and (min-width: 2000px) and (max-width: 2560px) {
+            #image_header {
+                width: 100%;
+                height: 128%;
+            }
+        }
+
+
+            @@media screen and (min-width: 768px) {
+                .videoWrapper iframe {
+                    top: -82px;
+                }
+
+                .videoWrapper {
+                    margin-top: -538px;
+                    left: 0;
+                }
+
+
+                #btn-daftar-mobile {
+                    font-size: 21px;
+                    margin-top: -79px;
+                }
+
+                .header_images2 {
+                    padding-left: 0px;
+                    padding-right: 0px;
+                    margin-bottom: -20px;
+                }
+            }
+
+            @@media screen and (min-width: 1024px) {
+
+                .videoWrapper {
+                    margin-top: -240px;
+                }
+
+                .#btn-daftar-pc {
+                    margin-top: -127px;
+                }
+
+            }
+            
             @@media screen and (min-width: 1440px) {
                 /* start of phone styles */
                 .videoWrapper {
                     margin-top: -350px;
                 }
-
-                #header_images_resolusi {
-                    /*height: 116vh !important;*/
-                }
             }
-
-        @@media screen and (min-width: 2560px) {
-            #header_images_resolusi {
-                /*height: 84vh !important;*/
-            }
-        }
 
             @@media screen and (max-width: 479px) {
                 /* start of phone styles */
@@ -190,9 +212,11 @@
                 #cover {
                     margin-top: 51px !important;
                 }
+
                 .videoWrapper iframe {
                     top: -90px;
                 }
+
                 .header_images2 {
                     margin-top: -85px;
                 }
@@ -234,10 +258,12 @@
                     margin-top: 25px !important;
                     margin-bottom: 25px !important;
                 }
+
                 #counter_container {
-                    padding-left:0px;
-                    padding-right:0px;
+                    padding-left: 0px;
+                    padding-right: 0px;
                 }
+
                 #counter_top {
                     position: relative;
                     top: 26px;
@@ -247,27 +273,29 @@
                     position: relative;
                     bottom: 17px;
                 }
+
                 .count {
-                    font-size:13pt;
+                    font-size: 13pt;
                 }
+
                 .foot_text {
-                    font-size:11pt;
+                    font-size: 11pt;
                 }
-                
+
                 #counter .right {
                     position: relative;
                 }
 
                 #central_img {
-                    width:80%;
-                }
-                #counter .title {
-                    line-height:30px;
-                    font-size:15pt;
-                    font-weight:300;
-                    top:0px;
+                    width: 80%;
                 }
 
+                #counter .title {
+                    line-height: 30px;
+                    font-size: 15pt;
+                    font-weight: 300;
+                    top: 0px;
+                }
             }
 
             @@font-face {
@@ -292,12 +320,12 @@
                 -moz-osx-font-smoothing: grayscale !important;
             }
 
-        #cover {
-            /*margin-top: 130px;*/
-            margin-bottom: 18px;
-            background-size: cover;
-            /*min-height: 350px;*/
-        }
+            #cover {
+                /*margin-top: 130px;*/
+                margin-bottom: 18px;
+                background-size: cover;
+                /*min-height: 350px;*/
+            }
 
             h2.pc-title {
                 padding-top: 10px;
@@ -350,29 +378,29 @@
                 color: #f37100;
             }
 
-        #btn-daftar-pc {
-            margin-left: -15px;
-            text-align: center !important;
-            margin-right: auto;
-            margin-bottom: 42px;
-            border-radius: 20px !important;
-            margin-top: -36px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
+            #btn-daftar-pc {
+                margin-left: -15px;
+                text-align: center !important;
+                margin-right: auto;
+                margin-bottom: 42px;
+                border-radius: 20px !important;
+                margin-top: -36px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
+            }
 
             #mobile-app-section {
                 margin-top: 60px;
             }
 
-        #btn-daftar-mobile {
-            font-size: 10px;
-            padding-left: 6px;
-            border-radius: 20px !important;
-            width: 150%;
-            margin-top: -121px;
-            margin-left: -29px;
-            box-shadow: 0px 7px 5px rgb(136, 136, 136);
-        }
+            #btn-daftar-mobile {
+                font-size: 10px;
+                padding-left: 6px;
+                border-radius: 20px !important;
+                width: 150%;
+                margin-top: -121px;
+                margin-left: -29px;
+                box-shadow: 0px 7px 5px rgb(136, 136, 136);
+            }
 
             #btn-video-pc {
                 width: 50%;
@@ -657,9 +685,10 @@
                     max-width: 100%;
                     /*max-height: 500px;*/
                 }
-        #soc-med-btn-nav {
-            margin-right:0px;
-        }
+
+            #soc-med-btn-nav {
+                margin-right: 0px;
+            }
     </style>
     
 }
@@ -669,7 +698,7 @@
 </a>
 <!--Start Top Slogan-->
 <div class="container-fluid" style="margin-top: 105px;">
-    <div class="row" style="background:#FFFFFF;">
+    <div class="row" style="background:#F1F0F1;">
         <div class="hero">
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12" style="background-image: linear-gradient(to top right, #EE1A3B, #A0193A);">
                 <h2 class="hidden-md hidden-lg mobile-title" style="color: #fff;line-height: 32px; letter-spacing: 1px;">
@@ -699,8 +728,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12" id="header_images_resolusi">
-                @*<img src="~/Content/Images/header_image12.png" style="width: 100%;" id="header_images_resolusi" class="img-responsive" alt="" />*@
+            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 header_images2">
+                <img src="~/Content/Images/header_image12.png" id="image_header" class="img-responsive" alt="" />
             </div>
             @*<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 header_images2">
                 <img src="~/Content/Images/header_image12.png" style="width: 100%;" id="header_images_resolusi" class="img-responsive" alt="" />
@@ -712,7 +741,7 @@
 
 <!--End of Top Slogan-->
 <!--Start Marketplaces-->
-<div id="marketplace" style="background: #FFFFFF;">
+<div id="marketplace" style="background: #F1F0F1;">
     <div class="col-md-12 text-center" style="margin-top: -21px;">
         <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px; padding-top: 7px;">TERINTEGRASI DENGAN</h2>
         <h2 class="hidden-xs hidden-sm pc-title">TERINTEGRASI DENGAN</h2>
