@@ -1550,6 +1550,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        //change by nurul 23/3/2020, request pickup tokopedia 
         //[AutomaticRetry(Attempts = 3)]
         //[Queue("1_manage_pesanan")]
         //[NotifyOnFailed("Request Pickup Pesanan {obj} ke Tokopedia Gagal.")]
@@ -1674,21 +1675,7 @@ namespace MasterOnline.Controllers
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/pick-up";
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
-            //unremark by nurul 17/2/2020
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = milis.ToString(),
-            //    REQUEST_ACTION = "Request PIckup",
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-            //    REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
-            //    REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
-            //    REQUEST_STATUS = "Pending",
-            //};
-
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            //unremark by nurul 17/2/2020
+                        
             RequestPickup newData = new RequestPickup() 
             {
                 order_id = Convert.ToInt32(NO_REFERENSI_SOT01A),
@@ -1704,36 +1691,7 @@ namespace MasterOnline.Controllers
             //string myData = JsonConvert.SerializeObject(newDataList.ToArray());
             string myData = JsonConvert.SerializeObject(newData);
             //end change by nurul 17/2/2020
-
-            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            //myReq.Method = "POST";
-            //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            //myReq.Accept = "application/json";
-            //myReq.ContentType = "application/json";
-            //string responseFromServer = "";
-            //try
-            //{
-            //    myReq.ContentLength = myData.Length;
-            //    using (var dataStream = myReq.GetRequestStream())
-            //    {
-            //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            //    }
-            //    using (WebResponse response = await myReq.GetResponseAsync())
-            //    {
-            //        using (Stream stream = response.GetResponseStream())
-            //        {
-            //            StreamReader reader = new StreamReader(stream);
-            //            responseFromServer = reader.ReadToEnd();
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
-
-
+                        
             string responseFromServer = "";
             //try
             //{
@@ -1766,7 +1724,7 @@ namespace MasterOnline.Controllers
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
                     EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
 
-                    ret = NO_BUKTI_SOT01A;
+                    //ret = NO_BUKTI_SOT01A;
                                         
                     //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
@@ -1784,6 +1742,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        //end change by nurul 23/3/2020
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
