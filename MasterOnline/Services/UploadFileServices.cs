@@ -40,7 +40,7 @@ namespace MasterOnline.Services
                     {
                         BucketName = _bucketName,
                         Key = string.Format(file.FileName),
-                        //CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                        CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
                         ContentType = file.ContentType,
                         InputStream = inputSteram
                     };
