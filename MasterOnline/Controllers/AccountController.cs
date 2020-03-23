@@ -823,7 +823,7 @@ namespace MasterOnline.Controllers
                             recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
                             //recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)), "0 5 * * *", recurJobOpt);
 #else
-                            Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)).Wait();
+                            //Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED)).Wait();
 #endif
                             AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Lazada", tblCustomer.TGL_EXPIRED);
                         }
@@ -1160,7 +1160,7 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)), "0 1 * * *", recurJobOpt);
                         //recurJobM.AddOrUpdate(connection_id_proses_checktoken, Hangfire.Common.Job.FromExpression<AdminController>(x => x.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)), "0 5 * * *", recurJobOpt);
 #else
-                        Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)).Wait();
+                        //Task.Run(() => AdminController.ReminderEmailExpiredAccountMP(dbPathEra, tblCustomer.USERNAME, accFromMoDB.Email, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED)).Wait();
 #endif
                         AdminController.ReminderNotifyExpiredAccountMP(dbPathEra, tblCustomer.PERSO, "Shopee", tblCustomer.TGL_EXPIRED);
                     }
