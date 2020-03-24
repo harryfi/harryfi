@@ -17726,20 +17726,39 @@ namespace MasterOnline.Controllers
         public ActionResult FillModalFixNotFound(string recNum)
         {
             var intRecnum = Convert.ToInt64(recNum);
-            var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == intRecnum).FirstOrDefault();
 
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
-            var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
-            var idMarket = Convert.ToInt32(marketInDb.RecNum);
-            var ListBarangMarket = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == idMarket).ToList();
+            //change by nurul 24/3/2020
+            //var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == intRecnum).FirstOrDefault();
+            //var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+            //var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
+            //var idMarket = Convert.ToInt32(marketInDb.RecNum);
+            //var ListBarangMarket = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == idMarket).ToList();
+            //var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
+            ////var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
+            //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
+
+            var sSql1 = "select NO_BUKTI,CATATAN,NO_URUT from sot01b where NO_URUT = '" + recNum + "'";
+            var PesananDetail = ErasoftDbContext.Database.SqlQuery<PesananDetail_NotFound>(sSql1).FirstOrDefault();
+            var sSql = "select b.RecNum from SOT01A a inner join ARF01 b on a.CUST=b.CUST where a.NO_BUKTI='" + PesananDetail.NO_BUKTI + "'";
+            var idMarket = ErasoftDbContext.Database.SqlQuery<Int32>(sSql).FirstOrDefault();
+            var sSql2 = "select BRG,RecNum from stf02h where IDMARKET = '" + idMarket + "'";
+            var ListBarangMarket = ErasoftDbContext.Database.SqlQuery<listBarangMarket_NotFound>(sSql2).ToList();
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
-            //var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList(); 'change by nurul 21/1/2019
-            var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG) && p.TYPE == "3").ToList();
+            var ListBarang = (from a in ErasoftDbContext.STF02
+                              where a.TYPE == "3" && ListKodeBarangMarket.Any(y => a.BRG.Contains(y))
+                              select new listBarang_NotFound { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2 }).ToList();
+            //end change by nurul 24/3/2020
+
             var vm = new PesananViewModel()
             {
-                PesananDetail = PesananDetail,
-                ListBarangMarket = ListBarangMarket,
-                ListBarang = ListBarang
+                //change by nurul 24/3/2020
+                //PesananDetail = PesananDetail,
+                //ListBarangMarket = ListBarangMarket,
+                //ListBarang = ListBarang
+                PesananDetail_NotFound = PesananDetail,
+                ListBarangMarket_NotFound = ListBarangMarket,
+                ListBarang_NotFound = ListBarang
+                //end change by nurul 24/3/2020
             };
             return PartialView("BarangFixNotFoundPartial", vm);
         }

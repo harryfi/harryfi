@@ -40,6 +40,34 @@
     @*<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />*@
     <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
     @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
+    @*//add by nurul 24/3/2020*@
+    <style>
+        #loading_pesanan_NotFound {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,0);
+        }
+
+        #loading_pesanan_NotFound_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+    </style>
+    @*//end add by nurul 24/3/2020*@
     <style>
         .loading_spinner_modal {
             display: none;
@@ -1405,8 +1433,8 @@
             </div>
             <div class="x_content">
                 @*<div class="label_waktu">
-                    <span class="label label-success date_label">Hari Ini</span>
-                </div>*@
+                        <span class="label label-success date_label">Hari Ini</span>
+                    </div>*@
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananBelumBayar ?? 0)
@@ -1433,8 +1461,8 @@
             </div>
             <div class="x_content">
                 @*<div class="label_waktu">
-            <span class="label label-success date_label">Hari Ini</span>
-        </div>*@
+                        <span class="label label-success date_label">Hari Ini</span>
+                    </div>*@
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananSudahBayar ?? 0)
@@ -1461,8 +1489,8 @@
             </div>
             <div class="x_content">
                 @*<div class="label_waktu">
-            <span class="label label-success date_label">Hari Ini</span>
-        </div>*@
+                        <span class="label label-success date_label">Hari Ini</span>
+                    </div>*@
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananSiapKirim ?? 0)
@@ -1489,8 +1517,8 @@
             </div>
             <div class="x_content">
                 @*<div class="label_waktu">
-            <span class="label label-success date_label">Hari Ini</span>
-        </div>*@
+                        <span class="label label-success date_label">Hari Ini</span>
+                    </div>*@
                 <div>
                     <h3 class="no-margins">
                         @(Model?.JumlahPesananBatal ?? 0)
@@ -1539,34 +1567,34 @@
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
                     @*<div class="row pesanan_table_section form-group">
-                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
-                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
-                        <div class="col-md-2 col-sm-2 col-xs-12">
-                            @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                            <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
-                                <option value="default">Harap pilih</option>
-                                @if (Model?.DataUsaha != null)
-                                {
-                                    if (Model.DataUsaha.JTRAN_RETUR == "1")
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-3 col-sm-3 col-xs-12", @style = "padding-top:20px; width:280px;" })
+                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                                <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                    <option value="default">Harap pilih</option>
+                                    @if (Model?.DataUsaha != null)
                                     {
-                                        <option value="1" selected>Aktif</option>
-                                        <option value="0">Tidak Aktif</option>
+                                        if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                        {
+                                            <option value="1" selected>Aktif</option>
+                                            <option value="0">Tidak Aktif</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="1">Aktif</option>
+                                            <option value="0" selected>Tidak Aktif</option>
+                                        }
                                     }
                                     else
                                     {
                                         <option value="1">Aktif</option>
                                         <option value="0" selected>Tidak Aktif</option>
                                     }
-                                }
-                                else
-                                {
-                                    <option value="1">Aktif</option>
-                                    <option value="0" selected>Tidak Aktif</option>
-                                }
-                            </select>
-                        </div>
-                         //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
-                    </div>*@
+                                </select>
+                            </div>
+                             //remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+                        </div>*@
                     <div class="row pesanan_table_section" style="margin-top:5px;">
                         <div class="col-lg-4 col-sm-6 mrgbttmpesanan">
                             <div class="input-group">
@@ -1618,12 +1646,12 @@
                         </div>
                     </div>
                     @*<div class="row pesanan_table_section">
-            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-        </div>*@
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+                        </div>*@
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         @*<div id="loading_pesanan_tab" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-partial">
                             @*@Html.Partial("TablePesananPartial")*@
                         </div>
@@ -1722,7 +1750,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordDibayar" name="TakeRecordDibayar" required="required">
                                     @*
-                        <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1733,8 +1761,8 @@
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         @*<div id="loading_sudah_dibayar_tab" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
                             @*@Html.Partial("TablePesananSudahDibayarPartial")*@
                         </div>
@@ -1818,16 +1846,16 @@
                                 </button>
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                <span>Refresh</span>
-            </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
 
                             </div>
                             @* remark 16/9/19, function pindah ke modal ubah status *@
                             @*<div class="pull-right">
-            <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
-                <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
-            </button>
-        </div>*@
+                                    <button type="button" id="btn_ubahStatusmulti_pesanan_packinglist" class="btn btn-success" data-style="expand-right" onclick="packinglistpesanan()">
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px">Packing List</span>
+                                    </button>
+                                </div>*@
                             @* end remark 16/9/19, function pindah ke modal ubah status *@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
@@ -1835,7 +1863,7 @@
                             <div class="input-group text" style="padding-top:13px">
                                 <select class="form-control" id="TakeRecordPacking" name="TakeRecordPacking" required="required">
                                     @*
-                    <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -1844,15 +1872,15 @@
                         </div>
                         @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                     </div>
-                        <div class="row" style="margin-top: 5px;">
-                            @*<div id="loading_siap_kirim_tab" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
-                            <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
-                                @*@Html.Partial("TablePesananSiapKirimPartial")*@
-                            </div>
+                    <div class="row" style="margin-top: 5px;">
+                        @*<div id="loading_siap_kirim_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
+                        <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
+                            @*@Html.Partial("TablePesananSiapKirimPartial")*@
                         </div>
                     </div>
+                </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
                     <div class="row">
                         <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
@@ -1915,12 +1943,12 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                    <span>Refresh</span>
-                </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 @*<button type="button" id="btn_generateFaktur" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalGenerateFaktur" onclick="passRecStatusMultiDibayar()">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
-                </button>*@
+                                        <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Buat Faktur</span>
+                                    </button>*@
                                 @*//add by nurul 1/8/2019, pilihan brp record yang tampil*@
                                 <div class="btn-group" role="group">
                                     <button id="pesanan_faktur_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -1941,7 +1969,7 @@
                             <div class="input-group text">
                                 <select class="form-control" id="TakeRecordInvoicing" name="TakeRecordInvoicing" required="required">
                                     @*
-                    <option>--Pilih--</option>*@
+                                        <option>--Pilih--</option>*@
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
@@ -2007,15 +2035,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row pesanan_selesai_section" style="margin-top: 5px;">
                         @*<div id="loading_selesai_tab" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-selesai-partial">
                             @*@Html.Partial("TablePesananSelesaiPartial")*@
                         </div>
@@ -2096,15 +2124,15 @@
                             <div class="pull-right">
                                 @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class="btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                                        <span>Refresh</span>
+                                    </button>*@
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         @*<div id="loading_cancel_tab" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-partial">
                             @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
@@ -2852,6 +2880,11 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
+                @*<div id="loading_pesanan_NotFound">
+                    <div id="loading_pesanan_NotFound_image">
+                        <img src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>*@
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @*@Html.Partial("BarangFixNotFoundPartial")*@
@@ -4450,7 +4483,7 @@
                                     searchField: 'text',
                                     options: listReason,
                                     onChange: function (value) {
-                                        $('#txtCancelReason').val(value + ';' + $('#cbCancelReason')[0].innerText);                                        
+                                        $('#txtCancelReason').val(value + ';' + $('#cbCancelReason')[0].innerText);
                                     }
                                 });
 
@@ -4468,7 +4501,7 @@
             }
         }
         //end add by Tri, call midtrans api get token
-            
+
         //add by Tri, call midtrans api get token
 
         function changeUser(val) {
@@ -6903,11 +6936,11 @@
                     get_selected.push($(item).attr("data-recnum"));
                 });
             }
-            
+
             if(packingstatussinglerecnum != 0){
                 get_selected.push(packingstatussinglerecnum);
             }
-            
+
             var pList = $('#ckPackinglist').is(":checked");
             var link = '@Url.Action("UbahStatusPesananPackingTransaction", "Manage")';
 
@@ -6932,20 +6965,20 @@
                             var textareaValue = "Update status pesanan dibatalkan.";
                             $('#modalUbahStatusMultiPacking_error').show();
                             $('#modalUbahStatusMultiPacking_error').html(textareaValue);
-                            
+
                             $('#modalUbahStatusMultiPacking_header').hide();
                             $('#modalUbahStatusMultiPacking_btn_tidak').show();
                             $('#modalUbahStatusMultiPacking_btn_ya').hide();
                             $('#modalUbahStatusMultiPacking_btn_approve').hide();
                             $('#modalUbahStatusMultiPacking_btn_notapprove').hide();
-                            
+
                             $('#modalUbahStatusMultiPacking_btn_lanjut').hide();
-                            
+
                             $('#modalUbahStatusMultiPacking_btn_tidak').html('Close');
                         }
                         else{
                             var textareaValue = "";
-                            
+
                             if(response.need_approval == 1){
                                 textareaValue += "Jumlah pesanan bisa dilakukan update status : "+ response.successCount +"</br>";
                                 textareaValue += "Jumlah pesanan yang tidak bisa diproses : "+ response.listError.length +"</br>";
@@ -6954,7 +6987,7 @@
                             else{
                                 textareaValue += "Jumlah pesanan berhasil dilakukan update status : "+ response.successCount +"</br>";
                             }
-    
+
                             var adaError = false;
                             var errorValue = "";
                             response.listError.forEach(function (item) {
@@ -6973,7 +7006,7 @@
                             }
                             $('#modalUbahStatusMultiPacking_error').show();
                             $('#modalUbahStatusMultiPacking_error').html(textareaValue);
-    
+
                             if(response.need_approval == 1){
                                 $('#modalUbahStatusMultiPacking_btn_tidak').hide();
                                 $('#modalUbahStatusMultiPacking_btn_ya').hide();
@@ -7000,7 +7033,7 @@
                                 }
                             }
                         }
-                        
+
                     } else {
                         $('#modalUbahStatusMultiPacking_error').show();
                         $('#modalUbahStatusMultiPacking_error').html('Gagal memproses packing. Mohon hubungi support.');
@@ -8074,8 +8107,13 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                success: function(response) {
+                beforeSend: function () {
                     $('#modal-fix-not-found-body').html("");
+                    //$('#loading_pesanan_NotFound').show();
+                },
+                success: function(response) {
+                    //$('#modal-fix-not-found-body').html("");
+                    //$('#loading_pesanan_NotFound').hide();
                     $('#modal-fix-not-found-body').html(response);
                     //$('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
                     //$('#txtShipment').val(response[1]);
@@ -8293,7 +8331,7 @@
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
                         });
                         //end change by nurul 29/11/2019
-                        
+
                         //add by nurul 13/3/2019
                         if ($('#Gudang-' + $recNum).val() != null && $('#Gudang-' + $recNum).val() != "") {
                             gdSelect[0].selectize.setValue($('#Gudang-' + $recNum).val(), true);
@@ -9140,7 +9178,7 @@
         }
         //end add by Tri 10/9/2019, proses packing list
 
-        
+
         //add by calvin 28 november 2019
         function lihatPackingList(packingno){
             var expires = "";
@@ -9148,16 +9186,16 @@
             date.setTime(date.getTime() + (1*24*60*60*1000));
             expires = "; expires=" + date.toUTCString();
             document.cookie = "viewpackinglist" + "=" + packingno  + expires + "; path=/;";
-            
+
             window.open(window.location.origin + '/manage/Packinglist', '_blank');
         }
         function getCurrentPackingTabIndex(){
             return $('#detail-packinglist-tabs li.active').index();
         }
-            
+
         function PackingTabNext(){
             var currentIndex = getCurrentPackingTabIndex();
-    
+
             var found = false;
             $('#detail-packinglist-tabs li').each(function(i){
                 if(!found){
@@ -9183,7 +9221,7 @@
                         if(TabAkunPerMP[0].id.includes('tokped')){
                             id_ul_packinglistmp_cshtml = 'tokped_packing_cust_tabs';
                         }
-                        
+
                         var AkunPerMPCurrentIndex = $('#'+ id_ul_packinglistmp_cshtml +' li.active').index();
                         $('#'+ id_ul_packinglistmp_cshtml +' li').each(function(ii){
                             if(!found){
@@ -9193,7 +9231,7 @@
                                        $('#'+ id_ul_packinglistmp_cshtml +' li:nth-child(' + (ii + 1) + ')').find('a').click();
                                        found = true;
                                    }
-                                }   
+                                }
                             }
                         });
                     }
@@ -9211,12 +9249,12 @@
             !refreshingPackingBlibli
             ){
                 //semua MP sudah selesai refresh
-                PackingTabNext();     
+                PackingTabNext();
                 $('#loading_spinner').hide();
             }
-        } 
-        
-        
+        }
+
+
         function RefreshSemuaPesananMP() {
             $('#loading_spinner').show();
             RefreshPackingPesananTokped();
@@ -9335,7 +9373,7 @@
         var packingstatussinglerecnum = 0;
         function packingStatusSingleRecord(recnum){
             packingstatussinglerecnum = recnum;
-            
+
             $('#packing_div').show();
             $('#modalUbahStatusMultiPacking_header').show();
             $('#modalUbahStatusMultiPacking_btn_tidak').show();
@@ -9404,7 +9442,7 @@
             $('#konfUndoStatusSudahkirimBatch_btn_tidak').show();
             $('#konfUndoStatusSudahkirimBatch_btn_ya').show();
             $('#konfUndoStatusSudahkirimBatch_btn_close').hide();
-            
+
             var rows_selected = [];
             $('.checkbox_pesanan_faktur').each(function (i, item) {
                 if ($(item).is(":checked")) {
@@ -9488,7 +9526,7 @@
                             refreshTablePesanan();
                             refreshTableSudahKirim();
                             refreshTableSudahDibayar();
-                            
+
                             $('#konfUndoStatusSudahkirimBatch_btn_tidak').hide();
                             $('#konfUndoStatusSudahkirimBatch_btn_ya').hide();
                             $('#konfUndoStatusSudahkirimBatch_btn_close').show();
@@ -9552,7 +9590,7 @@
             }
             else{
                 var link = '@Url.Action("UbahStatusPesananSelesaiBatchTransaction", "Manage")';
-    
+
                 $.ajax({
                     type: "POST",
                     url: link,
@@ -9568,12 +9606,12 @@
                     },
                     success: function(response) {
                         $('#konfUbahStatusSelesaiBatch_body').animate({ scrollTop: 0 }, 'slow');
-    
+
                         if (response.error_packing_list == false) {
                             var textareaValue = "";
-    
+
                             textareaValue += "Jumlah pesanan berhasil ubah status : "+ response.successCount +"</br>";
-    
+
                             var adaError = false;
                             var errorValue = "";
                             response.listError.forEach(function (item) {
@@ -9587,7 +9625,7 @@
                             }
                             $('#konfUbahStatusSelesaiBatch_error').show();
                             $('#konfUbahStatusSelesaiBatch_error').html(textareaValue);
-    
+
                             if(response.successCount > 0){
                                 refreshTableSiapKirim();
                                 refreshTablePesanan();
