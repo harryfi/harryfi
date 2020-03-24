@@ -1560,7 +1560,8 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
             //string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/100";
-            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/10";
+            //string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/" + Convert.ToString(page + 1) + "/10";
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/info?shop_id=" + iden.API_secret_key + "&page=" + page + "&per_page=10";
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -1599,7 +1600,8 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
-                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ItemListResult)) as ItemListResult;
+                //var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ItemListResult)) as ItemListResult;
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetListItemV2)) as TokpedGetListItemV2;
                 long shopid = Convert.ToInt64(iden.API_secret_key);
                 bool adaError = false;
                 //foreach (var item in result.data)
@@ -1616,15 +1618,16 @@ namespace MasterOnline.Controllers
                 //}
                 try
                 {
-                    if (result.error_message != null)
+                    if (result.header != null)
                     {
-                        if (result.error_message.Count() > 0)
+                        if (result.header.error_code != 0)
                         {
                             adaError = true;
-                            foreach (var err in result.error_message)
-                            {
-                                ret.message += err.ToString() + "_;_";
-                            }
+                            //foreach (var err in result.error_message)
+                            //{
+                            //ret.message += err.ToString() + "_;_";
+                            //}
+                            ret.message += result.header.reason;
                             //currentLog.REQUEST_EXCEPTION = ret.message;
                             //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
@@ -1642,7 +1645,7 @@ namespace MasterOnline.Controllers
                             ret.nextPage = 1;
                         }
                         //add by calvin 13 juni 2019, ternyata tokoped return semua item dengan FSID (Fulfillment Service ID) yang sama, maka perlu difilter sebelum insert data
-                        result.data = result.data.Where(p => p.shop_id == shopid).ToList().ToArray();
+                        //result.data = result.data.Where(p => p.shop_id == shopid).ToList().ToArray();
                         //end add by calvin 13 juni 2019
 
                         ret.status = 1;
@@ -1654,8 +1657,9 @@ namespace MasterOnline.Controllers
                         string brgMp = "";
                         foreach (var item in result.data)
                         {
-                            brgMp = Convert.ToString(item.product_id);
-                            if (item.status.ToUpper() != "DELETE" && item.status.ToUpper() != "BANNED")
+                            brgMp = Convert.ToString(item.basic.productID);
+                            //if (item.status.ToUpper() != "DELETE" && item.status.ToUpper() != "BANNED")
+                            if (item.basic.status != -2)
                             {
                                 ret.totalData++;//add 18 Juli 2019, show total record
                                 var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
@@ -1663,7 +1667,7 @@ namespace MasterOnline.Controllers
                                 var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
                                 if (CektempbrginDB == null && CekbrgInDB == null)
                                 {
-                                    string namaBrg = item.name;
+                                    string namaBrg = item.basic.name;
                                     string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                                     urlImage = "";
                                     urlImage2 = "";
@@ -1713,18 +1717,18 @@ namespace MasterOnline.Controllers
                                         ////end change 17 juli 2019, jika seller sku kosong biarkan kosong di tabel
                                         SELLER_SKU = "",
                                         //end change by calvin 31 okt 2019
-                                        BRG_MP = Convert.ToString(item.product_id),
+                                        BRG_MP = Convert.ToString(item.basic.productID),
                                         NAMA = nama,
                                         NAMA2 = nama2,
                                         NAMA3 = nama3,
-                                        CATEGORY_CODE = Convert.ToString(item.category_id),
+                                        CATEGORY_CODE = Convert.ToString(item.basic.childCategoryID),
                                         CATEGORY_NAME = "",
                                         IDMARKET = recnumArf01,
                                         IMAGE = "",
                                         DISPLAY = true,
-                                        HJUAL = item.price,
-                                        HJUAL_MP = item.price,
-                                        Deskripsi = item.desc.Replace("\n", "<br />"),
+                                        HJUAL = item.price.value,
+                                        HJUAL_MP = item.price.value,
+                                        Deskripsi = item.basic.shortDesc.Replace("\n", "<br />"),
                                         MEREK = "OEM",
                                         CUST = CUST,
                                     };
@@ -1737,89 +1741,155 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add by Tri, 26 Feb 2019
 
-                                    //add by Tri 16 Jan 2020, get item detail
-                                    var dataBrg = await getItemDetail(iden, item.product_id);
-                                    if (dataBrg != null)
+                                    //add 24 mar 2020, get order list v2
+                                    // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+                                    int typeBrg = 0;
+                                    if (!string.IsNullOrEmpty(Convert.ToString(item.other.sku)))
+                                        newrecord.SELLER_SKU = item.other.sku;
+                                    if (!item.variant.isVariant)//barang non varian
                                     {
-                                        // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
-                                        int typeBrg = 0;
-                                        if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.other.sku)))
-                                            newrecord.SELLER_SKU = dataBrg.other.sku;
-                                        if(!dataBrg.variant.isVariant)//barang non varian
+                                        newrecord.TYPE = "3";
+                                    }
+                                    else
+                                    {
+                                        if (item.variant.isParent)
                                         {
-                                            newrecord.TYPE = "3";
+                                            typeBrg = 1;
+                                            newrecord.TYPE = "4";
                                         }
                                         else
                                         {
-                                            //if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.variant.parentID)))//barang varian
-                                            //{
-                                            //    newrecord.TYPE = "3";
-                                            //    newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
-                                            //    typeBrg = 2;
-                                            //}
-                                            //else if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.variant.isParent)))
-                                            //{
-                                            //    if (dataBrg.variant.isParent)
-                                            //    {
-                                            //        typeBrg = 1;
-                                            //        newrecord.TYPE = "4";
-                                            //    }
-                                            //}
-                                            if (dataBrg.variant.isParent)
-                                            {
-                                                typeBrg = 1;
-                                                newrecord.TYPE = "4";
-                                            }
-                                            else
-                                            {
-                                                newrecord.TYPE = "3";
-                                                newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
-                                                typeBrg = 2;
-                                            }
+                                            //newrecord.TYPE = "3";
+                                            //newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
+                                            //typeBrg = 2;
                                         }
-                                        if (dataBrg.weight != null)
+                                    }
+                                    if (item.weight != null)
+                                    {
+                                        if (item.weight.unit == 1)//dalam gram
                                         {
-                                            if(dataBrg.weight.unit == 1)//dalam gram
-                                            {
-                                                newrecord.BERAT = dataBrg.weight.value;
-                                            }
-                                            if (dataBrg.weight.unit == 2)//dalam kilo
-                                            {
-                                                newrecord.BERAT = dataBrg.weight.value * 1000;
-                                            }
+                                            newrecord.BERAT = item.weight.value;
                                         }
-                                        if(dataBrg.menu != null)
+                                        if (item.weight.unit == 2)//dalam kilo
                                         {
-                                            if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.menu.id)))
-                                            {
-                                                newrecord.PICKUP_POINT = Convert.ToString(dataBrg.menu.id);
-                                            }
+                                            newrecord.BERAT = item.weight.value * 1000;
                                         }
-                                        if(dataBrg.pictures != null)
-                                        if (dataBrg.pictures.Length > 0)
+                                    }
+                                    if (item.menu != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(Convert.ToString(item.menu.id)))
                                         {
-                                            newrecord.IMAGE = dataBrg.pictures[0].OriginalURL;
-                                            if (dataBrg.pictures.Length > 1 && typeBrg != 2)
+                                            newrecord.PICKUP_POINT = Convert.ToString(item.menu.id);
+                                        }
+                                    }
+                                    if (item.pictures != null)
+                                        if (item.pictures.Length > 0)
+                                        {
+                                            newrecord.IMAGE = item.pictures[0].OriginalURL;
+                                            if (item.pictures.Length > 1 && typeBrg != 2)
                                             {
-                                                newrecord.IMAGE2 = dataBrg.pictures[1].OriginalURL;
-                                                if (dataBrg.pictures.Length > 2)
+                                                newrecord.IMAGE2 = item.pictures[1].OriginalURL;
+                                                if (item.pictures.Length > 2)
                                                 {
-                                                    newrecord.IMAGE3 = dataBrg.pictures[2].OriginalURL;
-                                                    if (dataBrg.pictures.Length > 3)
+                                                    newrecord.IMAGE3 = item.pictures[2].OriginalURL;
+                                                    if (item.pictures.Length > 3)
                                                     {
-                                                        newrecord.IMAGE4 = dataBrg.pictures[3].OriginalURL;
-                                                        if (dataBrg.pictures.Length > 4)
+                                                        newrecord.IMAGE4 = item.pictures[3].OriginalURL;
+                                                        if (item.pictures.Length > 4)
                                                         {
-                                                            newrecord.IMAGE5 = dataBrg.pictures[4].OriginalURL;
+                                                            newrecord.IMAGE5 = item.pictures[4].OriginalURL;
 
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    //end add by Tri 16 Jan 2020, get item detail
+                                    //end add 24 mar 2020, get order list v2
 
+                                    #region old function
+                                    ////add by Tri 16 Jan 2020, get item detail
+                                    //var dataBrg = await getItemDetail(iden, item.basic.productID);
+                                    //if (dataBrg != null)
+                                    //{
+                                    //    // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+                                    //    int typeBrg = 0;
+                                    //    if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.other.sku)))
+                                    //        newrecord.SELLER_SKU = dataBrg.other.sku;
+                                    //    if(!dataBrg.variant.isVariant)//barang non varian
+                                    //    {
+                                    //        newrecord.TYPE = "3";
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        //if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.variant.parentID)))//barang varian
+                                    //        //{
+                                    //        //    newrecord.TYPE = "3";
+                                    //        //    newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
+                                    //        //    typeBrg = 2;
+                                    //        //}
+                                    //        //else if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.variant.isParent)))
+                                    //        //{
+                                    //        //    if (dataBrg.variant.isParent)
+                                    //        //    {
+                                    //        //        typeBrg = 1;
+                                    //        //        newrecord.TYPE = "4";
+                                    //        //    }
+                                    //        //}
+                                    //        if (dataBrg.variant.isParent)
+                                    //        {
+                                    //            typeBrg = 1;
+                                    //            newrecord.TYPE = "4";
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            newrecord.TYPE = "3";
+                                    //            newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
+                                    //            typeBrg = 2;
+                                    //        }
+                                    //    }
+                                    //    if (dataBrg.weight != null)
+                                    //    {
+                                    //        if(dataBrg.weight.unit == 1)//dalam gram
+                                    //        {
+                                    //            newrecord.BERAT = dataBrg.weight.value;
+                                    //        }
+                                    //        if (dataBrg.weight.unit == 2)//dalam kilo
+                                    //        {
+                                    //            newrecord.BERAT = dataBrg.weight.value * 1000;
+                                    //        }
+                                    //    }
+                                    //    if(dataBrg.menu != null)
+                                    //    {
+                                    //        if (!string.IsNullOrEmpty(Convert.ToString(dataBrg.menu.id)))
+                                    //        {
+                                    //            newrecord.PICKUP_POINT = Convert.ToString(dataBrg.menu.id);
+                                    //        }
+                                    //    }
+                                    //    if(dataBrg.pictures != null)
+                                    //    if (dataBrg.pictures.Length > 0)
+                                    //    {
+                                    //        newrecord.IMAGE = dataBrg.pictures[0].OriginalURL;
+                                    //        if (dataBrg.pictures.Length > 1 && typeBrg != 2)
+                                    //        {
+                                    //            newrecord.IMAGE2 = dataBrg.pictures[1].OriginalURL;
+                                    //            if (dataBrg.pictures.Length > 2)
+                                    //            {
+                                    //                newrecord.IMAGE3 = dataBrg.pictures[2].OriginalURL;
+                                    //                if (dataBrg.pictures.Length > 3)
+                                    //                {
+                                    //                    newrecord.IMAGE4 = dataBrg.pictures[3].OriginalURL;
+                                    //                    if (dataBrg.pictures.Length > 4)
+                                    //                    {
+                                    //                        newrecord.IMAGE5 = dataBrg.pictures[4].OriginalURL;
+
+                                    //                    }
+                                    //                }
+                                    //            }
+                                    //        }
+                                    //    }
+                                    //}
+                                    ////end add by Tri 16 Jan 2020, get item detail
+                                    #endregion
                                     listNewRecord.Add(newrecord);
                                     ret.recordCount = ret.recordCount + 1;
                                 }
@@ -1910,7 +1980,68 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<TokpedItemDetail> getItemDetailVarian(TokopediaAPIData iden, long product_id)
+        {
+            var ret = new TokpedItemDetail();
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
 
+            //long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/info?product_id=" + Uri.EscapeDataString(product_id.ToString());
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
+                bool adaError = false;
+                //if (!string.IsNullOrEmpty(result.header.messages))
+                //{
+                //    adaError = true;
+
+                //}
+                if (result.data != null)
+                {
+                    if (result.data.Count() == 0)
+                    {
+                        adaError = true;
+                    }
+
+                }
+                if (!adaError)
+                {
+                    //if(!string.IsNullOrEmpty(Convert.ToString(result.data[0].other.sku)))
+                    //if (Convert.ToString(result.data[0].other.sku).Contains("v240c"))
+                    //{
+
+                    //}
+                    ret = result.data[0];
+                }
+            }
+            return ret;
+        }
         public async Task<ItemListResult> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, string product_id)
         {
             //if merchant code diisi. barulah GetOrderList
@@ -3103,7 +3234,7 @@ namespace MasterOnline.Controllers
 #elif Debug_AWS
                         string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                         using (SqlConnection oConnection = new SqlConnection(con))
                         {
@@ -4099,6 +4230,163 @@ namespace MasterOnline.Controllers
             public string reason { get; set; }
             public int error_code { get; set; }
         }
+
+        public class TokpedGetListItemV2
+        {
+            public Header header { get; set; }
+            public TokpedGetListItemV2Data[] data { get; set; }
+        }
+
+        //public class Header
+        //{
+        //    public float process_time { get; set; }
+        //    public string messages { get; set; }
+        //    public string reason { get; set; }
+        //    public int error_code { get; set; }
+        //}
+
+        public class TokpedGetListItemV2Data
+        {
+            public Basic basic { get; set; }
+            public Price price { get; set; }
+            public Weight weight { get; set; }
+            public Stock stock { get; set; }
+            public VariantV2 variant { get; set; }
+            public Menu menu { get; set; }
+            public Preorder preorder { get; set; }
+            public Extraattribute extraAttribute { get; set; }
+            public Categorytree[] categoryTree { get; set; }
+            public Picture[] pictures { get; set; }
+            public Gmstats GMStats { get; set; }
+            public Stats stats { get; set; }
+            public Other other { get; set; }
+            public Campaign campaign { get; set; }
+            public Warehouse[] warehouses { get; set; }
+        }
+
+        //public class Basic
+        //{
+        //    public int productID { get; set; }
+        //    public int shopID { get; set; }
+        //    public int status { get; set; }
+        //    public string name { get; set; }
+        //    public int condition { get; set; }
+        //    public int childCategoryID { get; set; }
+        //    public string shortDesc { get; set; }
+        //}
+
+        //public class Price
+        //{
+        //    public int value { get; set; }
+        //    public int currency { get; set; }
+        //    public int LastUpdateUnix { get; set; }
+        //    public int idr { get; set; }
+        //}
+
+        //public class Weight
+        //{
+        //    public int value { get; set; }
+        //    public int unit { get; set; }
+        //}
+
+        //public class Stock
+        //{
+        //    public bool useStock { get; set; }
+        //    public int value { get; set; }
+        //    public string stockWording { get; set; }
+        //}
+
+        public class VariantV2
+        {
+            public bool isParent { get; set; }
+            public bool isVariant { get; set; }
+            public int[] childrenID { get; set; }
+        }
+
+        //public class Menu
+        //{
+        //    public int id { get; set; }
+        //    public string name { get; set; }
+        //}
+
+        //public class Preorder
+        //{
+        //}
+
+        //public class Extraattribute
+        //{
+        //    public int minOrder { get; set; }
+        //    public int lastUpdateCategory { get; set; }
+        //    public bool isEligibleCOD { get; set; }
+        //}
+
+        //public class Gmstats
+        //{
+        //    public int transactionSuccess { get; set; }
+        //    public int transactionReject { get; set; }
+        //    public int countSold { get; set; }
+        //}
+
+        //public class Stats
+        //{
+        //    public int countView { get; set; }
+        //}
+
+        //public class Other
+        //{
+        //    public string sku { get; set; }
+        //    public string url { get; set; }
+        //    public string mobileURL { get; set; }
+        //}
+
+        //public class Campaign
+        //{
+        //    public DateTime StartDate { get; set; }
+        //    public DateTime EndDate { get; set; }
+        //}
+
+        //public class Categorytree
+        //{
+        //    public int id { get; set; }
+        //    public string name { get; set; }
+        //    public string title { get; set; }
+        //    public string breadcrumbURL { get; set; }
+        //}
+
+        //public class Picture
+        //{
+        //    public int picID { get; set; }
+        //    public string fileName { get; set; }
+        //    public string filePath { get; set; }
+        //    public int status { get; set; }
+        //    public string OriginalURL { get; set; }
+        //    public string ThumbnailURL { get; set; }
+        //    public int width { get; set; }
+        //    public int height { get; set; }
+        //    public string URL300 { get; set; }
+        //}
+
+        //public class Warehouse
+        //{
+        //    public int productID { get; set; }
+        //    public int warehouseID { get; set; }
+        //    public Price1 price { get; set; }
+        //    public Stock1 stock { get; set; }
+        //}
+
+        //public class Price1
+        //{
+        //    public int value { get; set; }
+        //    public int currency { get; set; }
+        //    public int LastUpdateUnix { get; set; }
+        //    public int idr { get; set; }
+        //}
+
+        //public class Stock1
+        //{
+        //    public bool useStock { get; set; }
+        //    public int value { get; set; }
+        //}
 
         public class TokpedItemDetail
         {
