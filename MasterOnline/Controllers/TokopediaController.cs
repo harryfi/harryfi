@@ -1729,7 +1729,7 @@ namespace MasterOnline.Controllers
                                         DISPLAY = true,
                                         HJUAL = item.price.value,
                                         HJUAL_MP = item.price.value,
-                                        Deskripsi = item.basic.shortDesc.Replace("\n", "<br />"),
+                                        Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
                                         MEREK = "OEM",
                                         CUST = CUST,
                                     };
@@ -2104,7 +2104,7 @@ namespace MasterOnline.Controllers
                                     DISPLAY = true,
                                     HJUAL = item.price.value,
                                     HJUAL_MP = item.price.value,
-                                    Deskripsi = item.basic.shortDesc.Replace("\n", "<br />"),
+                                    Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
                                     MEREK = "OEM",
                                     CUST = CUST,
                                 };
