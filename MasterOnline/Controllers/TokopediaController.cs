@@ -1756,12 +1756,23 @@ namespace MasterOnline.Controllers
                                         {
                                             typeBrg = 1;
                                             newrecord.TYPE = "4";
+                                            foreach(var varID in item.variant.childrenID)
+                                            {
+                                                var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                                if(CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                                {
+                                                    var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01);
+                                                    ret.recordCount += retVar.recordCount;
+                                                }
+                                            }
+                                            ret.totalData += item.variant.childrenID.Count();
                                         }
                                         else
                                         {
-                                            //newrecord.TYPE = "3";
-                                            //newrecord.KODE_BRG_INDUK = Convert.ToString(dataBrg.variant.parentID);
-                                            //typeBrg = 2;
+                                            newrecord.TYPE = "3";
+                                            newrecord.KODE_BRG_INDUK = Convert.ToString(item.variant.parentID);
+                                            typeBrg = 2;
                                         }
                                     }
                                     if (item.weight != null)
@@ -1893,6 +1904,20 @@ namespace MasterOnline.Controllers
                                     listNewRecord.Add(newrecord);
                                     ret.recordCount = ret.recordCount + 1;
                                 }
+                                else if (item.variant.isParent)
+                                {
+                                    foreach (var varID in item.variant.childrenID)
+                                    {
+                                        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.ToString())).FirstOrDefault();
+                                        if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                        {
+                                            var retVar = await getItemDetailVarian(iden, varID, CUST, recnumArf01);
+                                            ret.recordCount += retVar.recordCount;
+                                        }
+                                    }
+                                    ret.totalData += item.variant.childrenID.Count();
+                                }
                             }
 
                         }
@@ -1980,9 +2005,9 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<TokpedItemDetail> getItemDetailVarian(TokopediaAPIData iden, long product_id)
+        public async Task<BindingBase> getItemDetailVarian(TokopediaAPIData iden, long product_id, string CUST, int recnumArf01)
         {
-            var ret = new TokpedItemDetail();
+            var ret = new BindingBase();
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -2010,18 +2035,11 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
                 bool adaError = false;
-                //if (!string.IsNullOrEmpty(result.header.messages))
-                //{
-                //    adaError = true;
-
-                //}
                 if (result.data != null)
                 {
                     if (result.data.Count() == 0)
@@ -2032,12 +2050,141 @@ namespace MasterOnline.Controllers
                 }
                 if (!adaError)
                 {
-                    //if(!string.IsNullOrEmpty(Convert.ToString(result.data[0].other.sku)))
-                    //if (Convert.ToString(result.data[0].other.sku).Contains("v240c"))
-                    //{
+                    string brgMp = "";
+                    List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
 
-                    //}
-                    ret = result.data[0];
+                    foreach (var item in result.data)
+                    {
+                        brgMp = Convert.ToString(item.basic.productID);
+                        //if (item.status.ToUpper() != "DELETE" && item.status.ToUpper() != "BANNED")
+                        if (item.basic.status != -2)
+                        {
+                            ret.totalData++;//add 18 Juli 2019, show total record
+                            //var CektempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                            ////var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
+                            //var CekbrgInDB = ErasoftDbContext.STF02H.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
+                            //if (CektempbrginDB == null && CekbrgInDB == null)
+                            {
+                                string namaBrg = item.basic.name;
+                                string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                urlImage = "";
+                                urlImage2 = "";
+                                urlImage3 = "";
+                                namaBrg = namaBrg.Replace('\'', '`');
+
+                                var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+                                nama = splitItemName[0];
+                                nama2 = splitItemName[1];
+                                nama3 = "";
+
+                                Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                                {
+                                    SELLER_SKU = "",
+                                    BRG_MP = Convert.ToString(item.basic.productID),
+                                    NAMA = nama,
+                                    NAMA2 = nama2,
+                                    NAMA3 = nama3,
+                                    CATEGORY_CODE = Convert.ToString(item.basic.childCategoryID),
+                                    CATEGORY_NAME = "",
+                                    IDMARKET = recnumArf01,
+                                    IMAGE = "",
+                                    DISPLAY = true,
+                                    HJUAL = item.price.value,
+                                    HJUAL_MP = item.price.value,
+                                    Deskripsi = item.basic.shortDesc.Replace("\n", "<br />"),
+                                    MEREK = "OEM",
+                                    CUST = CUST,
+                                };
+                                newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                                                                                                  //add by Tri, 26 Feb 2019
+                                var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
+                                if (kategory != null)
+                                {
+                                    newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                                }
+                                //end add by Tri, 26 Feb 2019
+
+                                // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+                                int typeBrg = 0;
+                                if (!string.IsNullOrEmpty(Convert.ToString(item.other.sku)))
+                                    newrecord.SELLER_SKU = item.other.sku;
+                                if (!item.variant.isVariant)//barang non varian
+                                {
+                                    newrecord.TYPE = "3";
+                                }
+                                else
+                                {
+                                    if (item.variant.isParent)
+                                    {
+                                        typeBrg = 1;
+                                        newrecord.TYPE = "4";
+                                    }
+                                    else
+                                    {
+                                        newrecord.TYPE = "3";
+                                        newrecord.KODE_BRG_INDUK = Convert.ToString(item.variant.parentID);
+                                        typeBrg = 2;
+                                    }
+                                }
+                                if (item.weight != null)
+                                {
+                                    if (item.weight.unit == 1)//dalam gram
+                                    {
+                                        newrecord.BERAT = item.weight.value;
+                                    }
+                                    if (item.weight.unit == 2)//dalam kilo
+                                    {
+                                        newrecord.BERAT = item.weight.value * 1000;
+                                    }
+                                }
+                                if (item.menu != null)
+                                {
+                                    if (!string.IsNullOrEmpty(Convert.ToString(item.menu.id)))
+                                    {
+                                        newrecord.PICKUP_POINT = Convert.ToString(item.menu.id);
+                                    }
+                                }
+                                if (item.pictures != null)
+                                    if (item.pictures.Length > 0)
+                                    {
+                                        newrecord.IMAGE = item.pictures[0].OriginalURL;
+                                        if (item.pictures.Length > 1 && typeBrg != 2)
+                                        {
+                                            newrecord.IMAGE2 = item.pictures[1].OriginalURL;
+                                            if (item.pictures.Length > 2)
+                                            {
+                                                newrecord.IMAGE3 = item.pictures[2].OriginalURL;
+                                                if (item.pictures.Length > 3)
+                                                {
+                                                    newrecord.IMAGE4 = item.pictures[3].OriginalURL;
+                                                    if (item.pictures.Length > 4)
+                                                    {
+                                                        newrecord.IMAGE5 = item.pictures[4].OriginalURL;
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                
+                                listNewRecord.Add(newrecord);
+                                ret.recordCount = ret.recordCount + 1;
+                            }
+                        }
+
+                    }
+                    if(listNewRecord.Count > 0)
+                    {
+                        ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
+                        try
+                        {
+                            ErasoftDbContext.SaveChanges();
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                    }
                 }
             }
             return ret;
@@ -4300,7 +4447,8 @@ namespace MasterOnline.Controllers
         {
             public bool isParent { get; set; }
             public bool isVariant { get; set; }
-            public int[] childrenID { get; set; }
+            public long[] childrenID { get; set; }
+            public long parentID { get; set; }
         }
 
         //public class Menu
