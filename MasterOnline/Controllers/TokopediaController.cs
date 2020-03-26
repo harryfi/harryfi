@@ -1632,6 +1632,7 @@ namespace MasterOnline.Controllers
                             //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
+                    if(result.data != null)
                     if (!adaError)
                     {
                         ret.message = (page + 1).ToString();
@@ -2040,14 +2041,26 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetItemDetail)) as TokpedGetItemDetail;
                 bool adaError = false;
-                if (result.data != null)
+                if (result.header != null)
                 {
-                    if (result.data.Count() == 0)
+                    //if (result.data.Count() == 0)
+                    //{
+                    //    adaError = true;
+                    //}
+                    if (result.header.error_code != 0)
                     {
                         adaError = true;
+                        //foreach (var err in result.error_message)
+                        //{
+                        //ret.message += err.ToString() + "_;_";
+                        //}
+                        ret.message += result.header.reason;
+                        //currentLog.REQUEST_EXCEPTION = ret.message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                     }
 
                 }
+                if(result.data != null)
                 if (!adaError)
                 {
                     string brgMp = "";
