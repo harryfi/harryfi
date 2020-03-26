@@ -20826,6 +20826,9 @@ namespace MasterOnline.Controllers
                 sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS so_bukti,ISNULL(A.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
                 sSQLSelect += "ISNULL(F.NAMA,ISNULL(J.NAMA,'')) AS namapembeli, ISNULL(F.TLP,ISNULL(J.TLP,''))AS tlppembeli ";
+                //add by nurul 26/3/2020
+                sSQLSelect += ",ISNULL(D.NO_PO_CUST,'') AS no_job ";
+                //end add by nurul 26/3/2020
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "FROM SIT01A A LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI AND A.RECNUM IN (" + string_recnum + ") ";
@@ -20865,6 +20868,15 @@ namespace MasterOnline.Controllers
                     var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
+                    //add by nurul 26/3/2020
+                    if (so.namamarket.ToUpper() == "SHOPEE")
+                    {
+                        if (so.no_job != "")
+                        {
+                            resi = so.no_job;
+                        }
+                    }
+                    //add by nurul 26/3/2020
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
@@ -42736,6 +42748,9 @@ namespace MasterOnline.Controllers
                 sSQLSelect += "ISNULL(D.NO_BUKTI,'') AS si_bukti,ISNULL(D.NETTO,0) AS si_netto, ISNULL(D.TGL,'')AS si_tgl, ";
                 sSQLSelect += "ISNULL(H.PERSO,'')AS perso,ISNULL(I.NamaMarket,'')AS namamarket,ISNULL(I.LokasiLogo,'')AS logo, ";
                 sSQLSelect += "ISNULL(F.NAMA,ISNULL(J.NAMA,'')) AS namapembeli, ISNULL(F.TLP,ISNULL(J.TLP,''))AS tlppembeli ";
+                //add by nurul 26/3/2020
+                sSQLSelect += ",ISNULL(A.NO_PO_CUST,'') AS no_job ";
+                //end add by nurul 26/3/2020
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
@@ -42772,6 +42787,15 @@ namespace MasterOnline.Controllers
                     var listBarangInFakturDetail = detailFakturIndb.Select(p => p.BRG).ToList();
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
+                    //add by nurul 26/3/2020
+                    if(so.namamarket.ToUpper() == "SHOPEE")
+                    {
+                        if(so.no_job != "")
+                        {
+                            resi = so.no_job;
+                        }
+                    }
+                    //add by nurul 26/3/2020
                     var port = "";
                     var ref1 = "";
                     var netto = so.si_netto;
