@@ -81,5 +81,9 @@ namespace MasterOnline
         public string logo { get; set; }
         public string namapembeli { get; set; }
         public string tlppembeli { get; set; }
+
+        //add by nurul 26/3/2020
+        public string no_job { get; set; }
+        //end add by nurul 26/3/2020
     }
 }
