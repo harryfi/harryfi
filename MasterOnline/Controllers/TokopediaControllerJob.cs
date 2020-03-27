@@ -1675,7 +1675,18 @@ namespace MasterOnline.Controllers
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/pick-up";
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-                        
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Request Pickup",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
+                REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
+                REQUEST_STATUS = "Pending",
+            };
+
             RequestPickup newData = new RequestPickup() 
             {
                 order_id = Convert.ToInt32(NO_REFERENSI_SOT01A),
@@ -1726,7 +1737,7 @@ namespace MasterOnline.Controllers
 
                     //ret = NO_BUKTI_SOT01A;
                                         
-                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
@@ -1736,7 +1747,7 @@ namespace MasterOnline.Controllers
 
                     //currentLog.REQUEST_RESULT = result.header.reason;
                     //currentLog.REQUEST_EXCEPTION = result.header.messages;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                     throw new Exception(result.header.messages + ";" + result.header.reason);
                 }
             }
