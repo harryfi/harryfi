@@ -1020,7 +1020,13 @@ namespace MasterOnline.Controllers
 
                                 //oCommand.Parameters["@custName"].Value = result.value.custName;
                                 oCommand.Parameters["@custName"].Value = nama;
-                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                //oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                var ordStatus = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                if (ordStatus == "PF" || ordStatus == "PU")
+                                {
+                                    ordStatus = "FP";
+                                }
+                                oCommand.Parameters["@orderStatus"].Value = ordStatus;
                                 oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString != null ? result.value.orderStatusString : "";
                                 oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress : "";
                                 oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail != null ? result.value.customerEmail : "";
