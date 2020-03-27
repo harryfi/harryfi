@@ -762,48 +762,47 @@ namespace MasterOnline.Controllers
             return result;
         }
 
+        public class dataByte
+        {
+            public byte[] data { get; set; }
+        }
+
         public ActionResult UploadXcelSaldoAwal()
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
             //var listCust = new List<string>();
             BindUploadExcel ret = new BindUploadExcel();
-            BindUploadExcelFile rest = new BindUploadExcelFile();
             ret.Errors = new List<string>();
             ret.namaGudang = new List<string>();
             ret.lastRow = new List<int>();
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
-                //WebClient WebClient = new WebClient();
-                //Stream rStream = WebClient.OpenRead("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
-                //Stream wStream = WebClient.OpenWrite("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
-                //var vStream = WebClient.DownloadData("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
 
-
-
-                object obj = UploadFileServices.UploadFile(Request.Files[0]);
-
-
+                byte[] dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
-                    var file = Request.Files[file_index];
-                    if (file != null && file.ContentLength > 0)
-                    {
-                        byte[] data;
-                        ret.lastRow.Add(0);
-                        using (Stream inputStream = file.InputStream)
-                        {
-                            MemoryStream memoryStream = inputStream as MemoryStream;
-                            if (memoryStream == null)
-                            {
-                                memoryStream = new MemoryStream();
-                                inputStream.CopyTo(memoryStream);
-                            }
-                            data = memoryStream.ToArray();
-                        }
+                    //remark by fauzi for upload with method Server Side Rendering
+                    //var file = Request.Files[file_index];
+                    //if (file != null && file.ContentLength > 0)
+                    //{
+                    //    byte[] data;
+                    ret.lastRow.Add(0);
+                    //    using (Stream inputStream = file.InputStream)
+                    //    {
+                    //        MemoryStream memoryStream = inputStream as MemoryStream;
+                    //        if (memoryStream == null)
+                    //        {
+                    //            memoryStream = new MemoryStream();
+                    //            inputStream.CopyTo(memoryStream);
+                    //        }
+                    //        data = memoryStream.ToArray();
+                    //    }
+                    //end remark
 
-                        using (MemoryStream stream = new MemoryStream(data))
+                    using (MemoryStream stream = new MemoryStream(dataByte))
                         {
                             using (ExcelPackage excelPackage = new ExcelPackage(stream))
 
@@ -1023,7 +1022,8 @@ namespace MasterOnline.Controllers
                                                                     stt01b.Qty = Convert.ToInt32(worksheet.Cells[i, 3].Value);
                                                                     stt01b.Harga = stt01b.Harsat * stt01b.Qty;
                                                                     eraDB.STT01B.Add(stt01b);
-                                                                }
+                                                                    eraDB.SaveChanges();
+                                                            }
                                                             }
 
                                                             //eraDB.SaveChanges();
@@ -1041,7 +1041,7 @@ namespace MasterOnline.Controllers
                                                         //break;
                                                     }
                                                 }
-                                                eraDB.SaveChanges();
+                                                //eraDB.SaveChanges();
                                                 if (ret.lastRow[file_index] == 0)
                                                     ret.lastRow[file_index] = worksheet.Dimension.End.Row;
 
@@ -1066,7 +1066,7 @@ namespace MasterOnline.Controllers
                         }
                         //        }
 
-                    }
+                    //}
                 }
             }
             catch (Exception ex)
@@ -1276,26 +1276,7 @@ namespace MasterOnline.Controllers
         //end by Tri add 28 okt 2019, tuning upload excel sinkronisasi barang
 
     }
-
-    public class BindUploadExcelFile
-    {
-        public double ContentLength { get; set; }
-        public List<ResponseStreamResult> ResponseStream { get; set; }
-    }
-
-    public class ResponseStreamResult
-    {
-        public bool CanRead { get; set; }
-        public bool CanSeek { get; set; }
-        public bool CanTimeout { get; set; }
-        public bool CanWrite { get; set; }
-        public long Length { get; set; }
-        public long Position { get; set; }
-        public int ReadTimeout { get; set; }
-        public int WriteTimeout { get; set; }
-    }
-
-
+    
     public class BindUploadExcel
     {
         public List<string> Errors { get; set; }
