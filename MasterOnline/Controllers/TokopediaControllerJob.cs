@@ -1056,8 +1056,6 @@ namespace MasterOnline.Controllers
                         selection = new List<CreateProduct_Variant>(),
                         sizecharts = new List<CreateProduct_Images>()
                     };
-                    if(newDataProduct.pictures.Count > 0)
-                    product_variant.sizecharts.Add(newDataProduct.pictures[0]);
                     //var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
                     var AttributeOptTokped = (await GetAttributeToList(iden, brg_stf02h.CATEGORY_CODE)).attribute_opt;
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
@@ -1135,13 +1133,14 @@ namespace MasterOnline.Controllers
 
                                 newVariasi.options.Add(newOpt);
 
-                                if (newDataProduct.images.Count() == 0)
+                                if (newDataProduct.pictures.Count() == 0)
                                 {
-                                    newDataProduct.images.Add(new CreateProduct_Images()
+                                    newDataProduct.pictures.Add(new CreateProduct_Images()
                                     {
-                                        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
-                                        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
-                                        image_description = ""
+                                        //image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                        //image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                        //image_description = ""
+                                        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
 
                                     #region 6/9/2019, barang varian 2 gambar
@@ -1168,7 +1167,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        product_variant.variant.Add(newVariasi);
+                        product_variant.selection.Add(newVariasi);
                     }
                     #endregion
 
@@ -1180,21 +1179,21 @@ namespace MasterOnline.Controllers
                         int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
-                            v = variant_id,
-                            vu = unit_id,
-                            pos = 2,
-                            opt = new List<CreateProduct_Opt>()
+                            id = variant_id,
+                            unit_id = unit_id,
+                            //pos = 2,
+                            options = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
                             #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
-                            if (product_variant.variant.Count > 0)
+                            if (product_variant.selection.Count > 0)
                             {
-                                foreach (var variant in product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
+                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
                                 {
-                                    var added_value_id = variant.opt.Select(p => p.vuv).ToList();
+                                    var added_value_id = variant.options.Select(p => p.unit_value_id).ToList();
                                     if (add)
                                     {
                                         if (added_value_id.Contains(Convert.ToInt32(fe_record.MP_VALUE_VAR))) //value_id sudah ada 
@@ -1216,12 +1215,12 @@ namespace MasterOnline.Controllers
                                 };
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    vuv = Convert.ToInt32(fe_record.MP_VALUE_VAR),
-                                    t_id = fe_record.RECNUM,
-                                    cstm = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
-                                    image = new List<CreateProduct_Image>()
+                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //t_id = fe_record.RECNUM,
+                                    value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
+                                    //image = new List<CreateProduct_Image>()
                                 };
-                                newOpt.image.Add(gambarVariant);
+                                //newOpt.image.Add(gambarVariant);
 
                                 #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
@@ -1237,15 +1236,16 @@ namespace MasterOnline.Controllers
                                 //}
                                 #endregion
 
-                                newVariasi.opt.Add(newOpt);
+                                newVariasi.options.Add(newOpt);
 
-                                if (newDataProduct.images.Count() == 0)
+                                if (newDataProduct.pictures.Count() == 0)
                                 {
-                                    newDataProduct.images.Add(new CreateProduct_Images()
+                                    newDataProduct.pictures.Add(new CreateProduct_Images()
                                     {
-                                        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
-                                        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
-                                        image_description = ""
+                                        //image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                        //image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                        //image_description = ""
+                                        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
                                     #region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
@@ -1273,16 +1273,16 @@ namespace MasterOnline.Controllers
                         }
                         //cek duplikat map variasi
                         var duplicateVdanVU = false;
-                        foreach (var item in product_variant.variant)
+                        foreach (var item in product_variant.selection)
                         {
-                            if (item.v == newVariasi.v && item.vu == newVariasi.vu)
+                            if (item.id == newVariasi.id && item.unit_id == newVariasi.unit_id)
                             {
                                 duplicateVdanVU = true;
                             }
                         }
                         if (!duplicateVdanVU)
                         {
-                            product_variant.variant.Add(newVariasi);
+                            product_variant.selection.Add(newVariasi);
                         }
                     }
                     #endregion
@@ -1293,14 +1293,15 @@ namespace MasterOnline.Controllers
                         var price_var = var_stf02h.Where(p => p.BRG == item_var.BRG).FirstOrDefault();
                         CreateProduct_Product_Variant1 newProductVariasi = new CreateProduct_Product_Variant1()
                         {
-                            st = 1,
+                            //st = 1,
+                            status = "LIMITED",
                             stock = 1,
                             //change by nurul 11/2/2020, ambil harga jual barang per variasi
                             //price_var = (float)item_var.HJUAL,
-                            price_var = (float)price_var.HJUAL,
+                            price = (float)price_var.HJUAL,
                             //end change by nurul 11/2/2020, ambil harga jual barang per variasi
                             sku = item_var.BRG,
-                            opt = new List<int>()
+                            combination = new List<int>()
                         };
                         if (!string.IsNullOrWhiteSpace(item_var.Sort8))
                         {
@@ -1351,6 +1352,8 @@ namespace MasterOnline.Controllers
                         product_variant.product_variant.Add(newProductVariasi);
                     }
 
+                    if (newDataProduct.pictures.Count > 0)
+                        product_variant.sizecharts.Add(newDataProduct.pictures[0]);
                     newDataProduct.product_variant = product_variant;
                 }
                 //else if (brg_stf02.TYPE == "3")
