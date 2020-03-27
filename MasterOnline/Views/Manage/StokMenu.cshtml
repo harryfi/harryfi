@@ -237,12 +237,12 @@
                                        accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             </div>
                             <div class="col-md-4">
-                                @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
+                                <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
             <span>Upload</span>
-        </button>*@
-                                <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
+        </button>
+                                @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
                                     <span>Upload</span>
-                                </button>
+                                </button>*@
                             </div>
                         </div>
                     </div>
@@ -347,7 +347,7 @@
                 }
             });
 
-            document.getElementById('file_upload_excel').onclick = function (e) { e.preventDefault(); alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');};
+            //document.getElementById('file_upload_excel').onclick = function (e) { e.preventDefault(); alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');};
 
             $('#search_stok').keypress(function (e) {
                 var key = e.which;
