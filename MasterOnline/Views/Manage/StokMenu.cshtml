@@ -259,24 +259,25 @@
                     <br />
                     <br />
                     <div class="col-md-12">
-                        <div id="progressBarUpload" class="text-center" style="display:none;">
-                            <table class="col-md-12 text-center" id="tbl_progbar2">
-                                <tr>
-                                    <td class="col-md-2">
-                                        <label id="lblPBUpload"></label>
-                                    </td>
-                                    <td class="col-md-10">
-                                        <div class="progress">
-                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
-                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
-                                                0% Complete (success)
+                        @*<div id="progressBarUpload" class="text-center" style="display:none;">*@
+                            <div id="progressBarUpload" class="text-center" >
+                                <table class="col-md-12" id="tbl_progbar2">
+                                    <tr>
+                                        <td class="col-md-2">
+                                            <label id="lblPBUpload"></label>
+                                        </td>
+                                        <td class="col-md-10">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                                    0% Complete (success)
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -445,7 +446,7 @@
             link.click();
             //document.body.removeChild(link);
         };
-   
+
         function uploadExcelSAS() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
@@ -453,6 +454,19 @@
             else
             {
                 $('#progressBarUpload').show();
+                uploadFileExcelStockAwal(0, 0);
+            }
+        }
+   
+        function uploadFileExcelStockAwal(fileNum, pageNum) {
+            if ($('#file_upload_excel')[0].files.length <= fileNum) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+            }
+            else
+            {
                 $('#btnUploadExcelSAS').attr('disabled', 'disabled');
 
                 var formdata = new FormData(); //FormData object
@@ -460,12 +474,17 @@
                 //Iterating through each files selected in fileInput
                 for (i = 0; i < fileInput.files.length; i++) {
                     //Appending each file to FormData object
-                    formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                    if (i == fileNum) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
                 }
 
+                var url1 = '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")';
+                //url1 = url1.replace("replacePage", encodeURIComponent(pageNum));
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")',
+                    url: url1,
                     data: formdata,
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
@@ -473,45 +492,68 @@
                         //$('#loading_upload').show();
                     },
                     success: function (response) {
-                        pageNum = 1;
+                        lastPage = pageNum;
                         if (response.lastRow != null) {
                             if (parseInt(response.lastRow[0]) > 0) {
-                                var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 1);
+                                var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 300);
                                 $('#pBar_uploadFile').css('width', parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (pageNum + 1) / (maxPage2 + 1) * 100);
                                 $('#pBar_uploadFile').html(parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '% Complete');
                             }
                         }
 
-                        if (response.Errors.length == 0) {
-                            $('#loading_upload').hide();
-                            $('#btnUploadExcelSAS').removeAttr('disabled');
-                            $('#progressBarUpload').show();
-                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                            $('#pBar_uploadFile').html('100% Complete');
-
-                            //rows_selected = response.cust;
-                            //listCustomerUploaded = response.namaCust;
-                            alert('Proses upload dan input Saldo awal stok sudah selesai.');
-                            document.getElementById("file_upload_excel").value = "";
+                        if (response.nextFile) {
+                            loop = 1;
+                            uploadFileExcelStockAwal(fileNum + 1, 0);
                         } else {
-                            var err = "";
-                            for (i = 0; i < response.Errors.length; i++) {
-                                err += response.Errors[i] + "\n";
+                            if (response.Errors.length == 0) {
+                                $('#loading_upload').hide();
+                                $('#btnUploadExcelSAS').removeAttr('disabled');
+                                $('#progressBarUpload').show();
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 0);
+                                $('#pBar_uploadFile').html('100% Complete');
+
+                                //rows_selected = response.cust;
+                                //listCustomerUploaded = response.namaCust;
+                                alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                                document.getElementById("file_upload_excel").value = "";
+                            } else {
+                                var err = "";
+                                for (i = 0; i < response.Errors.length; i++) {
+                                    err += response.Errors[i] + "\n";
+                                }
+                                //$('#progressBarUpload').hide();
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 0);
+                                $('#pBar_uploadFile').html('0% Complete');
+                                alert(err);
+                                document.getElementById("file_upload_excel").value = "";
+                                //document.getElementById('lblListError').innerText = err;
+                                $('#loading_upload').hide();
+                                $('#btnUploadExcelSAS').removeAttr('disabled');
                             }
-                            $('#progressBarUpload').hide();
-                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
-                            $('#pBar_uploadFile').html('0% Complete');
-                            alert(err);
-                            document.getElementById("file_upload_excel").value = "";
-                            //document.getElementById('lblListError').innerText = err;
-                            $('#loading_upload').hide();
-                            $('#btnUploadExcelSAS').removeAttr('disabled');
+                            uploadFileExcelStockAwal(fileNum, pageNum + 1);
                         }
+                        
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
-                        $('#progressBarUpload').hide();
-                        $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                        if (xhr.status == 524) {
+                            if (lastPage == pageNum) {
+                                loop = loop + 1;
+                            } else {
+                                loop = 1;
+                            }
+                            if (loop <= 3) {
+                                uploadFileExcelStockAwal(fileNum, pageNum);
+                            } else {
+                                alert('Terdapat Error saat mengupload data barang excel ini.\nSilahkan hubungi tim support MO');
+                                //refreshTableBarangUpload();
+                                //$('#lblPleasewait').hide();
+                                //$('#info_record').hide();
+                                //$('#loading_spinner').hide();
+                            }
+                        }
+                        //$('#progressBarUpload').hide();
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 0);
                         $('#pBar_uploadFile').html('0% Complete');
                         $('#loading_upload').hide();
                         $('#btnUploadExcelSAS').removeAttr('disabled');
@@ -520,6 +562,39 @@
             }
         }
         //end add 24 Juli 2019, untuk excel stok awal
+
+        //add by fauzi untuk progress bar upload excel awal stock
+        function progressBar_UploadAwalStock(nextFile, statusProgress) {
+            if ($('#file_upload_excel')[0].files.length < 0) {
+                //$('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+            }
+            else {
+                $('#progressBarUpload').show();
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == fileNum) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name)
+                    }
+                }
+
+                if (countRow) {
+
+                }
+
+                if (nextFile) {
+                    loop = 1;
+                    progressBar_UploadAwalStock(nextFile, statusProgress + 1);
+                } else {
+                    progressBar_UploadAwalStock(nextFile, statusProgress + 1);
+                }
+            }
+        }
+        //end by fauzi
 
         function closeEditor() {
             //$('#close-editor')[0].disabled = true;
