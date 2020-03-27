@@ -38860,7 +38860,7 @@ namespace MasterOnline.Controllers
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-            Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
+            //Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, username));
 
             return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }

@@ -238,23 +238,45 @@
                             </div>
                             <div class="col-md-4">
                                 <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
-            <span>Upload</span>
-        </button>
-                                @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
                                     <span>Upload</span>
-                                </button>*@
+                                </button>
+                                @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
+                        <span>Upload</span>
+                    </button>*@
                             </div>
                         </div>
                     </div>
                     @*<div class="row">*@
-                        <div class="col-md-12">
-                            <div id="loading_upload" class="text-center" hidden="hidden">
-                                <div id="loading_upload_image">
-                                    <img src="~/Content/Images/spinner.gif" />
-                                </div>
+                    <div class="col-md-12">
+                        <div id="loading_upload" class="text-center" hidden="hidden">
+                            <div id="loading_upload_image">
+                                <img src="~/Content/Images/spinner.gif" />
                             </div>
                         </div>
+                    </div>
                     @*</div>*@
+                    <br />
+                    <br />
+                    <br />
+                    <div class="col-md-12">
+                        <div id="progressBarUpload" class="text-center" style="display:none;">
+                            <table class="col-md-12 text-center" id="tbl_progbar2">
+                                <tr>
+                                    <td class="col-md-2">
+                                        <label id="lblPBUpload"></label>
+                                    </td>
+                                    <td class="col-md-10">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                                0% Complete (success)
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -430,6 +452,7 @@
             }
             else
             {
+                $('#progressBarUpload').show();
                 $('#btnUploadExcelSAS').attr('disabled', 'disabled');
 
                 var formdata = new FormData(); //FormData object
@@ -447,12 +470,24 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_upload').show();
+                        //$('#loading_upload').show();
                     },
                     success: function (response) {
+                        pageNum = 1;
+                        if (response.lastRow != null) {
+                            if (parseInt(response.lastRow[0]) > 0) {
+                                var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 1);
+                                $('#pBar_uploadFile').css('width', parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (pageNum + 1) / (maxPage2 + 1) * 100);
+                                $('#pBar_uploadFile').html(parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '% Complete');
+                            }
+                        }
+
                         if (response.Errors.length == 0) {
                             $('#loading_upload').hide();
                             $('#btnUploadExcelSAS').removeAttr('disabled');
+                            $('#progressBarUpload').show();
+                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                            $('#pBar_uploadFile').html('100% Complete');
 
                             //rows_selected = response.cust;
                             //listCustomerUploaded = response.namaCust;
@@ -463,6 +498,9 @@
                             for (i = 0; i < response.Errors.length; i++) {
                                 err += response.Errors[i] + "\n";
                             }
+                            $('#progressBarUpload').hide();
+                            $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                            $('#pBar_uploadFile').html('0% Complete');
                             alert(err);
                             document.getElementById("file_upload_excel").value = "";
                             //document.getElementById('lblListError').innerText = err;
@@ -472,6 +510,9 @@
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
+                        $('#progressBarUpload').hide();
+                        $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                        $('#pBar_uploadFile').html('0% Complete');
                         $('#loading_upload').hide();
                         $('#btnUploadExcelSAS').removeAttr('disabled');
                     }

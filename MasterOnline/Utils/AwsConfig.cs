@@ -14,6 +14,6 @@ namespace MasterOnline.Utils
         public static string _amazonAwsUrl { get; set; } = "https://s3-ap-southeast-1.amazonaws.com/";
 
         //for uploadfileservice.cs
-        public static string _bucketFileName { get; set; } = "masteronlinebucket/uploaded-file";
+        public static string _bucketFileName { get; set; } = "uploaded-file/";
     }
 }
