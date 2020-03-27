@@ -1010,8 +1010,12 @@ namespace MasterOnline.Controllers
 
                                 oCommand.Parameters["@productName"].Value = result.value.productName;
                                 oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
-                                oCommand.Parameters["@productPrice"].Value = result.value.productPrice;
-                                oCommand.Parameters["@total"].Value = result.value.total;
+                                //change by Tri 27 Mar 2020, gunakan final price
+                                //oCommand.Parameters["@productPrice"].Value = result.value.productPrice;
+                                //oCommand.Parameters["@total"].Value = result.value.total;
+                                oCommand.Parameters["@productPrice"].Value = result.value.finalPrice;
+                                oCommand.Parameters["@total"].Value = result.value.finalPriceTotal;
+                                //end change by Tri 27 Mar 2020, gunakan final price
                                 oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg;
 
                                 //oCommand.Parameters["@custName"].Value = result.value.custName;
@@ -8344,6 +8348,8 @@ namespace MasterOnline.Controllers
             public BlibliGetOrderDetailOrderhistory[] orderHistory { get; set; }
             public object manifestInfo { get; set; }
             public object manifest { get; set; }
+            public float finalPrice { get; set; }
+            public float finalPriceTotal { get; set; }
         }
 
         public class BlibliGetOrderDetailOrderhistory
