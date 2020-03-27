@@ -19095,7 +19095,7 @@ namespace MasterOnline.Controllers
                                     DatabasePathErasoft = dbPathEra,
                                     username = usernameLogin
                                 };
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostAckOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI));
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
                         }
@@ -19747,7 +19747,7 @@ namespace MasterOnline.Controllers
                     var clientJobServer = new BackgroundJobClient(sqlStorage);
                     //change by calvin 10 april 2019, jadi pakai backgroundjob
                     //await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
-                    clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
+                    clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NO_BUKTI, marketPlace.CUST, "Pesanan", "Ganti Status", iden, pesananInDb.NO_BUKTI, referensi[0]));
                     //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
@@ -36855,14 +36855,14 @@ namespace MasterOnline.Controllers
 #if (DEBUG || Debug_AWS)
                                 //Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
                                 TokopediaControllerJob tokpedController = new TokopediaControllerJob();
-                                Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
+                                Task.Run(() => tokpedController.PostRequestPickup(dbPathEra, item.no_bukti, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]).Wait());
 #else
                                                                 var sqlStorage = new SqlServerStorage(EDBConnID);
                                                                 var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.nama_pemesan, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
+                                                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, item.no_bukti, marketPlace.CUST, "Pesanan", "Ganti Status", iden, item.no_bukti, referensi[0]));
 #endif
-                                
-                                        listSuccess.Add(new listSuccessPrintLabel
+
+                                listSuccess.Add(new listSuccessPrintLabel
                                         {
                                             no_referensi = item.no_bukti
                                         });
