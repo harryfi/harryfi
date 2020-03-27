@@ -944,8 +944,8 @@ namespace MasterOnline.Controllers
             if (brg_stf02 != null)
             {
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
-                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
-
+                //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+                string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/create?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -959,20 +959,20 @@ namespace MasterOnline.Controllers
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
                     category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
                     price = Convert.ToInt32(brg_stf02h.HJUAL),
-                    status = 1,
-                    minimum_order = 1,
+                    status = "LIMITED",//UNLIMITED, LIMITED, and EMPTY
+                    min_order = 1,
                     weight = Convert.ToInt32(brg_stf02.BERAT),
-                    weight_unit = 1,
-                    condition = 1,
+                    weight_unit = "GR",//GR (gram) and KG (kilogram)
+                    condition = "NEW",//NEW and USED
                     description = brg_stf02.Deskripsi,
-                    must_insurance = false,
-                    returnable = false,
+                    is_must_insurance = false,
+                    is_free_return = false,
                     sku = brg_stf02.BRG,
                     stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
-                    product_wholesale_price = null,
-                    product_preorder = null,
-                    product_video = null,
-                    images = new List<CreateProduct_Images>()
+                    wholesale = null,
+                    preorder = null,
+                    videos = null,
+                    pictures = new List<CreateProduct_Images>()
                 };
 
                 //add by nurul 6/2/2020
@@ -991,58 +991,58 @@ namespace MasterOnline.Controllers
 
                 newDataProduct.etalase = new CreateProduct_Etalase()
                 {
-                    etalase_id = etalase_id,
-                    etalase_name = ""
+                    id = etalase_id,
+                    name = ""
                 };
 
                 //add 15/10/2019, selalu isi gambar induk
                 if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_1))
                 {
-                    newDataProduct.images.Add(new CreateProduct_Images()
+                    newDataProduct.pictures.Add(new CreateProduct_Images()
                     {
-                        image_description = "",
-                        image_file_name = "",
-                        image_file_path = brg_stf02.LINK_GAMBAR_1
+                        //image_description = "",
+                        //image_file_name = "",
+                        file_path = brg_stf02.LINK_GAMBAR_1
                     });
                 }
 
                 if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_2))
                 {
-                    newDataProduct.images.Add(new CreateProduct_Images()
+                    newDataProduct.pictures.Add(new CreateProduct_Images()
                     {
-                        image_description = "",
-                        image_file_name = "",
-                        image_file_path = brg_stf02.LINK_GAMBAR_2
+                        //image_description = "",
+                        //image_file_name = "",
+                        file_path = brg_stf02.LINK_GAMBAR_2
                     });
                 }
 
                 if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_3))
                 {
-                    newDataProduct.images.Add(new CreateProduct_Images()
+                    newDataProduct.pictures.Add(new CreateProduct_Images()
                     {
-                        image_description = "",
-                        image_file_name = "",
-                        image_file_path = brg_stf02.LINK_GAMBAR_3
+                        //image_description = "",
+                        //image_file_name = "",
+                        file_path = brg_stf02.LINK_GAMBAR_3
                     });
                 }
                 //add 6/9/2019, 5 gambar
                 if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_4))
                 {
-                    newDataProduct.images.Add(new CreateProduct_Images()
+                    newDataProduct.pictures.Add(new CreateProduct_Images()
                     {
-                        image_description = "",
-                        image_file_name = "",
-                        image_file_path = brg_stf02.LINK_GAMBAR_4
+                        //image_description = "",
+                        //image_file_name = "",
+                        file_path = brg_stf02.LINK_GAMBAR_4
                     });
                 }
 
                 if (!string.IsNullOrEmpty(brg_stf02.LINK_GAMBAR_5))
                 {
-                    newDataProduct.images.Add(new CreateProduct_Images()
+                    newDataProduct.pictures.Add(new CreateProduct_Images()
                     {
-                        image_description = "",
-                        image_file_name = "",
-                        image_file_path = brg_stf02.LINK_GAMBAR_5
+                        //image_description = "",
+                        //image_file_name = "",
+                        file_path = brg_stf02.LINK_GAMBAR_5
                     });
                 }
                 //end add 6/9/2019, 5 gambar
@@ -1052,9 +1052,12 @@ namespace MasterOnline.Controllers
                 {
                     CreateProduct_Product_Variant product_variant = new CreateProduct_Product_Variant()
                     {
-                        product_variant = new List<CreateProduct_Product_Variant1>(),
-                        variant = new List<CreateProduct_Variant>()
+                        products = new List<CreateProduct_Product_Variant1>(),
+                        selection = new List<CreateProduct_Variant>(),
+                        sizecharts = new List<CreateProduct_Images>()
                     };
+                    if(newDataProduct.pictures.Count > 0)
+                    product_variant.sizecharts.Add(newDataProduct.pictures[0]);
                     //var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
                     var AttributeOptTokped = (await GetAttributeToList(iden, brg_stf02h.CATEGORY_CODE)).attribute_opt;
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
@@ -1073,21 +1076,21 @@ namespace MasterOnline.Controllers
                         int unit_id = AttributeOptTokped.Where(p => p.VARIANT_ID == variant_id && p.VALUE_ID == first_value).FirstOrDefault().UNIT_ID;
                         CreateProduct_Variant newVariasi = new CreateProduct_Variant()
                         {
-                            v = variant_id,
-                            vu = unit_id,
-                            pos = 1,
-                            opt = new List<CreateProduct_Opt>()
+                            id = variant_id,
+                            unit_id = unit_id,
+                            //pos = 1,
+                            options = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
                             #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
-                            if (product_variant.variant.Count > 0)
+                            if (product_variant.selection.Count > 0)
                             {
-                                foreach (var variant in product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
+                                foreach (var variant in product_variant.selection.Where(p => p.id == variant_id && p.unit_id == unit_id))
                                 {
-                                    var added_value_id = variant.opt.Select(p => p.vuv).ToList();
+                                    var added_value_id = variant.options.Select(p => p.unit_value_id).ToList();
                                     if (add)
                                     {
                                         if (added_value_id.Contains(Convert.ToInt32(fe_record.MP_VALUE_VAR))) //value_id sudah ada 
@@ -1109,12 +1112,12 @@ namespace MasterOnline.Controllers
                                 };
                                 CreateProduct_Opt newOpt = new CreateProduct_Opt()
                                 {
-                                    vuv = Convert.ToInt32(fe_record.MP_VALUE_VAR),
-                                    t_id = fe_record.RECNUM,
-                                    cstm = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
-                                    image = new List<CreateProduct_Image>()
+                                    unit_value_id = Convert.ToInt32(fe_record.MP_VALUE_VAR),
+                                    //t_id = fe_record.RECNUM,
+                                    value = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
+                                    //image = new List<CreateProduct_Image>()
                                 };
-                                newOpt.image.Add(gambarVariant);
+                                //newOpt.image.Add(gambarVariant);
 
                                 #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
@@ -1130,7 +1133,7 @@ namespace MasterOnline.Controllers
                                 //}
                                 #endregion
 
-                                newVariasi.opt.Add(newOpt);
+                                newVariasi.options.Add(newOpt);
 
                                 if (newDataProduct.images.Count() == 0)
                                 {
@@ -4825,57 +4828,82 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public int category_id { get; set; }
             public int price { get; set; }
-            public int status { get; set; }
-            public int minimum_order { get; set; }
-            public int weight { get; set; }
-            public int weight_unit { get; set; }
-            public int condition { get; set; }
+            public string status { get; set; }
+            //public int minimum_order { get; set; }
+            public int min_order { get; set; }//api v2
+            public float weight { get; set; }
+            public string weight_unit { get; set; }
+            public string condition { get; set; }
             public string description { get; set; }
-            public bool must_insurance { get; set; }
-            public bool returnable { get; set; }
+            //public bool must_insurance { get; set; }
+            //public bool returnable { get; set; }
+            public bool is_must_insurance { get; set; }//api v2
+            public bool is_free_return { get; set; }//api v2
             public string sku { get; set; }
             public int stock { get; set; }
             public CreateProduct_Etalase etalase { get; set; }
-            public CreateProduct_Product_Wholesale_Price[] product_wholesale_price { get; set; }
-            public CreateProduct_Product_Preorder product_preorder { get; set; }
-            public List<CreateProduct_Images> images { get; set; }
-            public CreateProduct_Product_Video[] product_video { get; set; }
-            public CreateProduct_Product_Variant product_variant { get; set; }
+            //public CreateProduct_Product_Wholesale_Price[] product_wholesale_price { get; set; }
+            //public CreateProduct_Product_Preorder product_preorder { get; set; }
+            //public List<CreateProduct_Images> images { get; set; }
+            //public CreateProduct_Product_Video[] product_video { get; set; }
+            //public CreateProduct_Product_Variant product_variant { get; set; }
+            public CreateProduct_Product_Wholesale_Price[] wholesale { get; set; }//api v2
+            public CreateProduct_Product_Preorder preorder { get; set; }//api v2
+            public List<CreateProduct_Images> pictures { get; set; }//api v2
+            public CreateProduct_Product_Video[] videos { get; set; }//api v2
+            public CreateProduct_Product_Variant variant { get; set; }//api v2
         }
 
         public class CreateProduct_Etalase
         {
-            public int etalase_id { get; set; }
-            public string etalase_name { get; set; }
+            //public int etalase_id { get; set; }
+            //public string etalase_name { get; set; }
+            public int id { get; set; }
+            public string name { get; set; }
         }
 
         public class CreateProduct_Product_Preorder
         {
-            public int preorder_process_time { get; set; }
-            public int preorder_time_unit { get; set; }
-            public int preorder_status { get; set; }
+            //public int preorder_process_time { get; set; }
+            //public int preorder_time_unit { get; set; }
+            //public int preorder_status { get; set; }
+            public bool is_active { get; set; }
+            public int duration { get; set; }
+            public string time_unit { get; set; }//"time_unit":"DAY"
         }
 
         public class CreateProduct_Product_Variant
         {
-            public List<CreateProduct_Variant> variant { get; set; }
-            public List<CreateProduct_Product_Variant1> product_variant { get; set; }
+            //public List<CreateProduct_Variant> variant { get; set; }
+            //public List<CreateProduct_Product_Variant1> product_variant { get; set; }
+            public List<CreateProduct_Variant> selection { get; set; }
+            public List<CreateProduct_Product_Variant1> products { get; set; }
+            public List<CreateProduct_Images> sizecharts { get; set; }
         }
 
         public class CreateProduct_Variant
         {
-            public int v { get; set; }
-            public int vu { get; set; }
-            public int pos { get; set; }
-            public List<CreateProduct_Opt> opt { get; set; }
+            //public int v { get; set; }
+            //public int vu { get; set; }
+            //public int pos { get; set; }
+            //public List<CreateProduct_Opt> opt { get; set; }
+            public int id { get; set; }
+            public int unit_id { get; set; }
+            //public int pos { get; set; }
+            public List<CreateProduct_Opt> options { get; set; }
         }
 
         public class CreateProduct_Opt
         {
-            public int vuv { get; set; }
-            public int t_id { get; set; }
-            public string cstm { get; set; }
-            public List<CreateProduct_Image> image { get; set; }
+            //public int vuv { get; set; }
+            //public int t_id { get; set; }
+            //public string cstm { get; set; }
+            //public List<CreateProduct_Image> image { get; set; }
+            public int unit_value_id { get; set; }
+            //public int t_id { get; set; }
+            public string hex_code { get; set; }
+            public string value { get; set; }
+            //public List<CreateProduct_Image> image { get; set; }
         }
 
         public class CreateProduct_Image
@@ -4888,31 +4916,43 @@ namespace MasterOnline.Controllers
 
         public class CreateProduct_Product_Variant1
         {
-            public int st { get; set; }
+            //public int st { get; set; }
+            //public int stock { get; set; }
+            //public float price_var { get; set; }
+            //public string sku { get; set; }
+            //public List<int> opt { get; set; }
+            public string status { get; set; }
             public int stock { get; set; }
-            public float price_var { get; set; }
+            public float price { get; set; }
             public string sku { get; set; }
-            public List<int> opt { get; set; }
+            public List<int> combination { get; set; }
+            public List<CreateProduct_Images> pictures { get; set; }
+
         }
 
         public class CreateProduct_Product_Wholesale_Price
         {
-            public int qty_min { get; set; }
-            public int qty_max { get; set; }
-            public int prd_prc { get; set; }
+            //public int qty_min { get; set; }
+            //public int qty_max { get; set; }
+            //public int prd_prc { get; set; }
+            public int min_qty { get; set; }
+            public int price { get; set; }
         }
 
         public class CreateProduct_Images
         {
-            public string image_description { get; set; }
-            public string image_file_path { get; set; }
-            public string image_file_name { get; set; }
+            //public string image_description { get; set; }
+            //public string image_file_path { get; set; }
+            //public string image_file_name { get; set; }
+            public string file_path { get; set; }
         }
 
         public class CreateProduct_Product_Video
         {
-            public string url { get; set; }
-            public string type { get; set; }
+            public string url { get; set; }//url should only contain the YouTube video id
+            //public string type { get; set; }
+            public string source { get; set; }//"source": "youtube"
+
         }
 
         public class GetEtalaseReturn
