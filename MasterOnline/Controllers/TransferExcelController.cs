@@ -776,6 +776,7 @@ namespace MasterOnline.Controllers
             ret.Errors = new List<string>();
             ret.namaGudang = new List<string>();
             ret.lastRow = new List<int>();
+            ret.nextFile = false;
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
@@ -1038,8 +1039,8 @@ namespace MasterOnline.Controllers
                                                         ret.Errors.Add("Kode barang tidak ditemukan lagi di baris " + i);
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
-                                                        //break;
-                                                    }
+                                                    break;
+                                                }
                                                 }
                                                 //eraDB.SaveChanges();
                                                 if (ret.lastRow[file_index] == 0)
