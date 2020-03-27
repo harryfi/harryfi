@@ -1066,6 +1066,8 @@ namespace MasterOnline.Controllers
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
+                    var listRecnumLv1 = new List<int>();
+                    var listRecnumLv2 = new List<int>();
                     #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
@@ -1310,9 +1312,9 @@ namespace MasterOnline.Controllers
                             {
                                 //cek apakah recnumVariasi.RECNUM ada di opt variant
                                 var doAddOpt = false;
-                                foreach (var item in product_variant.variant)
+                                foreach (var item in product_variant.selection)
                                 {
-                                    foreach (var opts in item.opt)
+                                    foreach (var opts in item.options)
                                     {
                                         if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
                                         {
@@ -1322,7 +1324,7 @@ namespace MasterOnline.Controllers
                                 }
                                 if (doAddOpt)
                                 {
-                                    newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                    newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
                                 }
                             }
                         }
