@@ -1,5 +1,6 @@
 ﻿using Erasoft.Function;
 using MasterOnline.ViewModels;
+using MasterOnline.Services;
 using OfficeOpenXml;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Style;
@@ -767,12 +768,23 @@ namespace MasterOnline.Controllers
             //List<string> excelData = new List<string>();
             //var listCust = new List<string>();
             BindUploadExcel ret = new BindUploadExcel();
+            BindUploadExcelFile rest = new BindUploadExcelFile();
             ret.Errors = new List<string>();
             ret.namaGudang = new List<string>();
             ret.lastRow = new List<int>();
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
+                //WebClient WebClient = new WebClient();
+                //Stream rStream = WebClient.OpenRead("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
+                //Stream wStream = WebClient.OpenWrite("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
+                //var vStream = WebClient.DownloadData("https://masteronlinebucket.s3-ap-southeast-1.amazonaws.com/uploaded-file/Rahma_saldoawalstok.xlsx");
+
+
+
+                object obj = UploadFileServices.UploadFile(Request.Files[0]);
+
+
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
                     var file = Request.Files[file_index];
@@ -1263,6 +1275,24 @@ namespace MasterOnline.Controllers
         }
         //end by Tri add 28 okt 2019, tuning upload excel sinkronisasi barang
 
+    }
+
+    public class BindUploadExcelFile
+    {
+        public double ContentLength { get; set; }
+        public List<ResponseStreamResult> ResponseStream { get; set; }
+    }
+
+    public class ResponseStreamResult
+    {
+        public bool CanRead { get; set; }
+        public bool CanSeek { get; set; }
+        public bool CanTimeout { get; set; }
+        public bool CanWrite { get; set; }
+        public long Length { get; set; }
+        public long Position { get; set; }
+        public int ReadTimeout { get; set; }
+        public int WriteTimeout { get; set; }
     }
 
 
