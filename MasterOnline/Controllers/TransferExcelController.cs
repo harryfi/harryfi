@@ -783,6 +783,7 @@ namespace MasterOnline.Controllers
 
                 byte[] dataByte = UploadFileServices.UploadFile(Request.Files[0]);
                 
+
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
                     //remark by fauzi for upload with method Server Side Rendering
@@ -954,12 +955,13 @@ namespace MasterOnline.Controllers
                                                     {
                                                         var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                                         ret.Errors.Add(errMsg);
-                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        //return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
                                                 }
                                                 //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                                
+                                                    
+
                                                 #endregion
                                                 //loop all rows
                                                 for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
@@ -1040,13 +1042,14 @@ namespace MasterOnline.Controllers
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
                                                     break;
-                                                }
+                                                    }
                                                 }
                                                 //eraDB.SaveChanges();
                                                 if (ret.lastRow[file_index] == 0)
                                                     ret.lastRow[file_index] = worksheet.Dimension.End.Row;
 
-                                                var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+
+                                                //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
                                             }
                                             else
                                             {
@@ -1078,6 +1081,54 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
+        //add function getCountRowForProgressBarUploadExcel
+        public ActionResult GetCountRowForProgressBarUploadStockAwal()
+        {
+            BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
+            ret.error = null;
+            ret.status = false;
+            ret.countAllRow = 0;
+
+            try
+            {
+                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                {
+                    //remark by fauzi for upload with method Server Side Rendering
+                    var file = Request.Files[file_index];
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        byte[] data;
+                        using (Stream inputStream = file.InputStream)
+                        {
+                            MemoryStream memoryStream = inputStream as MemoryStream;
+                            if (memoryStream == null)
+                            {
+                                memoryStream = new MemoryStream();
+                                inputStream.CopyTo(memoryStream);
+                            }
+                            data = memoryStream.ToArray();
+                        }
+                        //end remark
+                        using (MemoryStream stream = new MemoryStream(data))
+                        {
+                            using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                            {
+                                var worksheet = excelPackage.Workbook.Worksheets[1];
+                                ret.countAllRow = worksheet.Dimension.End.Row;
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                ret.error = "Error: " + ex.Message.ToString();
+                ret.status = false;
+            }
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+
         //add by Tri 28 okt 2019, tuning upload excel sinkronisasi barang
         public ActionResult UploadXcelwithPage(int page)
         {
@@ -1277,7 +1328,15 @@ namespace MasterOnline.Controllers
         //end by Tri add 28 okt 2019, tuning upload excel sinkronisasi barang
 
     }
-    
+
+    //add by fauzi uploadStockSaldoAwal
+    public class BindUploadExcelStockSaldoAwal
+    {
+        public string error { get; set; }
+        public int countAllRow { get; set; }
+        public bool status { get; set; }
+    }
+
     public class BindUploadExcel
     {
         public List<string> Errors { get; set; }
