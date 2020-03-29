@@ -122,7 +122,7 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
-            string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) +"?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) ;
+            string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) + "?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -222,11 +222,12 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
                 if (result.header.error_code == 0)
                 {
-                    if (result.data.upload_data.Count() > 0)
+                    //if (result.data.upload_data.Count() > 0)
+                    if (result.data != null)
                     {
-                        foreach (var item in result.data.upload_data)
+                        //foreach (var item in result.data.upload_data)
                         {
-                            if (item.unprocessed_rows > 0)
+                            if (result.data.unprocessed_rows > 0)
                             {
                                 string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
                                 var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "',LINK_STATUS='Buat Produk Pending', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
@@ -235,7 +236,7 @@ namespace MasterOnline.Controllers
                                     manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
                                 }
                             }
-                            else if (item.success_rows > 0)
+                            else if (result.data.success_rows > 0)
                             {
 #if (DEBUG || Debug_AWS)
                                 await new TokopediaControllerJob().GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID);
@@ -251,14 +252,18 @@ namespace MasterOnline.Controllers
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 #endif
                             }
-                            else if (item.failed_rows > 0)
+                            else if (result.data.failed_rows > 0)
                             {
-                                foreach (var item_failed in item.failed_rows_data)
+                                if (result.data.failed_rows_data != null)
                                 {
-                                    currentLog.REQUEST_RESULT = item_failed.error;
-                                    currentLog.REQUEST_EXCEPTION = item_failed.error;
-                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    foreach (var item_failed in result.data.failed_rows_data)
+                                    {
+                                        currentLog.REQUEST_RESULT = item_failed.error[0];
+                                        currentLog.REQUEST_EXCEPTION = item_failed.error[0];
+                                        var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    }
                                 }
+
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                                 throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION);
                             }
@@ -326,11 +331,12 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
                 if (result.header.error_code == 0)
                 {
-                    if (result.data.upload_data.Count() > 0)
+                    //if (result.data.upload_data.Count() > 0)
+                    if (result.data != null)
                     {
-                        foreach (var item in result.data.upload_data)
+                        //foreach (var item in result.data.upload_data)
                         {
-                            if (item.unprocessed_rows > 0)
+                            if (result.data.unprocessed_rows > 0)
                             {
                                 var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 if (success == 1)
@@ -338,7 +344,7 @@ namespace MasterOnline.Controllers
                                     manageAPI_LOG_MARKETPLACE(api_status.RePending, ErasoftDbContext, iden, currentLog);
                                 }
                             }
-                            else if (item.success_rows > 0)
+                            else if (result.data.success_rows > 0)
                             {
                                 //change by calvin 9 juni 2019
                                 //await GetActiveItemVariantByProductID(iden, brg, iden.idmarket, Convert.ToString(product_id));
@@ -351,14 +357,18 @@ namespace MasterOnline.Controllers
 
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
-                            else if (item.failed_rows > 0)
+                            else if (result.data.failed_rows > 0)
                             {
-                                foreach (var item_failed in item.failed_rows_data)
+                                if (result.data.failed_rows_data != null)
                                 {
-                                    currentLog.REQUEST_RESULT = item_failed.error;
-                                    currentLog.REQUEST_EXCEPTION = item_failed.error;
-                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    foreach (var item_failed in result.data.failed_rows_data)
+                                    {
+                                        currentLog.REQUEST_RESULT = item_failed.error[0];
+                                        currentLog.REQUEST_EXCEPTION = item_failed.error[0];
+                                        var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    }
                                 }
+
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                                 throw new Exception(currentLog.REQUEST_RESULT + ";" + currentLog.REQUEST_EXCEPTION + ";PEDITFAILED;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";");
                             }
@@ -380,7 +390,7 @@ namespace MasterOnline.Controllers
         public class CreateProductGetStatusResult
         {
             public CreateProductGetStatusResultHeader header { get; set; }
-            public CreateProductGetStatusResultData data { get; set; }
+            public CreateProductGetStatusResultUpload_Data data { get; set; }
         }
 
         public class CreateProductGetStatusResultHeader
@@ -414,7 +424,7 @@ namespace MasterOnline.Controllers
             public string product_name { get; set; }
             public int product_price { get; set; }
             public string sku { get; set; }
-            public string error { get; set; }
+            public string[] error { get; set; }
         }
 
 
@@ -669,7 +679,7 @@ namespace MasterOnline.Controllers
                                         //image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
                                         //image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
                                         //image_description = ""
-                                        file_path  = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
+                                        file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
                                 }
                             }
@@ -757,7 +767,7 @@ namespace MasterOnline.Controllers
                             stock = 1,
                             //change by nurul 13/2/2020
                             //price_var = (float)item_var.HJUAL,
-                            price = (float)price_var.HJUAL,
+                            price = Convert.ToInt32(price_var.HJUAL),
                             //end change by nurul 13/2/2020
                             sku = item_var.BRG,
                             combination = new List<int>()
@@ -981,7 +991,8 @@ namespace MasterOnline.Controllers
                     wholesale = null,
                     preorder = null,
                     videos = null,
-                    pictures = new List<CreateProduct_Images>()
+                    pictures = new List<CreateProduct_Images>(),
+                    price_currency = "IDR"
                 };
 
                 //add by nurul 6/2/2020
@@ -1311,12 +1322,13 @@ namespace MasterOnline.Controllers
                             stock = 1,
                             //change by nurul 11/2/2020, ambil harga jual barang per variasi
                             //price_var = (float)item_var.HJUAL,
-                            price = (float)price_var.HJUAL,
+                            price = Convert.ToInt32(price_var.HJUAL),
                             //end change by nurul 11/2/2020, ambil harga jual barang per variasi
                             sku = item_var.BRG,
                             combination = new List<int>(),
                             pictures = new List<CreateProduct_Images>()
                         };
+                        newProductVariasi.combination.Add(Convert.ToInt32(price_var.RecNum)); 
                         if (!string.IsNullOrWhiteSpace(item_var.Sort8))
                         {
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
@@ -1329,16 +1341,16 @@ namespace MasterOnline.Controllers
                                     foreach (var opts in item.options)
                                     {
                                         //if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
-                                        if(listRecnumLv1.Contains(recnumVariasi.RECNUM))
+                                        if (listRecnumLv1.Contains(recnumVariasi.RECNUM))
                                         {
                                             doAddOpt = true;
                                         }
                                     }
                                 }
-                                if (doAddOpt)
-                                {
-                                    newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
-                                }
+                                //if (doAddOpt)
+                                //{
+                                //    newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //}
                             }
                         }
                         if (!string.IsNullOrWhiteSpace(item_var.Sort9))
@@ -1353,7 +1365,7 @@ namespace MasterOnline.Controllers
                                     foreach (var opts in item.options)
                                     {
                                         //if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
-                                        if(listRecnumLv1.Contains(recnumVariasi.RECNUM))
+                                        if (listRecnumLv1.Contains(recnumVariasi.RECNUM))
                                         {
                                             doAddOpt = true;
                                         }
@@ -1363,10 +1375,10 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
-                                if (doAddOpt)
-                                {
-                                    newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
-                                }
+                                //if (doAddOpt)
+                                //{
+                                //    newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //}
                             }
                         }
                         var imageVar = new CreateProduct_Images();
@@ -1439,7 +1451,7 @@ namespace MasterOnline.Controllers
 
                 //try
                 //{
-                    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
                     REQUEST_ID = milis.ToString(),
                     REQUEST_ACTION = "Create Product",
@@ -1452,19 +1464,19 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
+                    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                    HttpResponseMessage clientResponse = await client.PostAsync(
+                        urll, content);
 
-                using (HttpContent responseContent = clientResponse.Content)
-                {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    using (HttpContent responseContent = clientResponse.Content)
                     {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
+                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                        {
+                            responseFromServer = await reader.ReadToEndAsync();
+                        }
+                    };
                 }
                 catch (WebException e)
                 {
@@ -4097,15 +4109,15 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                //using (WebResponse response = myReq.GetResponse())
-                //{
-                //    using (Stream stream = response.GetResponseStream())
-                //    {
-                //        StreamReader reader = new StreamReader(stream);
-                //        responseFromServer = reader.ReadToEnd();
-                //    }
-                //}
-                myReq.ContentLength = myData.Length;
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
+            myReq.ContentLength = myData.Length;
             using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
@@ -4866,6 +4878,7 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public int category_id { get; set; }
             public int price { get; set; }
+            public string price_currency { get; set; }
             public string status { get; set; }
             //public int minimum_order { get; set; }
             public int min_order { get; set; }//api v2
@@ -4961,7 +4974,7 @@ namespace MasterOnline.Controllers
             //public List<int> opt { get; set; }
             public string status { get; set; }
             public int stock { get; set; }
-            public float price { get; set; }
+            public int price { get; set; }
             public string sku { get; set; }
             public List<int> combination { get; set; }
             public List<CreateProduct_Images> pictures { get; set; }
