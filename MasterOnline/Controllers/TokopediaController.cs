@@ -1729,11 +1729,16 @@ namespace MasterOnline.Controllers
                                         DISPLAY = true,
                                         HJUAL = item.price.value,
                                         HJUAL_MP = item.price.value,
-                                        Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                        //Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                        Deskripsi = "-",
                                         MEREK = "OEM",
                                         CUST = CUST,
                                     };
-                                    newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                        if (!string.IsNullOrEmpty(item.basic.shortDesc))
+                                        {
+                                            newrecord.Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />");
+                                        }
+                                        newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                       //add by Tri, 26 Feb 2019
                                     var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
                                     if (kategory != null)
@@ -2104,11 +2109,16 @@ namespace MasterOnline.Controllers
                                     DISPLAY = true,
                                     HJUAL = item.price.value,
                                     HJUAL_MP = item.price.value,
-                                    Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                    //Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                    Deskripsi = "-",
                                     MEREK = "OEM",
                                     CUST = CUST,
                                 };
-                                newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                    if (!string.IsNullOrEmpty(item.basic.shortDesc))
+                                    {
+                                        newrecord.Deskripsi = item.basic.shortDesc.Replace("\r\n", "<br />").Replace("\n", "<br />");
+                                    }
+                                    newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
                                                                                                                   //add by Tri, 26 Feb 2019
                                 var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
                                 if (kategory != null)
