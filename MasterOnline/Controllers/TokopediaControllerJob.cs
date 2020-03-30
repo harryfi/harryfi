@@ -295,7 +295,8 @@ namespace MasterOnline.Controllers
             iden.token = token;
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
+            //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/edit/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
+            string urll = "https://fs.tokopedia.net/v2/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/status/" + Uri.EscapeDataString(Convert.ToString(upload_id)) + "?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -308,9 +309,9 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            //try
-            //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -318,12 +319,21 @@ namespace MasterOnline.Controllers
                     responseFromServer = reader.ReadToEnd();
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
-            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        err = sr.ReadToEnd();
+                    }
+                }
+            }
 
             if (responseFromServer != "")
             {
@@ -502,7 +512,7 @@ namespace MasterOnline.Controllers
                 };
                 EditProduct_Product newDataProduct = new EditProduct_Product()
                 {
-                    product_id = Convert.ToInt32(product_id),
+                    id = Convert.ToInt32(product_id),
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
                     //category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
                     category_id = null,
@@ -779,7 +789,22 @@ namespace MasterOnline.Controllers
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                foreach (var item in product_variant.selection)
+                                {
+                                    int combi = 0;
+                                    foreach (var opts in item.options)
+                                    {
+                                        //if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
+                                        //if (listRecnumLv1.Contains(recnumVariasi.RECNUM))
+                                        if (opts.value == item_var.Ket_Sort8)
+                                        {
+                                            //doAddOpt = true;
+                                            newProductVariasi.combination.Add(combi);
+                                        }
+                                        combi++;
+                                    }
+                                }
                             }
                         }
                         if (!string.IsNullOrWhiteSpace(item_var.Sort9))
@@ -787,7 +812,29 @@ namespace MasterOnline.Controllers
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item_var.Sort9).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                //newProductVariasi.combination.Add(Convert.ToInt32(recnumVariasi.RECNUM));
+                                foreach (var item in product_variant.selection)
+                                {
+                                    int combi2 = 0;
+                                    foreach (var opts in item.options)
+                                    {
+                                        //if (opts.t_id == Convert.ToInt32(recnumVariasi.RECNUM))
+                                        //if (listRecnumLv1.Contains(recnumVariasi.RECNUM))
+                                        //{
+                                        //    doAddOpt = true;
+                                        //}
+                                        //else if (listRecnumLv2.Contains(recnumVariasi.RECNUM))
+                                        //{
+                                        //    doAddOpt = true;
+                                        //}
+                                        if (opts.value == item_var.Ket_Sort9)
+                                        {
+                                            //doAddOpt = true;
+                                            newProductVariasi.combination.Add(combi2);
+                                        }
+                                        combi2++;
+                                    }
+                                }
                             }
                         }
                         var imageVar = new CreateProduct_Images();
@@ -873,31 +920,44 @@ namespace MasterOnline.Controllers
 
                 var client = new HttpClient();
 
-                var request = new HttpRequestMessage(new HttpMethod("PATCH"), urll);
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", iden.token);
-                request.Content = new StringContent(myData, System.Text.Encoding.UTF8, "application/json");
-                HttpResponseMessage response;
-                response = await client.SendAsync(request);
-                responseFromServer = await response.Content.ReadAsStringAsync();
+                //var request = new HttpRequestMessage(new HttpMethod("PATCH"), urll);
+                //request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", iden.token);
+                //request.Content = new StringContent(myData, System.Text.Encoding.UTF8, "application/json");
+                //HttpResponseMessage response;
+                //response = await client.SendAsync(request);
+                //responseFromServer = await response.Content.ReadAsStringAsync();
+                try
+                {
 
-                //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                //var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                //HttpResponseMessage clientResponse = await client.PutAsync(
-                //    urll, content);
 
-                //using (HttpContent responseContent = clientResponse.Content)
-                //{
-                //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                //    {
-                //        responseFromServer = await reader.ReadToEndAsync();
-                //    }
-                //};
-                //}
-                //catch (Exception ex)
-                //{
-                //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //}
+                    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                    HttpResponseMessage clientResponse = await client.PostAsync(
+                        urll, content);
+
+                    using (HttpContent responseContent = clientResponse.Content)
+                    {
+                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                        {
+                            responseFromServer = await reader.ReadToEndAsync();
+                        }
+                    };
+                }
+                catch (WebException e)
+                {
+                    string err = "";
+                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    if (e.Status == WebExceptionStatus.ProtocolError)
+                    {
+                        WebResponse resp = e.Response;
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            err = sr.ReadToEnd();
+                        }
+                    }
+                }
 
                 if (responseFromServer != "")
                 {
@@ -4862,10 +4922,11 @@ namespace MasterOnline.Controllers
 
         public class EditProduct_Product
         {
-            public int product_id { get; set; }
+            public int id { get; set; }
             public string name { get; set; }
             public int? category_id { get; set; }
             public int price { get; set; }
+            public string price_currency { get; set; }
             public string status { get; set; }
             public int min_order { get; set; }
             public int weight { get; set; }
@@ -4883,7 +4944,6 @@ namespace MasterOnline.Controllers
             public List<CreateProduct_Images> pictures { get; set; }
             public CreateProduct_Product_Video[] videos { get; set; }
             public CreateProduct_Product_Variant variant { get; set; }
-            public string price_currency { get; set; }
         }
 
         public class CreateProductTokpedData
