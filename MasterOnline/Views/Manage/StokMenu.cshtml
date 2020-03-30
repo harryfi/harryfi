@@ -479,9 +479,7 @@
                         $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
                     }
                 }
-
                 
-
                 var url1 = '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")';
                 $.ajax({
                     type: "POST",
@@ -491,7 +489,6 @@
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
                         //$('#loading_upload').show();
-                        getCountRow_UploadAwalStock();
                     },
                     success: function (response) {
                         if (response.lastRow != null) {
@@ -543,6 +540,8 @@
                         $('#btnUploadExcelSAS').removeAttr('disabled');
                     }
                 });
+
+                getCountRow_UploadAwalStock();
             }
         }
         //end add 24 Juli 2019, untuk excel stok awal

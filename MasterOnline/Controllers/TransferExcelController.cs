@@ -769,7 +769,7 @@ namespace MasterOnline.Controllers
             public byte[] data { get; set; }
         }
 
-        public ActionResult UploadXcelSaldoAwal()
+        public async Task<ActionResult> UploadXcelSaldoAwal()
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -1086,7 +1086,7 @@ namespace MasterOnline.Controllers
 
         //add function getCountRowForProgressBarUploadExcel
         //public async System.Threading.Tasks.Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
-        public async Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
+        public ActionResult GetCountRowForProgressBarUploadStockAwal()
         {
             BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
             ret.error = null;
@@ -1133,7 +1133,7 @@ namespace MasterOnline.Controllers
         }
 
         //add function PostResponProgressBarUploadStockAwal
-        public async Task<ActionResult> PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
+        public ActionResult PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
         {
             BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
             ret.error = null;
@@ -1172,7 +1172,7 @@ namespace MasterOnline.Controllers
                             ret.status = true;
                         }
 
-                        await Task.Delay(1000);
+                        Task.Delay(1000);
                     }
                 
                 
