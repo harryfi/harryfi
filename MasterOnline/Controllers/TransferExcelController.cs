@@ -14,6 +14,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MasterOnline.Controllers
 {
@@ -1041,7 +1043,7 @@ namespace MasterOnline.Controllers
                                                         ret.Errors.Add("Kode barang tidak ditemukan lagi di baris " + i);
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
-                                                    break;
+                                                    //break;
                                                     }
                                                 }
                                                 //eraDB.SaveChanges();
@@ -1083,7 +1085,8 @@ namespace MasterOnline.Controllers
         #endregion
 
         //add function getCountRowForProgressBarUploadExcel
-        public ActionResult GetCountRowForProgressBarUploadStockAwal()
+        //public async System.Threading.Tasks.Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
+        public async Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
         {
             BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
             ret.error = null;
@@ -1122,6 +1125,59 @@ namespace MasterOnline.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                ret.error = "Error: " + ex.Message.ToString();
+                ret.status = false;
+            }
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+
+        //add function PostResponProgressBarUploadStockAwal
+        public async Task<ActionResult> PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
+        {
+            BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
+            ret.error = null;
+            ret.status = false;
+            ret.countAllRow = allCount;
+            ret.nilaiPercent = percent;
+            ret.nilaiProgressLooping = progressLooping;
+
+            var nilaiSatuPersen = allCount / 100;
+            int nilai = percent;
+
+            try
+            {
+                if (progressLooping == 0)
+                {
+                    progressLooping = 0;
+                }
+                    for (int percentProgress = progressLooping; percentProgress <= allCount; percentProgress++)
+                    {
+                        nilai = (percentProgress * 100) / allCount;
+                        ret.nilaiProgressLooping = percentProgress;
+
+                    if (nilai > 9 && nilai <= 10 || nilai > 18 && nilai <= 20 ||
+                            nilai > 29 && nilai <= 30 || nilai > 38 && nilai <= 40 ||
+                            nilai > 45 && nilai <= 50 || nilai > 59 && nilai <= 60 ||
+                            nilai > 68 && nilai <= 70 || nilai > 77 && nilai <= 80 ||
+                            nilai > 88 && nilai <= 90 || nilai > 95 && nilai <= 100)
+                        {
+                            ret.nilaiPercent = nilai;
+                            ret.status = false;
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
+
+                        if (nilai > 100 && nilai <= 101)
+                        {
+                            ret.status = true;
+                        }
+
+                        await Task.Delay(1000);
+                    }
+                
+                
+            }
+            catch (Exception ex)
             {
                 ret.error = "Error: " + ex.Message.ToString();
                 ret.status = false;
@@ -1334,6 +1390,8 @@ namespace MasterOnline.Controllers
     {
         public string error { get; set; }
         public int countAllRow { get; set; }
+        public int nilaiPercent { get; set; }
+        public int nilaiProgressLooping { get; set; }
         public bool status { get; set; }
     }
 
