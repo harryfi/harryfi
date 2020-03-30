@@ -1082,10 +1082,7 @@ namespace MasterOnline.Controllers
                                                     //break;
                                                     }
 
-                                                if (ret.percent > 99 && ret.percent <= 101)
-                                                {
-                                                    ret.statusSuccess = true;
-                                                }
+                                                
 
                                                 if (ret.percent == 10 || ret.percent == 20 ||
                                                     ret.percent == 30 || ret.percent == 40 ||
@@ -1094,6 +1091,10 @@ namespace MasterOnline.Controllers
                                                     ret.percent == 90 || ret.percent == 100)
                                                 {
                                                     ret.statusSuccess = false;
+                                                    if (ret.percent > 99 && ret.percent <= 101)
+                                                    {
+                                                        ret.statusSuccess = true;
+                                                    }
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
 
