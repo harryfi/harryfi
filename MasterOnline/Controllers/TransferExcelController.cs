@@ -769,7 +769,7 @@ namespace MasterOnline.Controllers
             public byte[] data { get; set; }
         }
 
-        public async Task<ActionResult> UploadXcelSaldoAwal()
+        public async Task<ActionResult> UploadXcelSaldoAwal(byte[] byteData, int countAll, int percent, int progress, bool statusLoop, bool statusComplete)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -779,13 +779,22 @@ namespace MasterOnline.Controllers
             ret.namaGudang = new List<string>();
             ret.lastRow = new List<int>();
             ret.nextFile = false;
+            byte[] dataByte = null;
+
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
 
-                byte[] dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                if(ret.byteData == null)
+                {
+                    dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                    ret.byteData = dataByte;
+                }
+                else
+                {
+                    ret.byteData = byteData;
+                }
                 
-
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
                     //remark by fauzi for upload with method Server Side Rendering
@@ -793,7 +802,11 @@ namespace MasterOnline.Controllers
                     //if (file != null && file.ContentLength > 0)
                     //{
                     //    byte[] data;
-                    ret.lastRow.Add(0);
+                    if(ret.statusLoop == false)
+                    {
+                        ret.lastRow.Add(0);
+                    }
+                    
                     //    using (Stream inputStream = file.InputStream)
                     //    {
                     //        MemoryStream memoryStream = inputStream as MemoryStream;
@@ -806,7 +819,7 @@ namespace MasterOnline.Controllers
                     //    }
                     //end remark
 
-                    using (MemoryStream stream = new MemoryStream(dataByte))
+                    using (MemoryStream stream = new MemoryStream(ret.byteData))
                         {
                             using (ExcelPackage excelPackage = new ExcelPackage(stream))
 
@@ -915,9 +928,13 @@ namespace MasterOnline.Controllers
                                                 var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
-                                                //end change by nurul 23/12/2019, perbaikan no bukti
+                                            //end change by nurul 23/12/2019, perbaikan no bukti
 
+                                            if (ret.statusLoop == false)
+                                            {
                                                 stt01a.Nobuk = noStok;
+
+
 
 
                                                 //change by nurul 23/12/2019, perbaikan no_bukti
@@ -962,12 +979,17 @@ namespace MasterOnline.Controllers
                                                 }
                                                 //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                                    
+                                            }
+
+                                            ret.countAll = worksheet.Dimension.End.Row;
 
                                                 #endregion
-                                                //loop all rows
-                                                for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                                            //loop all rows
+                                            for (int i = progress; i <= worksheet.Dimension.End.Row; i++)
                                                 {
+                                                ret.statusLoop = true;
+                                                ret.progress = i;
+                                                ret.percent = (i * 100) / ret.countAll;
                                                     var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                     if (!string.IsNullOrEmpty(kd_brg))
                                                     {
@@ -1045,10 +1067,29 @@ namespace MasterOnline.Controllers
                                                         i = worksheet.Dimension.End.Row;
                                                     //break;
                                                     }
+
+
+                                                if (ret.percent > 9 && ret.percent <= 10 || ret.percent > 18 && ret.percent <= 20 ||
+                                                    ret.percent > 29 && ret.percent <= 30 || ret.percent > 38 && ret.percent <= 40 ||
+                                                    ret.percent > 45 && ret.percent <= 50 || ret.percent > 59 && ret.percent <= 60 ||
+                                                    ret.percent > 68 && ret.percent <= 70 || ret.percent > 77 && ret.percent <= 80 ||
+                                                    ret.percent > 88 && ret.percent <= 90 || ret.percent > 95 && ret.percent <= 100)
+                                                {
+                                                    ret.statusSuccess = false;
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
+
+                                                if (ret.percent > 100 && ret.percent <= 101)
+                                                {
+                                                    ret.statusSuccess = true;
+                                                }
+
+                                                //await Task.Delay(800);
+                                            }
+                                            
                                                 //eraDB.SaveChanges();
-                                                if (ret.lastRow[file_index] == 0)
-                                                    ret.lastRow[file_index] = worksheet.Dimension.End.Row;
+                                                //if (ret.lastRow[file_index] == 0)
+                                                //    ret.lastRow[file_index] = worksheet.Dimension.End.Row;
 
 
                                                 //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
@@ -1070,9 +1111,6 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        //        }
-
-                    //}
                 }
             }
             catch (Exception ex)
@@ -1086,7 +1124,7 @@ namespace MasterOnline.Controllers
 
         //add function getCountRowForProgressBarUploadExcel
         //public async System.Threading.Tasks.Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
-        public ActionResult GetCountRowForProgressBarUploadStockAwal()
+        public async Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
         {
             BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
             ret.error = null;
@@ -1133,7 +1171,7 @@ namespace MasterOnline.Controllers
         }
 
         //add function PostResponProgressBarUploadStockAwal
-        public ActionResult PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
+        public async Task<ActionResult> PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
         {
             BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
             ret.error = null;
@@ -1172,7 +1210,7 @@ namespace MasterOnline.Controllers
                             ret.status = true;
                         }
 
-                        Task.Delay(1000);
+                        await Task.Delay(800);
                     }
                 
                 
@@ -1404,6 +1442,12 @@ namespace MasterOnline.Controllers
         public List<string> namaCust { get; set; }
         public List<string> namaGudang { get; set; }
         public bool nextFile { get; set; }
+        public byte[] byteData { get; set; }
+        public bool statusLoop { get; set; }
+        public bool statusSuccess { get; set; }
+        public int progress { get; set; }
+        public int percent { get; set; }
+        public int countAll { get; set; }
     }
 
     public class BindDownloadExcel
