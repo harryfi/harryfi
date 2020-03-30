@@ -480,7 +480,7 @@
                     }
                 }
 
-                getCountRow_UploadAwalStock();
+                
 
                 var url1 = '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")';
                 $.ajax({
@@ -491,11 +491,10 @@
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
                         //$('#loading_upload').show();
+                        getCountRow_UploadAwalStock();
                     },
-                    
                     success: function (response) {
                         if (response.lastRow != null) {
-                            progressBar_UploadAwalStock(response.lastRow[0], true);
                             //if (parseInt(response.lastRow[0]) > 0) {
                             //    var maxPage2 = parseInt(parseInt(response.lastRow[0]) / 300);
                             //    $('#pBar_uploadFile').css('width', parseFloat(((pageNum + 1) / (maxPage2 + 1) * 100)).toFixed(2) + '%').attr('aria-valuenow', (pageNum + 1) / (maxPage2 + 1) * 100);
@@ -579,7 +578,7 @@
                     },
                     success: function (response) {
                         if (response.countAllRow != null && response.error == null) {
-                            progressBar_UploadAwalStock(response.countAllRow, response.status);
+                            progressBar_UploadAwalStock(response.countAllRow, 0, 0, response.status);
                         } else {
                             $('#progressBarUpload').show();
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
@@ -594,21 +593,68 @@
             }
         }
 
-        function progressBar_UploadAwalStock(countRow, status) {
-            if (status == false && countRow != null) {
-                var secondDelay = 1000;
-                for (progress = 0; progress <= countRow; progress++) {
-                    setTimeout(function () {
-                        $('#pBar_uploadFile').css('width', parseFloat((progress + 1) / 100).toFixed(2) + '%').attr('aria-valuenow', (progress + 1) / 100);
-                        $('#pBar_uploadFile').html(parseFloat((progress + 1) / 100).toFixed(2) + '% Complete');
-                    }, secondDelay);
+         //add by fauzi untuk progress bar upload excel awal stock
+        function progressBar_UploadAwalStock(countAll, percent, progressLooping, statusComplete) {
+
+            var $urlProgress = '@Html.Raw(Url.Action("PostResponProgressBarUploadStockAwal", "TransferExcel", new { allCount = "repallCount", percent = "reppercent", progressLooping = "repprogressLooping", statusComplete = "repstatusComplete"}))';
+            $urlProgress = $urlProgress.replace("repallCount", countAll);
+            $urlProgress = $urlProgress.replace("reppercent", percent);
+            $urlProgress = $urlProgress.replace("repprogressLooping", progressLooping);
+            $urlProgress = $urlProgress.replace("repstatusComplete", String(statusComplete));
+
+            if (statusComplete == false) {
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                //data: null,
+                //processData: false,  // tell jQuery not to process the data
+                //contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function () {
+                    //$('#loading_upload').show();
+                },
+                success: function (response) {
+                    if (response.countAllRow != null && response.error == null && response.status == false) {
+                        $('#pBar_uploadFile').css('width', parseFloat(response.nilaiPercent).toFixed(2) + '%').attr('aria-valuenow', response.nilaiPercent);
+                        $('#pBar_uploadFile').html(parseFloat(response.nilaiPercent).toFixed(2) + '% Complete');
+
+                        if (response.nilaiProgressLooping <= response.countAllRow) {
+                            progressBar_UploadAwalStock(response.countAllRow, response.nilaiPercent, response.nilaiProgressLooping + 1, response.status);
+                        }
+                    } else {
+                        $('#progressBarUpload').show();
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFile').html('0% Complete');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+
                 }
-            } else {
+            });
+
+        }else {
                 $('#progressBarUpload').show();
                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                 $('#pBar_uploadFile').html('100% Complete');
-            }
         }
+        }
+
+        //function progressBar_UploadAwalStock2(countRow, status) {
+        //    if (status == false && countRow != null) {
+        //        var jmlPersen = countRow / 100;
+        //        var secondDelay = 1000;
+        //        for (progress = 0; progress <= countRow; progress++) {
+        //            //setTimeout(function () {
+        //            $('#pBar_uploadFile').css('width', parseFloat((progress + jmlPersen) / 100).toFixed(2) + '%').attr('aria-valuenow', (progress + jmlPersen) / 100);
+        //            $('#pBar_uploadFile').html(parseFloat((progress + jmlPersen) / 100).toFixed(2) + '% Complete');
+        //            //}, secondDelay);
+        //        }
+        //    } else {
+        //        $('#progressBarUpload').show();
+        //        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+        //        $('#pBar_uploadFile').html('100% Complete');
+        //    }
+        //}
         //end by fauzi
 
         function closeEditor() {
