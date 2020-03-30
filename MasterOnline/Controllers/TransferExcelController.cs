@@ -769,7 +769,7 @@ namespace MasterOnline.Controllers
             public byte[] data { get; set; }
         }
 
-        public async Task<ActionResult> UploadXcelSaldoAwal(byte[] byteData, int countAll, int percent, int progress, bool statusLoop, bool statusComplete)
+        public async Task<ActionResult> UploadXcelSaldoAwal(int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -780,44 +780,53 @@ namespace MasterOnline.Controllers
             ret.lastRow = new List<int>();
             ret.nextFile = false;
             byte[] dataByte = null;
+            //bool statusLoop = false;
+            //bool statusComplete = false;
+
+            string[] status = statusLoopSuccess.Split(';');
+            string[] prog = percentDanprogress.Split(';');
+
 
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
 
-                if(ret.byteData == null)
+                if(ret.byteData == null && ret.statusLoop == false)
                 {
                     dataByte = UploadFileServices.UploadFile(Request.Files[0]);
                     ret.byteData = dataByte;
                 }
                 else
                 {
-                    ret.byteData = byteData;
+                    ret.byteData = null;
                 }
                 
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
-                    //remark by fauzi for upload with method Server Side Rendering
-                    //var file = Request.Files[file_index];
-                    //if (file != null && file.ContentLength > 0)
-                    //{
-                    //    byte[] data;
-                    if(ret.statusLoop == false)
+                        //    byte[] data;
+                        if (ret.statusLoop == false)
                     {
                         ret.lastRow.Add(0);
                     }
+
+                        if(ret.statusLoop == true)
+                    {
+                        var file = Request.Files[file_index];
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            using (Stream inputStream = file.InputStream)
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+                                if (memoryStream == null)
+                                {
+                                    memoryStream = new MemoryStream();
+                                    inputStream.CopyTo(memoryStream);
+                                }
+                                ret.byteData = memoryStream.ToArray();
+                            }
+                        }
+                    }
                     
-                    //    using (Stream inputStream = file.InputStream)
-                    //    {
-                    //        MemoryStream memoryStream = inputStream as MemoryStream;
-                    //        if (memoryStream == null)
-                    //        {
-                    //            memoryStream = new MemoryStream();
-                    //            inputStream.CopyTo(memoryStream);
-                    //        }
-                    //        data = memoryStream.ToArray();
-                    //    }
-                    //end remark
 
                     using (MemoryStream stream = new MemoryStream(ret.byteData))
                         {
@@ -983,9 +992,14 @@ namespace MasterOnline.Controllers
 
                                             ret.countAll = worksheet.Dimension.End.Row;
 
+                                            if (Convert.ToInt32(prog[1]) == 0)
+                                            {
+                                                prog[1] = "0";
+                                            }
+
                                                 #endregion
                                             //loop all rows
-                                            for (int i = progress; i <= worksheet.Dimension.End.Row; i++)
+                                            for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
                                                 {
                                                 ret.statusLoop = true;
                                                 ret.progress = i;
@@ -1068,21 +1082,22 @@ namespace MasterOnline.Controllers
                                                     //break;
                                                     }
 
+                                                if (ret.percent > 99 && ret.percent <= 101)
+                                                {
+                                                    ret.statusSuccess = true;
+                                                }
 
-                                                if (ret.percent > 9 && ret.percent <= 10 || ret.percent > 18 && ret.percent <= 20 ||
-                                                    ret.percent > 29 && ret.percent <= 30 || ret.percent > 38 && ret.percent <= 40 ||
-                                                    ret.percent > 45 && ret.percent <= 50 || ret.percent > 59 && ret.percent <= 60 ||
-                                                    ret.percent > 68 && ret.percent <= 70 || ret.percent > 77 && ret.percent <= 80 ||
-                                                    ret.percent > 88 && ret.percent <= 90 || ret.percent > 95 && ret.percent <= 100)
+                                                if (ret.percent == 10 || ret.percent == 20 ||
+                                                    ret.percent == 30 || ret.percent == 40 ||
+                                                    ret.percent == 50 || ret.percent == 60 ||
+                                                    ret.percent == 70 || ret.percent == 80 ||
+                                                    ret.percent == 90 || ret.percent == 100)
                                                 {
                                                     ret.statusSuccess = false;
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
 
-                                                if (ret.percent > 100 && ret.percent <= 101)
-                                                {
-                                                    ret.statusSuccess = true;
-                                                }
+                                                
 
                                                 //await Task.Delay(800);
                                             }
@@ -1121,107 +1136,6 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         #endregion
-
-        //add function getCountRowForProgressBarUploadExcel
-        //public async System.Threading.Tasks.Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
-        public async Task<ActionResult> GetCountRowForProgressBarUploadStockAwal()
-        {
-            BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
-            ret.error = null;
-            ret.status = false;
-            ret.countAllRow = 0;
-
-            try
-            {
-                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
-                {
-                    //remark by fauzi for upload with method Server Side Rendering
-                    var file = Request.Files[file_index];
-                    if (file != null && file.ContentLength > 0)
-                    {
-                        byte[] data;
-                        using (Stream inputStream = file.InputStream)
-                        {
-                            MemoryStream memoryStream = inputStream as MemoryStream;
-                            if (memoryStream == null)
-                            {
-                                memoryStream = new MemoryStream();
-                                inputStream.CopyTo(memoryStream);
-                            }
-                            data = memoryStream.ToArray();
-                        }
-                        //end remark
-                        using (MemoryStream stream = new MemoryStream(data))
-                        {
-                            using (ExcelPackage excelPackage = new ExcelPackage(stream))
-                            {
-                                var worksheet = excelPackage.Workbook.Worksheets[1];
-                                ret.countAllRow = worksheet.Dimension.End.Row;
-                            }
-                        }
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                ret.error = "Error: " + ex.Message.ToString();
-                ret.status = false;
-            }
-            return Json(ret, JsonRequestBehavior.AllowGet);
-        }
-
-        //add function PostResponProgressBarUploadStockAwal
-        public async Task<ActionResult> PostResponProgressBarUploadStockAwal(int allCount, int percent, int progressLooping, bool statusComplete)
-        {
-            BindUploadExcelStockSaldoAwal ret = new BindUploadExcelStockSaldoAwal();
-            ret.error = null;
-            ret.status = false;
-            ret.countAllRow = allCount;
-            ret.nilaiPercent = percent;
-            ret.nilaiProgressLooping = progressLooping;
-
-            var nilaiSatuPersen = allCount / 100;
-            int nilai = percent;
-
-            try
-            {
-                if (progressLooping == 0)
-                {
-                    progressLooping = 0;
-                }
-                    for (int percentProgress = progressLooping; percentProgress <= allCount; percentProgress++)
-                    {
-                        nilai = (percentProgress * 100) / allCount;
-                        ret.nilaiProgressLooping = percentProgress;
-
-                    if (nilai > 9 && nilai <= 10 || nilai > 18 && nilai <= 20 ||
-                            nilai > 29 && nilai <= 30 || nilai > 38 && nilai <= 40 ||
-                            nilai > 45 && nilai <= 50 || nilai > 59 && nilai <= 60 ||
-                            nilai > 68 && nilai <= 70 || nilai > 77 && nilai <= 80 ||
-                            nilai > 88 && nilai <= 90 || nilai > 95 && nilai <= 100)
-                        {
-                            ret.nilaiPercent = nilai;
-                            ret.status = false;
-                            return Json(ret, JsonRequestBehavior.AllowGet);
-                        }
-
-                        if (nilai > 100 && nilai <= 101)
-                        {
-                            ret.status = true;
-                        }
-
-                        await Task.Delay(800);
-                    }
-                
-                
-            }
-            catch (Exception ex)
-            {
-                ret.error = "Error: " + ex.Message.ToString();
-                ret.status = false;
-            }
-            return Json(ret, JsonRequestBehavior.AllowGet);
-        }
 
         //add by Tri 28 okt 2019, tuning upload excel sinkronisasi barang
         public ActionResult UploadXcelwithPage(int page)
