@@ -1050,6 +1050,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Services\ManageImageService.cs" />
+    <Compile Include="Services\UploadFileServices.cs" />
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />

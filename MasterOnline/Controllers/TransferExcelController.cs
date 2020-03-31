@@ -1,5 +1,6 @@
 ﻿using Erasoft.Function;
 using MasterOnline.ViewModels;
+using MasterOnline.Services;
 using OfficeOpenXml;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Style;
@@ -13,6 +14,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MasterOnline.Controllers
 {
@@ -761,7 +764,12 @@ namespace MasterOnline.Controllers
             return result;
         }
 
-        public ActionResult UploadXcelSaldoAwal()
+        public class dataByte
+        {
+            public byte[] data { get; set; }
+        }
+
+        public async Task<ActionResult> UploadXcelSaldoAwal(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -770,28 +778,61 @@ namespace MasterOnline.Controllers
             ret.Errors = new List<string>();
             ret.namaGudang = new List<string>();
             ret.lastRow = new List<int>();
+            ret.nextFile = false;
+            byte[] dataByte = null;
+            //bool statusLoop = false;
+            //bool statusComplete = false;
+
+            string[] status = statusLoopSuccess.Split(';');
+            string[] prog = percentDanprogress.Split(';');
+
+
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
+
+                ret.statusLoop = Convert.ToBoolean(status[0]);
+                ret.statusSuccess = Convert.ToBoolean(status[1]);
+
+                if(ret.byteData == null && ret.statusLoop == false)
+                {
+                    dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                    ret.byteData = dataByte;
+                }
+                else
+                {
+                    ret.byteData = null;
+                    ret.nobuk = nobuk;
+                }
+                
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
                 {
-                    var file = Request.Files[file_index];
-                    if (file != null && file.ContentLength > 0)
+                        //    byte[] data;
+                        if (ret.statusLoop == false)
                     {
-                        byte[] data;
                         ret.lastRow.Add(0);
-                        using (Stream inputStream = file.InputStream)
-                        {
-                            MemoryStream memoryStream = inputStream as MemoryStream;
-                            if (memoryStream == null)
-                            {
-                                memoryStream = new MemoryStream();
-                                inputStream.CopyTo(memoryStream);
-                            }
-                            data = memoryStream.ToArray();
-                        }
+                    }
 
-                        using (MemoryStream stream = new MemoryStream(data))
+                        if(ret.statusLoop == true)
+                    {
+                        var file = Request.Files[file_index];
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            using (Stream inputStream = file.InputStream)
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+                                if (memoryStream == null)
+                                {
+                                    memoryStream = new MemoryStream();
+                                    inputStream.CopyTo(memoryStream);
+                                }
+                                ret.byteData = memoryStream.ToArray();
+                            }
+                        }
+                    }
+                    
+
+                    using (MemoryStream stream = new MemoryStream(ret.byteData))
                         {
                             using (ExcelPackage excelPackage = new ExcelPackage(stream))
 
@@ -812,11 +853,16 @@ namespace MasterOnline.Controllers
                                         if (gudang != null)
                                         {
                                             //string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
+                                            if(ret.statusLoop == false)
+                                        {
                                             ret.namaGudang.Add(gudang.Nama_Gudang);
+                                        }
                                             //ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
 
                                             var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").ToList();
                                             if (listTemp.Count > 0)
+                                            {
+                                            if (ret.statusLoop == false)
                                             {
                                                 #region create induk
                                                 var stt01a = new STT01A
@@ -870,39 +916,44 @@ namespace MasterOnline.Controllers
                                                     JAM = 1
                                                 };
 
-                                                //change by nurul 23/12/2019, perbaikan no bukti
-                                                //var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
-                                                //var digitAkhir = "";
-                                                //var noStok = "";
+                                            //change by nurul 23/12/2019, perbaikan no bukti
+                                            //var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
+                                            //var digitAkhir = "";
+                                            //var noStok = "";
 
-                                                //if (listStokInDb.Count == 0)
-                                                //{
-                                                //    digitAkhir = "000001";
-                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                //    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                                                //}
-                                                //else
-                                                //{
-                                                //    var lastRecNum = listStokInDb.Last().ID;
-                                                //    var lastKode = listStokInDb.Last().Nobuk;
-                                                //    lastRecNum++;
+                                            //if (listStokInDb.Count == 0)
+                                            //{
+                                            //    digitAkhir = "000001";
+                                            //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                                            //}
+                                            //else
+                                            //{
+                                            //    var lastRecNum = listStokInDb.Last().ID;
+                                            //    var lastKode = listStokInDb.Last().Nobuk;
+                                            //    lastRecNum++;
 
-                                                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                            //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                                                //    if (noStok == lastKode)
-                                                //    {
-                                                //        lastRecNum++;
-                                                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                //    }
-                                                //}
+                                            //    if (noStok == lastKode)
+                                            //    {
+                                            //        lastRecNum++;
+                                            //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                            //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    }
+                                            //}
+                                            
                                                 var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
-                                                //end change by nurul 23/12/2019, perbaikan no bukti
+                                            //end change by nurul 23/12/2019, perbaikan no bukti
 
+                                            
                                                 stt01a.Nobuk = noStok;
+                                                ret.nobuk = noStok;
+
+
 
 
                                                 //change by nurul 23/12/2019, perbaikan no_bukti
@@ -934,6 +985,7 @@ namespace MasterOnline.Controllers
                                                             lastBuktiNew++;
                                                             noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
                                                             stt01a.Nobuk = noStok;
+                                                            ret.nobuk = noStok;
                                                             eraDB.STT01A.Add(stt01a);
                                                             eraDB.SaveChanges();
                                                         }
@@ -942,16 +994,27 @@ namespace MasterOnline.Controllers
                                                     {
                                                         var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                                         ret.Errors.Add(errMsg);
-                                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        //return Json(ret, JsonRequestBehavior.AllowGet);
                                                     }
                                                 }
                                                 //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                                
+                                            }
+
+                                            ret.countAll = worksheet.Dimension.End.Row;
+
+                                            if (Convert.ToInt32(prog[1]) == 0)
+                                            {
+                                                prog[1] = "0";
+                                            }
+
                                                 #endregion
-                                                //loop all rows
-                                                for (int i = 5; i <= worksheet.Dimension.End.Row; i++)
+                                            //loop all rows
+                                            for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
                                                 {
+                                                ret.statusLoop = true;
+                                                ret.progress = i;
+                                                ret.percent = (i * 100) / ret.countAll;
                                                     var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                     if (!string.IsNullOrEmpty(kd_brg))
                                                     {
@@ -993,7 +1056,8 @@ namespace MasterOnline.Controllers
                                                                         NO_URUT_PO = 0,
                                                                         NO_URUT_SJ = 0,
                                                                         TglInput = DateTime.Now,
-                                                                        Nobuk = stt01a.Nobuk,
+                                                                        //Nobuk = stt01a.Nobuk,
+                                                                        Nobuk = ret.nobuk,
                                                                         Satuan = "2",
                                                                     };
                                                                     stt01b.Kobar = current_brg.BRG;
@@ -1011,7 +1075,8 @@ namespace MasterOnline.Controllers
                                                                     stt01b.Qty = Convert.ToInt32(worksheet.Cells[i, 3].Value);
                                                                     stt01b.Harga = stt01b.Harsat * stt01b.Qty;
                                                                     eraDB.STT01B.Add(stt01b);
-                                                                }
+                                                                    eraDB.SaveChanges();
+                                                            }
                                                             }
 
                                                             //eraDB.SaveChanges();
@@ -1026,14 +1091,38 @@ namespace MasterOnline.Controllers
                                                         ret.Errors.Add("Kode barang tidak ditemukan lagi di baris " + i);
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
-                                                        //break;
+                                                    //break;
                                                     }
-                                                }
-                                                eraDB.SaveChanges();
-                                                if (ret.lastRow[file_index] == 0)
-                                                    ret.lastRow[file_index] = worksheet.Dimension.End.Row;
 
-                                                var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                
+
+                                                if (ret.percent == 10 || ret.percent == 20 ||
+                                                    ret.percent == 30 || ret.percent == 40 ||
+                                                    ret.percent == 50 || ret.percent == 60 ||
+                                                    ret.percent == 70 || ret.percent == 80 ||
+                                                    ret.percent == 90 || ret.percent == 100)
+                                                {
+                                                    ret.statusSuccess = false;
+                                                    if (ret.percent > 99 && ret.percent <= 101)
+                                                    {
+                                                        // update stock all barang;
+                                                        var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
+                                                        ret.statusSuccess = true;
+                                                    }
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
+
+                                                
+
+                                                //await Task.Delay(800);
+                                            }
+                                            
+                                                //eraDB.SaveChanges();
+                                                //if (ret.lastRow[file_index] == 0)
+                                                //    ret.lastRow[file_index] = worksheet.Dimension.End.Row;
+
+
+                                                //var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
                                             }
                                             else
                                             {
@@ -1052,9 +1141,6 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        //        }
-
-                    }
                 }
             }
             catch (Exception ex)
@@ -1065,6 +1151,7 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
         //add by Tri 28 okt 2019, tuning upload excel sinkronisasi barang
         public ActionResult UploadXcelwithPage(int page)
         {
@@ -1265,6 +1352,15 @@ namespace MasterOnline.Controllers
 
     }
 
+    //add by fauzi uploadStockSaldoAwal
+    public class BindUploadExcelStockSaldoAwal
+    {
+        public string error { get; set; }
+        public int countAllRow { get; set; }
+        public int nilaiPercent { get; set; }
+        public int nilaiProgressLooping { get; set; }
+        public bool status { get; set; }
+    }
 
     public class BindUploadExcel
     {
@@ -1275,6 +1371,13 @@ namespace MasterOnline.Controllers
         public List<string> namaCust { get; set; }
         public List<string> namaGudang { get; set; }
         public bool nextFile { get; set; }
+        public byte[] byteData { get; set; }
+        public bool statusLoop { get; set; }
+        public bool statusSuccess { get; set; }
+        public int progress { get; set; }
+        public int percent { get; set; }
+        public int countAll { get; set; }
+        public string nobuk { get; set; }
     }
 
     public class BindDownloadExcel
