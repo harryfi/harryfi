@@ -514,8 +514,8 @@ namespace MasterOnline.Controllers
                 {
                     id = Convert.ToInt32(product_id),
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
-                    //category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
-                    category_id = null,
+                    category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
+                    //category_id = null,
                     price = Convert.ToInt32(brg_stf02h.HJUAL),
                     status = "LIMITED",
                     min_order = 1,
@@ -526,7 +526,7 @@ namespace MasterOnline.Controllers
                     is_must_insurance = false,
                     is_free_return = false,
                     //sku = brg_stf02.BRG,
-                    //stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
+                    stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
                     wholesale = null,
                     preorder = null,
                     videos = null,
@@ -782,7 +782,8 @@ namespace MasterOnline.Controllers
                             //end change by nurul 13/2/2020
                             sku = item_var.BRG,
                             combination = new List<int>(),
-                            pictures = new List<CreateProduct_Images>()
+                            pictures = new List<CreateProduct_Images>(),
+                            status = "LIMITED"
                         };
                         if (!string.IsNullOrWhiteSpace(item_var.Sort8))
                         {
@@ -4936,7 +4937,7 @@ namespace MasterOnline.Controllers
             public bool is_must_insurance { get; set; }
             public bool is_free_return { get; set; }
             public string sku { get; set; }
-            //public int stock { get; set; }
+            public int stock { get; set; }
             //tes
             public CreateProduct_Etalase etalase { get; set; }
             public CreateProduct_Product_Wholesale_Price[] wholesale { get; set; }
