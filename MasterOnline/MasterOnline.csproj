@@ -6373,7 +6373,6 @@
     <Folder Include="Views\BCA\" />
     <Folder Include="Views\Blibli\" />
     <Folder Include="Views\Elevenia\" />
-    <Folder Include="Views\UploadFileServices\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

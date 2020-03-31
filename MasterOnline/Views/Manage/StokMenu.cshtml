@@ -448,6 +448,10 @@
             //document.body.removeChild(link);
         };
 
+        function popupAlertUploadSaldoAwal() {
+            alert("Proses upload dan input Saldo awal stok sudah selesai!");
+        }
+
         function uploadExcelSAS() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
@@ -524,7 +528,8 @@
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
                             $('#btnUploadExcelSAS').removeAttr('disabled');
-                            alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
                         } else {
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('0% Complete');
@@ -580,8 +585,7 @@
                 
             }
         }
-        //end add 24 Juli 2019, untuk excel stok awal
-        
+        //end add 24 Juli 2019, untuk excel stok 
 
         function closeEditor() {
             //$('#close-editor')[0].disabled = true;
