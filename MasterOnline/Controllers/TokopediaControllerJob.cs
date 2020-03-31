@@ -927,9 +927,8 @@ namespace MasterOnline.Controllers
                 //HttpResponseMessage response;
                 //response = await client.SendAsync(request);
                 //responseFromServer = await response.Content.ReadAsStringAsync();
-                try
-                {
-
+                //try
+                //{
 
                     client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
                     var content = new StringContent(myData, Encoding.UTF8, "application/json");
@@ -944,21 +943,21 @@ namespace MasterOnline.Controllers
                             responseFromServer = await reader.ReadToEndAsync();
                         }
                     };
-                }
-                catch (WebException e)
-                {
-                    string err = "";
-                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    if (e.Status == WebExceptionStatus.ProtocolError)
-                    {
-                        WebResponse resp = e.Response;
-                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                        {
-                            err = sr.ReadToEnd();
-                        }
-                    }
-                }
+                //}
+                //catch (WebException e)
+                //{
+                //    string err = "";
+                //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //    if (e.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp = e.Response;
+                //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                //        {
+                //            err = sr.ReadToEnd();
+                //        }
+                //    }
+                //}
 
                 if (responseFromServer != "")
                 {
@@ -1539,8 +1538,8 @@ namespace MasterOnline.Controllers
                     REQUEST_STATUS = "Pending",
                 };
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-                try
-                {
+                //try
+                //{
                     var client = new HttpClient();
                     client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
                     var content = new StringContent(myData, Encoding.UTF8, "application/json");
@@ -1555,21 +1554,21 @@ namespace MasterOnline.Controllers
                             responseFromServer = await reader.ReadToEndAsync();
                         }
                     };
-                }
-                catch (WebException e)
-                {
-                    string err = "";
-                    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                    if (e.Status == WebExceptionStatus.ProtocolError)
-                    {
-                        WebResponse resp = e.Response;
-                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                        {
-                            err = sr.ReadToEnd();
-                        }
-                    }
-                }
+                //}
+                //catch (WebException e)
+                //{
+                //    string err = "";
+                //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //    if (e.Status == WebExceptionStatus.ProtocolError)
+                //    {
+                //        WebResponse resp = e.Response;
+                //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                //        {
+                //            err = sr.ReadToEnd();
+                //        }
+                //    }
+                //}
 
                 if (responseFromServer != "")
                 {
