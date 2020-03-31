@@ -1105,6 +1105,8 @@ namespace MasterOnline.Controllers
                                                     ret.statusSuccess = false;
                                                     if (ret.percent > 99 && ret.percent <= 101)
                                                     {
+                                                        // update stock all barang;
+                                                        var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
                                                         ret.statusSuccess = true;
                                                     }
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
