@@ -9026,7 +9026,8 @@ namespace MasterOnline.Controllers
                                                             //change by calvin 9 juni 2019
                                                             //Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
 #if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                            //Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                            Task.Run(() => new TokopediaControllerJob().CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
 #else
                                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                                             var clientJobServer = new BackgroundJobClient(sqlStorage);

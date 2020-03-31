@@ -537,7 +537,34 @@ namespace MasterOnline.Controllers
                 //add by nurul 6/2/2020
                 newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
                 //end add by nurul 6/2/2020
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
+                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
+                if(dataTokped != null)
+                {
+                    if(dataTokped.data != null)
+                    {
+                        //if (dataTokped.data[0].preorder != null)
+                        //{
+                        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
+                        //    {
+                        //        //duration = dataTokped.data[0].preorder
+                        //    };
+                        //}
+                        if (!customer.TIDAK_HIT_UANG_R)
+                        {
+                                newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                        }
+                    }
+                }
+                if (customer.TIDAK_HIT_UANG_R)
+                {
+                    var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+                    if (qty_stock > 0)
+                    {
+                        newDataProduct.stock = Convert.ToInt32(qty_stock);
+                    }
+                }
                 //add by calvin 1 mei 2019
                 //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                 //if (qty_stock > 0)
@@ -843,8 +870,8 @@ namespace MasterOnline.Controllers
                         newProductVariasi.pictures.Add(imageVar);
                         product_variant.products.Add(newProductVariasi);
                     }
-                    if (newDataProduct.pictures.Count > 0)
-                        product_variant.sizecharts.Add(newDataProduct.pictures[0]);
+                    //if (newDataProduct.pictures.Count > 0)
+                    //    product_variant.sizecharts.Add(newDataProduct.pictures[0]);
                     newDataProduct.variant = product_variant;
                 }
                 //else if (brg_stf02.TYPE == "3")
@@ -1014,6 +1041,62 @@ namespace MasterOnline.Controllers
 
             }
 
+            return ret;
+        }
+
+        public async Task<TokopediaController.TokpedGetItemDetail> getItemDetailVarian(TokopediaAPIData iden, long product_id)
+        {
+            var ret = new TokopediaController.TokpedGetItemDetail();
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            //long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            //long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/info?product_id=" + Uri.EscapeDataString(product_id.ToString());
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaController.TokpedGetItemDetail)) as TokopediaController.TokpedGetItemDetail;
+                bool adaError = false;
+                if (result.header != null)
+                {
+                    //if (result.data.Count() == 0)
+                    //{
+                    //    adaError = true;
+                    //}
+                    if (result.header.error_code != 0)
+                    {
+                        adaError = true;
+                    }
+
+                }
+                if (result.data != null)
+                    if (!adaError)
+                    {
+                        ret = result;
+                    }
+            }
             return ret;
         }
 
@@ -1464,8 +1547,8 @@ namespace MasterOnline.Controllers
                         product_variant.products.Add(newProductVariasi);
                     }
 
-                    if (newDataProduct.pictures.Count > 0)
-                        product_variant.sizecharts.Add(newDataProduct.pictures[0]);
+                    //if (newDataProduct.pictures.Count > 0)
+                    //    product_variant.sizecharts.Add(newDataProduct.pictures[0]);
                     newDataProduct.variant = product_variant;
                 }
                 //else if (brg_stf02.TYPE == "3")
@@ -3068,7 +3151,7 @@ namespace MasterOnline.Controllers
                                             Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id));
                                             //end change by calvin 9 juni 2019
 #endif
-                                        }
+                                         }
                                         else
                                         {
                                             string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
