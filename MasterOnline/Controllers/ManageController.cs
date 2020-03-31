@@ -17744,9 +17744,11 @@ namespace MasterOnline.Controllers
             var sSql2 = "select BRG,RecNum from stf02h where IDMARKET = '" + idMarket + "'";
             var ListBarangMarket = ErasoftDbContext.Database.SqlQuery<listBarangMarket_NotFound>(sSql2).ToList();
             var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
-            var ListBarang = (from a in ErasoftDbContext.STF02
-                              where a.TYPE == "3" && ListKodeBarangMarket.Any(y => a.BRG.Contains(y))
-                              select new listBarang_NotFound { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2 }).ToList();
+            //var ListBarang = (from a in ErasoftDbContext.STF02
+            //                  where a.TYPE == "3" && ListKodeBarangMarket.Any(y => a.BRG.Contains(y))
+            //                  select new listBarang_NotFound { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2 }).ToList();
+            var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where [type]='3' and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
+            var ListBarang = ErasoftDbContext.Database.SqlQuery<listBarang_NotFound>(sSql3).ToList();
             //end change by nurul 24/3/2020
 
             var vm = new PesananViewModel()
