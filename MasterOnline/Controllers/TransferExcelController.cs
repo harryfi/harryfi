@@ -769,7 +769,7 @@ namespace MasterOnline.Controllers
             public byte[] data { get; set; }
         }
 
-        public async Task<ActionResult> UploadXcelSaldoAwal(int countAll, string percentDanprogress, string statusLoopSuccess)
+        public async Task<ActionResult> UploadXcelSaldoAwal(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             //var file = Request.Files[0];
             //List<string> excelData = new List<string>();
@@ -791,6 +791,9 @@ namespace MasterOnline.Controllers
             {
                 var mp = MoDbContext.Marketplaces.ToList();
 
+                ret.statusLoop = Convert.ToBoolean(status[0]);
+                ret.statusSuccess = Convert.ToBoolean(status[1]);
+
                 if(ret.byteData == null && ret.statusLoop == false)
                 {
                     dataByte = UploadFileServices.UploadFile(Request.Files[0]);
@@ -799,6 +802,7 @@ namespace MasterOnline.Controllers
                 else
                 {
                     ret.byteData = null;
+                    ret.nobuk = nobuk;
                 }
                 
                 for (int file_index = 0; file_index < Request.Files.Count; file_index++)
@@ -849,11 +853,16 @@ namespace MasterOnline.Controllers
                                         if (gudang != null)
                                         {
                                             //string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
+                                            if(ret.statusLoop == false)
+                                        {
                                             ret.namaGudang.Add(gudang.Nama_Gudang);
+                                        }
                                             //ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
 
                                             var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").ToList();
                                             if (listTemp.Count > 0)
+                                            {
+                                            if (ret.statusLoop == false)
                                             {
                                                 #region create induk
                                                 var stt01a = new STT01A
@@ -907,41 +916,42 @@ namespace MasterOnline.Controllers
                                                     JAM = 1
                                                 };
 
-                                                //change by nurul 23/12/2019, perbaikan no bukti
-                                                //var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
-                                                //var digitAkhir = "";
-                                                //var noStok = "";
+                                            //change by nurul 23/12/2019, perbaikan no bukti
+                                            //var listStokInDb = eraDB.STT01A.OrderBy(p => p.ID).ToList();
+                                            //var digitAkhir = "";
+                                            //var noStok = "";
 
-                                                //if (listStokInDb.Count == 0)
-                                                //{
-                                                //    digitAkhir = "000001";
-                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                //    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
-                                                //}
-                                                //else
-                                                //{
-                                                //    var lastRecNum = listStokInDb.Last().ID;
-                                                //    var lastKode = listStokInDb.Last().Nobuk;
-                                                //    lastRecNum++;
+                                            //if (listStokInDb.Count == 0)
+                                            //{
+                                            //    digitAkhir = "000001";
+                                            //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    eraDB.Database.ExecuteSqlCommand("DBCC CHECKIDENT (STT01A, RESEED, 0)");
+                                            //}
+                                            //else
+                                            //{
+                                            //    var lastRecNum = listStokInDb.Last().ID;
+                                            //    var lastKode = listStokInDb.Last().Nobuk;
+                                            //    lastRecNum++;
 
-                                                //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                            //    noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
 
-                                                //    if (noStok == lastKode)
-                                                //    {
-                                                //        lastRecNum++;
-                                                //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                                                //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                                                //    }
-                                                //}
+                                            //    if (noStok == lastKode)
+                                            //    {
+                                            //        lastRecNum++;
+                                            //        digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                                            //        noStok = $"ST{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                                            //    }
+                                            //}
+                                            
                                                 var lastBukti = new ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 //var lastBukti = ManageController().GenerateAutoNumber(ErasoftDbContext, "ST", "STT01A", "Nobuk");
                                                 var noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
                                             //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                            if (ret.statusLoop == false)
-                                            {
+                                            
                                                 stt01a.Nobuk = noStok;
+                                                ret.nobuk = noStok;
 
 
 
@@ -975,6 +985,7 @@ namespace MasterOnline.Controllers
                                                             lastBuktiNew++;
                                                             noStok = "ST" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
                                                             stt01a.Nobuk = noStok;
+                                                            ret.nobuk = noStok;
                                                             eraDB.STT01A.Add(stt01a);
                                                             eraDB.SaveChanges();
                                                         }
@@ -1045,7 +1056,8 @@ namespace MasterOnline.Controllers
                                                                         NO_URUT_PO = 0,
                                                                         NO_URUT_SJ = 0,
                                                                         TglInput = DateTime.Now,
-                                                                        Nobuk = stt01a.Nobuk,
+                                                                        //Nobuk = stt01a.Nobuk,
+                                                                        Nobuk = ret.nobuk,
                                                                         Satuan = "2",
                                                                     };
                                                                     stt01b.Kobar = current_brg.BRG;
@@ -1363,6 +1375,7 @@ namespace MasterOnline.Controllers
         public int progress { get; set; }
         public int percent { get; set; }
         public int countAll { get; set; }
+        public string nobuk { get; set; }
     }
 
     public class BindDownloadExcel

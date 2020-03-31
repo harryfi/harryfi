@@ -455,12 +455,14 @@
             }
             else
             {
-                $('#progressBarUpload').hide();
-                uploadFileExcelStockAwal(0, "0;5", "false;false");
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelStockAwal(null, 0, "0;5", "false;false");
             }
         }
    
-        function uploadFileExcelStockAwal(vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+        function uploadFileExcelStockAwal(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -491,9 +493,8 @@
                     }
                 }
 
-                $('#progressBarUpload').show();
-
-                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelSaldoAwal", "TransferExcel", new { countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelSaldoAwal", "TransferExcel", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                $urlProgress = $urlProgress.replace("rep1", vnobuk);
                 $urlProgress = $urlProgress.replace("rep2", vcountAll);
                 $urlProgress = $urlProgress.replace("rep3percent", vpercent);
                 $urlProgress = $urlProgress.replace("rep4progress", vprogress);
@@ -516,7 +517,7 @@
                             $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                             if (response.progress <= response.countAll) {
-                                uploadFileExcelStockAwal(response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                                uploadFileExcelStockAwal(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
                             }
 
                         } else if (response.statusSuccess == true) {
