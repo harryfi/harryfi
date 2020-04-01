@@ -312,13 +312,13 @@ namespace MasterOnline.Controllers
             try
             {
                 using (WebResponse response = await myReq.GetResponseAsync())
-            {
-                using (Stream stream = response.GetResponseStream())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
                 }
-            }
             }
             catch (WebException e)
             {
@@ -539,30 +539,41 @@ namespace MasterOnline.Controllers
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
-                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
-                if(dataTokped != null)
-                {
-                    if(dataTokped.data != null)
-                    {
-                        //if (dataTokped.data[0].preorder != null)
-                        //{
-                        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
-                        //    {
-                        //        //duration = dataTokped.data[0].preorder
-                        //    };
-                        //}
-                        if (!customer.TIDAK_HIT_UANG_R)
-                        {
-                                newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
-                        }
-                    }
-                }
+                //var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
+                //if(dataTokped != null)
+                //{
+                //    if(dataTokped.data != null)
+                //    {
+                //        //if (dataTokped.data[0].preorder != null)
+                //        //{
+                //        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
+                //        //    {
+                //        //        //duration = dataTokped.data[0].preorder
+                //        //    };
+                //        //}
+                //        if (!customer.TIDAK_HIT_UANG_R)
+                //        {
+                //                newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                //        }
+                //    }
+                //}
                 if (customer.TIDAK_HIT_UANG_R)
                 {
                     var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
-                    if (qty_stock > 0)
+                    if (qty_stock >= 0)
                     {
                         newDataProduct.stock = Convert.ToInt32(qty_stock);
+                    }
+                }
+                else
+                {
+                    var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
+                    if (dataTokped != null)
+                    {
+                        if (dataTokped.data != null)
+                        {
+                            newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                        }
                     }
                 }
                 //add by calvin 1 mei 2019
@@ -957,19 +968,19 @@ namespace MasterOnline.Controllers
                 //try
                 //{
 
-                    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                    var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                    HttpResponseMessage clientResponse = await client.PostAsync(
-                        urll, content);
+                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                HttpResponseMessage clientResponse = await client.PostAsync(
+                    urll, content);
 
-                    using (HttpContent responseContent = clientResponse.Content)
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                     {
-                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                        {
-                            responseFromServer = await reader.ReadToEndAsync();
-                        }
-                    };
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
                 //}
                 //catch (WebException e)
                 //{
@@ -1623,20 +1634,20 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                 //try
                 //{
-                    var client = new HttpClient();
-                    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                    var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                    HttpResponseMessage clientResponse = await client.PostAsync(
-                        urll, content);
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                HttpResponseMessage clientResponse = await client.PostAsync(
+                    urll, content);
 
-                    using (HttpContent responseContent = clientResponse.Content)
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                     {
-                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                        {
-                            responseFromServer = await reader.ReadToEndAsync();
-                        }
-                    };
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
                 //}
                 //catch (WebException e)
                 //{
@@ -3151,7 +3162,7 @@ namespace MasterOnline.Controllers
                                             Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id));
                                             //end change by calvin 9 juni 2019
 #endif
-                                         }
+                                        }
                                         else
                                         {
                                             string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
