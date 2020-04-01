@@ -1094,6 +1094,14 @@ namespace MasterOnline.Controllers
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                                 //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                 //await new TokopediaControllerJob().GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+
+                                //add by nurul 1/4/2020
+                                if (tblCustomer != null)
+                                {
+                                    connId_JobId = dbPathEra + "_tokopedia_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                    recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO)), Cron.MinuteInterval(30), recurJobOpt);
+                                }
+                                //end add by nurul 1/4/2020
                             }
                             else
                             {
@@ -1107,6 +1115,9 @@ namespace MasterOnline.Controllers
                                 recurJobM.RemoveIfExists(connId_JobId);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_canceled_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tokopedia_update_resi_job_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
                             }
                             //end add by calvin 2 april 2019

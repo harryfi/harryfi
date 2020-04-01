@@ -3374,7 +3374,7 @@ namespace MasterOnline.Controllers
             //try
             //{
             myReq.ContentLength = myData.Length;
-            System.Threading.Thread.Sleep(5000);
+            //System.Threading.Thread.Sleep(5000);
             using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
