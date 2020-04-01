@@ -4615,6 +4615,10 @@ namespace MasterOnline.Controllers
 
         public class Preorder
         {
+            public bool is_active { get; set; }
+            public long duration { get; set; }
+            public string time_unit { get; set; }
+
         }
 
         public class Extraattribute

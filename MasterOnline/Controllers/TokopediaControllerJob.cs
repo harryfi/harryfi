@@ -539,24 +539,24 @@ namespace MasterOnline.Controllers
                 //end add by nurul 6/2/2020
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
 
-                //var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
-                //if(dataTokped != null)
-                //{
-                //    if(dataTokped.data != null)
-                //    {
-                //        //if (dataTokped.data[0].preorder != null)
-                //        //{
-                //        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
-                //        //    {
-                //        //        //duration = dataTokped.data[0].preorder
-                //        //    };
-                //        //}
-                //        if (!customer.TIDAK_HIT_UANG_R)
-                //        {
-                //                newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
-                //        }
-                //    }
-                //}
+                var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
+                if (dataTokped != null)
+                {
+                    if (dataTokped.data != null)
+                    {
+                        //if (dataTokped.data[0].preorder != null)
+                        //{
+                        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
+                        //    {
+                        //        //duration = dataTokped.data[0].preorder
+                        //    };
+                        //}
+                        if (!customer.TIDAK_HIT_UANG_R)
+                        {
+                            newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                        }
+                    }
+                }
                 if (customer.TIDAK_HIT_UANG_R)
                 {
                     var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
@@ -565,17 +565,17 @@ namespace MasterOnline.Controllers
                         newDataProduct.stock = Convert.ToInt32(qty_stock);
                     }
                 }
-                else
-                {
-                    var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
-                    if (dataTokped != null)
-                    {
-                        if (dataTokped.data != null)
-                        {
-                            newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
-                        }
-                    }
-                }
+                //else
+                //{
+                //    var dataTokped = await getItemDetailVarian(iden, Convert.ToInt32(product_id));
+                //    if (dataTokped != null)
+                //    {
+                //        if (dataTokped.data != null)
+                //        {
+                //            newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                //        }
+                //    }
+                //}
                 //add by calvin 1 mei 2019
                 //var qty_stock = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
                 //if (qty_stock > 0)
