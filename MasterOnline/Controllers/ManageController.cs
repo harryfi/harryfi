@@ -40222,8 +40222,8 @@ namespace MasterOnline.Controllers
 
             return Json(detail, JsonRequestBehavior.AllowGet);
         }
-        
-        public ActionResult UploadXcelBayar1()
+
+        public async Task<ActionResult> UploadXcelBayar1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
             BindUploadExcel ret = new BindUploadExcel();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -40238,6 +40238,10 @@ namespace MasterOnline.Controllers
             ret.lastRow = new List<int>();
             var bukti = "";
             var vm = new BayarPiutangViewModel() { };
+
+            byte[] dataByte = null;
+            string[] status = statusLoopSuccess.Split(';');
+            string[] prog = percentDanprogress.Split(';');
 
             //#region Logging
             //string message = "";

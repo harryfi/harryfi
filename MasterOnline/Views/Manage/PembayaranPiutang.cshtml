@@ -561,17 +561,50 @@
                                accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" />
                     </div>
                     <div class="col-md-4">
-                        <button type="button" class="btn btn-primary pull-right" onclick="uploadfile();" data-style="expand-right">
-                            <span>Upload</span>
-                        </button>
+                        @*<button type="button" class="btn btn-primary pull-right" onclick="uploadFile();" data-style="expand-right">*@
+                            <button type="button" class="btn btn-primary pull-right" id="btnUploadExcelPiutang" onclick="uploadExcelPP();" data-style="expand-right">
+                                <span>Upload</span>
+                            </button>
                     </div>
                 </div>
                 @*<div>
-                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-                    </div>*@
+            <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+        </div>*@
                 <div id="uploadbrgviewdiv" class="row">
                 </div>
                 <br />
+
+                @*//add by nurul 2/4/2020*@
+                <div class="col-md-12">
+                    <div id="loading_upload" class="text-center" hidden="hidden">
+                        <div id="loading_upload_image">
+                            <img src="~/Content/Images/spinner.gif" />
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <br />
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarUpload" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBUpload"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                @*//end add by nurul 2/4/2020*@
             </div>
         </div>
     </div>
@@ -642,6 +675,10 @@
         var $page = window.text;
             //end add by nurul 12/2/2019
         $(document).ready(function () {
+            $("#konfUpload").on('hidden.bs.modal', function (e) {
+                $('#progressBarUpload').hide();
+                refreshTablePiutang1();
+            });
             refreshTablePiutang1();
             //add by nurul 12/2/2019
             $page = 0;
@@ -1455,7 +1492,7 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
-                    
+
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
@@ -1486,18 +1523,18 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
-                    
+
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
-                    
+
                     $('#btn-error-row').hide();
                     $('#btn-autoload').click(function () {
                         $('#file_upload_excel').removeAttr('disabled');
                     });
-                    
+
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                 },
@@ -1850,6 +1887,127 @@
                 }
             }
         }
+        //add by nurul 2/4/2020
+        function uploadExcelPP() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+                $('#progressBarUpload').hide();
+            }
+            else {
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelPiutang(null, 0, "0;5", "false;false");
+            }
+        }
+        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            if ($('#file_upload_excel')[0].files.length <= 0) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+            }
+            else
+            {
+                $('#btnUploadExcelPiutang').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                formdata.append("cust", $('#Piutang_CUST').val());
+                formdata.append("market", $tempMP1);
+                formdata.append("tgl", $('#Piutang_TGL').val());
+                $('input, select').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+
+                var $urlProgress = "";
+                if ($tempMP1.toUpperCase() == "SHOPEE") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadFileBackground", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "LAZADA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                }
+
+                $urlProgress = $urlProgress.replace("rep1", vnobuk);
+                $urlProgress = $urlProgress.replace("rep2", vcountAll);
+                $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        if (response.countAll != null && response.error == null && response.statusLoop == true && response.statusSuccess == false) {
+                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+
+                            if (response.progress <= response.countAll) {
+                                uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                            }
+
+                        } else if (response.statusSuccess == true) {
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelPiutang').removeAttr('disabled');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+                        } else {
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('0% Complete');
+                            $('#btnUploadExcelPiutang').removeAttr('disabled');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        for (i = 0; i < response.Errors.length; i++) {
+                            err += response.Errors[i] + "\n";
+                        }
+                        alert(err);
+                        console.log(error);
+                        $('#progressBarUpload').hide();
+                        $('#btnUploadExcelPiutang').removeAttr('disabled');
+                    }
+                });
+
+            }
+        }
+        function popupAlertUploadSaldoAwal() {
+            alert("Proses upload pembayaran piutang sudah selesai!");
+        }
+        //end add by nurul 2/4/2020
         function uploadfile() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
@@ -1897,7 +2055,7 @@
                         $('#loading_upload').show();
                     },
                     success: function (response) {
-                        
+
                         if (response.Errors == undefined) {
                             $('#loading_upload').hide();
                             $("#konfUpload").modal('hide');
@@ -2083,7 +2241,7 @@
                         },
                         success: function (data) {
                             if (data.Errors == undefined) {
-                                
+
                                 $('#loading_spinner').hide();
                                 $("#konfCreatePot").modal('hide');
                                 alert('Nilai potongan berhasil dibuat');
