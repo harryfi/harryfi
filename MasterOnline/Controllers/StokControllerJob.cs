@@ -879,7 +879,8 @@ namespace MasterOnline.Controllers
                                         token = marketPlace.TOKEN,
                                         idmarket = marketPlace.RecNum.Value
                                     };
-                                    if (stf02h.BRG_MP.Contains("PENDING"))
+                                    //if (stf02h.BRG_MP.Contains("PENDING"))
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                     {
                                         //dibuat recurrent nanti
                                         //var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == marketPlace.RecNum && p.BRG_MP == stf02h.BRG_MP).ToList();
