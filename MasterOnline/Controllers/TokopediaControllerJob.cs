@@ -544,13 +544,47 @@ namespace MasterOnline.Controllers
                 {
                     if (dataTokped.data != null)
                     {
-                        //if (dataTokped.data[0].preorder != null)
-                        //{
-                        //    newDataProduct.preorder = new CreateProduct_Product_Preorder
-                        //    {
-                        //        //duration = dataTokped.data[0].preorder
-                        //    };
-                        //}
+                        if (dataTokped.data[0].preorder != null)
+                        {
+                            newDataProduct.preorder = new CreateProduct_Product_Preorder
+                            {
+                                duration = Convert.ToInt32(dataTokped.data[0].preorder.duration),
+                                is_active = true,
+                                //time_unit = dataTokped.data[0].preorder.time_unit
+                            };
+                            string timeUnit = "DAY";
+                            if (dataTokped.data[0].preorder.time_unit > 0)
+                            {
+                                switch (dataTokped.data[0].preorder.time_unit)
+                                {
+                                    case 1:
+                                        timeUnit = "DAY";
+                                        break;
+                                    case 2:
+                                        timeUnit = "WEEK";
+                                        break;
+                                    case 3:
+                                        timeUnit = "MONTH";
+                                        break;
+                                }
+                            }
+                            newDataProduct.preorder.time_unit = timeUnit;
+                        }
+                        if (dataTokped.data[0].wholesale != null)
+                        {
+                            newDataProduct.wholesale = new CreateProduct_Product_Wholesale_Price[dataTokped.data[0].wholesale.Length];
+                            int i = 0;
+                            foreach (var ws in dataTokped.data[0].wholesale)
+                            {
+                                var newWS = new CreateProduct_Product_Wholesale_Price
+                                {
+                                    min_qty = ws.minQuantity,
+                                    price = Convert.ToInt32(ws.price.idr)
+                                };
+                                newDataProduct.wholesale[i] = newWS;
+                                i++;
+                            }
+                        }
                         if (!customer.TIDAK_HIT_UANG_R)
                         {
                             newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
@@ -3102,7 +3136,8 @@ namespace MasterOnline.Controllers
             int rows = 100;
             int Rowsstart = page * rows;
             BindingBase ret = new BindingBase();
-
+            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == SKU && m.IDMARKET == customer.RecNum).FirstOrDefault();
             while (!found && !stop)
             {
                 Rowsstart = page * rows;
@@ -3143,7 +3178,28 @@ namespace MasterOnline.Controllers
                         {
                             if (!found)
                             {
-                                if (item.sku == SKU)
+                                var isValid = (item.sku == SKU);
+                                if (brgInDB != null)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(brgInDB.BRG_MP))
+                                    {
+                                        if (!brgInDB.BRG_MP.Contains("PENDING"))
+                                        {
+                                            var brgmp = brgInDB.BRG_MP.Split(';');
+                                            var kdBrg = brgmp[0];
+                                            if (brgmp.Length > 1)
+                                            {
+                                                if (brgInDB.BRG_MP.Contains("EDIT"))
+                                                {
+                                                    kdBrg = brgmp[3];
+                                                }
+                                            }
+                                            isValid = (item.id == Convert.ToInt32(kdBrg));
+                                        }
+                                    }
+                                }
+                                //if (item.sku == SKU)
+                                if (isValid)
                                 {
                                     found = true;
                                     if (item.childs != null)
@@ -3174,7 +3230,7 @@ namespace MasterOnline.Controllers
                                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
                                             //add by Tri 10 Jan 2019, update stok setelah create product sukses 
-                                            var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                            //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                                             if (customer != null)
                                             {
                                                 if (customer.TIDAK_HIT_UANG_R)
@@ -3230,7 +3286,7 @@ namespace MasterOnline.Controllers
                                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
                                         //add by Tri 21 Jan 2019, update stok setelah create product sukses  
-                                        var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                        //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                                         if (customer != null)
                                         {
                                             if (customer.TIDAK_HIT_UANG_R)

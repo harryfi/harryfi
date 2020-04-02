@@ -4566,8 +4566,15 @@ namespace MasterOnline.Controllers
             public Other other { get; set; }
             public Campaign campaign { get; set; }
             public Warehouse[] warehouses { get; set; }
+            public Wholesale[] wholesale { get; set; }
         }
+        public class Wholesale
+        {
+            public Price price { get; set; }
+            public int minQuantity { get; set; }
+            public int maxQuantity { get; set; }
 
+        }
         public class Basic
         {
             public long productID { get; set; }
@@ -4615,9 +4622,9 @@ namespace MasterOnline.Controllers
 
         public class Preorder
         {
-            public bool is_active { get; set; }
+            public int day { get; set; }
             public long duration { get; set; }
-            public string time_unit { get; set; }
+            public int time_unit { get; set; }
 
         }
 
