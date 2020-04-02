@@ -20899,13 +20899,14 @@ namespace MasterOnline.Controllers
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
-                    if (so.namamarket.ToUpper() == "SHOPEE" || so.namamarket.ToUpper() == "TOKOPEDIA")
-                    {
-                        if (so.no_job != "")
-                        {
-                            resi = so.no_job;
-                        }
-                    }
+                    var kodeBooking = so.no_job;
+                    //if (so.namamarket.ToUpper() == "SHOPEE" || so.namamarket.ToUpper() == "TOKOPEDIA")
+                    //{
+                    //    if (so.no_job != "")
+                    //    {
+                    //        resi = so.no_job;
+                    //    }
+                    //}
                     //add by nurul 26/3/2020
                     var netto = so.si_netto;
                     var logoKurir = so.kurir;
@@ -20939,6 +20940,7 @@ namespace MasterOnline.Controllers
                         linktoko = toko,
                         linktlptoko = tlpToko,
                         tglKirim = (tgl == null || tgl == "01-01-0001" || tgl == "01/01/0001" ? DateTime.Now.ToString("dd/MM/yyyy") : tgl),
+                        KdBooking = kodeBooking,
                     };
 
                     ym.ListCetakLabel.Add(vm);
@@ -42835,13 +42837,14 @@ namespace MasterOnline.Controllers
                     var al_buyer = so.so_alamat + ' ' + so.so_kota + ' ' + so.so_propinsi + ' ' + so.so_pos;
                     var resi = so.no_resi;
                     //add by nurul 26/3/2020
-                    if (so.namamarket.ToUpper() == "SHOPEE" || so.namamarket.ToUpper() == "TOKOPEDIA")
-                    {
-                        if (so.no_job != "")
-                        {
-                            resi = so.no_job;
-                        }
-                    }
+                    var kodeBooking = so.no_job;
+                    //if (so.namamarket.ToUpper() == "SHOPEE" || so.namamarket.ToUpper() == "TOKOPEDIA")
+                    //{
+                    //    if (so.no_job != "")
+                    //    {
+                    //        resi = so.no_job;
+                    //    }
+                    //}
                     //add by nurul 26/3/2020
                     var port = "";
                     var ref1 = "";
@@ -42894,7 +42897,8 @@ namespace MasterOnline.Controllers
                         isiPort = port,
                         isiRef = ref1,
                         tglKirim = (tgl == null || tgl == "01-01-0001" || tgl == "01/01/0001" ? DateTime.Now.ToString("dd/MM/yyyy") : tgl),
-                        logoKurirApi = logoKurir
+                        logoKurirApi = logoKurir,
+                        KdBooking = kodeBooking,
                     };
 
                     ym.ListCetakLabel.Add(vm);
@@ -43059,6 +43063,123 @@ namespace MasterOnline.Controllers
                 return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
             return JsonErrorMessage("This Function is for Lazada only");
+        }
+
+        public ActionResult KodeBookingTokpedPerPacking(string cust, string bukti, List<string> rows_selected)
+        {
+            try
+            {
+                if (rows_selected != null)
+                {
+                    if (rows_selected.Count() == 0)
+                    {
+                        return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    }
+                }
+                else
+                {
+                    return new JsonResult { Data = new { mo_error = "Mohon pilih pesanan yang mau diproses." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                }
+
+                var string_recnum = "";
+                foreach (var so_recnum in rows_selected)
+                {
+                    if (string_recnum != "")
+                    {
+                        string_recnum += ",";
+                    }
+
+                    string_recnum += "'" + so_recnum + "'";
+                }
+
+                var listErrors = new List<PackingListErrors>();
+                var listSuccess = new List<listSuccessPrintLabel>();
+                string sSQLSelect = "";
+                sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                string sSQL2 = "";
+                sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
+
+                string sSQLSelect2 = "";
+                sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+
+                var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+                foreach (var item in ListStt01a)
+                {
+                    var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
+                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    {
+                        if (marketPlace.STATUS_API == "1")
+                        {
+                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                            {
+                                merchant_code = marketPlace.Sort1_Cust, //FSID
+                                API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                token = marketPlace.TOKEN,
+                                idmarket = marketPlace.RecNum.Value,
+                                DatabasePathErasoft = dbPathEra,
+                                username = usernameLogin
+                            };
+                            string[] referensi = item.no_referensi.Split(';');
+                            if (referensi.Count() > 0)
+                            {
+                                //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, item.no_bukti, item.no_referensi));
+                                var tokpedAPI = new TokopediaControllerJob();
+                                var kdBooking = tokpedAPI.JOBCOD(iden, item.no_bukti, item.no_referensi);
+                                if (kdBooking.Result.ToString() != "")
+                                {
+                                    listSuccess.Add(new listSuccessPrintLabel
+                                    {
+                                        no_referensi = item.no_bukti
+                                    });
+                                }
+                                else
+                                {
+                                    listErrors.Add(new PackingListErrors
+                                    {
+                                        keyname = item.no_bukti,
+                                        errorMessage = "Pesanan tidak ditemukan kode bookingnya."
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                listErrors.Add(new PackingListErrors
+                                {
+                                    keyname = item.no_bukti,
+                                    errorMessage = "Pesanan tidak bisa diproses Get Kode Booking."
+                                });
+                            }
+                        }
+                        else
+                        {
+                            listErrors.Add(new PackingListErrors
+                            {
+                                keyname = item.no_bukti,
+                                errorMessage = "Status Link ke Marketplace tidak aktif."
+                            });
+                        }
+                    }
+                    else
+                    {
+                        listErrors.Add(new PackingListErrors
+                        {
+                            keyname = item.no_bukti,
+                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                        });
+                    }
+                }
+
+                var successCount = listSuccess.Count();
+                return new JsonResult { Data = new { listErrors, listSuccess, successCount = successCount }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
         }
         //END ADD BY NURUL 1/4/2020, PRINT LABEL TOKPED 
     }

@@ -522,6 +522,77 @@
                 }
         }
     }
+
+    function KodeBookingPackingTokped(cust) {
+        $('#btnBookingTokped_' + cust).attr("disabled", true);
+        $('#modalPrintTokped__label__' + cust).html('Proses Get Kode Booking Pesanan Tokopedia');
+        $('#modalPrintTokped__textarea__' + cust).html('Sedang diproses. mohon menunggu..');
+        $('#modalPrintTokped__' + cust).modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var $link = '@Url.Action("KodeBookingTokpedPerPacking", "Manage")';
+
+        var rows_selected = [];
+        $('.checkbox_packing_tokped').each( function() {
+            if($(this).attr("data-cust") == cust && $(this).is(":checked")){
+                rows_selected.push($(this).attr("data-recnum"));
+            }
+        });
+
+        $postdata = {
+            cust : cust,
+            bukti : $('#packingList_NO_BUKTI').val(),
+            rows_selected : rows_selected
+        };
+        $.ajax({
+            type: "POST",
+            url: $link,
+            contentType: "application/json; charset=UTF-8",
+            cache: false,
+            data: JSON.stringify($postdata),
+            beforeSend: function () {
+                //$('#loading_barang_tab').show();
+            },
+            success: function (response) {
+                //$('#loading_barang_tab').hide();
+                if (!response.mo_error) {
+                    var textareaValue = "";
+
+                    textareaValue += "Jumlah pesanan berhasil diproses : "+ response.successCount +"</br>";
+
+                    var adaError = false;
+                    var errorValue = "";
+                    response.listErrors.forEach(function (item) {
+                        adaError = true;
+                        errorValue += item.keyname + " : " + item.errorMessage + "</br>";
+                    });
+                    if (adaError) {
+                        textareaValue += "</br>";
+                        textareaValue += "Pesanan gagal diproses :</br>";
+                        textareaValue += errorValue;
+                    }
+                    $('#modalPrintTokped__textarea__' + cust).show();
+                    $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+
+                    // if(response.successCount > 0){
+                    //     refreshTableSudahDibayar();
+                    // }
+                } else {
+                    $('#modalPrintTokped__textarea__' + cust).show();
+                    $('#modalPrintTokped__textarea__' + cust).html(response.mo_error);
+                }
+            },
+            complete: function () {
+                $('#btnBookingTokped_' + cust).attr("disabled", false);
+            },
+            error: function (xhr, status, error) {
+                console.log(error);
+            }
+        });
+    }
     //end add by nurul 1/4/2020
 </script>
 @{
@@ -703,26 +774,27 @@
                             </div>
                         </div>
                         <div class="col-md-8" style="text-align:right">
+                            <button id="btnBookingTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="KodeBookingPackingTokped('@(item.CUST)')">Get Kode booking</button>
                             <button id="btnProsesTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
                             @*<button id="btnProsesTokped__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
-                                <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
+        <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
                             @*//add by nurul 19/3/2020*@
                             <button id="btnPrintTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="TokopediaLabelPerPacking('@(item.CUST)')">Print</button>
                             @*<div class="col-md-3 pull-right" style="text-align:right">
-                                    <div class="btn-group pull-right" role="group">
-                                        <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
-                                            Print <span class="caret"></span>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
-                                                <span aria-hidden="true"> Label Marketplace</span>
-                                            </button>
-                                            <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
-                                                <span aria-hidden="true"> Label MasterOnline</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>*@
+            <div class="btn-group pull-right" role="group">
+                <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                    Print <span class="caret"></span>
+                </button>
+                <div class="dropdown-menu">
+                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
+                        <span aria-hidden="true"> Label Marketplace</span>
+                    </button>
+                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
+                        <span aria-hidden="true"> Label MasterOnline</span>
+                    </button>
+                </div>
+            </div>
+        </div>*@
                             @*//end add by nurul 19/3/2020*@
                         </div>
                     </div>

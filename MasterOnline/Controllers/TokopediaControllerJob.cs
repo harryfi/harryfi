@@ -2038,7 +2038,7 @@ namespace MasterOnline.Controllers
         public async Task<string> JOBCOD(TokopediaAPIData iden, string ordNo, string noref)
         {
             string ret = "";
-            string connId = Guid.NewGuid().ToString();
+            //string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
             string[] splitNoRef = noref.Split(';');
@@ -2054,7 +2054,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = await myReq.GetResponseAsync())
+                using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {

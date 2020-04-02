@@ -83,5 +83,8 @@ namespace MasterOnline.ViewModels
         public string tglKirim { get; set; }        
         public string logoKurirApi { get; set; }
         
+        //add by nurul 2/4/2020
+        public string KdBooking { get; set; }
+        //end add by nurul 2/4/2020
     }
 }
