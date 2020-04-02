@@ -16,6 +16,7 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace MasterOnline.Controllers
 {
@@ -1349,6 +1350,176 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
         //end by Tri add 28 okt 2019, tuning upload excel sinkronisasi barang
+
+        //add by Indra 01 apr 2020, download pesanan
+        public ActionResult ListPesanantoExcel(string orid, string drtgl, string sdtgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("PESANAN");
+
+                    string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
+                    string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd");
+
+                    var pesanan = "";
+                    switch (orid)
+                    {
+                        case "ALL": pesanan = "SEMUA PESANAN"; break;
+                        case "0": pesanan = "BELUM BAYAR"; break;
+                        case "01": pesanan = "SUDAH BAYAR"; break;
+                        case "02": pesanan = "PACKING"; break;
+                        case "03": pesanan = "FAKTUR"; break;
+                        case "04": pesanan = "SELESAI"; break;
+                        case "11": pesanan = "BATAL"; break;
+                    }
+
+                    string sSQL = "SELECT A.NO_BUKTI AS NO_PESANAN, NO_REFERENSI, A.TGL, E.NAMAMARKET + '(' + D.PERSO + ')' MARKETPLACE, A.CUST AS KODE_PEMBELI, NAMAPEMESAN AS PEMBELI, " +
+                        "ALAMAT_KIRIM, A.TERM AS [TOP],  SHIPMENT AS KURIR, TGL_JTH_TEMPO AS TGL_JATUH_TEMPO, A.KET AS KETERANGAN, A.BRUTO, A.DISCOUNT AS DISC, A.PPN, A.NILAI_PPN, A.ONGKOS_KIRIM, A.NETTO, " +
+                        "A.STATUS_TRANSAKSI AS STATUS_PESANAN, B.BRG AS KODE_BRG, ISNULL(C.NAMA,'') + ' ' + ISNULL(C.NAMA2, '') AS NAMA_BARANG, QTY, " +
+                        "H_SATUAN AS HARGA_SATUAN, B.DISCOUNT AS DISC1, B.NILAI_DISC_1 AS NDISC1, B.DISCOUNT_2 AS DISC2, B.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
+                        "FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI " +
+                        "LEFT JOIN STF02 C ON B.BRG = C.BRG " +
+                        "INNER JOIN ARF01 D ON A.CUST = D.CUST " +
+                        "INNER JOIN MO..MARKETPLACE E ON D.NAMA = E.IDMARKET " +
+                        "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "'";
+
+                    if (orid != "ALL")
+                    {
+                        sSQL += "AND A.STATUS_TRANSAKSI = '" + orid + "'";
+                    }
+
+                    sSQL += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
+
+                    var lsPesanan = EDB.GetDataSet("CString", "SOT01A", sSQL);
+
+                    if (lsPesanan.Tables[0].Rows.Count > 0)
+                    {
+
+                        worksheet.Cells["A1"].Value = "Pesanan : " + pesanan;
+                        worksheet.Cells["A2"].Value = "Dari Tanggal : " + drtgl + " Sampai Tanggal : " + sdtgl;
+
+                        for (int i = 0; i < lsPesanan.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[5 + i, 1].Value = lsPesanan.Tables[0].Rows[i]["NO_PESANAN"];
+                            worksheet.Cells[5 + i, 2].Value = lsPesanan.Tables[0].Rows[i]["NO_REFERENSI"];
+                            worksheet.Cells[5 + i, 3].Value = Convert.ToDateTime(lsPesanan.Tables[0].Rows[i]["TGL"]).ToString("yyyy-MM-dd hh:mm:ss");
+                            worksheet.Cells[5 + i, 4].Value = lsPesanan.Tables[0].Rows[i]["MARKETPLACE"];
+                            worksheet.Cells[5 + i, 5].Value = lsPesanan.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            worksheet.Cells[5 + i, 6].Value = lsPesanan.Tables[0].Rows[i]["PEMBELI"];
+                            worksheet.Cells[5 + i, 7].Value = lsPesanan.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 8].Value = lsPesanan.Tables[0].Rows[i]["KURIR"];
+                            worksheet.Cells[5 + i, 9].Value = lsPesanan.Tables[0].Rows[i]["TOP"];
+                            worksheet.Cells[5 + i, 10].Value = Convert.ToDateTime(lsPesanan.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd hh:mm:ss");
+                            worksheet.Cells[5 + i, 11].Value = lsPesanan.Tables[0].Rows[i]["KETERANGAN"];
+                            worksheet.Cells[5 + i, 12].Value = lsPesanan.Tables[0].Rows[i]["BRUTO"];
+                            worksheet.Cells[5 + i, 13].Value = lsPesanan.Tables[0].Rows[i]["DISC"];
+                            worksheet.Cells[5 + i, 14].Value = lsPesanan.Tables[0].Rows[i]["PPN"];
+                            worksheet.Cells[5 + i, 15].Value = lsPesanan.Tables[0].Rows[i]["NILAI_PPN"];
+                            worksheet.Cells[5 + i, 16].Value = lsPesanan.Tables[0].Rows[i]["ONGKOS_KIRIM"];
+                            worksheet.Cells[5 + i, 17].Value = lsPesanan.Tables[0].Rows[i]["NETTO"];
+                            var pesanan1 = "";
+                            switch (lsPesanan.Tables[0].Rows[i]["STATUS_PESANAN"])
+                            {
+                                case "0": pesanan1 = "BELUM BAYAR"; break;
+                                case "01": pesanan1 = "SUDAH BAYAR"; break;
+                                case "02": pesanan1 = "PACKING"; break;
+                                case "03": pesanan1 = "FAKTUR"; break;
+                                case "04": pesanan1 = "SELESAI"; break;
+                                case "11": pesanan1 = "BATAL"; break;
+                            }
+                            worksheet.Cells[5 + i, 18].Value = pesanan1;
+                            worksheet.Cells[5 + i, 19].Value = lsPesanan.Tables[0].Rows[i]["KODE_BRG"];
+                            worksheet.Cells[5 + i, 20].Value = lsPesanan.Tables[0].Rows[i]["NAMA_BARANG"];
+                            worksheet.Cells[5 + i, 21].Value = lsPesanan.Tables[0].Rows[i]["QTY"];
+                            worksheet.Cells[5 + i, 22].Value = lsPesanan.Tables[0].Rows[i]["HARGA_SATUAN"];
+                            worksheet.Cells[5 + i, 23].Value = lsPesanan.Tables[0].Rows[i]["DISC1"];
+                            worksheet.Cells[5 + i, 24].Value = lsPesanan.Tables[0].Rows[i]["NDISC1"];
+                            worksheet.Cells[5 + i, 25].Value = lsPesanan.Tables[0].Rows[i]["DISC2"];
+                            worksheet.Cells[5 + i, 26].Value = lsPesanan.Tables[0].Rows[i]["NDISC2"];
+                            worksheet.Cells[5 + i, 27].Value = lsPesanan.Tables[0].Rows[i]["TOTAL"];
+                        }
+
+                        ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 27];
+                        string tableName0 = "TablePesanan";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                        table0.Columns[0].Name = "NO PESANAN";
+                        table0.Columns[1].Name = "NO REFERENSI";
+                        table0.Columns[2].Name = "TGL";
+                        table0.Columns[3].Name = "MARKETPLACE";
+                        table0.Columns[4].Name = "KODE PEMBELI";
+                        table0.Columns[5].Name = "PEMBELI";
+                        table0.Columns[6].Name = "ALAMAT KIRIM";
+                        table0.Columns[7].Name = "KURIR";
+                        table0.Columns[8].Name = "TOP";
+                        table0.Columns[9].Name = "TGL JATUH TEMPO";
+                        table0.Columns[10].Name = "KETERANGAN";
+                        table0.Columns[11].Name = "BRUTO";
+                        table0.Columns[12].Name = "DISC";
+                        table0.Columns[13].Name = "PPN";
+                        table0.Columns[14].Name = "NILAI PPN";
+                        table0.Columns[15].Name = "ONGKOS KIRIM";
+                        table0.Columns[16].Name = "NETTO";
+                        table0.Columns[17].Name = "STATUS PESANAN";
+                        table0.Columns[18].Name = "KODE BRG";
+                        table0.Columns[19].Name = "NAMA BARANG";
+                        table0.Columns[20].Name = "QTY";
+                        table0.Columns[21].Name = "HARGA SATUAN";
+                        table0.Columns[22].Name = "DISC1";
+                        table0.Columns[23].Name = "NDISC1";
+                        table0.Columns[24].Name = "DISC2";
+                        table0.Columns[25].Name = "NDISC2";
+                        table0.Columns[26].Name = "TOTAL";
+
+                        using (var range = worksheet.Cells[4, 1, 4, 27])
+                        {
+                            range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_pesanan_" + pesanan + ".xlsx";
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data pesanan");
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end by Indra 01 apr 2020, download pesanan
 
     }
 

@@ -68,6 +68,78 @@
         }
     </style>
     @*//end add by nurul 24/3/2020*@
+    @*//add by indra 1/4/2020*@
+    <style>
+
+        /* The container CK */
+        .container-ck {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            /*font-size: 22px;*/
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .container-ck input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+                height: 0;
+                width: 0;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .container-ck:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .container-ck input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .container-ck input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .container-ck .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+    @*//end by indra 1/4/2020*@
     <style>
         .loading_spinner_modal {
             display: none;
@@ -1642,6 +1714,9 @@
                                 <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
+                                <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right">
+                                    <span>Download</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -2138,6 +2213,76 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="downloadPesanan" tabindex="-1" role="dialog" aria-labelledby="labelDownloadPesanan">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelDownloadPesanan">Download Pesanan</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-bottom:10px">
+                        <label>Pilih salah satu pesanan yang ingin Anda download : </label>
+                    </div>
+                    <div class="col-md-12" style="margin-bottom:10px">
+                        <label class="container-ck">
+                            Semua Pesanan
+                            <input type="checkbox" class="ckps" id="ckpsn1" value="ALL" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                        <label class="container-ck">
+                            Sudah Bayar
+                            <input type="checkbox" class="ckps" id="ckpsn2" value="01" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                        <label class="container-ck">
+                            Packing
+                            <input type="checkbox" class="ckps" id="ckpsn3" value="02" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                        <label class="container-ck">
+                            Faktur
+                            <input type="checkbox" class="ckps" id="ckpsn4" value="03" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                        <label class="container-ck">
+                            Selesai
+                            <input type="checkbox" class="ckps" id="ckpsn5" value="04" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                        <label class="container-ck">
+                            Batal
+                            <input type="checkbox" class="ckps" id="ckpsn6" value="11" name="ckpesan"><span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="">Dari Tanggal</label>
+                        <div class="input-group date">
+                            <input readonly class="form-control" id="DrTanggal" name="DrTanggal" type="text" value="">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="">S/d Tanggal</label>
+                        <div class="input-group date">
+                            <input readonly class="form-control" id="SdTanggal" name="SdTanggal" type="text" value="">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="padding-top:1.8em;">
+                        <button type="button" class="btn btn-primary" onclick="DownloadExcelPesanan()">Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
         </div>
     </div>
@@ -2881,10 +3026,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
                 @*<div id="loading_pesanan_NotFound">
-                    <div id="loading_pesanan_NotFound_image">
-                        <img src="~/Content/Images/spinner.gif" />
-                    </div>
-                </div>*@
+                        <div id="loading_pesanan_NotFound_image">
+                            <img src="~/Content/Images/spinner.gif" />
+                        </div>
+                    </div>*@
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @*@Html.Partial("BarangFixNotFoundPartial")*@
@@ -3670,7 +3815,68 @@
                 }
             });
         }
+
+        function DownloadExcelPesanan() {
+            var orId = "";
+            var drTgl = $('#DrTanggal').val();
+            var sdTgl = $('#SdTanggal').val();
+            $('input[name="ckpesan"]:checked').each(function () {
+                orId = this.value;
+            });
+
+            var link = '@Html.Raw(Url.Action("ListPesanantoExcel", "TransferExcel"))';
+            link += "?orid=" + orId + "&drtgl=" + drTgl + "&sdtgl=" + sdTgl;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+
         $(document).ready(function () {
+
+            $("#ckpsn1").prop('checked', true);
+            $(".ckps").change(function () {
+                $(".ckps").prop('checked', false);
+                $(this).prop('checked', true);
+            });
+
+            var d = new Date();
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+
             jQuery.extend(jQuery.fn.dataTableExt.oSort, {
                 "date-uk-pre": function (a) {
                     if (a == null || a == "") {
