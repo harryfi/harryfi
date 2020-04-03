@@ -585,6 +585,10 @@ namespace MasterOnline.Controllers
                                 i++;
                             }
                         }
+                        if(dataTokped.data[0].basic.condition == 2)
+                        {
+                            newDataProduct.condition = "USED";
+                        }
                         if (!customer.TIDAK_HIT_UANG_R)
                         {
                             newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
