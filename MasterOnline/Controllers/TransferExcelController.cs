@@ -1520,6 +1520,175 @@ namespace MasterOnline.Controllers
 
         }
         //end by Indra 01 apr 2020, download pesanan
+        
+        //add by Indra 03 apr 2020, download faktur
+        public ActionResult ListFakturtoExcel(string drtgl, string sdtgl)
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("FAKTUR");
+
+                    string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 00:00:00.000");
+                    string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
+
+                    string sSQL = "SELECT A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
+                        "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, NO_REFERENSI, D.TGL, C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, D.CUST AS KODE_PEMBELI, D.NAMAPEMESAN AS PEMBELI, " +
+                        "ALAMAT_KIRIM, D.TERM AS [TOP], SHIPMENT AS KURIR, TGL_JTH_TEMPO AS TGL_JATUH_TEMPO, D.KET AS KETERANGAN, D.BRUTO, D.DISCOUNT AS DISC, D.PPN, D.NILAI_PPN, D.ONGKOS_KIRIM, D.NETTO, " +
+                        "D.STATUS_TRANSAKSI AS STATUS_PESANAN, G.BRG AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, QTY,  " +
+                        "H_SATUAN AS HARGA_SATUAN, G.DISCOUNT AS DISC1, G.NILAI_DISC_1 AS NDISC1, G.DISCOUNT_2 AS DISC2, G.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
+                        "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
+                        "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
+                        "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
+                        "INNER JOIN SOT01B G ON D.NO_BUKTI = G.NO_BUKTI " +
+                        "LEFT JOIN STF02 H ON G.BRG = H.BRG " +
+                        "LEFT JOIN (SELECT DISTINCT NO_BUKTI FROM SIT01A A INNER JOIN ART03B B ON A.NO_BUKTI = B.NFAKTUR)E ON A.NO_BUKTI = E.NO_BUKTI " +
+                        "LEFT JOIN (select ret.jenis_form,ret.no_bukti as bukti_ret,ret.no_ref as no_si,fkt.no_bukti as bukti_faktur from sit01a ret inner join sit01a fkt on fkt.no_bukti=ret.no_ref where ret.jenis_form='3') F ON A.NO_BUKTI=F.BUKTI_FAKTUR " +
+                        "WHERE A.TGL BETWEEN '" + dt1 + "' AND '" + dt2 + "' " +                    
+                        "AND A.JENIS_FORM = '2' " +
+                        "ORDER BY A.TGL DESC, A.NO_BUKTI DESC";
+
+                    var lsFaktur = EDB.GetDataSet("CString", "SIT01A", sSQL);
+
+                    if (lsFaktur.Tables[0].Rows.Count > 0)
+                    {
+
+                        worksheet.Cells["A1"].Value = "FAKTUR PENJUALAN";
+                        worksheet.Cells["A2"].Value = "Dari Tanggal : " + drtgl + " Sampai Tanggal : " + sdtgl;
+
+                        for (int i = 0; i < lsFaktur.Tables[0].Rows.Count; i++)
+                        {
+                            worksheet.Cells[5 + i, 1].Value = lsFaktur.Tables[0].Rows[i]["NO_FAKTUR"];
+                            worksheet.Cells[5 + i, 2].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_FAKTUR"]).ToString("yyyy-MM-dd hh:mm:ss");
+                            var status1 = "";
+                            switch (lsFaktur.Tables[0].Rows[i]["STATUS_FAKTUR"])
+                            {
+                                case "1": status1 = "SELESAI"; break;
+                                case "2": status1 = "BATAL"; break;
+                            }
+                            worksheet.Cells[5 + i, 3].Value = status1;
+                            worksheet.Cells[5 + i, 4].Value = lsFaktur.Tables[0].Rows[i]["NO_PESANAN"];
+                            worksheet.Cells[5 + i, 5].Value = lsFaktur.Tables[0].Rows[i]["NO_REFERENSI"];
+                            worksheet.Cells[5 + i, 6].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL"]).ToString("yyyy-MM-dd hh:mm:ss");
+                            worksheet.Cells[5 + i, 7].Value = lsFaktur.Tables[0].Rows[i]["MARKETPLACE"];
+                            worksheet.Cells[5 + i, 8].Value = lsFaktur.Tables[0].Rows[i]["KODE_PEMBELI"];
+                            worksheet.Cells[5 + i, 9].Value = lsFaktur.Tables[0].Rows[i]["PEMBELI"];
+                            worksheet.Cells[5 + i, 10].Value = lsFaktur.Tables[0].Rows[i]["ALAMAT_KIRIM"];
+                            worksheet.Cells[5 + i, 11].Value = lsFaktur.Tables[0].Rows[i]["KURIR"];
+                            worksheet.Cells[5 + i, 12].Value = lsFaktur.Tables[0].Rows[i]["TOP"];
+                            worksheet.Cells[5 + i, 13].Value = Convert.ToDateTime(lsFaktur.Tables[0].Rows[i]["TGL_JATUH_TEMPO"]).ToString("yyyy-MM-dd hh:mm:ss");
+                            worksheet.Cells[5 + i, 14].Value = lsFaktur.Tables[0].Rows[i]["KETERANGAN"];
+                            worksheet.Cells[5 + i, 15].Value = lsFaktur.Tables[0].Rows[i]["BRUTO"];
+                            worksheet.Cells[5 + i, 16].Value = lsFaktur.Tables[0].Rows[i]["DISC"];
+                            worksheet.Cells[5 + i, 17].Value = lsFaktur.Tables[0].Rows[i]["PPN"];
+                            worksheet.Cells[5 + i, 18].Value = lsFaktur.Tables[0].Rows[i]["NILAI_PPN"];
+                            worksheet.Cells[5 + i, 19].Value = lsFaktur.Tables[0].Rows[i]["ONGKOS_KIRIM"];
+                            worksheet.Cells[5 + i, 20].Value = lsFaktur.Tables[0].Rows[i]["NETTO"];
+                            var pesanan1 = "";
+                            switch (lsFaktur.Tables[0].Rows[i]["STATUS_PESANAN"])
+                            {
+                                case "0": pesanan1 = "BELUM BAYAR"; break;
+                                case "01": pesanan1 = "SUDAH BAYAR"; break;
+                                case "02": pesanan1 = "PACKING"; break;
+                                case "03": pesanan1 = "FAKTUR"; break;
+                                case "04": pesanan1 = "SELESAI"; break;
+                                case "11": pesanan1 = "BATAL"; break;
+                            }
+                            worksheet.Cells[5 + i, 21].Value = pesanan1;
+                            worksheet.Cells[5 + i, 22].Value = lsFaktur.Tables[0].Rows[i]["KODE_BRG"];
+                            worksheet.Cells[5 + i, 23].Value = lsFaktur.Tables[0].Rows[i]["NAMA_BARANG"];
+                            worksheet.Cells[5 + i, 24].Value = lsFaktur.Tables[0].Rows[i]["QTY"];
+                            worksheet.Cells[5 + i, 25].Value = lsFaktur.Tables[0].Rows[i]["HARGA_SATUAN"];
+                            worksheet.Cells[5 + i, 26].Value = lsFaktur.Tables[0].Rows[i]["DISC1"];
+                            worksheet.Cells[5 + i, 27].Value = lsFaktur.Tables[0].Rows[i]["NDISC1"];
+                            worksheet.Cells[5 + i, 28].Value = lsFaktur.Tables[0].Rows[i]["DISC2"];
+                            worksheet.Cells[5 + i, 29].Value = lsFaktur.Tables[0].Rows[i]["NDISC2"];
+                            worksheet.Cells[5 + i, 30].Value = lsFaktur.Tables[0].Rows[i]["TOTAL"];
+                        }
+
+                        ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 30];
+                        string tableName0 = "TableFaktur";
+                        ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+
+                        table0.Columns[0].Name = "NO FAKTUR";
+                        table0.Columns[1].Name = "TGL FAKTUR";
+                        table0.Columns[2].Name = "STATUS FAKTUR";
+                        table0.Columns[3].Name = "NO PESANAN";
+                        table0.Columns[4].Name = "NO REFERENSI";
+                        table0.Columns[5].Name = "TGL";
+                        table0.Columns[6].Name = "MARKETPLACE";
+                        table0.Columns[7].Name = "KODE PEMBELI";
+                        table0.Columns[8].Name = "PEMBELI";
+                        table0.Columns[9].Name = "ALAMAT KIRIM";
+                        table0.Columns[10].Name = "KURIR";
+                        table0.Columns[11].Name = "TOP";
+                        table0.Columns[12].Name = "TGL JATUH TEMPO";
+                        table0.Columns[13].Name = "KETERANGAN";
+                        table0.Columns[14].Name = "BRUTO";
+                        table0.Columns[15].Name = "DISC";
+                        table0.Columns[16].Name = "PPN";
+                        table0.Columns[17].Name = "NILAI PPN";
+                        table0.Columns[18].Name = "ONGKOS KIRIM";
+                        table0.Columns[19].Name = "NETTO";
+                        table0.Columns[20].Name = "STATUS PESANAN";
+                        table0.Columns[21].Name = "KODE BRG";
+                        table0.Columns[22].Name = "NAMA BARANG";
+                        table0.Columns[23].Name = "QTY";
+                        table0.Columns[24].Name = "HARGA SATUAN";
+                        table0.Columns[25].Name = "DISC1";
+                        table0.Columns[26].Name = "NDISC1";
+                        table0.Columns[27].Name = "DISC2";
+                        table0.Columns[28].Name = "NDISC2";
+                        table0.Columns[29].Name = "TOTAL";
+
+                        using (var range = worksheet.Cells[4, 1, 4, 30])
+                        {
+                            range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                            range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        }
+
+                        table0.ShowHeader = true;
+                        table0.ShowFilter = true;
+                        table0.ShowRowStripes = false;
+                        worksheet.Cells.AutoFitColumns(0);
+
+                        ret.byteExcel = package.GetAsByteArray();
+                        ret.namaFile = username + "_faktur" + ".xlsx";
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data faktur");
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+
+            return result;
+
+        }
+        //end by Indra 03 apr 2020, download faktur
 
     }
 
