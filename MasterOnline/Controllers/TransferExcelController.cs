@@ -1084,12 +1084,17 @@ namespace MasterOnline.Controllers
                                                         }
                                                         else
                                                         {
-                                                            ret.Errors.Add("Kode Barang (" + kd_brg + ") tidak ditemukan");
-                                                        }
+                                                        ret.Errors.Add("Kode Barang (" + kd_brg + ") tidak ditemukan");
+                                                        ret.statusSuccess = true;
+                                                        ret.lastRow[file_index] = i;
+                                                        i = worksheet.Dimension.End.Row;
+                                                    }
                                                     }
                                                     else
                                                     {
-                                                        ret.Errors.Add("Kode barang tidak ditemukan lagi di baris " + i);
+                                                        //ret.Errors.Add("Kode barang tidak ditemukan lagi di baris " + i);
+                                                        ret.Errors.Add("Proses upload dan input Saldo awal stok sudah selesai dibaris " + i + " dari " + ret.countAll);
+                                                        ret.statusSuccess = true;
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
                                                     //break;
@@ -1101,10 +1106,10 @@ namespace MasterOnline.Controllers
                                                     ret.percent == 30 || ret.percent == 40 ||
                                                     ret.percent == 50 || ret.percent == 60 ||
                                                     ret.percent == 70 || ret.percent == 80 ||
-                                                    ret.percent == 90 || ret.percent == 100)
+                                                    ret.percent == 90 || ret.percent == 100 || ret.percent >= 100)
                                                 {
                                                     ret.statusSuccess = false;
-                                                    if (ret.percent > 99 && ret.percent <= 101)
+                                                    if (ret.percent >= 100)
                                                     {
                                                         // update stock all barang;
                                                         var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
