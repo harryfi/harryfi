@@ -64,5 +64,9 @@ namespace MasterOnline.Models
         //public string TGL { get; set; }
         //end add by Tri 3/9/2019, packing list
 
+        //add by nurul 3/4/2020
+        public string Noref { get; set; }
+        //end add by nurul 3/4/2020
+
     }
 }
