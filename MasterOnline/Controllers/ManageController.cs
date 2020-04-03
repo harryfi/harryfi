@@ -39693,7 +39693,8 @@ namespace MasterOnline.Controllers
                     return new JsonResult { Data = new { error_packing_list = false, listError, successCount = 0, need_approval = 2 }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
 
-                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
+                //var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
+                var dsSO = EDB.GetDataSet("sConn", "SO", "SELECT A.NO_BUKTI,STATUS_TRANSAKSI,BRG,QTY,ISNULL(QTY_N,0) QTY_N,ISNULL(LOKASI,'') LOKASI,A.RECNUM AS SOA_RECNUM, B.NO_URUT AS SOB_RECNUM, A.CUST AS SOA_CUST,A.NO_REFERENSI AS SOA_NOREF FROM SOT01A A (NOLOCK) INNER JOIN SOT01B B (NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI WHERE A.RECNUM IN (" + stringListRecnum + ") AND STATUS_TRANSAKSI = '02' ORDER BY A.NO_BUKTI, B.NO_URUT");
                 if (dsSO.Tables[0].Rows.Count > 0)
                 {
                     var lastNobuk = "";
@@ -39710,6 +39711,36 @@ namespace MasterOnline.Controllers
                         var SOB_Lokasi = Convert.ToString(dsSORow["LOKASI"]);
                         var SOB_RECNUM = Convert.ToInt32(dsSORow["SOB_RECNUM"]);
                         var SOA_RECNUM = Convert.ToString(dsSORow["SOA_RECNUM"]);
+                        var SOA_NOREF = Convert.ToString(dsSORow["SOA_NOREF"]);
+                        //ADD BY NURUL 3/4/2020, update no kode booking
+                        var SOA_CUST = Convert.ToString(dsSORow["SOA_CUST"]);
+                        var kdtokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+                        var mpCust = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdtokped.IdMarket.ToString() && m.CUST == SOA_CUST).FirstOrDefault();
+                        if(mpCust != null)
+                        {
+                            if(mpCust.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust.API_CLIENT_P) && !string.IsNullOrEmpty(mpCust.API_CLIENT_U))
+                            {
+                                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+                                {
+                                    merchant_code = mpCust.Sort1_Cust, //fsid
+                                    API_client_password = mpCust.API_CLIENT_P, //client secret
+                                    API_client_username = mpCust.API_CLIENT_U, //client id
+                                    API_secret_key = mpCust.API_KEY, //shop id 
+                                    idmarket = mpCust.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = "support"
+                                };
+                                var tokpedApi = new TokopediaControllerJob();
+#if (DEBUG || Debug_AWS)
+                                Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
+#else
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, SOA_NOREF));
+#endif
+                            }
+                        }
+                        //END ADD BY NURUL 3/4/2020, update no kode booking
                         if (lastNobuk != Nobuk)
                         {
                             if (validNobuk & lastNobuk != "")

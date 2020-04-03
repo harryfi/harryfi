@@ -1862,7 +1862,15 @@ namespace MasterOnline.Controllers
                     var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
                     if (pesananInDb != null)
                     {
-                        await JOBCOD(iden, ordNo, noref);
+//#if (DEBUG || Debug_AWS)
+//                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+//#else
+//                        string EDBConnID = EDB.GetConnectionString("ConnId");
+//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+//                        var Jobclient = new BackgroundJobClient(sqlStorage);
+//                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+//#endif
                     }
                 }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
@@ -1895,7 +1903,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             var token = SetupContext(iden);
             iden.token = token;
-            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST != "" && a.CUST == cust).ToList();
+            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust).ToList();
             if (list_ordersn.Count() > 0)
             {
                 foreach (var pesanan in list_ordersn)
@@ -1953,10 +1961,6 @@ namespace MasterOnline.Controllers
                                     pesananIndb.TRACKING_SHIPMENT = tempAWB;
                                     ErasoftDbContext.SaveChanges();
                                 }
-                            }
-                            else
-                            {
-                                throw new Exception("Update Resi JOB Gagal. Tracking Number Null.");
                             }
                         }
                     }
@@ -2026,10 +2030,6 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.SaveChanges();
                         }
                     }
-                    //else
-                    //{
-                    //    throw new Exception("Update Resi JOB Gagal. Tracking Number Null.");
-                    //}
                 }
             }
             return ret;
@@ -2083,18 +2083,23 @@ namespace MasterOnline.Controllers
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
                 if (result.status == "200")
                 {
-                    ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
-                    if (ret != "" && ret != null)
+                    var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                    if (pesananIndb != null)
                     {
-                        var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
-                        if (pesananIndb != null)
+                        ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                        if (ret != "" && ret != null)
                         {
                             //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
                             pesananIndb.status_kirim = "2";
                             pesananIndb.NO_PO_CUST = ret;
                             ErasoftDbContext.SaveChanges();
+                            //} else if (pesananIndb.STATUS_TRANSAKSI == "02" && (pesananIndb.SHIPMENT.Contains("SiCepat") || pesananIndb.SHIPMENT.Contains("AnterAja") || pesananIndb.SHIPMENT.Contains("J&T") || pesananIndb.SHIPMENT.Contains("JNE") || pesananIndb.SHIPMENT.Contains("Lion")))
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception("Gagal Update Kode Booking.");
                 }
             }
             return ret;
