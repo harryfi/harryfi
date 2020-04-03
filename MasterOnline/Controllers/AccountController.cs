@@ -872,6 +872,9 @@ namespace MasterOnline.Controllers
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
                         }
                     }
                 }
@@ -1094,8 +1097,8 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.RemoveIfExists(connId_JobId);
+                                //connId_JobId = dbPathEra + "_tokopedia_check_pending_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                //recurJobM.RemoveIfExists(connId_JobId);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
