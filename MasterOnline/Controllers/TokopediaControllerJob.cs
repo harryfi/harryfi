@@ -1550,6 +1550,120 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        //change by nurul 23/3/2020, request pickup tokopedia 
+        //[AutomaticRetry(Attempts = 3)]
+        //[Queue("1_manage_pesanan")]
+        //[NotifyOnFailed("Request Pickup Pesanan {obj} ke Tokopedia Gagal.")]
+        //public async Task<string> PostRequestPickup(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, string NO_BUKTI_SOT01A, string NO_REFERENSI_SOT01A)
+        //{
+        //    var token = SetupContext(iden);
+        //    iden.token = token;
+        //    string ret = "";
+        //    string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/pick-up";
+        //    long milis = CurrentTimeMillis();
+        //    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+        //    //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //    //{
+        //    //    REQUEST_ID = milis.ToString(),
+        //    //    REQUEST_ACTION = "Request PIckup",
+        //    //    REQUEST_DATETIME = milisBack,
+        //    //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+        //    //    REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
+        //    //    REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
+        //    //    REQUEST_STATUS = "Pending",
+        //    //};
+
+        //    //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+        //    RequestPickup newData = new RequestPickup()
+        //    {
+        //        order_id = Convert.ToInt32(NO_REFERENSI_SOT01A),
+        //        shop_id = Convert.ToInt32(iden.API_secret_key),
+        //        request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss +0000 UTC")
+        //    };
+        //    List<RequestPickup> newDataList = new List<RequestPickup>();
+        //    newDataList.Add(newData);
+        //    string myData = JsonConvert.SerializeObject(newDataList.ToArray());
+
+        //    //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //    //myReq.Method = "POST";
+        //    //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+        //    //myReq.Accept = "application/json";
+        //    //myReq.ContentType = "application/json";
+        //    //string responseFromServer = "";
+        //    //try
+        //    //{
+        //    //    myReq.ContentLength = myData.Length;
+        //    //    using (var dataStream = myReq.GetRequestStream())
+        //    //    {
+        //    //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //    //    }
+        //    //    using (WebResponse response = await myReq.GetResponseAsync())
+        //    //    {
+        //    //        using (Stream stream = response.GetResponseStream())
+        //    //        {
+        //    //            StreamReader reader = new StreamReader(stream);
+        //    //            responseFromServer = reader.ReadToEnd();
+        //    //        }
+        //    //    }
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+        //    //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+        //    //}
+
+
+        //    string responseFromServer = "";
+        //    //try
+        //    //{
+        //    var client = new HttpClient();
+        //    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+        //    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+        //    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+        //    HttpResponseMessage clientResponse = await client.PostAsync(
+        //        urll, content);
+
+        //    using (HttpContent responseContent = clientResponse.Content)
+        //    {
+        //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+        //        {
+        //            responseFromServer = await reader.ReadToEndAsync();
+        //        }
+        //    };
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+
+        //    //}
+
+        //    if (responseFromServer != "")
+        //    {
+        //        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+        //        contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
+        //        EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+        //        //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+        //        //if (string.IsNullOrEmpty(result.errorCode.Value))
+        //        //{
+        //        //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+        //        //    if (result.content.Count > 0)
+        //        //    {
+        //        //        foreach (var item in result.content)
+        //        //        {
+        //        //            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+        //        //        }
+        //        //    }
+        //        //}
+        //        //else
+        //        //{
+        //        //    currentLog.REQUEST_RESULT = result.errorCode.Value;
+        //        //    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+        //        //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+        //        //}
+        //    }
+        //    return ret;
+        //}
+
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Request Pickup Pesanan {obj} ke Tokopedia Gagal.")]
@@ -1562,57 +1676,33 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = milis.ToString(),
-            //    REQUEST_ACTION = "Request PIckup",
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-            //    REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
-            //    REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
-            //    REQUEST_STATUS = "Pending",
-            //};
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Request Pickup",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
+                REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
+                REQUEST_STATUS = "Pending",
+            };
 
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-            RequestPickup newData = new RequestPickup()
+            RequestPickup newData = new RequestPickup() 
             {
                 order_id = Convert.ToInt32(NO_REFERENSI_SOT01A),
                 shop_id = Convert.ToInt32(iden.API_secret_key),
-                request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss +0000 UTC")
+                //change by nurul 17/2/2020
+                //request_time = DateTime.UtcNow.AddMinutes(-5).ToString("yyyy-MM-dd HH:mm:ss")
+                request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                //end change by nurul 17/2/2020
             };
             List<RequestPickup> newDataList = new List<RequestPickup>();
             newDataList.Add(newData);
-            string myData = JsonConvert.SerializeObject(newDataList.ToArray());
-
-            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            //myReq.Method = "POST";
-            //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            //myReq.Accept = "application/json";
-            //myReq.ContentType = "application/json";
-            //string responseFromServer = "";
-            //try
-            //{
-            //    myReq.ContentLength = myData.Length;
-            //    using (var dataStream = myReq.GetRequestStream())
-            //    {
-            //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-            //    }
-            //    using (WebResponse response = await myReq.GetResponseAsync())
-            //    {
-            //        using (Stream stream = response.GetResponseStream())
-            //        {
-            //            StreamReader reader = new StreamReader(stream);
-            //            responseFromServer = reader.ReadToEnd();
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //}
-
-
+            //change by nurul 17/2/2020
+            //string myData = JsonConvert.SerializeObject(newDataList.ToArray());
+            string myData = JsonConvert.SerializeObject(newData);
+            //end change by nurul 17/2/2020
+                        
             string responseFromServer = "";
             //try
             //{
@@ -1638,30 +1728,32 @@ namespace MasterOnline.Controllers
 
             if (responseFromServer != "")
             {
-                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
-                EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
-                //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                //if (string.IsNullOrEmpty(result.errorCode.Value))
-                //{
-                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //    if (result.content.Count > 0)
-                //    {
-                //        foreach (var item in result.content)
-                //        {
-                //            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    currentLog.REQUEST_RESULT = result.errorCode.Value;
-                //    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                //}
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
+                if (result.header.error_code == 200)
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
+                    EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+
+                    //ret = NO_BUKTI_SOT01A;
+                                        
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                else
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Gagal Request Pickup Pesanan " + Convert.ToString(NO_BUKTI_SOT01A) + " ke Tokopedia.");
+                    //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+
+                    //currentLog.REQUEST_RESULT = result.header.reason;
+                    //currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(result.header.messages + ";" + result.header.reason);
+                }
             }
             return ret;
         }
+        //end change by nurul 23/3/2020
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
