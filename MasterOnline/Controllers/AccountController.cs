@@ -544,10 +544,6 @@ namespace MasterOnline.Controllers
             //lalu pada masteronline.co.id lakukan login dengan login support
             //atau minta user login ulang
 
-            //test UPLOAD FILE
-            var controllerUpload = new ManageController();
-            controllerUpload.UploadFileBackground();
-
             //MoDbContext = new MoDbContext();
             bool lakukanHapusServer = false;
             ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbSourceEra, dbPathEra);
