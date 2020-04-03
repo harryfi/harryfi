@@ -1913,8 +1913,8 @@ namespace MasterOnline.Controllers
                     myReq.Accept = "application/x-www-form-urlencoded";
                     myReq.ContentType = "application/json";
                     string responseFromServer = "";
-                    try
-                    {
+                    //try
+                    //{
                         using (WebResponse response = myReq.GetResponse())
                         {
                             using (Stream stream = response.GetResponseStream())
@@ -1923,25 +1923,25 @@ namespace MasterOnline.Controllers
                                 responseFromServer = reader.ReadToEnd();
                             }
                         }
-                    }
-                    catch (WebException e)
-                    {
-                        string err = "";
-                        if (e.Status == WebExceptionStatus.ProtocolError)
-                        {
-                            WebResponse resp = e.Response;
-                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                            {
-                                err = sr.ReadToEnd();
-                            }
-                        }
-                        throw new Exception(err);
-                    }
+                    //}
+                    //catch (WebException e)
+                    //{
+                    //    string err = "";
+                    //    if (e.Status == WebExceptionStatus.ProtocolError)
+                    //    {
+                    //        WebResponse resp = e.Response;
+                    //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    //        {
+                    //            err = sr.ReadToEnd();
+                    //        }
+                    //    }
+                    //    throw new Exception(err);
+                    //}
 
                     if (responseFromServer != null)
                     {
-                        TokopediaSingleOrder result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaSingleOrder)) as TokopediaSingleOrder;
-                        if (result.header.error_code == 200)
+                        TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                        if (result.header.error_code == 0)
                         {
                             var tempAWB = result.data.order_info.shipping_info.awb;
                             if (tempAWB != null && tempAWB != "")
@@ -1985,8 +1985,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -1995,25 +1995,25 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (WebException e)
-            {
-                string err = "";
-                if (e.Status == WebExceptionStatus.ProtocolError)
-                {
-                    WebResponse resp = e.Response;
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    {
-                        err = sr.ReadToEnd();
-                    }
-                }
-                throw new Exception(err);
-            }
+            //}
+            //catch (WebException e)
+            //{
+            //    string err = "";
+            //    if (e.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        WebResponse resp = e.Response;
+            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            //        {
+            //            err = sr.ReadToEnd();
+            //        }
+            //    }
+            //    throw new Exception(err);
+            //}
 
             if (responseFromServer != null)
             {
-                TokopediaSingleOrder result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaSingleOrder)) as TokopediaSingleOrder;
-                if (result.header.error_code == 200)
+                TokpedSingleOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedSingleOrderResult)) as TokpedSingleOrderResult;
+                if (result.header.error_code == 0)
                 {
                     var tempAWB = result.data.order_info.shipping_info.awb;
                     if (tempAWB != null && tempAWB != "")
@@ -2035,6 +2035,8 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
         public async Task<string> JOBCOD(TokopediaAPIData iden, string ordNo, string noref)
         {
             string ret = "";
@@ -2052,8 +2054,8 @@ namespace MasterOnline.Controllers
 
 
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -2062,19 +2064,19 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (WebException e)
-            {
-                string err = "";
-                if (e.Status == WebExceptionStatus.ProtocolError)
-                {
-                    WebResponse resp = e.Response;
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    {
-                        err = sr.ReadToEnd();
-                    }
-                }
-            }
+            //}
+            //catch (WebException e)
+            //{
+            //    string err = "";
+            //    if (e.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        WebResponse resp = e.Response;
+            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            //        {
+            //            err = sr.ReadToEnd();
+            //        }
+            //    }
+            //}
 
             if (responseFromServer != null)
             {
@@ -2118,8 +2120,8 @@ namespace MasterOnline.Controllers
             myReq.Accept = "application/x-www-form-urlencoded";
             myReq.ContentType = "application/json";
             string responseFromServer = "";
-            try
-            {
+            //try
+            //{
                 using (WebResponse response = myReq.GetResponse())
                 {
                     using (Stream stream = response.GetResponseStream())
@@ -2128,27 +2130,27 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-            }
-            catch (WebException e)
-            {
-                string err = "";
-                if (e.Status == WebExceptionStatus.ProtocolError)
-                {
-                    WebResponse resp = e.Response;
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                    {
-                        err = sr.ReadToEnd();
-                    }
-                }
-                //throw new Exception(err);
-            }
+            //}
+            //catch (WebException e)
+            //{
+            //    string err = "";
+            //    if (e.Status == WebExceptionStatus.ProtocolError)
+            //    {
+            //        WebResponse resp = e.Response;
+            //        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+            //        {
+            //            err = sr.ReadToEnd();
+            //        }
+            //    }
+            //    //throw new Exception(err);
+            //}
 
             if (responseFromServer != null)
             {
                 try
                 {
                     TokpedPrintLabel result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedPrintLabel)) as TokpedPrintLabel;
-                    if(result.header.messages != "" || result.header.reason != "")
+                    if (result.header.messages != "" || result.header.reason != "")
                     {
                         ret = "Error: " + result.header.messages + " " + result.header.reason;
                     }
@@ -5753,254 +5755,254 @@ namespace MasterOnline.Controllers
         }
         //end class print label 
         ////start class single order 
-        //public class TokpedSingleOrderResult
-        //{
-        //    public categoryAPIResultHeader header { get; set; }
-        //    public TokpedSingleOrder data { get; set; }
-        //}
-        //public class TokpedSingleOrder
-        //{
-        //    public long order_id { get; set; }
-        //    public long buyer_id { get; set; }
-        //    public long seller_id { get; set; }
-        //    public long payment_id { get; set; }
-        //    public bool is_affiliate { get; set; }
-        //    public bool is_fulfillment { get; set; }
-        //    public OrderWarehouse order_warehouse { get; set; }
-        //    public int order_status { get; set; }
-        //    public string invoice_number { get; set; }
-        //    public string invoice_pdf { get; set; }
-        //    public string invoice_url { get; set; }
-        //    public long open_amt { get; set; }
-        //    public long lp_amt { get; set; }
-        //    public long cashback_amt { get; set; }
-        //    public string info { get; set; }
-        //    public string comment { get; set; }
-        //    public long item_price { get; set; }
-        //    public BuyerInfo buyer_info { get; set; }
-        //    public ShopInfo shop_info { get; set; }
-        //    public ShipmentFulfillment shipment_fulfillment { get; set; }
-        //    public Preorder preorder { get; set; }
-        //    public OrderInfo order_info { get; set; }
-        //    public OriginInfo origin_info { get; set; }
-        //    public PaymentInfo payment_info { get; set; }
-        //    public InsuranceInfo insurance_info { get; set; }
-        //    public string hold_info { get; set; }
-        //    public string cancel_request_info { get; set; }
-        //    public DateTime create_time { get; set; }
-        //    public DateTime? shipping_date { get; set; }
-        //    public DateTime update_time { get; set; }
-        //    public DateTime payment_date { get; set; }
-        //    public DateTime? delivered_date { get; set; }
-        //    public DateTime? est_shipping_date { get; set; }
-        //    public DateTime? est_delivery_date { get; set; }
-        //    public string related_invoices { get; set; }
-        //    public string custom_fields { get; set; }
-        //}
-        //public class OrderWarehouse
-        //{
-        //    public long warehouse_id { get; set; }
-        //    public int fulfill_by { get; set; }
-        //    public MetaData meta_data { get; set; }
-        //}
-        //public class MetaData
-        //{
-        //    public long warehouse_id { get; set; }
-        //    public long partner_id { get; set; }
-        //    public long shop_id { get; set; }
-        //    public string warehouse_name { get; set; }
-        //    public long district_id { get; set; }
-        //    public string district_name { get; set; }
-        //    public long city_id { get; set; }
-        //    public string city_name { get; set; }
-        //    public long province_id { get; set; }
-        //    public string province_name { get; set; }
-        //    public int status { get; set; }
-        //    public string postal_code { get; set; }
-        //    public int is_default { get; set; }
-        //    public string latlon { get; set; }
-        //    public string latitude { get; set; }
-        //    public string longitude { get; set; }
-        //    public string email { get; set; }
-        //    public string address_detail { get; set; }
-        //    public string country_name { get; set; }
-        //    public bool is_fulfillment { get; set; }
-        //}
-        //public class BuyerInfo
-        //{
-        //    public long buyer_id { get; set; }
-        //    public string buyer_fullname { get; set; }
-        //    public string buyer_email { get; set; }
-        //    public string buyer_phone { get; set; }
-        //}
-        //public class ShopInfo
-        //{
-        //    public long shop_owner_id { get; set; }
-        //    public string shop_owner_email { get; set; }
-        //    public string shop_owner_phone { get; set; }
-        //    public string shop_name { get; set; }
-        //    public string shop_domain { get; set; }
-        //    public long shop_id { get; set; }
-        //}
-        //public class ShipmentFulfillment
-        //{
-        //    public long id { get; set; }
-        //    public long order_id { get; set; }
-        //    public DateTime payment_date_time { get; set; }
-        //    public bool is_same_day { get; set; }
-        //    public DateTime accept_deadline { get; set; }
-        //    public DateTime confirm_shipping_deadline { get; set; }
-        //    public ItemDeliveredDeadline item_delivered_deadline { get; set; }
-        //    public bool is_accepted { get; set; }
-        //    public bool is_confirm_shipping { get; set; }
-        //    public bool is_item_delivered { get; set; }
-        //    public int fulfillment_status { get; set; }
-        //}
-        //public class Preorder
-        //{
-        //    public long order_id { get; set; }
-        //    public long preorder_type { get; set; }
-        //    public long preorder_process_time { get; set; }
-        //    public DateTime preorder_process_start { get; set; }
-        //    public DateTime preorder_deadline { get; set; }
-        //    public long shop_id { get; set; }
-        //    public long customer_id { get; set; }
-        //}
-        //public class OrderInfo
-        //{
-        //    public OrderDetailSingleOrder[] order_detail { get; set; }
-        //    public OrderHistorySingleOrder[] order_history { get; set; }
-        //    public long order_age_day { get; set; }
-        //    public long shipping_age_day { get; set; }
-        //    public long delivered_age_day { get; set; }
-        //    public bool partial_process { get; set; }
-        //    public ShippingInfo shipping_info { get; set; }
-        //    public Destination destination { get; set; }
-        //    public bool is_replacement { get; set; }
-        //    public int replacement_multiplier { get; set; }
-        //}
-        //public class OrderDetailSingleOrder
-        //{
-        //    public long order_detail_id { get; set; }
-        //    public long product_id { get; set; }
-        //    public string product_name { get; set; }
-        //    public string product_desc_pdp { get; set; }
-        //    public string product_desc_atc { get; set; }
-        //    public float product_price { get; set; }
-        //    public string subtotal_price { get; set; }
-        //    public float weight { get; set; }
-        //    public float total_weight { get; set; }
-        //    public int quantity { get; set; }
-        //    public int quantity_deliver { get; set; }
-        //    public int quantity_reject { get; set; }
-        //    public bool is_free_returns { get; set; }
-        //    public float insurance_price { get; set; }
-        //    public float normal_price { get; set; }
-        //    public long currency_id { get; set; }
-        //    public float currency_rate { get; set; }
-        //    public int min_order { get; set; }
-        //    public long child_cat_id { get; set; }
-        //    public string campaign_id { get; set; }
-        //    public string product_picture { get; set; }
-        //    public string snapshot_url { get; set; }
-        //}
-        //public class OrderHistorySingleOrder
-        //{
-        //    public string action_by { get; set; }
-        //    public long hist_status_code { get; set; }
-        //    public string message { get; set; }
-        //    public DateTime timestamp { get; set; }
-        //    public string comment { get; set; }
-        //    public long create_by { get; set; }
-        //    public string update_by { get; set; }
-        //    public string ip_address { get; set; }
-        //}
-        //public class ShippingInfo
-        //{
-        //    public long sp_id { get; set; }
-        //    public long shipping_id { get; set; }
-        //    public string logistic_name { get; set; }
-        //    public string logistic_service { get; set; }
-        //    public float shipping_price { get; set; }
-        //    public float shipping_price_rate { get; set; }
-        //    public float shipping_fee { get; set; }
-        //    public float insurance_price { get; set; }
-        //    public float fee { get; set; }
-        //    public bool is_change_courier { get; set; }
-        //    public long second_sp_id { get; set; }
-        //    public long second_shipping_id { get; set; }
-        //    public string second_logistic_name { get; set; }
-        //    public string second_logistic_service { get; set; }
-        //    public float second_agency_fee { get; set; }
-        //    public float second_insurance { get; set; }
-        //    public float second_rate { get; set; }
-        //    public string awb { get; set; }
-        //    public int autoresi_cashless_status { get; set; }
-        //    public string autoresi_awb { get; set; }
-        //    public float autoresi_shipping_price { get; set; }
-        //    public int count_awb { get; set; }
-        //    public bool isCashless { get; set; }
-        //    public bool is_fake_delivery { get; set; }
-        //}
-        //public class Destination
-        //{
-        //    public string receiver_name { get; set; }
-        //    public string receiver_phone { get; set; }
-        //    public string address_street { get; set; }
-        //    public string address_district { get; set; }
-        //    public string address_city { get; set; }
-        //    public string address_province { get; set; }
-        //    public string address_postal { get; set; }
-        //    public long customer_address_id { get; set; }
-        //    public long district_id { get; set; }
-        //    public long city_id { get; set; }
-        //    public long province_id { get; set; }
-        //}
-        //public class OriginInfo
-        //{
-        //    public string sender_name { get; set; }
-        //    public long origin_province { get; set; }
-        //    public string origin_province_name { get; set; }
-        //    public long origin_city { get; set; }
-        //    public string origin_city_name { get; set; }
-        //    public string origin_address { get; set; }
-        //    public long origin_district { get; set; }
-        //    public string origin_district_name { get; set; }
-        //    public string origin_postal_code { get; set; }
-        //    public string origin_geo { get; set; }
-        //    public string receiver_name { get; set; }
-        //    public string destination_address { get; set; }
-        //    public long destination_province { get; set; }
-        //    public long destination_city { get; set; }
-        //    public long destination_district { get; set; }
-        //    public string destination_postal_code { get; set; }
-        //    public string destination_geo { get; set; }
-        //    public DestinationLoc destination_loc { get; set; }
-        //}
-        //public class DestinationLoc
-        //{
-        //    public long lat { get; set; }
-        //    public long lon { get; set; }
-        //}
-        //public class PaymentInfo
-        //{
-        //    public long payment_id { get; set; }
-        //    public string payment_ref_num { get; set; }
-        //    public DateTime payment_date { get; set; }
-        //    public long payment_method { get; set; }
-        //    public string payment_status { get; set; }
-        //    public int payment_status_id { get; set; }
-        //    public DateTime create_time { get; set; }
-        //    public long pg_id { get; set; }
-        //    public string gateway_name { get; set; }
-        //    public float discount_amount { get; set; }
-        //    public string voucher_code { get; set; }
-        //    public long voucher_id { get; set; }
-        //}
-        //public class InsuranceInfo
-        //{
-        //    public long insurance_type { get; set; }
-        //}
+        public class TokpedSingleOrderResult
+        {
+            public categoryAPIResultHeader header { get; set; }
+            public TokpedSingleOrder data { get; set; }
+        }
+        public class TokpedSingleOrder
+        {
+            public long order_id { get; set; }
+            public long buyer_id { get; set; }
+            public long seller_id { get; set; }
+            public long payment_id { get; set; }
+            public bool is_affiliate { get; set; }
+            public bool is_fulfillment { get; set; }
+            public OrderWarehouse order_warehouse { get; set; }
+            public int order_status { get; set; }
+            public string invoice_number { get; set; }
+            public string invoice_pdf { get; set; }
+            public string invoice_url { get; set; }
+            public long open_amt { get; set; }
+            public long lp_amt { get; set; }
+            public long cashback_amt { get; set; }
+            public string info { get; set; }
+            public string comment { get; set; }
+            public long item_price { get; set; }
+            public BuyerInfo buyer_info { get; set; }
+            public ShopInfo shop_info { get; set; }
+            public ShipmentFulfillment shipment_fulfillment { get; set; }
+            public PreorderAWB preorder { get; set; }
+            public OrderInfo order_info { get; set; }
+            public OriginInfo origin_info { get; set; }
+            public PaymentInfo payment_info { get; set; }
+            public InsuranceInfo insurance_info { get; set; }
+            public string hold_info { get; set; }
+            public string cancel_request_info { get; set; }
+            public DateTime? create_time { get; set; }
+            public DateTime? shipping_date { get; set; }
+            public DateTime? update_time { get; set; }
+            public DateTime? payment_date { get; set; }
+            public DateTime? delivered_date { get; set; }
+            public DateTime? est_shipping_date { get; set; }
+            public DateTime? est_delivery_date { get; set; }
+            public string related_invoices { get; set; }
+            public string custom_fields { get; set; }
+        }
+        public class OrderWarehouse
+        {
+            public long warehouse_id { get; set; }
+            public int fulfill_by { get; set; }
+            public MetaData meta_data { get; set; }
+        }
+        public class MetaData
+        {
+            public long warehouse_id { get; set; }
+            public long partner_id { get; set; }
+            public long shop_id { get; set; }
+            public string warehouse_name { get; set; }
+            public long district_id { get; set; }
+            public string district_name { get; set; }
+            public long city_id { get; set; }
+            public string city_name { get; set; }
+            public long province_id { get; set; }
+            public string province_name { get; set; }
+            public int status { get; set; }
+            public string postal_code { get; set; }
+            public int is_default { get; set; }
+            public string latlon { get; set; }
+            public string latitude { get; set; }
+            public string longitude { get; set; }
+            public string email { get; set; }
+            public string address_detail { get; set; }
+            public string country_name { get; set; }
+            public bool is_fulfillment { get; set; }
+        }
+        public class BuyerInfo
+        {
+            public long buyer_id { get; set; }
+            public string buyer_fullname { get; set; }
+            public string buyer_email { get; set; }
+            public string buyer_phone { get; set; }
+        }
+        public class ShopInfo
+        {
+            public long shop_owner_id { get; set; }
+            public string shop_owner_email { get; set; }
+            public string shop_owner_phone { get; set; }
+            public string shop_name { get; set; }
+            public string shop_domain { get; set; }
+            public long shop_id { get; set; }
+        }
+        public class ShipmentFulfillment
+        {
+            public long id { get; set; }
+            public long order_id { get; set; }
+            public DateTime? payment_date_time { get; set; }
+            public bool is_same_day { get; set; }
+            public DateTime? accept_deadline { get; set; }
+            public DateTime? confirm_shipping_deadline { get; set; }
+            public ItemDeliveredDeadline item_delivered_deadline { get; set; }
+            public bool is_accepted { get; set; }
+            public bool is_confirm_shipping { get; set; }
+            public bool is_item_delivered { get; set; }
+            public int fulfillment_status { get; set; }
+        }
+        public class PreorderAWB
+        {
+            public long order_id { get; set; }
+            public long preorder_type { get; set; }
+            public long preorder_process_time { get; set; }
+            public DateTime? preorder_process_start { get; set; }
+            public DateTime? preorder_deadline { get; set; }
+            public long shop_id { get; set; }
+            public long customer_id { get; set; }
+        }
+        public class OrderInfo
+        {
+            public OrderDetailSingleOrder[] order_detail { get; set; }
+            public OrderHistorySingleOrder[] order_history { get; set; }
+            public long order_age_day { get; set; }
+            public long shipping_age_day { get; set; }
+            public long delivered_age_day { get; set; }
+            public bool partial_process { get; set; }
+            public ShippingInfo shipping_info { get; set; }
+            public DestinationAWB destination { get; set; }
+            public bool is_replacement { get; set; }
+            public int replacement_multiplier { get; set; }
+        }
+        public class OrderDetailSingleOrder
+        {
+            public long order_detail_id { get; set; }
+            public long product_id { get; set; }
+            public string product_name { get; set; }
+            public string product_desc_pdp { get; set; }
+            public string product_desc_atc { get; set; }
+            public float product_price { get; set; }
+            public string subtotal_price { get; set; }
+            public float weight { get; set; }
+            public float total_weight { get; set; }
+            public int quantity { get; set; }
+            public int quantity_deliver { get; set; }
+            public int quantity_reject { get; set; }
+            public bool is_free_returns { get; set; }
+            public float insurance_price { get; set; }
+            public float normal_price { get; set; }
+            public long currency_id { get; set; }
+            public float currency_rate { get; set; }
+            public int min_order { get; set; }
+            public long child_cat_id { get; set; }
+            public string campaign_id { get; set; }
+            public string product_picture { get; set; }
+            public string snapshot_url { get; set; }
+        }
+        public class OrderHistorySingleOrder
+        {
+            public string action_by { get; set; }
+            public long hist_status_code { get; set; }
+            public string message { get; set; }
+            public DateTime? timestamp { get; set; }
+            public string comment { get; set; }
+            public long create_by { get; set; }
+            public string update_by { get; set; }
+            public string ip_address { get; set; }
+        }
+        public class ShippingInfo
+        {
+            public long sp_id { get; set; }
+            public long shipping_id { get; set; }
+            public string logistic_name { get; set; }
+            public string logistic_service { get; set; }
+            public float shipping_price { get; set; }
+            public float shipping_price_rate { get; set; }
+            public float shipping_fee { get; set; }
+            public float insurance_price { get; set; }
+            public float fee { get; set; }
+            public bool is_change_courier { get; set; }
+            public long second_sp_id { get; set; }
+            public long second_shipping_id { get; set; }
+            public string second_logistic_name { get; set; }
+            public string second_logistic_service { get; set; }
+            public float second_agency_fee { get; set; }
+            public float second_insurance { get; set; }
+            public float second_rate { get; set; }
+            public string awb { get; set; }
+            public int autoresi_cashless_status { get; set; }
+            public string autoresi_awb { get; set; }
+            public float autoresi_shipping_price { get; set; }
+            public int count_awb { get; set; }
+            public bool isCashless { get; set; }
+            public bool is_fake_delivery { get; set; }
+        }
+        public class DestinationAWB
+        {
+            public string receiver_name { get; set; }
+            public string receiver_phone { get; set; }
+            public string address_street { get; set; }
+            public string address_district { get; set; }
+            public string address_city { get; set; }
+            public string address_province { get; set; }
+            public string address_postal { get; set; }
+            public long customer_address_id { get; set; }
+            public long district_id { get; set; }
+            public long city_id { get; set; }
+            public long province_id { get; set; }
+        }
+        public class OriginInfo
+        {
+            public string sender_name { get; set; }
+            public long origin_province { get; set; }
+            public string origin_province_name { get; set; }
+            public long origin_city { get; set; }
+            public string origin_city_name { get; set; }
+            public string origin_address { get; set; }
+            public long origin_district { get; set; }
+            public string origin_district_name { get; set; }
+            public string origin_postal_code { get; set; }
+            public string origin_geo { get; set; }
+            public string receiver_name { get; set; }
+            public string destination_address { get; set; }
+            public long destination_province { get; set; }
+            public long destination_city { get; set; }
+            public long destination_district { get; set; }
+            public string destination_postal_code { get; set; }
+            public string destination_geo { get; set; }
+            public DestinationLoc destination_loc { get; set; }
+        }
+        public class DestinationLoc
+        {
+            public long lat { get; set; }
+            public long lon { get; set; }
+        }
+        public class PaymentInfo
+        {
+            public long payment_id { get; set; }
+            public string payment_ref_num { get; set; }
+            public DateTime? payment_date { get; set; }
+            public long payment_method { get; set; }
+            public string payment_status { get; set; }
+            public int payment_status_id { get; set; }
+            public DateTime? create_time { get; set; }
+            public long pg_id { get; set; }
+            public string gateway_name { get; set; }
+            public float discount_amount { get; set; }
+            public string voucher_code { get; set; }
+            public long voucher_id { get; set; }
+        }
+        public class InsuranceInfo
+        {
+            public long insurance_type { get; set; }
+        }
         //add class postActOrder
         public class ActOrderResult
         {
