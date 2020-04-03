@@ -1707,16 +1707,21 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-sm-12"></div>
-                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
+                        <div class="col-lg-1 col-sm-12"></div>
+                        <div class="col-lg-6 col-sm-6" style="margin-top:13px;">
                             @*<div class="col-lg-8 col-sm-6">*@
                             <div class="pull-right" id="tambah_baru_tombol_section">
                                 <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
-                                <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right">
-                                    <span>Download</span>
+                                <button id="excelPesanan" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Excel Pesanan <span class="caret"></span>
                                 </button>
+                                <div class="dropdown-menu" style="right: 130px">
+                                    <button type="button" onclick="$('#downloadPesanan').modal('show');" id="btn_download_pesanan" class="btn btn-primary" data-style="expand-right"  style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                        <span>Download Pesanan</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

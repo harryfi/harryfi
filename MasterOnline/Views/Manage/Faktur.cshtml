@@ -1267,18 +1267,17 @@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 <div class="pull-right" id="tambah_baru_tombol_section">
-                                    <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
-                                            data-target="#modalUploadFaktur">
-                                        @*<span>Upload Faktur Tokopedia</span>*@
-                                        <span>Upload Faktur</span>
+                                    <button id="excelFaktur" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Excel Faktur <span class="caret"></span>
                                     </button>
-                                    @*<button type="button" id="btn-upload-faktur-bl" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
-                                                data-target="#modalUploadFakturBL">
-                                            <span>Upload Faktur Bukalapak</span>
-                                        </button>*@
-                                    @*<button type="button" class="btn btn-default" data-style="expand-right">
-                                            <span>Refresh</span>
-                                        </button>*@
+                                    <div class="dropdown-menu">
+                                        <button type="button" onclick="$('#downloadFaktur').modal('show');" id="btn_download_faktur" class="btn btn-primary" data-style="expand-right"  style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                            <span>Download Faktur </span>
+                                        </button>
+                                        <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right" data-target="#modalUploadFaktur"  style="width:100%; background-color:white; border-color:Highlight; color:black !important">
+                                            <span>Upload Faktur</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1453,6 +1452,49 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="downloadFaktur" tabindex="-1" role="dialog" aria-labelledby="labelDownloadFaktur">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelDownloadFaktur">Download Faktur</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" style="margin-bottom:10px">
+                        <label>Pilih tanggal faktur yang ingin Anda download : </label>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="">Dari Tanggal</label>
+                        <div class="input-group date">
+                            <input readonly class="form-control" id="DrTanggal" name="DrTanggal" type="text" value="">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="">S/d Tanggal</label>
+                        <div class="input-group date">
+                            <input readonly class="form-control" id="SdTanggal" name="SdTanggal" type="text" value="">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="padding-top:1.8em;">
+                        <button type="button" class="btn btn-primary" onclick="DownloadExcelFaktur()">Download</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modalresponsive2 addmarginleftfaktur2">
@@ -1692,7 +1734,7 @@
 </div>
 @*add by nurul 3/12/2018 - tambah cetak faktur*@
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
-    <div class="modal-dialog" id="modal-print-option" role="document" >
+    <div class="modal-dialog" id="modal-print-option" role="document">
         @*//change by nurul 25/6/2019*@
         @*<div class="modal-content modalresponsive" style="margin:auto">*@
         <div class="modal-content " style="margin:auto;height:450px;width:650px;">
@@ -1706,7 +1748,7 @@
                 <br />
                 <div class="row">
                     @*<div class="col-md-1">
-            </div>*@
+                        </div>*@
                     <div class="col-md-4" style="text-align:left">
                         <label>Nama Toko </label>
                     </div>
@@ -1719,7 +1761,7 @@
                 <br />
                 <div class="row">
                     @*<div class="col-md-2">
-            </div>*@
+                        </div>*@
                     <div class="col-md-4" style="text-align:left">
                         <label>No Telepon Toko </label>
                     </div>
@@ -1732,17 +1774,17 @@
                 <br />
                 @*//add by nurul 2/5/2019*@
                 @*<div class="row">
-                    <div class="col-md-4" style="text-align:left">
-                        <label>Pilih Format Kertas </label>
-                    </div>
-                    <div class="col-md-6">
-                        <select class="form-control" id="LayoutSize" name="LayoutSize" required="required" style="padding-top:1px;padding-bottom:1px;height:27px">
-                            <option value="1">A4</option>
-                            <option value="2">A5</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2"></div>
-                </div>*@
+                        <div class="col-md-4" style="text-align:left">
+                            <label>Pilih Format Kertas </label>
+                        </div>
+                        <div class="col-md-6">
+                            <select class="form-control" id="LayoutSize" name="LayoutSize" required="required" style="padding-top:1px;padding-bottom:1px;height:27px">
+                                <option value="1">A4</option>
+                                <option value="2">A5</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2"></div>
+                    </div>*@
                 @*//end add by nurul 2/5/2019*@
                 <div class="row">
                     <div class="col-md-4" style="text-align:left">
@@ -1850,98 +1892,98 @@
                 </div>
                 @*//add by nurul 2/5/2019*@
                 @*<div id="cetakA5Form">
-                    <div class="row">
-                        <div class="col-md-1">
+                        <div class="row">
+                            <div class="col-md-1">
+                            </div>
+                            <div class="col-md-1" style="padding-bottom:10px">
+                                <input id="ctk_A5" name="ctk_A5" type="radio" value="1" style="height:20px; width:20px;" checked="checked" />
+                            </div>
+                            <div class="col-md-4" style="padding-top: 7px;">
+                                Faktur
+                            </div>
+                            <div class="col-md-1" style="padding-bottom:10px">
+                                <input id="ctk_A5" name="ctk_A5" type="radio" value="2" style="height:20px; width:20px;" />
+                            </div>
+                            <div class="col-md-4" style="padding-top: 7px;">
+                                Label
+                            </div>
+                            <div class="col-md-1">
+                            </div>
                         </div>
-                        <div class="col-md-1" style="padding-bottom:10px">
-                            <input id="ctk_A5" name="ctk_A5" type="radio" value="1" style="height:20px; width:20px;" checked="checked" />
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-md-1">
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_mp1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                    <span id="ctk_mp1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                Nama Marketplace
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_alamat1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                    <span id="ctk_alamat1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                Alamat Toko
+                            </div>
+
+                            <div class="col-md-1">
+                            </div>
                         </div>
-                        <div class="col-md-4" style="padding-top: 7px;">
-                            Faktur
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-md-1">
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_tlp1" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                    <span id="ctk_tlp1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                Telepon Toko
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_nama1" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                    <span id="ctk_nama1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                Nama Toko
+                            </div>
+                            <div class="col-md-1">
+                            </div>
                         </div>
-                        <div class="col-md-1" style="padding-bottom:10px">
-                            <input id="ctk_A5" name="ctk_A5" type="radio" value="2" style="height:20px; width:20px;" />
+                        <div class="row" style="margin-top:5px">
+                            <div class="col-md-1">
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_nobuk1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                    <span id="ctk_nobuk1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                No Bukti Pesanan
+                            </div>
+                            <div class="col-md-2" style="padding-bottom:10px">
+                                <label class="checkbox-container">
+                                    <input id="ctk_total1" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                    <span id="ctk_total1" class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="col-md-3" style="padding-top: 7px;">
+                                Total harga
+                            </div>
+                            <div class="col-md-1">
+                            </div>
                         </div>
-                        <div class="col-md-4" style="padding-top: 7px;">
-                            Label
-                        </div>
-                        <div class="col-md-1">
-                        </div>
-                    </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_mp1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                <span id="ctk_mp1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            Nama Marketplace
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_alamat1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                <span id="ctk_alamat1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            Alamat Toko
-                        </div>
-                        
-                        <div class="col-md-1">
-                        </div>
-                    </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_tlp1" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                <span id="ctk_tlp1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            Telepon Toko
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_nama1" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                <span id="ctk_nama1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            Nama Toko
-                        </div>
-                        <div class="col-md-1">
-                        </div>
-                    </div>
-                    <div class="row" style="margin-top:5px">
-                        <div class="col-md-1">
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_nobuk1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                                <span id="ctk_nobuk1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            No Bukti Pesanan
-                        </div>
-                        <div class="col-md-2" style="padding-bottom:10px">
-                            <label class="checkbox-container">
-                                <input id="ctk_total1" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                                <span id="ctk_total1" class="checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-3" style="padding-top: 7px;">
-                            Total harga
-                        </div>
-                        <div class="col-md-1">
-                        </div>
-                    </div>
-                </div>*@
+                    </div>*@
                 @*//end add by nurul 2/5/2019*@
                 <div class="row">
                     <div class="col-md-1">
@@ -2080,7 +2122,58 @@
             }
 
         }
+        
+        function DownloadExcelFaktur() {
+            var drTgl = $('#DrTanggal').val();
+            var sdTgl = $('#SdTanggal').val();
+
+            var link = '@Html.Raw(Url.Action("ListFakturtoExcel", "TransferExcel"))';
+            link += "?drtgl=" + drTgl + "&sdtgl=" + sdTgl;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            //document.body.appendChild(link);
+            link.click();
+            //document.body.removeChild(link);
+        };
+
         $(document).ready(function () {
+
+            var d = new Date();
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+
             $statusAPI = "";
             refreshTableFaktur1();
             //add by nurul 12/2/2019
@@ -5290,7 +5383,7 @@
                                             },
                                             data: JSON.stringify($postdata2),
                                             success: function (response) {
-                                                
+
                                                 if (response != null) {
                                                     if (response.mo_error == null) {
                                                         $('#loading_spinner').hide();
