@@ -7353,9 +7353,15 @@ namespace MasterOnline.Controllers
         {
             public long expire_time { get; set; }
             public string country { get; set; }
-            public string[] sip_a_shops { get; set; }
+            public Sip_A_Shops[] sip_a_shops { get; set; }
             public int shopid { get; set; }
             public long auth_time { get; set; }
+        }
+
+        public class Sip_A_Shops
+        {
+            public int a_shop_id { get; set; }
+            public string country { get; set; }
         }
 
         public class ShopeeGetOrderByStatusResult
