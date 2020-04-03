@@ -15187,6 +15187,9 @@ namespace MasterOnline.Controllers
             fakturInDb.PENGIRIM = dataUpdate.Kurir;
             fakturInDb.NAMAPENGIRIM = dataUpdate.NamaKurir;
             //ADD BY NURUL 5/3/2020
+            //add by nurul 3/4/2020
+            fakturInDb.NO_REF = dataUpdate.Noref;
+            //end add by nurul 3/4/2020
 
             ErasoftDbContext.SaveChanges();
 
