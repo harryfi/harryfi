@@ -149,15 +149,15 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     @if (Model.Faktur != null)
                     {
-                        if (Model.Faktur.NO_SO == null && Model.Faktur.NO_SO == "")
+                        if (Model.Faktur.NO_SO != null && Model.Faktur.NO_SO != "")
                         {
                             @*<input type="text" value="@Model.Faktur.NO_REF" class="form-control" />*@
-                            @Html.TextBoxFor(m => m.Faktur.NO_REF, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.Faktur.NO_REF, new { @class = "form-control", @disabled = "disabled" })
                         }
                         else
                         {
                             @*<input type="text" value="@Model.Faktur.NO_REF" disabled class="form-control" />*@
-                            @Html.TextBoxFor(m => m.Faktur.NO_REF, new { @class = "form-control", @ReadOnly = true })
+                            @Html.TextBoxFor(m => m.Faktur.NO_REF, new { @class = "form-control" })
                        }
                     }
                     else
