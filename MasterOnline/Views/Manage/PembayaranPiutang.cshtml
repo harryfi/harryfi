@@ -1875,6 +1875,7 @@
         function checkfile(s) {
             var validExts = new Array(".xlsx", ".xls", ".csv");
             //var validExts = new Array(".xlsx", ".xls");
+            sizeFile = parseInt(document.getElementById("file_upload_excel").files[0].size / 1024)
             var fileExt = s.value;
             if (fileExt != null && fileExt != "") {
                 fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
@@ -1882,8 +1883,14 @@
                     alert("Invalid file selected, valid files are of " +
                         validExts.toString() + " types.");
                     document.getElementById("file_upload_excel").value = "";
-
                     return false;
+                }
+                if (sizeFile > 4000) {
+                    alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
+                    return false;
+                    $('#btn_upload').attr('disabled', 'disabled');
+                } else {
+                    $('#btn_upload').removeAttr('disabled');
                 }
             }
         }
@@ -1892,6 +1899,9 @@
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
                 $('#progressBarUpload').hide();
+            } else if (sizeFile > 4000) {
+                $('#progressBarUpload').hide();
+                alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
             }
             else {
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
@@ -1915,6 +1925,12 @@
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
                 $('#loading_upload').hide();
+            } else if (sizeFile > 4000) {
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+                alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
             }
             else
             {
@@ -2217,6 +2233,11 @@
                     $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
                         $(item).text(convertToRupiah(0));
                     });
+                    $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                        if (($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) && ($(item).attr("data-persen-gagal") != undefined || convertToAngka($(item).attr("data-persen-gagal")) > 0)) {
+                            $(item).text("0 %");
+                        } 
+                    });
                     $('#TOTALPOT').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
                     $('#TOTALSELISIH').val(convertToRupiah(0));
 
@@ -2240,31 +2261,49 @@
                             $('#loading_spinner').show();
                         },
                         success: function (data) {
-                            if (data.Errors == undefined) {
+                            if (data != null) {
+                                if (data.mo_error == null) {
+                                    //if (data.Errors == undefined) {
 
-                                $('#loading_spinner').hide();
-                                $("#konfCreatePot").modal('hide');
-                                alert('Nilai potongan berhasil dibuat');
-                                getFaktur($("#Piutang_CUST").val());
-                                $('#btn-autoload').click(function () {
-                                    $('#file_upload_excel').removeAttr('disabled');
-                                });
-                            } else {
-                                $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
-                                    if ($(item).attr("data-selisih-gagal") != undefined) {
-                                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
-                                    }
-                                });
-                                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
-                                    $(item).text(convertToRupiah(0));
-                                });
-                                $('#TOTALPOT').val(convertToRupiah(0));
-                                $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
-                                alert(data.Errors);
-                                $('#loading_spinner').hide();
+                                    $('#loading_spinner').hide();
+                                    $("#konfCreatePot").modal('hide');
+                                    alert('Nilai potongan berhasil dibuat');
+                                    getFaktur($("#Piutang_CUST").val());
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                        if ($(item).attr("data-selisih-gagal") != undefined) {
+                                            $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                        }
+                                    });
+                                    $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                        $(item).text(convertToRupiah(0));
+                                    });
+                                    $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                                        if ($(item).attr("data-persen-gagal") != undefined) {
+                                            if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                                $(item).text($(item).attr("data-persen-gagal") + " %");
+                                            } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                                $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                            }
+                                        } else {
+                                            if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                                $(item).text($(item).attr("data-persen-gagal") + " %");
+                                            } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                                $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                            }
+                                        }
+                                    });
+                                    $('#TOTALPOT').val(convertToRupiah(0));
+                                    $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                                    alert(data.mo_error);
+                                    $('#loading_spinner').hide();
+                                }
                             }
                         },
-                        error: function (xhr) {
+                        error: function (xhr, status, error) {
                             $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
                                 if ($(item).attr("data-selisih-gagal") != undefined) {
                                     $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
@@ -2273,12 +2312,30 @@
                             $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
                                 $(item).text(convertToRupiah(0));
                             });
+                            $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                                //if ($(item).attr("data-persen-gagal") != undefined) {
+                                //    $(item).text($(item).attr("data-persen-gagal") + " %");
+                                //}
+                                if ($(item).attr("data-persen-gagal") != undefined) {
+                                    if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                        $(item).text($(item).attr("data-persen-gagal") + " %");
+                                    } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                        $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                    }
+                                } else {
+                                    if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                        $(item).text($(item).attr("data-persen-gagal") + " %");
+                                    } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                        $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                    }
+                                }
+                            });
                             $('#TOTALPOT').val(convertToRupiah(0));
                             $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
                             alert('Ada error. Mohon ulangi proses!');
                             $('#loading_spinner').hide();
                             $("#konfCreatePot").modal('hide');
-                            console.log(xhr);
+                            console.log(error);
                         }
                     });
                     //end proses simpan

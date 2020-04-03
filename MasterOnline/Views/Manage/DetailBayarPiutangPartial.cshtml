@@ -359,7 +359,10 @@
                         <th width="100px">Nilai Faktur</th>
                         <th width="100px">Nilai Ref</th>
                         <th width="100px">Nilai Potongan</th>
-                        <th width="100px">Selisih</th>
+                        @*<th width="100px">Selisih</th>*@
+                        <th width="100px">Kurang Bayar</th>
+                        <th width="100px">Lebih Bayar</th>
+                        <th width="60px">% selisih</th>
                         <th width="45px">Simpan</th>
                         <th width="45px">Hapus</th>
                     </tr>
@@ -370,6 +373,7 @@
                     }
                     @foreach (var detailPiutang in Model.ListPiutangDetail.Where(pb => pb.BUKTI == Model?.Piutang?.BUKTI).ToList())
                     {
+                        //string lebihbayar = (detailPiutang?.LEBIH_BAYAR == null ? 0 : detailPiutang?.LEBIH_BAYAR);
                         <tr data-piutang-id="piu-@detailPiutang.NO">
                             <td>
                                 @detailPiutang.NFAKTUR
@@ -392,6 +396,24 @@
                                 @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
                                 <input min="0" class="selisih-input-box num-only" style="display: none;" />
                                 <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
+                            </td>
+                            <td class="lebihbayar-piutang" style="text-align:right">
+                                <span class="lebihbayar-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.LEBIH_BAYAR)</span>
+                            </td>
+                            <td class="persen-selisih" data-persen-gagal="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ((detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT) / detailPiutang.SISA * 100))" data-persen-lebihbayar="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ((detailPiutang?.LEBIH_BAYAR) / detailPiutang.SISA * 100))">
+                                @*<input min="0" class="persen-input-box num-only" style="display: none;" />*@
+                                @{
+                                    double? tempPersen1 = 0;
+                                    if (detailPiutang?.LEBIH_BAYAR > 0)
+                                    {
+                                        tempPersen1 = (detailPiutang?.LEBIH_BAYAR / detailPiutang?.SISA * 100);
+                                    }
+                                    else if ((detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) > 0 && (detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) != null)
+                                    {
+                                        tempPersen1 = ((detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) / detailPiutang?.SISA * 100);
+                                    }
+                                }
+                                <span class="persen-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempPersen1) %</span>
                             </td>
                             @*<td class="edit-hapus-col">
                                     <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
@@ -431,11 +453,11 @@
                             @Html.HiddenFor(m => m.PiutangDetail.SISA)
                         </td>
                         <td class="bayar-piutang" style="text-align:right">
-                            <span class="span-potongan-piutang">0,00</span>
+                            <span class="span-bayar-piutang">0,00</span>
                             @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                         </td>
                         <td class="potongan-piutang" style="text-align:right">
-                            <span class="span-bayar-piutang">0,00</span>
+                            <span class="span-potongan-piutang">0,00</span>
                             @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                         </td>
                         <td class="selisih-piutang" style="text-align:right">
@@ -444,6 +466,25 @@
                                 var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT);
                             }
                             @Html.TextBox("SELISIH", (tempSelisih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempSelisih) : "0,00"), new { @class = "form-control", @style = "display: none;text-align:right" })
+                        </td>
+                        <td class="lebihbayar-piutang" style="text-align:right">
+                            <span class="span-lebihbayar-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.LEBIH_BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="persen-selisih" style="text-align:right">
+                            <span class="span-persen-selisih">0 %</span>
+                            @{
+                                double? tempPersen = 0;
+                                if (Model?.PiutangDetail?.LEBIH_BAYAR > 0)
+                                {
+                                    tempPersen = Model?.PiutangDetail?.LEBIH_BAYAR;
+                                }
+                                else if ((Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) > 0 && (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) != null)
+                                {
+                                    tempPersen = ((Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) / Model?.PiutangDetail.SISA * 100);
+                                }
+                            }
+                            @Html.TextBox("PERSEN_SELISIH", tempPersen + " %", new { @class = "form-control", @style = "display: none;text-align:right" })
                         </td>
                         <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('piu-0')">
