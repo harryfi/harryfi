@@ -454,8 +454,9 @@
             alert("Proses upload dan input Saldo awal stok sudah selesai!");
         }
 
-        function popupAlertUploadSaldoAwal_withError(error) {
-            alert(error);
+        function popupAlertUploadSaldoAwal_withError() {
+            //alert(error);
+            alert("Proses upload dan input Saldo awal stok sudah selesai!");
         }
 
         function uploadExcelSAS() {
@@ -542,12 +543,8 @@
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
                             $('#btnUploadExcelSAS').removeAttr('disabled');
-                            var err = "";
-                            for (i = 0; i < response.Errors.length; i++) {
-                                err += response.Errors[i] + "\n";
-                            }
-                            //alert(err);
-                            setTimeout(popupAlertUploadSaldoAwal_withError(err), 1000);
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
                         } else {
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('0% Complete');
