@@ -5199,7 +5199,7 @@ namespace MasterOnline.Controllers
 
         public class Order_Info
         {
-            public Order_Detail[] order_detail { get; set; }
+            //public Order_Detail[] order_detail { get; set; }
             public Order_History[] order_history { get; set; }
             public int order_age_day { get; set; }
             public int shipping_age_day { get; set; }
@@ -5263,8 +5263,8 @@ namespace MasterOnline.Controllers
             public string product_desc_atc { get; set; }
             public int product_price { get; set; }
             public int subtotal_price { get; set; }
-            public int weight { get; set; }
-            public int total_weight { get; set; }
+            public double weight { get; set; }
+            public double total_weight { get; set; }
             public int quantity { get; set; }
             public int quantity_deliver { get; set; }
             public int quantity_reject { get; set; }
