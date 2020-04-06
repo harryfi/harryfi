@@ -2331,7 +2331,7 @@ namespace MasterOnline.Controllers
         {
             SetupContext(iden);
             string ret = "";
-            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == CUST).Select(a => a.NO_REFERENSI).ToList();
+            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.NO_PO_CUST.Contains("SH") && a.CUST == CUST && (a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).Select(a => a.NO_REFERENSI).ToList();
             if (list_ordersn.Count() > 0)
             {
                 var ordersn_list = list_ordersn.ToArray();
@@ -3374,7 +3374,7 @@ namespace MasterOnline.Controllers
             //try
             //{
             myReq.ContentLength = myData.Length;
-            System.Threading.Thread.Sleep(5000);
+            //System.Threading.Thread.Sleep(5000);
             using (var dataStream = myReq.GetRequestStream())
             {
                 dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);

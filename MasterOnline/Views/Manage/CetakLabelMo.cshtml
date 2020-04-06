@@ -406,31 +406,59 @@
                                         @if (CetakLabel == "1")
                                         {
                                             <div class="div_label_pengiriman">
-                                                <div class="row">
-                                                    <div class="col-md-7">
-                                                        @if (no_resi != "-")
-                                                        {
+                                                @if (labelList.KdBooking != "")
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-md-2 block_subtitle_label pull-left">
+                                                            <p class="sub_title">
+                                                                <span class="block_subtitle_label pull-left">Kode Booking</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-7">
                                                             <div class="resiyes">
                                                                 <p class="sub_title">
-                                                                    <span class="block_subtitle_label" style="width:80px">No Resi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" />
+                                                                    @*<span class="block_subtitle_label pull-left">No Resi</span>*@
+                                                                    <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.KdBooking, market = labelList.Marketplace })" alt="" class="pull-left" />
                                                                 </p>
                                                             </div>
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="resino">
-                                                                <p class="sub_title">
-                                                                    <span class="block_subtitle_label">No Resi</span> @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
-                                                                </p>
-                                                            </div>
-                                                        }
+                                                        </div>
                                                     </div>
-
-                                                </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-md-2 block_subtitle_label pull-left">
+                                                            <p class="sub_title">
+                                                                <span class="block_subtitle_label pull-left">No Resi</span>
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-7">
+                                                            @if (no_resi != "-")
+                                                            {
+                                                                <div class="resiyes">
+                                                                    <p class="sub_title">
+                                                                        @*<span class="block_subtitle_label pull-left">No Resi</span>*@
+                                                                        <img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi, market = labelList.Marketplace })" alt="" class="pull-left" />
+                                                                    </p>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="resino">
+                                                                    <p class="sub_title">
+                                                                        @*<span class="block_subtitle_label">No Resi</span>*@
+                                                                        @(labelList.NoResi == null || labelList.NoResi == "" ? "-" : labelList.NoResi)
+                                                                    </p>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <br />
                                                 @if (isi_port != "-" && no_port == "1")
                                                 {
                                                     <div class="row">
-                                                        <div class="col-md-7">
+                                                        <div class="col-md-11">
 
                                                             <div class="resiyes">
                                                                 <p class="sub_title">

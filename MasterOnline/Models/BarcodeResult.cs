@@ -27,7 +27,7 @@ namespace MasterOnline.Models
                 //b.RotateFlipType = (RotateFlipType)Enum.Parse(typeof(RotateFlipType), "rotatenonflipnone", true);
                 if (_text != null || _text != "" || _text != "-")
                 {
-                    Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 250, 60));
+                    Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 300, 60));
                     context.HttpContext.Response.ContentType = "image/jpg";
                     bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
                 }
