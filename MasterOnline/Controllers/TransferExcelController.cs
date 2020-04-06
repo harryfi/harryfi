@@ -1543,11 +1543,15 @@ namespace MasterOnline.Controllers
                     string dt1 = DateTime.ParseExact(drtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 00:00:00.000");
                     string dt2 = DateTime.ParseExact(sdtgl, "dd'/'MM'/'yyyy", CultureInfo.InvariantCulture).ToString("yyyy'-'MM'-'dd 23:59:59.999");
 
-                    string sSQL = "SELECT A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
-                        "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, NO_REFERENSI, D.TGL, C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, D.CUST AS KODE_PEMBELI, D.NAMAPEMESAN AS PEMBELI, " +
-                        "ALAMAT_KIRIM, D.TERM AS [TOP], SHIPMENT AS KURIR, TGL_JTH_TEMPO AS TGL_JATUH_TEMPO, D.KET AS KETERANGAN, D.BRUTO, D.DISCOUNT AS DISC, D.PPN, D.NILAI_PPN, D.ONGKOS_KIRIM, D.NETTO, " +
-                        "D.STATUS_TRANSAKSI AS STATUS_PESANAN, G.BRG AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, QTY,  " +
-                        "H_SATUAN AS HARGA_SATUAN, G.DISCOUNT AS DISC1, G.NILAI_DISC_1 AS NDISC1, G.DISCOUNT_2 AS DISC2, G.NILAI_DISC_2 AS NDISC2, HARGA AS TOTAL " +
+                    string sSQL = "SELECT ISNULL(A.NO_BUKTI,'') AS NO_FAKTUR, A.TGL AS TGL_FAKTUR, A.STATUS AS STATUS_FAKTUR, " +
+                        "ISNULL(D.NO_BUKTI,'') AS NO_PESANAN, ISNULL(NO_REFERENSI, '') AS NO_REFERENSI, ISNULL(D.TGL, '') AS TGL," +
+                        "C.NAMAMARKET + '(' + B.PERSO + ')' MARKETPLACE, ISNULL(D.CUST, '') AS KODE_PEMBELI, ISNULL(D.NAMAPEMESAN, '') AS PEMBELI, " +
+                        "ISNULL(ALAMAT_KIRIM, '') AS ALAMAT_KIRIM, ISNULL(D.TERM, '') AS [TOP], ISNULL(SHIPMENT, '') AS KURIR, ISNULL(TGL_JTH_TEMPO, '') AS TGL_JATUH_TEMPO, " +
+                        "ISNULL(D.KET, '') AS KETERANGAN, ISNULL(D.BRUTO, '') AS BRUTO, ISNULL(D.DISCOUNT,'') AS DISC, ISNULL(D.PPN, '') AS PPN, ISNULL(D.NILAI_PPN, '') AS NILAI_PPN, " +
+                        "ISNULL(D.ONGKOS_KIRIM, '') AS ONGKOS_KIRIM, ISNULL(D.NETTO, '') AS NETTO, ISNULL(D.STATUS_TRANSAKSI, '') AS STATUS_PESANAN, " +
+                        "ISNULL(G.BRG, '') AS KODE_BRG, ISNULL(H.NAMA,'') + ' ' + ISNULL(H.NAMA2, '') AS NAMA_BARANG, ISNULL(QTY, '') AS QTY, " +
+                        "ISNULL(H_SATUAN, '') AS HARGA_SATUAN, ISNULL(G.DISCOUNT, '') AS DISC1, ISNULL(G.NILAI_DISC_1, '') AS NDISC1, " +
+                        "ISNULL(G.DISCOUNT_2, '') AS DISC2, ISNULL(G.NILAI_DISC_2, '') AS NDISC2, ISNULL(HARGA, '') AS TOTAL " +
                         "FROM SIT01A A LEFT JOIN ARF01 B ON A.CUST = B.CUST " +
                         "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket " +
                         "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI " +
