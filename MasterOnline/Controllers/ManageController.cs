@@ -3761,6 +3761,24 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
+            #region shopify
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART").IdMarket.ToString()))
+            {
+                EightTwoCartController.E2CartAPIData data82Cart = new EightTwoCartController.E2CartAPIData
+                {
+                    no_cust = kdCustomer, //no ID Customer
+                    account_store = customer.Customers.PERSO, //account store name
+                    API_password = customer.Customers.API_CLIENT_P, //API Password
+                    API_key = customer.Customers.API_KEY, //API Key
+                    email = customer.Customers.EMAIL, //recnum
+                    DatabasePathErasoft = dbPathEra,
+                };
+                EightTwoCartController api82Cart = new EightTwoCartController();
+                Task.Run(() => api82Cart.GetCustomer(data82Cart)).Wait();
+            }
+            #endregion
+
+
             #region 82Cart
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART").IdMarket.ToString()))
             {
@@ -34379,6 +34397,46 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             retBarang.RecordCount = result82Cart.recordCount;
+                                        }
+                                        //}
+                                        //else
+                                        //{
+                                        //    retBarang.RecordCount = resultShopee.recordCount;
+                                        //}
+                                        //end change 18 juli 2019, error tetap lanjut next page
+
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                    }
+                                case "82CART":
+                                    var v82CartAPI = new EightTwoCartController();
+                                    if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                    {
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
+                                    {
+                                        EightTwoCartController.E2CartAPIData data = new EightTwoCartController.E2CartAPIData()
+                                        {
+                                            no_cust = arf01.Sort1_Cust,
+                                            account_store = arf01.PERSO,
+                                            API_key = arf01.API_KEY,
+                                            API_password = arf01.API_CLIENT_P
+                                        };
+                                        var resultShopify = await v82CartAPI.GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
+                                        retBarang.exception = resultShopify.exception;
+                                        retBarang.totalData = resultShopify.totalData;
+                                        //change 18 juli 2019, error tetap lanjut next page
+                                        //if (resultShopee.status == 1)
+                                        //{
+                                        //    if (!string.IsNullOrEmpty(resultShopee.message))
+                                        if (resultShopify.nextPage == 1)
+                                        {
+                                            retBarang.RecordCount = resultShopify.recordCount;
+                                            retBarang.Recursive = true;
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultShopify.recordCount;
                                         }
                                         //}
                                         //else
