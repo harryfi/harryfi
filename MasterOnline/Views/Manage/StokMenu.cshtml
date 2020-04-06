@@ -523,7 +523,7 @@
                         //$('#loading_upload').show();
                     },
                     success: function (response) {
-                        if (response.countAll != null && response.Errors == null && response.statusLoop == true && response.statusSuccess == false) {
+                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
                             $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                             $('#pBar_uploadFile').html(response.percent + '% Complete');
 
