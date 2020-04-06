@@ -3526,7 +3526,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-    <script type="text/javascript">
+<script type="text/javascript">
         var $modeEditPesanan = 0;
         var $modeEditDibayar = 0;
         var $modeEditSelesai = 0;
@@ -4230,22 +4230,24 @@
 
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .off('shown.bs.modal').on('shown.bs.modal',
-                function () {
-                    //add by nurul 19/2/2019
-                    if ($TabAktif == 0) {
-                        cekJumlahPesananBulanIni();
-                        if ($jumlahPesanan == false) {
-                            $('#konfUbahStatus').modal('hide');
-                            $('#tambah_pesanan').click();
-                        }
-                    } else if ($TabAktif == 1) {
-                        cekJumlahPesananBulanIni();
-                        if ($jumlahPesanan == false) {
-                            $('#konfUbahStatusDibayar').modal('hide');
-                            $('#tambah_pesanan').click();
-                        }
-                    }
-                    //end add by nurul 19/2/2019
+                    function () {
+                    //remark by Tri 6 mar 2020, tidak perlu cek subscription untuk ubah status pesanan
+                    ////add by nurul 19/2/2019
+                    //if ($TabAktif == 0) {
+                    //    cekJumlahPesananBulanIni();
+                    //    if ($jumlahPesanan == false) {
+                    //        $('#konfUbahStatus').modal('hide');
+                    //        $('#tambah_pesanan').click();
+                    //    }
+                    //} else if ($TabAktif == 1) {
+                    //    cekJumlahPesananBulanIni();
+                    //    if ($jumlahPesanan == false) {
+                    //        $('#konfUbahStatusDibayar').modal('hide');
+                    //        $('#tambah_pesanan').click();
+                    //    }
+                    //}
+                    ////end add by nurul 19/2/2019
+                    //remark by Tri 6 mar 2020, tidak perlu cek subscription untuk ubah status pesanan
                     //add by calvin 17 desember 2018
                     $('#footer_info_pesananSudahBayar').hide();
                     $('#SudahBayarKonfUbahStatusText').html("");
@@ -10719,7 +10721,7 @@
             return false;
         }
         //end add by nurul 10/4/2019
-    </script>
+</script>
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {
