@@ -39731,13 +39731,13 @@ namespace MasterOnline.Controllers
                                     username = "support"
                                 };
                                 var tokpedApi = new TokopediaControllerJob();
-#if (DEBUG || Debug_AWS)
+//#if (DEBUG || Debug_AWS)
                                 Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
-#else
-                                var sqlStorage = new SqlServerStorage(EDBConnID);
-                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, SOA_NOREF));
-#endif
+//#else
+//                                var sqlStorage = new SqlServerStorage(EDBConnID);
+//                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+//                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, SOA_NOREF));
+//#endif
                             }
                         }
                         //END ADD BY NURUL 3/4/2020, update no kode booking
