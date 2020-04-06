@@ -1664,6 +1664,7 @@
                                 $("#Customers_NAMA").val(value);
 
                                 @{
+                                    var v82cart = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("82Cart"))?.IdMarket.ToString();
                                     var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
                                     var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                                     var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();

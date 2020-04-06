@@ -317,6 +317,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\MobileApiController.cs" />
     <Compile Include="Controllers\BCAController.cs" />
+    <Compile Include="Controllers\EightTwoCartController.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
