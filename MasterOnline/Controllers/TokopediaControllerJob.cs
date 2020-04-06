@@ -1903,7 +1903,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             var token = SetupContext(iden);
             iden.token = token;
-            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust).ToList();
+            var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
             if (list_ordersn.Count() > 0)
             {
                 foreach (var pesanan in list_ordersn)
@@ -5793,16 +5793,16 @@ namespace MasterOnline.Controllers
             public PaymentInfo payment_info { get; set; }
             public InsuranceInfo insurance_info { get; set; }
             public string hold_info { get; set; }
-            public string cancel_request_info { get; set; }
-            public DateTime? create_time { get; set; }
-            public DateTime? shipping_date { get; set; }
-            public DateTime? update_time { get; set; }
-            public DateTime? payment_date { get; set; }
-            public DateTime? delivered_date { get; set; }
-            public DateTime? est_shipping_date { get; set; }
-            public DateTime? est_delivery_date { get; set; }
-            public string related_invoices { get; set; }
-            public string custom_fields { get; set; }
+            public Cancel_Request_Info cancel_request_info { get; set; }
+            public DateTime create_time { get; set; }
+            //public object shipping_date { get; set; }
+            public DateTime update_time { get; set; }
+            public DateTime payment_date { get; set; }
+            //public object delivered_date { get; set; }
+            //public object est_shipping_date { get; set; }
+            //public object est_delivery_date { get; set; }
+            //public object related_invoices { get; set; }
+            //public object custom_fields { get; set; }
         }
         public class OrderWarehouse
         {
