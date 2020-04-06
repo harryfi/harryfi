@@ -2438,7 +2438,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
-                        qry_Retur += "WHERE F.NO_REF IN ('" + ordersn + "') AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                        qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
                         var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                         if(dsFaktur.Tables[0].Rows.Count > 0)
                         {

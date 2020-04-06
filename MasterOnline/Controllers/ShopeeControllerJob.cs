@@ -2033,7 +2033,7 @@ namespace MasterOnline.Controllers
 
                         //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                         string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
-                        qry_Retur += "WHERE F.NO_REF IN ('" + ordersn + "') AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                        qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
                         var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
                         if (dsFaktur.Tables[0].Rows.Count > 0)
                         {
