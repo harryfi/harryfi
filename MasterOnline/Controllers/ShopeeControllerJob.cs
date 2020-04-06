@@ -2040,7 +2040,7 @@ namespace MasterOnline.Controllers
                             var listFaktur = "";
                             for (int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
                             {
-                                listFaktur += dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                                listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
                             }
                             listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
                             var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
