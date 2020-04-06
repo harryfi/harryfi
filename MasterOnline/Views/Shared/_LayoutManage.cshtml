@@ -806,6 +806,19 @@
 
             };
 
+            //add by fauzi 05 Maret 2020
+            masterOnlineR.client.notifTransaction = function (msg, close) {
+                $.notify({
+                    jswrapper: 'body',
+                    message: msg,
+                    dir: 'ltr',
+                    autoClose: close,
+                    duration: 4000,
+                    onOpen: null,
+                    onClose: null
+                });
+            };
+
             $.connection.hub.start().done(function () {
                 masterOnlineR.server.joinGroup("@namaPerAccount");
             });

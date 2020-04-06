@@ -17,6 +17,8 @@ using System.Web.Script.Serialization;
 using System.Security.Cryptography;
 using System.Net.Http;
 using System.Globalization;
+using Erasoft.Function;
+using MasterOnline.Models;
 
 namespace MasterOnline.Controllers
 {
@@ -27,16 +29,27 @@ namespace MasterOnline.Controllers
         private string apiKey = "35e8ac7e833721d0bd7d5bc66cb75";
         private string apiCred = "dev82cart";
 
+        public MoDbContext MoDbContext { get; set; }
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+
         public ActionResult Index()
         {
             return View();
         }
 
         //Get All Products.
-        public ActionResult GetProductsList(E2CartAPIData iden)
+        public async Task<BindingBase> GetProductsList(E2CartAPIData iden, int IdMarket, int page, int recordCount, int totalData)
         {
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = recordCount,
+                exception = 0,
+                totalData = totalData//add 18 Juli 2019, show total record
+            };
 
-            string urll = string.Format("https://{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}", url, apiKey, apiCred);
+            string urll = string.Format("https://{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}", url, iden.API_key, iden.API_credential);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -60,12 +73,113 @@ namespace MasterOnline.Controllers
 
             if (!string.IsNullOrEmpty(responseServer))
             {
-                var listProd = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartProductListResult)) as E2CartProductListResult;
+                try {
+                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartProductListResult)) as E2CartProductListResult;
 
-                ViewBag.Products = listProd.data;
+                    ret.status = 1;
+                    if (resultAPI != null)
+                    {
+                        if (resultAPI.data != null)
+                        {
+
+                            var listBrgMP = new List<string>();
+                            foreach (var lis in resultAPI.data)
+                            {
+                                listBrgMP.Add(lis.id_product.ToString() + ";0");
+                                if (lis.combinations.Length > 0)
+                                {
+                                    foreach (var listVar in lis.combinations)
+                                    {
+                                        listBrgMP.Add(lis.id_product.ToString() + ";" + listVar.id_product_attribute.ToString());
+                                    }
+                                }
+                            }
+                            var stf02h_local = (from a in ErasoftDbContext.STF02H where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new stf02h_local { BRG = a.BRG, BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket && listBrgMP.Contains(a.BRG_MP) select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                            //if (listBrg.items.Length == 10)
+                            //if (listBrg.product_listings)
+                            //ret.message = (page + 1).ToString();
+                            //ret.nextPage = 1;
+                            if (listBrgMP.Count == (stf02h_local.Count + tempBrg_local.Count))
+                            {
+                                ret.totalData += listBrgMP.Count;
+                                return ret;
+                            }
+                            ret.totalData += resultAPI.data.Count();//add 18 Juli 2019, show total record
+                            foreach (var item in resultAPI.data)
+                            {
+                                //if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
+                                //{
+                                //if (item.item_id == 1512392638 || item.item_id == 1790099887 || item.item_sku == "1660" || item.item_sku == "51")
+                                //{
+
+                                //}
+                                //string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
+                                string kdBrg = item.id_product.ToString();
+                                string brgMp = item.id_product.ToString() + ";0";
+                                //change 13 Feb 2019, tuning
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket && (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                                //end change 13 Feb 2019, tuning
+
+                                if ((tempbrginDB == null && brgInDB == null) || item.combinations.Length > 1)
+                                {
+                                    //var getDetailResult = await GetItemDetail(iden, item.item_id);
+                                    //var getDetailResult = await GetItemDetail(iden, item.item_id, new List<tempBrg_local>(), new List<stf02h_local>(), IdMarket);
+                                    
+                                    //var getDetailResult = await GetItemDetail(iden, item.id_product, tempBrg_local, stf02h_local, IdMarket);
+                                    //ret.totalData += getDetailResult.totalData;//add 18 Juli 2019, show total record
+                                    //if (getDetailResult.exception == 1)
+                                    //    ret.exception = 1;
+                                    //if (getDetailResult.status == 1)
+                                    //{
+                                    //    ret.recordCount += getDetailResult.recordCount;
+                                    //}
+                                    //else
+                                    //{
+                                    //    currentLog.REQUEST_EXCEPTION = getDetailResult.message;
+                                    //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                    //}
+                                }
+                                //}
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    else
+                    {
+                        ret.nextPage = 0;
+                    }
+                }
+                catch(Exception ex)
+                {
+
+                }
+                
             }
 
-            return View();
+            return ret;
+
+        }
+
+        public class stf02h_local
+        {
+            public string BRG { get; set; }
+            public string BRG_MP { get; set; }
+            public int IDMARKET { get; set; }
+        }
+        public class tempBrg_local
+        {
+            //public string BRG { get; set; }
+            public string BRG_MP { get; set; }
+            public int IDMARKET { get; set; }
 
         }
 
@@ -626,10 +740,16 @@ namespace MasterOnline.Controllers
         }
 
         //Get All Customers.
-        public ActionResult GetCustomer(E2CartAPIData iden)
+        public async Task<string> GetCustomer(E2CartAPIData iden)
         {
+            string ret = "";
+            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
 
-            string urll = string.Format("https://{0}/api/v1/getCustomer?apiKey={1}&apiCredential={2}", url, apiKey, apiCred);
+            string urll = string.Format("https://{0}/api/v1/getCustomer?apiKey={1}&apiCredential={2}", url, iden.API_key, iden.API_credential);
+
+            DatabaseSQL EDB = new DatabaseSQL(iden.DatabasePathErasoft);
+            var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
+
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -649,16 +769,64 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.Message.ToString().Contains("404"))
+                {
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Data akun marketplace (82Cart) tidak valid. Mohon periksa kembali data Anda dengan benar.", false);
+                }
+                else if (ex.Message.ToString().Contains("402") && ex.Message.ToString().ToLower().Contains("payment"))
+                {
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Masa trial akun marketplace (82Cart) sudah habis.", false);
+                }
+                else
+                {
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Info: " + ex.Message.ToString(), false);
+                }
             }
 
             if (!string.IsNullOrEmpty(responseServer))
             {
-                var lCust = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartCustomerResult)) as E2CartCustomerResult;
+                var resultApi = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartCustomerResult)) as E2CartCustomerResult;
+                if(resultApi != null)
+                {
+                    if (resultApi.error == "none" && resultApi.data.Length > 0)
+                    {
+                        foreach (var data in resultApi.data)
+                        {
+                            if (data.email == iden.email)
+                            {
+                                //var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
+                                if (resultquery == 1)
+                                {
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
+                                    //currentLog.REQUEST_RESULT = "Update Status API Complete";
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                                }
+                                else
+                                {
+                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
+                                    //currentLog.REQUEST_RESULT = "Update Status API Failed";
+                                    //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //error api response
+                    }
+                }
+                else
+                {
+                    //error api response
+                }
 
-                ViewBag.Customer = lCust.data;
+
+                //ViewBag.Customer = lCust.data;
             }
 
-            return View();
+            return ret;
 
         }
 
@@ -735,11 +903,17 @@ namespace MasterOnline.Controllers
 
             return View();
         }
-
+        
         public class E2CartAPIData
         {
-            public string API_url { get; set; }
+            public string no_cust { get; set; }
+            public string account_store { get; set; }
             public string API_key { get; set; }
+            public string API_password { get; set; }
+            public string DatabasePathErasoft { get; set; }
+            public string email { get; set; }
+            public int rec_num { get; set; }
+            public string API_url { get; set; }
             public string API_credential { get; set; }
         }
 
