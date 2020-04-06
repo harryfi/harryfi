@@ -17715,10 +17715,36 @@ namespace MasterOnline.Controllers
                 {
                     Boolean bstatusSync = Convert.ToBoolean(statusSync);
                     var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == custID);
-                    dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
-                    ErasoftDbContext.SaveChanges();
-                    await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), "", usernameLogin, 5, dataCustomer.RecNum); ;
-                    return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
+                    
+
+                    //add by fauzi validasi expired account
+                    var lastYear = DateTime.UtcNow.AddYears(-1);
+                    var datenow = DateTime.UtcNow.AddHours(7);
+                    var accountInDb = (from a in MoDbContext.Account
+                                       where
+                                       (a.DatabasePathErasoft == dbPathEra)
+                                       &&
+                                       (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                       orderby a.LAST_LOGIN_DATE descending
+                                       select a).ToList();
+                    if (accountInDb.Count() > 0)
+                    {
+                        dataCustomer.TIDAK_HIT_UANG_R = bstatusSync;
+                        ErasoftDbContext.SaveChanges();
+                        await new AccountController().SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), "", usernameLogin, 5, dataCustomer.RecNum);
+                        return Json(new { success = true, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!" }, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        dataCustomer.TIDAK_HIT_UANG_R = false;
+                        ErasoftDbContext.SaveChanges();
+                        return Json(new { success = false, status = "Proses Update Pesanan dan Stok Ke Marketplace tidak dapat disimpan! Karena account Anda sudah expired." }, JsonRequestBehavior.AllowGet);
+                    }
+                    
+                    //end by fauzi validasi expired account
+
+
+
                 }
                 else
                 {

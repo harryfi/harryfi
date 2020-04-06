@@ -522,7 +522,22 @@ namespace MasterOnline.Controllers
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 if (username.Length > 20)
                     username = username.Substring(0, 17) + "...";
-                Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5, null).Wait());
+
+                //add by fauzi validasi expired account
+                var lastYear = DateTime.UtcNow.AddYears(-1);
+                var datenow = DateTime.UtcNow.AddHours(7);
+                var accountInDb = (from a in MoDbContext.Account
+                                   where
+                                   (a.DatabasePathErasoft == dbPathEra)
+                                   &&
+                                   (a.TGL_SUBSCRIPTION ?? lastYear) >= datenow
+                                   orderby a.LAST_LOGIN_DATE descending
+                                   select a).ToList();
+                if (accountInDb.Count() > 0)
+                {
+                    Task.Run(() => SyncMarketplace(dbSourceEra, dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5, null).Wait());
+                }
+                //end by fauzi validasi expired account
 
                 //end change by calvin 1 april 2019
 
