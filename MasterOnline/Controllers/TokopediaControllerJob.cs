@@ -356,6 +356,9 @@ namespace MasterOnline.Controllers
                             }
                             else if (result.data.success_rows > 0)
                             {
+#if (DEBUG || Debug_AWS)
+                                await GetActiveItemListBySKU(iden.DatabasePathErasoft, brg, log_CUST, "Barang", "Link Produk (Tahap 2 / 2)", iden, 0, 50, iden.idmarket, brg, currentLog.REQUEST_ID);
+#else
                                 //change by calvin 9 juni 2019
                                 //await GetActiveItemVariantByProductID(iden, brg, iden.idmarket, Convert.ToString(product_id));
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -366,6 +369,7 @@ namespace MasterOnline.Controllers
                                 //end change by calvin 9 juni 2019
 
                                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+#endif
                             }
                             else if (result.data.failed_rows > 0)
                             {
@@ -546,29 +550,33 @@ namespace MasterOnline.Controllers
                     {
                         if (dataTokped.data[0].preorder != null)
                         {
-                            newDataProduct.preorder = new CreateProduct_Product_Preorder
+                            if(dataTokped.data[0].preorder.duration > 0)
                             {
-                                duration = Convert.ToInt32(dataTokped.data[0].preorder.duration),
-                                is_active = true,
-                                //time_unit = dataTokped.data[0].preorder.time_unit
-                            };
-                            string timeUnit = "DAY";
-                            if (dataTokped.data[0].preorder.time_unit > 0)
-                            {
-                                switch (dataTokped.data[0].preorder.time_unit)
+                                newDataProduct.preorder = new CreateProduct_Product_Preorder
                                 {
-                                    case 1:
-                                        timeUnit = "DAY";
-                                        break;
-                                    case 2:
-                                        timeUnit = "WEEK";
-                                        break;
-                                    case 3:
-                                        timeUnit = "MONTH";
-                                        break;
+                                    duration = Convert.ToInt32(dataTokped.data[0].preorder.duration),
+                                    is_active = true,
+                                    //time_unit = dataTokped.data[0].preorder.time_unit
+                                };
+                                string timeUnit = "DAY";
+                                if (dataTokped.data[0].preorder.time_unit > 0)
+                                {
+                                    switch (dataTokped.data[0].preorder.time_unit)
+                                    {
+                                        case 1:
+                                            timeUnit = "DAY";
+                                            break;
+                                        case 2:
+                                            timeUnit = "WEEK";
+                                            break;
+                                        case 3:
+                                            timeUnit = "MONTH";
+                                            break;
+                                    }
                                 }
+                                newDataProduct.preorder.time_unit = timeUnit;
                             }
-                            newDataProduct.preorder.time_unit = timeUnit;
+                            
                         }
                         if (dataTokped.data[0].wholesale != null)
                         {
@@ -602,6 +610,11 @@ namespace MasterOnline.Controllers
                     {
                         newDataProduct.stock = Convert.ToInt32(qty_stock);
                     }
+                }
+                if(newDataProduct.stock == 0)
+                {
+                    newDataProduct.stock = 1;
+                    newDataProduct.status = "EMPTY";
                 }
                 //else
                 //{
@@ -706,7 +719,7 @@ namespace MasterOnline.Controllers
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
-                    #region variant lv 1
+#region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -722,7 +735,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -738,7 +751,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -773,9 +786,9 @@ namespace MasterOnline.Controllers
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-                    #endregion
+#endregion
 
-                    #region variant lv 2
+#region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -791,7 +804,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -807,7 +820,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -842,7 +855,7 @@ namespace MasterOnline.Controllers
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-                    #endregion
+#endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
@@ -1286,7 +1299,7 @@ namespace MasterOnline.Controllers
 
                     var listRecnumLv1 = new List<int>();
                     var listRecnumLv2 = new List<int>();
-                    #region variant lv 1
+#region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -1302,7 +1315,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -1318,7 +1331,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1338,7 +1351,7 @@ namespace MasterOnline.Controllers
                                 listRecnumLv1.Add(fe_record.RECNUM);
                                 //newOpt.image.Add(gambarVariant);
 
-                                #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1350,7 +1363,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-                                #endregion
+#endregion
 
                                 newVariasi.options.Add(newOpt);
 
@@ -1364,7 +1377,7 @@ namespace MasterOnline.Controllers
                                         file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
 
-                                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1384,15 +1397,15 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-                                    #endregion
+#endregion
                                 }
                             }
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-                    #endregion
+#endregion
 
-                    #region variant lv 2
+#region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -1408,7 +1421,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-                            #region cek duplikat variant_id, unit_id, value_id
+#region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -1424,7 +1437,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-                            #endregion
+#endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1444,7 +1457,7 @@ namespace MasterOnline.Controllers
                                 //newOpt.image.Add(gambarVariant);
                                 listRecnumLv2.Add(fe_record.RECNUM);
 
-                                #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1456,7 +1469,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-                                #endregion
+#endregion
 
                                 newVariasi.options.Add(newOpt);
 
@@ -1469,7 +1482,7 @@ namespace MasterOnline.Controllers
                                         //image_description = ""
                                         file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
-                                    #region 6/9/2019, barang varian 2 gambar
+#region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1489,7 +1502,7 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-                                    #endregion
+#endregion
                                 }
                             }
                         }
@@ -1507,7 +1520,7 @@ namespace MasterOnline.Controllers
                             product_variant.selection.Add(newVariasi);
                         }
                     }
-                    #endregion
+#endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
@@ -3154,11 +3167,13 @@ namespace MasterOnline.Controllers
                 long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-30).ToUnixTimeSeconds();
                 long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
-                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
+                //string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
+                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/info?";
+
                 string queryParam = "";
                 //queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&product_id=&order_by=9&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
-                queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&order_by=9";
-
+                //queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&order_by=9";
+                queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&page=" + Uri.EscapeDataString(Convert.ToString(page)) + "&per_page=50&sort=3";
                 string responseFromServer = "";
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
@@ -3175,14 +3190,18 @@ namespace MasterOnline.Controllers
 
                 if (!string.IsNullOrWhiteSpace(responseFromServer))
                 {
-                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
+                    //var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaController.TokpedGetListItemV2)) as TokopediaController.TokpedGetListItemV2;
                     if (result.header.error_code == 0)
                     {
-                        foreach (var item in result.data.products)
+                        foreach (var item in result.data)
                         {
                             if (!found)
                             {
-                                var isValid = (item.sku == SKU);
+                                var itemSKU = "";
+                                if (item.other != null)
+                                    itemSKU = item.other.sku;
+                                var isValid = (itemSKU == SKU);
                                 if (brgInDB != null)
                                 {
                                     if (!string.IsNullOrWhiteSpace(brgInDB.BRG_MP))
@@ -3198,7 +3217,7 @@ namespace MasterOnline.Controllers
                                                     kdBrg = brgmp[3];
                                                 }
                                             }
-                                            isValid = (item.id == Convert.ToInt32(kdBrg));
+                                            isValid = (item.basic.productID == Convert.ToInt32(kdBrg));
                                         }
                                     }
                                 }
@@ -3206,12 +3225,12 @@ namespace MasterOnline.Controllers
                                 if (isValid)
                                 {
                                     found = true;
-                                    if (item.childs != null)
+                                    if (item.variant != null)
                                     {
-                                        if (item.childs.Count() > 0)
+                                        if (item.variant.isVariant)
                                         {
 #if (DEBUG || Debug_AWS)
-                                            await new TokopediaControllerJob().GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id);
+                                            await new TokopediaControllerJob().GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.basic.productID), log_request_id);
 #else
                                             //change by calvin 9 juni 2019
                                             //await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
@@ -3219,14 +3238,14 @@ namespace MasterOnline.Controllers
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.id), log_request_id));
+                                            Jobclient.Enqueue<TokopediaControllerJob>(x => x.GetActiveItemVariantByProductID(iden.DatabasePathErasoft, SKU, log_CUST, "Barang", "Link Variasi Produk", iden, SKU, recnumArf01, Convert.ToString(item.basic.productID), log_request_id));
                                             //end change by calvin 9 juni 2019
 #endif
                                         }
                                         else
                                         {
                                             string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                             {
                                                 REQUEST_ID = log_request_id
@@ -3266,13 +3285,13 @@ namespace MasterOnline.Controllers
 
                                                     StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
+                                                    Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
 #endif
                                                 }
                                             }
@@ -3282,7 +3301,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
-                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.basic.productID) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                         MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                                         {
                                             REQUEST_ID = log_request_id
@@ -3314,13 +3333,13 @@ namespace MasterOnline.Controllers
                                                 data.idmarket = iden.idmarket;
                                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
 #if (DEBUG || Debug_AWS)
-                                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null)).Wait();
+                                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, item.id, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kodeProduk, log_CUST, "Stock", "Update Stok", data, Convert.ToInt32(item.basic.productID), 0, username, null));
 #endif
                                                 //}
                                                 //catch (Exception ex)
@@ -3337,7 +3356,7 @@ namespace MasterOnline.Controllers
                             }
                         }
 
-                        if (rows > result.data.products.Count())
+                        if (rows > result.data.Count())
                         {
                             stop = true;
                         }
