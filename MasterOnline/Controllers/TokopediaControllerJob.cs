@@ -550,7 +550,7 @@ namespace MasterOnline.Controllers
                     {
                         if (dataTokped.data[0].preorder != null)
                         {
-                            if(dataTokped.data[0].preorder.duration > 0)
+                            if (dataTokped.data[0].preorder.duration > 0)
                             {
                                 newDataProduct.preorder = new CreateProduct_Product_Preorder
                                 {
@@ -576,7 +576,7 @@ namespace MasterOnline.Controllers
                                 }
                                 newDataProduct.preorder.time_unit = timeUnit;
                             }
-                            
+
                         }
                         if (dataTokped.data[0].wholesale != null)
                         {
@@ -593,7 +593,7 @@ namespace MasterOnline.Controllers
                                 i++;
                             }
                         }
-                        if(dataTokped.data[0].basic.condition == 2)
+                        if (dataTokped.data[0].basic.condition == 2)
                         {
                             newDataProduct.condition = "USED";
                         }
@@ -611,7 +611,7 @@ namespace MasterOnline.Controllers
                         newDataProduct.stock = Convert.ToInt32(qty_stock);
                     }
                 }
-                if(newDataProduct.stock == 0)
+                if (newDataProduct.stock == 0)
                 {
                     newDataProduct.stock = 1;
                     newDataProduct.status = "EMPTY";
@@ -719,7 +719,7 @@ namespace MasterOnline.Controllers
                     string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
                     var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
 
-#region variant lv 1
+                    #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -735,7 +735,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -751,7 +751,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -786,9 +786,9 @@ namespace MasterOnline.Controllers
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-#endregion
+                    #endregion
 
-#region variant lv 2
+                    #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -804,7 +804,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -820,7 +820,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -855,7 +855,7 @@ namespace MasterOnline.Controllers
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-#endregion
+                    #endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
@@ -1299,7 +1299,7 @@ namespace MasterOnline.Controllers
 
                     var listRecnumLv1 = new List<int>();
                     var listRecnumLv2 = new List<int>();
-#region variant lv 1
+                    #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 1).FirstOrDefault().MP_JUDUL_VAR);
@@ -1315,7 +1315,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -1331,7 +1331,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1351,7 +1351,7 @@ namespace MasterOnline.Controllers
                                 listRecnumLv1.Add(fe_record.RECNUM);
                                 //newOpt.image.Add(gambarVariant);
 
-#region 6/9/2019, barang varian 2 gambar
+                                #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1363,7 +1363,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-#endregion
+                                #endregion
 
                                 newVariasi.options.Add(newOpt);
 
@@ -1377,7 +1377,7 @@ namespace MasterOnline.Controllers
                                         file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
 
-#region 6/9/2019, barang varian 2 gambar
+                                    #region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1397,15 +1397,15 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-#endregion
+                                    #endregion
                                 }
                             }
                         }
                         product_variant.selection.Add(newVariasi);
                     }
-#endregion
+                    #endregion
 
-#region variant lv 2
+                    #region variant lv 2
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 2).Count() > 0)
                     {
                         int variant_id = Convert.ToInt32(var_strukturVar.Where(p => p.LEVEL_VAR == 2).FirstOrDefault().MP_JUDUL_VAR);
@@ -1421,7 +1421,7 @@ namespace MasterOnline.Controllers
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
-#region cek duplikat variant_id, unit_id, value_id
+                            #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
                             if (product_variant.selection.Count > 0)
                             {
@@ -1437,7 +1437,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
-#endregion
+                            #endregion
                             if (add)
                             {
                                 //CreateProduct_Image gambarVariant = new CreateProduct_Image()
@@ -1457,7 +1457,7 @@ namespace MasterOnline.Controllers
                                 //newOpt.image.Add(gambarVariant);
                                 listRecnumLv2.Add(fe_record.RECNUM);
 
-#region 6/9/2019, barang varian 2 gambar
+                                #region 6/9/2019, barang varian 2 gambar
                                 //if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_2))
                                 //{
                                 //    CreateProduct_Image gambarVariant2 = new CreateProduct_Image()
@@ -1469,7 +1469,7 @@ namespace MasterOnline.Controllers
                                 //    };
                                 //    newOpt.image.Add(gambarVariant);
                                 //}
-#endregion
+                                #endregion
 
                                 newVariasi.options.Add(newOpt);
 
@@ -1482,7 +1482,7 @@ namespace MasterOnline.Controllers
                                         //image_description = ""
                                         file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1
                                     });
-#region 6/9/2019, barang varian 2 gambar
+                                    #region 6/9/2019, barang varian 2 gambar
                                     ////if (!string.IsNullOrEmpty(var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1))
                                     ////{
                                     ////    newDataProduct.images.Add(new CreateProduct_Images()
@@ -1502,7 +1502,7 @@ namespace MasterOnline.Controllers
                                     //        image_description = ""
                                     //    });
                                     //}
-#endregion
+                                    #endregion
                                 }
                             }
                         }
@@ -1520,7 +1520,7 @@ namespace MasterOnline.Controllers
                             product_variant.selection.Add(newVariasi);
                         }
                     }
-#endregion
+                    #endregion
 
                     //product variasi
                     foreach (var item_var in var_stf02)
@@ -3575,14 +3575,34 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
                 if (result.header.error_code == 0)
                 {
+                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                    var createBrg = true;
+                    if (customer != null)
+                    {
+                        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                        if (brgInDB != null)
+                        {
+                            if (!string.IsNullOrWhiteSpace(brgInDB.BRG_MP))
+                            {
+                                if (!brgInDB.BRG_MP.Contains("PENDING"))
+                                {
+                                    createBrg = false;
+                                }
+                            }
+                        }
+
+                    }
                     List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
                     string Link_Error = "0;Buat Produk;;";//jobid;request_action;request_result;request_exception
                     var success_induk = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
-                    var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-
+                    //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                     foreach (var item in result.data.children)
                     {
-                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                        if (createBrg)
+                        {
+                            var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "',LINK_STATUS='Buat Produk Berhasil', LINK_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "',LINK_ERROR = '" + Link_Error + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+
+                        }
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
                         if (customer != null)
                         {
@@ -3605,14 +3625,20 @@ namespace MasterOnline.Controllers
                                 data.idmarket = iden.idmarket;
 
                                 StokControllerJob stokAPI = new StokControllerJob(dbPathEra, username);
+                                var kdBrg = Convert.ToString(item.sku);
+                                var varianInDB = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == customer.RecNum && m.BRG_MP == kdBrg).FirstOrDefault();
+                                if(varianInDB != null)
+                                {
+                                    kdBrg = varianInDB.BRG;
+                                }
 #if (DEBUG || Debug_AWS)
-                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, Convert.ToString(item.sku), log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
+                                Task.Run(() => stokAPI.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null)).Wait();
 #else
                                             string EDBConnID = EDB.GetConnectionString("ConnId");
                                             var sqlStorage = new SqlServerStorage(EDBConnID);
 
                                             var Jobclient = new BackgroundJobClient(sqlStorage);
-                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, Convert.ToString(item.sku), log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
+                                            Jobclient.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(dbPathEra, kdBrg, log_CUST, "Stock", "Update Stok", data, item.product_id, 0, username, null));
 #endif
                             }
                         }
