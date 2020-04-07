@@ -26930,6 +26930,72 @@ namespace MasterOnline.Controllers
 
         // =============================================== Bagian Transaksi Pindah Barang (END)
 
+        // =============================================== Bagian Transaksi Stok Opname (START)
+
+        [Route("manage/persediaan/stokopname")]
+        public ActionResult TransaksiStokOpname()
+        {
+            var vm = "";
+            return View(vm);
+        }
+
+        public ActionResult RefreshTableTransaksiStokOpname(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+
+            string[] getkata = search.Split(' ');
+            string sSQLkode = "";
+            if (getkata.Length > 0)
+            {
+                if (search != "")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (getkata.Length == 1)
+                        {
+                            sSQLkode += "";
+                        }
+                        else
+                        {
+                            if (getkata[i] == getkata.First()) 
+                            {
+                                sSQLkode += "";
+                            }
+                            else if (getkata[i] == getkata.Last())
+                            {
+                                sSQLkode += "";
+                            }
+                            else
+                            {
+                                sSQLkode += "";
+                            }
+                        }
+                    }
+                }
+            }
+            
+
+            return PartialView("TableTransaksiStokOpnamePartial");
+        }
+
+        public ActionResult RefreshStokOpnameMasukForm()
+        {
+            try
+            {
+                var vm = "";
+
+                return PartialView("BarangStokOpnameMasukPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        // =============================================== Bagian Transaksi Stok Opname (END)
+
         // =============================================== Bagian Ubah Password (START)
 
         public ActionResult UbahPassword(UpdateData dataPassBaru)

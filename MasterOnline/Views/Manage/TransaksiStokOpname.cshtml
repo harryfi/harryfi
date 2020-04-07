@@ -1,0 +1,380 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "Transaksi Stok Opname";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    ErasoftContext erasoftContext = null;
+    var context = new MoDbContext("");
+
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    if (dataSession?.Account != null)
+    {
+        erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+    }
+    else
+    {
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+
+    <style>
+        a#download-stokopname, a#upload-stokopname {
+            color: white;
+        }
+
+        a#download-stokopname:hover, a#upload-stokopname:hover {
+            color: black;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_stok thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .harga-input {
+            width: 100px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+        }
+
+        /*#BRG {
+            width: 150px !important;
+        }*/
+
+        /*//change by nurul 16/8/2019*/
+        /*#GUDANG,
+        #GUDANG .selectivity-single-select-input,{
+            width: 100px !important;
+        }*/
+
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input,
+        #table_tambah_stok > tbody > tr > .gd-barang {
+            width: 70px !important;
+        }
+
+            #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
+                width: 250px !important;
+            }
+        /*//end change by nurul 16/8/2019*/
+
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 42%;
+            }
+
+            .addpixel {
+                width: 850px;
+            }
+
+            .addpixeltmsuk {
+                width: 334px;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .modalresponsive {
+                width: 100%;
+            }
+
+            .modalresponsivetrmsk {
+                width: 81%;
+            }
+
+            .modalresponsivetrmsk2 {
+                width: 42%;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="stok-tab" role="tab" data-toggle="tab" aria-expanded="true">Transaksi Stok Opname</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="stok-tab">
+                    <div class="row stok_table_section">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                            <div class="input-group">
+                                <input id="search_stok" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_stok_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
+                            </div>
+                            <div class="pull-right">
+                                <div class="dropdown">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                                        EXCEL
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="btn btn-primary" id="download-stokopname">Download</a></li>
+                                        <li><a class="btn btn-primary" id="upload-stokopname">Upload</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row stok_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-stok-partial">
+                        </div>
+                    </div>
+                    <div class="row stok_editor_section" style="display: none;">
+                        <div class="col-lg-12 modalresponsive">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Transaksi Stok Opname</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div id="form-partial">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+
+    <script type="text/javascript">
+        var $modeEdit = 0; // 0 new, 1 edit
+        var $page = window.text; 
+
+        $(document).ready(function () {
+            refreshTableStok();
+            $page = 0;
+
+            var tableSiapProses = $('#datatable_siapproses').DataTable({
+                columnDefs: [{
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets: 0
+                }],
+                select: {
+                    style: 'os',
+                    selector: 'td:first-child'
+                },
+            });
+            
+            $('#tambah_stok').on('click', function () {
+                refresh();
+            });
+
+            $('#close-editor').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $modeEdit = 0;
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+                    refreshTableStok();
+                }
+            });
+
+        });
+
+        function Initialize() {
+            if ($('.message-error').text() !== '') {
+                $('#tambah_stok').click();
+            }
+
+            $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
+            var $flagPerubahan = 0;
+
+            if ($modeEdit == 1) { 
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    $modeEdit = 1;
+                });
+            }
+            if ($('#Stok_Tgl').val() != '') {
+                $('#Stok_Tgl').val($('#Stok_Tgl').val().split(' ')[0]);
+            }
+
+        }
+
+        function refreshTableStok($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else if ($savePage != "1") {
+                $tpPage = $savePage;
+            } else {
+                $tpPage = $('#txt_last_page').val();
+            }
+            
+            var $link = '@Html.Raw(Url.Action("RefreshTableTransaksiStokOpname", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-stok-partial').hide();
+                    $('#loading_masuk_tab').show();
+                },
+                success: function (response) {
+                    $('#table-stok-partial').html(response);
+                    $('#loading_masuk_tab').hide();
+                    $('#table-stok-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refresh() {
+            var link = '@Url.Action("RefreshStokOpnameMasukForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+
+                    $('.stok_table_section').hide();
+                    $('.stok_editor_section').show();
+                    
+                    $('#form-partial').html(response);
+                    widthBrg();
+                    //getDataBarang();
+                    //getGudang();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function widthBrg() {
+            $(window).on('resize', function () {
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 150px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $(window).scroll(function () {
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 150px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $('#BRG').click(function () {
+                var checkExist = setInterval(function () {
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
+                        clearInterval(checkExist);
+                    }
+                }, 100);
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '150px').attr('style', 'width: 150px !important');
+            });
+        }
+
+    </script>
+
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

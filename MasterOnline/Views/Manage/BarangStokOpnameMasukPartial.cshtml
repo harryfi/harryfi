@@ -1,0 +1,107 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@{
+    var context = new MoDbContext("");
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+    }
+    if (username.Length > 20)
+    {
+        username = username.Substring(0, 17) + "...";
+    }
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    @@media screen and (max-width: 325px) {
+        .brgtbltrnmskfrm {
+            width: 35%;
+        }
+    }
+</style>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Bukti</label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <input type="text" value="[AUTO]" disabled class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    <input type="text" value="Belum" disabled class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal</label>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group date">
+                        <input disabled class="form-control" data-val="true" data-val-date="The field Tgl must be a date." id="Stok_Tgl" name="Stok.Tgl" type="text" value="">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group text-right">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Gudang</label>
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    <input type="text" value="" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+</div>
+
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <div class="brgtbltrnmskfrm">
+            <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
+            <table id="table_tambah_stok" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th>Kode Brg</th>
+                        <th>Nama Brg</th>
+                        <th>Stn</th>
+                        <th>Harga</th>
+                        <th>Ke Gd</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Simpan</th>
+                        <th>Hapus</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

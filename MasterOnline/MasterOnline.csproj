@@ -6370,6 +6370,9 @@
     <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />
     <Content Include="Views\Manage\TableTransaksiBuyerPartial.cshtml" />
     <Content Include="Views\Manage\CetakLabelMo.cshtml" />
+    <Content Include="Views\Manage\TransaksiStokOpname.cshtml" />
+    <Content Include="Views\Manage\TableTransaksiStokOpnamePartial.cshtml" />
+    <Content Include="Views\Manage\BarangStokOpnameMasukPartial.cshtml" />
     <Content Include="Views\Manage\PromptBrand82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptBrand82Cart.cshtml" />
   </ItemGroup>
