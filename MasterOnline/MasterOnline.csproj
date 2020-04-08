@@ -6376,6 +6376,7 @@
     <Content Include="Views\Manage\BarangStokOpnameMasukPartial.cshtml" />
     <Content Include="Views\Manage\PromptBrand82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptBrand82Cart.cshtml" />
+    <Content Include="Views\Manage\BarangStokOpnamePartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
