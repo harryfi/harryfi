@@ -267,6 +267,13 @@
             $('#btn_hapus_blibli_' + data_barang_level + '_' + data_barang_id).show();
         });
     }
+
+    function setTokpedAsuransi(i, value) {
+        if (value != null) {
+            $('#ListHargaJualPermarket_' + i + '__AVALUE_35').val(value);
+            alert($('#ListHargaJualPermarket_' + i + '__AVALUE_35').val());
+        }
+    }
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -1286,9 +1293,32 @@
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                        }
+                                                                            <div class="row" style="padding-top:10px">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    @Html.Label("Asuransi Pengiriman", new { @class = "control-label" })
+                                                                                </div>
+                                                                                <div class="col-md-4 col-sm-4 col-xs-12 form-group" style="padding-top:10px">
+                                                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_35, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_35 })
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_35 == "1")
+                                                                                    {
+                                                                                        <input type="radio" id="rdoAsuransi1" name="asuransiTokped" value="1" checked onclick="setTokpedAsuransi('@i','1')">
+                                                                                        <label for="rdoAsuransi1">Ya</label>
+                                                                                        <input type="radio" id="rdoAsuransi2" name="asuransiTokped" value="0" onclick="setTokpedAsuransi('@i','0')">
+                                                                                        <label for="rdoAsuransi2">Opsional</label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <input type="radio" id="rdoAsuransi1" name="asuransiTokped" value="1" onclick="setTokpedAsuransi('@i','1')">
+                                                                                        <label for="rdoAsuransi1">Ya</label>
+                                                                                        <input type="radio" id="rdoAsuransi2" name="asuransiTokped" value="0" checked onclick="setTokpedAsuransi('@i','0')">
+                                                                                        <label for="rdoAsuransi2">Opsional</label>
+                                                                                    }
+
+                                                                                </div>
+                                                                            </div>
+                                                                            }
                                                                     </div>
-                                                                </div>
+                                                                    </div>
                                                             }
                                                         }
                                                     </div>
