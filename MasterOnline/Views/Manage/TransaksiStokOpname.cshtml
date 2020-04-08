@@ -325,12 +325,13 @@
     <script type="text/javascript">
 
         var $modeEdit = 0; // 0 new, 1 edit
-        var $page = window.text;
-
-        $("#excelSaldoAwal").on("hidden.bs.modal", function () {
+        var $page = window.text; 
+        
+        $("#excelStokOpname").on("hidden.bs.modal", function () {
             $('#progressBarUpload').hide();
             document.getElementById("file_upload_excel").value = "";
 
+            // refresh saat tutup modal excel
             refreshTableStokOpname();
         });
 
