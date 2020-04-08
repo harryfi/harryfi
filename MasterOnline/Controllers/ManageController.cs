@@ -26935,7 +26935,8 @@ namespace MasterOnline.Controllers
         [Route("manage/persediaan/stokopname")]
         public ActionResult TransaksiStokOpname()
         {
-            var vm = "";
+            var vm = new StokOpnameViewModel() {
+            };
             return View(vm);
         }
 
@@ -26955,13 +26956,13 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLkode += "";
+                            sSQLkode += "( NOBUK like '"+ getkata[i] +"' )";
                         }
                         else
                         {
                             if (getkata[i] == getkata.First()) 
                             {
-                                sSQLkode += "";
+                                sSQLkode += " ( NOBUK like '%"+ getkata[i] +"%' )";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
@@ -26980,13 +26981,13 @@ namespace MasterOnline.Controllers
             return PartialView("TableTransaksiStokOpnamePartial");
         }
 
-        public ActionResult RefreshStokOpnameMasukForm()
+        public ActionResult RefreshStokOpnameForm()
         {
             try
             {
                 var vm = "";
 
-                return PartialView("BarangStokOpnameMasukPartial", vm);
+                return PartialView("BarangStokOpnamePartial", vm);
             }
             catch (Exception)
             {

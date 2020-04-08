@@ -54,5 +54,7 @@ namespace MasterOnline
 
         [StringLength(30)]
         public string USERNAME { get; set; }
+
+        public virtual STT04A STT04A { get; set; }
     }
 }

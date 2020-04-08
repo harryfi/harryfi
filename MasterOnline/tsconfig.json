@@ -9,7 +9,8 @@
     "sourceMap": true
   },
   "include": [
-    "scripts", "Views/Manage/TablePromptBrand82Cart.cshtml", "Models/TEMP_82CART_ORDERS_ITEM.cs"
+    "scripts", "Views/Manage/TablePromptBrand82Cart.cshtml", "Models/TEMP_82CART_ORDERS_ITEM.cs",
+    "scripts", "Models/STT.cs", "Views/Manage/BarangStokOpnamePartial.cshtml"
   ],
   "exclude": [
 
