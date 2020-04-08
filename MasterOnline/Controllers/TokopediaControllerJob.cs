@@ -2795,7 +2795,7 @@ namespace MasterOnline.Controllers
                         ordersn = ordersn.Substring(0, ordersn.Length - 1);
                         var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connId + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
                         var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS='2', STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11'");
-                        var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
+                        //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + ordersn + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                         jmlhOrder = jmlhOrder + rowAffected;
                         if (rowAffected > 0)
                         {
@@ -2821,6 +2821,19 @@ namespace MasterOnline.Controllers
                                     EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL);
                                 }
                             }
+                        }
+                        string qry_Retur = "SELECT F.NO_REF FROM SIT01A F LEFT JOIN SIT01A R ON R.NO_REF = F.NO_BUKTI AND R.JENIS_FORM = '3' AND F.JENIS_FORM = '2' ";
+                        qry_Retur += "WHERE F.NO_REF IN (" + ordersn + ") AND ISNULL(R.NO_BUKTI, '') = '' AND F.CUST = '" + CUST + "'";
+                        var dsFaktur = EDB.GetDataSet("MOConnectionString", "RETUR", qry_Retur);
+                        if(dsFaktur.Tables[0].Rows.Count > 0)
+                        {
+                            var listFaktur = "";
+                            for(int j = 0; j < dsFaktur.Tables[0].Rows.Count; j++)
+                            {
+                                listFaktur += "'" + dsFaktur.Tables[0].Rows[j]["NO_REF"].ToString() + "',";
+                            }
+                            listFaktur = listFaktur.Substring(0, listFaktur.Length - 1);
+                            var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN (" + listFaktur + ") AND STATUS <> '2' AND ST_POSTING = 'T'");
                         }
                         new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                     }
