@@ -3635,9 +3635,10 @@ namespace MasterOnline.Controllers
                 {
                     var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
                     var createBrg = true;
+                    var brgInDB = new STF02H();
                     if (customer != null)
                     {
-                        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                        brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == brg && m.IDMARKET == customer.RecNum).FirstOrDefault();
                         if (brgInDB != null)
                         {
                             if (!string.IsNullOrWhiteSpace(brgInDB.BRG_MP))
@@ -3662,6 +3663,7 @@ namespace MasterOnline.Controllers
 
                         }
                         //add by Tri 21 Jan 2019, update stok setelah create product sukses 
+                        if(createBrg || brgInDB.DISPLAY)
                         if (customer != null)
                         {
                             if (customer.TIDAK_HIT_UANG_R)
