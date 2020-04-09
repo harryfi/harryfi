@@ -59,16 +59,28 @@
             </div>
             <div class="form-group text-right">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12">Gudang</label>
-                <div class="col-md-3 col-sm-3 col-xs-12">
-                    <input type="text" value="" class="form-control" />
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <select class="form-control">
+                        <option>-</option>
+                    </select>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="form-group">
-                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status</label>
                 <div class="col-md-3 col-sm-3 col-xs-12">
-                    <input type="text" value="Belum" disabled class="form-control" />
+                    <select class="form-control">
+                        <option>-</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">&nbsp;</label>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-4 col-md-3 col-sm-3 col-xs-12">
+                    <button class="btn btn-primary btn_proses_sopname" id="prosesSOpname">Proses</button>
                 </div>
             </div>
         </div>
@@ -85,11 +97,7 @@
                     <tr>
                         <th>Kode Brg</th>
                         <th>Nama Brg</th>
-                        <th>Stn</th>
-                        <th>Harga</th>
-                        <th>Ke Gd</th>
                         <th>Qty</th>
-                        <th>Total</th>
                         <th>Simpan</th>
                         <th>Hapus</th>
                     </tr>
