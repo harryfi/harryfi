@@ -3222,6 +3222,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!found)
                             {
+                                var createProduct = true;
                                 var itemSKU = "";
                                 if (item.other != null)
                                     itemSKU = item.other.sku;
@@ -3232,6 +3233,7 @@ namespace MasterOnline.Controllers
                                     {
                                         if (!brgInDB.BRG_MP.Contains("PENDING"))
                                         {
+                                            createProduct = false;
                                             var brgmp = brgInDB.BRG_MP.Split(';');
                                             var kdBrg = brgmp[0];
                                             if (brgmp.Length > 1)
@@ -3278,6 +3280,7 @@ namespace MasterOnline.Controllers
 
                                             //add by Tri 10 Jan 2019, update stok setelah create product sukses 
                                             //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
+                                            if(createProduct)
                                             if (customer != null)
                                             {
                                                 if (customer.TIDAK_HIT_UANG_R)
@@ -3334,7 +3337,8 @@ namespace MasterOnline.Controllers
 
                                         //add by Tri 21 Jan 2019, update stok setelah create product sukses  
                                         //var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
-                                        if (customer != null)
+                                            if(createProduct)
+                                            if (customer != null)
                                         {
                                             if (customer.TIDAK_HIT_UANG_R)
                                             {
