@@ -441,6 +441,10 @@ namespace MasterOnline
         public virtual DbSet<SOT03C> SOT03C { get; set; }
         //end add by Tri 20/8/2019
 
+        //add by nurul 9/4/2020
+        public virtual DbSet<TABLE_LOG_DETAIL> TABLE_LOG_DETAIL { get; set; }
+        //end add by nurul 9/4/2020
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
 

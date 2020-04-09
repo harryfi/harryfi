@@ -2081,23 +2081,31 @@ namespace MasterOnline.Controllers
         public bool status { get; set; }
     }
 
-    public class BindUploadExcel
-    {
-        public List<string> Errors { get; set; }
-        public List<int> lastRow { get; set; }
-        public bool success { get; set; }
-        public List<string> cust { get; set; }
-        public List<string> namaCust { get; set; }
-        public List<string> namaGudang { get; set; }
-        public bool nextFile { get; set; }
-        public byte[] byteData { get; set; }
-        public bool statusLoop { get; set; }
-        public bool statusSuccess { get; set; }
-        public int progress { get; set; }
-        public int percent { get; set; }
-        public int countAll { get; set; }
-        public string nobuk { get; set; }
-    }
+    //remark by nurul 6/4/2020
+    //public class BindUploadExcel
+    //{
+    //    public List<string> Errors { get; set; }
+    //    public List<int> lastRow { get; set; }
+    //    public bool success { get; set; }
+    //    public List<string> cust { get; set; }
+    //    public List<string> namaCust { get; set; }
+    //    public List<string> namaGudang { get; set; }
+    //    public bool nextFile { get; set; }
+    //    public byte[] byteData { get; set; }
+    //    public bool statusLoop { get; set; }
+    //    public bool statusSuccess { get; set; }
+    //    public int progress { get; set; }
+    //    public int percent { get; set; }
+    //    public int countAll { get; set; }
+    //    public string nobuk { get; set; }
+
+    //    //add by nurul 6/4/2020\
+    //    public double TBAYAR { get; set; }
+    //    public double TPOT { get; set; }
+    //    public double? TLEBIHBAYAR { get; set; }
+    //    //end add by nurul 6/4/2020
+    //}
+    //end remark by nurul 6/4/2020
 
     public class BindDownloadExcel
     {

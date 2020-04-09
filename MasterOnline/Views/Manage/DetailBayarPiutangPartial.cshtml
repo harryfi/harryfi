@@ -75,8 +75,11 @@
 
     @{
         var listError = Model?.Errors?.ToList();
+        var ret = Model?.ret;
+        var logErr = (Model?.Piutang?.BUKTI == null || Model?.Piutang?.BUKTI == "" ? Model?.ret?.nobuk : Model?.Piutang?.BUKTI);
     }
     var listError = @Html.Raw(Json.Encode(listError));
+    var ret = @Html.Raw(Json.Encode(ret));
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -216,31 +219,117 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
+                @Html.Label("Total Pelunasan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-6">
+                    @{
+                        var totalLunas = 0d;
+                        var ttlRef = 0d;
+                        var ttlPot = 0d;
+                        foreach (var detailPiutang in listPiutangDetail)
+                        {
+                            ttlRef += (detailPiutang.BAYAR);
+                            ttlPot += (detailPiutang.POT);
+                        }
+                        totalLunas = (ttlRef + ttlPot);
+                    }
+                    @Html.TextBox("TOTALLUNAS", (totalLunas >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLunas) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        @if (Model?.Piutang?.POSTING != "Y")
+        {
+            <div class="col-md-6 pull-right">
+                <div id="btn-upload-row" class="row">
+                    @*<div class="col-lg-4"></div>
+                    <div class="col-lg-4"></div>*@
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-md-5"></div>
+                            <div class="col-md-5">
+                                @*<button id="btn-upload" type="button" data-toggle="modal" data-target="#konfUpload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Upload</button>*@
+                                <button id="btn-autoload" type="button" onclick="validasiUpload()" class="btn btn-primary btn-block">Upload</button>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
                 @Html.Label("Selisih", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-6">
                     @{
                         var totalSlsh = 0d;
                         var ttlFaktur = 0d;
-                        var ttlRef = 0d;
-                        var ttlPot = 0d;
+                        var ttlRef1 = 0d;
+                        var ttlPot1 = 0d;
                         foreach (var detailPiutang in listPiutangDetail)
                         {
                             ttlFaktur += (detailPiutang.SISA);
-                            ttlRef += (detailPiutang.BAYAR);
-                            ttlPot += (detailPiutang.POT);
+                            ttlRef1 += (detailPiutang.BAYAR);
+                            ttlPot1 += (detailPiutang.POT);
                         }
-                        totalSlsh = (ttlFaktur - ttlRef - ttlPot);
+                        totalSlsh = (ttlFaktur - ttlRef1 - ttlPot1);
                     }
                     @Html.TextBox("TOTALSELISIH", (totalSlsh >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSlsh) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
                 </div>
             </div>
         </div>
-
-        @*<div class="col-md-3">
-                <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
+        @if (Model?.Piutang?.POSTING != "Y")
+        {
+            <div class="col-md-6 pull-right">
+                <div id="btn-upload-row" class="row">
+                    @*<div class="col-lg-4"></div>
+                    <div class="col-lg-4"></div>*@
+                    <div class="">
+                        <div class="form-group">
+                            <div class="col-md-5"></div>
+                            <div class="col-md-5">
+                                <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Pelunasan</button>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4"></div>*@
+        }
     </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Total Lebih Bayar", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-6">
+                    @{
+                        var totalLebih = 0d;
+                        if (Model.Piutang != null)
+                        {
+                            totalLebih = Convert.ToDouble(Model?.Piutang?.TLEBIH_BAYAR == null || Model?.Piutang?.TLEBIH_BAYAR == 0 ? 0 : Model?.Piutang?.TLEBIH_BAYAR);
+                        }
+                    }
+                    @Html.TextBox("TOTALLEBIH", (totalLebih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalLebih) : "0,00"), new { @class = "form-control", @style = "text-align:right", @readonly = "readonly" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 pull-right">
+            <div id="btn-error-row" class="row">
+                @*<div class="col-lg-4"></div>
+                <div class="col-lg-4"></div>*@
+                <div class="">
+                    <div class="form-group">
+                        <div class="col-md-5"></div>
+                        <div class="col-md-5">
+                            <div><button id="btn-error" type="button" data-toggle="modal" data-target="#modalError" data-yourparameter="@(Model?.Errors)" onclick="showError('@logErr')" class="btn btn-primary btn-block">View Error</button></div>
+                        </div>
+                        <div class="col-md-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @*<div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -259,46 +348,12 @@
             </div>
         </div>*@
     @*end add by nurul 10/10/2018*@
-    <div class="row">
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4">
-            <div class="form-group">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
-                    <h5>Mata uang Rupiah (IDR)</h5>
-                </div>
-            </div>
-        </div>
-    </div>
+
     @if (Model?.Piutang?.POSTING != "Y")
     {
-        <div id="btn-upload-row" class="row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <div class="col-md-4"></div>
-                    <div class="col-md-8">
-                        @*<button id="btn-upload" type="button" data-toggle="modal" data-target="#konfUpload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Upload</button>*@
-                        <button id="btn-autoload" type="button" onclick="validasiUpload()" class="btn btn-primary btn-block">Upload</button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div id="btn-upload-row" class="row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <div class="col-md-4"></div>
-                    <div class="col-md-8">
-                        <button id="btn-createPot" type="button" onclick="validasiCreatePot()" class="btn btn-primary btn-block">Auto Create Potongan</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+
 
         @*<div id="btn-autoload-row" class="row">
                 <div class="col-lg-4"></div>
@@ -313,21 +368,10 @@
                 </div>
             </div>*@
     }
-    @if (Model?.Piutang?.POSTING != "Y")
-    {
-        <div id="btn-error-row" class="row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <div class="col-md-4"></div>
-                    <div class="col-md-8">
-                        <div><button id="btn-error" type="button" data-toggle="modal" data-target="#modalError" data-yourparameter="@(Model?.Errors)" class="btn btn-primary btn-block">View Error</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+    @*@if (Model?.adaError == true)
+        {*@
+
+    @*}*@
     @if (Model?.Piutang?.RecNum != null)
     {
         <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
@@ -343,6 +387,18 @@
             </div>
         </div>
     }
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <h5>Mata uang Rupiah (IDR)</h5>
+                </div>
+            </div>
+        </div>
+    </div>
     <hr />
 </div>
 @Html.HiddenFor(m => m.PiutangDetail.USERNAME, new { Value = username })

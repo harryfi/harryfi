@@ -713,6 +713,8 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
+    <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
+    <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
     <Compile Include="Models\LazadaExcelBayarPiutang.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
     <Compile Include="Models\BRAND_LAZADA.cs" />
