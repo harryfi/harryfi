@@ -4599,7 +4599,7 @@ namespace MasterOnline.Controllers
 
         public class Weight
         {
-            public int value { get; set; }
+            public double value { get; set; }
             public int unit { get; set; }
         }
 
@@ -4661,7 +4661,7 @@ namespace MasterOnline.Controllers
 
         public class Categorytree
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string title { get; set; }
             public string breadcrumbURL { get; set; }
@@ -4669,7 +4669,7 @@ namespace MasterOnline.Controllers
 
         public class Picture
         {
-            public int picID { get; set; }
+            public long picID { get; set; }
             public string fileName { get; set; }
             public string filePath { get; set; }
             public int status { get; set; }
@@ -4682,18 +4682,18 @@ namespace MasterOnline.Controllers
 
         public class Warehouse
         {
-            public int productID { get; set; }
-            public int warehouseID { get; set; }
+            public long productID { get; set; }
+            public long warehouseID { get; set; }
             public Price1 price { get; set; }
             public Stock1 stock { get; set; }
         }
 
         public class Price1
         {
-            public int value { get; set; }
+            public long value { get; set; }
             public int currency { get; set; }
             public int LastUpdateUnix { get; set; }
-            public int idr { get; set; }
+            public long idr { get; set; }
         }
 
         public class Stock1
