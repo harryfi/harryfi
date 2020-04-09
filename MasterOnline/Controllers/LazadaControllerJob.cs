@@ -3085,6 +3085,7 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("order_id", orderid);
             LazopResponse response = client.Execute(request, accessToken);
             //var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(SingleOrderReturn)) as SingleOrderReturn;
+            var cancel = false;
             try
             {
                 var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetOrderItem)) as LazadaGetOrderItem;
@@ -3099,11 +3100,13 @@ namespace MasterOnline.Controllers
                         {
                             if (ordItem.status.ToString() == "canceled")
                             {
+                                cancel = true;
                                 //ret = bindOrder.data.statuses[0].ToString();
                                 //if (!string.IsNullOrEmpty(bindOrder.data.reason))
                                 if (!string.IsNullOrEmpty(ordItem.reason))
                                 {
                                     ret = ordItem.reason;
+                                    return ret;
                                 }
                                 //else
                                 //{
@@ -3134,11 +3137,13 @@ namespace MasterOnline.Controllers
                                     {
                                         if (ordItem.status.ToString() == "canceled")
                                         {
+                                            cancel = true;
                                             //ret = bindOrder.data.statuses[0].ToString();
                                             //if (!string.IsNullOrEmpty(bindOrder.data.reason))
                                             if (!string.IsNullOrEmpty(ordItem.reason))
                                             {
                                                 ret = ordItem.reason;
+                                                return ret;
                                             }
                                             //else
                                             //{
@@ -3158,7 +3163,10 @@ namespace MasterOnline.Controllers
                     ret = "CANCEL_REASON_EXCEPTION;" + er.InnerException == null ? er.Message : er.InnerException.Message;
                 }
             }
-            
+            if (!cancel)
+            {
+                ret = "";
+            }
             return ret;
         }
 
