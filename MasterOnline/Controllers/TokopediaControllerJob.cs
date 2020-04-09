@@ -891,6 +891,32 @@ namespace MasterOnline.Controllers
                             pictures = new List<CreateProduct_Images>(),
                             status = "LIMITED"
                         };
+                        var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt32(price_var.BRG_MP));
+                        if (customer.TIDAK_HIT_UANG_R)
+                        {
+                            var qty_stock_var = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(item_var.BRG, "ALL");
+                            if (qty_stock_var >= 0)
+                            {
+                                newProductVariasi.stock = Convert.ToInt32(qty_stock_var);
+                            }
+                        }
+                        else
+                        {
+                            if(dataTokpedVarian != null)
+                            {
+                                newProductVariasi.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                            }
+                        }
+                        if(dataTokpedVarian != null)
+                        {
+                            if(dataTokpedVarian.data[0].other != null)
+                            {
+                                if (!string.IsNullOrEmpty(dataTokpedVarian.data[0].other.sku))
+                                {
+                                    newProductVariasi.sku = dataTokpedVarian.data[0].other.sku;
+                                }
+                            }
+                        }
                         if (!string.IsNullOrWhiteSpace(item_var.Sort8))
                         {
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
