@@ -891,11 +891,15 @@ namespace MasterOnline.Controllers
                             pictures = new List<CreateProduct_Images>(),
                             status = "LIMITED"
                         };
+                        if (!brg_stf02h.DISPLAY)
+                        {
+                            newProductVariasi.status = "EMPTY";
+                        }
                         var dataTokpedVarian = await getItemDetailVarian(iden, Convert.ToInt32(price_var.BRG_MP));
                         if (customer.TIDAK_HIT_UANG_R)
                         {
                             var qty_stock_var = new StokControllerJob(iden.DatabasePathErasoft, username).GetQOHSTF08A(item_var.BRG, "ALL");
-                            if (qty_stock_var >= 0)
+                            if (qty_stock_var > 0)
                             {
                                 newProductVariasi.stock = Convert.ToInt32(qty_stock_var);
                             }
