@@ -537,7 +537,17 @@ namespace MasterOnline.Controllers
                     pictures = new List<CreateProduct_Images>(),
                     price_currency = "IDR"
                 };
-
+                if (!brg_stf02h.DISPLAY)
+                {
+                    newDataProduct.status = "EMPTY";
+                }
+                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_35))
+                {
+                    if (brg_stf02h.AVALUE_35 == "1")
+                    {
+                        newDataProduct.is_must_insurance = true;
+                    }
+                }
                 //add by nurul 6/2/2020
                 newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
                 //end add by nurul 6/2/2020
@@ -600,6 +610,13 @@ namespace MasterOnline.Controllers
                         if (!customer.TIDAK_HIT_UANG_R)
                         {
                             newDataProduct.stock = Convert.ToInt32(dataTokped.data[0].stock.value);
+                        }
+                        if(dataTokped.data[0].GMStats != null)
+                        {
+                            if(dataTokped.data[0].GMStats.countSold > 0)
+                            {
+                                newDataProduct.name = dataTokped.data[0].basic.name;
+                            }
                         }
                     }
                 }
@@ -1206,6 +1223,13 @@ namespace MasterOnline.Controllers
                     price_currency = "IDR"
                 };
 
+                if (!string.IsNullOrEmpty(brg_stf02h.AVALUE_35))
+                {
+                    if (brg_stf02h.AVALUE_35 == "1")
+                    {
+                        newDataProduct.is_must_insurance = true;
+                    }
+                }
                 //add by nurul 6/2/2020
                 newDataProduct.description = newDataProduct.description.Replace("<p>", "").Replace("</p>", "").Replace("</ul>\r\n\r\n", "</ul>").Replace("&nbsp;\r\n\r\n", "\n").Replace("\r\n\r\n", "\n").Replace("&nbsp;", " ").Replace("\r\n", "");
                 //end add by nurul 6/2/2020
