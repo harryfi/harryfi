@@ -16737,7 +16737,15 @@ namespace MasterOnline.Controllers
             var idMarket = Convert.ToInt32(marketInDb.NAMA);
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
-            var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
+            //change by Tri 11 Apr 2020, handle pembeli kosong
+            //var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
+            var namaBuyer = pesananInDb.NAMAPEMESAN;
+            var pembeli = ErasoftDbContext.ARF01C.Where(b => b.BUYER_CODE == (pesananInDb.PEMESAN ?? "")).FirstOrDefault();
+            if(pembeli != null)
+            {
+                namaBuyer = pembeli.NAMA;
+            }
+            //end change by Tri 11 Apr 2020, handle pembeli kosong
             var listBarang = EDB.GetDataSet("CString", "SOT01B", "SELECT A.NO_URUT, ISNULL(B.NAMA + ' ' + ISNULL(B.NAMA2, ''), CATATAN) AS NAMA FROM SOT01B A LEFT JOIN STF02 B ON A.BRG = B.BRG WHERE NO_BUKTI = '" + nobuk + "'");
 
             var infoPesanan = new InfoPesanan()
