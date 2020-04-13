@@ -74,7 +74,7 @@
     });
 
     @{
-        var listError = Model?.Errors?.ToList();
+        var listError = Model?.ret?.Errors?.ToList();
         var ret = Model?.ret;
         var logErr = (Model?.Piutang?.BUKTI == null || Model?.Piutang?.BUKTI == "" ? Model?.ret?.nobuk : Model?.Piutang?.BUKTI);
     }

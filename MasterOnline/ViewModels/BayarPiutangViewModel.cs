@@ -52,6 +52,8 @@ namespace MasterOnline.ViewModels
         public List<DetailLazada> detailLazada { get; set; } = new List<DetailLazada>();
         public List<int> recnum_record { get; set; } = new List<int>();
         public bool sudahSimpanTemp { get; set; }
+        public string cust_id { get; set; }
+        public string cust_perso { get; set; }
         //end add by nurul 6/4/2020
     }
 
