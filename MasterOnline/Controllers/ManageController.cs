@@ -40279,7 +40279,10 @@ namespace MasterOnline.Controllers
             //StreamWriter tw = new StreamWriter(path);
             //#endregion
 
-
+            if(ret.statusLoop == false)
+            {
+                ret.buktiLog = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            }
 
             try
             {
@@ -40292,6 +40295,18 @@ namespace MasterOnline.Controllers
 
                 if (ret.byteData == null && ret.statusLoop == false)
                 {
+                    LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                    {
+                        CUST = cust_id,
+                        UPLOADER = uname,
+                        LAST_FAKTUR_UPLOADED = "",
+                        UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                        LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                        LOG_FILE = ret.buktiLog,
+                    };
+                    ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
+                    ErasoftDbContext.SaveChanges();
+
                     if (Request.Files[0] != null && Request.Files[0].ContentLength > 0)
                     {
                         ret.TipeData = Request.Files[0].FileName;
@@ -40377,6 +40392,18 @@ namespace MasterOnline.Controllers
                                     catch (Exception ex)
                                     {
                                         ret.Errors.Add("Format file yang anda upload salah.<br />");
+                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        {
+                                            LOG_FILE = ret.buktiLog,
+                                            VARIABLE_1 = ret.nobuk,
+                                            VARIABLE_2 = ret.TipeData,
+                                            TEXT_1 = "Format file yang anda upload salah.<br />",
+                                            TEXT_2 = "",
+                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                            USERNAME = uname
+                                        };
+                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        ErasoftDbContext.SaveChanges();
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
 
@@ -40466,6 +40493,18 @@ namespace MasterOnline.Controllers
                                             else
                                             {
                                                 ret.Errors.Add("File bukan data pembayaran Shopee.<br />");
+                                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                {
+                                                    LOG_FILE = ret.buktiLog,
+                                                    VARIABLE_1 = ret.nobuk,
+                                                    VARIABLE_2 = ret.TipeData,
+                                                    TEXT_1 = "File bukan data pembayaran Shopee.<br />",
+                                                    TEXT_2 = "",
+                                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                    USERNAME = uname
+                                                };
+                                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                ErasoftDbContext.SaveChanges();
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
@@ -40600,6 +40639,18 @@ namespace MasterOnline.Controllers
                                     catch (Exception ex)
                                     {
                                         ret.Errors.Add("Format file yang anda upload salah.<br />");
+                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        {
+                                            LOG_FILE = ret.buktiLog,
+                                            VARIABLE_1 = ret.nobuk,
+                                            VARIABLE_2 = ret.TipeData,
+                                            TEXT_1 = "Format file yang anda upload salah.<br />",
+                                            TEXT_2 = "",
+                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                            USERNAME = uname
+                                        };
+                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        ErasoftDbContext.SaveChanges();
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
 
@@ -40609,6 +40660,18 @@ namespace MasterOnline.Controllers
                             else
                             {
                                 ret.Errors.Add("File " + file.FileName + " setidaknya harus dalam format '.xls' atau '.xlsx'.<br />");
+                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                {
+                                    LOG_FILE = ret.buktiLog,
+                                    VARIABLE_1 = ret.nobuk,
+                                    VARIABLE_2 = ret.TipeData,
+                                    TEXT_1 = "File " + file.FileName + " setidaknya harus dalam format '.xls' atau '.xlsx'.<br />",
+                                    TEXT_2 = "",
+                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                    USERNAME = uname
+                                };
+                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                ErasoftDbContext.SaveChanges();
                                 return Json(ret, JsonRequestBehavior.AllowGet);
                             }
 
@@ -40669,6 +40732,18 @@ namespace MasterOnline.Controllers
                                             else
                                             {
                                                 ret.Errors.Add("File bukan data pembayaran Shopee.<br />");
+                                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                {
+                                                    LOG_FILE = ret.buktiLog,
+                                                    VARIABLE_1 = ret.nobuk,
+                                                    VARIABLE_2 = ret.TipeData,
+                                                    TEXT_1 = "File bukan data pembayaran Shopee.<br />",
+                                                    TEXT_2 = "",
+                                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                    USERNAME = uname
+                                                };
+                                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                ErasoftDbContext.SaveChanges();
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
@@ -40714,7 +40789,8 @@ namespace MasterOnline.Controllers
                                         TBAYAR = 0,
                                         TPOT = 0,
                                         TGL = Convert.ToDateTime(tgl),
-                                        CUST = cust_id
+                                        CUST = cust_id,
+                                        log_file = ret.buktiLog
                                     };
 
                                     var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
@@ -40773,25 +40849,37 @@ namespace MasterOnline.Controllers
                                         {
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
                                             ret.Errors.Add(errMsg);
+                                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                            {
+                                                LOG_FILE = ret.buktiLog,
+                                                VARIABLE_1 = ret.nobuk,
+                                                VARIABLE_2 = ret.TipeData,
+                                                TEXT_1 = errMsg,
+                                                TEXT_2 = "",
+                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                USERNAME = uname
+                                            };
+                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                            ErasoftDbContext.SaveChanges();
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
                                     //end change by nurul 23/12/2019, perbaikan no bukti
 
-                                    string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                                    LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
-                                    {
-                                        CUST = cust_id,
-                                        UPLOADER = uname,
-                                        LAST_FAKTUR_UPLOADED = art03a.BUKTI,
-                                        UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
-                                        LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
-                                        LOG_FILE = filename,
-                                    };
-                                    ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
-                                    ErasoftDbContext.SaveChanges();
+                                    //string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                                    //LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                                    //{
+                                    //    CUST = cust_id,
+                                    //    UPLOADER = uname,
+                                    //    LAST_FAKTUR_UPLOADED = art03a.BUKTI,
+                                    //    UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    //    LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                                    //    LOG_FILE = filename,
+                                    //};
+                                    //ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
+                                    //ErasoftDbContext.SaveChanges();
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("update LOG_IMPORT_FAKTUR set LAST_FAKTUR_UPLOADED = '" + art03a.BUKTI + "' where CUST ='" + cust_id + "' and LOG_FILE ='" + ret.buktiLog + "'");
 
-                                    ret.buktiLog = filename;
                                     ret.TPOT = art03a.TPOT;
                                     ret.TBAYAR = art03a.TBAYAR;
                                     ret.TLEBIHBAYAR = Convert.ToDouble(art03a.TLEBIH_BAYAR);
@@ -40820,6 +40908,30 @@ namespace MasterOnline.Controllers
                                     }
                                     ret.recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == noOrder && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
                                     ret.countAll = ret.recnum_record.Count();
+
+                                    List<string> list_ref = new List<string>();
+                                    list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
+                                    if (list_ref.Count() > 0)
+                                    {
+                                        var string_ref = "";
+                                        foreach (var ref1 in list_ref)
+                                        {
+                                            if (string_ref != "")
+                                            {
+                                                string_ref += ",";
+                                            }
+                                            string_ref += "'" + ref1 + "'";
+                                        }
+
+                                        string ssql1 = "UPDATE A SET A.NILAI_LAIN = B.SISA, A.KET2 = B.NO_BUKTI + ';' + CONVERT(NVARCHAR, B.NETTO) + ';' + B.DATABAYAR + ';' + B.BUKTI_BAYAR + ';' + CONVERT(NVARCHAR, TGLREF_BAYAR) ";
+                                        ssql1 += "FROM TEMP_UPLOAD_EXCEL_BAYAR AS A LEFT JOIN ( ";
+                                        ssql1 += "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa ";
+                                        ssql1 += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR ";
+                                        ssql1 += "from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in (" + string_ref + ")) ";
+                                        ssql1 += "AS B ON A.NOREF = B.no_ref ";
+                                        ssql1 += "WHERE A.CUST = '" + cust_id + "' AND A.KET = '" + ret.nobuk + "' and A.NOREF in (" + string_ref + ") ";
+                                        var cekListFaktur = ErasoftDbContext.Database.ExecuteSqlCommand(ssql1);
+                                    }
                                 }
                             }
 
@@ -40849,6 +40961,13 @@ namespace MasterOnline.Controllers
                                     //    {
                                     ////loop all columns in a row
                                     //var current_ref = ret.records[i].Deskripsi;
+                                    var splitKet = getData.KET2.Split(';');
+                                    var ketSI = splitKet[0];
+                                    var ketNetto = Convert.ToDouble(splitKet[1]);
+                                    var ketDATABAYAR = splitKet[2];
+                                    var ketBUKTI_BAYAR = splitKet[3];
+                                    var ketTGLREF_BAYAR = splitKet[4];
+                                    var ketSisa = getData.NILAI_LAIN;
                                     var current_ref = getData.NOREF;
                                     if (!string.IsNullOrEmpty(current_ref))
                                     {
@@ -40857,10 +40976,10 @@ namespace MasterOnline.Controllers
                                         //var noref = current_ref;
 
                                         //add by nurul 6/4/2020
-                                        string ssql = "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa";
-                                        ssql += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR";
-                                        ssql += " from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in ('" + noref + "')";
-                                        var cekListFaktur = ErasoftDbContext.Database.SqlQuery<tempExcelBayar>(ssql).FirstOrDefault();
+                                        //string ssql = "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa";
+                                        //ssql += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR";
+                                        //ssql += " from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in ('" + noref + "')";
+                                        //var cekListFaktur = ErasoftDbContext.Database.SqlQuery<tempExcelBayar>(ssql).FirstOrDefault();
                                         //end add by nurul 6/4/2020
                                         //var cekfaktur = eraDB.SIT01A.Where(a => a.NO_REF == noref && a.CUST == cust_id).SingleOrDefault();
                                         //var cekPesanan = eraDB.SOT01A.Where(a => a.NO_REFERENSI == noref && a.CUST == cust_id).SingleOrDefault();
@@ -40877,10 +40996,10 @@ namespace MasterOnline.Controllers
                                         //    }
                                         //}
                                         //if (cekfaktur != null || so != "")
-                                        if (cekListFaktur != null)
+                                        if (ketSI != "")
                                         {
-                                            so = cekListFaktur.NO_BUKTI;
-                                            nettoSI = cekListFaktur.NETTO;
+                                            so = ketSI;
+                                            nettoSI = Convert.ToDouble(ketNetto);
                                             var totalSisa = 0d;
                                             var bayarpiutang = 0d;
                                             var adaBayar = false;
@@ -40904,7 +41023,7 @@ namespace MasterOnline.Controllers
                                             //    }
                                             //    adaBayar = true;
                                             //}
-                                            totalSisa = cekListFaktur.SISA;
+                                            totalSisa = ketSisa;
                                             //if (!string.IsNullOrEmpty(Convert.ToString(records[i].JumlahDana)))
                                             //{
                                             //bayarpiutang = ret.records[i].JumlahDana;
@@ -40912,7 +41031,7 @@ namespace MasterOnline.Controllers
                                             //}
 
                                             //if (adaBayar == false || (adaBayar == true && totalSisa >= bayarpiutang))                                                                            
-                                            if (totalSisa != 0 && cekListFaktur.DATABAYAR == "TIDAK ADA")
+                                            if (totalSisa != 0 && ketDATABAYAR == "TIDAK ADA")
                                             {
 
                                                 var art03b = new ART03B
@@ -40945,8 +41064,8 @@ namespace MasterOnline.Controllers
                                                 //    //art03b.SISA = nettoSI;
                                                 //    art03b.SISA = totalSisa;
                                                 //}
-                                                art03b.NFAKTUR = cekListFaktur.NO_BUKTI;
-                                                art03b.SISA = cekListFaktur.NETTO;
+                                                art03b.NFAKTUR = ketSI;
+                                                art03b.SISA = ketSisa;
 
 
                                                 //if (!string.IsNullOrEmpty(Convert.ToString(records[i].Tanggal)))
@@ -41015,7 +41134,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
-                                            else if (totalSisa != 0 && cekListFaktur.DATABAYAR == "SUDAH ADA")
+                                            else if (totalSisa != 0 && ketDATABAYAR == "SUDAH ADA")
                                             {
                                                 //ret.Errors.Add("Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + cekListFaktur.BUKTI_BAYAR + ".<br />");
                                                 if (ret.buktiLog != "")
@@ -41025,7 +41144,7 @@ namespace MasterOnline.Controllers
                                                         LOG_FILE = ret.buktiLog,
                                                         VARIABLE_1 = ret.nobuk,
                                                         VARIABLE_2 = ret.TipeData,
-                                                        TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + cekListFaktur.BUKTI_BAYAR + ".<br />",
+                                                        TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + ketBUKTI_BAYAR + ".<br />",
                                                         TEXT_2 = noref,
                                                         TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                         USERNAME = uname
@@ -41169,6 +41288,18 @@ namespace MasterOnline.Controllers
                             ret.Errors.Add("Faktur dari marketplace tidak ditemukan.<br />");
                             //message += "Faktur dari marketplace tidak ditemukan." + System.Environment.NewLine;
                             //tw.WriteLine(message);
+                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                            {
+                                LOG_FILE = ret.buktiLog,
+                                VARIABLE_1 = ret.nobuk,
+                                VARIABLE_2 = ret.TipeData,
+                                TEXT_1 = "Faktur dari marketplace tidak ditemukan.<br />",
+                                TEXT_2 = "",
+                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                USERNAME = uname
+                            };
+                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                            ErasoftDbContext.SaveChanges();
                         }
                     }
                     else
@@ -41177,6 +41308,18 @@ namespace MasterOnline.Controllers
                         ret.Errors.Add("Akun marketplace tidak ditemukan.<br />");
                         //message += "File " + file.FileName + ": Akun marketplace tidak ditemukan." + System.Environment.NewLine;
                         //tw.WriteLine(message);
+                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                        {
+                            LOG_FILE = ret.buktiLog,
+                            VARIABLE_1 = ret.nobuk,
+                            VARIABLE_2 = ret.TipeData,
+                            TEXT_1 = "Akun marketplace tidak ditemukan.<br />",
+                            TEXT_2 = "",
+                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                            USERNAME = uname
+                        };
+                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                        ErasoftDbContext.SaveChanges();
                     }
                     //    }
                     //}
@@ -41702,7 +41845,18 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
-
+                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                {
+                    LOG_FILE = ret.buktiLog,
+                    VARIABLE_1 = ret.nobuk,
+                    VARIABLE_2 = ret.TipeData,
+                    TEXT_1 = ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />",
+                    TEXT_2 = "",
+                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                    USERNAME = uname
+                };
+                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                ErasoftDbContext.SaveChanges();
                 //message += "Error : " + (ex.InnerException == null ? ex.Message : (ex.InnerException.InnerException == null ? ex.InnerException.Message : ex.InnerException.InnerException.Message));
                 //tw.WriteLine(message);
 
@@ -41731,6 +41885,20 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.ART03A.Remove(piutangInDb);
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+
+                        TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
+                        {
+                            LOG_FILE = ret.buktiLog,
+                            VARIABLE_1 = ret.nobuk,
+                            VARIABLE_2 = ret.TipeData,
+                            TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                            TEXT_2 = "",
+                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                            USERNAME = uname
+                        };
+                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
+                        ErasoftDbContext.SaveChanges();
+
                         //vm.Errors = ret.Errors;
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
@@ -41769,6 +41937,20 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.ART03A.Remove(piutangInDb);
                     ErasoftDbContext.SaveChanges();
                     ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+
+                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                    {
+                        LOG_FILE = ret.buktiLog,
+                        VARIABLE_1 = ret.nobuk,
+                        VARIABLE_2 = ret.TipeData,
+                        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                        TEXT_2 = "",
+                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                        USERNAME = uname
+                    };
+                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                    ErasoftDbContext.SaveChanges();
+
                     //message += "Tidak ada data yang dapat diproses." + System.Environment.NewLine;
                     //tw.WriteLine(message);
                     //newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
@@ -43083,6 +43265,11 @@ namespace MasterOnline.Controllers
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
 
+            if(ret.statusLoop == false)
+            {
+                ret.buktiLog = "Log_Upload_Pembayaran_Lazada" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            }
+
             try
             {
                 var mp = MoDbContext.Marketplaces.ToList();
@@ -43093,6 +43280,19 @@ namespace MasterOnline.Controllers
 
                 if (ret.byteData == null && ret.statusLoop == false)
                 {
+                    
+                    LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                    {
+                        CUST = cust_id,
+                        UPLOADER = uname,
+                        LAST_FAKTUR_UPLOADED = "",
+                        UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                        LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                        LOG_FILE = ret.buktiLog,
+                    };
+                    ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
+                    ErasoftDbContext.SaveChanges();
+
                     if (Request.Files[0] != null && Request.Files[0].ContentLength > 0)
                     {
                         ret.TipeData = Request.Files[0].FileName;
@@ -43167,6 +43367,18 @@ namespace MasterOnline.Controllers
                                 catch (Exception ex)
                                 {
                                     ret.Errors.Add("Format file yang anda upload salah. <br />");
+                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                    {
+                                        LOG_FILE = ret.buktiLog,
+                                        VARIABLE_1 = ret.nobuk,
+                                        VARIABLE_2 = ret.TipeData,
+                                        TEXT_1 = "Format file yang anda upload salah. <br />",
+                                        TEXT_2 = "",
+                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        USERNAME = uname
+                                    };
+                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                    ErasoftDbContext.SaveChanges();
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
 
@@ -43265,6 +43477,18 @@ namespace MasterOnline.Controllers
                                     catch (Exception ex)
                                     {
                                         ret.Errors.Add("Format file yang anda upload salah.<br />");
+                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                        {
+                                            LOG_FILE = ret.buktiLog,
+                                            VARIABLE_1 = ret.nobuk,
+                                            VARIABLE_2 = ret.TipeData,
+                                            TEXT_1 = "Format file yang anda upload salah.<br />",
+                                            TEXT_2 = "",
+                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                            USERNAME = uname
+                                        };
+                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                        ErasoftDbContext.SaveChanges();
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
 
@@ -43300,6 +43524,18 @@ namespace MasterOnline.Controllers
                                 else
                                 {
                                     ret.Errors.Add("File " + file.FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />");
+                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                    {
+                                        LOG_FILE = ret.buktiLog,
+                                        VARIABLE_1 = ret.nobuk,
+                                        VARIABLE_2 = ret.TipeData,
+                                        TEXT_1 = "File " + file.FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />",
+                                        TEXT_2 = "",
+                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        USERNAME = uname
+                                    };
+                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                    ErasoftDbContext.SaveChanges();
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                             }
@@ -43360,6 +43596,18 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             ret.Errors.Add("File bukan data pembayaran lazada.<br />");
+                                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                            {
+                                                LOG_FILE = ret.buktiLog,
+                                                VARIABLE_1 = ret.nobuk,
+                                                VARIABLE_2 = ret.TipeData,
+                                                TEXT_1 = "File bukan data pembayaran lazada.<br />",
+                                                TEXT_2 = "",
+                                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                USERNAME = uname
+                                            };
+                                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                            ErasoftDbContext.SaveChanges();
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
@@ -43385,6 +43633,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (recordsLazada.Count() != 0)
                                 {
+                                    List<string> list_ref = new List<string>();
                                     #region create induk
                                     if (ret.statusLoop == false)
                                     {
@@ -43405,7 +43654,8 @@ namespace MasterOnline.Controllers
                                             TBAYAR = 0,
                                             TPOT = 0,
                                             TGL = Convert.ToDateTime(tgl),
-                                            CUST = cust_id
+                                            CUST = cust_id,
+                                            log_file = ret.buktiLog
                                         };
 
                                         //change by nurul 23/12/2019, perbaikan no bukti
@@ -43499,23 +43749,36 @@ namespace MasterOnline.Controllers
                                             {
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
                                                 ret.Errors.Add(errMsg);
+                                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                {
+                                                    LOG_FILE = ret.buktiLog,
+                                                    VARIABLE_1 = ret.nobuk,
+                                                    VARIABLE_2 = ret.TipeData,
+                                                    TEXT_1 = errMsg,
+                                                    TEXT_2 = "",
+                                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                    USERNAME = uname
+                                                };
+                                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                ErasoftDbContext.SaveChanges();
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
                                         //end change by nurul 23/12/2019, perbaikan no bukti
-                                        string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-                                        LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
-                                        {
-                                            CUST = cust_id,
-                                            UPLOADER = uname,
-                                            LAST_FAKTUR_UPLOADED = art03a.BUKTI,
-                                            UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
-                                            LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
-                                            LOG_FILE = filename,
-                                        };
-                                        ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
-                                        ErasoftDbContext.SaveChanges();
-                                        ret.buktiLog = filename;
+                                        //string filename = "Log_Upload_Pembayaran_Shopee" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+                                        //LOG_IMPORT_FAKTUR newLogImportPiutang = new LOG_IMPORT_FAKTUR
+                                        //{
+                                        //    CUST = cust_id,
+                                        //    UPLOADER = uname,
+                                        //    LAST_FAKTUR_UPLOADED = art03a.BUKTI,
+                                        //    UPLOAD_DATETIME = DateTime.UtcNow.AddHours(7),
+                                        //    LAST_FAKTUR_UPLOADED_DATETIME = DateTime.UtcNow.AddHours(7),
+                                        //    LOG_FILE = filename,
+                                        //};
+                                        //ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportPiutang);
+                                        //ErasoftDbContext.SaveChanges();
+                                        //ret.buktiLog = filename;
+                                        ErasoftDbContext.Database.ExecuteSqlCommand("update LOG_IMPORT_FAKTUR set LAST_FAKTUR_UPLOADED = '" + art03a.BUKTI + "' where CUST ='" + cust_id + "' and LOG_FILE ='" + ret.buktiLog + "'");
 
                                         var detail1 = recordsLazada.GroupBy(a => a.OrderNo)
                                                         .Select(f => new TEMP_UPLOAD_EXCEL_BAYAR
@@ -43581,6 +43844,29 @@ namespace MasterOnline.Controllers
                                         //                    Bayar = ((f.Where(b => b.FeeName.Contains("Item Price Credit")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Lost Claim")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Shipping Fee Voucher")).Sum(b => Convert.ToDouble(b.Amount))) - (f.Where(b => b.FeeName.Contains("Payment Fee")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Promotional Charges Vouchers")).Sum(b => Convert.ToDouble(b.Amount)) + f.Where(b => b.FeeName.Contains("Return Shipping Fees")).Sum(b => Convert.ToDouble(b.Amount))))
                                         //                }).ToList();
                                         //ret.detailLazada.AddRange(detail);
+
+                                        list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
+                                        if (list_ref.Count() > 0)
+                                        {
+                                            var string_ref = "";
+                                            foreach (var ref1 in list_ref)
+                                            {
+                                                if (string_ref != "")
+                                                {
+                                                    string_ref += ",";
+                                                }
+                                                string_ref += "'" + ref1 + "'";
+                                            }
+
+                                            string ssql1 = "UPDATE A SET A.NILAI_LAIN = B.SISA, A.KET2 = B.NO_BUKTI + ';' + CONVERT(NVARCHAR, B.NETTO) + ';' + B.DATABAYAR + ';' + B.BUKTI_BAYAR + ';' + CONVERT(NVARCHAR, TGLREF_BAYAR) ";
+                                            ssql1 += "FROM TEMP_UPLOAD_EXCEL_BAYAR AS A LEFT JOIN ( ";
+                                            ssql1 += "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa ";
+                                            ssql1 += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR ";
+                                            ssql1 += "from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in (" + string_ref + ")) ";
+                                            ssql1 += "AS B ON A.NOREF = B.no_ref ";
+                                            ssql1 += "WHERE A.CUST = '" + cust_id + "' AND A.KET = '" + ret.nobuk + "' and A.NOREF in (" + string_ref + ") ";
+                                            var cekListFaktur = ErasoftDbContext.Database.ExecuteSqlCommand(ssql1);
+                                        }
                                     }
                                     #endregion
                                     //ret.countAll = ret.detailLazada.Count();
@@ -43592,6 +43878,8 @@ namespace MasterOnline.Controllers
                                     #region detail
                                     //loop all rows
                                     //for (int i = Convert.ToInt32(prog[1]); i < ret.detailLazada.Count(); i++)
+                                    
+
                                     for (int i = Convert.ToInt32(prog[1]); i < ret.recnum_record.Count(); i++)
                                     //foreach (var bayar in ret.detailLazada)
                                     {
@@ -43725,30 +44013,37 @@ namespace MasterOnline.Controllers
                                         //var current_ref = ret.detailLazada[i].Ref;
                                         if (getData != null)
                                         {
+                                            var splitKet = getData.KET2.Split(';');
+                                            var ketSI = splitKet[0];
+                                            var ketNetto = Convert.ToDouble(splitKet[1]);
+                                            var ketDATABAYAR = splitKet[2];
+                                            var ketBUKTI_BAYAR = splitKet[3];
+                                            var ketTGLREF_BAYAR = splitKet[4];
+                                            var ketSisa = getData.NILAI_LAIN;
                                             var current_ref = getData.NOREF;
                                             if (!string.IsNullOrEmpty(current_ref))
                                             {
                                                 var noref = current_ref;
-                                                string ssql = "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa";
-                                                ssql += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR";
-                                                ssql += " from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in ('" + noref + "')";
-                                                var cekListFaktur = ErasoftDbContext.Database.SqlQuery<tempExcelBayar>(ssql).FirstOrDefault();
+                                                //string ssql = "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa";
+                                                //ssql += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR";
+                                                //ssql += " from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in ('" + noref + "')";
+                                                //var cekListFaktur = ErasoftDbContext.Database.SqlQuery<tempExcelBayar>(ssql).FirstOrDefault();
                                                 var so = "";
                                                 double nettoSI = 0;
 
-                                                if (cekListFaktur != null)
+                                                if (ketSI != "")
                                                 {
-                                                    so = cekListFaktur.NO_BUKTI;
-                                                    nettoSI = cekListFaktur.NETTO;
+                                                    so = ketSI;
+                                                    nettoSI = ketNetto;
                                                     var totalSisa = 0d;
                                                     var bayarpiutang = 0d;
-                                                    totalSisa = cekListFaktur.SISA;
+                                                    totalSisa = ketSisa;
                                                     //if (ret.detailLazada[i].Bayar != null)
                                                     //{
                                                     //bayarpiutang = Convert.ToDouble(ret.detailLazada[i].Bayar);
                                                     bayarpiutang = Convert.ToDouble(getData.NILAI_REF);
                                                     //}
-                                                    if (totalSisa != 0 && cekListFaktur.DATABAYAR == "TIDAK ADA")
+                                                    if (totalSisa != 0 && ketDATABAYAR == "TIDAK ADA")
                                                     {
 
                                                         var art03b = new ART03B
@@ -43768,8 +44063,8 @@ namespace MasterOnline.Controllers
                                                             art03b.NOREF = null;
                                                         }
 
-                                                        art03b.NFAKTUR = cekListFaktur.NO_BUKTI;
-                                                        art03b.SISA = cekListFaktur.NETTO;
+                                                        art03b.NFAKTUR = ketSI;
+                                                        art03b.SISA = ketNetto;
 
                                                         //art03b.TGL_REF = ret.detailLazada[i].Tanggal;
                                                         art03b.TGL_REF = getData.TGL;
@@ -43823,7 +44118,7 @@ namespace MasterOnline.Controllers
                                                             ErasoftDbContext.SaveChanges();
                                                         }
                                                     }
-                                                    else if (totalSisa != 0 && cekListFaktur.DATABAYAR == "SUDAH ADA")
+                                                    else if (totalSisa != 0 && ketDATABAYAR == "SUDAH ADA")
                                                     {
                                                         //ret.Errors.Add("Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + cekListFaktur.BUKTI_BAYAR + ".<br />");
                                                         TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
@@ -43831,7 +44126,7 @@ namespace MasterOnline.Controllers
                                                             LOG_FILE = ret.buktiLog,
                                                             VARIABLE_1 = ret.nobuk,
                                                             VARIABLE_2 = ret.TipeData,
-                                                            TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + cekListFaktur.BUKTI_BAYAR + ".<br />",
+                                                            TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + ketBUKTI_BAYAR + ".<br />",
                                                             TEXT_2 = noref,
                                                             TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                                             USERNAME = uname
@@ -43965,6 +44260,18 @@ namespace MasterOnline.Controllers
                                 {
                                     //ret.Errors.Add("Faktur dari marketplace tidak ditemukan" + System.Environment.NewLine);
                                     ret.Errors.Add("Tidak ada data yang dapat diproses.<br />");
+                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                    {
+                                        LOG_FILE = ret.buktiLog,
+                                        VARIABLE_1 = ret.nobuk,
+                                        VARIABLE_2 = ret.TipeData,
+                                        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                                        TEXT_2 = "",
+                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                        USERNAME = uname
+                                    };
+                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                    ErasoftDbContext.SaveChanges();
                                     return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                             }
@@ -43972,12 +44279,36 @@ namespace MasterOnline.Controllers
                             {
                                 //ret.Errors.Add("Faktur dari marketplace tidak ditemukan" + System.Environment.NewLine);
                                 ret.Errors.Add("Faktur dari marketplace tidak ditemukan.<br />");
+                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                {
+                                    LOG_FILE = ret.buktiLog,
+                                    VARIABLE_1 = ret.nobuk,
+                                    VARIABLE_2 = ret.TipeData,
+                                    TEXT_1 = "Faktur dari marketplace tidak ditemukan.<br />",
+                                    TEXT_2 = "",
+                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                    USERNAME = uname
+                                };
+                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                ErasoftDbContext.SaveChanges();
                             }
                         }
                         else
                         {
                             //ret.Errors.Add("File " + file.FileName + ": Akun marketplace tidak ditemukan" + System.Environment.NewLine);
                             ret.Errors.Add("Akun marketplace tidak ditemukan.<br />");
+                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                            {
+                                LOG_FILE = ret.buktiLog,
+                                VARIABLE_1 = ret.nobuk,
+                                VARIABLE_2 = ret.TipeData,
+                                TEXT_1 = "Akun marketplace tidak ditemukan.<br />",
+                                TEXT_2 = "",
+                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                USERNAME = uname
+                            };
+                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                            ErasoftDbContext.SaveChanges();
                         }
                     }
 
@@ -43987,6 +44318,18 @@ namespace MasterOnline.Controllers
             {
                 //ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + System.Environment.NewLine);
                 ret.Errors.Add(ex.InnerException == null ? ex.Message + System.Environment.NewLine : ex.InnerException.Message + "<br />");
+                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                {
+                    LOG_FILE = ret.buktiLog,
+                    VARIABLE_1 = ret.nobuk,
+                    VARIABLE_2 = ret.TipeData,
+                    TEXT_1 = "Akun marketplace tidak ditemukan.<br />",
+                    TEXT_2 = "",
+                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                    USERNAME = uname
+                };
+                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                ErasoftDbContext.SaveChanges();
 
                 if (ret.nobuk != "")
                 {
@@ -44009,6 +44352,20 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.ART03A.Remove(piutangInDb);
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.");
+
+                        TABLE_LOG_DETAIL logDetail1 = new TABLE_LOG_DETAIL
+                        {
+                            LOG_FILE = ret.buktiLog,
+                            VARIABLE_1 = ret.nobuk,
+                            VARIABLE_2 = ret.TipeData,
+                            TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                            TEXT_2 = "",
+                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                            USERNAME = uname
+                        };
+                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail1);
+                        ErasoftDbContext.SaveChanges();
+
                         //vm.Errors = ret.Errors;
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
@@ -44047,6 +44404,20 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.ART03A.Remove(piutangInDb);
                     ErasoftDbContext.SaveChanges();
                     ret.Errors.Add("Tidak ada data yang dapat diproses.");
+
+                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                    {
+                        LOG_FILE = ret.buktiLog,
+                        VARIABLE_1 = ret.nobuk,
+                        VARIABLE_2 = ret.TipeData,
+                        TEXT_1 = "Tidak ada data yang dapat diproses.<br />",
+                        TEXT_2 = "",
+                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                        USERNAME = uname
+                    };
+                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                    ErasoftDbContext.SaveChanges();
+
                     //vm.Errors = ret.Errors;
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                     if (cekErr > 0)
@@ -44325,7 +44696,7 @@ namespace MasterOnline.Controllers
         }
 
         //public ActionResult ShowErrorUploadBayar(string[] listError)
-        public ActionResult ShowErrorUploadBayar(string bukti)
+        public ActionResult ShowErrorUploadBayar(string bukti, string logErr)
         {
             var vm = new errorBayarPiutang()
             {
@@ -44333,8 +44704,17 @@ namespace MasterOnline.Controllers
             };
             if (bukti != null && bukti != "")
             {
-                vm.header = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LAST_FAKTUR_UPLOADED == bukti).OrderByDescending(a => a.RECNUM).FirstOrDefault();
-                vm.detail = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.LOG_FILE == vm.header.LOG_FILE && a.VARIABLE_1 == bukti).ToList();
+                //var getBayar = ErasoftDbContext.ART03A.Where(A => A.BUKTI == bukti).FirstOrDefault();
+                if (logErr != null)
+                {
+                    vm.header = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LAST_FAKTUR_UPLOADED == bukti && a.LOG_FILE == logErr).OrderByDescending(a => a.RECNUM).FirstOrDefault();
+                    vm.detail = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.LOG_FILE == vm.header.LOG_FILE && a.VARIABLE_1 == bukti && a.LOG_FILE == logErr).ToList();
+                }
+                else
+                {
+                    vm.header = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LAST_FAKTUR_UPLOADED == bukti).OrderByDescending(a => a.RECNUM).FirstOrDefault();
+                    vm.detail = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.LOG_FILE == vm.header.LOG_FILE && a.VARIABLE_1 == bukti).ToList();
+                }
             }
             return PartialView("ListErrorPembayaranPiutang", vm);
         }

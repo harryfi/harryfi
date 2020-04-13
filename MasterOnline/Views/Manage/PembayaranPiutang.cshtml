@@ -2110,7 +2110,7 @@
                             //} else if ($tempErr.length == 1) {
                             //    $("#btn-error").click();
                                 $('#btn-error').click()
-                                showError(ret.nobuk);
+                                showError(ret.nobuk, ret.buktiLog);
                             } else if ($tempErr.length == 0) {
                                 //$("#btn-error-row").hide();
                             }
@@ -2154,7 +2154,7 @@
                                     if ($tempErr.length >= 1) {
                                         //alert('Ada error. Silahkan klik "View Error"');
                                         $('#btn-error').click()
-                                        showError(response.nobuk);
+                                        showError(response.nobuk, response.buktiLog);
                                     //} else if ($tempErr.length == 1) {
                                     //    $("#btn-error").click();
                                     } else if ($tempErr.length == 0) {
@@ -2196,7 +2196,7 @@
                                     //} else if ($tempErr.length == 1) {
                                     //    $("#btn-error").click();
                                         $('#btn-error').click()
-                                        showError(response.nobuk);
+                                        showError(response.nobuk, response.buktiLog);
                                     } else if ($tempErr.length == 0) {
                                         //$("#btn-error-row").hide();
                                 }
@@ -2389,11 +2389,12 @@
             }
         }
 
-        function showError($nobuk) {
+        function showError($nobuk, $logFile) {
                                 //if ($('#Piutang_BUKTI').val() != "") {
-            var link = '@Url.Action("ShowErrorUploadBayar", "Manage", new { bukti = "replaceId" })';
-            if ($nobuk != undefined || $nobuk != "") {
+            var link = '@Url.Action("ShowErrorUploadBayar", "Manage", new { bukti = "replaceId", logErr = "replaceLog" })';
+            if ($nobuk != undefined && $logFile != undefined) {
                 link = link.replace("replaceId", $nobuk);
+                link = link.replace("replaceLog", $logFile);
             } else {
                 link = link.replace("replaceId", $('#Piutang_BUKTI').val());
             }

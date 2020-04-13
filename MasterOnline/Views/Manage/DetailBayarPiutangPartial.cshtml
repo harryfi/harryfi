@@ -77,6 +77,7 @@
         var listError = Model?.ret?.Errors?.ToList();
         var ret = Model?.ret;
         var logErr = (Model?.Piutang?.BUKTI == null || Model?.Piutang?.BUKTI == "" ? Model?.ret?.nobuk : Model?.Piutang?.BUKTI);
+        var logfile = ret?.buktiLog;
     }
     var listError = @Html.Raw(Json.Encode(listError));
     var ret = @Html.Raw(Json.Encode(ret));
@@ -321,7 +322,7 @@
                     <div class="form-group">
                         <div class="col-md-5"></div>
                         <div class="col-md-5">
-                            <div><button id="btn-error" type="button" data-toggle="modal" data-target="#modalError" data-yourparameter="@(Model?.Errors)" onclick="showError('@logErr')" class="btn btn-primary btn-block">View Error</button></div>
+                            <div><button id="btn-error" type="button" data-toggle="modal" data-target="#modalError" data-yourparameter="@(Model?.Errors)" onclick="showError('@logErr', '@logfile')" class="btn btn-primary btn-block">View Error</button></div>
                         </div>
                         <div class="col-md-2"></div>
                     </div>

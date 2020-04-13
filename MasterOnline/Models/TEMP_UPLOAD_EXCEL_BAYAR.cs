@@ -42,5 +42,7 @@ namespace MasterOnline
         [StringLength(20)]
         public string USERNAME { get; set; }
 
+        public string KET2 { get; set; }
+
     }
 }
