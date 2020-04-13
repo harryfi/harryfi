@@ -40571,7 +40571,7 @@ namespace MasterOnline.Controllers
                                                 if (getref.Count() > 1)
                                                 {
                                                     //a.Noref = getref.Last();
-                                                    ret.records.Add(a);
+                                                    //ret.records.Add(a);
                                                     //records.Add(a);
                                                     TEMP_UPLOAD_EXCEL_BAYAR rec = new TEMP_UPLOAD_EXCEL_BAYAR()
                                                     {
