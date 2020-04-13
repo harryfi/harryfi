@@ -41748,7 +41748,7 @@ namespace MasterOnline.Controllers
             var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
 
 
-            vm.Errors = ret.Errors;
+            //vm.Errors = ret.Errors;
             if (ret.nobuk != "")
             {
                 if (cekdetail != 0)
@@ -43995,7 +43995,7 @@ namespace MasterOnline.Controllers
                     {
                         vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                         vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                        vm.Errors = ret.Errors;
+                        //vm.Errors = ret.Errors;
                         vm.ret = ret;
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
@@ -44009,7 +44009,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.ART03A.Remove(piutangInDb);
                         ErasoftDbContext.SaveChanges();
                         ret.Errors.Add("Tidak ada data yang dapat diproses.");
-                        vm.Errors = ret.Errors;
+                        //vm.Errors = ret.Errors;
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
                         {
@@ -44026,14 +44026,14 @@ namespace MasterOnline.Controllers
             var cekdetail = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk).Count();
 
 
-            vm.Errors = ret.Errors;
+            //vm.Errors = ret.Errors;
             if (ret.nobuk != "")
             {
                 if (cekdetail != 0)
                 {
                     vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
                     vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                    vm.Errors = ret.Errors;
+                    //vm.Errors = ret.Errors;
                     vm.ret = ret;
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_1 == ret.nobuk).Count();
                     if (cekErr > 0)
@@ -44047,7 +44047,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.ART03A.Remove(piutangInDb);
                     ErasoftDbContext.SaveChanges();
                     ret.Errors.Add("Tidak ada data yang dapat diproses.");
-                    vm.Errors = ret.Errors;
+                    //vm.Errors = ret.Errors;
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                     if (cekErr > 0)
                     {
