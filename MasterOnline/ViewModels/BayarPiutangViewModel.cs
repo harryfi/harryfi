@@ -49,7 +49,9 @@ namespace MasterOnline.ViewModels
         public string buktiLog { get; set; }
         public List<ShopeeExcelBayarPiutang> records { get; set; } = new List<ShopeeExcelBayarPiutang>();
         //public List<LazadaExcelBayarPiutang> recordsLazada { get; set; } = new List<LazadaExcelBayarPiutang>();
-        public List<DetailLazada> detailLazada { get; set; } = new List<DetailLazada>();        
+        public List<DetailLazada> detailLazada { get; set; } = new List<DetailLazada>();
+        public List<int> recnum_record { get; set; } = new List<int>();
+        public bool sudahSimpanTemp { get; set; }
         //end add by nurul 6/4/2020
     }
 

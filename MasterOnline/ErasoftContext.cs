@@ -443,6 +443,7 @@ namespace MasterOnline
 
         //add by nurul 9/4/2020
         public virtual DbSet<TABLE_LOG_DETAIL> TABLE_LOG_DETAIL { get; set; }
+        public virtual DbSet<TEMP_UPLOAD_EXCEL_BAYAR> TEMP_UPLOAD_EXCEL_BAYAR { get; set; }
         //end add by nurul 9/4/2020
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
