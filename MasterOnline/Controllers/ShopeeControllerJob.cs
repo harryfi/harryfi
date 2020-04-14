@@ -2002,7 +2002,7 @@ namespace MasterOnline.Controllers
                         //}
                         //else
                         //{
-                            listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
+                        listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
                         //}
                         foreach (var order in listOrder.orders)
                         {
@@ -2249,7 +2249,7 @@ namespace MasterOnline.Controllers
         public async Task<Dictionary<string, string>> GetOrderDetailsForCancelReason(ShopeeAPIData iden, string[] ordersn_list)
         {
             Dictionary<string, string> ret = new Dictionary<string, string>();
-            if (ordersn_list.Count() > 50) 
+            if (ordersn_list.Count() > 50)
             {
                 var arrayLength = ordersn_list.Count();
                 int skip = 0;
@@ -2266,7 +2266,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                ret = await GetOrderDetailsForCancelReasonAPI(iden,ordersn_list,ret);
+                ret = await GetOrderDetailsForCancelReasonAPI(iden, ordersn_list, ret);
             }
             return ret;
         }
@@ -2770,11 +2770,11 @@ namespace MasterOnline.Controllers
             return ret;
         }
         //add by Tri 14 Apr 2020, api untuk ambil shipping fee
-        public async Task<string> GetShippingFee(ShopeeAPIData iden, string ordersn)
+        public async Task<GetShippingFeeResult> GetShippingFee(ShopeeAPIData iden, string ordersn)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "0";
+            var ret =  new GetShippingFeeResult();
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -2817,11 +2817,18 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrEmpty(responseFromServer))
             {
-
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetShippingFeeResult)) as GetShippingFeeResult;
+                if(result != null)
+                {
+                    if (!string.IsNullOrEmpty(result.error))
+                    {
+                        ret = result;
+                    }
+                }
             }
-            return "";
+            return ret;
         }
-        //end add by Tri 14 Apr 2020, api untuk ambil shipping fee
+        //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
         public async Task<string> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId)
         {
             int MOPartnerID = 841371;
@@ -2871,19 +2878,19 @@ namespace MasterOnline.Controllers
             {
                 //GetEscrowDetailResult
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetEscrowDetailResult)) as GetEscrowDetailResult;
-                if(result != null)
+                if (result != null)
                 {
-                    if(result.order != null)
+                    if (result.order != null)
                     {
-                        if(result.order.activity != null)
+                        if (result.order.activity != null)
                         {
-                            foreach(var act in result.order.activity)
+                            foreach (var act in result.order.activity)
                             {
-                                foreach(var item in act.items)
+                                foreach (var item in act.items)
                                 {
-                                    if(item.item_id == itemId && item.variation_id == variationId)
+                                    if (item.item_id == itemId && item.variation_id == variationId)
                                     {
-                                       var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
+                                        var hargapromo = Convert.ToInt64(act.discounted_price) / item.quantity_purchased;
                                         return hargapromo.ToString();
                                     }
                                 }
@@ -3394,7 +3401,7 @@ namespace MasterOnline.Controllers
                 REQUEST_STATUS = "Pending",
             };
 
-            if(set_job == "1")
+            if (set_job == "1")
             {
                 currentLog.REQUEST_ACTION = "Generate JOB";
                 currentLog.REQUEST_ATTRIBUTE_3 = "JOB";
@@ -3470,7 +3477,7 @@ namespace MasterOnline.Controllers
                 if ((result.error == null ? "" : result.error) == "")
                 {
                     //add by nurul 6/3/2020, u/ handle pertama kali proses dropoff berhasil tapi tracking_no null 
-                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "" )
+                    if ((string.IsNullOrWhiteSpace(result.tracking_number)) && result.request_id != "")
                     {
                         //DIGANTI PAKE THROW UNTUK RETRY NYA 
                         if (set_job == "1")
@@ -8041,6 +8048,48 @@ namespace MasterOnline.Controllers
         {
             public Order order { get; set; }
             public string request_id { get; set; }
+        }
+
+        public class GetShippingFeeResult
+        {
+            public string error { get; set; }
+            public string msg { get; set; }
+            public string request_id { get; set; }
+            public string ordersn { get; set; }
+            public string buyer_user_name { get; set; }
+            public object[] returnsn_list { get; set; }
+            public object[] refund_id_list { get; set; }
+            public Order_Income order_income { get; set; }
+        }
+
+        public class Order_Income
+        {
+            public double escrow_amount { get; set; }
+            public double buyer_total_amount { get; set; }
+            public double original_price { get; set; }
+            public double seller_discount { get; set; }
+            public double shopee_discount { get; set; }
+            public double voucher_from_seller { get; set; }
+            public double voucher_from_shopee { get; set; }
+            public double coins { get; set; }
+            public double buyer_paid_shipping_fee { get; set; }
+            public double buyer_transaction_fee { get; set; }
+            public double cross_border_tax { get; set; }
+            public double payment_promotion { get; set; }
+            public double commission_fee { get; set; }
+            public double service_fee { get; set; }
+            public double seller_transaction_fee { get; set; }
+            public double seller_lost_compensation { get; set; }
+            public double seller_coin_cash_back { get; set; }
+            public double escrow_tax { get; set; }
+            public double final_shipping_fee { get; set; }
+            public double actual_shipping_fee { get; set; }
+            public double shopee_shipping_rebate { get; set; }
+            public double shipping_fee_discount_from_3pl { get; set; }
+            public double seller_shipping_discount { get; set; }
+            public double estimated_shipping_fee { get; set; }
+            public object[] seller_voucher_code { get; set; }
+            public double drc_adjustable_refund { get; set; }
         }
 
         public class Order
