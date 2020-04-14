@@ -1865,7 +1865,7 @@ namespace MasterOnline.Controllers
                                 manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext2, log_CUST, saveQueID, "Blibli");
                                 //end add by Tri 31 jan 2019
                                 //add by calvin 28 oktober 2019
-                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 {
                                     try
                                     {
@@ -2312,7 +2312,7 @@ namespace MasterOnline.Controllers
                         {
                             try
                             {
-                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                                if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                                 {
                                     var a = await TokpedCheckUpdateStock(iden, product_id);
                                     if (a < stok || a > stok)
@@ -2448,7 +2448,7 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                             {
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -2595,7 +2595,7 @@ namespace MasterOnline.Controllers
                         //add by calvin 28 oktober 2019
                         try
                         {
-                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069")
+                            if (dbPathEra.ToLower() == "erasoft_100144" || dbPathEra.ToLower() == "erasoft_120149" || dbPathEra.ToLower() == "erasoft_80069" || dbPathEra.ToUpper() == "ERASOFT_1000390")
                             {
                                 string EDBConnID = EDB.GetConnectionString("ConnId");
                                 var sqlStorage = new SqlServerStorage(EDBConnID);
