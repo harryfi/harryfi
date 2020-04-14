@@ -1691,27 +1691,27 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     dbPathEra = accFromUser.DatabasePathErasoft;
                 }
-                if (dbPathEra != "")
-                {
-                    var EDB = new DatabaseSQL(dbPathEra);
+                //if (dbPathEra != "")
+                //{
+                //    var EDB = new DatabaseSQL(dbPathEra);
 
-                    string EDBConnID = EDB.GetConnectionString("ConnID");
-                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                //    string EDBConnID = EDB.GetConnectionString("ConnID");
+                //    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                    RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
-                    RecurringJobOptions recurJobOpt = new RecurringJobOptions()
-                    {
-                        QueueName = "3_general"
-                    };
+                //    RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                //    RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+                //    {
+                //        QueueName = "3_general"
+                //    };
 
-                    using (var connection = sqlStorage.GetConnection())
-                    {
-                        foreach (var recurringJob in connection.GetRecurringJobs())
-                        {
-                            recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
-                        }
-                    }
-                }
+                //    using (var connection = sqlStorage.GetConnection())
+                //    {
+                //        foreach (var recurringJob in connection.GetRecurringJobs())
+                //        {
+                //            recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                //        }
+                //    }
+                //}
             }
 
 #else
@@ -1726,27 +1726,27 @@ namespace MasterOnline.Controllers
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                 dbPathEra = accFromUser.DatabasePathErasoft;
             }
-            if (dbPathEra != "")
-            {
-                var EDB = new DatabaseSQL(dbPathEra);
+            //if (dbPathEra != "")
+            //{
+            //    var EDB = new DatabaseSQL(dbPathEra);
 
-                string EDBConnID = EDB.GetConnectionString("ConnID");
-                var sqlStorage = new SqlServerStorage(EDBConnID);
+            //    string EDBConnID = EDB.GetConnectionString("ConnID");
+            //    var sqlStorage = new SqlServerStorage(EDBConnID);
 
-                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
-                RecurringJobOptions recurJobOpt = new RecurringJobOptions()
-                {
-                    QueueName = "3_general"
-                };
+            //    RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+            //    RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+            //    {
+            //        QueueName = "3_general"
+            //    };
 
-                using (var connection = sqlStorage.GetConnection())
-                {
-                    foreach (var recurringJob in connection.GetRecurringJobs())
-                    {
-                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
-                    }
-                }
-            }
+            //    using (var connection = sqlStorage.GetConnection())
+            //    {
+            //        foreach (var recurringJob in connection.GetRecurringJobs())
+            //        {
+            //            recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+            //        }
+            //    }
+            //}
 #endif
 
             Session["SessionInfo"] = null;
