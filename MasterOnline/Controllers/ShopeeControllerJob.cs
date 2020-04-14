@@ -2693,6 +2693,11 @@ namespace MasterOnline.Controllers
                             CUST = CUST,
                             NAMA_CUST = NAMA_CUST
                         };
+                        var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
+                        if(ShippingFeeData != null)
+                        {
+                            newOrder.estimated_shipping_fee = ShippingFeeData.order_income.actual_shipping_fee.ToString();
+                        }
                         foreach (var item in order.items)
                         {
                             TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
@@ -2823,10 +2828,22 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(result.error))
                     {
                         ret = result;
+                        return ret;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(result.msg))
+                        {
+                            throw new Exception(result.msg);
+                        }
+                        else
+                        {
+                            throw new Exception(result.error);
+                        }
                     }
                 }
             }
-            return ret;
+            return null;
         }
         //end add by Tri 14 Apr 2020, api untuk ambil shipping fee 
         public async Task<string> GetEscrowDetail(ShopeeAPIData iden, string ordersn, long itemId, long variationId)
