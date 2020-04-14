@@ -326,14 +326,6 @@
 
         var $modeEdit = 0; // 0 new, 1 edit
         var $page = window.text; 
-        
-        $("#excelStokOpname").on("hidden.bs.modal", function () {
-            $('#progressBarUpload').hide();
-            document.getElementById("file_upload_excel").value = "";
-
-            // refresh saat tutup modal excel
-            refreshTableStokOpname();
-        });
 
         $(document).ready(function () {
             refreshTableStokOpname();
@@ -939,8 +931,17 @@
                     console.log(error);
                 }
             });
-
         }
+
+        var $brg = '';
+
+        function passBarangInDb($brg) {
+            this.$brg = $brg;
+        }
+
+        
+
+        
 
         function validasiTambahan() {
             var $isValid = true;
