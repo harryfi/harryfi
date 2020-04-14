@@ -40251,6 +40251,7 @@ namespace MasterOnline.Controllers
             List<TEMP_UPLOAD_EXCEL_BAYAR> temp_records = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
             List<int> recnum_record = new List<int>();
 
+            byte[] data = null;
             byte[] dataByte = null;
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
@@ -40328,12 +40329,13 @@ namespace MasterOnline.Controllers
                                         memoryStream = new MemoryStream();
                                         inputStream.CopyTo(memoryStream);
                                     }
-                                    ret.byteData = memoryStream.ToArray();
+                                    //ret.byteData = memoryStream.ToArray();
+                                    data = memoryStream.ToArray();
                                     tr = new StreamReader(inputStream);
                                 }
 
                                 string namaFile = dbPathEra + "_BayarShopee_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                                System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), ret.byteData);
+                                System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
                                 using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                                 {
                                     sr.ReadLine();
@@ -40429,7 +40431,8 @@ namespace MasterOnline.Controllers
                                         MemoryStream memoryStream = new MemoryStream();
                                         workbook.SaveToStream(memoryStream, FileFormat.Version2013);
                                         //data = memoryStream.ToArray();
-                                        ret.byteData = memoryStream.ToArray();
+                                        //ret.byteData = memoryStream.ToArray();
+                                        data = memoryStream.ToArray();
                                     }
                                 }
                                 else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
@@ -40443,10 +40446,11 @@ namespace MasterOnline.Controllers
                                             inputStream.CopyTo(memoryStream);
                                         }
                                         //data = memoryStream.ToArray();
-                                        ret.byteData = memoryStream.ToArray();
+                                        //ret.byteData = memoryStream.ToArray();
+                                        data = memoryStream.ToArray();
                                     }
                                 }
-                                using (MemoryStream stream = new MemoryStream(ret.byteData))
+                                using (MemoryStream stream = new MemoryStream(data))
                                 {
                                     using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
                                     {
@@ -43383,6 +43387,7 @@ namespace MasterOnline.Controllers
             List<LazadaExcelBayarPiutang> recordsLazada = new List<LazadaExcelBayarPiutang>();
             List<int> recnum_record = new List<int>();
 
+            byte[] data = null;
             byte[] dataByte = null;
             string[] status = statusLoopSuccess.Split(';');
             string[] prog = percentDanprogress.Split(';');
@@ -43425,7 +43430,7 @@ namespace MasterOnline.Controllers
                         if (ret.TipeData.Split('.').Last().ToLower() == "csv")
                         {
                             TextReader tr;
-                            byte[] data;
+                            
                             using (Stream inputStream = Request.Files[0].InputStream)
                             {
                                 MemoryStream memoryStream = inputStream as MemoryStream;
@@ -43434,12 +43439,13 @@ namespace MasterOnline.Controllers
                                     memoryStream = new MemoryStream();
                                     inputStream.CopyTo(memoryStream);
                                 }
-                                ret.byteData = memoryStream.ToArray();
+                                //ret.byteData = memoryStream.ToArray();
+                                data = memoryStream.ToArray();
                                 tr = new StreamReader(inputStream);
                             }
 
                             string namaFile = dbPathEra + "_BayarLazada_" + DateTime.Now.ToString("yyyyMMdd_HHmmssffff") + ".csv";
-                            System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), ret.byteData);
+                            System.IO.File.WriteAllBytes(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile), data);
                             using (var sr = new StreamReader(Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile)))
                             {
                                 CsvReader reader = new CsvReader(sr);
@@ -43518,7 +43524,8 @@ namespace MasterOnline.Controllers
                                     workbook.LoadFromStream(inputStream);
                                     MemoryStream memoryStream = new MemoryStream();
                                     workbook.SaveToStream(memoryStream, FileFormat.Version2013);
-                                    ret.byteData = memoryStream.ToArray();
+                                    //ret.byteData = memoryStream.ToArray();
+                                    data = memoryStream.ToArray();
                                 }
                             }
                             else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
@@ -43531,7 +43538,8 @@ namespace MasterOnline.Controllers
                                         memoryStream = new MemoryStream();
                                         inputStream.CopyTo(memoryStream);
                                     }
-                                    ret.byteData = memoryStream.ToArray();
+                                    //ret.byteData = memoryStream.ToArray();
+                                    data = memoryStream.ToArray();
                                 }
                             }
                             else
@@ -43552,7 +43560,7 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
                                 return Json(ret, JsonRequestBehavior.AllowGet);
                             }
-                            using (MemoryStream stream = new MemoryStream(ret.byteData))
+                            using (MemoryStream stream = new MemoryStream(data))
                             {
                                 using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
                                 {
