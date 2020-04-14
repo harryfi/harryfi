@@ -40249,7 +40249,7 @@ namespace MasterOnline.Controllers
             var bukti = "";
             var vm = new BayarPiutangViewModel() { };
             List<TEMP_UPLOAD_EXCEL_BAYAR> temp_records = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
-
+            List<int> recnum_record = new List<int>();
 
             byte[] dataByte = null;
             string[] status = statusLoopSuccess.Split(';');
@@ -40315,7 +40315,7 @@ namespace MasterOnline.Controllers
                         //dataByte = UploadFileServices.UploadFile(Request.Files[0]);
                         //ret.byteData = dataByte;
 
-                        if (ret.recnum_record.Count() == 0)
+                        if (recnum_record.Count() == 0)
                         {
                             if (ret.TipeData.Split('.').Last().ToLower() == "csv")
                             {
@@ -40935,8 +40935,8 @@ namespace MasterOnline.Controllers
                                         updateNobuk.KET = noOrder;
                                         ErasoftDbContext.SaveChanges();
                                     }
-                                    ret.recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == noOrder && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
-                                    ret.countAll = ret.recnum_record.Count();
+                                    recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == noOrder && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
+                                    ret.countAll = recnum_record.Count();
 
                                     List<string> list_ref = new List<string>();
                                     list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
@@ -40966,7 +40966,7 @@ namespace MasterOnline.Controllers
                             }
                             if (ret.statusLoop == true)
                             {
-                                ret.recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
+                                recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
                                 ret.countAll = countAll;
                                 prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
                             }
@@ -40979,16 +40979,16 @@ namespace MasterOnline.Controllers
 
                             //loop all rows
                             //for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
-                            if (ret.recnum_record.Count() > 0)
+                            if (recnum_record.Count() > 0)
                             {
-                                for (int i = Convert.ToInt32(prog[1]); i < ret.recnum_record.Count(); i++)
+                                for (int i = Convert.ToInt32(prog[1]); i < recnum_record.Count(); i++)
                                 {
                                     ret.statusLoop = true;
                                     //var loop = Convert.ToInt32(i);
                                     ret.progress = i + 1;
                                     ret.percent = ((i + 1) * 100) / ret.countAll;
                                     //var saldomasuk = ret.records[i].PenerimaDana;
-                                    var recnum = Convert.ToInt32(ret.recnum_record[i]);
+                                    var recnum = Convert.ToInt32(recnum_record[i]);
                                     var getData1 = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.RECNUM == recnum).FirstOrDefault();
                                     var sql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where recnum = '" + recnum + "'";
                                     var getData = ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(sql2).FirstOrDefault();
@@ -43381,6 +43381,7 @@ namespace MasterOnline.Controllers
             var bukti = "";
             var vm = new BayarPiutangViewModel() { };
             List<LazadaExcelBayarPiutang> recordsLazada = new List<LazadaExcelBayarPiutang>();
+            List<int> recnum_record = new List<int>();
 
             byte[] dataByte = null;
             string[] status = statusLoopSuccess.Split(';');
@@ -44084,10 +44085,8 @@ namespace MasterOnline.Controllers
                                             ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
                                             ErasoftDbContext.SaveChanges();
                                         }
-                                        ret.recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == noOrder && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
-                                        ret.countAll = ret.recnum_record.Count();
-                                        ret.cust_id = cust_id;
-                                        ret.cust_perso = customer.PERSO;
+                                        recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == noOrder && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
+                                        ret.countAll = recnum_record.Count();
 
                                         //#region detail
                                         //var detail = recordsLazada.GroupBy(a => a.OrderNo)
@@ -44138,7 +44137,7 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 if (ret.statusLoop == true)
                                 {
-                                    ret.recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
+                                    recnum_record.AddRange(ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.CUST == cust_id).Select(A => A.RECNUM).ToList());
                                     ret.countAll = countAll;
                                     prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
                                 }
@@ -44153,9 +44152,9 @@ namespace MasterOnline.Controllers
                                 //loop all rows
                                 //for (int i = Convert.ToInt32(prog[1]); i < ret.detailLazada.Count(); i++)
 
-                                if (ret.recnum_record.Count > 0)
+                                if (recnum_record.Count > 0)
                                 {
-                                    for (int i = Convert.ToInt32(prog[1]); i < ret.recnum_record.Count(); i++)
+                                    for (int i = Convert.ToInt32(prog[1]); i < recnum_record.Count(); i++)
                                     //foreach (var bayar in ret.detailLazada)
                                     {
                                         //if (!string.IsNullOrWhiteSpace(bayar.Ref))
@@ -44283,7 +44282,7 @@ namespace MasterOnline.Controllers
                                         ret.progress = i + 1;
                                         ret.percent = ((i + 1) * 100) / ret.countAll;
                                         ////loop all columns in a row
-                                        var recnum = Convert.ToInt32(ret.recnum_record[i]);
+                                        var recnum = Convert.ToInt32(recnum_record[i]);
                                         //var getData = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.RECNUM == recnum && ret.TipeData == a.NAMA_FILE && a.KET == ret.nobuk).FirstOrDefault();
                                         var getData1 = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.RECNUM == recnum).FirstOrDefault();
                                         var sql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where recnum = '" + recnum + "'";
@@ -44768,270 +44767,7 @@ namespace MasterOnline.Controllers
             return PartialView("DetailBayarPiutangPartial", vm);
         }
 
-        public ActionResult ProsesDetailBayarLazada(BindUploadExcel ret)
-        {
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string uname = sessionData.Account.Username;
-            List<double> nilaiFaktur = new List<double>();
-            List<double> nilaiRef = new List<double>();
-            List<double> nilaiPot = new List<double>();
-            List<double?> nilaiLebihBayar = new List<double?>();
-            var LoopSuccess = ret.statusLoop + ";" + ret.success;
-            var percentProgress = ret.percent + ";" + ret.progress;
-            string[] status = LoopSuccess.Split(';');
-            string[] prog = percentProgress.Split(';');
-
-            if (Convert.ToInt32(prog[1]) == 0)
-            {
-                prog[1] = "0";
-            }
-            //loop all rows
-            //for (int i = Convert.ToInt32(prog[1]); i < ret.detailLazada.Count(); i++)
-            try
-            {
-                for (int i = Convert.ToInt32(prog[1]); i < ret.recnum_record.Count(); i++)
-                {
-
-                    ret.statusLoop = true;
-                    ret.progress = i + 1;
-                    ret.percent = ((i + 1) * 100) / ret.countAll;
-                    var recnum = Convert.ToInt32(ret.recnum_record[i]);
-                    var getData = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.RECNUM == recnum && ret.TipeData == a.NAMA_FILE && a.KET == ret.nobuk).FirstOrDefault();
-                    if (getData != null)
-                    {
-                        var current_ref = getData.NOREF;
-                        if (!string.IsNullOrEmpty(current_ref))
-                        {
-                            var noref = current_ref;
-                            string ssql = "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa";
-                            ssql += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR";
-                            ssql += " from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + ret.cust_id + "' and a.no_ref in ('" + noref + "')";
-                            var cekListFaktur = ErasoftDbContext.Database.SqlQuery<tempExcelBayar>(ssql).FirstOrDefault();
-                            var so = "";
-                            double nettoSI = 0;
-
-                            if (cekListFaktur != null)
-                            {
-                                so = cekListFaktur.NO_BUKTI;
-                                nettoSI = cekListFaktur.NETTO;
-                                var totalSisa = 0d;
-                                var bayarpiutang = 0d;
-                                totalSisa = cekListFaktur.SISA;
-                                bayarpiutang = Convert.ToDouble(getData.NILAI_REF);
-                                if (totalSisa != 0 && cekListFaktur.DATABAYAR == "TIDAK ADA")
-                                {
-
-                                    var art03b = new ART03B
-                                    {
-                                        USERNAME = "UPLOAD_LAZADA",
-                                        POT = 0,
-                                        LEBIH_BAYAR = 0,
-                                        BUKTI = ret.nobuk,
-                                    };
-
-                                    if (!string.IsNullOrEmpty(Convert.ToString(noref)))
-                                    {
-                                        art03b.NOREF = noref;
-                                    }
-                                    else
-                                    {
-                                        art03b.NOREF = null;
-                                    }
-
-                                    art03b.NFAKTUR = cekListFaktur.NO_BUKTI;
-                                    art03b.SISA = cekListFaktur.NETTO;
-                                    art03b.TGL_REF = getData.TGL;
-                                    if (bayarpiutang > 0)
-                                    {
-                                        if (totalSisa >= bayarpiutang)
-                                        {
-                                            art03b.BAYAR = bayarpiutang;
-                                        }
-                                        else if (totalSisa < bayarpiutang)
-                                        {
-                                            art03b.LEBIH_BAYAR = bayarpiutang - totalSisa;
-                                            art03b.BAYAR = Convert.ToDouble(bayarpiutang - art03b.LEBIH_BAYAR);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        art03b.BAYAR = 0;
-                                    }
-
-                                    nilaiFaktur.Add(art03b.SISA);
-                                    nilaiRef.Add(art03b.BAYAR);
-                                    nilaiPot.Add(art03b.POT);
-                                    nilaiLebihBayar.Add(art03b.LEBIH_BAYAR);
-                                    ErasoftDbContext.ART03B.Add(art03b);
-                                    getData.SUDAH_INPUT = true;
-                                    try
-                                    {
-                                        ErasoftDbContext.SaveChanges();
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
-                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                        {
-                                            LOG_FILE = ret.buktiLog,
-                                            VARIABLE_1 = ret.nobuk,
-                                            VARIABLE_2 = ret.TipeData,
-                                            TEXT_1 = errMsg,
-                                            TEXT_2 = noref,
-                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                            USERNAME = uname
-                                        };
-                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                        ErasoftDbContext.SaveChanges();
-                                    }
-                                }
-                                else if (totalSisa != 0 && cekListFaktur.DATABAYAR == "SUDAH ADA")
-                                {
-                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                    {
-                                        LOG_FILE = ret.buktiLog,
-                                        VARIABLE_1 = ret.nobuk,
-                                        VARIABLE_2 = ret.TipeData,
-                                        TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah proses bayar dengan No Bukti " + cekListFaktur.BUKTI_BAYAR + ".<br />",
-                                        TEXT_2 = noref,
-                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                        USERNAME = uname
-                                    };
-                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                    ErasoftDbContext.SaveChanges();
-                                }
-                                else
-                                {
-                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                    {
-                                        LOG_FILE = ret.buktiLog,
-                                        VARIABLE_1 = ret.nobuk,
-                                        VARIABLE_2 = ret.TipeData,
-                                        TEXT_1 = "Faktur dengan No. Ref " + noref + " sudah lunas.<br />",
-                                        TEXT_2 = noref,
-                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                        USERNAME = uname
-                                    };
-                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                    ErasoftDbContext.SaveChanges();
-                                }
-                            }
-                            else
-                            {
-                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                                {
-                                    LOG_FILE = ret.buktiLog,
-                                    VARIABLE_1 = ret.nobuk,
-                                    VARIABLE_2 = ret.TipeData,
-                                    TEXT_1 = "Faktur dengan No. Ref " + noref + " tidak ditemukan pada akun " + "Lazada" + "(" + ret.cust_perso + ").<br />",
-                                    TEXT_2 = noref,
-                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                    USERNAME = uname
-                                };
-                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                ErasoftDbContext.SaveChanges();
-                            }
-                        }
-                        else
-                        {
-                            TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                            {
-                                LOG_FILE = ret.buktiLog,
-                                VARIABLE_1 = ret.nobuk,
-                                VARIABLE_2 = ret.TipeData,
-                                TEXT_1 = "No. Ref " + current_ref + " tidak ditemukan.<br />",
-                                TEXT_2 = current_ref,
-                                TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                USERNAME = uname
-                            };
-                            ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                            ErasoftDbContext.SaveChanges();
-                        }
-                    }
-                    if (ret.percent == 10 || ret.percent == 20 ||
-                    ret.percent == 30 || ret.percent == 40 ||
-                    ret.percent == 50 || ret.percent == 60 ||
-                    ret.percent == 70 || ret.percent == 80 ||
-                    ret.percent == 90 || ret.percent == 100)
-                    {
-                        ret.statusSuccess = false;
-                        if (ret.percent > 99 && ret.percent <= 101)
-                        {
-                            ret.statusSuccess = true;
-                        }
-                        return Json(ret, JsonRequestBehavior.AllowGet);
-                    }
-                }
-
-                //if (ret.lastRow[file_index] == 0)
-                //    ret.lastRow[file_index] = ret.records.Count();
-                if (nilaiRef.Count() > 0)
-                {
-                    for (int i = 0; i < nilaiRef.Count(); i++)
-                    {
-                        ret.TBAYAR += nilaiRef[i];
-                    }
-                }
-                if (nilaiPot.Count() > 0)
-                {
-                    for (int i = 0; i < nilaiPot.Count(); i++)
-                    {
-                        ret.TPOT += nilaiPot[i];
-                    }
-                }
-                if (nilaiLebihBayar.Count() > 0)
-                {
-                    for (int x = 0; x < nilaiLebihBayar.Count(); x++)
-                    {
-                        ret.TLEBIHBAYAR += Convert.ToDouble(nilaiLebihBayar[x]);
-                    }
-                }
-                try
-                {
-                    var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
-                    getheader.TPOT = ret.TPOT;
-                    getheader.TBAYAR = ret.TBAYAR;
-                    getheader.TLEBIH_BAYAR = ret.TLEBIHBAYAR;
-                    ErasoftDbContext.SaveChanges();
-                }
-                catch (Exception ex)
-                {
-                    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
-                    //ret.Errors.Add(errMsg);
-                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                    {
-                        LOG_FILE = ret.buktiLog,
-                        VARIABLE_1 = ret.nobuk,
-                        VARIABLE_2 = ret.TipeData,
-                        TEXT_1 = errMsg,
-                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                        USERNAME = uname
-                    };
-                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                    ErasoftDbContext.SaveChanges();
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
-                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
-                {
-                    LOG_FILE = ret.buktiLog,
-                    VARIABLE_1 = ret.nobuk,
-                    VARIABLE_2 = ret.TipeData,
-                    TEXT_1 = errMsg,
-                    TEXT_2 = "",
-                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                    USERNAME = uname
-                };
-                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                ErasoftDbContext.SaveChanges();
-            }
-            return Json(ret, JsonRequestBehavior.AllowGet);
-        }
-
+        
         //public ActionResult ShowErrorUploadBayar(string[] listError)
         public ActionResult ShowErrorUploadBayar(string bukti, string logErr)
         {
