@@ -417,5 +417,7 @@ namespace MasterOnline
         public double QTY_3_15 { get; set; }
 
         public double QTY_4_15 { get; set; }
+
+        public virtual STT04A STT04A { get; set; }
     }
 }

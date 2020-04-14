@@ -26940,7 +26940,7 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult RefreshTableTransaksiStokOpname(int? page, string search = "")
+        public ActionResult RefreshTableStokOpname(int? page, string search = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -26956,36 +26956,257 @@ namespace MasterOnline.Controllers
                     {
                         if (getkata.Length == 1)
                         {
-                            sSQLkode += "( NOBUK like '"+ getkata[i] +"' )";
+                            sSQLkode += "( NOBUK like '%" + getkata[i] + "%' )";
                         }
                         else
                         {
-                            if (getkata[i] == getkata.First()) 
+                            if (getkata[i] == getkata.First())
                             {
-                                sSQLkode += " ( NOBUK like '%"+ getkata[i] +"%' )";
+                                sSQLkode += " ( NOBUK like '%" + getkata[i] + "%'";
                             }
                             else if (getkata[i] == getkata.Last())
                             {
-                                sSQLkode += "";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' )";
                             }
                             else
                             {
-                                sSQLkode += "";
+                                sSQLkode += " and NOBUK like '%" + getkata[i] + "%' ";
                             }
                         }
                     }
                 }
             }
             
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STT04A ";
+            sSQL2 += "WHERE NOBUK LIKE '%OP%' ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( " + sSQLkode + " ) ";
+            }
 
-            return PartialView("TableTransaksiStokOpnamePartial");
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL DESC, NOBUK DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListStt04a = ErasoftDbContext.Database.SqlQuery<STT04A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<STT04A> pageOrders = new StaticPagedList<STT04A>(ListStt04a, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            return PartialView("TableTransaksiStokOpnamePartial", pageOrders);
         }
 
         public ActionResult RefreshStokOpnameForm()
         {
             try
             {
-                var vm = "";
+                var stokInDb = new STT04A();
+
+                var vm = new StokOpnameViewModel()
+                {
+                    ListBarangStokOpname = ErasoftDbContext.STT04B.Where(pd => 0 == 1).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(pd => 0 == 1).ToList()
+                };
+
+                return PartialView("BarangStokOpnamePartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult SaveStokOpname(StokOpnameViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+
+            if (dataVm.StokOpname.ID == null)
+            {
+                var lastBukti = GenerateAutoNumber(ErasoftDbContext, "OP", "STT04A", "NOBUK");
+                var noStok = "OP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
+                var namaGudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == dataVm.StokOpname.GUD).Single().Nama_Gudang;
+
+                dataVm.StokOpname.NOBUK = noStok;
+                dataVm.BarangStokOpname.NOBUK = noStok;
+                dataVm.StokOpname.TGL = DateTime.Today;
+                dataVm.StokOpname.NAMA_GUDANG = namaGudang;
+
+                try
+                {
+                    ErasoftDbContext.STT04A.Add(dataVm.StokOpname);
+                    ErasoftDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var tempSOP = ErasoftDbContext.STT04A.Where(a => a.NOBUK == dataVm.StokOpname.NOBUK).Single();
+                    if (tempSOP != null)
+                    {
+                        if (tempSOP.NOBUK == noStok)
+                        {
+                            var lastBuktiNew = Convert.ToInt32(lastBukti);
+                            lastBuktiNew++;
+                            noStok = "OP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiNew) + 1).PadLeft(6, '0');
+                            dataVm.StokOpname.NOBUK = noStok;
+                            ErasoftDbContext.STT04A.Add(dataVm.StokOpname);
+                            dataVm.BarangStokOpname.NOBUK = noStok;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    else
+                    {
+                        dataVm.Errors.Add("Terjadi Kesalahan, mohon hubungi support.");
+                        return Json(dataVm, JsonRequestBehavior.AllowGet);
+                    }
+                }
+
+                if (dataVm.BarangStokOpname.No == null)
+                {
+                    var vmError = new StokOpnameViewModel() { };
+
+                    if (dataVm.BarangStokOpname.Qty == 0)
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
+                    ErasoftDbContext.STT04B.Add(dataVm.BarangStokOpname);
+
+                }
+
+            }
+            else
+            {
+                var stokOpDb = ErasoftDbContext.STT04A.Single(p => p.NOBUK == dataVm.StokOpname.NOBUK);
+
+                stokOpDb.TGL = dataVm.StokOpname.TGL;
+                dataVm.BarangStokOpname.NOBUK = dataVm.StokOpname.NOBUK;
+
+                stokOpDb.TGL = DateTime.Today;
+
+                if (dataVm.BarangStokOpname.No == null)
+                {
+                    var vmError = new StokOpnameViewModel() { };
+
+                    if (dataVm.BarangStokOpname.Qty == 0)
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
+                    ErasoftDbContext.STT04B.Add(dataVm.BarangStokOpname);
+                }
+
+            }
+
+            //field yg penting di stt04b tidak null
+            dataVm.BarangStokOpname.Gud = dataVm.StokOpname.GUD;
+            dataVm.BarangStokOpname.HPokok = 0;
+            dataVm.BarangStokOpname.BK = "";
+            dataVm.BarangStokOpname.Stn = "";
+            dataVm.BarangStokOpname.WO = "";
+            dataVm.BarangStokOpname.Nama_Barang = "";
+            dataVm.BarangStokOpname.Qty_Berat = 0;
+            //dataVm.BarangStokOpname.id = 0;
+            dataVm.BarangStokOpname.QTY_KECIL = 0;
+            dataVm.BarangStokOpname.QTY_BESAR = 0;
+            dataVm.BarangStokOpname.QTY_3 = 0;
+            dataVm.BarangStokOpname.QTY_4 = 0;
+            dataVm.BarangStokOpname.LKS = "";
+            //endregion
+
+            ErasoftDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var ListStokOpnameDetail = ErasoftDbContext.STT04B.Where(pd => pd.NOBUK == dataVm.StokOpname.NOBUK).ToList();
+            var listBarangStokOpnameDetail = ListStokOpnameDetail.Select(p => p.Brg).ToList();
+            var vm = new StokOpnameViewModel()
+            {
+                StokOpname = ErasoftDbContext.STT04A.Single(p => p.NOBUK == dataVm.StokOpname.NOBUK),
+                ListBarangStokOpname = ListStokOpnameDetail,
+                ListBarang = ErasoftDbContext.STF02.Where(a => listBarangStokOpnameDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+            };
+
+            return PartialView("BarangStokOpnamePartial", vm);
+
+        }
+
+        public ActionResult EditStokOpname(int? stokId)
+        {
+            try
+            {
+                var stokOPDb = ErasoftDbContext.STT04A.Where(p => p.ID == stokId).Single();
+                var ListStokOPDetail = ErasoftDbContext.STT04B.Where(pd => pd.NOBUK== stokOPDb.NOBUK).ToList();
+                var listBarangStokOPDetail = ListStokOPDetail.Select(p => p.Brg).ToList();
+
+                var vm = new StokOpnameViewModel()
+                {
+                    StokOpname = stokOPDb,
+                    ListBarangStokOpname = ListStokOPDetail,
+                    ListBarang = ErasoftDbContext.STF02.Where(a => listBarangStokOPDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                };
+
+                return PartialView("BarangStokOpnamePartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+
+        }
+
+        public ActionResult DeleteStokOpname(int? stokId)
+        {
+
+            var stokOpDb = ErasoftDbContext.STT04A.Where(p => p.ID == stokId).Single();
+            var stokDetailOpDb = ErasoftDbContext.STT04B.Where(b => b.NOBUK == stokOpDb.NOBUK).ToList();
+
+            ErasoftDbContext.STT04B.RemoveRange(stokDetailOpDb);
+            ErasoftDbContext.STT04A.Remove(stokOpDb);
+            ErasoftDbContext.SaveChanges();
+
+            var vm = new StokOpnameViewModel()
+            {
+                Errors = null
+            };
+
+            return Json(stokOpDb, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public ActionResult DeleteBarangStokOpname(int noUrut)
+        {
+            try
+            {
+                var barangStokOpDb = ErasoftDbContext.STT04B.Single(b => b.No == noUrut);
+                var stokOpDb = ErasoftDbContext.STT04A.Single(p => p.NOBUK == barangStokOpDb.NOBUK);
+
+                ErasoftDbContext.STT04B.Remove(barangStokOpDb);
+                ErasoftDbContext.SaveChanges();
+
+                var vm = new StokOpnameViewModel()
+                {
+                    StokOpname = ErasoftDbContext.STT04A.Single(p => p.NOBUK == stokOpDb.NOBUK),
+                    ListStokOpname = ErasoftDbContext.STT04A.ToList(),
+                    ListBarangStokOpname = ErasoftDbContext.STT04B.Where(bs => bs.NOBUK == stokOpDb.NOBUK).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListGudang = ErasoftDbContext.STF18.ToList()
+                };
 
                 return PartialView("BarangStokOpnamePartial", vm);
             }

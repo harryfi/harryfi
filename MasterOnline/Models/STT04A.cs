@@ -16,12 +16,17 @@ namespace MasterOnline
         public STT04A()
         {
             STT04B = new HashSet<STT04B>();
-            STT04B1 = new HashSet<STT04B1>();
+            //STT04B1 = new HashSet<STT04B1>();
         }
+        
+        [Key]
+        [Column(Order = 0)]
+        public string GUD { get; set; }
 
         [Key]
-        [StringLength(4)]
-        public string GUD { get; set; }
+        [Column(Order = 1)]
+        [StringLength(10)]
+        public string NOBUK { get; set; }
 
         [StringLength(30)]
         public string NAMA_GUDANG { get; set; }
@@ -32,13 +37,14 @@ namespace MasterOnline
         [StringLength(1)]
         public string POSTING { get; set; }
 
-        [JsonIgnore]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<STT04B> STT04B { get; set; }
+        public DateTime? TGL { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? ID { get; set; }
 
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<STT04B1> STT04B1 { get; set; }
+        public virtual ICollection<STT04B> STT04B { get; set; }
 
     }
 }

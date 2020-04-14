@@ -15,7 +15,6 @@ namespace MasterOnline.ViewModels
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
         public List<STF18> ListGudang { get; set; } = new List<STF18>();
         public List<string> Errors { get; set; } = new List<string>();
-        public List<QOH_PER_GD> ListQOHPerGD { get; set; } = new List<QOH_PER_GD>();
         public string setGD { get; set; }
     }
 }

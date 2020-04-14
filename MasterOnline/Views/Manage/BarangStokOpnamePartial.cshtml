@@ -1,5 +1,6 @@
 ﻿@using System.Globalization
 @using MasterOnline.ViewModels
+@model StokOpnameViewModel
 @{
     var context = new MoDbContext("");
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
@@ -22,6 +23,9 @@
 }
 
 @Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.StokOpname.ID)
+@Html.HiddenFor(m => m.StokOpname.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.StokOpname.POSTING, new { Value = "0" })
 
 <style>
     @@media screen and (max-width: 325px) {
@@ -39,40 +43,68 @@
 
 <div class="form-horizontal">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 col-sm-12 col-xs-12">
             <div class="form-group">
-                <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Bukti</label>
+                @Html.LabelFor(m => m.StokOpname.NOBUK, "No. Bukti", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input type="text" value="[AUTO]" disabled class="form-control" />
+                    @Html.HiddenFor(m => m.StokOpname.NOBUK)
+                    @if (Model.StokOpname != null)
+                    {
+                        <input type="text" value="@Model.StokOpname.NOBUK" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" value="[AUTO]" disabled class="form-control" />
+                    }
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label col-md-4 col-sm-4 col-xs-12">Tanggal</label>
+                @Html.LabelFor(m => m.StokOpname.TGL, "Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="input-group date">
-                        <input disabled class="form-control" data-val="true" data-val-date="The field Tgl must be a date." id="Stok_Tgl" name="Stok.Tgl" type="text" value="">
+                        @Html.TextBoxFor(m => m.StokOpname.TGL, new { @class = "form-control" })
                         <span class="input-group-addon">
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                     </div>
                 </div>
             </div>
-            <div class="form-group text-right">
-                <label class="control-label col-md-4 col-sm-4 col-xs-12">Gudang</label>
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12 text-right">Gudang</label>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select class="form-control">
-                        <option>-</option>
-                    </select>
+                    @Html.HiddenFor(m => m.StokOpname.GUD)
+                    @if (Model.StokOpname != null)
+                    {
+                        <input type="text" value="@Model.StokOpname.NAMA_GUDANG" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <div id="gudang-select">
+                            <select id="GUDANG" placeholder="Pilih" required="required"></select>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 col-sm-12 col-xs-12">
             <div class="form-group">
                 <label class="control-label col-md-4 col-sm-4 col-xs-12">Status</label>
-                <div class="col-md-3 col-sm-3 col-xs-12">
-                    <select class="form-control">
-                        <option>-</option>
-                    </select>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    @if (Model.StokOpname != null)
+                    {
+                        if (Model.StokOpname.POSTING == "1")
+                        {
+                            <input type="text" style="width:100px" value="Proses" disabled class="form-control" />
+                        }
+                        else
+                        {
+                            <input type="text" style="width:100px" value="Input" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="text" value="Input" disabled class="form-control" />
+                    }
                 </div>
             </div>
             <div class="form-group">
@@ -80,13 +112,38 @@
             </div>
             <div class="form-group">
                 <div class="col-md-offset-4 col-md-3 col-sm-3 col-xs-12">
-                    <button class="btn btn-primary btn_proses_sopname" id="prosesSOpname">Proses</button>
+                    @if (Model.StokOpname.POSTING == "1")
+                    {
+                        <button class="btn btn-primary btn_proses_sopname" id="prosesSOpname" disabled>Proses</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary btn_proses_sopname" id="prosesSOpname">Proses</button>
+                    }
                 </div>
             </div>
         </div>
     </div>
+    @if (Model?.StokOpname?.ID != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     <hr />
 </div>
+
+@Html.HiddenFor(m => m.BarangStokOpname.USERNAME, new { Value = username })
+@*@Html.HiddenFor(m => m.BarangStokOpname.Gud, new { id = "StokOpname_GUD" })*@
 
 <div class="row" style="margin-top: 15px;">
     <div class="col-lg-12">
@@ -102,7 +159,70 @@
                         <th>Hapus</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    @{
+                        var listBarang = Model.ListBarang.ToList();
+                        var iPd = 0;
+                    }
+                    @foreach (var stokop in Model.ListBarangStokOpname.Where(pb => pb.NOBUK == Model?.StokOpname?.NOBUK))
+                    {
+                        <tr data-barang-id="brg-@stokop.No">
+                            <td>
+                                @stokop.Brg
+                            </td>
+                            <td class="nama-barang">
+                                @{
+                                    var nm = "";
+                                    var nm2 = "";
+                                    if (listBarang.SingleOrDefault(b => b.BRG == stokop.Brg) != null)
+                                    {
+                                        nm = listBarang.SingleOrDefault(b => b.BRG == stokop.Brg).NAMA;
+                                        nm2 = listBarang.SingleOrDefault(b => b.BRG == stokop.Brg)?.NAMA2;
+                                    }
+                                }
+                                @nm @nm2
+                            </td>
+                            <td class="qty-barang">
+                                @stokop.Qty
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stokop.No')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        iPd = iPd + 1;
+                    }
+                    <tr data-stok-id="0">
+                        @Html.HiddenFor(m => m.BarangStokOpname.No)
+                        @Html.HiddenFor(m => m.BarangStokOpname.NOBUK, new { Value = "-" })
+                        @Html.HiddenFor(m => m.BarangStokOpname.Tgl, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                        <td style="width: 200px; max-width: 200px;">
+                            <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                            @Html.HiddenFor(m => m.BarangStokOpname.Brg)
+                        </td>
+                        <td class="nama-barang" style="width: 400px; max-width: 400px;">-</td>
+                        <td class="qty-barang">
+                            0
+                            @Html.HiddenFor(m => m.BarangStokOpname.Qty)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrgsop('brg-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>

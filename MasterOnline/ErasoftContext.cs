@@ -11250,6 +11250,20 @@ namespace MasterOnline
                 .Property(e => e.USERNAME)
                 .IsUnicode(false);
 
+            modelBuilder.Entity<STT04A>()
+                .Property(e => e.NOBUK)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<STT04A>()
+                .Property(e => e.POSTING)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<STT04A>()
+                .HasMany(e => e.STT04B)
+                .WithRequired(e => e.STT04A)
+                .HasForeignKey(e => new { e.NOBUK, e.Gud })
+                .WillCascadeOnDelete(false);
+
             modelBuilder.Entity<STT04B>()
                 .Property(e => e.Gud)
                 .IsUnicode(false);
