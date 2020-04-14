@@ -77,10 +77,14 @@
         var listError = Model?.ret?.Errors?.ToList();
         var ret = Model?.ret;
         var logErr = (Model?.Piutang?.BUKTI == null || Model?.Piutang?.BUKTI == "" ? Model?.ret?.nobuk : Model?.Piutang?.BUKTI);
-        var logfile = ret?.buktiLog;
+        var logfile = (Model?.Piutang?.log_file == null || Model?.Piutang?.log_file == "" ? Model?.ret?.buktiLog : Model?.Piutang?.log_file);
+        var adaError = (Model?.ret?.adaError == null ? Model?.adaError : Model?.ret?.adaError);
     }
     var listError = @Html.Raw(Json.Encode(listError));
     var ret = @Html.Raw(Json.Encode(ret));
+    var logErr = @Html.Raw(Json.Encode(logErr));
+    var logfile = @Html.Raw(Json.Encode(logfile));
+    var adaError = @Html.Raw(Json.Encode(adaError));
 </script>
 <div class="form-horizontal">
     <div class="row">

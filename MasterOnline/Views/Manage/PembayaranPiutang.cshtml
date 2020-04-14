@@ -1947,7 +1947,7 @@
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
                     $('#progressBarUpload').show();
-                    uploadFileExcelPiutang(null, 0, "0;0", "false;false");
+                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null);
                 } else {
                     $('#progressBarUpload').hide();
                     alert("Fitur ini sedang kami upgrade. Mohon hubungi tim support.");
@@ -1955,7 +1955,7 @@
             }
         }
 
-        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog) {
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -1964,6 +1964,7 @@
             var splitStatus = vstatusLoopvSuccess.split(';');
             var vstatusLoop = splitStatus[0];
             var vstatusSuccess = splitStatus[1];
+            
 
             if ($('#file_upload_excel')[0].files.length <= 0) {
                 //$('#progressBarUpload').modal('hide');
@@ -2003,19 +2004,19 @@
 
                 var $urlProgress = "";
                 if ($tempMP1.toUpperCase() == "SHOPEE") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BLIBLI") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
                 }
 
                 $urlProgress = $urlProgress.replace("rep1", vnobuk);
@@ -2024,6 +2025,8 @@
                 $urlProgress = $urlProgress.replace("rep4progress", vprogress);
                 $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
                 $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                $urlProgress = $urlProgress.replace("repLog", vBuktiLog);
 
                 $.ajax({
                     type: "POST",
@@ -2058,12 +2061,12 @@
                             $tempErr = listError;
 
 
-                            if (ret.countAll != null && ret.Errors == null && ret.statusLoop == true && ret.statusSuccess == false) {
+                            if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                                 if (ret.progress <= ret.countAll) {
-                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess));
+                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog));
                                 }
 
                             } else if (ret.statusSuccess == true) {
@@ -2105,23 +2108,27 @@
                                     });
                                 }
                             });*@
-                            if ($tempErr.length >= 1) {
-                            //    alert('Ada error. Silahkan klik "View Error"');
-                            //} else if ($tempErr.length == 1) {
-                            //    $("#btn-error").click();
+                            //if ($tempErr.length >= 1) {
+                            ////    alert('Ada error. Silahkan klik "View Error"');
+                            ////} else if ($tempErr.length == 1) {
+                            ////    $("#btn-error").click();
+                            //    $('#btn-error').click()
+                            //    showError(ret.nobuk, ret.buktiLog);
+                            //} else if ($tempErr.length == 0) {
+                            //    //$("#btn-error-row").hide();
+                            //}
+                            if (adaError == true) {
                                 $('#btn-error').click()
                                 showError(ret.nobuk, ret.buktiLog);
-                            } else if ($tempErr.length == 0) {
-                                //$("#btn-error-row").hide();
-                            }
+                            } 
                             
                         } else {
-                            if (response.countAll != null && response.Errors == null && response.statusLoop == true && response.statusSuccess == false) {
+                            if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                                 if (response.progress <= response.countAll) {
-                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog));
                                 }
 
                             } else if (response.statusSuccess == true) {
@@ -2151,15 +2158,19 @@
                                     //    //$(this).modal('show');
                                     //    //$('#loading_error').hide();
                                     //});
-                                    if ($tempErr.length >= 1) {
-                                        //alert('Ada error. Silahkan klik "View Error"');
-                                        $('#btn-error').click()
-                                        showError(response.nobuk, response.buktiLog);
-                                    //} else if ($tempErr.length == 1) {
-                                    //    $("#btn-error").click();
-                                    } else if ($tempErr.length == 0) {
-                                        //$("#btn-error-row").hide();
-                                }
+                                //    if ($tempErr.length >= 1) {
+                                //        //alert('Ada error. Silahkan klik "View Error"');
+                                //        $('#btn-error').click()
+                                //        showError(response.nobuk, response.buktiLog);
+                                //    //} else if ($tempErr.length == 1) {
+                                //    //    $("#btn-error").click();
+                                //    } else if ($tempErr.length == 0) {
+                                //        //$("#btn-error-row").hide();
+                                //}
+                                if (response.adaError == true) {
+                                    $('#btn-error').click()
+                                    showError(response.nobuk, response.buktiLog);
+                                } 
 
                                 setTimeout(popupAlertUploadSaldoAwal, 500);
                                 $("#konfUpload").modal('hide');
@@ -2191,16 +2202,19 @@
                                     //    //$(this).modal('show');
                                     //    //$('#loading_error').hide();
                                     //});
-                                    if ($tempErr.length >= 1) {
-                                    //    alert('Ada error. Silahkan klik "View Error"');
-                                    //} else if ($tempErr.length == 1) {
-                                    //    $("#btn-error").click();
-                                        $('#btn-error').click()
-                                        showError(response.nobuk, response.buktiLog);
-                                    } else if ($tempErr.length == 0) {
-                                        //$("#btn-error-row").hide();
-                                }
-
+                                //    if ($tempErr.length >= 1) {
+                                //    //    alert('Ada error. Silahkan klik "View Error"');
+                                //    //} else if ($tempErr.length == 1) {
+                                //    //    $("#btn-error").click();
+                                //        $('#btn-error').click()
+                                //        showError(response.nobuk, response.buktiLog);
+                                //    } else if ($tempErr.length == 0) {
+                                //        //$("#btn-error-row").hide();
+                                //}
+                                if (response.adaError == true) {
+                                    $('#btn-error').click()
+                                    showError(response.nobuk, response.buktiLog);
+                                } 
                                 setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
                                 $("#konfUpload").modal('hide');
                             }
@@ -2208,8 +2222,14 @@
                     },
                     error: function (xhr, status, error) {
                         var err = "";
-                        for (i = 0; i < response.Errors.length; i++) {
-                            err += response.Errors[i] + "\n";
+                        if (Response.error != undefined) {
+                            for (i = 0; i < response.Errors.length; i++) {
+                                err += response.Errors[i] + "\n";
+                            }
+                        } else {
+                            for (i = 0; i < error.length; i++) {
+                                err += error[i] + "\n";
+                            }
                         }
                         alert(err);
                         console.log(error);
