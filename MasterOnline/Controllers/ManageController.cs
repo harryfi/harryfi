@@ -3761,7 +3761,7 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
-            #region shopify
+            #region 82Cart
             else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART").IdMarket.ToString()))
             {
                 EightTwoCartController.E2CartAPIData data82Cart = new EightTwoCartController.E2CartAPIData
@@ -3770,11 +3770,13 @@ namespace MasterOnline.Controllers
                     account_store = customer.Customers.PERSO, //account store name
                     API_password = customer.Customers.API_CLIENT_P, //API Password
                     API_key = customer.Customers.API_KEY, //API Key
+                    API_credential = customer.Customers.Sort1_Cust,
+                    API_url = customer.Customers.PERSO,
                     email = customer.Customers.EMAIL, //recnum
                     DatabasePathErasoft = dbPathEra,
                 };
                 EightTwoCartController api82Cart = new EightTwoCartController();
-                Task.Run(() => api82Cart.GetCustomer(data82Cart)).Wait();
+                Task.Run(() => api82Cart.E2Cart_GetCustomer(data82Cart)).Wait();
             }
             #endregion
 
@@ -9401,6 +9403,299 @@ namespace MasterOnline.Controllers
                             }
                             break;
 #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in listShopee)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                //{
+                                                //    merchant_code = tblCustomer.Sort1_Cust,
+                                                //};
+                                                //ShopeeController shoAPI = new ShopeeController();
+                                                //Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
+                                                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust,
+                                                    DatabasePathErasoft = dbPathEra,
+                                                    username = usernameLogin
+                                                };
+#if (DEBUG || Debug_AWS)
+                                                Task.Run(() => new ShopeeControllerJob().InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer, null).Wait());
+#else
+                                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitTierVariation(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer, null));
+#endif
+
+
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                    //{
+                                                    //    merchant_code = tblCustomer.Sort1_Cust,
+                                                    //};
+                                                    //ShopeeController shoAPI = new ShopeeController();
+                                                    //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                                    ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                        DatabasePathErasoft = dbPathEra,
+                                                        username = usernameLogin
+                                                    };
+#if (DEBUG || Debug_AWS)
+                                                    Task.Run(() => new ShopeeControllerJob().CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+#else
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected void saveBarang82Cart(int mode, BarangViewModel dataBarang, bool updateHarga)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            //var kd82Cart = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART");
+            var kd82Cart = "20";
+            if (barangInDb != null && kd82Cart != null)
+            {
+                var list82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart).ToList();
+                if (list82Cart.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in list82Cart)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+#if (DEBUG || Debug_AWS)
+                                            EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                API_key = tblCustomer.API_KEY,
+                                                API_credential = tblCustomer.Sort1_Cust,
+                                                API_url = tblCustomer.PERSO,
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+                                            EightTwoCartController c82CartAPI = new EightTwoCartController();
+
+                                            //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                            Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+#else
+                                            EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                API_key = tblCustomer.API_KEY,
+                                                API_credential = tblCustomer.Sort1_Cust,
+                                                API_url = tblCustomer.PERSO,
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+
+                                            //EightTwoCartControllerJob c82CartAPIJob = new EightTwoCartControllerJob();
+                                            //Task.Run(() => c82CartAPIJob.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob)).Wait();
+
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in list82Cart)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                //EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                                //{
+                                                //    username = usernameLogin,
+                                                //    no_cust = tblCustomer.CUST,
+                                                //    account_store = tblCustomer.PERSO,
+                                                //    API_key = tblCustomer.API_KEY,
+                                                //    API_credential = tblCustomer.Sort1_Cust,
+                                                //    API_url = tblCustomer.PERSO,
+                                                //    DatabasePathErasoft = dbPathEra
+                                                //};
+                                                //EightTwoCartController c82CartAPI = new EightTwoCartController();
+
+                                                //var temp_brg = (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG);
+
+                                                //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
+#if (Debug_AWS || DEBUG)
+                                                //Task.Run(() => shoAPI2.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+#else
+                                                //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
+                                                
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
+                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                //if (updateHarga)
+                                                //{
+                                                //    if (brg_mp.Count() == 2)
+                                                //    {
+                                                //        if (brg_mp[1] == "0")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //        else if (brg_mp[1] != "")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //    }
+                                                //}
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) + "'";
+                                                    EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+
+#if (DEBUG || Debug_AWS)
+                                            EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                            {
+                                                username = usernameLogin,
+                                                no_cust = tblCustomer.CUST,
+                                                account_store = tblCustomer.PERSO,
+                                                API_key = tblCustomer.API_KEY,
+                                                API_credential = tblCustomer.Sort1_Cust,
+                                                API_url = tblCustomer.PERSO,
+                                                DatabasePathErasoft = dbPathEra
+                                            };
+                                            EightTwoCartController c82CartAPI = new EightTwoCartController();
+
+                                            //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                            Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+#else
+                                                    EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        API_key = tblCustomer.API_KEY,
+                                                        API_credential = tblCustomer.Sort1_Cust,
+                                                        API_url = tblCustomer.PERSO,
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+
+                                                    //EightTwoCartControllerJob c82CartAPIJob = new EightTwoCartControllerJob();
+                                                    //Task.Run(() => c82CartAPIJob.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob)).Wait();
+
+                                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                                    clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", dataJob));
+#endif
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected void saveBarang82CartVariant(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            if (barangInDb != null && kdShopee != null)
+            {
+                var listShopee = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+                if (listShopee.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in listShopee)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+                                            //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                            //{
+                                            //    merchant_code = tblCustomer.Sort1_Cust,
+                                            //};
+                                            //ShopeeController shoAPI = new ShopeeController();
+                                            //Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                                            ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust,
+                                                DatabasePathErasoft = dbPathEra,
+                                                username = usernameLogin
+                                            };
+#if (DEBUG || Debug_AWS)
+                                            Task.Run(() => new ShopeeControllerJob().CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()).Wait());
+#else
+                                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                            clientJobServer.Enqueue<ShopeeControllerJob>(x => x.CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Buat Produk", data, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
+#endif
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
                         case 2:
                             {
                                 foreach (ARF01 tblCustomer in listShopee)
@@ -34409,7 +34704,7 @@ namespace MasterOnline.Controllers
                                     }
                                 case "82CART":
                                     var v82CartAPI = new EightTwoCartController();
-                                    if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                    if (arf01.STATUS_API != "1")
                                     {
                                         return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                     }
@@ -34417,26 +34712,28 @@ namespace MasterOnline.Controllers
                                     {
                                         EightTwoCartController.E2CartAPIData data = new EightTwoCartController.E2CartAPIData()
                                         {
-                                            no_cust = arf01.Sort1_Cust,
+                                            no_cust = arf01.CUST,
                                             account_store = arf01.PERSO,
                                             API_key = arf01.API_KEY,
-                                            API_password = arf01.API_CLIENT_P
+                                            API_credential = arf01.Sort1_Cust,
+                                            API_url = arf01.PERSO,
+                                            DatabasePathErasoft = dbPathEra
                                         };
-                                        var resultShopify = await v82CartAPI.GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
-                                        retBarang.exception = resultShopify.exception;
-                                        retBarang.totalData = resultShopify.totalData;
+                                        var result82Cart = await v82CartAPI.E2Cart_GetProductsList(data, arf01.RecNum.Value, page, recordCount, totalData);
+                                        retBarang.exception = result82Cart.exception;
+                                        retBarang.totalData = result82Cart.totalData;
                                         //change 18 juli 2019, error tetap lanjut next page
                                         //if (resultShopee.status == 1)
                                         //{
                                         //    if (!string.IsNullOrEmpty(resultShopee.message))
-                                        if (resultShopify.nextPage == 1)
+                                        if (result82Cart.nextPage == 1)
                                         {
-                                            retBarang.RecordCount = resultShopify.recordCount;
+                                            retBarang.RecordCount = result82Cart.recordCount;
                                             retBarang.Recursive = true;
                                         }
                                         else
                                         {
-                                            retBarang.RecordCount = resultShopify.recordCount;
+                                            retBarang.RecordCount = result82Cart.recordCount;
                                         }
                                         //}
                                         //else
