@@ -2696,7 +2696,7 @@ namespace MasterOnline.Controllers
                         var ShippingFeeData = await GetShippingFee(iden, order.ordersn);
                         if(ShippingFeeData != null)
                         {
-                            newOrder.estimated_shipping_fee = ShippingFeeData.order_income.actual_shipping_fee.ToString();
+                            newOrder.estimated_shipping_fee = (ShippingFeeData.order_income.buyer_paid_shipping_fee + ShippingFeeData.order_income.shopee_shipping_rebate - ShippingFeeData.order_income.actual_shipping_fee).ToString();
                         }
                         foreach (var item in order.items)
                         {
