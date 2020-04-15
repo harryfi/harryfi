@@ -14,6 +14,12 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
+        #div-scroll-list {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 380px;
+        }
+
         .input-group {
             margin-bottom: 0;
         }
@@ -637,9 +643,9 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="progressBarUpload" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
+<div class="modal fade" id="progressBarUpload" tabindex="-1" role="dialog" aria-labelledby="modalProgressLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content" style="margin:auto;height:100px;width:600px;">
+        <div class="modal-content" style="margin:auto;height:100px;width:800px;">
             <div class="modal-body">
                 <table class="col-md-12" id="tbl_progbar2">
                     <tr>
@@ -665,13 +671,12 @@
 </div>
 <div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" style="width:700px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
             </div>
             <div class="modal-body edit-content" id="error-list">
-                @*<div id="error-list"></div>*@
                 @*<div id="loading_error" class="text-center">
                         <img src="~/Content/Images/spinner.gif" width="100" />
                     </div>*@
@@ -1947,7 +1952,7 @@
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
                     $('#progressBarUpload').show();
-                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null);
+                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
                 } else {
                     $('#progressBarUpload').hide();
                     alert("Fitur ini sedang kami upgrade. Mohon hubungi tim support.");
@@ -1955,7 +1960,7 @@
             }
         }
 
-        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog) {
+        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog, vNoProcess) {
 
             var splitpro = vpercentvprogress.split(';');
             var vpercent = splitpro[0];
@@ -2004,19 +2009,19 @@
 
                 var $urlProgress = "";
                 if ($tempMP1.toUpperCase() == "SHOPEE") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BLIBLI") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
 
                 $urlProgress = $urlProgress.replace("rep1", vnobuk);
@@ -2027,6 +2032,7 @@
                 $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
 
                 $urlProgress = $urlProgress.replace("repLog", vBuktiLog);
+                $urlProgress = $urlProgress.replace("repNoProcess", vNoProcess);
 
                 $.ajax({
                     type: "POST",
@@ -2045,28 +2051,15 @@
                             $('.piutang_table_section').hide();
                             $('.piutang_editor_section').show();
                             $('#form-partial').html(response);
-                            refreshInputan();
-                            getTanggal();
-                            getMarketplace();
-                            getFaktur($("#Piutang_CUST").val());
-                            $('input, select').each(function () {
-                                $(this).attr('disabled', 'disabled');
-                            });
-                            $('#btn-simpan-perubahan-row').hide();
-                            $('#btn-autoload').click(function () {
-                                $('#file_upload_excel').removeAttr('disabled');
-                            });
-                            $("#btn-error-row").show();
-                            $tempErr.length = 0;
-                            $tempErr = listError;
+                            
 
 
-                            if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false) {
+                            if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                                 if (ret.progress <= ret.countAll) {
-                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog));
+                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses);
                                 }
 
                             } else if (ret.statusSuccess == true) {
@@ -2075,60 +2068,60 @@
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 setTimeout(popupAlertUploadSaldoAwal, 500);
                                 $("#konfUpload").modal('hide');
+
+                                refreshInputan();
+                                getTanggal();
+                                getMarketplace();
+                                getFaktur($("#Piutang_CUST").val());
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                $('#btn-simpan-perubahan-row').hide();
+                                $('#btn-autoload').click(function () {
+                                    $('#file_upload_excel').removeAttr('disabled');
+                                });
+                                $("#btn-error-row").show();
+                                $tempErr.length = 0;
+                                $tempErr = listError;
+                                if (adaError == true) {
+                                    $('#btn-error').click()
+                                    showError(ret.nobuk, ret.buktiLog);
+                                } 
                             } else {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('0% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
                                 $("#konfUpload").modal('hide');
-                            }
 
-                            @*$("#modalError").on('show.bs.modal', function (e) {
-                                if ($('#Piutang_BUKTI').val() != "") {
-                                    var link = '@Url.Action("ShowErrorUploadBayar", "Manage", new { bukti = "replaceId" })';
-                                    link = link.replace("replaceId", $('#Piutang_BUKTI').val());
-                                    $.ajax({
-                                        type: "POST",
-                                        url: link,
-                                        data: JSON.stringify($tempErr),
-                                        contentType: 'application/json; charset=UTF-8',
-                                        cache: false,
-                                        beforeSend: function () {
-                                            //$('#loading_error').show();
-                                        },
-                                        success: function (value) {
-                                            $('#modalError').find('.edit-content').html(value);
-                                            $('#Modal').modal('show');
-                                            //$('#loading_error').hide();
-                                        },
-                                        error: function (xhr, status, error) {
-                                            console.log(error);
-                                            $tempErr.length = 0;
-                                        }
-                                    });
-                                }
-                            });*@
-                            //if ($tempErr.length >= 1) {
-                            ////    alert('Ada error. Silahkan klik "View Error"');
-                            ////} else if ($tempErr.length == 1) {
-                            ////    $("#btn-error").click();
-                            //    $('#btn-error').click()
-                            //    showError(ret.nobuk, ret.buktiLog);
-                            //} else if ($tempErr.length == 0) {
-                            //    //$("#btn-error-row").hide();
-                            //}
-                            if (adaError == true) {
-                                $('#btn-error').click()
-                                showError(ret.nobuk, ret.buktiLog);
-                            } 
+                                refreshInputan();
+                                getTanggal();
+                                getMarketplace();
+                                getFaktur($("#Piutang_CUST").val());
+                                $('input, select').each(function () {
+                                    $(this).attr('disabled', 'disabled');
+                                });
+                                $('#btn-simpan-perubahan-row').hide();
+                                $('#btn-autoload').click(function () {
+                                    $('#file_upload_excel').removeAttr('disabled');
+                                });
+                                $("#btn-error-row").show();
+                                $tempErr.length = 0;
+                                $tempErr = listError;
+                                if (adaError == true) {
+                                    $('#btn-error').click()
+                                    showError(ret.nobuk, ret.buktiLog);
+                                } 
+                            }
+                                                        
                             
                         } else {
-                            if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false) {
+                            if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
 
                                 if (response.progress <= response.countAll) {
-                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog));
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses);
                                 }
 
                             } else if (response.statusSuccess == true) {
@@ -2222,16 +2215,16 @@
                     },
                     error: function (xhr, status, error) {
                         var err = "";
-                        if (Response.error != undefined) {
-                            for (i = 0; i < response.Errors.length; i++) {
-                                err += response.Errors[i] + "\n";
-                            }
-                        } else {
-                            for (i = 0; i < error.length; i++) {
-                                err += error[i] + "\n";
-                            }
-                        }
-                        alert(err);
+                        //if (error != undefined) {
+                        //    for (i = 0; i < error.length; i++) {
+                        //        err += error[i] + "\n";
+                        //    }
+                        //} else {
+                        //    for (i = 0; i < error.length; i++) {
+                        //        err += error[i] + "\n";
+                        //    }
+                        //}
+                        alert(error);
                         console.log(error);
                         //$('#progressBarUpload').modal('hide');
                         $('#progressBarUpload').hide();
@@ -2241,6 +2234,7 @@
 
             }
         }
+
         function popupAlertUploadSaldoAwal() {
             alert("Proses upload pembayaran piutang sudah selesai!");
         }

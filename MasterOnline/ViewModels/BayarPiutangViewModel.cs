@@ -56,6 +56,7 @@ namespace MasterOnline.ViewModels
         //public string cust_perso { get; set; }
         //end add by nurul 6/4/2020
         public bool adaError { get; set; }
+        public bool TidakLanjutProses { get; set; }
     }
 
     public class DetailLazada
