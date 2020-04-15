@@ -2017,10 +2017,14 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetProductInfoRootobject)) as TokpedGetProductInfoRootobject;
-                if (!string.IsNullOrWhiteSpace(result.header.messages))
-                {
+                //change by Tri 15 apr 2020, message ada isi nya saat sukses
+                //if (!string.IsNullOrWhiteSpace(result.header.messages))
+                if(result != null)
+                if(result.header.error_code != 0)
+                //end change by Tri 15 apr 2020, message ada isi nya saat sukses
+                    {
 
-                }
+                    }
                 else
                 {
                     var a = result.data.FirstOrDefault();
