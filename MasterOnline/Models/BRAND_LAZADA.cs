@@ -21,4 +21,13 @@ namespace MasterOnline.Models
         public string brand_id { get; set; }
         public string name { get; set; }
     }
+
+    //add by fauzi for 82Cart
+    public class BRAND_82CART
+    {
+        public string id_manufacturer { get; set; }
+        public string name { get; set; }
+        public string active { get; set; }
+    }
+    //end add
 }

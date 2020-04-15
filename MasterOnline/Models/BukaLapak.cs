@@ -51,6 +51,21 @@ namespace MasterOnline.Models
         public int totalData { get; set; }
         public int nextPage { get; set; }
     }
+
+    public class BindingBase82Cart
+    {
+        public int status { get; set; }
+        public string message { get; set; }
+        public int recordCount { get; set; }
+        public int exception { get; set; }
+        public int totalData { get; set; }
+        public int nextPage { get; set; }
+        public string id_category { get; set; }
+        public string name_category { get; set; }
+        public string id_manufacture { get; set; }
+        public string name_manufacture { get; set; }
+    }
+
     public class BukaLapakResponse
     {
         public string status { get; set; }

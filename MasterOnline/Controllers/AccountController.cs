@@ -1270,6 +1270,87 @@ namespace MasterOnline.Controllers
                 }
             }
             #endregion
+
+            #region 82Cart
+            var kd82Cart = 20;
+
+            var v82CartShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart.ToString());
+            if (id_single_account.HasValue)
+            {
+                v82CartShop = v82CartShop.Where(m => m.RecNum.Value == id_single_account.Value);
+            }
+            var list82CartShop = v82CartShop.ToList();
+            if (list82CartShop.Count > 0)
+            {
+                //var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in list82CartShop)
+                {
+
+                    string connId_JobId = "";
+                    //add by fauzi 25 November 2019
+                    if (tblCustomer.TIDAK_HIT_UANG_R == true)
+                    {
+#if (AWS || DEV)
+                         EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                        idenJob.API_key = tblCustomer.API_KEY;
+                        idenJob.API_credential = tblCustomer.Sort1_Cust;
+                        idenJob.API_url = tblCustomer.PERSO;
+                        idenJob.DatabasePathErasoft = dbPathEra;
+                        idenJob.username = username;
+                        idenJob.no_cust = tblCustomer.CUST;
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatusCompleted(idenJob, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatusCancelled(idenJob, EightTwoCartControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+
+#else
+                        EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData();
+                        iden.API_key = tblCustomer.API_KEY;
+                        iden.API_credential = tblCustomer.Sort1_Cust;
+                        iden.API_url = tblCustomer.PERSO;
+                        iden.DatabasePathErasoft = dbPathEra;
+                        iden.username = username;
+                        iden.no_cust = tblCustomer.CUST;
+
+                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+
+                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+
+                        await new EightTwoCartController().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartController.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
+
+                        await new EightTwoCartController().E2Cart_GetOrderByStatusCancelled(iden, EightTwoCartController.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+
+#endif
+
+
+
+                    }
+                    else
+                    {
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+                    }
+                }
+            }
+#endregion
+
             return "";
         }
 
