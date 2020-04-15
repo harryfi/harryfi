@@ -8961,7 +8961,7 @@ namespace MasterOnline.Controllers
                                             //TokopediaController tokoAPI = new TokopediaController();
                                             //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
 
-                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION LIKE 'Link Produk%') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                             EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                             TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                             {
@@ -9029,10 +9029,14 @@ namespace MasterOnline.Controllers
                                                     {
                                                         foreach (var item in cekPendingCreate)
                                                         {
+                                                            string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION LIKE 'Link Produk%') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
                                                             //change by calvin 9 juni 2019
                                                             //Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
 #if (DEBUG || Debug_AWS)
-                                                            Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                            //Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                            Task.Run(() => new TokopediaControllerJob().CreateProductGetStatus(dbPathEra, item.BRG, tblCustomer.CUST, "Barang", "Link Produk (Tahap 1 / 2 )", iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
 #else
                                                             var sqlStorage = new SqlServerStorage(EDBConnID);
                                                             var clientJobServer = new BackgroundJobClient(sqlStorage);
@@ -9049,6 +9053,8 @@ namespace MasterOnline.Controllers
                                                         //change by calvin 9 juni 2019
                                                         //Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
 
+                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION LIKE 'Edit Produk%' OR REQUEST_ACTION LIKE 'Link Produk%') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                         Task.Run(() => new TokopediaControllerJob().EditProductGetStatus(dbPathEra, stf02h.BRG, tblCustomer.CUST, "Barang", "Edit Produk Get Status", iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
 #else
@@ -9068,6 +9074,8 @@ namespace MasterOnline.Controllers
                                                         //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP));
                                                         ////end change by calvin 9 juni 2019
 
+                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION LIKE 'Edit Produk%' OR REQUEST_ACTION LIKE 'Link Produk%') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 #if (DEBUG || Debug_AWS)
                                                         Task.Run(() => new TokopediaControllerJob().EditProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, "Barang", "Edit Produk", iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
 #else
@@ -9100,7 +9108,7 @@ namespace MasterOnline.Controllers
                                                         //TokopediaController tokoAPI = new TokopediaController();
                                                         //Task.Run(() => tokoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG)).Wait());
 
-                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
+                                                        string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND (REQUEST_ACTION = 'Buat Produk' OR REQUEST_ACTION LIKE 'Link Produk%') AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) + "'";
                                                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                                                         TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                                         {
