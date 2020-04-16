@@ -2825,7 +2825,7 @@ namespace MasterOnline.Controllers
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(GetShippingFeeResult)) as GetShippingFeeResult;
                 if(result != null)
                 {
-                    if (!string.IsNullOrEmpty(result.error))
+                    if (string.IsNullOrEmpty(result.error))
                     {
                         ret = result;
                         return ret;
