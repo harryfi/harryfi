@@ -292,6 +292,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="konfProsesSop" tabindex="-1" role="dialog" aria-labelledby="konfirmasiProsesLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalresponsivetrmsk2">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiProsesLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin memproses stok opname ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="prosesSOpname();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -305,28 +325,11 @@
     <script type="text/javascript">
 
         var $modeEdit = 0; // 0 new, 1 edit
-        var $page = window.text; 
+        var $page = window.text;
 
         $(document).ready(function () {
             refreshTableStokOpname();
             $page = 0;
-           
-
-            var tableSiapProses = $('#datatable_siapproses').DataTable({
-                columnDefs: [{
-                    orderable: false,
-                    className: 'select-checkbox',
-                    targets: 0
-                }],
-                select: {
-                    style: 'os',
-                    selector: 'td:first-child'
-                },
-            });
-
-            $('#search_siapproses').keyup(function () {
-                tableSiapProses.search($(this).val()).draw();
-            });
 
             $('#search_stok').keypress(function (e) {
                 var key = e.which;
@@ -345,24 +348,19 @@
             });
 
             $('#close-editor').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $modeEdit = 0;
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.stok_table_section').show();
-                    $('.stok_editor_section').hide();
-                    refreshTableStokOpname();
-                }
+                $modeEdit = 0;
+                $('input, select, .btn-danger').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                $('.stok_table_section').show();
+                $('.stok_editor_section').hide();
+                refreshTableStokOpname();
             });
 
             $("#excelStokOpname").on("hidden.bs.modal", function () {
                 $('#progressBarUpload').hide();
                 document.getElementById("file_upload_excel").value = "";
 
-                // refresh saat tutup modal excel
                 refreshTableStokOpname();
             });
 
@@ -456,26 +454,6 @@
                     }
                 });
 
-            $('#btn-simpan-perubahan').click(function () {
-                var $this = $(this);
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("UpdateStokOpname", "Manage")',
-                    data: JSON.stringify({
-                        NoBuktiStok: $('#Stok_Nobuk').val(),
-                        TglInput: $('#StokOpname_TGL').val()
-                    }),
-                    contentType: 'application/json; charset=UTF-8',
-                    cache: false,
-                    success: function () {
-                        alert('Data stok berhasil di-update');
-                        $('#btn-simpan-perubahan-row').hide();
-                    },
-                    error: function (xhr) {
-                        console.log(xhr);
-                    }
-                });
-            });
         }
 
         function widthBrg() {
@@ -547,12 +525,12 @@
                         if (this.value == '') {
                             if ($class === 'qty-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
-                            } 
+                            }
                             $('#BarangStokOpname_Qty').val($($trElement + ' .qty-barang').text());
                         } else {
                             if ($class === 'qty-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
-                            } 
+                            }
                             $('#BarangStokOpname_Qty').val($($trElement + ' .qty-barang').text());
                         }
                     },
@@ -604,21 +582,26 @@
                             }
                         }
                     });
-                    if ($modeEdit == 0) {
-                        gudangSelect[0].selectize.setValue($('#StokOpname_GUD').val());
-                    }
-                    
+
+                    //gudangSelect[0].selectize.setValue($('#StokOpname_GUD').val());
+
                 },
                 error: function (xhr) {
                     console.log(xhr);
                 }
             });
         }
-        
+
         function getDataBarang() {
+
+            var nobuk = $('#StokOpname_NOBUK').val();
+            
+            var link = '@Url.Action("GetDataBarangOP", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(nobuk));
+
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("GetDataBarang", "Manage")',
+                url: link,
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
@@ -707,7 +690,7 @@
         function undeleteable() {
             alert('Transaksi Sudah Proses! \nTidak dapat dihapus!');
         }
-        
+
         function lihatStokOP(idStok) {
             var link = '@Url.Action("EditStokOpname", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(idStok));
@@ -772,7 +755,7 @@
             } else {
                 $tpPage = $('#txt_last_page').val();
             }
-            
+
             var $link = '@Html.Raw(Url.Action("RefreshTableStokOpname", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
@@ -832,7 +815,7 @@
 
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
-                    
+
                     $('#form-partial').html(response);
                     widthBrg();
                     getDataBarang();
@@ -853,7 +836,7 @@
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteStokOpname", "Manage", new { stokId = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(this.$idStok));
-            
+
             $.ajax({
                 type: "GET",
                 url: link,
@@ -909,6 +892,48 @@
             });
         }
 
+        function passNobuk(idStokOp) {
+            this.$idStokOp = idStokOp;
+        }
+
+        function prosesSOpname() {
+
+            var $savePage = $('#txt_last_page').val();
+            //console.log(this.$idStokOp);
+            var link = '@Url.Action("ProsesStokOpname", "Manage", new { stokOpId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idStokOp));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#konfProsesSop').modal('hide');
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+
+                    $('#loading_spinner').hide();
+
+                    if (response.Errors[0] == null) {
+                        $('#statpros').val("Sudah");
+                        $('#prosesSOpname').attr('disabled', 'disabled');
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('tr[data-stok-id="0"]').remove();
+                        alert('Data Berhasil Diproses');
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                }
+            });
+
+        }
+
         function validasiTambahan() {
             var $isValid = true;
             var $Gd = $('#GUDANG');
@@ -937,7 +962,7 @@
                     $Gd.closest('div').find('.text-danger').remove();
                 } else if ($this.closest('div').find('.text-danger').length) {
                     $this.closest('div').find('.text-danger').remove();
-                } 
+                }
             }
 
             return $isValid;
@@ -946,10 +971,7 @@
 
         function simpanbrgsop($id) {
 
-            //if (!validateForm()) return false;
             if (!validasiTambahan()) return false;
-
-            //console.log($('#form-stokopname').serialize());
 
             if ($id == 'brg-0') {
                 if ($('#StokOpname_TGL').val() != "") {
