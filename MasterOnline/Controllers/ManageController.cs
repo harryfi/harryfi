@@ -40235,7 +40235,7 @@ namespace MasterOnline.Controllers
 
         public async Task<ActionResult> UploadXcelBayar1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log, bool NoProcess)
         {
-            BindUploadExcel ret = new BindUploadExcel();
+            BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
             string cust_id = Request["cust"];
@@ -40976,7 +40976,7 @@ namespace MasterOnline.Controllers
                                     ret.countAll = data_proses_lanjut.Count();
                                     if (data_proses_lanjut.Count() > 0)
                                     {
-                                        var cekListSIKosong = data_proses.Where(a => (a.KET2 == null || a.KET2 == "")).Select(a => a.NOREF).ToList();
+                                        var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
                                         if(cekListSIKosong.Count() > 0)
                                         {
                                             foreach (var ref1 in cekListSIKosong)
@@ -41022,7 +41022,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
-                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null || a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
                                         if(cekLunas.Count() > 0)
                                         {
                                             foreach (var ref1 in cekLunas)
@@ -41048,7 +41048,7 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        var cekListSIKosong = data_proses.Where(a => (a.KET2 == null || a.KET2 == "")).Select(a => a.NOREF).ToList();
+                                        var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
                                         if (cekListSIKosong.Count() > 0)
                                         {
                                             foreach (var ref1 in cekListSIKosong)
@@ -41094,7 +41094,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
-                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null || a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                        var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
                                         if (cekLunas.Count() > 0)
                                         {
                                             foreach (var ref1 in cekLunas)
@@ -41175,6 +41175,7 @@ namespace MasterOnline.Controllers
                                     ret.statusLoop = true;
                                     //var loop = Convert.ToInt32(i);
                                     ret.progress = i + 1;
+                                    var tempPercent = Convert.ToInt32(prog[0]);
                                     ret.percent = ((i + 1) * 100) / ret.countAll;
                                     //var saldomasuk = ret.records[i].PenerimaDana;
                                     //var recnum = Convert.ToInt32(recnum_record[i]);
@@ -41482,64 +41483,67 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            if (nilaiRef.Count() > 0)
+                                            if (tempPercent != ret.percent)
                                             {
-                                                ret.TBAYAR = 0;
-                                                for (int ab = 0; ab < nilaiRef.Count(); ab++)
+                                                if (nilaiRef.Count() > 0)
                                                 {
+                                                    ret.TBAYAR = 0;
+                                                    for (int ab = 0; ab < nilaiRef.Count(); ab++)
+                                                    {
 
-                                                    ret.TBAYAR += nilaiRef[ab];
+                                                        ret.TBAYAR += nilaiRef[ab];
+                                                    }
                                                 }
-                                            }
-                                            if (nilaiPot.Count() > 0)
-                                            {
-                                                ret.TPOT = 0;
-                                                for (int ab = 0; ab < nilaiPot.Count(); ab++)
+                                                if (nilaiPot.Count() > 0)
                                                 {
+                                                    ret.TPOT = 0;
+                                                    for (int ab = 0; ab < nilaiPot.Count(); ab++)
+                                                    {
 
-                                                    ret.TPOT += nilaiPot[ab];
+                                                        ret.TPOT += nilaiPot[ab];
+                                                    }
                                                 }
-                                            }
-                                            if (nilaiLebihBayar.Count() > 0)
-                                            {
-                                                ret.TLEBIHBAYAR = 0;
-                                                for (int x = 0; x < nilaiLebihBayar.Count(); x++)
+                                                if (nilaiLebihBayar.Count() > 0)
                                                 {
+                                                    ret.TLEBIHBAYAR = 0;
+                                                    for (int x = 0; x < nilaiLebihBayar.Count(); x++)
+                                                    {
 
-                                                    ret.TLEBIHBAYAR += Convert.ToDouble(nilaiLebihBayar[x]);
+                                                        ret.TLEBIHBAYAR += Convert.ToDouble(nilaiLebihBayar[x]);
+                                                    }
                                                 }
-                                            }
-                                            try
-                                            {
-                                                var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
-                                                getheader.TPOT = getheader.TPOT + ret.TPOT;
-                                                getheader.TBAYAR = getheader.TBAYAR + ret.TBAYAR;
-                                                if (getheader.TLEBIH_BAYAR == null)
+                                                try
                                                 {
-                                                    getheader.TLEBIH_BAYAR = 0;
+                                                    var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
+                                                    getheader.TPOT = getheader.TPOT + ret.TPOT;
+                                                    getheader.TBAYAR = getheader.TBAYAR + ret.TBAYAR;
+                                                    if (getheader.TLEBIH_BAYAR == null)
+                                                    {
+                                                        getheader.TLEBIH_BAYAR = 0;
+                                                    }
+                                                    getheader.TLEBIH_BAYAR = Convert.ToDouble(getheader.TLEBIH_BAYAR) + ret.TLEBIHBAYAR;
+                                                    ErasoftDbContext.SaveChanges();
                                                 }
-                                                getheader.TLEBIH_BAYAR = Convert.ToDouble(getheader.TLEBIH_BAYAR) + ret.TLEBIHBAYAR;
-                                                ErasoftDbContext.SaveChanges();
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
-                                                //ret.Errors.Add(errMsg);
-                                                ret.adaError = true;
-                                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                catch (Exception ex)
                                                 {
-                                                    LOG_FILE = ret.buktiLog,
-                                                    VARIABLE_1 = ret.nobuk,
-                                                    VARIABLE_2 = ret.TipeData,
-                                                    TEXT_1 = errMsg,
-                                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                    USERNAME = uname
-                                                };
-                                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                ErasoftDbContext.SaveChanges();
-                                                ret.TidakLanjutProses = true;
+                                                    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
+                                                    //ret.Errors.Add(errMsg);
+                                                    ret.adaError = true;
+                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    {
+                                                        LOG_FILE = ret.buktiLog,
+                                                        VARIABLE_1 = ret.nobuk,
+                                                        VARIABLE_2 = ret.TipeData,
+                                                        TEXT_1 = errMsg,
+                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                        USERNAME = uname
+                                                    };
+                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                    ErasoftDbContext.SaveChanges();
+                                                    ret.TidakLanjutProses = true;
+                                                }
+                                                return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
-                                            return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
                                     }
                                 }
@@ -43579,7 +43583,7 @@ namespace MasterOnline.Controllers
         //add by nurul 11/11/2019, upload pembayaran lazada 
         public ActionResult UploadXcelBayarLazada(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess, string log)
         {
-            BindUploadExcel ret = new BindUploadExcel();
+            BindUploadExcelBayar ret = new BindUploadExcelBayar();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
             string cust_id = Request["cust"];
@@ -44360,7 +44364,7 @@ namespace MasterOnline.Controllers
                                         ret.countAll = data_proses_lanjut.Count();
                                         if (data_proses_lanjut.Count() > 0)
                                         {
-                                            var cekListSIKosong = data_proses.Where(a => (a.KET2 == null || a.KET2 == "")).Select(a => a.NOREF).ToList();
+                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
                                             if (cekListSIKosong.Count() > 0)
                                             {
                                                 foreach (var ref1 in cekListSIKosong)
@@ -44406,7 +44410,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null || a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
                                             if (cekLunas.Count() > 0)
                                             {
                                                 foreach (var ref1 in cekLunas)
@@ -44432,7 +44436,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            var cekListSIKosong = data_proses.Where(a => (a.KET2 == null || a.KET2 == "")).Select(a => a.NOREF).ToList();
+                                            var cekListSIKosong = data_proses.Where(a => a.KET2 == null).Select(a => a.NOREF).ToList();
                                             if (cekListSIKosong.Count() > 0)
                                             {
                                                 foreach (var ref1 in cekListSIKosong)
@@ -44478,7 +44482,7 @@ namespace MasterOnline.Controllers
                                                     }
                                                 }
                                             }
-                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null || a.KET2 != "")).Select(a => a.NOREF).ToList();
+                                            var cekLunas = data_proses.Where(a => a.NILAI_LAIN == 0 && (a.KET2 != null && a.KET2 != "")).Select(a => a.NOREF).ToList();
                                             if (cekLunas.Count() > 0)
                                             {
                                                 foreach (var ref1 in cekLunas)
@@ -44683,6 +44687,7 @@ namespace MasterOnline.Controllers
                                         ret.statusLoop = true;
                                         //var loop = Convert.ToInt32(i);
                                         ret.progress = i + 1;
+                                        var tempPercent = Convert.ToInt32(prog[0]);
                                         ret.percent = ((i + 1) * 100) / ret.countAll;
                                         ////loop all columns in a row
                                         //var recnum = Convert.ToInt32(recnum_record[i]);
@@ -44908,63 +44913,66 @@ namespace MasterOnline.Controllers
                                             }
                                             else
                                             {
-                                                if (nilaiRef.Count() > 0)
+                                                if (tempPercent != ret.percent)
                                                 {
-                                                    ret.TBAYAR = 0;
-                                                    for (int ab = 0; ab < nilaiRef.Count(); ab++)
+                                                    if (nilaiRef.Count() > 0)
                                                     {
+                                                        ret.TBAYAR = 0;
+                                                        for (int ab = 0; ab < nilaiRef.Count(); ab++)
+                                                        {
 
-                                                        ret.TBAYAR += nilaiRef[ab];
+                                                            ret.TBAYAR += nilaiRef[ab];
+                                                        }
                                                     }
-                                                }
-                                                if (nilaiPot.Count() > 0)
-                                                {
-                                                    ret.TPOT = 0;
-                                                    for (int ab = 0; ab < nilaiPot.Count(); ab++)
+                                                    if (nilaiPot.Count() > 0)
                                                     {
+                                                        ret.TPOT = 0;
+                                                        for (int ab = 0; ab < nilaiPot.Count(); ab++)
+                                                        {
 
-                                                        ret.TPOT += nilaiPot[ab];
+                                                            ret.TPOT += nilaiPot[ab];
+                                                        }
                                                     }
-                                                }
-                                                if (nilaiLebihBayar.Count() > 0)
-                                                {
-                                                    ret.TLEBIHBAYAR = 0;
-                                                    for (int x = 0; x < nilaiLebihBayar.Count(); x++)
+                                                    if (nilaiLebihBayar.Count() > 0)
                                                     {
+                                                        ret.TLEBIHBAYAR = 0;
+                                                        for (int x = 0; x < nilaiLebihBayar.Count(); x++)
+                                                        {
 
-                                                        ret.TLEBIHBAYAR += Convert.ToDouble(nilaiLebihBayar[x]);
+                                                            ret.TLEBIHBAYAR += Convert.ToDouble(nilaiLebihBayar[x]);
+                                                        }
                                                     }
-                                                }
-                                                try
-                                                {
-                                                    var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
-                                                    getheader.TPOT = getheader.TPOT + ret.TPOT;
-                                                    getheader.TBAYAR = getheader.TBAYAR + ret.TBAYAR;
-                                                    if (getheader.TLEBIH_BAYAR == null)
+                                                    try
                                                     {
-                                                        getheader.TLEBIH_BAYAR = 0;
+                                                        var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
+                                                        getheader.TPOT = getheader.TPOT + ret.TPOT;
+                                                        getheader.TBAYAR = getheader.TBAYAR + ret.TBAYAR;
+                                                        if (getheader.TLEBIH_BAYAR == null)
+                                                        {
+                                                            getheader.TLEBIH_BAYAR = 0;
+                                                        }
+                                                        getheader.TLEBIH_BAYAR = Convert.ToDouble(getheader.TLEBIH_BAYAR) + ret.TLEBIHBAYAR;
+                                                        ErasoftDbContext.SaveChanges();
                                                     }
-                                                    getheader.TLEBIH_BAYAR = Convert.ToDouble(getheader.TLEBIH_BAYAR) + ret.TLEBIHBAYAR;
-                                                    ErasoftDbContext.SaveChanges();
-                                                }
-                                                catch (Exception ex)
-                                                {
-                                                    var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
-                                                    //ret.Errors.Add(errMsg);
-                                                    ret.adaError = true;
-                                                    TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                    catch (Exception ex)
                                                     {
-                                                        LOG_FILE = ret.buktiLog,
-                                                        VARIABLE_1 = ret.nobuk,
-                                                        VARIABLE_2 = ret.TipeData,
-                                                        TEXT_1 = errMsg,
-                                                        TGL_INPUT = DateTime.UtcNow.AddHours(7),
-                                                        USERNAME = uname
-                                                    };
-                                                    ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
-                                                    ErasoftDbContext.SaveChanges();
+                                                        var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "<br />";
+                                                        //ret.Errors.Add(errMsg);
+                                                        ret.adaError = true;
+                                                        TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                                        {
+                                                            LOG_FILE = ret.buktiLog,
+                                                            VARIABLE_1 = ret.nobuk,
+                                                            VARIABLE_2 = ret.TipeData,
+                                                            TEXT_1 = errMsg,
+                                                            TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                                            USERNAME = uname
+                                                        };
+                                                        ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                                 }
-                                                return Json(ret, JsonRequestBehavior.AllowGet);
                                             }
                                         }
                                     }

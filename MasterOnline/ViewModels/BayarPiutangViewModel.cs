@@ -19,12 +19,12 @@ namespace MasterOnline.ViewModels
         public double bayarPiutang { get; set; }
 
         //add by nurul 6/4/2020
-        public BindUploadExcel ret { get; set; }
+        public BindUploadExcelBayar ret { get; set; }
         //end add by nurul 6/4/2020
         public bool adaError { get; set; }
     }
 
-    public class BindUploadExcel
+    public class BindUploadExcelBayar
     {
         public List<string> Errors { get; set; }
         public List<int> lastRow { get; set; }
