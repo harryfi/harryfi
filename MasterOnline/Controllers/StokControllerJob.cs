@@ -22,6 +22,7 @@ using Hangfire.States;
 using Lazop.Api;
 using Lazop.Api.Util;
 using System.Security.Cryptography;
+using System.Xml;
 
 namespace MasterOnline.Controllers
 {
@@ -1426,7 +1427,10 @@ namespace MasterOnline.Controllers
             //end add 12-04-2019, cek qty on lazada
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            //change 16 apr 2020
+            //xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
+            //end change 16 apr 2020
             if (!string.IsNullOrEmpty(qty))
                 xmlString += "<Quantity>" + qty + "</Quantity>";
             if (!string.IsNullOrEmpty(harga))
@@ -1451,7 +1455,14 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
+                    if(res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
                     throw new Exception(ret.message);
                     //currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
@@ -1469,7 +1480,13 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-
+        public static string XmlEscape(string unescaped)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlNode node = doc.CreateElement("root");
+            node.InnerText = unescaped;
+            return node.InnerXml;
+        }
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Elevenia gagal.")]
