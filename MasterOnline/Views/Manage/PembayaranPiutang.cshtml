@@ -575,20 +575,39 @@
                     </div>
                 </div>
                 @*<div>
-                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-                    </div>*@
+            <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+        </div>*@
                 @*<div id="uploadbrgviewdiv" class="row">
-                    </div>*@
+        </div>*@
 
                 @*//add by nurul 2/4/2020*@
                 @*<div class="col-md-12">
-                    <div id="loading_upload" class="text-center" hidden="hidden">
-                        <div id="loading_upload_image">
-                            <img src="~/Content/Images/spinner.gif" />
-                        </div>
-                    </div>
-                </div>*@
+            <div id="loading_upload" class="text-center" hidden="hidden">
+                <div id="loading_upload_image">
+                    <img src="~/Content/Images/spinner.gif" />
+                </div>
+            </div>
+        </div>*@
                 <br />
+                <div class="col-md-12">
+                    <div id="progressBarDownload" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBDownload"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_DownloadFile"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
                 <div class="col-md-12">
                     <div id="progressBarUpload" class="text-center" style="display:none;">
                         <table class="col-md-12" id="tbl_progbar2">
@@ -701,6 +720,8 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var tempNobuk = "";
+        var tempLog = "";
         var $tempErr = [];
         var $tempMP1 = "";
         var $tempMP = "";
@@ -712,6 +733,7 @@
             $("#konfUpload").on('hidden.bs.modal', function (e) {
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
                 refreshTablePiutang1();
             });
             refreshTablePiutang1();
@@ -781,6 +803,8 @@
                 //});
                 //$('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 12/2/2019
+                tempLog = "";
+                tempNobuk = "";
             });
 
         });
@@ -1941,9 +1965,11 @@
                 $('#file_upload_excel').click();
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
             } else if (sizeFile > 4000) {
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
                 alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
             }
             else {
@@ -1951,9 +1977,13 @@
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
+                    $('#pBar_DownloadFile').css('width', '20%').attr('aria-valuenow', 20);
+                    $('#pBar_DownloadFile').html('20% Complete');
+                    $('#progressBarDownload').show();
                     $('#progressBarUpload').show();
                     uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
                 } else {
+                    $('#progressBarDownload').hide();
                     $('#progressBarUpload').hide();
                     alert("Fitur ini sedang kami upgrade. Mohon hubungi tim support.");
                 }
@@ -1973,12 +2003,18 @@
 
             if ($('#file_upload_excel')[0].files.length <= 0) {
                 //$('#progressBarUpload').modal('hide');
+                $('#progressBarDownload').hide();
+                $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_DownloadFile').html('0% Complete');
                 $('#progressBarUpload').hide();
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
                 //$('#loading_upload').hide();
             } else if (sizeFile > 4000) {
                 //$('#progressBarUpload').modal('hide');
+                $('#progressBarDownload').hide()
+                $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_DownloadFile').html('0% Complete');
                 $('#progressBarUpload').hide();
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
@@ -1996,7 +2032,8 @@
                     //Appending each file to FormData object
                     if (i == 0) {
                         formdata.append(fileInput.files[i].name, fileInput.files[i]);
-                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                        $('#lblPBUpload').text('Processing File : ' + fileInput.files[i].name);
+                        $('#lblPBDownload').text('Uploading File : ' + fileInput.files[i].name);
                     }
                 }
 
@@ -2046,13 +2083,16 @@
                         if (response.Errors == undefined) {
                             //$('#loading_upload').hide();
                             //$("#konfUpload").modal('hide');
-
+                            
                             $modeEdit = 1; // 0 new, 1 edit
                             $('.piutang_table_section').hide();
                             $('.piutang_editor_section').show();
                             $('#form-partial').html(response);
-                            
+                            tempNobuk = ret.nobuk;
+                            tempLog = ret.buktiLog;
 
+                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_DownloadFile').html('100% Complete');
 
                             if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
@@ -2066,7 +2106,7 @@
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
-                                setTimeout(popupAlertUploadSaldoAwal, 500);
+                                //setTimeout(popupAlertUploadSaldoAwal, 500);
                                 $("#konfUpload").modal('hide');
 
                                 refreshInputan();
@@ -2080,12 +2120,19 @@
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
-                                $("#btn-error-row").show();
+                                //$("#btn-error-row").show();
                                 $tempErr.length = 0;
                                 $tempErr = listError;
-                                if (adaError == true) {
-                                    $('#btn-error').click()
-                                    showError(ret.nobuk, ret.buktiLog);
+                                popupAlertUploadSaldoAwal;
+                                if (ret.adaError == true) {
+                                    //if (ret.nobuk != null) {
+                                    //    $("#btn-error").click();
+                                    //    showError(ret.nobuk, ret.buktiLog);
+                                    //} else {
+                                    //    alert(ret.Errors);
+                                    //}
+                                        $("#modalError").modal('show');
+                                        showError(tempNobuk, tempLog);
                                 } 
                             } else {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
@@ -2105,17 +2152,30 @@
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
-                                $("#btn-error-row").show();
+                                //$("#btn-error-row").show();
                                 $tempErr.length = 0;
                                 $tempErr = listError;
-                                if (adaError == true) {
-                                    $('#btn-error').click()
-                                    showError(ret.nobuk, ret.buktiLog);
+                                alert("Proses upload pembayaran piutang gagal.");
+                                if (ret.adaError == true) {
+                                    //if (ret.nobuk != null) {
+                                    //    $("#btn-error").click();
+                                    //    showError(ret.nobuk, ret.buktiLog);
+                                        
+                                    //} else {
+                                    //    alert(ret.Errors);
+                                    //}
+                                        $("#modalError").modal('show');
+                                        showError(tempNobuk, tempLog);
                                 } 
                             }
                                                         
                             
                         } else {
+                            tempNobuk = response.nobuk;
+                            tempLog = response.buktiLog;
+                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_DownloadFile').html('100% Complete');
+
                             if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
                                 $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
                                 $('#pBar_uploadFile').html(response.percent + '% Complete');
@@ -2140,7 +2200,7 @@
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
                                     //$("#konfUpload").modal('hide');
-                                    $("#btn-error-row").show();
+                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = response.Errors;
                                     //$("#modalError").on('show.bs.modal', function (e) {
@@ -2160,12 +2220,23 @@
                                 //    } else if ($tempErr.length == 0) {
                                 //        //$("#btn-error-row").hide();
                                 //}
+                                //setTimeout(popupAlertUploadSaldoAwal, 500);
+                                popupAlertUploadSaldoAwal;
                                 if (response.adaError == true) {
-                                    $('#btn-error').click()
-                                    showError(response.nobuk, response.buktiLog);
+                                    //
+                                    
+                                    //if (response.nobuk != null) { 
+                                    //    //showError(response.nobuk, response.buktiLog);
+                                    //        $("#modalError").modal('show');
+                                    //        showError(tempNobuk, tempLog);
+                                    //} else {
+                                    //    alert(response.Errors);
+                                    //}
+                                    $("#modalError").modal('show');
+                                    showError(tempNobuk, tempLog);
                                 } 
 
-                                setTimeout(popupAlertUploadSaldoAwal, 500);
+                                
                                 $("#konfUpload").modal('hide');
                             } else {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
@@ -2184,7 +2255,7 @@
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
                                     //$("#konfUpload").modal('hide');
-                                    $("#btn-error-row").show();
+                                    //$("#btn-error-row").show();
                                     $tempErr.length = 0;
                                     $tempErr = response.Errors;
                                     //$("#modalError").on('show.bs.modal', function (e) {
@@ -2204,11 +2275,24 @@
                                 //    } else if ($tempErr.length == 0) {
                                 //        //$("#btn-error-row").hide();
                                 //}
+                                //setTimeout(alert("Proses upload pembayaran piutang gagal."), 500);
+                                alert("Proses upload pembayaran piutang gagal.");
                                 if (response.adaError == true) {
-                                    $('#btn-error').click()
-                                    showError(response.nobuk, response.buktiLog);
+                                    //$('#btn-error').click()
+                                    //if (response.nobuk != null) {
+                                    //    //$('#btn-error').click()
+                                    //    //showError(response.nobuk, response.buktiLog);
+                                    //    $("#modalError").on('show.bs.modal', function (e) {
+                                    //        $("#modalError").modal('show');
+                                    //        showError(tempNobuk, tempLog);
+                                    //    });
+                                    //} else {
+                                    //    alert(response.Errors);
+                                    //}
+                                    $("#modalError").modal('show');
+                                    showError(tempNobuk, tempLog);
                                 } 
-                                setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
+                                
                                 $("#konfUpload").modal('hide');
                             }
                         }
@@ -2227,6 +2311,7 @@
                         alert(error);
                         console.log(error);
                         //$('#progressBarUpload').modal('hide');
+                        $('#progressBarDownload').hide();
                         $('#progressBarUpload').hide();
                         $('#btnUploadExcelPiutang').removeAttr('disabled');
                     }
@@ -2306,7 +2391,7 @@
                             $('#btn-autoload').click(function () {
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
-                            $("#btn-error-row").show();
+                            //$("#btn-error-row").show();
                             $tempErr.length = 0;
                             $tempErr = listError;
                             $("#modalError").on('show.bs.modal', function (e) {
@@ -2355,7 +2440,7 @@
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
                             $("#konfUpload").modal('hide');
-                            $("#btn-error-row").show();
+                            //$("#btn-error-row").show();
                             $tempErr.length = 0;
                             $tempErr = response.Errors;
                             $("#modalError").on('show.bs.modal', function (e) {
@@ -2405,18 +2490,30 @@
 
         function showError($nobuk, $logFile) {
                                 //if ($('#Piutang_BUKTI').val() != "") {
-            var link = '@Url.Action("ShowErrorUploadBayar", "Manage", new { bukti = "replaceId", logErr = "replaceLog" })';
-            if ($nobuk != undefined && $logFile != undefined) {
-                link = link.replace("replaceId", $nobuk);
-                link = link.replace("replaceLog", $logFile);
+            var link = '@Url.Action("ShowErrorUploadBayar", "Manage")';
+            var $bukti = "";
+            var $log = "";
+            
+            if ($nobuk != undefined && $logFile != undefined && $nobuk != null && $logFile != null && $nobuk != "" && $logFile != "") {
+                $bukti = $nobuk;
+                $log = $logFile;
             } else {
-                link = link.replace("replaceId", $('#Piutang_BUKTI').val());
+                if (tempLog == "") {
+                    tempLog = logfile;
+                }
+                $bukti = tempNobuk;
+                $log = tempLog;
             }
+            $postdata = {
+                bukti: $bukti,
+                logErr: $log,
+            };
                                     $.ajax({
-                                        type: "GET",
+                                        type: "POST",
                                         url: link,
-                                        contentType: 'application/json; charset=UTF-8',
+                                        contentType: "application/json; charset=UTF-8",
                                         cache: false,
+                                        data: JSON.stringify($postdata),
                                         success: function (value) {
                                             //$('#modalError').find('.edit-content').html(value);
                                             //$('#Modal').modal('show');

@@ -41139,11 +41139,14 @@ namespace MasterOnline.Controllers
                                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                                         if (cekErr > 0)
                                         {
-                                            vm.adaError = true;
+                                            ret.adaError = true;
                                         }
                                         ret.TidakLanjutProses = true;
                                         return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
+                                    ret.TidakLanjutProses = false;
+                                    ret.statusLoop = true;
+                                    return Json(ret, JsonRequestBehavior.AllowGet);
                                 }
                             }
                             if (ret.statusLoop == true)
@@ -42200,7 +42203,7 @@ namespace MasterOnline.Controllers
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
                         {
-                            vm.adaError = true;
+                            vm.ret.adaError = true;
                         }
                     }
                     else
@@ -42228,7 +42231,7 @@ namespace MasterOnline.Controllers
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
                         {
-                            vm.adaError = true;
+                            vm.ret.adaError = true;
                         }
                         ret.TidakLanjutProses = true;
                         return Json(ret, JsonRequestBehavior.AllowGet);
@@ -42255,7 +42258,7 @@ namespace MasterOnline.Controllers
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                     if (cekErr > 0)
                     {
-                        vm.adaError = true;
+                        vm.ret.adaError = true;
                     }
                 }
                 else
@@ -42288,7 +42291,7 @@ namespace MasterOnline.Controllers
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                     if (cekErr > 0)
                     {
-                        vm.adaError = true;
+                        vm.ret.adaError = true;
                     }
                     ret.TidakLanjutProses = true;
                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -44336,9 +44339,9 @@ namespace MasterOnline.Controllers
                                                 string_ref += "'" + ref1 + "'";
                                             }
 
-                                            string ssql1 = "UPDATE A SET A.NILAI_LAIN = B.SISA, A.KET2 = B.NO_BUKTI + ';' + CONVERT(NVARCHAR, B.NETTO) + ';' + B.DATABAYAR + ';' + B.BUKTI_BAYAR + ';' + CONVERT(NVARCHAR, TGLREF_BAYAR) ";
+                                            string ssql1 = "UPDATE A SET A.NILAI_LAIN = isnull(B.SISA,0), A.KET2 = B.NO_BUKTI + ';' + CONVERT(NVARCHAR, B.NETTO) + ';' + B.DATABAYAR + ';' + B.BUKTI_BAYAR + ';' + CONVERT(NVARCHAR, TGLREF_BAYAR) ";
                                             ssql1 += "FROM TEMP_UPLOAD_EXCEL_BAYAR AS A LEFT JOIN ( ";
-                                            ssql1 += "select a.no_bukti, a.no_ref, a.netto, (isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)) sisa ";
+                                            ssql1 += "select a.no_bukti, a.no_ref, a.netto, isnull((isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)),0) sisa ";
                                             ssql1 += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(C.TGL_REF,'') AS TGLREF_BAYAR ";
                                             ssql1 += "from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR WHERE a.CUST= '" + cust_id + "' and a.no_ref in (" + string_ref + ")) ";
                                             ssql1 += "AS B ON A.NOREF = B.no_ref ";
@@ -44520,11 +44523,14 @@ namespace MasterOnline.Controllers
                                             var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                                             if (cekErr > 0)
                                             {
-                                                vm.adaError = true;
+                                                ret.adaError = true;
                                             }
                                             ret.TidakLanjutProses = true;
                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                         }
+                                        ret.TidakLanjutProses = false;
+                                        ret.statusLoop = true;
+                                        return Json(ret, JsonRequestBehavior.AllowGet);
                                     }
                                 }
                                 #endregion
@@ -45094,7 +45100,7 @@ namespace MasterOnline.Controllers
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
                         {
-                            vm.adaError = true;
+                            vm.ret.adaError = true;
                         }
                     }
                     else
@@ -45122,7 +45128,7 @@ namespace MasterOnline.Controllers
                         var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                         if (cekErr > 0)
                         {
-                            vm.adaError = true;
+                            vm.ret.adaError = true;
                         }
                         return Json(ret, JsonRequestBehavior.AllowGet);
                     }
@@ -45148,7 +45154,7 @@ namespace MasterOnline.Controllers
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_1 == ret.nobuk).Count();
                     if (cekErr > 0)
                     {
-                        vm.adaError = true;
+                        vm.ret.adaError = true;
                     }
                 }
                 else
@@ -45176,7 +45182,7 @@ namespace MasterOnline.Controllers
                     var cekErr = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.VARIABLE_2 == ret.nobuk).Count();
                     if (cekErr > 0)
                     {
-                        vm.adaError = true;
+                        vm.ret.adaError = true;
                     }
                     return Json(ret, JsonRequestBehavior.AllowGet);
                 }
@@ -45206,6 +45212,10 @@ namespace MasterOnline.Controllers
                     vm.header = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LAST_FAKTUR_UPLOADED == bukti).OrderByDescending(a => a.RECNUM).FirstOrDefault();
                     vm.detail = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.LOG_FILE == vm.header.LOG_FILE && a.VARIABLE_1 == bukti).ToList();
                 }
+            }else if(logErr != null && logErr != "")
+            {
+                vm.header = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LOG_FILE == logErr).OrderByDescending(a => a.RECNUM).FirstOrDefault();
+                vm.detail = ErasoftDbContext.TABLE_LOG_DETAIL.Where(a => a.LOG_FILE == vm.header.LOG_FILE && a.LOG_FILE == logErr).ToList();
             }
             return PartialView("ListErrorPembayaranPiutang", vm);
         }
