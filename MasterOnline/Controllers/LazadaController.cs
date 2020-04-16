@@ -4960,7 +4960,7 @@ namespace MasterOnline.Controllers
                                 if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
                                     && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
                                     && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
-                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class")
+                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class" && attr.name.ToLower() != "quantity")
                                 {
                                     retAttr["ALABEL" + i] = attr.label;
                                     retAttr["ANAME" + i] = attr.name;
