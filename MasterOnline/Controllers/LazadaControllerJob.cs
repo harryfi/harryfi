@@ -1289,6 +1289,80 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Harga Jual Produk {obj} ke Lazada gagal.")]
+        public async Task<string> UpdatePrice_Job(string dbPathEra, string kdBrg, string harga, string token, string uname)
+        {
+            var ret = "";
+            var errorMessage = "";
+            SetupContext(dbPathEra, uname);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Price",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = kdBrg,
+                REQUEST_ATTRIBUTE_2 = harga,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, token, currentLog);
+
+            if (string.IsNullOrEmpty(kdBrg))
+            {
+                //ret.message = "Item not linked to MP";
+                currentLog.REQUEST_EXCEPTION = "Item not linked to MP";
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+                return ret;
+            }
+            string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
+            //if (!string.IsNullOrEmpty(qty))
+            //    xmlString += "<Quantity>" + qty + "</Quantity>";
+            if (!string.IsNullOrEmpty(harga))
+                xmlString += "<Price>" + XmlEscape(harga) + "</Price>";
+            xmlString += "</Sku></Skus></Product></Request>";
+
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/price_quantity/update");
+            request.AddApiParameter("payload", xmlString);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    //ret.status = 1;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
+                }
+                else
+                {
+                    if (res.detail != null)
+                    {
+                        errorMessage = res.detail[0].message;
+                    }
+                    else
+                    {
+                        errorMessage = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = errorMessage;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+            }
+
+
+            return ret;
+        }
+
         public BindingBase UpdatePromoPrice(string kdBrg, double SalePrice, DateTime SaleStartDate, DateTime SaleEndDate, string token)
         {
             var ret = new BindingBase();
