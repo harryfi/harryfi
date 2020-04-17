@@ -852,7 +852,7 @@ namespace MasterOnline.Controllers
             if (Convert.ToString(stf02.TYPE) == "3")
             {
                 //xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
-                xmlString += "<Skus><Sku><SellerSku>" + stf02h.BRG_MP + "</SellerSku>";
+                xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(stf02h.BRG_MP) + "</SellerSku>";
                 //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
                 //xmlString += "<color_family>Not Specified</color_family>";
@@ -941,7 +941,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(GetStf02h.BRG_MP))
                         {
                             //xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
-                            xmlString += "<Sku><SellerSku>" + GetStf02h.BRG_MP + "</SellerSku>";
+                            xmlString += "<Sku><SellerSku>" + XmlEscape(GetStf02h.BRG_MP) + "</SellerSku>";
                             //xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                             xmlString += "<Status>" + (data.activeProd ? "active" : "inactive") + "</Status>";
 
@@ -1132,7 +1132,7 @@ namespace MasterOnline.Controllers
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
-            xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
             xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
             xmlString += "</Sku></Skus></Product></Request>";
@@ -1187,7 +1187,7 @@ namespace MasterOnline.Controllers
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
-            xmlString += "<SellerSku>" + data.kdBrg + "</SellerSku>";
+            xmlString += "<SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
             xmlString += "<special_price>" + data.promoPrice + "</special_price>";
             xmlString += "<special_from_date>" + data.fromDt + "</special_from_date>";
             xmlString += "<special_to_date>" + data.toDt + "</special_to_date>";
@@ -1250,7 +1250,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             if (!string.IsNullOrEmpty(qty))
                 xmlString += "<Quantity>" + qty + "</Quantity>";
             if (!string.IsNullOrEmpty(harga))
@@ -1314,7 +1314,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
             if (SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
             {
@@ -1380,7 +1380,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
             if (SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
             {

@@ -1050,7 +1050,7 @@ namespace MasterOnline.Controllers
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
-            xmlString += "<SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             //xmlString += "<active>" + (display ? "true" : "false") + "</active>";
             xmlString += "<Status>" + (display ? "active" : "inactive") + "</Status>";
             xmlString += "</Sku></Skus></Product></Request>";
@@ -1112,7 +1112,7 @@ namespace MasterOnline.Controllers
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
-            xmlString += "<SellerSku>" + data.kdBrg + "</SellerSku>";
+            xmlString += "<SellerSku>" + XmlEscape(data.kdBrg) + "</SellerSku>";
             xmlString += "<special_price>" + data.promoPrice + "</special_price>";
             xmlString += "<special_from_date>" + data.fromDt + "</special_from_date>";
             xmlString += "<special_to_date>" + data.toDt + "</special_to_date>";
@@ -1182,7 +1182,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             if (!string.IsNullOrEmpty(qty))
                 xmlString += "<Quantity>" + qty + "</Quantity>";
             if (!string.IsNullOrEmpty(harga))
@@ -1253,7 +1253,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
             if (SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
             {
@@ -1327,7 +1327,7 @@ namespace MasterOnline.Controllers
                 return ret;
             }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
-            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<Skus><Sku><SellerSku>" + XmlEscape(kdBrg) + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
             if (SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
             {
@@ -4960,7 +4960,7 @@ namespace MasterOnline.Controllers
                                 if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
                                     && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
                                     && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
-                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class")
+                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class" && attr.name.ToLower() != "quantity")
                                 {
                                     retAttr["ALABEL" + i] = attr.label;
                                     retAttr["ANAME" + i] = attr.name;
