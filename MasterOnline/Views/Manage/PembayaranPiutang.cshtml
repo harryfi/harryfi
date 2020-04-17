@@ -643,10 +643,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="createlabel">Konfirmasi Pelunasan</h4>
             </div>
-            <div class="modal-body" id="modal-create-body">
+            <div class="modal-body" id="modal-create-body" style="margin:auto;height:150px">
                 @*<div id="loading_pot" class="text-center">
-                        <img src="~/Content/Images/spinner.gif" width="100" />
-                    </div>*@
+            <img src="~/Content/Images/spinner.gif" width="100" />
+        </div>*@
                 <div class="row">
                     <div class="col-md-10 ">
                         <h5>Proses ini akan melunasi faktur. Apakah anda yakin akan melakukan pelunasan?</h5>
@@ -655,10 +655,30 @@
 
                 </div>
                 <br />
+                <div class="col-md-12">
+                    <div id="progressBarPot" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBPot"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Pot"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary pull-right" onclick="createPOT();">Proses</button>
+                <button type="button" id="create-pot" class="btn btn-primary pull-right">Proses</button>
             </div>
+            
         </div>
     </div>
 </div>
@@ -734,6 +754,7 @@
                 //$('#progressBarUpload').modal('hide');
                 $('#progressBarUpload').hide();
                 $('#progressBarDownload').hide();
+                $('#progressBarPot').hide();
                 refreshTablePiutang1();
             });
             refreshTablePiutang1();
@@ -1924,14 +1945,23 @@
 
         function validasiCreatePot() {
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
+                $('#progressBarPot').hide();
                 alert('Tidak ada detail pembayaran');
             } else if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
+                $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
             }else if ($('#Piutang_TGL').val() != null &&
                 $('#Piutang_CUST').val() != '') {
                 $("#konfCreatePot").modal('show');
+                $('#create-pot').click(function () {
+                    $('#pBar_Pot').css('width', '0%').attr('aria-valuenow', 0);
+                    $('#pBar_Pot').html('0% Complete');
+                    $('#progressBarPot').show();
+                    createPOT($('#NOBUK_bayar_piutang').val(), 0, "0;0", "false;false", false);
+                });
             }
             else {
+                $('#progressBarPot').hide();
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
 
             }
@@ -2080,7 +2110,7 @@
                     beforeSend: function () {
                     },
                     success: function (response) {
-                        if (response.Errors == undefined) {
+                        if (response.countAll == undefined) {
                             //$('#loading_upload').hide();
                             //$("#konfUpload").modal('hide');
                             
@@ -2095,8 +2125,8 @@
                             $('#pBar_DownloadFile').html('100% Complete');
 
                             if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
-                                $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
-                                $('#pBar_uploadFile').html(response.percent + '% Complete');
+                                $('#pBar_uploadFile').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                                $('#pBar_uploadFile').html(ret.percent + '% Complete');
 
                                 if (ret.progress <= ret.countAll) {
                                     uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses);
@@ -2556,43 +2586,59 @@
             });
         }
 
-        function createPOT() {
+        function createPOT(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length > 0) {
                 var totalSelisih = 0;
-                var get_rec = [];
-                var get_pot = [];
-                var get_faktur = [];
-                get_rec.length = 0;
-                get_pot.length = 0;
-                get_faktur.length = 0;
-                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
-                    if ($(item).attr("data-selisih") != undefined) {
-                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih"))));
-                        totalSelisih += convertToAngka($(item).attr("data-selisih"));
-                        get_pot.push(convertToAngka($(item).attr("data-selisih")));
-                        get_rec.push($(item).attr("data-rec"));
-                        get_faktur.push($(item).attr("data-faktur"));
-                    }
-                });
+                //var get_rec = [];
+                //var get_pot = [];
+                //var get_faktur = [];
+                //get_rec.length = 0;
+                //get_pot.length = 0;
+                //get_faktur.length = 0;
+                //$('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                //    if ($(item).attr("data-selisih") != undefined) {
+                //        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih"))));
+                //        totalSelisih += convertToAngka($(item).attr("data-selisih"));
+                //        //get_pot.push(convertToAngka($(item).attr("data-selisih")));
+                //        //get_rec.push($(item).attr("data-rec"));
+                //        //get_faktur.push($(item).attr("data-faktur"));
+                //    }
+                //});
 
-                if (totalSelisih == 0) {
+                //if (totalSelisih == 0) {
+                if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
+                    $('#progressBarPot').hide();
                     $("#konfCreatePot").modal('hide');
                     alert('Tidak ada kurang bayar.');
                 }
                 else
                 {
-                    $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
-                        $(item).text(convertToRupiah(0));
-                    });
-                    $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
-                        if (($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) && ($(item).attr("data-persen-gagal") != undefined || convertToAngka($(item).attr("data-persen-gagal")) > 0)) {
-                            $(item).text("0 %");
-                        }
-                    });
-                    $('#TOTALPOT').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
-                    $('#TOTALSELISIH').val(convertToRupiah(0));
+                    var splitpro = vpercentvprogress.split(';');
+                    var vpercent = splitpro[0];
+                    var vprogress = splitpro[1];
 
-                    $.ajax({
+                    var splitStatus = vstatusLoopvSuccess.split(';');
+                    var vstatusLoop = splitStatus[0];
+                    var vstatusSuccess = splitStatus[1];
+
+                    $('#create-pot').attr('disabled', 'disabled');
+
+                    //var formdata = new FormData();
+                    //formdata.append("cust", $('#Piutang_CUST').val());
+                    $('#lblPBPot').text('Processing Pelunasan');
+
+                    //$('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                    //    $(item).text(convertToRupiah(0));
+                    //});
+                    //$('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                    //    if (($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) && ($(item).attr("data-persen-gagal") != undefined || convertToAngka($(item).attr("data-persen-gagal")) > 0)) {
+                    //        $(item).text("0 %");
+                    //    }
+                    //});
+                    //$('#TOTALPOT').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                    //$('#TOTALSELISIH').val(convertToRupiah(0));
+
+                    @*$.ajax({
                         type: "POST",
                         url: '@Url.Action("UpdatePotonganBayarPiutang", "Manage")',
                         data: JSON.stringify({
@@ -2603,9 +2649,9 @@
                             TotalBayar: convertToAngka($('#TOTALREF').val()),
                             TotalPotongan: convertToAngka($('#TOTALPOT').val()),
                             //TotalLebih: convertToAngka($('#TOTALLEBIH').val()),
-                            getRec: get_rec,
-                            getPot: get_pot,
-                            getFaktur: get_faktur
+                            //getRec: get_rec,
+                            //getPot: get_pot,
+                            //getFaktur: get_faktur
                         }),
                         contentType: 'application/json; charset=UTF-8',
                         cache: false,
@@ -2689,10 +2735,149 @@
                             $("#konfCreatePot").modal('hide');
                             console.log(error);
                         }
+                    });*@
+
+                    var $urlProgress = "";
+                    @*$urlProgress = '@Html.Raw(Url.Action("UpdatePotonganBayarPiutang1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';*@
+                    $urlProgress = '@Html.Raw(Url.Action("UpdatePotonganBayarPiutang1", "Manage"))';
+
+                    if (vnobuk == null || vnobuk == "") {
+                        vnobuk = $('#NOBUK_bayar_piutang').val();
+                    }
+                    //$urlProgress = $urlProgress.replace("rep1", vnobuk);
+                    //$urlProgress = $urlProgress.replace("rep2", vcountAll);
+                    //$urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                    //$urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                    //$urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                    //$urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+                    };
+                    
+                    $.ajax({
+                        type: "POST",
+                        url: $urlProgress,
+                        contentType: "application/json; charset=UTF-8",
+                        cache: false,
+                        data: JSON.stringify($postdata),
+                        beforeSend: function () {
+                            //$('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.countAll == undefined) {
+                                $modeEdit = 1; // 0 new, 1 edit
+                                $('.piutang_table_section').hide();
+                                $('.piutang_editor_section').show();
+                                $('#form-partial').html(response);
+                                if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
+                                    $('#pBar_Pot').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                                    $('#pBar_Pot').html(ret.percent + '% Complete');
+
+                                    if (ret.progress <= ret.countAll) {
+                                        createPOT(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess));
+                                    }
+
+                                } else if (ret.statusSuccess == true) {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('100% Complete');
+                                    $('#create-pot').removeAttr('disabled');
+                                    $("#konfCreatePot").modal('hide');
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    getFaktur($("#Piutang_CUST").val());
+                                    alert('Proses pelunasan kurang bayar sudah selesai.');
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('0% Complete');
+                                    $('#create-pot').removeAttr('disabled');
+                                    alert('Proses pelunasan kurang bayar gagal.');
+                                    if (ret.Errors.length > 0) {
+                                        alert(ret.Errors);
+                                    }
+                                }
+                            }
+                            else {
+                                if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                                    $('#pBar_Pot').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                                    $('#pBar_Pot').html(response.percent + '% Complete');
+
+                                    if (response.progress <= response.countAll) {
+                                        createPOT(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                                    }
+
+                                } else if (response.statusSuccess == true) {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('100% Complete');
+                                    $('#create-pot').removeAttr('disabled');
+                                    $("#konfCreatePot").modal('hide');
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    getFaktur($("#Piutang_CUST").val());
+                                    alert('Proses pelunasan kurang bayar sudah selesai.');
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('0% Complete');
+                                    $('#create-pot').removeAttr('disabled');
+                                    alert('Proses pelunasan kurang bayar gagal.');
+                                    if (response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
+                                }
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            //$('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                            //    if ($(item).attr("data-selisih-gagal") != undefined) {
+                            //        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                            //    }
+                            //});
+                            //$('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                            //    $(item).text(convertToRupiah(0));
+                            //});
+                            //$('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                            //    //if ($(item).attr("data-persen-gagal") != undefined) {
+                            //    //    $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //    //}
+                            //    if ($(item).attr("data-persen-gagal") != undefined) {
+                            //        if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                            //            $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //        } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                            //            $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                            //        }
+                            //    } else {
+                            //        if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                            //            $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //        } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                            //            $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                            //        }
+                            //    }
+                            //});
+                            //$('#TOTALPOT').val(convertToRupiah(0));
+                            //$('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                            //alert('Ada error. Mohon ulangi proses!');
+                            alert(error);
+                            //$('#loading_spinner').hide();
+                            $('#progressBarPot').hide();
+                            $("#konfCreatePot").modal('hide');
+                            console.log(error);
+                        }
                     });
                     //end proses simpan
                 }
             } else {
+                $('#progressBarPot').hide();
                 $("#konfCreatePot").modal('hide');
                 alert('Tidak ada detail pembayaran');
             }
