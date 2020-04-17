@@ -135,7 +135,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>
+                                <button disabled="disabled" class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
                             </div>
                         </div>
@@ -326,6 +326,13 @@
 
         var $modeEdit = 0; // 0 new, 1 edit
         var $page = window.text;
+
+        $("#excelSaldoAwal").on("hidden.bs.modal", function () {
+            $('#progressBarUpload').hide();
+            document.getElementById("file_upload_excel").value = "";
+
+            refreshTableStokOpname();
+        });
 
         $(document).ready(function () {
             refreshTableStokOpname();
@@ -947,12 +954,12 @@
                     }
                     $isValid = false;
                 }
-            } else if ($this.text().trim() == "0" || $this.text().trim() == "") {
+            } else if ($this.text().trim() == "") {
                 if (!$this.closest('div').find('.text-danger').length) {
                     if ($this.closest('div').hasClass('input-group')) {
-                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh kosong!</span>');
                     } else {
-                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh kosong!</span>');
                     }
                     $isValid = false;
                 }
@@ -1012,6 +1019,174 @@
                     alert('Silahkan isi semua field terlebih dahulu!');
                 }
             }
+        }
+
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+            }
+        }
+
+        function DownloadExcelSOP() {
+            var link = '@Html.Raw(Url.Action("ListStokOpnametoExcel", "TransferExcel"))';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                },
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        }
+
+        function popupAlertUploadSaldoAwal() {
+            alert("Proses upload dan input Stok Opname sudah selesai!");
+        }
+
+        function popupAlertUploadSaldoAwal_withError() {
+            alert("Proses upload dan input Stok Opname stok sudah selesai!");
+        }
+
+        function uploadExcelSOP() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+                $('#progressBarUpload').hide();
+            }
+            else {
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelStokOpname(null, 0, "0;5", "false;false");
+            }
+        }
+
+        function uploadFileExcelStokOpname(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            console.log(vnobuk + '|' + vcountAll + '|' + vpercentvprogress + '|' + vstatusLoopvSuccess);
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            if ($('#file_upload_excel')[0].files.length <= 0) {
+
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+
+            } else {
+
+                $('#btnUploadExcelSOP').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelStokOpname", "TransferExcel", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+		        $urlProgress = $urlProgress.replace("rep1", vnobuk);
+		        $urlProgress = $urlProgress.replace("rep2", vcountAll);
+		        $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+		        $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+		        $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+		        $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
+                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+
+                            if (response.progress <= response.countAll) {
+                                uploadFileExcelStokOpname(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                            }
+
+                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                        } else if (response.statusSuccess == true && response.Errors.length > 0) {
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                        } else {
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('0% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            document.getElementById("file_upload_excel").value = "";
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        for (i = 0; i < response.Errors.length; i++) {
+                            err += response.Errors[i] + "\n";
+                        }
+                        alert(err);
+                        console.log(error);
+                        $('#progressBarUpload').hide();
+                        $('#btnUploadExcelSOP').removeAttr('disabled');
+                    }
+                });
+
+            }
+
         }
 
     </script>

@@ -1699,6 +1699,362 @@ namespace MasterOnline.Controllers
         }
         //end by Indra 03 apr 2020, download faktur
 
+        //add by Indra 16 apr 2020, download stokopname
+        public ActionResult ListStokOpnametoExcel()
+        {
+            var ret = new BindDownloadExcel
+            {
+                Errors = new List<string>()
+            };
+            try
+            {
+                using (var package = new OfficeOpenXml.ExcelPackage())
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Barang");
+
+                    string sSQL = "select brg, nama + ' ' + isnull(nama2, '') as nama from stf02 where type = 3 order by nama,nama2";
+
+                    var dsBarang = EDB.GetDataSet("CString", "STF02", sSQL);
+
+                    if (dsBarang.Tables[0].Rows.Count > 0)
+                    {
+                        worksheet.Cells["A1"].Value = "Kode Gudang";
+                        worksheet.Cells[2, 2].Value = "Isi kode gudang sesuai dengan master gudang pada sheet2";
+                        worksheet.Cells[2, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        worksheet.Cells[2, 2].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+
+                        var gudang = ErasoftDbContext.STF18.ToList();
+
+                        if (gudang.Count > 0)
+                        {
+                            worksheet.Cells[2, 1].Value = gudang[0].Kode_Gudang;
+
+                            for (int i = 0; i < dsBarang.Tables[0].Rows.Count; i++)
+                            {
+                                worksheet.Cells[5 + i, 1].Value = dsBarang.Tables[0].Rows[i]["BRG"].ToString();
+                                worksheet.Cells[5 + i, 2].Value = dsBarang.Tables[0].Rows[i]["NAMA"].ToString();
+                            }
+                            ExcelRange rg0 = worksheet.Cells[4, 1, worksheet.Dimension.End.Row, 3];
+                            string tableName0 = "TableBarang";
+                            ExcelTable table0 = worksheet.Tables.Add(rg0, tableName0);
+                            table0.Columns[0].Name = "KODE BARANG";
+                            table0.Columns[1].Name = "NAMA BARANG";
+                            table0.Columns[2].Name = "QTY";
+
+                            #region formatting
+                            using (var range = worksheet.Cells[1, 1, 2, 1])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+
+                            using (var range = worksheet.Cells[4, 1, 4, 3])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+
+                            #endregion
+                            table0.ShowHeader = true;
+                            table0.ShowFilter = true;
+                            table0.ShowRowStripes = false;
+                            worksheet.Cells.AutoFitColumns(0);
+
+                            var sheet2 = worksheet.Workbook.Worksheets.Add("Gudang");
+
+                            sheet2.Cells[2, 1].Value = "Kode Gudang";
+                            sheet2.Cells[2, 2].Value = "Nama Gudang";
+
+                            for (int j = 0; j < gudang.Count; j++)
+                            {
+                                sheet2.Cells[3 + j, 1].Value = gudang[j].Kode_Gudang;
+                                sheet2.Cells[3 + j, 2].Value = gudang[j].Nama_Gudang;
+                            }
+
+                            using (var range = sheet2.Cells[2, 1, 2, 2])
+                            {
+                                range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                                range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                            }
+                            sheet2.Cells.AutoFitColumns(0);
+
+                            if (dsBarang.Tables[0].Rows.Count > 0)
+                            {
+                                var validation = worksheet.DataValidations.AddListValidation("A2");
+
+                                validation.ShowErrorMessage = true;
+                                validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
+                                validation.ErrorTitle = "An invalid value was entered";
+                                validation.Formula.ExcelFormula = string.Format("=sheet2!${0}${1}:${2}${3}", "A", 3, "A", 2 + gudang.Count);
+                            }
+
+                            ret.byteExcel = package.GetAsByteArray();
+                            ret.namaFile = username + "_stokopname" + ".xlsx";
+                        }
+                        else
+                        {
+                            ret.Errors.Add("Kode gudang tidak ditemukan.");
+                        }
+
+                    }
+                    else
+                    {
+                        ret.Errors.Add("Tidak ada data barang.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+            }
+
+            var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(ret),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        //end by Indra 16 apr 2020, download stokopname
+
+        //add by Indra 16 apr 2020, upload stokopname
+        public async Task<ActionResult> UploadXcelStokOpname(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
+        {
+            BindUploadExcel ret = new BindUploadExcel();
+            ret.Errors = new List<string>();
+            ret.namaGudang = new List<string>();
+            ret.lastRow = new List<int>();
+            ret.nextFile = false;
+            byte[] dataByte = null;
+
+            string[] status = statusLoopSuccess.Split(';');
+            string[] prog = percentDanprogress.Split(';');
+
+            List<STT04A> newSTT04A = new List<STT04A>();
+            List<STT04B> newSTT04B = new List<STT04B>();
+
+            try
+            {
+                if (ret.byteData == null && ret.statusLoop == false)
+                {
+                    dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                    ret.byteData = dataByte;
+                }
+                else
+                {
+                    ret.byteData = null;
+                    ret.nobuk = nobuk;
+                }
+
+                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                {
+                    if (ret.statusLoop == false)
+                    {
+                        ret.lastRow.Add(0);
+                    }
+
+                    if (ret.statusLoop == true)
+                    {
+                        var file = Request.Files[file_index];
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            using (Stream inputStream = file.InputStream)
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+                                if (memoryStream == null)
+                                {
+                                    memoryStream = new MemoryStream();
+                                    inputStream.CopyTo(memoryStream);
+                                }
+                                ret.byteData = memoryStream.ToArray();
+                            }
+                        }
+                    }
+
+                    using (MemoryStream stream = new MemoryStream(ret.byteData))
+                    {
+                        using (ExcelPackage excelPackage = new ExcelPackage(stream))
+                        {
+                            using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
+                            {
+                                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                {
+                                    var worksheet = excelPackage.Workbook.Worksheets[1];
+                                    string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
+
+                                    if (!string.IsNullOrEmpty(gd))
+                                    {
+                                        var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).FirstOrDefault();
+                                        if (gudang != null)
+                                        {
+                                            if (ret.statusLoop == false)
+                                            {
+                                                ret.namaGudang.Add(gudang.Nama_Gudang);
+                                            }
+
+                                            var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").ToList();
+                                            if (listTemp.Count > 0)
+                                            {
+                                                //create header
+                                                var stt04a = new STT04A
+                                                {
+                                                    GUD = gd,
+                                                    NAMA_GUDANG = gudang.Nama_Gudang,
+                                                    USERNAME = "UPLOAD_EXCEL_SOP",
+                                                    TGL = DateTime.Today,
+                                                    POSTING = "0",
+                                                };
+
+                                                var lastBuktiOP = new ManageController().GenerateAutoNumber(ErasoftDbContext, "OP", "STT04A", "NOBUK");
+                                                var noStokOP = "OP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOP) + 1).PadLeft(6, '0');
+
+                                                stt04a.NOBUK = noStokOP;
+                                                ret.nobuk = noStokOP;
+
+                                                try
+                                                {
+                                                    eraDB.STT04A.Add(stt04a);
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    var tempSI = eraDB.STT04A.Where(a => a.NOBUK == stt04a.NOBUK).Single();
+                                                    if (tempSI != null)
+                                                    {
+                                                        if (tempSI.NOBUK == noStokOP)
+                                                        {
+                                                            var lastBuktiOPNew = Convert.ToInt32(lastBuktiOP);
+                                                            lastBuktiOPNew++;
+                                                            noStokOP = "OP" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOPNew) + 1).PadLeft(6, '0');
+                                                            stt04a.NOBUK = noStokOP;
+                                                            ret.nobuk = noStokOP;
+                                                            eraDB.STT04A.Add(stt04a);
+                                                        }
+                                                        else
+                                                        {
+                                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                                            ret.Errors.Add(errMsg);
+                                                        }
+                                                    }
+                                                }
+
+                                                ret.countAll = worksheet.Dimension.End.Row;
+                                                if (Convert.ToInt32(prog[1]) == 0)
+                                                {
+                                                    prog[1] = "0";
+                                                }
+
+                                                for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
+                                                {
+                                                    ret.progress = i;
+                                                    ret.percent = (i * 100) / ret.countAll;
+
+                                                    var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
+                                                    if (!string.IsNullOrEmpty(kd_brg))
+                                                    {
+                                                        var current_brg = listTemp.Where(m => m.BRG == kd_brg).SingleOrDefault();
+                                                        if (current_brg != null)
+                                                        {
+                                                            if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                            {
+                                                                //stok 0 juga bisa masuk
+                                                                if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
+                                                                {
+                                                                    var stt04b = new STT04B
+                                                                    {
+                                                                        Gud = gd,
+                                                                        Brg = current_brg.BRG,
+                                                                        Qty = Convert.ToInt32(worksheet.Cells[i, 3].Value),
+                                                                        Tgl = DateTime.Today,
+                                                                        HPokok = 0,
+                                                                        BK = "",
+                                                                        Stn = "",
+                                                                        WO = "",
+                                                                        Nama_Barang = Convert.ToString(worksheet.Cells[i, 2].Value),
+                                                                        Qty_Berat = 0,
+                                                                        QTY_KECIL = 0,
+                                                                        QTY_BESAR = 0,
+                                                                        QTY_3 = 0,
+                                                                        QTY_4 = 0,
+                                                                        LKS = "",
+                                                                        USERNAME = "UPLOAD_EXCEL_SOP",
+                                                                        NOBUK = ret.nobuk,
+                                                                    };
+                                                                    eraDB.STT04B.Add(stt04b);
+                                                                    //eraDB.SaveChanges();
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            ret.Errors.Add("Kode Barang (" + kd_brg + ") tidak ditemukan");
+                                                            ret.statusSuccess = true;
+                                                            ret.lastRow[file_index] = i;
+                                                            i = worksheet.Dimension.End.Row;
+                                                        }
+                                                    }
+
+                                                    //if (ret.percent >= 10 || ret.percent >= 20 ||
+                                                    //    ret.percent >= 30 || ret.percent >= 40 ||
+                                                    //    ret.percent >= 50 || ret.percent >= 60 ||
+                                                    //    ret.percent >= 70 || ret.percent >= 80 ||
+                                                    //    ret.percent >= 90 || ret.percent >= 100)
+                                                    //{
+                                                    //ret.statusSuccess = false;
+                                                    if (ret.percent >= 100)
+                                                    {
+                                                        try
+                                                        {
+                                                            eraDB.SaveChanges();
+                                                            transaction.Commit();
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            transaction.Rollback();
+                                                            ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+                                                        }
+                                                        ret.statusSuccess = true;
+                                                    }
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                    //}
+
+                                                }
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            ret.Errors.Add("Kode gudang tidak ditemukan");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ret.Errors.Add("Kode gudang tidak ditemukan");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
+            }
+
+            return Json(ret, JsonRequestBehavior.AllowGet);
+
+        }
+        //end by Indra 16 apr 2020, upload stokopname
+
     }
 
     //add by fauzi uploadStockSaldoAwal

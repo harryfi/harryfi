@@ -27079,11 +27079,11 @@ namespace MasterOnline.Controllers
                 {
                     var vmError = new StokOpnameViewModel() { };
 
-                    if (dataVm.BarangStokOpname.Qty == 0)
-                    {
-                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
-                        return Json(vmError, JsonRequestBehavior.AllowGet);
-                    }
+                    //if (dataVm.BarangStokOpname.Qty == 0)
+                    //{
+                    //    vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                    //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                    //}
 
                     ErasoftDbContext.STT04B.Add(dataVm.BarangStokOpname);
 
@@ -27103,16 +27103,18 @@ namespace MasterOnline.Controllers
                 {
                     var vmError = new StokOpnameViewModel() { };
 
-                    if (dataVm.BarangStokOpname.Qty == 0)
-                    {
-                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
-                        return Json(vmError, JsonRequestBehavior.AllowGet);
-                    }
+                    //if (dataVm.BarangStokOpname.Qty == 0)
+                    //{
+                    //    vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                    //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                    //}
 
                     ErasoftDbContext.STT04B.Add(dataVm.BarangStokOpname);
                 }
 
             }
+
+            //var namaBrg = ErasoftDbContext.STF02.Where(a => a.BRG == dataVm.BarangStokOpname.Brg).Select(b => b.NAMA + ' ' + b.NAMA2).Single();
 
             //field yg penting di stt04b tidak null
             dataVm.BarangStokOpname.Gud = dataVm.StokOpname.GUD;
@@ -27234,14 +27236,14 @@ namespace MasterOnline.Controllers
             var lastBuktiOK = GenerateAutoNumber(ErasoftDbContext, "OK", "STT01A", "Nobuk");
             var noStokOK = "OK" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBuktiOK) + 1).PadLeft(6, '0');
 
-            //Cek Stok Fisik
-            string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
-                "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
 
             int jmRowOM = 0; int jmRowOK = 0;
             foreach (var item in stokDetailOpDb)
             {
-                sSQL += "AND BRG='" + item.Brg + "'";
+                //Cek Stok Fisik
+                string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
+                    "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
+                sSQL += "AND BRG='" + item.Brg + "' AND GD = '"+ item.Gud +"'";
                 var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
 
                 STT01A stokOpnameA = new STT01A
@@ -27256,7 +27258,7 @@ namespace MasterOnline.Controllers
                     JRef = "6",
                     Ref = stokOpDb.NOBUK,
                     UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Today,
+                    TglInput = DateTime.Now,
                     Retur_Penuh = false,
                     Terima_Penuh = false,
                     VALUTA = "IDR",
@@ -27277,7 +27279,7 @@ namespace MasterOnline.Controllers
                     Harsat = 0,
                     Harga = 0,
                     UserName = stokOpDb.USERNAME,
-                    TglInput = DateTime.Today,
+                    TglInput = DateTime.Now,
                     Qty_Retur = 0,
                     Qty_Berat = 0,
                     TOTAL_LOT = 0,
@@ -27339,7 +27341,7 @@ namespace MasterOnline.Controllers
                     newSTT01B.Add(stokOpnameB);
                     ErasoftDbContext.STT01B.AddRange(newSTT01B);
                 }
-
+             
             }
 
             using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
