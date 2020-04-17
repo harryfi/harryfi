@@ -2210,6 +2210,7 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke Blibli gagal.")]
         public async Task<string> UpdateProdukQOH_Display_Job(BlibliAPIData iden, BlibliProductData data)
         {
+            SetupContext(iden);
             //if merchant code diisi. barulah upload produk
             string ret = "";
 

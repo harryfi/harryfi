@@ -29797,7 +29797,8 @@ namespace MasterOnline.Controllers
                         token = customer.TOKEN,
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
-                        idmarket = customer.RecNum.Value
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -29825,7 +29826,8 @@ namespace MasterOnline.Controllers
                         token = customer.TOKEN,
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
-                        idmarket = customer.RecNum.Value
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra
                     };
                     BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
@@ -29959,24 +29961,29 @@ namespace MasterOnline.Controllers
                 }
                 else if (customer.NAMA.Equals("15"))//tokopedia
                 {
-#if Debug_AWS || DEBUG
-                    TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                    if (hJualInDb.BRG_MP.Contains("PENDING") || hJualInDb.BRG_MP.Contains("PEDITENDING"))
                     {
-                        merchant_code = customer.Sort1_Cust, //FSID
-                        API_client_password = customer.API_CLIENT_P, //Client ID
-                        API_client_username = customer.API_CLIENT_U, //Client Secret
-                        API_secret_key = customer.API_KEY, //Shop ID 
-                        token = customer.TOKEN,
-                        idmarket = customer.RecNum.Value,
-                        DatabasePathErasoft = dbPathEra,
-                        username = usernameLogin
-                    };
-
-                    //change by nurul 12/2/2020
-                    //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
-                    //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
-                    new TokopediaControllerJob().UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru);
-                    //end change by nurul 12/2/2020
+                        return Json(new { success = false, message = "Harga barang tidak berhasil disimpan. Mohon lakukan edit barang dan simpan barang di menu master barang kemudian lakukan ubah harga lagi!" }, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+#if Debug_AWS || DEBUG
+                        TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                        {
+                            merchant_code = customer.Sort1_Cust, //FSID
+                            API_client_password = customer.API_CLIENT_P, //Client ID
+                            API_client_username = customer.API_CLIENT_U, //Client Secret
+                            API_secret_key = customer.API_KEY, //Shop ID 
+                            token = customer.TOKEN,
+                            idmarket = customer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = usernameLogin
+                        };
+                        //change by nurul 12/2/2020
+                        //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
+                        //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
+                        new TokopediaControllerJob().UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru);
+                        //end change by nurul 12/2/2020
 #else
                 TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                     {
@@ -29995,6 +30002,7 @@ namespace MasterOnline.Controllers
                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru));
                                     
 #endif
+                    }
                 }
                 //end add by calvin 18 desember 2018
                 //}
@@ -30081,7 +30089,34 @@ namespace MasterOnline.Controllers
 
                 if (customer.NAMA.Equals(kdBlibli))
                 {
-                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+#if Debug_AWS || DEBUG
+                    //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                    //{
+                    //    merchant_code = customer.Sort1_Cust,
+                    //    API_client_password = customer.API_CLIENT_P,
+                    //    API_client_username = customer.API_CLIENT_U,
+                    //    API_secret_key = customer.API_KEY,
+                    //    token = customer.TOKEN,
+                    //    mta_username_email_merchant = customer.EMAIL,
+                    //    mta_password_password_merchant = customer.PASSWORD,
+                    //    idmarket = customer.RecNum.Value
+                    //};
+                    //BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                    //{
+                    //    kode = brg.BRG,
+                    //    kode_mp = hJualInDb.BRG_MP,
+                    //    Qty = Convert.ToString(qtyOnHand),
+                    //    MinQty = "0",
+                    //    nama = brg.NAMA
+                    //};
+                    //data.Price = brg.HJUAL.ToString();
+                    //data.MarketPrice = hJualInDb.HJUAL.ToString();
+                    //var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    //data.display = display ? "true" : "false";
+                    //var BliApi = new BlibliController();
+                    //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+
+                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
                     {
                         merchant_code = customer.Sort1_Cust,
                         API_client_password = customer.API_CLIENT_P,
@@ -30090,9 +30125,10 @@ namespace MasterOnline.Controllers
                         token = customer.TOKEN,
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
-                        idmarket = customer.RecNum.Value
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra
                     };
-                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
                         kode = brg.BRG,
                         kode_mp = hJualInDb.BRG_MP,
@@ -30100,12 +30136,44 @@ namespace MasterOnline.Controllers
                         MinQty = "0",
                         nama = brg.NAMA
                     };
-                    data.Price = brg.HJUAL.ToString();
-                    data.MarketPrice = hJualInDb.HJUAL.ToString();
-                    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                    data.display = display ? "true" : "false";
-                    var BliApi = new BlibliController();
-                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                    dataJob.Price = brg.HJUAL.ToString();
+                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    dataJob.display = displayJob ? "true" : "false";
+
+                    var BliApiJob = new BlibliControllerJob();
+                    Task.Run(() => BliApiJob.UpdateProdukQOH_Display_Job(idenJob, dataJob)).Wait();
+
+#else
+                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                    {
+                        merchant_code = customer.Sort1_Cust,
+                        API_client_password = customer.API_CLIENT_P,
+                        API_client_username = customer.API_CLIENT_U,
+                        API_secret_key = customer.API_KEY,
+                        token = customer.TOKEN,
+                        mta_username_email_merchant = customer.EMAIL,
+                        mta_password_password_merchant = customer.PASSWORD,
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra
+                    };
+                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                    {
+                        kode = brg.BRG,
+                        kode_mp = hJualInDb.BRG_MP,
+                        Qty = Convert.ToString(qtyOnHand),
+                        MinQty = "0",
+                        nama = brg.NAMA
+                    };
+                    dataJob.Price = brg.HJUAL.ToString();
+                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    dataJob.display = displayJob ? "true" : "false";
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(idenJob, dataJob));
+#endif
                 }
             }
             //}
