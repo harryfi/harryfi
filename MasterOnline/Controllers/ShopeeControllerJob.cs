@@ -5813,8 +5813,13 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> UpdatePrice(ShopeeAPIData iden, string brg_mp, float price)
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Harga Jual Produk {obj} ke Shopee gagal.")]
+        public async Task<string> UpdatePrice_Job(ShopeeAPIData iden, string brg_mp, float price)
         {
+            SetupContext(iden);
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
@@ -5824,7 +5829,8 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Update Price", //ganti
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
@@ -5981,6 +5987,89 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Harga Jual Produk Varian {obj} ke Shopee gagal.")]
+        public async Task<string> UpdateVariationPrice_Job(ShopeeAPIData iden, string brg_mp, float price)
+        {
+            SetupContext(iden);
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
+                REQUEST_ACTION = "Update Price",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+
+            string[] brg_mp_split = brg_mp.Split(';');
+            ShopeeUpdateVariantionPriceData HttpBody = new ShopeeUpdateVariantionPriceData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = Convert.ToInt64(brg_mp_split[0]),
+                variation_id = Convert.ToInt64(brg_mp_split[1]),
+                price = price
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
 
         public async Task<string> UpdateImage(ShopeeAPIData iden, string brg, string brg_mp)
         {

@@ -29739,9 +29739,19 @@ namespace MasterOnline.Controllers
                 //add by Tri, update harga ke marketplace
                 if (customer.NAMA.Equals(kdLazada))
                 {
-                    var lzdApi = new LazadaController();
                     if (!string.IsNullOrEmpty(customer.TOKEN))//add by Tri, 24-06-2019
-                        lzdApi.UpdatePriceQuantity(hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.TOKEN);
+                    {
+#if Debug_AWS || DEBUG
+                        //var lzdApi = new LazadaController();
+                        //lzdApi.UpdatePriceQuantity(hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.TOKEN);
+                        var lzdApiJob = new LazadaControllerJob();
+                        lzdApiJob.UpdatePrice_Job(dbPathEra, hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO);
+#else
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.UpdatePrice_Job(dbPathEra, hJualInDb.BRG_MP, hargaJualBaru.ToString(), customer.TOKEN, customer.PERSO));
+#endif
+                    }
                 }
                 else if (customer.NAMA.Equals(kdBL))
                 {
@@ -29751,7 +29761,34 @@ namespace MasterOnline.Controllers
                 }
                 else if (customer.NAMA.Equals(kdBlibli))
                 {
-                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+#if Debug_AWS || DEBUG
+                    //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                    //{
+                    //    merchant_code = customer.Sort1_Cust,
+                    //    API_client_password = customer.API_CLIENT_P,
+                    //    API_client_username = customer.API_CLIENT_U,
+                    //    API_secret_key = customer.API_KEY,
+                    //    token = customer.TOKEN,
+                    //    mta_username_email_merchant = customer.EMAIL,
+                    //    mta_password_password_merchant = customer.PASSWORD,
+                    //    idmarket = customer.RecNum.Value
+                    //};
+                    //BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                    //{
+                    //    kode = brg.BRG,
+                    //    kode_mp = hJualInDb.BRG_MP,
+                    //    Qty = Convert.ToString(qtyOnHand),
+                    //    MinQty = "0",
+                    //    nama = brg.NAMA
+                    //};
+                    //data.Price = brg.HJUAL.ToString();
+                    //data.MarketPrice = hJualInDb.HJUAL.ToString();
+                    //var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    //data.display = display ? "true" : "false";
+                    //var BliApi = new BlibliController();
+                    //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+
+                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
                     {
                         merchant_code = customer.Sort1_Cust,
                         API_client_password = customer.API_CLIENT_P,
@@ -29762,7 +29799,7 @@ namespace MasterOnline.Controllers
                         mta_password_password_merchant = customer.PASSWORD,
                         idmarket = customer.RecNum.Value
                     };
-                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
                     {
                         kode = brg.BRG,
                         kode_mp = hJualInDb.BRG_MP,
@@ -29770,12 +29807,43 @@ namespace MasterOnline.Controllers
                         MinQty = "0",
                         nama = brg.NAMA
                     };
-                    data.Price = brg.HJUAL.ToString();
-                    data.MarketPrice = hJualInDb.HJUAL.ToString();
-                    var display = Convert.ToBoolean(hJualInDb.DISPLAY);
-                    data.display = display ? "true" : "false";
-                    var BliApi = new BlibliController();
-                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
+                    dataJob.Price = brg.HJUAL.ToString();
+                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    dataJob.display = displayJob ? "true" : "false";
+
+                    var BliApiJob = new BlibliControllerJob();
+                    BliApiJob.UpdateProdukQOH_Display_Job(idenJob, dataJob);
+
+#else
+                    BlibliControllerJob.BlibliAPIData idenJob = new BlibliControllerJob.BlibliAPIData
+                    {
+                        merchant_code = customer.Sort1_Cust,
+                        API_client_password = customer.API_CLIENT_P,
+                        API_client_username = customer.API_CLIENT_U,
+                        API_secret_key = customer.API_KEY,
+                        token = customer.TOKEN,
+                        mta_username_email_merchant = customer.EMAIL,
+                        mta_password_password_merchant = customer.PASSWORD,
+                        idmarket = customer.RecNum.Value
+                    };
+                    BlibliControllerJob.BlibliProductData dataJob = new BlibliControllerJob.BlibliProductData
+                    {
+                        kode = brg.BRG,
+                        kode_mp = hJualInDb.BRG_MP,
+                        Qty = Convert.ToString(qtyOnHand),
+                        MinQty = "0",
+                        nama = brg.NAMA
+                    };
+                    dataJob.Price = brg.HJUAL.ToString();
+                    dataJob.MarketPrice = hJualInDb.HJUAL.ToString();
+                    var displayJob = Convert.ToBoolean(hJualInDb.DISPLAY);
+                    dataJob.display = displayJob ? "true" : "false";
+
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                    clientJobServer.Enqueue<BlibliControllerJob>(x => x.UpdateProdukQOH_Display_Job(idenJob, dataJob));
+#endif
                 }
                 else if (customer.NAMA.Equals(kdElevenia))
                 {
@@ -29833,24 +29901,57 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
                     {
-                        var ShopeeApi = new ShopeeController();
-
-                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
-                        {
-                            merchant_code = customer.Sort1_Cust,
-                        };
                         if (hJualInDb.BRG_MP != "")
                         {
                             string[] brg_mp = hJualInDb.BRG_MP.Split(';');
                             if (brg_mp.Count() == 2)
                             {
+#if Debug_AWS || DEBUG
+                                var ShopeeApi = new ShopeeController();
+                                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                {
+                                    merchant_code = customer.Sort1_Cust,
+                                };
+                                var ShopeeApiJob = new ShopeeControllerJob();
+                                ShopeeControllerJob.ShopeeAPIData dataJob = new ShopeeControllerJob.ShopeeAPIData()
+                                {
+                                    merchant_code = customer.Sort1_Cust,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
+                                };
+#else
+                                var ShopeeApiJob = new ShopeeControllerJob();
+                                ShopeeControllerJob.ShopeeAPIData dataJob = new ShopeeControllerJob.ShopeeAPIData()
+                                {
+                                        merchant_code = customer.Sort1_Cust,
+                                        DatabasePathErasoft = dbPathEra,
+                                        username = usernameLogin
+                                };
+#endif
+
+
                                 if (brg_mp[1] == "0")
                                 {
-                                    Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+#if Debug_AWS || DEBUG
+                                    //Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    ShopeeApiJob.UpdatePrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
+#else
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdatePrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru));
+#endif
                                 }
                                 else if (brg_mp[1] != "")
                                 {
-                                    Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+#if Debug_AWS || DEBUG
+                                    //Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    ShopeeApiJob.UpdateVariationPrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
+#else
+                                    var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateVariationPrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru));
+                                    
+#endif
                                 }
                             }
                         }
@@ -29858,6 +29959,7 @@ namespace MasterOnline.Controllers
                 }
                 else if (customer.NAMA.Equals("15"))//tokopedia
                 {
+#if Debug_AWS || DEBUG
                     TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                     {
                         merchant_code = customer.Sort1_Cust, //FSID
@@ -29872,8 +29974,27 @@ namespace MasterOnline.Controllers
 
                     //change by nurul 12/2/2020
                     //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (float)hargaJualBaru)).Wait();
-                    Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
+                    //Task.Run(() => new TokopediaControllerJob().UpdatePrice(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru)).Wait();
+                    new TokopediaControllerJob().UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru);
                     //end change by nurul 12/2/2020
+#else
+                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                    {
+                        merchant_code = customer.Sort1_Cust, //FSID
+                        API_client_password = customer.API_CLIENT_P, //Client ID
+                        API_client_username = customer.API_CLIENT_U, //Client Secret
+                        API_secret_key = customer.API_KEY, //Shop ID 
+                        token = customer.TOKEN,
+                        idmarket = customer.RecNum.Value,
+                        DatabasePathErasoft = dbPathEra,
+                        username = usernameLogin
+                    };
+
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.UpdatePrice_Job(iden, Convert.ToInt32(hJualInDb.BRG_MP), (int)hargaJualBaru));
+                                    
+#endif
                 }
                 //end add by calvin 18 desember 2018
                 //}
@@ -30257,7 +30378,7 @@ namespace MasterOnline.Controllers
                 }
                 return JsonErrorMessage(listError);
             }
-            #region validasi harga
+#region validasi harga
             //change 23 agustus 2019, validasi harga 1 function
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
@@ -30315,7 +30436,7 @@ namespace MasterOnline.Controllers
                 }
             }
             //end change 23 agustus 2019, validasi harga 1 function
-            #endregion
+#endregion
             if (data != null)
             {
                 string username = "";
@@ -30391,7 +30512,7 @@ namespace MasterOnline.Controllers
                                                 DeliveryTempElevenia = stf02h_induk.DeliveryTempElevenia,
                                                 PICKUP_POINT = stf02h_induk.PICKUP_POINT
                                             };
-                                            #region attribute mp
+#region attribute mp
                                             dupeStf02h.ACODE_1 = stf02h_induk.ACODE_1;
                                             dupeStf02h.ANAME_1 = stf02h_induk.ANAME_1;
                                             if (dupeStf02h.ACODE_1 == "short_description" && dupeStf02h.ANAME_1 == "Short Description")
@@ -30549,7 +30670,7 @@ namespace MasterOnline.Controllers
                                             dupeStf02h.ACODE_50 = stf02h_induk.ACODE_50;
                                             dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                             dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
-                                            #endregion
+#endregion
                                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                             dupeStf02h.AVALUE_39 = HttpUtility.HtmlEncode(stf02h_induk.AVALUE_39);
                                             dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -30685,7 +30806,7 @@ namespace MasterOnline.Controllers
                                     brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
                                     brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
                                     brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
-                                    #region attribute mp
+#region attribute mp
                                     brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                     brgMp.ANAME_1 = data.TempBrg.ANAME_1;
                                     if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -30843,7 +30964,7 @@ namespace MasterOnline.Controllers
                                     brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                                     brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                     brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-                                    #endregion
+#endregion
                                     //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                     brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -30880,7 +31001,7 @@ namespace MasterOnline.Controllers
                                     brgMp.AKUNMARKET = customer.PERSO;
                                 //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                                 brgMp.USERNAME = data.Stf02.USERNAME;
-                                #region attribute mp
+#region attribute mp
                                 brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                 brgMp.ANAME_1 = data.TempBrg.ANAME_1;
                                 if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -31038,7 +31159,7 @@ namespace MasterOnline.Controllers
                                 brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-                                #endregion
+#endregion
                                 //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                 brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -31189,7 +31310,7 @@ namespace MasterOnline.Controllers
                                 brgMp.AKUNMARKET = customer.PERSO;
                             //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                             brgMp.USERNAME = data.Stf02.USERNAME;
-                            #region attribute mp
+#region attribute mp
                             brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                             brgMp.ANAME_1 = data.TempBrg.ANAME_1;
                             if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -31347,7 +31468,7 @@ namespace MasterOnline.Controllers
                             brgMp.ACODE_50 = data.TempBrg.ACODE_50;
                             brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                             brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-                            #endregion
+#endregion
                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                             brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -31653,7 +31774,7 @@ namespace MasterOnline.Controllers
                     brgMp.AKUNMARKET = customer.PERSO;
                     //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                     brgMp.USERNAME = username;
-                    #region attribute mp
+#region attribute mp
                     brgMp.ACODE_1 = tempBrg.ACODE_1;
                     brgMp.ANAME_1 = tempBrg.ANAME_1;
                     if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -31811,7 +31932,7 @@ namespace MasterOnline.Controllers
                     brgMp.ACODE_50 = tempBrg.ACODE_50;
                     brgMp.ANAME_50 = tempBrg.ANAME_50;
                     brgMp.AVALUE_50 = tempBrg.AVALUE_50;
-                    #endregion
+#endregion
                     //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                     brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -31987,7 +32108,7 @@ namespace MasterOnline.Controllers
                             //}
 
                             //var barangInDB = eraDB.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
-                            #region handle brg induk untuk brg varian
+#region handle brg induk untuk brg varian
                             var indukSukses = true;
                             if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                             {
@@ -32062,7 +32183,7 @@ namespace MasterOnline.Controllers
 
                                 }
                             }
-                            #endregion
+#endregion
                             if (indukSukses)
                             {
                                 //var barangInDB = eraDB.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
@@ -32113,7 +32234,7 @@ namespace MasterOnline.Controllers
                                             //end change 14 juni 2019, ambil kategori dari temp table
                                             brgMp.DeliveryTempElevenia = item.DeliveryTempElevenia;
                                             brgMp.PICKUP_POINT = item.PICKUP_POINT;
-                                            #region attribute mp
+#region attribute mp
                                             brgMp.ACODE_1 = item.ACODE_1;
                                             brgMp.ANAME_1 = item.ANAME_1;
                                             if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -32271,7 +32392,7 @@ namespace MasterOnline.Controllers
                                             brgMp.ACODE_50 = item.ACODE_50;
                                             brgMp.ANAME_50 = item.ANAME_50;
                                             brgMp.AVALUE_50 = item.AVALUE_50;
-                                            #endregion
+#endregion
                                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                             brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -32334,7 +32455,7 @@ namespace MasterOnline.Controllers
                                         brgMp.AKUNMARKET = customer.PERSO;
                                         //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                                         brgMp.USERNAME = username;
-                                        #region attribute mp
+#region attribute mp
                                         brgMp.ACODE_1 = item.ACODE_1;
                                         brgMp.ANAME_1 = item.ANAME_1;
                                         if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -32492,7 +32613,7 @@ namespace MasterOnline.Controllers
                                         brgMp.ACODE_50 = item.ACODE_50;
                                         brgMp.ANAME_50 = item.ANAME_50;
                                         brgMp.AVALUE_50 = item.AVALUE_50;
-                                        #endregion
+#endregion
 
                                         //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                         brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
@@ -32747,7 +32868,7 @@ namespace MasterOnline.Controllers
                                     brgMp.AKUNMARKET = customer.PERSO;
                                     //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                                     brgMp.USERNAME = username;
-                                    #region attribute mp
+#region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
                                     if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -32905,7 +33026,7 @@ namespace MasterOnline.Controllers
                                     brgMp.ACODE_50 = item.ACODE_50;
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
-                                    #endregion
+#endregion
                                     //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                     brgMp.AVALUE_39 = HttpUtility.HtmlEncode(brgMp.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -33789,7 +33910,7 @@ namespace MasterOnline.Controllers
                     if (!listKodeSudahDiproses.Contains(item.SELLER_SKU))
                     {
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
-                        #region handle brg induk untuk brg varian
+#region handle brg induk untuk brg varian
                         if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
                             bool createSTF02Induk = true;
@@ -33833,7 +33954,7 @@ namespace MasterOnline.Controllers
                                 //}
                             }
                         }
-                        #endregion
+#endregion
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
                         var barangInDB = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG).ToUpper() == item.SELLER_SKU.ToUpper()).FirstOrDefault();
                         if (barangInDB != null)
@@ -33855,7 +33976,7 @@ namespace MasterOnline.Controllers
                                     brgMp.CATEGORY_NAME = item.CATEGORY_NAME;
                                     brgMp.DeliveryTempElevenia = item.DeliveryTempElevenia;
                                     brgMp.PICKUP_POINT = item.PICKUP_POINT;
-                                    #region attribute mp
+#region attribute mp
                                     brgMp.ACODE_1 = item.ACODE_1;
                                     brgMp.ANAME_1 = item.ANAME_1;
                                     if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -34013,7 +34134,7 @@ namespace MasterOnline.Controllers
                                     brgMp.ACODE_50 = item.ACODE_50;
                                     brgMp.ANAME_50 = item.ANAME_50;
                                     brgMp.AVALUE_50 = item.AVALUE_50;
-                                    #endregion
+#endregion
                                     //add by calvin 11 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                     brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
                                     brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -34060,7 +34181,7 @@ namespace MasterOnline.Controllers
                                 brgMp.AKUNMARKET = customer.PERSO;
                                 //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                                 brgMp.USERNAME = username;
-                                #region attribute mp
+#region attribute mp
                                 brgMp.ACODE_1 = item.ACODE_1;
                                 brgMp.ANAME_1 = item.ANAME_1;
                                 if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -34218,7 +34339,7 @@ namespace MasterOnline.Controllers
                                 brgMp.ACODE_50 = item.ACODE_50;
                                 brgMp.ANAME_50 = item.ANAME_50;
                                 brgMp.AVALUE_50 = item.AVALUE_50;
-                                #endregion
+#endregion
                                 //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                 brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
                                 brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -34361,7 +34482,7 @@ namespace MasterOnline.Controllers
                             brgMp.AKUNMARKET = customer.PERSO;
                             //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
                             brgMp.USERNAME = username;
-                            #region attribute mp
+#region attribute mp
                             brgMp.ACODE_1 = item.ACODE_1;
                             brgMp.ANAME_1 = item.ANAME_1;
                             if (brgMp.ACODE_1 == "short_description" && brgMp.ANAME_1 == "Short Description")
@@ -34519,7 +34640,7 @@ namespace MasterOnline.Controllers
                             brgMp.ACODE_50 = item.ACODE_50;
                             brgMp.ANAME_50 = item.ANAME_50;
                             brgMp.AVALUE_50 = item.AVALUE_50;
-                            #endregion
+#endregion
                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                             brgMp.AVALUE_39 = HttpUtility.HtmlEncode(item.AVALUE_39);
                             brgMp.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -34839,7 +34960,7 @@ namespace MasterOnline.Controllers
                             //        ret.startRecnum = api_log[0].RECNUM;
                             //    }
                             //}
-                            #region Logging
+#region Logging
                             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
                             string uname = sessionData.Account.Username;
 
@@ -34874,7 +34995,7 @@ namespace MasterOnline.Controllers
                             ret.fileName = filename;
                             eraDB.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
                             eraDB.SaveChanges();
-                            #endregion
+#endregion
                         }
                         else
                         {
@@ -35414,8 +35535,8 @@ namespace MasterOnline.Controllers
                     dataVm.Pengiriman.NO_BUKTI = noKirim;
                     dataVm.PengirimanDetail.NO_BUKTI = noKirim;
 
-                    #region agar field yg penting di sit04a tidak null
-                    #endregion
+#region agar field yg penting di sit04a tidak null
+#endregion
 
 
                     //change by nurul 23/12/2019, perbaikan no_bukti
@@ -35451,8 +35572,8 @@ namespace MasterOnline.Controllers
 
                     if (dataVm.PengirimanDetail.NO_URUT == null)
                     {
-                        #region agar field yg penting di sit04b tidak null
-                        #endregion
+#region agar field yg penting di sit04b tidak null
+#endregion
 
                         ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
 
@@ -35474,8 +35595,8 @@ namespace MasterOnline.Controllers
 
                     if (dataVm.PengirimanDetail.NO_URUT == null)
                     {
-                        #region agar field yg penting di sit04b tidak null
-                        #endregion
+#region agar field yg penting di sit04b tidak null
+#endregion
 
                         ErasoftDbContext.SIT04B.Add(dataVm.PengirimanDetail);
                     }
@@ -39067,7 +39188,7 @@ namespace MasterOnline.Controllers
                                                 var listTemp = eraDB.SIT01A.Where(a => a.NO_REF != null && a.NO_SO != null).Count();
                                                 if (listTemp > 0)
                                                 {
-                                                    #region create induk
+#region create induk
                                                     var art03a = new ART03A
                                                     {
                                                         KET = "-",
@@ -39155,7 +39276,7 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
                                                     //end change by nurul 23/12/2019, perbaikan no bukti
-                                                    #endregion
+#endregion
 
                                                     //loop all rows
                                                     for (int i = 8; i <= worksheet.Dimension.End.Row; i++)
@@ -40068,7 +40189,7 @@ namespace MasterOnline.Controllers
                                     newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
                                     //end add by nurul 4/3/2020
 
-                                    #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+#region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
                                     if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
                                     {
                                         newSIT01A.NILAI_DISC = 0;
@@ -40137,7 +40258,7 @@ namespace MasterOnline.Controllers
                                     {
                                         newSIT01A.N_KOMISI = 0;
                                     }
-                                    #endregion
+#endregion
 
                                     if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.TOTAL_TITIPAN)))
                                     {
@@ -40169,7 +40290,7 @@ namespace MasterOnline.Controllers
                                         newSIT01B.CATATAN = "-";
                                         newSIT01B.JENIS_FORM = "2";
                                         newSIT01B.TGLINPUT = DateTime.Now;
-                                        #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
+#region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
                                         double nilai_disc_1 = 0d;
                                         double nilai_disc_2 = 0d;
                                         double harga = 0d;
@@ -40194,7 +40315,7 @@ namespace MasterOnline.Controllers
 
                                         harga = pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0) - nilai_disc_1 -
                                                                   nilai_disc_2;
-                                        #endregion
+#endregion
                                         newSIT01B.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
 
 
@@ -40453,7 +40574,7 @@ namespace MasterOnline.Controllers
                                 newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
                                 //end add by nurul 4/3/2020
 
-                                #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+#region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
                                 if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
                                 {
                                     newSIT01A.NILAI_DISC = 0;
@@ -40522,7 +40643,7 @@ namespace MasterOnline.Controllers
                                 {
                                     newSIT01A.N_KOMISI = 0;
                                 }
-                                #endregion
+#endregion
 
                                 if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.TOTAL_TITIPAN)))
                                 {
@@ -40544,7 +40665,7 @@ namespace MasterOnline.Controllers
                                     newSIT01B.CATATAN = "-";
                                     newSIT01B.JENIS_FORM = "2";
                                     newSIT01B.TGLINPUT = DateTime.Now;
-                                    #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
+#region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
                                     double nilai_disc_1 = 0d;
                                     double nilai_disc_2 = 0d;
                                     double harga = 0d;
@@ -40569,7 +40690,7 @@ namespace MasterOnline.Controllers
 
                                     harga = pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0) - nilai_disc_1 -
                                                               nilai_disc_2;
-                                    #endregion
+#endregion
                                     newSIT01B.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
 
 
@@ -40857,7 +40978,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (records.Count() != 0)
                                     {
-                                        #region create induk
+#region create induk
                                         var art03a = new ART03A
                                         {
                                             KET = "-",
@@ -40945,9 +41066,9 @@ namespace MasterOnline.Controllers
                                             }
                                         }
                                         //end change by nurul 23/12/2019, perbaikan no bukti
-                                        #endregion
+#endregion
 
-                                        #region detail
+#region detail
                                         var detail = records.GroupBy(a => a.OrderNo)
                                                         .Select(f => new
                                                         {
@@ -41083,7 +41204,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
-                                        #endregion
+#endregion
 
                                         if (nilaiRef.Count() > 0)
                                         {
@@ -41318,7 +41439,7 @@ namespace MasterOnline.Controllers
                                                         ret.lastRow[file_index] = worksheet.Dimension.End.Row;
                                                     if (tempDetail.Count() != 0)
                                                     {
-                                                        #region create induk
+#region create induk
                                                         var art03a = new ART03A
                                                         {
                                                             KET = "-",
@@ -41406,9 +41527,9 @@ namespace MasterOnline.Controllers
                                                             }
                                                         }
                                                         //end change by nurul 23/12/2019, perbaikan no bukti
-                                                        #endregion
+#endregion
 
-                                                        #region detail
+#region detail
                                                         var detail = tempDetail.GroupBy(a => a.REF)
                                                                         .Select(f => new
                                                                         {
@@ -41539,7 +41660,7 @@ namespace MasterOnline.Controllers
                                                                 }
                                                             }
                                                         }
-                                                        #endregion
+#endregion
 
                                                         if (nilaiRef.Count() > 0)
                                                         {
@@ -41943,7 +42064,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (records.Count() != 0)
                                     {
-                                        #region create induk
+#region create induk
                                         var art03a = new ART03A
                                         {
                                             KET = "-",
@@ -42031,9 +42152,9 @@ namespace MasterOnline.Controllers
                                             }
                                         }
                                         //end change by nurul 23/12/2019, perbaikan no bukti
-                                        #endregion
+#endregion
 
-                                        #region detail
+#region detail
                                         var detail = records.GroupBy(a => a.Bukti)
                                                         .Select(f => new
                                                         {
@@ -42156,7 +42277,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
                                         }
-                                        #endregion
+#endregion
 
                                         if (nilaiRef.Count() > 0)
                                         {
@@ -42382,7 +42503,7 @@ namespace MasterOnline.Controllers
                                                         ret.lastRow[file_index] = worksheet.Dimension.End.Row;
                                                     if (tempDetail.Count() != 0)
                                                     {
-                                                        #region create induk
+#region create induk
                                                         var art03a = new ART03A
                                                         {
                                                             KET = "-",
@@ -42470,9 +42591,9 @@ namespace MasterOnline.Controllers
                                                             }
                                                         }
                                                         //end change by nurul 23/12/2019, perbaikan no bukti
-                                                        #endregion
+#endregion
 
-                                                        #region detail
+#region detail
                                                         var detail = tempDetail.GroupBy(a => a.REF)
                                                                         .Select(f => new
                                                                         {
@@ -42601,7 +42722,7 @@ namespace MasterOnline.Controllers
                                                                 }
                                                             }
                                                         }
-                                                        #endregion
+#endregion
 
                                                         if (nilaiRef.Count() > 0)
                                                         {
