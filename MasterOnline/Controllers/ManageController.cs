@@ -27351,6 +27351,9 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STT04A.Where(p => p.NOBUK == stokOpDb.NOBUK).Update(p => new STT04A() { POSTING = "1" });
 
                     ErasoftDbContext.SaveChanges();
+
+                    Task.Run(() => new StokControllerJob().updateStockMarketPlace_ForItemInSTF08A("", dbPathEra, stokOpDb.USERNAME));
+
                     transaction.Commit();
                 }
                 catch (Exception ex)
