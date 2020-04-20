@@ -1312,7 +1312,7 @@ namespace MasterOnline.Controllers
                                         API_url = marketPlace.PERSO,
                                         DatabasePathErasoft = dbPathEra
                                     };
-                                    if (stf02h.BRG_MP.Contains("PENDING"))
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
                                     {
                                         
                                     }
