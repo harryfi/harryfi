@@ -3780,25 +3780,7 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
-
-            #region 82Cart
-            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART").IdMarket.ToString()))
-            {
-                EightTwoCartController.E2CartAPIData data82Cart = new EightTwoCartController.E2CartAPIData
-                {
-                    no_cust = kdCustomer, //no ID Customer
-                    account_store = customer.Customers.PERSO, //account store name
-                    API_password = customer.Customers.API_CLIENT_P, //API Password
-                    API_key = customer.Customers.API_KEY, //API Key
-                    API_credential = customer.Customers.Sort1_Cust,
-                    API_url = customer.Customers.PERSO,
-                    email = customer.Customers.EMAIL, //recnum
-                    DatabasePathErasoft = dbPathEra,
-                };
-                EightTwoCartController api82Cart = new EightTwoCartController();
-                Task.Run(() => api82Cart.E2Cart_GetCustomer(data82Cart)).Wait();
-            }
-            #endregion
+            
 
             //end add by Tri call bl/lzd api get access key
             ModelState.Clear();
@@ -19513,6 +19495,24 @@ namespace MasterOnline.Controllers
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
 
                             }
+
+                            //add by fauzi for 82Cart
+                            if (mp.NamaMarket.ToUpper().Contains("82CART"))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                                idenJob.API_key = marketPlace.API_KEY;
+                                idenJob.API_credential = marketPlace.Sort1_Cust;
+                                idenJob.API_url = marketPlace.PERSO;
+                                idenJob.DatabasePathErasoft = dbPathEra;
+                                idenJob.username = usernameLogin;
+                                idenJob.no_cust = marketPlace.CUST;
+
+                                //add by fauzi for update status CANCELED CODE 6
+                                //new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, "6");
+                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Cancel Order", pesanan.NO_REFERENSI, "6"));
+                            }
                         }
                         break;
                     case "02":
@@ -19589,6 +19589,27 @@ namespace MasterOnline.Controllers
                                 clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostAckOrder(dbPathEra, pesanan.NO_BUKTI, marketPlace.CUST, "Pesanan", "Accept Order", iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI));
                                 //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
+                        }
+
+                        //add by fauzi for 82Cart
+                        if (mp.NamaMarket.ToUpper().Contains("82CART"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_credential = marketPlace.Sort1_Cust;
+                            idenJob.API_url = marketPlace.PERSO;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.username = usernameLogin;
+                            idenJob.no_cust = marketPlace.CUST;
+
+                            //add by fauzi for update status TO PACKING PREPARATION IN PROGRESS CODE 3
+#if (AWS || DEV)
+                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Packing Order", pesanan.NO_REFERENSI, "3"));
+#else
+                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Packing Order", pesanan.NO_REFERENSI, "3");
+#endif
                         }
                         break;
                     case "03":
@@ -19731,6 +19752,49 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                             }
+                        }
+
+                        //add by fauzi for 82Cart
+                        else if (mp.NamaMarket.ToUpper().Contains("82CART"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_credential = marketPlace.Sort1_Cust;
+                            idenJob.API_url = marketPlace.PERSO;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.username = usernameLogin;
+                            idenJob.no_cust = marketPlace.CUST;
+
+                            //add by fauzi for update status TO SHIPPED CODE 4
+#if (AWS || DEV)
+                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "4"));
+#else
+                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "4");
+#endif
+                        }
+                        break;
+                    case "04":
+                        //add by fauzi for 82Cart
+                        if (mp.NamaMarket.ToUpper().Contains("82CART"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_credential = marketPlace.Sort1_Cust;
+                            idenJob.API_url = marketPlace.PERSO;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.username = usernameLogin;
+                            idenJob.no_cust = marketPlace.CUST;
+
+                            //add by fauzi for update status TO DELIVERED CODE 5
+#if (AWS || DEV)
+                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Delivered Order", pesanan.NO_REFERENSI, "5"));
+#else
+                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Delivered Order", pesanan.NO_REFERENSI, "5");
+#endif
                         }
                         break;
                 }
@@ -40461,6 +40525,33 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //END ADD BY NURUL 3/4/2020, update no kode booking
+                        
+                        //add by fauzi for change status 82Cart to SHIPPED
+                        var kd82Cart = "20";
+                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
+                        if (mpCust82Cart != null)
+                        {
+                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+                            {
+                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                                idenJob.API_key = mpCust82Cart.API_KEY;
+                                idenJob.API_credential = mpCust82Cart.Sort1_Cust;
+                                idenJob.API_url = mpCust82Cart.PERSO;
+                                idenJob.DatabasePathErasoft = dbPathEra;
+                                idenJob.username = usernameLogin;
+                                idenJob.no_cust = mpCust82Cart.CUST;
+
+                                //add by fauzi for update status TO SHIPPED CODE 4
+                                //new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4");
+                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Shipped Order", SOA_NOREF, "4"));
+
+                            }
+                        }
+
+                        //end by fauzi
+
                         if (lastNobuk != Nobuk)
                         {
                             if (validNobuk & lastNobuk != "")

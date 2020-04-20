@@ -1720,30 +1720,45 @@ namespace MasterOnline.Controllers
                 {
                     if (resultApi.error == "none" && resultApi.data.Length > 0)
                     {
-                        foreach (var data in resultApi.data)
+                        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
+                        if (resultquery == 1)
                         {
-                            if (data.email == iden.email)
-                            {
-                                //var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
-                                var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
-                                if (resultquery == 1)
-                                {
-                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
-                                    //currentLog.REQUEST_RESULT = "Update Status API Complete";
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
-                                }
-                                else
-                                {
-                                    contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
-                                    //currentLog.REQUEST_RESULT = "Update Status API Failed";
-                                    //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
-                                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
-                                }
-                            }
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
+                            //currentLog.REQUEST_RESULT = "Update Status API Complete";
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
                         }
+                        else
+                        {
+                            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
+                            //currentLog.REQUEST_RESULT = "Update Status API Failed";
+                            //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                        }
+                        //foreach (var data in resultApi.data)
+                        //{
+                        //    if (data.email == iden.email)
+                        //    {
+                        //        //var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                        //        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
+                        //        if (resultquery == 1)
+                        //        {
+                        //            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
+                        //            //currentLog.REQUEST_RESULT = "Update Status API Complete";
+                        //            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                        //        }
+                        //        else
+                        //        {
+                        //            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
+                        //            //currentLog.REQUEST_RESULT = "Update Status API Failed";
+                        //            //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                        //            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                        //        }
+                        //    }
+                        //}
                     }
                     else
                     {
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
                         //error api response
                     }
                 }

@@ -2543,8 +2543,8 @@
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">API Credential *</label>';
 
                         var valuetxtSort1_Cust = "";
-                        if ($('#Customers_Sort1_Cust').val() != null) {
-                            valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                        if (response.Customers.Sort1_Cust != null) {
+                            valuetxtSort1_Cust = response.Customers.Sort1_Cust;
                         }
                         var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);

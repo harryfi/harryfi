@@ -2498,7 +2498,7 @@ namespace MasterOnline.Controllers
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
             postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
-            //postData += "&id_product_attribute=" + Uri.EscapeDataString("73");
+            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
             postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
 
             var data = Encoding.ASCII.GetBytes(postData);

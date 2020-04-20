@@ -910,6 +910,89 @@ namespace MasterOnline.Controllers
         }
 
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke 82Cart Gagal.")]
+        public async Task<string> E2Cart_SetOrderStatus(E2CartAPIData iden, string dbPathEra, string log_CUST, string log_ActionCategory, string log_ActionName, string orderId, string codeStatus)
+        {
+            string ret = "";
+            string connID = Guid.NewGuid().ToString();
+            SetupContext(iden);
+
+            var dateFrom = DateTimeOffset.UtcNow.AddDays(-10).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+            var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
+
+            string urll = string.Format("{0}/api/v1/editOrder", iden.API_url);
+
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_order=" + Uri.EscapeDataString(orderId);
+            postData += "&current_state=" + Uri.EscapeDataString(codeStatus);
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            string responseServer = "";
+
+            try
+            {
+                using (var stream = myReq.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream2 = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream2);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+            if (responseServer != null)
+            {
+                //var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
+
+                //var statusCancel = "6";
+                //var orderFilterCanceled = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
+                //string ordersn = "";
+                //foreach (var item in orderFilterCanceled)
+                //{
+                //    ordersn = ordersn + "'" + item + "',";
+                //}
+                //if (orderFilterCanceled.Count() > 0)
+                //{
+                //ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                //var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                //jmlhNewOrder = jmlhNewOrder + rowAffected;
+                ////if (listOrder.more)
+                ////{
+                ////    await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                ////}
+                ////else
+                ////{
+                //if (jmlhNewOrder > 0)
+                //{
+                //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                //    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari 82Cart sudah selesai.");
+                //}
+                //}
+                //}
+            }
+            return ret;
+        }
+
         public enum StatusOrder
         {
             //IN_CANCEL = 1,
