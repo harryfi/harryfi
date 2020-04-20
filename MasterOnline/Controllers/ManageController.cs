@@ -42356,7 +42356,7 @@ namespace MasterOnline.Controllers
 
             return new EmptyResult();
         }
-
+        
         [HttpPost]
         public ActionResult UpdatePotonganBayarPiutang1(string nobuk, int countAll, string percentDanprogress, string statusLoopSuccess)
         {
@@ -42376,11 +42376,12 @@ namespace MasterOnline.Controllers
             ret.statusSuccess = Convert.ToBoolean(status[1]);
             try
             {
-                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == nobuk);
+                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == ret.nobuk);
                 if (piutangInDb != null)
                 {
-                    var ssql2 = "select no as no from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
-                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<Int32>(ssql2).ToList();
+                    var ssql2 = "select * from ART03B where bukti = '" + ret.nobuk + "' and (sisa - bayar) > 0";
+                    var piutangDetaiInDb = ErasoftDbContext.Database.SqlQuery<ART03B>(ssql2).ToList();
+                    //var piutangDetaiInDb = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && (a.SISA - a.BAYAR) > 0).ToList();
                     ret.countAll = piutangDetaiInDb.Count();
                     if (ret.statusLoop == true)
                     {
@@ -42394,77 +42395,148 @@ namespace MasterOnline.Controllers
                     if (piutangDetaiInDb.Count() > 0)
                     {
                         List<double> Pot = new List<double>();
+                        //List<int> recnum = new List<int>();
                         for (int i = Convert.ToInt32(prog[1]); i < piutangDetaiInDb.Count(); i++)
                         {
                             ret.statusLoop = true;
                             ret.progress = i + 1;
                             var tempPercent = Convert.ToInt32(prog[0]);
                             ret.percent = ((i + 1) * 100) / ret.countAll;
-                            var recnum = Convert.ToInt32(piutangDetaiInDb[i]);
-                            var getData = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && a.NO == recnum).SingleOrDefault();                            
+                            //var recnum = Convert.ToInt32(piutangDetaiInDb[i]);
+                            //var getData = ErasoftDbContext.ART03B.Where(a => a.BUKTI == ret.nobuk && a.NO == recnum).SingleOrDefault();                            
+                            var getData = piutangDetaiInDb[i];
                             if (getData != null)
                             {
                                 getData.POT = Convert.ToDouble(Math.Abs(Math.Round(Convert.ToDecimal(getData.SISA - getData.BAYAR), 2, MidpointRounding.AwayFromZero)));
                                 Pot.Add(getData.POT);
-                                ErasoftDbContext.SaveChanges();
+                                ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=" + getData.POT + " where no =" + getData.NO + " and bukti='" + getData.BUKTI + "'");
+                                //recnum.Add(Convert.ToInt32(getData.NO));
+                                //ErasoftDbContext.SaveChanges();
                             }
                             else
                             {
-                                ret.Errors.Add("Detail dengan ke-" + i + "  tidak ditemukan./n");
+                                ret.Errors.Add("Detail dengan faktur " + piutangDetaiInDb[i].NFAKTUR + "  tidak ditemukan./n");
                             }
-                            if (ret.percent == 10 || ret.percent == 20 ||
-                                            ret.percent == 30 || ret.percent == 40 ||
-                                            ret.percent == 50 || ret.percent == 60 ||
-                                            ret.percent == 70 || ret.percent == 80 ||
-                                            ret.percent == 90 || ret.percent == 100)
+                            if (ret.countAll > 500)
                             {
-                                ret.statusSuccess = false;
-                                if (ret.percent > 99 && ret.percent <= 101)
+                                if (ret.percent == 5 || ret.percent == 10 ||
+                                    ret.percent == 15 || ret.percent == 20 ||
+                                    ret.percent == 25 || ret.percent == 30 ||
+                                    ret.percent == 35 || ret.percent == 40 ||
+                                    ret.percent == 45 || ret.percent == 50 ||
+                                    ret.percent == 55 || ret.percent == 60 ||
+                                    ret.percent == 65 || ret.percent == 70 ||
+                                    ret.percent == 75 || ret.percent == 80 ||
+                                    ret.percent == 85 || ret.percent == 90 ||
+                                    ret.percent == 95 || ret.percent == 100)
                                 {
-                                    ret.statusSuccess = true;
-                                    if(ret.Errors.Count() > 0)
+                                    ret.statusSuccess = false;
+                                    if (ret.percent > 99 && ret.percent <= 101)
                                     {
-                                        ret.adaError = true;
-                                    }
-                                    ret.TidakLanjutProses = true;
-                                    vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
-                                    vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
-                                    //return Json(ret, JsonRequestBehavior.AllowGet);
-                                    vm.ret = ret;
-                                    return PartialView("DetailBayarPiutangPartial", vm);
-                                }
-                                else
-                                {
-                                    if (tempPercent != ret.percent)
-                                    {                                        
-                                        if (Pot.Count() > 0)
+                                        ret.statusSuccess = true;
+                                        if (ret.Errors.Count() > 0)
                                         {
-                                            ret.TPOT = 0;
-                                            for (int ab = 0; ab < Pot.Count(); ab++)
-                                            {
-                                                ret.TPOT += Pot[ab];
-                                            }
-                                        }
-                                        try
-                                        {
-                                            var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
-                                            if (getheader != null)
-                                            {
-                                                getheader.TPOT = getheader.TPOT + ret.TPOT;
-                                                ErasoftDbContext.SaveChanges();
-                                            }
-                                            else
-                                            {
-                                                ret.Errors.Add("No Bukti " + getData.BUKTI + " tidak ditemukan./n");
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
-                                            ret.Errors.Add(errMsg);
                                             ret.adaError = true;
                                         }
-                                        return Json(ret, JsonRequestBehavior.AllowGet);
+                                        ret.TidakLanjutProses = true;
+                                        vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
+                                        vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
+                                        //return Json(ret, JsonRequestBehavior.AllowGet);
+                                        vm.ret = ret;
+                                        return PartialView("DetailBayarPiutangPartial", vm);
+                                    }
+                                    else
+                                    {
+                                        if (tempPercent != ret.percent)
+                                        {
+                                            if (Pot.Count() > 0)
+                                            {
+                                                ret.TPOT = 0;
+                                                for (int ab = 0; ab < Pot.Count(); ab++)
+                                                {
+                                                    ret.TPOT += Pot[ab];
+                                                }
+                                            }
+                                            try
+                                            {
+                                                var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
+                                                if (getheader != null)
+                                                {
+                                                    getheader.TPOT = getheader.TPOT + ret.TPOT;
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    ret.Errors.Add("No Bukti " + getData.BUKTI + " tidak ditemukan./n");
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                                ret.Errors.Add(errMsg);
+                                                ret.adaError = true;
+                                            }
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (ret.percent == 10 || ret.percent == 20 ||
+                                                ret.percent == 30 || ret.percent == 40 ||
+                                                ret.percent == 50 || ret.percent == 60 ||
+                                                ret.percent == 70 || ret.percent == 80 ||
+                                                ret.percent == 90 || ret.percent == 100)
+                                {
+                                    ret.statusSuccess = false;
+                                    if (ret.percent > 99 && ret.percent <= 101)
+                                    {
+                                        ret.statusSuccess = true;
+                                        if (ret.Errors.Count() > 0)
+                                        {
+                                            ret.adaError = true;
+                                        }
+                                        ret.TidakLanjutProses = true;
+                                        vm.Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == ret.nobuk);
+                                        vm.ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == ret.nobuk).ToList();
+                                        //return Json(ret, JsonRequestBehavior.AllowGet);
+                                        vm.ret = ret;
+                                        return PartialView("DetailBayarPiutangPartial", vm);
+                                    }
+                                    else
+                                    {
+                                        if (tempPercent != ret.percent)
+                                        {
+                                            if (Pot.Count() > 0)
+                                            {
+                                                ret.TPOT = 0;
+                                                for (int ab = 0; ab < Pot.Count(); ab++)
+                                                {
+                                                    ret.TPOT += Pot[ab];
+                                                }
+                                            }
+                                            try
+                                            {
+                                                var getheader = ErasoftDbContext.ART03A.Where(a => a.BUKTI == ret.nobuk).SingleOrDefault();
+                                                if (getheader != null)
+                                                {
+                                                    getheader.TPOT = getheader.TPOT + ret.TPOT;
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                                else
+                                                {
+                                                    ret.Errors.Add("No Bukti " + getData.BUKTI + " tidak ditemukan./n");
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
+                                                ret.Errors.Add(errMsg);
+                                                ret.adaError = true;
+                                            }
+                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                        }
                                     }
                                 }
                             }
