@@ -2034,10 +2034,14 @@ namespace MasterOnline.Controllers
             if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedGetProductInfoRootobject)) as TokpedGetProductInfoRootobject;
-                if (!string.IsNullOrWhiteSpace(result.header.messages))
-                {
+                //change by Tri 15 apr 2020, message ada isi nya saat sukses
+                //if (!string.IsNullOrWhiteSpace(result.header.messages))
+                if(result != null)
+                if(result.header.error_code != 0)
+                //end change by Tri 15 apr 2020, message ada isi nya saat sukses
+                    {
 
-                }
+                    }
                 else
                 {
                     var a = result.data.FirstOrDefault();
@@ -2119,25 +2123,25 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoBasic
         {
-            public int productID { get; set; }
-            public int shopID { get; set; }
+            public long productID { get; set; }
+            public long shopID { get; set; }
             public int status { get; set; }
             public string name { get; set; }
             public int condition { get; set; }
-            public int childCategoryID { get; set; }
+            public long childCategoryID { get; set; }
         }
 
         public class TokpedGetProductInfoPrice
         {
-            public int value { get; set; }
+            public long value { get; set; }
             public int currency { get; set; }
-            public int LastUpdateUnix { get; set; }
-            public int idr { get; set; }
+            public long LastUpdateUnix { get; set; }
+            public long idr { get; set; }
         }
 
         public class TokpedGetProductInfoWeight
         {
-            public int value { get; set; }
+            public double value { get; set; }
             public int unit { get; set; }
         }
 
@@ -2150,9 +2154,9 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoVariant
         {
-            public int parentID { get; set; }
+            public long parentID { get; set; }
             public bool isVariant { get; set; }
-            public int[] childrenID { get; set; }
+            public long[] childrenID { get; set; }
         }
 
         public class TokpedGetProductInfoMenu
@@ -2168,7 +2172,7 @@ namespace MasterOnline.Controllers
         public class TokpedGetProductInfoExtraattribute
         {
             public int minOrder { get; set; }
-            public int lastUpdateCategory { get; set; }
+            public long lastUpdateCategory { get; set; }
             public bool isEligibleCOD { get; set; }
         }
 
@@ -2199,7 +2203,7 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoCategorytree
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string title { get; set; }
             public string breadcrumbURL { get; set; }
@@ -2207,7 +2211,7 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoPicture
         {
-            public int picID { get; set; }
+            public long picID { get; set; }
             public string fileName { get; set; }
             public string filePath { get; set; }
             public int status { get; set; }
@@ -2220,18 +2224,18 @@ namespace MasterOnline.Controllers
 
         public class TokpedGetProductInfoWarehouse
         {
-            public int productID { get; set; }
-            public int warehouseID { get; set; }
+            public long productID { get; set; }
+            public long warehouseID { get; set; }
             public TokpedGetProductInfoPrice1 price { get; set; }
             public TokpedGetProductInfoStock1 stock { get; set; }
         }
 
         public class TokpedGetProductInfoPrice1
         {
-            public int value { get; set; }
+            public long value { get; set; }
             public int currency { get; set; }
-            public int LastUpdateUnix { get; set; }
-            public int idr { get; set; }
+            public long LastUpdateUnix { get; set; }
+            public long idr { get; set; }
         }
 
         public class TokpedGetProductInfoStock1
