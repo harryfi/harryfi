@@ -10,7 +10,7 @@
     var tglBerakhir = "";
     if (dataSession?.User != null)
     {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        var accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         kodeSubs = context.Account.Single(a => a.AccountId == accId).KODE_SUBSCRIPTION;
         tglBerakhir = context.Account.Single(a => a.AccountId == accId).TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
         context.Dispose();
