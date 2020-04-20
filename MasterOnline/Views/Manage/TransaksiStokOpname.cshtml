@@ -1,0 +1,1203 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model StokOpnameViewModel
+
+@{
+    ViewBag.Title = "Transaksi Stok Opname";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    ErasoftContext erasoftContext = null;
+    var context = new MoDbContext("");
+
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    if (dataSession?.Account != null)
+    {
+        erasoftContext = new ErasoftContext(dataSession.Account.DataSourcePath, dataSession.Account.DatabasePathErasoft);
+    }
+    else
+    {
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        erasoftContext = new ErasoftContext(accFromUser.DataSourcePath, accFromUser.DatabasePathErasoft);
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+
+    <style>
+        a#download-stokopname, a#upload-stokopname {
+            color: white;
+        }
+
+        a#download-stokopname:hover, a#upload-stokopname:hover {
+            color: black;
+        }
+
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_stok thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .harga-input {
+            width: 100px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+        }
+
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input,
+        #table_tambah_stok > tbody > tr > .gd-barang {
+            width: 70px !important;
+        }
+
+        #table_tambah_stok > tbody > tr > .gd-barang .selectize-dropdown {
+            width: 250px !important;
+        }
+
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 42%;
+            }
+
+            .addpixel {
+                width: 850px;
+            }
+
+            .addpixeltmsuk {
+                width: 334px;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .modalresponsive {
+                width: 100%;
+            }
+
+            .modalresponsivetrmsk {
+                width: 81%;
+            }
+
+            .modalresponsivetrmsk2 {
+                width: 42%;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="stok-tab" role="tab" data-toggle="tab" aria-expanded="true">Transaksi Stok Opname</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top:10px">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="stok-tab">
+                    <div class="row stok_table_section">
+                        <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                            <div class="input-group">
+                                <input id="search_stok" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" id="search_stok_click" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>
+                                <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row stok_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-stokopname-partial">
+                        </div>
+                    </div>
+                    <div class="row stok_editor_section" style="display: none;">
+                        <div class="col-lg-12 modalresponsive">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Transaksi Stok Opname</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                @using (Html.BeginForm("SaveTransaksiStokOpname", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id="form-stokopname" }))
+                                {
+                                    <div id="form-partial">
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="excelStokOpname" tabindex="-1" role="dialog" aria-labelledby="labelExcelStokOpname">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelExcelStokOpname">Excel Stok Opname</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Anda dapat menggunakan fitur ini untuk membantu pengisian stok opname.<br />Dengan cara :
+                        </label>
+                    </div>
+                    <div class="col-md-12">
+                        <label>1. Download excel stok opname. </label>
+                        <button type="button" class="btn btn-primary" onclick="DownloadExcelSOP()">Download</button>
+                    </div>
+                    <div class="col-md-12">
+                        <label>2. Isi stok opname pada excel. </label>
+                    </div>
+                    <div class="col-md-12">
+                        <div>
+                            <label>3. Upload file excel stok opname yang sudah Anda edit.</label>
+                        </div>
+                        <div class="row" style="margin-top:10px;">
+                            <div class="col-md-6 file_upload_section">
+                                <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);"
+                                       accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary" id="btnUploadExcelSOP" onclick="uploadExcelSOP();" data-style="expand-right">
+                                    <span>Upload</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div id="loading_upload" class="text-center" hidden="hidden">
+                            <div id="loading_upload_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <br />
+                    <div class="col-md-12">
+                        <div id="progressBarUpload" class="text-center" style="display:none;">
+                            <table class="col-md-12" id="tbl_progbar2">
+                                <tr>
+                                    <td class="col-md-2">
+                                        <label id="lblPBUpload"></label>
+                                    </td>
+                                    <td class="col-md-10">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                                0% Complete (success)
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalresponsivetrmsk">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus transaksi stok opname ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteStokOp();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalresponsivetrmsk2">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteBarangSop();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfProsesSop" tabindex="-1" role="dialog" aria-labelledby="konfirmasiProsesLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modalresponsivetrmsk2">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiProsesLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin memproses stok opname ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="prosesSOpname();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+
+    <script type="text/javascript">
+
+        var $modeEdit = 0; // 0 new, 1 edit
+        var $page = window.text;
+
+        $("#excelSaldoAwal").on("hidden.bs.modal", function () {
+            $('#progressBarUpload').hide();
+            document.getElementById("file_upload_excel").value = "";
+
+            refreshTableStokOpname();
+        });
+
+        $(document).ready(function () {
+            refreshTableStokOpname();
+            $page = 0;
+
+            $('#search_stok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableStok();
+                    return false;
+                }
+            });
+            $('#search_stok_click').click(function () {
+                searchTableStok();
+            });
+
+            $('#tambah_stok').on('click', function () {
+                refresh();
+            });
+
+            $('#close-editor').on('click', function () {
+                $modeEdit = 0;
+                $('input, select, .btn-danger').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                $('.stok_table_section').show();
+                $('.stok_editor_section').hide();
+                refreshTableStokOpname();
+            });
+
+            $("#excelStokOpname").on("hidden.bs.modal", function () {
+                $('#progressBarUpload').hide();
+                document.getElementById("file_upload_excel").value = "";
+
+                refreshTableStokOpname();
+            });
+
+        });
+
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            $modeEdit = 0;
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('.stok_table_section').show();
+            $('.stok_editor_section').hide();
+            refreshTableStokOpname();
+        }
+
+
+        function Initialize() {
+
+            $('#search_stok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableStok();
+                    return false;
+                }
+            });
+            $('#search_stok_click').click(function () {
+                searchTableStok();
+            });
+            $('#tambah_stok').on('click', function () {
+                refresh();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_stok').click();
+            }
+
+            $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
+
+            var $flagPerubahan = 0;
+
+            if ($modeEdit == 1) { // mode edit
+                $('#StokOpname_TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#StokOpname_TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    $(this).datepicker('hide');
+
+                    $flagPerubahan++;
+                    $modeEdit = 1;
+                });
+            }
+
+            $('#StokOpname_TGL').attr('disabled', 'disabled');
+
+            if ($('#StokOpname_TGL').val() != '') {
+                $('#StokOpname_TGL').val($('#StokOpname_TGL').val().split(' ')[0]);
+            }
+
+            $("input.num-only").on('keydown',
+                function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+        }
+
+        function widthBrg() {
+            $(window).on('resize', function () {
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 180px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $(window).scroll(function () {
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 180px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $('#BRG').click(function () {
+                var checkExist = setInterval(function () {
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
+                        clearInterval(checkExist);
+                    }
+                }, 100);
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '180px').attr('style', 'width: 180px !important');
+            });
+        }
+
+        function offTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) { }
+            });
+        }
+
+        function modeEditTd() {
+            $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_stok > tbody > tr > td.editable').prop('contentEditable', true);
+            $('#table_tambah_stok > tbody > tr > td.editable').on('click', function () {
+                var $this = $(this);
+                var $class = $this.attr('class');
+                var $inputClass = '';
+                var $trId = $this.parent().attr('data-stok-id');
+                var $angka = convertToAngka($this.text());
+
+                if ($class == 'qty-barang editable') {
+                    $inputClass = 'qty-input';
+                }
+
+                var $input = $('<input>', {
+                    'class': $inputClass,
+                    value: convertToAngka($this.text()),
+                    type: 'number',
+                    blur: function () {
+                        var $trElement = 'tr[data-stok-id="' + $trId + '"]';
+                        if (this.value == '') {
+                            if ($class === 'qty-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
+                            }
+                            $('#BarangStokOpname_Qty').val($($trElement + ' .qty-barang').text());
+                        } else {
+                            if ($class === 'qty-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
+                            }
+                            $('#BarangStokOpname_Qty').val($($trElement + ' .qty-barang').text());
+                        }
+                    },
+                    focus: function () {
+                        if ($angka == 0) {
+                            this.value = '';
+                        } else {
+                            this.value = $angka;
+                        }
+                    },
+                    keyup: function (e) {
+                        if (e.which === 13) $input.blur();
+                    },
+                    keypress: function (e) {
+                        if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                    }
+                }).appendTo($this.empty()).focus();
+            });
+        }
+
+        function getGudang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetGudang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listGudang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listGudang[i] = {
+                                id: item.Kode_Gudang,
+                                text: item.Nama_Gudang
+                            };
+                        });
+
+                    var gudangSelect = $('#GUDANG').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listGudang,
+                        onChange: function (value) {
+                            $('#StokOpname_GUD').val(value);
+
+                            if (value != null) {
+                                $('#gudang-kode').text(value);
+                            } else {
+                                $('#gudang-kode').text('-');
+                            }
+                        }
+                    });
+
+                    //gudangSelect[0].selectize.setValue($('#StokOpname_GUD').val());
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getDataBarang() {
+
+            var nobuk = $('#StokOpname_NOBUK').val();
+            
+            var link = '@Url.Action("GetDataBarangOP", "Manage", new { nobuk = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(nobuk));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKodeBarang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            var nama2 = "";
+                            if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                nama2 = item.NAMA2;
+                            }
+
+                            listKodeBarang[i] = {
+                                id: item.BRG,
+                                text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
+                            };
+                        });
+
+                    $('#BRG').selectivity({
+                        allowClear: true,
+                        items: listKodeBarang,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var val = $(this).selectivity('value');
+                        var $trId = $(this).closest('tr').attr('data-stok-id');
+                        var $trElement = 'tr[data-stok-id="' + $trId + '"]';
+
+                        if (val != null) {
+                            $.each(data,
+                                function (i, item) {
+                                    if (item.BRG == val) {
+                                        if (item.NAMA2 != null) {
+                                            $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
+                                        } else {
+                                            $($trElement + ' .nama-barang').text(item.NAMA + " ");
+                                        }
+                                        return;
+                                    }
+                                });
+
+                            $($trElement + ' .btn-primary').removeAttr('disabled');
+                            $('#BarangStokOpname_Brg').val(val);
+                            offTab();
+                            modeEditTd();
+                        } else {
+                            $($trElement + ' .nama-barang').text('-');
+                            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStokOpname_Qty" name="BarangStokOpname.Qty" type="hidden" value="">');
+                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                            getGudang();
+                            onTab();
+                            modeEditOff();
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function modeEditOff() {
+            $('#table_tambah_stok > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_stok > tbody > tr > td.editable').prop('onclick', null).off('click');
+            $('.qty-barang').removeClass('editable');
+        }
+
+        function convertToRupiah(angka) {
+            return $.number(angka, 2, ',', '.');
+        }
+
+        function convertToAngka(rupiah) {
+
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+        }
+
+        var $idStok = "";
+        function undeleteable() {
+            alert('Transaksi Sudah Proses! \nTidak dapat dihapus!');
+        }
+
+        function lihatStokOP(idStok) {
+            var link = '@Url.Action("EditStokOpname", "Manage", new { stokId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(idStok));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('.stok_table_section').hide();
+                    $('.stok_editor_section').show();
+                    $('#form-partial').html(response);
+                    widthBrg();
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('tr[data-stok-id="0"]').remove();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+        }
+
+        function editStokOP(idStok) {
+            var link = '@Url.Action("EditStokOpname", "Manage", new { stokId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(idStok));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+                    $('.stok_table_section').hide();
+                    $('.stok_editor_section').show();
+                    $('#form-partial').html(response);
+                    widthBrg();
+                    getDataBarang();
+                    getGudang();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableStokOpname($savePage) {
+            var $tpPage = "";
+            if ($savePage == undefined) {
+                $tpPage = $('#txt_last_page').val();
+            } else if ($savePage != "1") {
+                $tpPage = $savePage;
+            } else {
+                $tpPage = $('#txt_last_page').val();
+            }
+
+            var $link = '@Html.Raw(Url.Action("RefreshTableStokOpname", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($tpPage));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-stokopname-partial').hide();
+                    $('#loading_masuk_tab').show();
+                },
+                success: function (response) {
+                    $('#table-stokopname-partial').html(response);
+                    $('#loading_masuk_tab').hide();
+                    $('#table-stokopname-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableStok(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableStokOpname", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_stok').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_stok_click')[0].disabled = true;
+                    $('#loading_masuk_tab').show();
+                },
+                success: function (response) {
+                    $('#search_stok_click')[0].disabled = false;
+                    $('#table-stokopname-partial').html(response);
+                    $('#loading_masuk_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_stok_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+
+        function refresh() {
+            var link = '@Url.Action("RefreshStokOpnameForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+
+                    $('.stok_table_section').hide();
+                    $('.stok_editor_section').show();
+
+                    $('#form-partial').html(response);
+                    widthBrg();
+                    getDataBarang();
+                    getGudang();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(idStok) {
+            this.$idStok = idStok;
+        }
+
+        function deleteStokOp() {
+            var $savePage = $('#txt_last_page').val();
+            var link = '@Url.Action("DeleteStokOpname", "Manage", new { stokId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idStok));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#table-stokopname-partial').html(response);
+                        refreshTableStokOpname($savePage);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                    $('#konfHapusStok').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        var $brg = '';
+
+        function passBarangInDb($brg) {
+            this.$brg = $brg;
+        }
+
+        function deleteBarangSop() {
+            var link = '@Url.Action("DeleteBarangStokOpname", "Manage", new { noUrut = "replaceBrgId" })';
+            link = link.replace("replaceBrgId", encodeURIComponent(this.$brg));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#form-partial').html(response);
+                        widthBrg();
+                        getDataBarang();
+                        getGudang();
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                    $('#konfHapusBarang').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function passNobuk(idStokOp) {
+            this.$idStokOp = idStokOp;
+        }
+
+        function prosesSOpname() {
+
+            var $savePage = $('#txt_last_page').val();
+            //console.log(this.$idStokOp);
+            var link = '@Url.Action("ProsesStokOpname", "Manage", new { stokOpId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idStokOp));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#konfProsesSop').modal('hide');
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+
+                    $('#loading_spinner').hide();
+
+                    if (response.Errors[0] == null) {
+                        $('#statpros').val("Sudah");
+                        $('#prosesSOpname').attr('disabled', 'disabled');
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('tr[data-stok-id="0"]').remove();
+                        alert('Data Berhasil Diproses');
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_spinner').hide();
+                    console.log(error);
+                }
+            });
+
+        }
+
+        function validasiTambahan() {
+            var $isValid = true;
+            var $Gd = $('#GUDANG');
+            var $this = $('tr[data-stok-id="0"] .qty-barang');
+            if ($Gd.val() == "-" || $Gd.val() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $('tr[data-stok-id="0"]').parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    } else {
+                        $('tr[data-stok-id="0"]').closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else if ($this.text().trim() == "") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh kosong!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            }
+            else {
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                } else if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            }
+
+            return $isValid;
+
+        }
+
+        function simpanbrgsop($id) {
+
+            if (!validasiTambahan()) return false;
+
+            if ($id == 'brg-0') {
+                if ($('#StokOpname_TGL').val() != "") {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveStokOpname", "Manage")',
+                        data: $('#form-stokopname').serialize(),
+                        beforeSend: function () {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $('#form-partial').html(response);
+                                widthBrg();
+                                getDataBarang();
+                                getGudang();
+                                if ($('#StokOpname_TGL').val() != '') {
+                                    $('#StokOpname_TGL').val($('#StokOpname_TGL').val().split(' ')[0]);
+                                }
+                            } else {
+                                if (response.Errors[0] != null) {
+                                    alert(response.Errors[0]);
+                                    $('#loading_spinner').hide();
+                                } else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                    $('#loading_spinner').hide();
+                                }
+                            }
+                            $('#loading_spinner').hide();
+
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                        }
+                    });
+                } else {
+                    alert('Silahkan isi semua field terlebih dahulu!');
+                }
+            }
+        }
+
+        function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_excel").value = "";
+
+                    return false;
+                }
+            }
+        }
+
+        function DownloadExcelSOP() {
+            var link = '@Html.Raw(Url.Action("ListStokOpnametoExcel", "TransferExcel"))';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                },
+                success: function (response) {
+                    if (response.Errors.length == 0) {
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        }
+
+        function popupAlertUploadSaldoAwal() {
+            alert("Proses upload dan input Stok Opname sudah selesai!");
+        }
+
+        function popupAlertUploadSaldoAwal_withError() {
+            alert("Proses upload dan input Stok Opname stok sudah selesai!");
+        }
+
+        function uploadExcelSOP() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+                $('#progressBarUpload').hide();
+            }
+            else {
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#progressBarUpload').show();
+                uploadFileExcelStokOpname(null, 0, "0;5", "false;false");
+            }
+        }
+
+        function uploadFileExcelStokOpname(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+
+            console.log(vnobuk + '|' + vcountAll + '|' + vpercentvprogress + '|' + vstatusLoopvSuccess);
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            if ($('#file_upload_excel')[0].files.length <= 0) {
+
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                $('#loading_upload').hide();
+
+            } else {
+
+                $('#btnUploadExcelSOP').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                var $urlProgress = '@Html.Raw(Url.Action("UploadXcelStokOpname", "TransferExcel", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';
+		        $urlProgress = $urlProgress.replace("rep1", vnobuk);
+		        $urlProgress = $urlProgress.replace("rep2", vcountAll);
+		        $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+		        $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+		        $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+		        $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                    },
+                    success: function (response) {
+                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
+                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+
+                            if (response.progress <= response.countAll) {
+                                uploadFileExcelStokOpname(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                            }
+
+                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                        } else if (response.statusSuccess == true && response.Errors.length > 0) {
+                            document.getElementById("file_upload_excel").value = "";
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('100% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                        } else {
+                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_uploadFile').html('0% Complete');
+                            $('#btnUploadExcelSOP').removeAttr('disabled');
+                            document.getElementById("file_upload_excel").value = "";
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        for (i = 0; i < response.Errors.length; i++) {
+                            err += response.Errors[i] + "\n";
+                        }
+                        alert(err);
+                        console.log(error);
+                        $('#progressBarUpload').hide();
+                        $('#btnUploadExcelSOP').removeAttr('disabled');
+                    }
+                });
+
+            }
+
+        }
+
+    </script>
+
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

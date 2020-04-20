@@ -8,13 +8,21 @@ namespace MasterOnline
 
     public partial class STT04B
     {
-        [Key]
-        [Column(Order = 0)]
-        [StringLength(4)]
-        public string Gud { get; set; }
 
         [Key]
-        [Column(Order = 1)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? No { get; set; }
+
+        public string Gud { get; set; }
+
+        [Required]
+        [StringLength(10)]
+        public string NOBUK { get; set; }
+
+        [StringLength(10)]
+        public string LKS { get; set; }
+
+
         [StringLength(20)]
         public string Brg { get; set; }
 
@@ -38,9 +46,6 @@ namespace MasterOnline
 
         public double Qty_Berat { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int id { get; set; }
-
         public double QTY_KECIL { get; set; }
 
         public double QTY_BESAR { get; set; }
@@ -49,10 +54,9 @@ namespace MasterOnline
 
         public double QTY_4 { get; set; }
 
-        [StringLength(10)]
-        public string LKS { get; set; }
-
         [StringLength(30)]
         public string USERNAME { get; set; }
+
+        public virtual STT04A STT04A { get; set; }
     }
 }
