@@ -317,6 +317,8 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\MobileApiController.cs" />
     <Compile Include="Controllers\BCAController.cs" />
+    <Compile Include="Controllers\EightTwoCartController.cs" />
+    <Compile Include="Controllers\EightTwoCartControllerJob.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
@@ -710,6 +712,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\CATEGORY_82CART.cs" />
     <Compile Include="Models\LazadaExcelBayarPiutang.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
     <Compile Include="Models\BRAND_LAZADA.cs" />
@@ -1033,6 +1036,8 @@
     <Compile Include="Models\STF20B.cs" />
     <Compile Include="Models\STF20.cs" />
     <Compile Include="Models\TEMP_BRG_MP_EXCEL.cs" />
+    <Compile Include="Models\TEMP_82CART_ORDERS.cs" />
+    <Compile Include="Models\TEMP_82CART_ORDERS_ITEM.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS_ITEM.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS.cs" />
     <Compile Include="Models\TEMP_TOKPED_ORDERS.cs" />
@@ -6365,6 +6370,8 @@
     <Content Include="Views\Manage\KonfirmasiGenerateFakturNew.cshtml" />
     <Content Include="Views\Manage\TableTransaksiBuyerPartial.cshtml" />
     <Content Include="Views\Manage\CetakLabelMo.cshtml" />
+    <Content Include="Views\Manage\PromptBrand82Cart.cshtml" />
+    <Content Include="Views\Manage\TablePromptBrand82Cart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

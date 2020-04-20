@@ -738,6 +738,7 @@ namespace MasterOnline.Controllers
             var kdShopee = 17;
             var kdTokped = 15;
             var kdJD = 19;
+            var kd82Cart = 20;
             // change by fauzi 07 Januari 2020
 
             string EDBConnID = EDB.GetConnectionString("ConnId");
@@ -961,7 +962,41 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by Tri 11 April 2019
+                    //add by fauzi for 82Cart
+                    else if (marketPlace.NAMA.Equals(kd82Cart.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    E2CartAPIData data = new E2CartAPIData()
+                                    {
+                                        no_cust = marketPlace.CUST,
+                                        account_store = marketPlace.PERSO,
+                                        API_key = marketPlace.API_KEY,
+                                        API_credential = marketPlace.Sort1_Cust,
+                                        API_url = marketPlace.PERSO,
+                                        DatabasePathErasoft = dbPathEra
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
 
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             //}
@@ -999,6 +1034,7 @@ namespace MasterOnline.Controllers
             var kdShopee = 17;
             var kdTokped = 15;
             var kdJD = 19;
+            var kd82Cart = 20;
 
             string EDBConnID = EDB.GetConnectionString("ConnId");
             var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -1258,6 +1294,41 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by Tri 11 April 2019
+                    //add by fauzi for 82 Cart
+                    else if (marketPlace.NAMA.Equals(kd82Cart.ToString()))
+                    {
+                        if (marketPlace.TIDAK_HIT_UANG_R == true)
+                        {
+                            if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                            {
+                                if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                {
+                                    E2CartAPIData data = new E2CartAPIData()
+                                    {
+                                        no_cust = marketPlace.CUST,
+                                        account_store = marketPlace.PERSO,
+                                        API_key = marketPlace.API_KEY,
+                                        API_credential = marketPlace.Sort1_Cust,
+                                        API_url = marketPlace.PERSO,
+                                        DatabasePathErasoft = dbPathEra
+                                    };
+                                    if (stf02h.BRG_MP.Contains("PENDING") || stf02h.BRG_MP.Contains("PEDITENDING"))
+                                    {
+                                        
+                                    }
+                                    else
+                                    {
+#if (DEBUG || Debug_AWS)
+                                        Task.Run(() => E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname)).Wait();
+                                        //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
+#else
+                                        client.Enqueue<StokControllerJob>(x => x.E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname));
+#endif
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                 }
             }
@@ -2384,6 +2455,103 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stok {obj} ke 82Cart gagal.")]
+        public async Task<string> E2Cart_UpdateStock_82Cart(string DatabasePathErasoft, E2CartAPIData iden, string brg, string brg_mp, string no_cust, int qty, string uname)
+        {
+            string ret = "";
+            SetupContext(iden.DatabasePathErasoft, uname);
+            var EDB = new DatabaseSQL(DatabasePathErasoft);
+            string EraServerName = EDB.GetServerName("sConn");
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            //handle log activity
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Update Stock",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "Kode Barang : " + brg,
+                REQUEST_ATTRIBUTE_2 = "Barang MP : " + brg_mp,
+                REQUEST_STATUS = "Pending",
+            };
+            var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, no_cust, currentLog, "82Cart");
+            //handle log activity
+
+            var qtyOnHand = GetQOHSTF08A(brg, "ALL");
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+
+            qty = Convert.ToInt32(qtyOnHand);
+            
+            string urll = string.Format("{0}/api/v1/editInventory", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            string[] brg_mp_split = brg_mp.Split(';');
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+            postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            try
+            {
+                string responseFromServer = "";
+
+                using (var stream = myReq.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream2 = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream2);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(responseFromServer))
+                {
+                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdateStock82Cart)) as ResultUpdateStock82Cart;
+                    if(resultAPI.error != "none" && resultAPI.error != null)
+                    {
+                        throw new Exception(resultAPI.error.ToString());
+                    }
+                    else
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                currentLog.REQUEST_EXCEPTION = msg;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                throw new Exception(msg);
+            }
+            
+            return ret;
+        }
+
+
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stok {obj} ke Shopee gagal.")]
         public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
@@ -3381,6 +3549,40 @@ namespace MasterOnline.Controllers
             public int modified_time { get; set; }
             public int stock { get; set; }
             public string request_id { get; set; }
+        }
+
+        public class E2CartAPIData
+        {
+            public string no_cust { get; set; }
+            public string username { get; set; }
+            public string account_store { get; set; }
+            public string API_key { get; set; }
+            public string API_password { get; set; }
+            public string DatabasePathErasoft { get; set; }
+            public string email { get; set; }
+            public int rec_num { get; set; }
+            public string API_url { get; set; }
+            public string API_credential { get; set; }
+        }
+
+        public class ResultUpdateStock82Cart
+        {
+            public string requestid { get; set; }
+            public string error { get; set; }
+            public string results { get; set; }
+            public ResultUpdateStockData[] data { get; set; }
+        }
+
+        public class ResultUpdateStockData
+        {
+            public string id_stock_available { get; set; }
+            public string id_product { get; set; }
+            public string id_product_attribute { get; set; }
+            public string id_shop { get; set; }
+            public string id_shop_group { get; set; }
+            public string quantity { get; set; }
+            public string depends_on_stock { get; set; }
+            public string out_of_stock { get; set; }
         }
 
     }

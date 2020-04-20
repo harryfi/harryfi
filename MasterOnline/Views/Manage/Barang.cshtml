@@ -4777,6 +4777,35 @@
         }
         //END ADD BY CALVIN 20 SEPTEMBER 2019, PROMPT LAZADA BLIBLI
 
+        //add by fauzi for 82Cart
+        var PromptBrand82CartTextBox = "";
+        function PromptBrand82Cart(i, r) {
+            PromptBrand82CartTextBox = i;
+            //debugger;
+            var getCategory = $('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE');
+            if ($(getCategory).val() != "" && $(getCategory).val() != null && $(getCategory).val() != undefined) {
+                var ValueCategory = $(getCategory).val();
+                showPromptBrand82CartTextBoxWindow(ValueCategory, r);
+            }
+            else {
+                alert('Silahkan pilih kategori 82Cart terlebih dahulu.');
+            }
+        }
+
+        function showPromptBrand82CartTextBoxWindow(valueCategory, val) {
+            var $link = '@Html.Raw(Url.Action("PromptBrand82Cart", "Manage", new { merchant_code = "replaceKodeMerchant", category = "replaceCategory" }))';
+
+            $link = $link.replace("replaceCategory", valueCategory);
+            $link = $link.replace("replaceKodeMerchant", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptBrand82Cart(val,name) {
+            $('#Brand' + PromptBrand82CartTextBox + '82Cart').val(name);
+            $('#ListHargaJualPermarket_' + PromptBrand82CartTextBox + '__AVALUE_38').val(val);
+            $('#ListHargaJualPermarket_' + PromptBrand82CartTextBox + '__ANAME_38').val(name);
+        }
+        //end add by fauzi for 82Cart
+
         function ConvertToAngkaRupiah(source) {
             if (source.value == '') {
                 source.value = 0;

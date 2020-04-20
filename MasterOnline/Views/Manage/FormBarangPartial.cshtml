@@ -768,6 +768,10 @@
                                             var adaTokped = 0;
                                             var adaActive = 0;
                                             var adaJD = 0;
+                                            //add by fauzi 
+                                            var ada82Cart = 0;
+                                            //end
+
                                             <div id="lain-section">
                                                 <ul id="setting-detail-market-tabs" class="nav nav-tabs">
                                                     @for (var i = 0; i < listMarket.ToList().Count; i++)
@@ -801,6 +805,10 @@
                                                         {
                                                             adaJD = 1;
                                                         }
+                                                        else if (idMarket == 20)
+                                                        {
+                                                            ada82Cart = 1;
+                                                        }
                                                     }
                                                     @if (adaShopee == 1)
                                                     {
@@ -829,6 +837,10 @@
                                                     @if (adaJD == 1)
                                                     {
                                                         <li><a data-toggle="tab" id="JD_detail_tab_focus" href="#JD_detail_tab">JD.ID</a></li>
+                                                    }
+                                                    @if (ada82Cart == 1)
+                                                    {
+                                                        <li><a data-toggle="tab" id="82Cart_detail_tab_focus" href="#82cart_detail_tab">82Cart</a></li>
                                                     }
                                                 </ul>
                                                 <div class="tab-content">
@@ -1414,6 +1426,97 @@
                                                                         }
                                                                     </div>
                                                                 </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                    <div id="82cart_detail_tab" class="tab-pane fade in">
+                                                        <div>
+                                                            <h2 style="font-size: 14px; align-content:center; align-items: center;">
+                                                                @($"Informasi: Mohon maaf untuk sementara waktu, Fitur Create Product dan Edit Product masih dalam perbaikan oleh pihak 82Cart.")
+                                                            </h2>
+                                                        </div>
+                                                        @for (var i = 0; i < listMarket.ToList().Count; i++)
+                                                        {
+                                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                                            if (idMarket == 20)
+                                                            {
+                                                                <div>
+                                                                    <h2 style="font-size: 14px">
+                                                                        @*@($"82Cart ({listMarket[i].PERSO}) Mohon maaf gi")*@
+                                                                    </h2>
+                                                                </div>
+                                                                @*<div class="form-group">
+                    <div class="col-md-12 col-sm-12 col-xs-12" id="div_detail_@(recnumArf01)">
+                        @if (string.IsNullOrEmpty(listMarket[i].Kode))
+                        {
+                            <label>Anda belum terintegrasi dengan akun marketplace ini.</label>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                </div>
+                                <div id="attribute_82Cart_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                            @Html.Label("Category *", new { @class = "control-label" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                            <div class="input-group text">
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            @Html.TextBox("Category" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                        </td>
+                                                        <td>
+                                                            <span class="input-group-btn">
+                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCategory82Cart(@i,@($"(\"{listMarket[i].Sort1_Cust}\")"))">
+                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                </button>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                            @Html.Label("Brand *", new { @class = "control-label" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-4 col-xs-12 form-group">
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_38 })
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].ANAME_38, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                            <div class="input-group text">
+                                                <table>
+                                                    <tr>
+                                                        <td>
+                                                            @Html.TextBox("Brand" + i + "82Cart", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.ANAME_38 })
+                                                        </td>
+                                                        <td>
+                                                            <span class="input-group-btn">
+                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBrand82Cart(@i,@($"(\"{listMarket[i].CUST}\")"))">
+                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                </button>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>*@
                                                             }
                                                         }
                                                     </div>

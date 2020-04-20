@@ -1096,9 +1096,9 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", id = "id-nama-akun" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required" })
+                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required", id = "txt-nama-akun" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -1664,6 +1664,7 @@
                                 $("#Customers_NAMA").val(value);
 
                                 @{
+                                    var v82cart = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("82Cart"))?.IdMarket.ToString();
                                     var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
                                     var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                                     var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();
@@ -1803,6 +1804,26 @@
                                 //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
+
+                                //add by fauzi
+                                if (@v82cart == value) {
+                                    var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">API Credential *</label>';
+
+                                    var valuetxtSort1_Cust = "";
+                                    if ($('#Customers_Sort1_Cust').val() != null) {
+                                        valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                                    }
+                                    var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+                                    $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                                    $('#BlibliMerchantID').show();
+                                    $('#descAPIKey').hide();
+                                    $('#id-nama-akun').html('URL Website *');
+                                    $('#txt-nama-akun').prop('placeholder', 'example : https://www.example.com');
+                                } else {
+                                    $('#id-nama-akun').html('Nama Akun *');
+                                    $('#txt-nama-akun').prop('placeholder', '');
+                                }
+
                             }
                         }
                     });
@@ -2253,6 +2274,7 @@
                     $('#CUSTNUMBER').val(response.Customers.CUST);
                     $('#Customers_NAMA').val(response.Customers.NAMA);
                     $('#Customers_PERSO').val(response.Customers.PERSO);
+                    $('#txt-nama-akun').val(response.Customers.PERSO);
                     $('#Customers_EMAIL').val(response.Customers.EMAIL).trigger('change');
                     $('#Customers_AL').val(response.Customers.AL);
                     $('#Customers_KODEPOS').val(response.Customers.KODEPOS);
@@ -2269,6 +2291,7 @@
                     $('#divAPIKey').show();
                     $('#JDAppSecret').show();
                     $('#JDAccessToken').show();
+                    
 
                     //$('#Customers_API_KEY').val(response.Customers.API_KEY);
                     //end add by Tri 11 Maret 2019
@@ -2514,6 +2537,26 @@
                             lblPopUp.style.visibility = 'hidden';
                     }
                     //end add by calvin, button for generate lazada code
+
+                    //add by fauzi 82Cart
+                    if (@v82cart == response.Customers.NAMA) {
+                        var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">API Credential *</label>';
+
+                        var valuetxtSort1_Cust = "";
+                        if (response.Customers.Sort1_Cust != null) {
+                            valuetxtSort1_Cust = response.Customers.Sort1_Cust;
+                        }
+                        var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Merchant ID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+                        $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                        $('#BlibliMerchantID').show();
+                        $('#descAPIKey').hide();
+                        $('#id-nama-akun').html('URL Website *');
+                        $('#txt-nama-akun').prop('placeholder', 'example : https://www.example.com');
+                        $('#txt-nama-akun').val(response.Customers.PERSO);
+                    } else {
+                        $('#id-nama-akun').html('Nama Akun *');
+                        $('#txt-nama-akun').prop('placeholder', '');
+                    }
 
                     $('.customer_table_section').hide();
                     $('.customer_editor_section').show();
