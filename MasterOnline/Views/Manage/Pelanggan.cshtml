@@ -1818,10 +1818,10 @@
                                     $('#BlibliMerchantID').show();
                                     $('#descAPIKey').hide();
                                     $('#id-nama-akun').html('URL Website *');
-                                    $('#txt-nama-akun').prop('placeholder', 'example : https://www.example.com')
+                                    $('#txt-nama-akun').prop('placeholder', 'example : https://www.example.com');
                                 } else {
                                     $('#id-nama-akun').html('Nama Akun *');
-                                    $('#txt-nama-akun').prop('placeholder', '')
+                                    $('#txt-nama-akun').prop('placeholder', '');
                                 }
 
                             }
@@ -2274,6 +2274,7 @@
                     $('#CUSTNUMBER').val(response.Customers.CUST);
                     $('#Customers_NAMA').val(response.Customers.NAMA);
                     $('#Customers_PERSO').val(response.Customers.PERSO);
+                    $('#txt-nama-akun').val(response.Customers.PERSO);
                     $('#Customers_EMAIL').val(response.Customers.EMAIL).trigger('change');
                     $('#Customers_AL').val(response.Customers.AL);
                     $('#Customers_KODEPOS').val(response.Customers.KODEPOS);
@@ -2549,6 +2550,12 @@
                         $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                         $('#BlibliMerchantID').show();
                         $('#descAPIKey').hide();
+                        $('#id-nama-akun').html('URL Website *');
+                        $('#txt-nama-akun').prop('placeholder', 'example : https://www.example.com');
+                        $('#txt-nama-akun').val(response.Customers.PERSO);
+                    } else {
+                        $('#id-nama-akun').html('Nama Akun *');
+                        $('#txt-nama-akun').prop('placeholder', '');
                     }
 
                     $('.customer_table_section').hide();
