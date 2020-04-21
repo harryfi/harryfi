@@ -2082,16 +2082,34 @@ namespace MasterOnline.Controllers
                                         };
                                         foreach (var item in order.order_detail)
                                         {
+                                           
+                                            var product_id = "";
+                                            var name_brg = "";
+                                            var name_brg_variasi = "";
+                                            if (item.product_attribute_id == "0")
+                                            {
+                                                var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                product_id = kodeBrg.BRG;
+                                                name_brg = item.product_name;
+                                            }
+                                            else
+                                            {
+                                                product_id = item.product_attribute_id;
+                                                name_brg_variasi = item.product_name;
+                                            }
+
                                             TEMP_82CART_ORDERS_ITEM newOrderItem = new TEMP_82CART_ORDERS_ITEM()
                                             {
                                                 ordersn = order.id_order,
                                                 is_wholesale = false,
-                                                item_id = Convert.ToInt32(order.id_order),
-                                                item_name = item.product_name,
+                                                //item_id = Convert.ToInt32(product_id),
+                                                item_id = product_id,
+                                                item_name = name_brg,
                                                 item_sku = item.reference,
-                                                variation_discounted_price = "",
-                                                variation_id = Convert.ToInt32(item.product_attribute_id),
-                                                variation_name = item.product_name,
+                                                variation_discounted_price = item.original_product_price,
+                                                //variation_id = Convert.ToInt32(item.product_attribute_id),
+                                                variation_id = item.product_attribute_id,
+                                                variation_name = name_brg_variasi,
                                                 variation_original_price = item.original_product_price,
                                                 variation_quantity_purchased = Convert.ToInt32(item.product_quantity),
                                                 variation_sku = item.reference,
