@@ -938,8 +938,17 @@
                     console.log(error);
                 }
             });
-
         }
+
+        var $brg = '';
+
+        function passBarangInDb($brg) {
+            this.$brg = $brg;
+        }
+
+        
+
+        
 
         function validasiTambahan() {
             var $isValid = true;
