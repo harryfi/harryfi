@@ -4632,13 +4632,17 @@ namespace MasterOnline.Controllers
                 {
                     string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
-                    if (!string.IsNullOrWhiteSpace(attribute_id))
+                    if (!string.IsNullOrWhiteSpace(attribute_id) && !string.IsNullOrWhiteSpace(value))
                     {
-                        HttpBody.attributes.Add(new ShopeeAttributeClass
+                        if (value != "null")
                         {
-                            attributes_id = Convert.ToInt64(attribute_id),
-                            value = value.Trim()
-                        });
+                            HttpBody.attributes.Add(new ShopeeAttributeClass
+                            {
+                                attributes_id = Convert.ToInt64(attribute_id),
+                                value = value.Trim()
+                            });
+                        }
+                            
                     }
                 }
 
