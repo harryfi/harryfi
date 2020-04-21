@@ -3372,6 +3372,7 @@
                             <li id="li_pesanan_lazada_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_lazada_tab_focus" href="#packing_pesanan_lazada" aria-expanded="false">Lazada</a></li>
                             <li id="li_pesanan_shopee_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_shopee_tab_focus" href="#packing_pesanan_shopee" aria-expanded="false">Shopee</a></li>
                             <li id="li_pesanan_blibli_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_blibli_tab_focus" href="#packing_pesanan_blibli" aria-expanded="false">Blibli</a></li>
+                            <li id="li_pesanan_82cart_tab_focus" style="display:none"><a data-toggle="tab" id="pesanan_82cart_tab_focus" href="#packing_pesanan_82cart" aria-expanded="false">82Cart</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="packing_pesanan_tokped" class="tab-pane fade in">
@@ -3391,6 +3392,11 @@
                             </div>
                             <div id="packing_pesanan_blibli" class="tab-pane fade in">
                                 <div class="col-lg-12" id="packing_pesanan_blibli_content">
+
+                                </div>
+                            </div>
+                            <div id="packing_pesanan_82cart" class="tab-pane fade in">
+                                <div class="col-lg-12" id="packing_pesanan_82cart_content">
 
                                 </div>
                             </div>
@@ -9434,6 +9440,9 @@
                         if(TabAkunPerMP[0].id.includes('tokped')){
                             id_ul_packinglistmp_cshtml = 'tokped_packing_cust_tabs';
                         }
+                        if (TabAkunPerMP[0].id.includes('82cart')) {
+                            id_ul_packinglistmp_cshtml = '82cart_packing_cust_tabs';
+                        }
 
                         var AkunPerMPCurrentIndex = $('#'+ id_ul_packinglistmp_cshtml +' li.active').index();
                         $('#'+ id_ul_packinglistmp_cshtml +' li').each(function(ii){
@@ -9455,11 +9464,13 @@
         var refreshingPackingLazada = false;
         var refreshingPackingShopee = false;
         var refreshingPackingBlibli = false;
+        var refreshingPacking82Cart = false;
         function onRefreshSemuaPesananMPComplete(){
             if(!refreshingPackingTokped &&
             !refreshingPackingLazada &&
             !refreshingPackingShopee &&
-            !refreshingPackingBlibli
+            !refreshingPackingBlibli &&
+            !refreshingPacking82Cart
             ){
                 //semua MP sudah selesai refresh
                 PackingTabNext();
@@ -9474,6 +9485,7 @@
             RefreshPackingPesananLazada();
             RefreshPackingPesananShopee();
             RefreshPackingPesananBlibli();
+            RefreshPackingPesanan82Cart();
         }
 
         function RefreshPackingPesananTokped() {
@@ -9573,6 +9585,34 @@
                 }
             });
         }
+
+        //add by fauzi 82Cart
+        function RefreshPackingPesanan82Cart() {
+            var $link = '@Html.Raw(Url.Action("RefreshTablePackingPesananMP", "Manage", new { nama_cust = "20", bukti = "replaceBuktiPacking" }))';
+            $link = $link.replace("replaceBuktiPacking", encodeURIComponent($('#modalUbahStatusMultiPacking_packingNo').val()));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#loading_barang_tab').show();
+                    refreshingPacking82Cart = true;
+                },
+                complete: function () {
+                    refreshingPacking82Cart = false;
+                    onRefreshSemuaPesananMPComplete();
+                },
+                success: function (response) {
+                    $('#packing_pesanan_82cart_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end
+
         function OpenPackingTransaction(){
             $('#modalUbahStatusMultiPacking').modal('hide');
             $('#modalPackingPengiriman').modal({

@@ -19797,6 +19797,28 @@ namespace MasterOnline.Controllers
 #endif
                         }
                         break;
+                    case "01":
+                        //add by fauzi for 82Cart
+                        if (mp.NamaMarket.ToUpper().Contains("82CART"))
+                        {
+                            var sqlStorage = new SqlServerStorage(EDBConnID);
+                            var clientJobServer = new BackgroundJobClient(sqlStorage);
+                            EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                            idenJob.API_key = marketPlace.API_KEY;
+                            idenJob.API_credential = marketPlace.Sort1_Cust;
+                            idenJob.API_url = marketPlace.PERSO;
+                            idenJob.DatabasePathErasoft = dbPathEra;
+                            idenJob.username = usernameLogin;
+                            idenJob.no_cust = marketPlace.CUST;
+
+                            //add by fauzi for update status TO PAID CODE 1
+#if (AWS || DEV)
+                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Paid Order", pesanan.NO_REFERENSI, "2"));
+#else
+                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Paid Order", pesanan.NO_REFERENSI, "2");
+#endif
+                        }
+                        break;
                 }
             }
         }
@@ -37489,6 +37511,9 @@ namespace MasterOnline.Controllers
                 case "17":
                     viewName = "PackingListShopee";
                     break;
+                case "20":
+                    viewName = "PackingList82Cart";
+                    break;
                 default:
                     viewName = "";
                     break;
@@ -40405,11 +40430,40 @@ namespace MasterOnline.Controllers
                     {
                         var dsSORow = dsSO.Tables[0].Rows[i];
                         var Nobuk = Convert.ToString(dsSORow["NO_BUKTI"]);
+                        //var SOA_NOREF = Convert.ToString(dsSORow["NO_REFERENSI"]);
+                        //var SOA_CUST = Convert.ToString(dsSORow["CUST"]);
                         if (listNobuk != "")
                         {
                             listNobuk += ",";
                         }
                         listNobuk += "'" + Nobuk + "'";
+
+                        //add by fauzi for change status 82Cart to DELIVERED CODE 5
+//                        var kd82Cart = "20";
+//                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
+//                        if (mpCust82Cart != null)
+//                        {
+//                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+//                            {
+//                                var sqlStorage = new SqlServerStorage(EDBConnID);
+//                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+//                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+//                                idenJob.API_key = mpCust82Cart.API_KEY;
+//                                idenJob.API_credential = mpCust82Cart.Sort1_Cust;
+//                                idenJob.API_url = mpCust82Cart.PERSO;
+//                                idenJob.DatabasePathErasoft = dbPathEra;
+//                                idenJob.username = usernameLogin;
+//                                idenJob.no_cust = mpCust82Cart.CUST;
+
+//                                //add by fauzi for update status TO DELIVERED CODE 5
+//#if (AWS || DEV)
+//                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5"));
+//#else                            
+//                                new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5");
+//#endif
+//                            }
+//                        }
+                        //end
                     }
                     //change by nurul 24/1/2020
                     //var successRow = EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_BUKTI IN (" + listNobuk + ") AND STATUS_TRANSAKSI = '04'");
