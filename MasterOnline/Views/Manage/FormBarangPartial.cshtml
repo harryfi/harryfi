@@ -1313,17 +1313,17 @@
                                                                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AVALUE_35, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.AVALUE_35 })
                                                                                     @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.AVALUE_35 == "1")
                                                                                     {
-                                                                                        <input type="radio" id="rdoAsuransi1" name="asuransiTokped" value="1" checked onclick="setTokpedAsuransi('@i','1')">
-                                                                                        <label for="rdoAsuransi1">Ya</label>
-                                                                                        <input type="radio" id="rdoAsuransi2" name="asuransiTokped" value="0" onclick="setTokpedAsuransi('@i','0')">
-                                                                                        <label for="rdoAsuransi2">Opsional</label>
+                                                                                        <input type="radio" id="rdoAsuransi1_@Convert.ToString(recnumArf01)" name="asuransiTokped_@Convert.ToString(recnumArf01)" value="1" checked onclick="setTokpedAsuransi('@i','1')">
+                                                                                        <label for="rdoAsuransi1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoAsuransi2_@Convert.ToString(recnumArf01)" name="asuransiTokped_@Convert.ToString(recnumArf01)" value="0" onclick="setTokpedAsuransi('@i','0')">
+                                                                                        <label for="rdoAsuransi2_@Convert.ToString(recnumArf01)">Opsional</label>
                                                                                     }
                                                                                     else
                                                                                     {
-                                                                                        <input type="radio" id="rdoAsuransi1" name="asuransiTokped" value="1" onclick="setTokpedAsuransi('@i','1')">
-                                                                                        <label for="rdoAsuransi1">Ya</label>
-                                                                                        <input type="radio" id="rdoAsuransi2" name="asuransiTokped" value="0" checked onclick="setTokpedAsuransi('@i','0')">
-                                                                                        <label for="rdoAsuransi2">Opsional</label>
+                                                                                        <input type="radio" id="rdoAsuransi1_@Convert.ToString(recnumArf01)" name="asuransiTokped_@Convert.ToString(recnumArf01)" value="1" onclick="setTokpedAsuransi('@i','1')">
+                                                                                        <label for="rdoAsuransi1_@Convert.ToString(recnumArf01)">Ya</label>
+                                                                                        <input type="radio" id="rdoAsuransi2_@Convert.ToString(recnumArf01)" name="asuransiTokped_@Convert.ToString(recnumArf01)" value="0" checked onclick="setTokpedAsuransi('@i','0')">
+                                                                                        <label for="rdoAsuransi2_@Convert.ToString(recnumArf01)">Opsional</label>
                                                                                     }
 
                                                                                 </div>
