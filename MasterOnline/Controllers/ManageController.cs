@@ -30592,6 +30592,9 @@ namespace MasterOnline.Controllers
             string sSQLSelect = "";
             //sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK, D.HJUAL AS STF02_HJUAL ";
             sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, D.HJUAL AS STF02_HJUAL ";
+            //add tuning by fauzi 21 April 2020
+            sSQLSelect += ", ISNULL((SELECT TOP 1 ISNULL(E.HBELI,0) AS HBELI FROM PBT01A F LEFT JOIN PBT01B E ON F.INV = E.INV WHERE E.BRG = A.BRG ORDER BY F.TGL DESC, E.NO DESC), 0) AS HPOKOK ";
+            //end add tuning by fauzi
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
             string sSQL2 = "";
@@ -30618,14 +30621,17 @@ namespace MasterOnline.Controllers
             var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlHargaJual>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            //add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
-            foreach (var item in listFakturNew)
-            {
-                var sql3 = "select top 1 isnull(b.hbeli,0) as hbeli from pbt01a a inner join pbt01b b on a.inv=b.inv where b.brg='" + item.BRG + "' order by a.tgl desc, b.no desc";
-                double getHbeli = ErasoftDbContext.Database.SqlQuery<double>(sql3).FirstOrDefault();
-                item.HPOKOK = getHbeli;
-            }
-            //end add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
+            ///remark by fauzi for tuning search barang
+            ////add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
+            //foreach (var item in listFakturNew)
+            //{
+            //    var sql3 = "select top 1 isnull(b.hbeli,0) as hbeli from pbt01a a inner join pbt01b b on a.inv=b.inv where b.brg='" + item.BRG + "' order by a.tgl desc, b.no desc";
+            //    double getHbeli = ErasoftDbContext.Database.SqlQuery<double>(sql3).FirstOrDefault();
+            //    item.HPOKOK = getHbeli;
+            //}
+            ////end add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
+            ///end remark by fauzi for tuning search barang
+            
             IPagedList<mdlHargaJual> pageOrders = new StaticPagedList<mdlHargaJual>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableHargaJualPartial", pageOrders);
         }
