@@ -1720,41 +1720,43 @@ namespace MasterOnline.Controllers
                 {
                     if (resultApi.error == "none" && resultApi.data.Length > 0)
                     {
+
                         var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
                         if (resultquery == 1)
                         {
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
-                            //currentLog.REQUEST_RESULT = "Update Status API Complete";
-                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                            ////currentLog.REQUEST_RESULT = "Update Status API Complete";
+                            ////manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
                         }
                         else
                         {
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
-                            //currentLog.REQUEST_RESULT = "Update Status API Failed";
-                            //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
-                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                            ////currentLog.REQUEST_RESULT = "Update Status API Failed";
+                            ////currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                            ////manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
                         }
-                        //foreach (var data in resultApi.data)
-                        //{
-                        //    if (data.email == iden.email)
-                        //    {
-                        //        //var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
-                        //        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
-                        //        if (resultquery == 1)
-                        //        {
-                        //            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
-                        //            //currentLog.REQUEST_RESULT = "Update Status API Complete";
-                        //            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
-                        //        }
-                        //        else
-                        //        {
-                        //            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
-                        //            //currentLog.REQUEST_RESULT = "Update Status API Failed";
-                        //            //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
-                        //            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
-                        //        }
-                        //    }
-                        //}
+                        ////foreach (var data in resultApi.data)
+                        ////{
+                        ////    if (data.email == iden.email)
+                        ////    {
+                        ////        //var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', AL = '" + result.shop.address1 + "', Sort1_Cust = '" + result.shop.id + "', TLP = '" + result.shop.phone + "' WHERE CUST = '" + dataAPI.no_cust + "'");
+                        ////        var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
+                        ////        if (resultquery == 1)
+                        ////        {
+                        ////            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace " + iden.email.ToString() + " (82Cart) berhasil aktif", true);
+                        ////            //currentLog.REQUEST_RESULT = "Update Status API Complete";
+                        ////            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, dataAPI, currentLog);
+                        ////        }
+                        ////        else
+                        ////        {
+                        ////            contextNotif.Clients.Group(iden.DatabasePathErasoft).notifTransaction("Akun marketplace (82Cart) gagal diaktifkan", true);
+                        ////            //currentLog.REQUEST_RESULT = "Update Status API Failed";
+                        ////            //currentLog.REQUEST_EXCEPTION = "Failed Update Table";
+                        ////            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, dataAPI, currentLog);
+                        ////        }
+                        ////    }
+                        ////}
+                        //
                     }
                     else
                     {
@@ -1896,7 +1898,7 @@ namespace MasterOnline.Controllers
                 string ordersn = "";
                 foreach (var item in orderFilterCompleted)
                 {
-                    ordersn = ordersn + "'" + item + "',";
+                    ordersn = ordersn + "'" + item.id_order + "',";
                 }
                 if (orderFilterCompleted.Count() > 0)
                 {
@@ -1960,18 +1962,19 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
-                if (stat == StatusOrder.READY_TO_SHIP || stat == StatusOrder.UNPAID)
-                {
+
                     string[] statusAwaiting = { "1", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
                     string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
                     var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
                     var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto 82Cart" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                     var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
-                    //var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[0]).ToArray();
-                    ////var orderFilterResult = "";
-                    //List<string> orderFilterResult = new List<string>();
-                    //var tes = listOrder.data.Where(p => p.current_state == "4").ToList();
+                //var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[0]).ToArray();
+                ////var orderFilterResult = "";
+                //List<string> orderFilterResult = new List<string>();
+                //var tes = listOrder.data.Where(p => p.current_state == "4").ToList();
 
+                if (stat == StatusOrder.UNPAID)
+                {
                     for (int itemOrder = 0; itemOrder < statusAwaiting.Length; itemOrder++)
                     {
                         var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[itemOrder]).ToList();
@@ -1979,7 +1982,7 @@ namespace MasterOnline.Controllers
                         {
                             if (filtered.Count() > 0)
                             {
-                                jmlhNewOrder = filtered.Count();
+                                jmlhNewOrder = jmlhNewOrder + orderFilter.Count();
                                 //await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
                                 var connIdARF01C = Guid.NewGuid().ToString();
                                 TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
@@ -2171,20 +2174,29 @@ namespace MasterOnline.Controllers
                         }
                     }
 
-                    if (stat == StatusOrder.READY_TO_SHIP)
+                    if (jmlhNewOrder > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari 82Cart.");
+                        //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                    }
+                }
+
+                if (stat == StatusOrder.PAID)
                     {
                         string[] statusCAP = { "2", "3", "15" };
                         string ordersn = "";
                         var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
                         if (filteredSudahAda.Count() > 0)
                         {
-                            for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
+                        for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
+                        {
+                            var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
+                            foreach (var item in orderFilterExisting)
                             {
-                                var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
-                                foreach (var item in orderFilterExisting)
-                                {
-                                    ordersn = ordersn + "'" + item + "',";
-                                }
+                                ordersn = ordersn + "'" + item.id_order + "',";
+                            }
+                        }
                                 if (!string.IsNullOrEmpty(ordersn))
                                 {
                                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
@@ -2194,10 +2206,14 @@ namespace MasterOnline.Controllers
                                         jmlhPesananDibayar += rowAffected;
                                     }
                                 }
-                            }
                         }
 
+                    if (jmlhPesananDibayar > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
                     }
+                }
 
                     //if (listOrder.more)
                     //{
@@ -2205,19 +2221,9 @@ namespace MasterOnline.Controllers
                     //}
                     //else
                     //{
-                    if (jmlhNewOrder > 0)
-                        {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari 82Cart.");
-                            //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
-                        }
-                        if (jmlhPesananDibayar > 0)
-                        {
-                            var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                            contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
-                        }
+                        
                     //}
-                }
+                //}
                 //}
                 //catch (Exception ex2)
                 //{
@@ -2279,7 +2285,7 @@ namespace MasterOnline.Controllers
                 string ordersn = "";
                 foreach (var item in orderFilterCancel)
                 {
-                    ordersn = ordersn + "'" + item + "',";
+                    ordersn = ordersn + "'" + item.id_order + "',";
                 }
                 if (orderFilterCancel.Count() > 0)
                 {

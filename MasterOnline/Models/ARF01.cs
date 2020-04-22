@@ -116,7 +116,7 @@ namespace MasterOnline
         [StringLength(10)]
         public string Sort5_Area { get; set; }
 
-        [StringLength(10)]
+        [StringLength(30)]
         public string Sort1_Cust { get; set; }
 
         [StringLength(10)]
