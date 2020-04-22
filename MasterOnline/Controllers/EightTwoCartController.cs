@@ -1720,6 +1720,7 @@ namespace MasterOnline.Controllers
                 {
                     if (resultApi.error == "none" && resultApi.data.Length > 0)
                     {
+
                         var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
                         if (resultquery == 1)
                         {
