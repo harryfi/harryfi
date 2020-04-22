@@ -1302,8 +1302,8 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
-                        connId_JobId = dbPathEra + "_82Cart_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatus(idenJob, EightTwoCartControllerJob.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_82Cart_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EightTwoCartControllerJob>(x => x.E2Cart_GetOrderByStatusCompleted(idenJob, EightTwoCartControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
@@ -1322,7 +1322,7 @@ namespace MasterOnline.Controllers
 
                         await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
-                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
+                        await new EightTwoCartController().E2Cart_GetOrderByStatus(iden, EightTwoCartController.StatusOrder.PAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0);
 
                         await new EightTwoCartController().E2Cart_GetOrderByStatusCompleted(iden, EightTwoCartController.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
@@ -1338,7 +1338,7 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_82Cart_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
 
-                        connId_JobId = dbPathEra + "_82Cart_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        connId_JobId = dbPathEra + "_82Cart_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
 
                         connId_JobId = dbPathEra + "_82Cart_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
