@@ -22,6 +22,8 @@ namespace MasterOnline.ViewModels
         public BindUploadExcelBayar ret { get; set; }
         //end add by nurul 6/4/2020
         public bool adaError { get; set; }
+        public List<FakturJson> listFakturBelumLunas { get; set; } = new List<FakturJson>();
+        public string noCust { get; set; }
     }
 
     public class BindUploadExcelBayar
@@ -77,5 +79,15 @@ namespace MasterOnline.ViewModels
     {
         public LOG_IMPORT_FAKTUR header { get; set; }
         public List<TABLE_LOG_DETAIL> detail { get; set; } = new List<TABLE_LOG_DETAIL>();
+    }
+
+    public class FakturBelumLunasPrompt
+    {
+        public string nobuk { get; set; }
+        public string norefSI { get; set; }
+        public DateTime? tglSI { get; set; }
+        public string norefSO { get; set; }
+        public DateTime? tglSO { get; set; }
+        public double sisa { get; set; }
     }
 }
