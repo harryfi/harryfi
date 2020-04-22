@@ -24475,17 +24475,17 @@ namespace MasterOnline.Controllers
                 }
                 vm.ListPiutangDetail = ErasoftDbContext.Database.SqlQuery<ART03B>(sSQLSelect + ssqlOrder).ToList();
                 
-                var listFakturBelumLunas = ErasoftDbContext.ART01D.Where(f => f.CUST == vm.Piutang.CUST && (f.NETTO + f.DEBET - f.KREDIT - f.BAYAR) > 0).ToList();
-                foreach (var faktur in listFakturBelumLunas)
-                {
+                //var listFakturBelumLunas = ErasoftDbContext.ART01D.Where(f => f.CUST == vm.Piutang.CUST && (f.NETTO + f.DEBET - f.KREDIT - f.BAYAR) > 0).ToList();
+                //foreach (var faktur in listFakturBelumLunas)
+                //{
 
-                    vm.listFakturBelumLunas.Add(new FakturJson()
-                    {
-                        RecNum = faktur.RecNum,
-                        NO_BUKTI = faktur.FAKTUR,
-                        Sisa = (faktur.NETTO + faktur.DEBET - faktur.KREDIT - faktur.BAYAR) ?? 0,
-                    });
-                }
+                //    vm.listFakturBelumLunas.Add(new FakturJson()
+                //    {
+                //        RecNum = faktur.RecNum,
+                //        NO_BUKTI = faktur.FAKTUR,
+                //        Sisa = (faktur.NETTO + faktur.DEBET - faktur.KREDIT - faktur.BAYAR) ?? 0,
+                //    });
+                //}
             }
             return PartialView("TableDetailPembayaranPiutang", vm);
 
@@ -42754,7 +42754,7 @@ namespace MasterOnline.Controllers
                     if (piutangDetaiInDb.Count() > 0)
                     {
                         List<int> cekKelipatan150 = new List<int>();
-                        for (int ax = 0; ax < ret.countAll; ax += 100)
+                        for (int ax = 0; ax < ret.countAll; ax += 40)
                         {
                             cekKelipatan150.Add(ax);
                         }
@@ -42841,7 +42841,7 @@ namespace MasterOnline.Controllers
                             //        }
                             //    }
 
-                            if (10 / 100 * ret.countAll > 100)
+                            if (10 / 100 * ret.countAll > 40)
                             {
                                 if (cekKelipatan150.Contains(ret.progress) || ret.percent == 100)
                                 {

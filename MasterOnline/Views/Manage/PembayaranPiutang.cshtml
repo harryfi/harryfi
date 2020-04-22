@@ -1434,6 +1434,9 @@
                     });
 
                     custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+                    if ($("#Piutang_CUST").val() != "") {
+                        $('#CUSTOMER')[0].selectize.disable();
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -1572,7 +1575,7 @@
                         //$('#form-partial').html(response);
                         $('#table_detail').html(response);
                         $("#Piutang_CUST").val($customerId);
-                        FakturSelect(listFaktur);
+                        //FakturSelect(listFaktur);
 
                         //var listKodeFaktur = [];
 
@@ -2031,9 +2034,10 @@
                                 $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
                                 //$('#table_detail').html(response);
-                                $('input, select').each(function () {
-                                    $(this).attr('disabled', 'disabled');
-                                });
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
@@ -2311,9 +2315,10 @@
                                 getMarketplace();
                                 //getFaktur($("#Piutang_CUST").val());
                                 //FakturSelect(listFaktur);
-                                $('input, select').each(function () {
-                                    $(this).attr('disabled', 'disabled');
-                                });
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
                                 $('#btn-simpan-perubahan-row').hide();
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
@@ -2344,9 +2349,10 @@
                                 getMarketplace();
                                 //getFaktur($("#Piutang_CUST").val());
                                 //FakturSelect(listFaktur);
-                                $('input, select').each(function () {
-                                    $(this).attr('disabled', 'disabled');
-                                });
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
                                 $('#btn-simpan-perubahan-row').hide();
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
@@ -2393,9 +2399,10 @@
                                     //alert(response.Errors);
                                     //getFaktur($("#Piutang_CUST").val());
                                     //FakturSelect(listFaktur);
-                                    $('input, select').each(function () {
-                                        $(this).removeAttr('disabled');
-                                    });
+                                    //$('input, select').each(function () {
+                                    //    $(this).removeAttr('disabled');
+                                    //});
+                                    getDetailBayarPiutang();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
@@ -2449,9 +2456,10 @@
                                     //alert(response.Errors);
                                     //getFaktur($("#Piutang_CUST").val());
                                     //FakturSelect(listFaktur);
-                                    $('input, select').each(function () {
-                                        $(this).removeAttr('disabled');
-                                    });
+                                    //$('input, select').each(function () {
+                                    //    $(this).removeAttr('disabled');
+                                    //});
+                                    getDetailBayarPiutang();
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
@@ -2751,7 +2759,7 @@
                         $('input').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
-                        $('#CUSTOMER')[0].selectize.disable();
+                        //$('#CUSTOMER')[0].selectize.disable();
                     }
                 },
                 error: function (xhr, status, error) {
