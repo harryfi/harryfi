@@ -331,8 +331,10 @@ namespace MasterOnline.Controllers
                     using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
                     {
                         err = sr.ReadToEnd();
+                        throw new Exception(err);//add by Tri 23 apr 2020
                     }
                 }
+                throw new Exception(e.Message);//add by Tri 23 apr 2020
             }
 
             if (responseFromServer != "")
@@ -3669,7 +3671,11 @@ namespace MasterOnline.Controllers
             var found = false;
             var stop = false;
             page = 0;
-            int rows = 100;
+            //change by Tri 23 apr 2020, get 50 data per page 
+            //int rows = 100;
+            int rows = 50;
+            //end change by Tri 23 apr 2020, get 50 data per page 
+
             int Rowsstart = page * rows;
             BindingBase ret = new BindingBase();
             var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == log_CUST).FirstOrDefault();
