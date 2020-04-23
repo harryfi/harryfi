@@ -2308,6 +2308,7 @@ namespace MasterOnline.Controllers
                 {
                     currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(currentLog.REQUEST_EXCEPTION);
                 }
                 if (responseFromServer != "")
                 {
@@ -2328,6 +2329,7 @@ namespace MasterOnline.Controllers
                         currentLog.REQUEST_RESULT = Convert.ToString(result2.errorCode);
                         currentLog.REQUEST_EXCEPTION = Convert.ToString(result2.errorMessage);
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(currentLog.REQUEST_EXCEPTION);
                     }
                 }
                 #endregion

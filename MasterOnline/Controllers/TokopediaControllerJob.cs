@@ -3650,6 +3650,7 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.Message.ToString();
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
 
 
