@@ -279,7 +279,6 @@ namespace MasterOnline.Controllers
                                         {
                                             SELLER_SKU = "",
                                             BRG_MP = brgMp,
-                                            TYPE = "3",
                                             //KODE_BRG_INDUK = Convert.ToString(item.id_product),
                                             NAMA = nama,
                                             NAMA2 = nama2,
@@ -308,14 +307,14 @@ namespace MasterOnline.Controllers
                                         //    newrecord.SELLER_SKU = item.other.sku;
                                         if (item.combinations.Length == 0)//barang non varian
                                         {
-                                            //newrecord.TYPE = "3";
+                                            newrecord.TYPE = "3";
                                         }
                                         else
                                         {
                                             if (item.combinations.Length > 1)
                                             {
                                                 typeBrg = 1;
-                                                //newrecord.TYPE = "4";
+                                                newrecord.TYPE = "4";
                                                 foreach (var varID in item.combinations)
                                                 {
                                                     var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
@@ -482,7 +481,7 @@ namespace MasterOnline.Controllers
                 SELLER_SKU = "",
                 BRG_MP = brgmp_varian,
                 KODE_BRG_INDUK = brg_mp_induk,
-                TYPE = "4",
+                TYPE = "3",
                 NAMA = nama,
                 NAMA2 = nama2,
                 NAMA3 = nama3,
