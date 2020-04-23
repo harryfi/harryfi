@@ -279,7 +279,6 @@ namespace MasterOnline.Controllers
                                         {
                                             SELLER_SKU = "",
                                             BRG_MP = brgMp,
-                                            TYPE = "3",
                                             //KODE_BRG_INDUK = Convert.ToString(item.id_product),
                                             NAMA = nama,
                                             NAMA2 = nama2,
@@ -308,14 +307,14 @@ namespace MasterOnline.Controllers
                                         //    newrecord.SELLER_SKU = item.other.sku;
                                         if (item.combinations.Length == 0)//barang non varian
                                         {
-                                            //newrecord.TYPE = "3";
+                                            newrecord.TYPE = "3";
                                         }
                                         else
                                         {
                                             if (item.combinations.Length > 1)
                                             {
                                                 typeBrg = 1;
-                                                //newrecord.TYPE = "4";
+                                                newrecord.TYPE = "4";
                                                 foreach (var varID in item.combinations)
                                                 {
                                                     var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
@@ -482,7 +481,7 @@ namespace MasterOnline.Controllers
                 SELLER_SKU = "",
                 BRG_MP = brgmp_varian,
                 KODE_BRG_INDUK = brg_mp_induk,
-                TYPE = "4",
+                TYPE = "3",
                 NAMA = nama,
                 NAMA2 = nama2,
                 NAMA3 = nama3,
@@ -1675,7 +1674,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
 
-            string urll = string.Format("{0}/api/v1/getCustomer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+            string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
 
             DatabaseSQL EDB = new DatabaseSQL(iden.DatabasePathErasoft);
             var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
@@ -1718,7 +1717,8 @@ namespace MasterOnline.Controllers
                 var resultApi = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartCustomerResult)) as E2CartCustomerResult;
                 if (resultApi != null)
                 {
-                    if (resultApi.error == "none" && resultApi.data.Length > 0)
+                    //if (resultApi.error == "none" && resultApi.data.Length > 0)
+                    if (resultApi.error == "none")
                     {
 
                         var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
