@@ -2542,10 +2542,10 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                //string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                //currentLog.REQUEST_EXCEPTION = msg;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
-                //throw new Exception(msg);
+                string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                currentLog.REQUEST_EXCEPTION = msg;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
+                throw new Exception(msg);
             }
             
             return ret;

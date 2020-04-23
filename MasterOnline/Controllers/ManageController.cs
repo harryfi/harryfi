@@ -30656,6 +30656,7 @@ namespace MasterOnline.Controllers
             var kdBlibli = "16";
             var kdElevenia = "9";
             var kdShopee = "17";
+            var kd82Cart = "20";
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -31015,6 +31016,36 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin 18 desember 2018
                 //}
+                else if (customer.NAMA.Equals(kd82Cart))//82Cart
+                {
+                    if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))
+                    {
+                        var v82CartAPI = new EightTwoCartControllerJob();
+                        EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
+                        {
+                            no_cust = customer.CUST,
+                            account_store = customer.PERSO,
+                            API_key = customer.API_KEY,
+                            API_credential = customer.Sort1_Cust,
+                            API_url = customer.PERSO,
+                            DatabasePathErasoft = dbPathEra
+                        };
+                        if (hJualInDb.BRG_MP.Contains("PENDING") || hJualInDb.BRG_MP.Contains("PEDITENDING"))
+                        {
+
+                        }
+                        else
+                        {
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru)).Wait();
+                            //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
+#else
+                                        client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru));
+#endif
+                        }
+                    }
+
+                }
             }
 
             //change by nurul 13/6/2019
