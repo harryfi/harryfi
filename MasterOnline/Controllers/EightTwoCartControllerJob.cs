@@ -378,12 +378,12 @@ namespace MasterOnline.Controllers
                                 //handle all image was uploaded
                                 foreach (var images in lGambarUploaded)
                                 {
-                                    Task.Run(() => c82CartController.E2Cart_AddImageProduct(dataLocal, resultAPI.data.data[0].id_product, images)).Wait();
+                                    Task.Run(() => c82CartController.E2Cart_AddImageProduct(dataLocal, item.BRG_MP, images)).Wait();
                                 }
                                 //end handle all image was uploaded
 
                                 //start handle update stock for default product
-                                Task.Run(() => c82CartController.E2Cart_UpdateStock_82Cart(dataLocal.DatabasePathErasoft, dataLocal, resultAPI.data.data[0].id_product, log_CUST, Convert.ToInt32(qty_stock), dataLocal.username)).Wait();
+                                Task.Run(() => c82CartController.E2Cart_UpdateStock_82Cart(dataLocal, item.BRG, item.BRG_MP, Convert.ToInt32(qty_stock))).Wait();
                                 //end handle update stock for default product
 
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -451,7 +451,7 @@ namespace MasterOnline.Controllers
 
                     string[] statusAwaiting = { "1", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
                     string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
-                    var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
+                    var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
                     var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto 82Cart" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                     var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
                 //var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[0]).ToArray();
@@ -570,18 +570,19 @@ namespace MasterOnline.Controllers
                                         };
                                         foreach (var item in order.order_detail)
                                         {
-                                            var product_id = "";
-                                            var name_brg = "";
+                                            //var product_id = "";
+                                            //var name_brg = "";
                                             var name_brg_variasi = "";
                                             if (item.product_attribute_id == "0")
                                             {
-                                                var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
-                                                product_id = kodeBrg.BRG;
-                                                name_brg = item.product_name;
+                                                //var kodeBrg = ErasoftDbContext.STF02.SingleOrDefault(p => p.NAMA.Contains(item.product_name) && p.PART == "");
+                                                //product_id = kodeBrg.BRG;
+                                                //product_id = item.product_id;
+                                                //name_brg = item.product_name;
                                             }
                                             else
                                             {
-                                                product_id = item.product_attribute_id;
+                                                //product_id = item.product_attribute_id;
                                                 name_brg_variasi = item.product_name;
                                             }
 
@@ -589,8 +590,8 @@ namespace MasterOnline.Controllers
                                             {
                                                 ordersn = order.id_order,
                                                 is_wholesale = false,
-                                                item_id = product_id,
-                                                item_name = name_brg,
+                                                item_id = item.product_id,
+                                                item_name = item.product_name,
                                                 item_sku = item.reference,
                                                 variation_discounted_price = item.original_product_price,
                                                 variation_id = item.product_attribute_id,
@@ -660,7 +661,7 @@ namespace MasterOnline.Controllers
                     {
                         var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                         contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari 82Cart.");
-                        //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                        new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                     }
                 }
 
@@ -1012,6 +1013,98 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Update Harga Jual Produk {obj} ke 82Cart gagal.")]
+        public async Task<string> E2Cart_UpdatePrice_82Cart(E2CartAPIData iden, string brg_mo, string brg_mp, int price)
+        {
+            SetupContext(iden);
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Price", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.API_credential,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string[] brg_mp_split = brg_mp.Split(';');
+
+            string urll = string.Format("{0}/api/v1/editProductdetail", iden.API_url);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+
+            //Required parameters, other parameters can be add
+            var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
+            postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
+            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            //postData += "&id_product_attribute=" + Uri.EscapeDataString("73");
+            postData += "&price=" + Uri.EscapeDataString(price.ToString());
+
+            var data = Encoding.ASCII.GetBytes(postData);
+
+            myReq.Method = "POST";
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.ContentLength = data.Length;
+
+            string responseFromServer = "";
+            try
+            {
+                using (var stream = myReq.GetRequestStream())
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream2 = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream2);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
+            }
+
+            if (!string.IsNullOrEmpty(responseFromServer))
+            {
+                try
+                {
+                    var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdatePrice)) as ResultUpdatePrice;
+                    if (resultAPI.error == "none" && resultAPI.data.Length > 0)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        throw new Exception(currentLog.REQUEST_EXCEPTION);
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                }
+
+            }
+
+            return "";
+        }
+
         public enum StatusOrder
         {
             //IN_CANCEL = 1,
@@ -1140,6 +1233,7 @@ namespace MasterOnline.Controllers
 
         public class order_detail
         {
+            public string product_id { get; set; }
             public string product_attribute_id { get; set; }
             public string product_name { get; set; }
             public string reference { get; set; }
@@ -1177,6 +1271,40 @@ namespace MasterOnline.Controllers
             public string date_upd { get; set; }
             public string active { get; set; }
             public string deleted { get; set; }
+        }
+
+        public class ResultUpdatePrice
+        {
+            public string requestid { get; set; }
+            public string error { get; set; }
+            public DetailUpdatePrice[] data { get; set; }
+        }
+
+        public class DetailUpdatePrice
+        {
+            public string id_product { get; set; }
+            public string active { get; set; }
+            public string name { get; set; }
+            public string visibility { get; set; }
+            public string available_for_order { get; set; }
+            public string show_price { get; set; }
+            public string online_only { get; set; }
+            public string wholesale_price { get; set; }
+            public string price { get; set; }
+            public string on_sale { get; set; }
+            public string id_category_default { get; set; }
+            public string id_manufacturer { get; set; }
+            public string width { get; set; }
+            public string height { get; set; }
+            public string depth { get; set; }
+            public string weight { get; set; }
+            public string additional_shipping_cost { get; set; }
+            public string minimal_quantity { get; set; }
+            public string out_of_stock { get; set; }
+            public string indexed { get; set; }
+            public string quantity { get; set; }
+            public string date_add { get; set; }
+            public string date_upd { get; set; }
         }
     }
 }
