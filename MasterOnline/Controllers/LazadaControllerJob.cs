@@ -1350,6 +1350,7 @@ namespace MasterOnline.Controllers
                     }
                     currentLog.REQUEST_EXCEPTION = errorMessage;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
+                    throw new Exception(currentLog.REQUEST_EXCEPTION);
                 }
             }
             catch (Exception ex)
@@ -1357,6 +1358,7 @@ namespace MasterOnline.Controllers
                 errorMessage = ex.ToString();
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+                throw new Exception(currentLog.REQUEST_EXCEPTION);
             }
 
 
