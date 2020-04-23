@@ -1674,7 +1674,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
 
-            string urll = string.Format("{0}/api/v1/getCustomer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+            string urll = string.Format("{0}/api/v1/getManufacturer?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
 
             DatabaseSQL EDB = new DatabaseSQL(iden.DatabasePathErasoft);
             var resultExecDefault = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + iden.no_cust + "'");
@@ -1717,7 +1717,8 @@ namespace MasterOnline.Controllers
                 var resultApi = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartCustomerResult)) as E2CartCustomerResult;
                 if (resultApi != null)
                 {
-                    if (resultApi.error == "none" && resultApi.data.Length > 0)
+                    //if (resultApi.error == "none" && resultApi.data.Length > 0)
+                    if (resultApi.error == "none")
                     {
 
                         var resultquery = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE CUST = '" + iden.no_cust + "'");
