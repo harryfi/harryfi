@@ -2997,6 +2997,7 @@
                         data: JSON.stringify($postdata),
                         beforeSend: function () {
                             //$('#loading_spinner').show();
+                            $('#konfCreatePot_btn_tidak').hide();
                         },
                         success: function (response) {
                             if (response.countAll == undefined) {
@@ -3016,6 +3017,7 @@
                                 } else if (ret.statusSuccess == true) {
                                     $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_Pot').html('100% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
                                     $('#create-pot').removeAttr('disabled');
                                     $("#konfCreatePot").modal('hide');
                                     refreshInputan();
@@ -3030,6 +3032,7 @@
                                 } else {
                                     $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_Pot').html('0% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
                                     $('#create-pot').removeAttr('disabled');
                                     alert('Proses pelunasan kurang bayar gagal.');
                                     if (ret.Errors.length > 0) {
@@ -3049,6 +3052,7 @@
                                 } else if (response.statusSuccess == true) {
                                     $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_Pot').html('100% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
                                     $('#create-pot').removeAttr('disabled');
                                     $("#konfCreatePot").modal('hide');
                                     refreshInputan();
@@ -3066,6 +3070,7 @@
                                 } else {
                                     $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
                                     $('#pBar_Pot').html('0% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
                                     $('#create-pot').removeAttr('disabled');
                                     alert('Proses pelunasan kurang bayar gagal.');
                                     if (response.Errors != null && response.Errors.length > 0) {
@@ -3110,6 +3115,7 @@
                             alert(error);
                             //$('#loading_spinner').hide();
                             $('#progressBarPot').hide();
+                            $('#konfCreatePot_btn_tidak').show();
                             $('#create-pot').removeAttr('disabled');
                             $("#konfCreatePot").modal('hide');
                             console.log(error);
@@ -3118,6 +3124,7 @@
                     //end proses simpan
                 }
             } else {
+                $('#konfCreatePot_btn_tidak').show();
                 $('#progressBarPot').hide();
                 $("#konfCreatePot").modal('hide');
                 alert('Tidak ada detail pembayaran');

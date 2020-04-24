@@ -43099,7 +43099,7 @@ namespace MasterOnline.Controllers
                     {
                         var tempPercent = Convert.ToInt32(prog[0]);
                         var cekPer10 = (ret.countAll / 10);
-                        var temp40 = Convert.ToInt32(prog[1]) + 70;
+                        var temp40 = Convert.ToInt32(prog[1]) + 100;
                         List<int> recnum = new List<int>();
                         for (int i = 0; i < piutangDetaiInDb.Count(); i++)
                         {
@@ -43110,7 +43110,7 @@ namespace MasterOnline.Controllers
                             var getData = piutangDetaiInDb[i];
                             recnum.Add(Convert.ToInt32(getData));
 
-                            if (cekPer10 > 70)
+                            if (cekPer10 > 100)
                             {
                                 if ((ret.progress == temp40) || ret.percent == 100)
                                 {
