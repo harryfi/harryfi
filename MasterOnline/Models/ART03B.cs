@@ -41,5 +41,9 @@ namespace MasterOnline
 
         public DateTime? TGL_REF { get; set; }
         //END ADD BY NURUL 21/10/2019
+
+        //add by nurul 12/3/2020
+        public double? LEBIH_BAYAR { get; set; }
+        //end add by nurul 12/3/2020
     }
 }

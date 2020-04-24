@@ -14,6 +14,12 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
 
     <style>
+        #div-scroll-list {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 380px;
+        }
+
         .input-group {
             margin-bottom: 0;
         }
@@ -377,7 +383,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+@*<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
@@ -395,7 +401,50 @@
             </div>
         </div>
     </div>
+</div>*@
+@*//add by nurul 24/4/2020*@
+<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content addpixelmodaltpiutang">
+            <div class="modal-header">
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" id="modalUbahStatusMultiPacking_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+                </div>
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarDelete" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBDelete"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Delete"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="right">
+                    <button type="button" class="btn btn-danger " onclick="$('#konfHapusPiutang').modal('hide');" id="konfHapusPiutang_btn_tidak">Tidak</button>
+                    @*<button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking(0);">Ya</button>*@
+                    <button type="button" class="btn btn-success" onclick="beforeDelete();" id="konfHapusPiutang_btn_ya">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+@*//end add by nurul 24/4/2020*@
 
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -478,17 +527,18 @@
 @*//add by nurul 18/10/2019*@
 <div class="modal fade" id="konfUpload" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload" role="document">
-        <div class="modal-content modalresponsive">
-            <div id="loading_upload" class="text-center">
-                <div id="loading_upload_image">
-                    <img src="~/Content/Images/spinner.gif" />
-                </div>
-            </div>
+        @*<div class="modal-content modalresponsive">*@
+        <div class="modal-content modalresponsive" >
+            @*<div id="loading_upload" class="text-center">
+                    <div id="loading_upload_image">
+                        <img src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>*@
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
                 <h4 class="modal-title" id="uploadlabel">Upload Pembayaran</h4>
             </div>
-            <div class="modal-body" id="modal-upload-body">
+            <div class="modal-body" id="modal-upload-body" style="margin:auto;height:450px;overflow-x:auto">
                 <div class="row">
                     <div class="col-md-11">
                         <div id="note_shopee" style="display:none">
@@ -561,7 +611,8 @@
                                accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,.csv" />
                     </div>
                     <div class="col-md-4">
-                        <button type="button" class="btn btn-primary pull-right" onclick="uploadfile();" data-style="expand-right">
+                        @*<button type="button" class="btn btn-primary pull-right" onclick="uploadFile();" data-style="expand-right">*@
+                        <button type="button" class="btn btn-primary pull-right" id="btnUploadExcelPiutang" onclick="uploadExcelPP();" data-style="expand-right">
                             <span>Upload</span>
                         </button>
                     </div>
@@ -569,9 +620,62 @@
                 @*<div>
                         <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
                     </div>*@
-                <div id="uploadbrgviewdiv" class="row">
-                </div>
+                @*<div id="uploadbrgviewdiv" class="row">
+                    </div>*@
+
+                @*//add by nurul 2/4/2020*@
+                @*<div class="col-md-12">
+                        <div id="loading_upload" class="text-center" hidden="hidden">
+                            <div id="loading_upload_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                    </div>*@
                 <br />
+                <div class="col-md-12">
+                    <div id="progressBarDownload" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBDownload"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_DownloadFile"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div id="progressBarUpload" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBUpload"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                @*//end add by nurul 2/4/2020*@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger " onclick="$('#konfUpload').modal('hide');" id="konfUpload_btn_tidak">Tidak</button>
+                @*<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>*@
+                @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
         </div>
     </div>
@@ -580,39 +684,86 @@
     <div class="modal-dialog" id="modal-create" role="document">
         <div class="modal-content modalresponsive">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="createlabel">Konfirmasi Create Potongan Sesuai Selisih</h4>
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
+                <h4 class="modal-title" id="createlabel">Konfirmasi Pelunasan</h4>
             </div>
-            <div class="modal-body" id="modal-create-body">
+            <div class="modal-body" id="modal-create-body" style="margin:auto;height:150px">
                 @*<div id="loading_pot" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>*@
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>*@
                 <div class="row">
                     <div class="col-md-10 ">
-                        <h5>Proses ini akan melunasi faktur. Apakah Anda yakin ingin melanjutkan?</h5>
+                        <h5>Proses ini akan melunasi faktur. Apakah anda yakin akan melakukan pelunasan?</h5>
                     </div>
                     <div class="col-md-4"></div>
 
                 </div>
                 <br />
+                <div class="col-md-12">
+                    <div id="progressBarPot" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBPot"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Pot"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary pull-right" onclick="createPOT();">Proses</button>
+                <button type="button" class="btn btn-danger " onclick="$('#konfCreatePot').modal('hide');" id="konfCreatePot_btn_tidak">Tidak</button>
+                <button type="button" id="create-pot" class="btn btn-primary pull-right">Proses</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="progressBarUpload" tabindex="-1" role="dialog" aria-labelledby="modalProgressLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="margin:auto;height:100px;width:800px;">
+            <div class="modal-body">
+                <table class="col-md-12" id="tbl_progbar2">
+                    <tr>
+                        <td class="col-md-2">
+                            <label id="lblPBUpload"></label>
+                        </td>
+                        <td class="col-md-10">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_uploadFile"
+                                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                    0% Complete (success)
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
 </div>
 <div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content" style="width:700px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="modalErrorLabel">List Error</h4>
             </div>
-            <div class="modal-body edit-content">
-                <div id="loading_error" class="text-center">
-                    <img src="~/Content/Images/spinner.gif" width="100" />
-                </div>
+            <div class="modal-body edit-content" id="error-list">
+                @*<div id="loading_error" class="text-center">
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>*@
                 @*@Html.Partial("ListErrorPembayaranPiutang", listErr)*@
             </div>
             <div class="modal-footer">
@@ -634,6 +785,9 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var promptFaktur = "";
+        var tempNobuk = "";
+        var tempLog = "";
         var $tempErr = [];
         var $tempMP1 = "";
         var $tempMP = "";
@@ -642,6 +796,14 @@
         var $page = window.text;
             //end add by nurul 12/2/2019
         $(document).ready(function () {
+            $("#konfUpload").on('hidden.bs.modal', function (e) {
+                //$('#progressBarUpload').modal('hide');
+                $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
+                $('#progressBarPot').hide();
+                $('#progressBarDelete').hide();
+                refreshTablePiutang1();
+            });
             refreshTablePiutang1();
             //add by nurul 12/2/2019
             $page = 0;
@@ -709,7 +871,10 @@
                 //});
                 //$('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 12/2/2019
+                tempLog = "";
+                tempNobuk = "";
             });
+
 
         });
 
@@ -833,6 +998,17 @@
             //});
             //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            $('#tambah-faktur').click(function() {
+                promptFaktur = "1";
+                var link = '@Url.Action("ListFakturBelumLunasPopUp", "Manage", new { noCust = "replaceId" })';
+                link = link.replace("replaceId", $("#Piutang_CUST").val());
+                @*window.open('@Url.Action("ListFakturBelumLunasPopUp", "Manage")',*@
+                window.open(link,
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+            });
+
         }
 
         function getTanggal() {
@@ -937,6 +1113,12 @@
             $('#TOTALBYR').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
             $('#TOTALPOT').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#TOTALLUNAS').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#TOTALSELISIH').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#TOTALLEBIH').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
             //END ADD
 
@@ -1066,6 +1248,7 @@
                             if (response.Errors == null) {
                                 $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
+                                //$('#table_detail').html(response);
                                 //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                                 refreshInputan();
                                 getTanggal();
@@ -1223,6 +1406,7 @@
                         $bayarInputBox.hide();
 
                         $('#form-partial').html(response);
+                        //$('#table_detail').html(response);
                         refreshInputan();
                         getTanggal();
                         getMarketplace();
@@ -1282,10 +1466,12 @@
                             var $objSup = $.grep(customerList, function (data) { return data.id == value });
                             if (value == null) {
                                 $("#Piutang_CUST").val(null);
-                                getFaktur(null);
+                                //getFaktur($('#NOBUK_bayar_piutang').val(), null);
+                                $('#tambah-faktur').attr('disabled', 'disabled');
                             } else {
                                 $("#Piutang_CUST").val(value);
-                                getFaktur(value);
+                                //getFaktur($('#NOBUK_bayar_piutang').val(), value);
+                                $('#tambah-faktur').removeAttr('disabled');
                                 $tempMP1 = $objSup[0].market;
                                 $tempMP = $objSup[0].idMarket;
 
@@ -1294,6 +1480,9 @@
                     });
 
                     custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+                    if ($("#Piutang_CUST").val() != "") {
+                        $('#CUSTOMER')[0].selectize.disable();
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -1324,7 +1513,7 @@
             });
         }
 
-        function getFaktur($customerId) {
+        function getFaktur($buktiId, $customerId) {
             if ($customerId == null) {
                 $('#FAKTUR').selectivity({
                     allowClear: true,
@@ -1332,7 +1521,7 @@
                     placeholder: 'Harap pilih'
                 });
             } else {
-                var $link = '@Url.Action("GetFakturBelumLunas", "Manage", new { noCust = "replaceId" })';
+                @*var $link = '@Url.Action("GetFakturBelumLunas", "Manage", new { noCust = "replaceId" })';
                 $link = $link.replace("replaceId", encodeURIComponent($customerId));
 
                 $.ajax({
@@ -1395,17 +1584,159 @@
                                 $($trElement + ' .span-tglref-piutang').text('-');
                                 $($trElement + ' .span-sisa-piutang').text('0,00');
 
-                                @*@if (Model?.ListPiutangDetail?.Count == 0)
-                                {
-                                    <text>
-                                        $('#Piutang_TBAYAR').val(@(Model?.Piutang?.TBAYAR));
-                                    </text>
-                                }*@
+                                //@if (Model?.ListPiutangDetail?.Count == 0)
+                                //{
+                                //    <text>
+                                //        $('#Piutang_TBAYAR').val(@(Model?.Piutang?.TBAYAR));
+                                //    </text>
+                                //}
                             }
                         });
                     },
                     error: function (xhr) {
                         console.log(xhr);
+                    }
+                });*@
+
+                @*var $link = '@Url.Action("GetFakturBelumLunasBaru", "Manage", new { noCust = "replaceId" })';
+                $link = $link.replace("replaceId", encodeURIComponent($customerId));*@
+                var $link = '@Html.Raw(Url.Action("GetFakturBelumLunasBaru", "Manage", new { nobuk = "replaceId", noCust = "replacecUST" }))';
+                if ($buktiId == null || undefined) {
+                    $buktiId = $('#NOBUK_bayar_piutang').val();
+                }
+                $link = $link.replace("replaceId", $buktiId);
+                $link = $link.replace("replacecUST", $customerId);
+                $.ajax({
+                    type: "GET",
+                    url: $link,
+                    //type: "GET",
+                    //url: link,
+                    //contentType: "application/json; charset=UTF-8",
+                    //cache: false,
+                    //data: JSON.stringify($postdata),
+                    success: function (response) {
+                        $modeEdit = 1; // 0 new, 1 edit
+                        //$('.piutang_table_section').hide();
+                        //$('.piutang_editor_section').show();
+                        //$('#form-partial').html(response);
+                        $('#table_detail').html(response);
+                        $("#Piutang_CUST").val($customerId);
+                        //FakturSelect(listFaktur);
+
+                        //var listKodeFaktur = [];
+
+                        //$.each(listFaktur,
+                        //    function (i, item) {
+                        //        listKodeFaktur[i] = {
+                        //            id: item.RecNum,
+                        //            text: item.NO_BUKTI
+                        //        };
+                        //    });
+
+                        //$('#FAKTUR').selectivity({
+                        //    allowClear: true,
+                        //    items: listKodeFaktur,
+                        //    placeholder: 'Harap pilih'
+                        //}).change(function () {
+                        //    var val = $(this).selectivity('value');
+                        //    var $trId = $(this).closest('tr').attr('data-piutang-id');
+                        //    var $trElement = 'tr[data-piutang-id="' + $trId + '"]';
+
+                        //    if (val != null) {
+                        //        $('#CUSTOMER')[0].selectize.disable();
+                        //        $.each(data,
+                        //            function (i, item) {
+                        //                if (item.RecNum == val) {
+                        //                    $($trElement + ' .span-sisa-piutang').text(convertToRupiah(item.Sisa));
+                        //                    $('#PiutangDetail_SISA').val(item.Sisa);
+                        //                    $('#PiutangDetail_NFAKTUR').val(item.NO_BUKTI);
+                        //                    getRef(item.NO_BUKTI, $trElement);
+                        //                    return;
+                        //                }
+                        //            });
+
+                        //        $($trElement + ' .btn-primary').removeAttr('disabled');
+                        //        $($trElement + ' .span-potongan-piutang').hide();
+                        //        $($trElement + ' .span-bayar-piutang').hide();
+                        //        $($trElement + ' #PiutangDetail_POT').show();
+                        //        $($trElement + ' #PiutangDetail_BAYAR').show();
+                        //        $($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                        //        $($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
+                        //    } else {
+                        //        $('#CUSTOMER')[0].selectize.enable();
+
+                        //        $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                        //        $($trElement + ' .span-potongan-piutang').val('-').show();
+                        //        $($trElement + ' .span-bayar-piutang').val('-').show();
+                        //        $($trElement + ' #PiutangDetail_POT').hide();
+                        //        $($trElement + ' #PiutangDetail_BAYAR').hide();
+                        //        $($trElement + ' .span-noref-piutang').text('-');
+                        //        $($trElement + ' .span-tglref-piutang').text('-');
+                        //        $($trElement + ' .span-sisa-piutang').text('0,00');
+
+                        //    }
+                        //});
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+
+        function FakturSelect($listFaktur) {
+            if ($listFaktur.length > 0) {
+                var listKodeFaktur = [];
+
+                $.each($listFaktur,
+                    function (i, item) {
+                        listKodeFaktur[i] = {
+                            id: item.RecNum,
+                            text: item.NO_BUKTI
+                        };
+                    });
+
+                $('#FAKTUR').selectivity({
+                    allowClear: true,
+                    items: listKodeFaktur,
+                    placeholder: 'Harap pilih'
+                }).change(function () {
+                    var val = $(this).selectivity('value');
+                    var $trId = $(this).closest('tr').attr('data-piutang-id');
+                    var $trElement = 'tr[data-piutang-id="' + $trId + '"]';
+
+                    if (val != null) {
+                        $('#CUSTOMER')[0].selectize.disable();
+                        $.each($listFaktur,
+                            function (i, item) {
+                                if (item.RecNum == val) {
+                                    $($trElement + ' .span-sisa-piutang').text(convertToRupiah(item.Sisa));
+                                    $('#PiutangDetail_SISA').val(item.Sisa);
+                                    $('#PiutangDetail_NFAKTUR').val(item.NO_BUKTI);
+                                    getRef(item.NO_BUKTI, $trElement);
+                                    return;
+                                }
+                            });
+
+                        $($trElement + ' .btn-primary').removeAttr('disabled');
+                        $($trElement + ' .span-potongan-piutang').hide();
+                        $($trElement + ' .span-bayar-piutang').hide();
+                        $($trElement + ' #PiutangDetail_POT').show();
+                        $($trElement + ' #PiutangDetail_BAYAR').show();
+                        $($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                        $($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
+                    } else {
+                        $('#CUSTOMER')[0].selectize.enable();
+
+                        $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                        $($trElement + ' .span-potongan-piutang').val('-').show();
+                        $($trElement + ' .span-bayar-piutang').val('-').show();
+                        $($trElement + ' #PiutangDetail_POT').hide();
+                        $($trElement + ' #PiutangDetail_BAYAR').hide();
+                        $($trElement + ' .span-noref-piutang').text('-');
+                        $($trElement + ' .span-tglref-piutang').text('-');
+                        $($trElement + ' .span-sisa-piutang').text('0,00');
+
                     }
                 });
             }
@@ -1438,7 +1769,7 @@
             //end change by calvin 26 september 2018
         }
 
-        var $idPiutang = "";
+        var $idPiutangTemp = "";
 
         function undeleteable(){
             alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
@@ -1455,13 +1786,14 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
-                    
+                    //$('#table_detail').html(response);
+
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     //getFaktur($("#Piutang_CUST").val());
                     getDetailBayarPiutang();
-                    $('#btn-error-row').hide();
+                    //$('#btn-error-row').hide();
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                     $('input, select, .btn-danger').each(function () {
@@ -1486,18 +1818,20 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
-                    
+                    //$('#table_detail').html(response);
+
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
+                    //FakturSelect(listFaktur);
                     getDetailBayarPiutang();
-                    
-                    $('#btn-error-row').hide();
+
+                    //$('#btn-error-row').hide();
                     $('#btn-autoload').click(function () {
                         $('#file_upload_excel').removeAttr('disabled');
                     });
-                    
+
                     //$('#tambah_piutang').click();
                     //$('#TGL').change();
                 },
@@ -1507,11 +1841,9 @@
             });
         }
 
-        function pass(idPiutang) {
-            this.$idPiutang = idPiutang;
-        }
+        
 
-        function deletePiutang() {
+        @*function deletePiutang() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(this.$idPiutang));
@@ -1533,7 +1865,7 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
         var $fak = '';
 
@@ -1553,13 +1885,15 @@
                 success: function (response) {
                     $modeEdit = 1; // 0 new, 1 edit
                     $('#form-partial').html(response);
+                    //$('#table_detail').html(response);
                     refreshInputan();
                     getTanggal();
                     getMarketplace();
                     $('#btn-autoload').click(function () {
                         $('#file_upload_excel').removeAttr('disabled');
                     });
-                    getFaktur($("#Piutang_CUST").val());
+                    //getFaktur($("#Piutang_CUST").val());
+                    //FakturSelect(listFaktur);
                     $('#konfHapusFaktur').modal('hide');
                 },
                 error: function (xhr) {
@@ -1670,11 +2004,12 @@
                     $('.piutang_table_section').hide();
                     $('.piutang_editor_section').show();
                     $('#form-partial').html(response);
+                    //$('#table_detail').html(response);
                     $("#modalError").on('show.bs.modal', function (e) {
                         var $modal = $(this);
                         $modal.find('.edit-content').html('');
                     });
-                    $("#btn-error-row").hide();
+                    //$("#btn-error-row").hide();
                     //refreshInputan();
                     getTanggal();
                     getMarketplace();
@@ -1742,9 +2077,11 @@
                             if (response.Errors == null) {
                                 $modeEdit = 1; // 0 new, 1 edit
                                 $('#form-partial').html(response);
-                                $('input, select').each(function () {
-                                    $(this).attr('disabled', 'disabled');
-                                });
+                                //$('#table_detail').html(response);
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
                                 $('#btn-autoload').click(function () {
                                     $('#file_upload_excel').removeAttr('disabled');
                                 });
@@ -1822,14 +2159,23 @@
 
         function validasiCreatePot() {
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length <= 0) {
+                $('#progressBarPot').hide();
                 alert('Tidak ada detail pembayaran');
             } else if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
+                $('#progressBarPot').hide();
                 alert('Tidak ada selisih !');
             }else if ($('#Piutang_TGL').val() != null &&
                 $('#Piutang_CUST').val() != '') {
                 $("#konfCreatePot").modal('show');
+                $('#create-pot').click(function () {
+                    $('#pBar_Pot').css('width', '0%').attr('aria-valuenow', 0);
+                    $('#pBar_Pot').html('0% Complete');
+                    $('#progressBarPot').show();
+                    createPOT($('#NOBUK_bayar_piutang').val(), 0, "0;0", "false;false", false);
+                });
             }
             else {
+                $('#progressBarPot').hide();
                 alert('Silahkan pilih nama marketplace terlebih dulu !');
 
             }
@@ -1838,6 +2184,7 @@
         function checkfile(s) {
             var validExts = new Array(".xlsx", ".xls", ".csv");
             //var validExts = new Array(".xlsx", ".xls");
+            sizeFile = parseInt(document.getElementById("file_upload_excel").files[0].size / 1024)
             var fileExt = s.value;
             if (fileExt != null && fileExt != "") {
                 fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
@@ -1845,11 +2192,396 @@
                     alert("Invalid file selected, valid files are of " +
                         validExts.toString() + " types.");
                     document.getElementById("file_upload_excel").value = "";
-
                     return false;
+                }
+                if (sizeFile > 4000) {
+                    alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
+                    return false;
+                    $('#btn_upload').attr('disabled', 'disabled');
+                } else {
+                    $('#btn_upload').removeAttr('disabled');
                 }
             }
         }
+        //add by nurul 2/4/2020
+        function uploadExcelPP() {
+            if ($('#file_upload_excel')[0].files.length < 1) {
+                $('#file_upload_excel').click();
+                //$('#progressBarUpload').modal('hide');
+                $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
+            } else if (sizeFile > 4000) {
+                //$('#progressBarUpload').modal('hide');
+                $('#progressBarUpload').hide();
+                $('#progressBarDownload').hide();
+                alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
+            }
+            else {
+                if ($tempMP1.toUpperCase() == "SHOPEE" || $tempMP1.toUpperCase() == "LAZADA") {
+                    $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                    $('#pBar_uploadFile').html('0% Complete');
+                    //$('#progressBarUpload').modal('show');
+                    $('#pBar_DownloadFile').css('width', '20%').attr('aria-valuenow', 20);
+                    $('#pBar_DownloadFile').html('20% Complete');
+                    $('#progressBarDownload').show();
+                    $('#progressBarUpload').show();
+                    uploadFileExcelPiutang(null, 0, "0;0", "false;false", null, false);
+                } else {
+                    $('#progressBarDownload').hide();
+                    $('#progressBarUpload').hide();
+                    alert("Fitur ini sedang kami upgrade. Mohon hubungi tim support.");
+                }
+            }
+        }
+
+        function uploadFileExcelPiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess, vBuktiLog, vNoProcess) {
+
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+
+            if ($('#file_upload_excel')[0].files.length <= 0) {
+                //$('#progressBarUpload').modal('hide');
+                $('#progressBarDownload').hide();
+                $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_DownloadFile').html('0% Complete');
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                //$('#loading_upload').hide();
+            } else if (sizeFile > 4000) {
+                //$('#progressBarUpload').modal('hide');
+                $('#progressBarDownload').hide()
+                $('#pBar_DownloadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_DownloadFile').html('0% Complete');
+                $('#progressBarUpload').hide();
+                $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
+                $('#pBar_uploadFile').html('0% Complete');
+                //$('#loading_upload').hide();
+                alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
+            }
+            else
+            {
+                $('#btnUploadExcelPiutang').attr('disabled', 'disabled');
+
+                var formdata = new FormData(); //FormData object
+                var fileInput = document.getElementById('file_upload_excel');
+                //Iterating through each files selected in fileInput
+                for (i = 0; i < fileInput.files.length; i++) {
+                    //Appending each file to FormData object
+                    if (i == 0) {
+                        formdata.append(fileInput.files[i].name, fileInput.files[i]);
+                        $('#lblPBUpload').text('Processing File : ' + fileInput.files[i].name);
+                        $('#lblPBDownload').text('Uploading File : ' + fileInput.files[i].name);
+                    }
+                }
+
+                formdata.append("cust", $('#Piutang_CUST').val());
+                formdata.append("market", $tempMP1);
+                formdata.append("tgl", $('#Piutang_TGL').val());
+                $('input, select').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+
+                var $urlProgress = "";
+                if ($tempMP1.toUpperCase() == "SHOPEE") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "LAZADA") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "BUKALAPAK") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                }
+                else if ($tempMP1.toUpperCase() == "BLIBLI") {
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                }
+
+                $urlProgress = $urlProgress.replace("rep1", vnobuk);
+                $urlProgress = $urlProgress.replace("rep2", vcountAll);
+                $urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                $urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                $urlProgress = $urlProgress.replace("repLog", vBuktiLog);
+                $urlProgress = $urlProgress.replace("repNoProcess", vNoProcess);
+
+                $.ajax({
+                    type: "POST",
+                    url: $urlProgress,
+                    data: formdata,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#konfUpload_btn_tidak').hide();
+                    },
+                    success: function (response) {
+                        if (response.countAll == undefined) {
+                            //$('#loading_upload').hide();
+                            //$("#konfUpload").modal('hide');
+
+                            $modeEdit = 1; // 0 new, 1 edit
+                            $('.piutang_table_section').hide();
+                            $('.piutang_editor_section').show();
+                            $('#form-partial').html(response);
+                            //$('#table_detail').html(response);
+                            tempNobuk = ret.nobuk;
+                            tempLog = ret.buktiLog;
+
+                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_DownloadFile').html('100% Complete');
+
+                            if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
+                                $('#pBar_uploadFile').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                                $('#pBar_uploadFile').html(ret.percent + '% Complete');
+
+                                if (ret.progress <= ret.countAll) {
+                                    uploadFileExcelPiutang(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess), String(ret.buktiLog), ret.TidakLanjutProses);
+                                }
+
+                            } else if (ret.statusSuccess == true) {
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                $('#pBar_uploadFile').html('100% Complete');
+                                $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                //setTimeout(popupAlertUploadSaldoAwal, 500);
+                                $('#konfUpload_btn_tidak').show();
+                                $("#konfUpload").modal('hide');
+                                
+                                refreshInputan();
+                                getTanggal();
+                                getMarketplace();
+                                //getFaktur($("#Piutang_CUST").val());
+                                //FakturSelect(listFaktur);
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
+                                $('#btn-simpan-perubahan-row').hide();
+                                $('#btn-autoload').click(function () {
+                                    $('#file_upload_excel').removeAttr('disabled');
+                                });
+                                //$("#btn-error-row").show();
+                                $tempErr.length = 0;
+                                $tempErr = listError;
+                                popupAlertUploadSaldoAwal;
+                                if (ret.adaError == true) {
+                                    //if (ret.nobuk != null) {
+                                    //    $("#btn-error").click();
+                                    //    showError(ret.nobuk, ret.buktiLog);
+                                    //} else {
+                                    //    alert(ret.Errors);
+                                    //}
+                                        $("#modalError").modal('show');
+                                        showError(tempNobuk, tempLog);
+                                }
+                            } else {
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                $('#pBar_uploadFile').html('0% Complete');
+                                $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
+                                $('#konfUpload_btn_tidak').show();
+                                $("#konfUpload").modal('hide');
+
+                                refreshInputan();
+                                getTanggal();
+                                getMarketplace();
+                                //getFaktur($("#Piutang_CUST").val());
+                                //FakturSelect(listFaktur);
+                                //$('input, select').each(function () {
+                                //    $(this).attr('disabled', 'disabled');
+                                //});
+                                getDetailBayarPiutang();
+                                $('#btn-simpan-perubahan-row').hide();
+                                $('#btn-autoload').click(function () {
+                                    $('#file_upload_excel').removeAttr('disabled');
+                                });
+                                //$("#btn-error-row").show();
+                                $tempErr.length = 0;
+                                $tempErr = listError;
+                                alert("Proses upload pembayaran piutang gagal.");
+                                if (ret.adaError == true) {
+                                    //if (ret.nobuk != null) {
+                                    //    $("#btn-error").click();
+                                    //    showError(ret.nobuk, ret.buktiLog);
+
+                                    //} else {
+                                    //    alert(ret.Errors);
+                                    //}
+                                        $("#modalError").modal('show');
+                                        showError(tempNobuk, tempLog);
+                                }
+                            }
+
+
+                        } else {
+                            tempNobuk = response.nobuk;
+                            tempLog = response.buktiLog;
+                            $('#pBar_DownloadFile').css('width', '100%').attr('aria-valuenow', 100);
+                            $('#pBar_DownloadFile').html('100% Complete');
+
+                            if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                                $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                                $('#pBar_uploadFile').html(response.percent + '% Complete');
+
+                                if (response.progress <= response.countAll) {
+                                    uploadFileExcelPiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess), String(response.buktiLog), response.TidakLanjutProses);
+                                }
+
+                            } else if (response.statusSuccess == true) {
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                $('#pBar_uploadFile').html('100% Complete');
+                                $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                $('#konfUpload_btn_tidak').show();
+                                //setTimeout(popupAlertUploadSaldoAwal, 500);
+
+                                    //$('#loading_upload').hide();
+                                    //alert(response.Errors);
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    //$('input, select').each(function () {
+                                    //    $(this).removeAttr('disabled');
+                                    //});
+                                    getDetailBayarPiutang();
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                    //$("#konfUpload").modal('hide');
+                                    //$("#btn-error-row").show();
+                                    $tempErr.length = 0;
+                                    $tempErr = response.Errors;
+                                    //$("#modalError").on('show.bs.modal', function (e) {
+                                    //    //$('#modalError').find('.edit-content').html($tempErr);
+                                    //    //$('#modalError').modal('show');
+                                    //    $(this).find('.edit-content').html($tempErr);
+                                    //    $('#modalError').modal('show');
+                                    //    //$(this).modal('show');
+                                    //    //$('#loading_error').hide();
+                                    //});
+                                //    if ($tempErr.length >= 1) {
+                                //        //alert('Ada error. Silahkan klik "View Error"');
+                                //        $('#btn-error').click()
+                                //        showError(response.nobuk, response.buktiLog);
+                                //    //} else if ($tempErr.length == 1) {
+                                //    //    $("#btn-error").click();
+                                //    } else if ($tempErr.length == 0) {
+                                //        //$("#btn-error-row").hide();
+                                //}
+                                //setTimeout(popupAlertUploadSaldoAwal, 500);
+                                popupAlertUploadSaldoAwal;
+                                if (response.adaError == true) {
+                                    //
+
+                                    //if (response.nobuk != null) {
+                                    //    //showError(response.nobuk, response.buktiLog);
+                                    //        $("#modalError").modal('show');
+                                    //        showError(tempNobuk, tempLog);
+                                    //} else {
+                                    //    alert(response.Errors);
+                                    //}
+                                    $("#modalError").modal('show');
+                                    showError(tempNobuk, tempLog);
+                                }
+
+
+                                $("#konfUpload").modal('hide');
+                            } else {
+                                $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                                $('#pBar_uploadFile').html('0% Complete');
+                                $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                $('#konfUpload_btn_tidak').show();
+                                //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
+
+
+                                    //$('#loading_upload').hide();
+                                    //alert(response.Errors);
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    //$('input, select').each(function () {
+                                    //    $(this).removeAttr('disabled');
+                                    //});
+                                    getDetailBayarPiutang();
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                    //$("#konfUpload").modal('hide');
+                                    //$("#btn-error-row").show();
+                                    $tempErr.length = 0;
+                                    $tempErr = response.Errors;
+                                    //$("#modalError").on('show.bs.modal', function (e) {
+                                    //    //$('#modalError').find('.edit-content').html($tempErr);
+                                    //    //$('#modalError').modal('show');
+                                    //    $(this).find('.edit-content').html($tempErr);
+                                    //    $('#modalError').modal('show');
+                                    //    //$(this).modal('show');
+                                    //    //$('#loading_error').hide();
+                                    //});
+                                //    if ($tempErr.length >= 1) {
+                                //    //    alert('Ada error. Silahkan klik "View Error"');
+                                //    //} else if ($tempErr.length == 1) {
+                                //    //    $("#btn-error").click();
+                                //        $('#btn-error').click()
+                                //        showError(response.nobuk, response.buktiLog);
+                                //    } else if ($tempErr.length == 0) {
+                                //        //$("#btn-error-row").hide();
+                                //}
+                                //setTimeout(alert("Proses upload pembayaran piutang gagal."), 500);
+                                alert("Proses upload pembayaran piutang gagal.");
+                                if (response.adaError == true) {
+                                    //$('#btn-error').click()
+                                    //if (response.nobuk != null) {
+                                    //    //$('#btn-error').click()
+                                    //    //showError(response.nobuk, response.buktiLog);
+                                    //    $("#modalError").on('show.bs.modal', function (e) {
+                                    //        $("#modalError").modal('show');
+                                    //        showError(tempNobuk, tempLog);
+                                    //    });
+                                    //} else {
+                                    //    alert(response.Errors);
+                                    //}
+                                    $("#modalError").modal('show');
+                                    showError(tempNobuk, tempLog);
+                                }
+
+                                $("#konfUpload").modal('hide');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        var err = "";
+                        //if (error != undefined) {
+                        //    for (i = 0; i < error.length; i++) {
+                        //        err += error[i] + "\n";
+                        //    }
+                        //} else {
+                        //    for (i = 0; i < error.length; i++) {
+                        //        err += error[i] + "\n";
+                        //    }
+                        //}
+                        alert(error);
+                        console.log(error);
+                        //$('#progressBarUpload').modal('hide');
+                        $('#progressBarDownload').hide();
+                        $('#progressBarUpload').hide();
+                        $('#btnUploadExcelPiutang').removeAttr('disabled');
+                    }
+                });
+
+            }
+        }
+
+        function popupAlertUploadSaldoAwal() {
+            alert("Proses upload pembayaran piutang sudah selesai!");
+        }
+        //end add by nurul 2/4/2020
         function uploadfile() {
             if ($('#file_upload_excel')[0].files.length < 1) {
                 $('#file_upload_excel').click();
@@ -1894,10 +2626,10 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        $('#loading_upload').show();
+                        //$('#loading_upload').show();
                     },
                     success: function (response) {
-                        
+
                         if (response.Errors == undefined) {
                             $('#loading_upload').hide();
                             $("#konfUpload").modal('hide');
@@ -1906,10 +2638,12 @@
                             $('.piutang_table_section').hide();
                             $('.piutang_editor_section').show();
                             $('#form-partial').html(response);
+                            //$('#table_detail').html(response);
                             refreshInputan();
                             getTanggal();
                             getMarketplace();
-                            getFaktur($("#Piutang_CUST").val());
+                            //getFaktur($("#Piutang_CUST").val());
+                            //FakturSelect(listFaktur);
                             $('input, select').each(function () {
                                 $(this).attr('disabled', 'disabled');
                             });
@@ -1917,11 +2651,17 @@
                             $('#btn-autoload').click(function () {
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
-                            $("#btn-error-row").show();
+                            //$("#btn-error-row").show();
                             $tempErr.length = 0;
                             $tempErr = listError;
                             $("#modalError").on('show.bs.modal', function (e) {
-                                $.ajax({
+                                //$('#modalError').find('.edit-content').html($tempErr);
+                                //$('#modalError').modal('show');
+                                $(this).find('.edit-content').html($tempErr);
+                                $('#modalError').modal('show');
+                                //$(this).modal('show');
+                                //$('#loading_error').hide();
+                                @*$.ajax({
                                     type: "POST",
                                     url: '@Url.Action("ShowErrorUploadBayar", "Manage")',
                                     data: JSON.stringify($tempErr),
@@ -1939,20 +2679,21 @@
                                         console.log(error);
                                         $tempErr.length = 0;
                                     }
-                                });
+                                });*@
                             });
                             if ($tempErr.length > 1) {
                                 alert('Ada error. Silahkan klik "View Error"');
                             } else if($tempErr.length == 1) {
                                 $("#btn-error").click();
                             } else if ($tempErr.length == 0) {
-                                $("#btn-error-row").hide();
+                                //$("#btn-error-row").hide();
                             }
 
                         } else {
                             $('#loading_upload').hide();
                             //alert(response.Errors);
-                            getFaktur($("#Piutang_CUST").val());
+                            //getFaktur($("#Piutang_CUST").val());
+                            //FakturSelect(listFaktur);
                             $('input, select').each(function () {
                                 $(this).removeAttr('disabled');
                             });
@@ -1960,11 +2701,17 @@
                                 $('#file_upload_excel').removeAttr('disabled');
                             });
                             $("#konfUpload").modal('hide');
-                            $("#btn-error-row").show();
+                            //$("#btn-error-row").show();
                             $tempErr.length = 0;
                             $tempErr = response.Errors;
                             $("#modalError").on('show.bs.modal', function (e) {
-                                $.ajax({
+                                //$('#modalError').find('.edit-content').html($tempErr);
+                                //$('#Modal').modal('show');
+                                $(this).find('.edit-content').html($tempErr);
+                                $('#modalError').modal('show');
+                                ///*$(this).modal('show');*/
+                                //$('#loading_error').hide();
+                                @*$.ajax({
                                     type: "POST",
                                     url: '@Url.Action("ShowErrorUploadBayar", "Manage")',
                                     data: JSON.stringify($tempErr),
@@ -1982,24 +2729,63 @@
                                         console.log(error);
                                         $tempErr.length = 0;
                                     }
-                                });
+                                });*@
                             });
                             if ($tempErr.length > 1) {
                                 alert('Ada error. Silahkan klik "View Error"');
                             } else if ($tempErr.length == 1) {
                                 $("#btn-error").click();
                             } else if ($tempErr.length == 0) {
-                                $("#btn-error-row").hide();
+                                //$("#btn-error-row").hide();
                             }
                         }
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
                         alert(error);
-                        $('#loading_upload').hide();
+                        //$('#loading_upload').hide();
                     }
                 });
             }
+        }
+
+        function showError($nobuk, $logFile) {
+                                //if ($('#Piutang_BUKTI').val() != "") {
+            var link = '@Url.Action("ShowErrorUploadBayar", "Manage")';
+            var $bukti = "";
+            var $log = "";
+
+            if ($nobuk != undefined && $logFile != undefined && $nobuk != null && $logFile != null && $nobuk != "" && $logFile != "") {
+                $bukti = $nobuk;
+                $log = $logFile;
+            } else {
+                if (tempLog == "") {
+                    tempLog = logfile;
+                }
+                $bukti = tempNobuk;
+                $log = tempLog;
+            }
+            $postdata = {
+                bukti: $bukti,
+                logErr: $log,
+            };
+                                    $.ajax({
+                                        type: "POST",
+                                        url: link,
+                                        contentType: "application/json; charset=UTF-8",
+                                        cache: false,
+                                        data: JSON.stringify($postdata),
+                                        success: function (value) {
+                                            //$('#modalError').find('.edit-content').html(value);
+                                            //$('#Modal').modal('show');
+                                            $('#error-list').html(value);
+                                        },
+                                        error: function (xhr, status, error) {
+                                            console.log(error);
+                                            $tempErr.length = 0;
+                                        }
+                                    });
+                                //}
         }
 
         function getDetailBayarPiutang() {
@@ -2014,15 +2800,15 @@
                 success: function (res) {
                     var $jumlahDetail = res;
                     if ($jumlahDetail == 0) {
-                        $('input, select').each(function () {
+                        $('input').each(function () {
                             $(this).removeAttr('disabled');
                         });
                         $('#NOBUK_bayar_piutang').attr('disabled', 'disabled');
                     } else {
-                        $('input, select').each(function () {
+                        $('input').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
-                        $('#CUSTOMER')[0].selectize.disable();
+                        //$('#CUSTOMER')[0].selectize.disable();
                     }
                 },
                 error: function (xhr, status, error) {
@@ -2031,38 +2817,59 @@
             });
         }
 
-        function createPOT() {
+        function createPOT(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
             if ($('tr[data-piutang-id != "0"] .potongan-piutang').length > 0) {
                 var totalSelisih = 0;
-                var get_rec = [];
-                var get_pot = [];
-                var get_faktur = [];
-                get_rec.length = 0;
-                get_pot.length = 0;
-                get_faktur.length = 0;
-                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
-                    if ($(item).attr("data-selisih") != undefined) {
-                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih"))));
-                        totalSelisih += convertToAngka($(item).attr("data-selisih"));
-                        get_pot.push(convertToAngka($(item).attr("data-selisih")));
-                        get_rec.push($(item).attr("data-rec"));
-                        get_faktur.push($(item).attr("data-faktur"));
-                    }
-                });
+                //var get_rec = [];
+                //var get_pot = [];
+                //var get_faktur = [];
+                //get_rec.length = 0;
+                //get_pot.length = 0;
+                //get_faktur.length = 0;
+                //$('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                //    if ($(item).attr("data-selisih") != undefined) {
+                //        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih"))));
+                //        totalSelisih += convertToAngka($(item).attr("data-selisih"));
+                //        //get_pot.push(convertToAngka($(item).attr("data-selisih")));
+                //        //get_rec.push($(item).attr("data-rec"));
+                //        //get_faktur.push($(item).attr("data-faktur"));
+                //    }
+                //});
 
-                if (totalSelisih == 0) {
+                //if (totalSelisih == 0) {
+                if (convertToAngka($('#TOTALSELISIH').val()) == 0) {
+                    $('#progressBarPot').hide();
                     $("#konfCreatePot").modal('hide');
-                    alert('Tidak ada selisih');
+                    alert('Tidak ada kurang bayar.');
                 }
                 else
                 {
-                    $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
-                        $(item).text(convertToRupiah(0));
-                    });
-                    $('#TOTALPOT').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
-                    $('#TOTALSELISIH').val(convertToRupiah(0));
+                    var splitpro = vpercentvprogress.split(';');
+                    var vpercent = splitpro[0];
+                    var vprogress = splitpro[1];
 
-                    $.ajax({
+                    var splitStatus = vstatusLoopvSuccess.split(';');
+                    var vstatusLoop = splitStatus[0];
+                    var vstatusSuccess = splitStatus[1];
+
+                    $('#create-pot').attr('disabled', 'disabled');
+
+                    //var formdata = new FormData();
+                    //formdata.append("cust", $('#Piutang_CUST').val());
+                    $('#lblPBPot').text('Processing Pelunasan');
+
+                    //$('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                    //    $(item).text(convertToRupiah(0));
+                    //});
+                    //$('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                    //    if (($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) && ($(item).attr("data-persen-gagal") != undefined || convertToAngka($(item).attr("data-persen-gagal")) > 0)) {
+                    //        $(item).text("0 %");
+                    //    }
+                    //});
+                    //$('#TOTALPOT').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                    //$('#TOTALSELISIH').val(convertToRupiah(0));
+
+                    @*$.ajax({
                         type: "POST",
                         url: '@Url.Action("UpdatePotonganBayarPiutang", "Manage")',
                         data: JSON.stringify({
@@ -2072,9 +2879,10 @@
                             TotalFaktur: convertToAngka($('#TOTALBYR').val()),
                             TotalBayar: convertToAngka($('#TOTALREF').val()),
                             TotalPotongan: convertToAngka($('#TOTALPOT').val()),
-                            getRec: get_rec,
-                            getPot: get_pot,
-                            getFaktur: get_faktur
+                            //TotalLebih: convertToAngka($('#TOTALLEBIH').val()),
+                            //getRec: get_rec,
+                            //getPot: get_pot,
+                            //getFaktur: get_faktur
                         }),
                         contentType: 'application/json; charset=UTF-8',
                         cache: false,
@@ -2082,31 +2890,49 @@
                             $('#loading_spinner').show();
                         },
                         success: function (data) {
-                            if (data.Errors == undefined) {
-                                
-                                $('#loading_spinner').hide();
-                                $("#konfCreatePot").modal('hide');
-                                alert('Nilai potongan berhasil dibuat');
-                                getFaktur($("#Piutang_CUST").val());
-                                $('#btn-autoload').click(function () {
-                                    $('#file_upload_excel').removeAttr('disabled');
-                                });
-                            } else {
-                                $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
-                                    if ($(item).attr("data-selisih-gagal") != undefined) {
-                                        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
-                                    }
-                                });
-                                $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
-                                    $(item).text(convertToRupiah(0));
-                                });
-                                $('#TOTALPOT').val(convertToRupiah(0));
-                                $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
-                                alert(data.Errors);
-                                $('#loading_spinner').hide();
+                            if (data != null) {
+                                if (data.mo_error == null) {
+                                    //if (data.Errors == undefined) {
+
+                                    $('#loading_spinner').hide();
+                                    $("#konfCreatePot").modal('hide');
+                                    alert('Nilai potongan berhasil dibuat');
+                                    getFaktur($("#Piutang_CUST").val());
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                                        if ($(item).attr("data-selisih-gagal") != undefined) {
+                                            $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                                        }
+                                    });
+                                    $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                                        $(item).text(convertToRupiah(0));
+                                    });
+                                    $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                                        if ($(item).attr("data-persen-gagal") != undefined) {
+                                            if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                                $(item).text($(item).attr("data-persen-gagal") + " %");
+                                            } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                                $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                            }
+                                        } else {
+                                            if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                                $(item).text($(item).attr("data-persen-gagal") + " %");
+                                            } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                                $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                            }
+                                        }
+                                    });
+                                    $('#TOTALPOT').val(convertToRupiah(0));
+                                    $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                                    alert(data.mo_error);
+                                    $('#loading_spinner').hide();
+                                }
                             }
                         },
-                        error: function (xhr) {
+                        error: function (xhr, status, error) {
                             $('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
                                 if ($(item).attr("data-selisih-gagal") != undefined) {
                                     $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
@@ -2115,17 +2941,191 @@
                             $('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
                                 $(item).text(convertToRupiah(0));
                             });
+                            $('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                                //if ($(item).attr("data-persen-gagal") != undefined) {
+                                //    $(item).text($(item).attr("data-persen-gagal") + " %");
+                                //}
+                                if ($(item).attr("data-persen-gagal") != undefined) {
+                                    if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                        $(item).text($(item).attr("data-persen-gagal") + " %");
+                                    } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                        $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                    }
+                                } else {
+                                    if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                                        $(item).text($(item).attr("data-persen-gagal") + " %");
+                                    } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                                        $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                                    }
+                                }
+                            });
                             $('#TOTALPOT').val(convertToRupiah(0));
                             $('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
                             alert('Ada error. Mohon ulangi proses!');
                             $('#loading_spinner').hide();
                             $("#konfCreatePot").modal('hide');
-                            console.log(xhr);
+                            console.log(error);
+                        }
+                    });*@
+
+                    var $urlProgress = "";
+                    @*$urlProgress = '@Html.Raw(Url.Action("UpdatePotonganBayarPiutang1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success" }))';*@
+                    $urlProgress = '@Html.Raw(Url.Action("UpdatePotonganBayarPiutang1", "Manage"))';
+
+                    if (vnobuk == null || vnobuk == "") {
+                        vnobuk = $('#NOBUK_bayar_piutang').val();
+                    }
+                    //$urlProgress = $urlProgress.replace("rep1", vnobuk);
+                    //$urlProgress = $urlProgress.replace("rep2", vcountAll);
+                    //$urlProgress = $urlProgress.replace("rep3percent", vpercent);
+                    //$urlProgress = $urlProgress.replace("rep4progress", vprogress);
+                    //$urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
+                    //$urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
+
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+                    };
+
+                    $.ajax({
+                        type: "POST",
+                        url: $urlProgress,
+                        contentType: "application/json; charset=UTF-8",
+                        cache: false,
+                        data: JSON.stringify($postdata),
+                        beforeSend: function () {
+                            //$('#loading_spinner').show();
+                            $('#konfCreatePot_btn_tidak').hide();
+                        },
+                        success: function (response) {
+                            if (response.countAll == undefined) {
+                                $modeEdit = 1; // 0 new, 1 edit
+                                $('.piutang_table_section').hide();
+                                $('.piutang_editor_section').show();
+                                $('#form-partial').html(response);
+                                //$('#table_detail').html(response);
+                                if (ret.countAll != null && ret.statusLoop == true && ret.statusSuccess == false && ret.TidakLanjutProses == false) {
+                                    $('#pBar_Pot').css('width', ret.percent + '%').attr('aria-valuenow', ret.percent);
+                                    $('#pBar_Pot').html(ret.percent + '% Complete');
+
+                                    if (ret.progress <= ret.countAll) {
+                                        createPOT(ret.nobuk, ret.countAll, String(ret.percent) + ";" + String(ret.progress + 1), String(ret.statusLoop) + ";" + String(ret.statusSuccess));
+                                    }
+
+                                } else if (ret.statusSuccess == true) {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('100% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
+                                    $('#create-pot').removeAttr('disabled');
+                                    $("#konfCreatePot").modal('hide');
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    alert('Proses pelunasan kurang bayar sudah selesai.');
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('0% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
+                                    $('#create-pot').removeAttr('disabled');
+                                    alert('Proses pelunasan kurang bayar gagal.');
+                                    if (ret.Errors.length > 0) {
+                                        alert(ret.Errors);
+                                    }
+                                }
+                            }
+                            else {
+                                if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                                    $('#pBar_Pot').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                                    $('#pBar_Pot').html(response.percent + '% Complete');
+
+                                    if (response.progress <= response.countAll) {
+                                        createPOT(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                                    }
+
+                                } else if (response.statusSuccess == true) {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('100% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
+                                    $('#create-pot').removeAttr('disabled');
+                                    $("#konfCreatePot").modal('hide');
+                                    refreshInputan();
+                                    getTanggal();
+                                    getMarketplace();
+                                    //getFaktur($("#Piutang_CUST").val());
+                                    //FakturSelect(listFaktur);
+                                    alert('Proses pelunasan kurang bayar sudah selesai.');
+                                    if (response.Errors != null && response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
+                                    $('#btn-autoload').click(function () {
+                                        $('#file_upload_excel').removeAttr('disabled');
+                                    });
+                                } else {
+                                    $('#pBar_Pot').css('width', '100%').attr('aria-valuenow', 100);
+                                    $('#pBar_Pot').html('0% Complete');
+                                    $('#konfCreatePot_btn_tidak').show();
+                                    $('#create-pot').removeAttr('disabled');
+                                    alert('Proses pelunasan kurang bayar gagal.');
+                                    if (response.Errors != null && response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
+                                    if (response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
+                                }
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            //$('tr[data-piutang-id != "0"] .selisih-piutang').each(function (i, item) {
+                            //    if ($(item).attr("data-selisih-gagal") != undefined) {
+                            //        $(item).text(convertToRupiah(convertToAngka($(item).text()) + convertToAngka($(item).attr("data-selisih-gagal"))));
+                            //    }
+                            //});
+                            //$('tr[data-piutang-id != "0"] .potongan-piutang').each(function (i, item) {
+                            //    $(item).text(convertToRupiah(0));
+                            //});
+                            //$('tr[data-piutang-id != "0"] .persen-selisih').each(function (i, item) {
+                            //    //if ($(item).attr("data-persen-gagal") != undefined) {
+                            //    //    $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //    //}
+                            //    if ($(item).attr("data-persen-gagal") != undefined) {
+                            //        if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                            //            $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //        } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                            //            $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                            //        }
+                            //    } else {
+                            //        if ($(item).attr("data-persen-lebihbayar") == undefined || convertToAngka($(item).attr("data-persen-lebihbayar")) == 0) {
+                            //            $(item).text($(item).attr("data-persen-gagal") + " %");
+                            //        } else if ($(item).attr("data-persen-lebihbayar") != undefined) {
+                            //            $(item).text($(item).attr("data-persen-lebihbayar") + " %");
+                            //        }
+                            //    }
+                            //});
+                            //$('#TOTALPOT').val(convertToRupiah(0));
+                            //$('#TOTALSELISIH').val(convertToRupiah(convertToAngka($('#TOTALPOT').val()) + convertToAngka(convertToRupiah(totalSelisih))));
+                            //alert('Ada error. Mohon ulangi proses!');
+                            alert(error);
+                            //$('#loading_spinner').hide();
+                            $('#progressBarPot').hide();
+                            $('#konfCreatePot_btn_tidak').show();
+                            $('#create-pot').removeAttr('disabled');
+                            $("#konfCreatePot").modal('hide');
+                            console.log(error);
                         }
                     });
                     //end proses simpan
                 }
             } else {
+                $('#konfCreatePot_btn_tidak').show();
+                $('#progressBarPot').hide();
                 $("#konfCreatePot").modal('hide');
                 alert('Tidak ada detail pembayaran');
             }
@@ -2138,15 +3138,15 @@
                 type: "GET",
                 url: link,
                 beforeSend: function() {
-                    $('#loading_upload').show();
+                    //$('#loading_upload').show();
                 },
                 success: function (response) {
                     $('#uploadbrgviewdiv').html(response);
-                    $('#loading_upload').hide();
+                    //$('#loading_upload').hide();
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
-                    $('#loading_upload').hide();
+                    //$('#loading_upload').hide();
                 }
             });
         }
@@ -2160,6 +3160,174 @@
 
         }
         //end add by nurul 21/10/2019
+
+        function searchDetailTableBayarPiutang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableDetailBayarPiutang", "Manage", new { nobuk = "replaceID", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
+            $link = $link.replace("replaceID", $('#NOBUK_bayar_piutang').val());
+
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            $link = $link.replace("replaceFilter", encodeURIComponent(filterby));
+            $link = $link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#loading_detail_piutang_tab').show();
+                },
+                success: function (response) {
+                    $('#table_detail').html(response);
+                    $('#loading_detail_piutang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_detail_piutang_tab').hide();
+                    console.log(error);
+                }
+            });
+        }
+        function get_filterby() {
+            return $('#filter_detail_bayar_field').val();
+        }
+        function get_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                default:
+                    filtervalue = $('#filter_detail_bayar_field_option').val();
+                    break;
+            }
+            return filtervalue;
+        }
+
+        function afterPromptFaktur(tempVal) {
+            if (promptFaktur == "1") {
+                var tempValue = tempVal.split('|');
+                $('#PiutangDetail_NFAKTUR').val(tempValue[0]);
+
+                var $trId = $('#PiutangDetail_NFAKTUR').closest('tr').attr('data-piutang-id');
+                var $trElement = 'tr[data-piutang-id="' + $trId + '"]';
+                $($trElement + ' .span-sisa-piutang').text(convertToRupiah(tempValue[3]));
+                $('#PiutangDetail_SISA').val(tempValue[3]);
+
+                $('#PiutangDetail_NOREF').val(tempValue[1]);
+                $($trElement + ' .span-noref-piutang').text(tempValue[1]);
+                $('#PiutangDetail_TGL_REF').val(tempValue[2]);
+                $($trElement + ' .span-tglref-piutang').text(tempValue[2]);
+                $($trElement + ' .span-ongkir-piutang').text(convertToRupiah(tempValue[4]));
+                //getBuyerPrompt(kd);
+
+                $($trElement + ' .btn-primary').removeAttr('disabled');
+                $($trElement + ' .span-potongan-piutang').hide();
+                $($trElement + ' .span-bayar-piutang').hide();
+                $($trElement + ' #PiutangDetail_POT').show();
+                $($trElement + ' #PiutangDetail_BAYAR').show();
+                $($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                $($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
+            }
+            promptFaktur = "";
+        }
+
+        function pass(idPiutang) {
+            this.$idPiutang = idPiutang;
+            $idPiutangTemp = idPiutang;
+            $('#progressBarDelete').hide();
+        }
+
+        function beforeDelete() {
+            $('#pBar_Delete').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_Delete').html('0% Complete');
+            $('#progressBarDelete').show();
+            deletePiutang($idPiutangTemp, 0, "0;0", "false;false", false);
+        }
+
+        function deletePiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            $('#konfHapusPiutang_btn_ya').attr('disabled', 'disabled');
+            $('#lblPBDelete').text('Processing Delete');
+
+            var $savePage = $('#txt_last_page').val();
+            @*var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idPiutang));*@
+
+            var $urlProgress = "";
+                    $urlProgress = '@Html.Raw(Url.Action("DeleteBayarPiutang1", "Manage"))';
+
+                    if (vnobuk == null || vnobuk == "") {
+                        vnobuk = $idPiutangTemp;
+                    }
+
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+                    };
+
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    $('#konfHapusPiutang_btn_tidak').hide();
+                },
+                success: function (response) {
+                    if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                        $('#pBar_Delete').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        $('#pBar_Delete').html(response.percent + '% Complete');
+
+                        if (response.progress <= response.countAll) {
+                            deletePiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                        }
+
+                    } else if (response.statusSuccess == true) {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('100% Complete');
+                        $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                        $('#konfHapusPiutang_btn_tidak').show();
+                        alert('Proses delete pembayaran piutang sudah selesai.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        $('#table-piutang-partial').html(response);
+                        refreshTablePiutang1($savePage);
+                        $('#konfHapusPiutang').modal('hide');
+                        //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                    } else {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('0% Complete');
+                        $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                        $('#konfHapusPiutang_btn_tidak').show();
+                        alert('Proses delete pembayaran piutang gagal.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        $('#table-piutang-partial').html(response);
+                        refreshTablePiutang1($savePage);
+                        $('#konfHapusPiutang').modal('hide');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(error);
+                    //$('#loading_spinner').hide();
+                    $('#progressBarDelete').hide();
+                    $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                    $('#konfHapusPiutang_btn_tidak').show();
+                    $("#konfHapusPiutang").modal('hide');
+                }
+            });
+        }
     </script>
 
     <script>

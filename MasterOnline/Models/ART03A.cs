@@ -62,6 +62,11 @@ namespace MasterOnline
 
         public DateTime? TGLINPUT { get; set; }
 
+        //add by nurul 12/3/2020
+        public double? TLEBIH_BAYAR { get; set; }
+        public string log_file { get; set; }
+        //end add by nurul 12/3/2020
+
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ART03B> ART03B { get; set; }
@@ -69,5 +74,6 @@ namespace MasterOnline
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ART03C> ART03C { get; set; }
+        
     }
 }

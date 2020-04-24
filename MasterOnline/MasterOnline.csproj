@@ -713,6 +713,9 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
+    <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
+    <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
+    <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
     <Compile Include="Models\LazadaExcelBayarPiutang.cs" />
     <Compile Include="Models\BukaLapakExcelFaktur.cs" />
     <Compile Include="Models\BRAND_LAZADA.cs" />
@@ -6376,6 +6379,9 @@
     <Content Include="Views\Manage\PromptBrand82Cart.cshtml" />
     <Content Include="Views\Manage\TablePromptBrand82Cart.cshtml" />
     <Content Include="Views\Manage\BarangStokOpnamePartial.cshtml" />
+    <Content Include="Views\Manage\TableDetailPembayaranPiutang.cshtml" />
+    <Content Include="Views\Manage\ListFakturBelumLunasPopUp.cshtml" />
+    <Content Include="Views\Manage\TableFakturBelumLunasPopUp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

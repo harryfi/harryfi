@@ -16,5 +16,7 @@ namespace MasterOnline.Models
         public List<string> getRec { get; set; } = new List<string>();
         public List<double> getPot { get; set; } = new List<double>();
         public List<string> getFaktur { get; set; } = new List<string>();
+
+        public double TotalLebih { get; set; }
     }
 }

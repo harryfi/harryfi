@@ -1,0 +1,271 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.BayarPiutangViewModel
+<style>
+    .nfaktur-class {
+        box-shadow: inset 0 1px 0 rgba(0,0,0,.075);
+        border-radius: 25px 0 0 25px;
+        border: 1px solid rgba(221,226,232,.49);
+        border-radius:0;
+        width: 100%;       
+        text-align:center !important;
+    }
+        .nfaktur-class:focus {
+            border: 1px solid rgba(221,226,232,.49);
+            border-right: 0;
+            border-color:#CCD0D7;
+            box-shadow: none !important
+        }
+
+
+    @@media screen and (max-width: 445px) {
+        .table-responsive {
+            width: 38%;
+        }
+    }
+
+    @@media screen and (max-width: 375px) {
+        .table-responsive {
+            width: 32%;
+        }
+    }
+
+    @@media screen and (max-width: 325px) {
+        .table-responsive {
+            width: 27%;
+        }
+    }
+
+    #loading_detail_piutang_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_detail_piutang_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    /*table thead {
+        display: block;
+    }
+
+    table tbody {
+        display: block;
+        overflow-x: auto;
+        overflow-y: auto;
+    }*/
+</style>
+<div id="loading_detail_piutang_tab" hidden="hidden">
+    <div id="loading_detail_piutang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <div class="hscroll table-responsive fakturtblpiutangfrm">
+            @*<table id="table_tambah_piutang" class="table table-bordered" role="grid" overflow-y: scroll;height: 400px;>*@
+            <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
+            <table id="table_tambah_piutang" class="table table-striped table-bordered table-hover" style="display:block;overflow-x:scroll;white-space:nowrap; " role="grid">
+                <thead>
+                    <tr role="row">
+                        <th width="150px !important">No. Faktur</th>
+                        <th width="100px">No. Ref</th>
+                        <th width="100px">Tgl. Ref</th>
+                        <th width="100px">Nilai Ongkir</th>
+                        <th width="100px">Nilai Faktur</th>
+                        <th width="100px">Nilai Bayar</th>
+                        <th width="100px">Nilai Potongan</th>
+                        <th width="100px">Kurang Bayar</th>
+                        <th width="100px">Lebih Bayar</th>
+                        <th width="60px">% selisih</th>
+                        <th width="40px">Simpan</th>
+                        <th width="40px">Hapus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var iPd = 0;
+                    }
+                    @foreach (var detailPiutang in Model.ListPiutangDetail)
+                    {
+                        var ongkir = 0d;
+                        var cekOngkir = Model.ListOngkir.Where(a => a.NOBUK_FAKTUR == detailPiutang.NFAKTUR).Select(a => a.ONGKIR).FirstOrDefault();
+                        if (cekOngkir > 0)
+                        {
+                            ongkir = cekOngkir;
+                        }
+                        //string lebihbayar = (detailPiutang?.LEBIH_BAYAR == null ? 0 : detailPiutang?.LEBIH_BAYAR);
+                        <tr data-piutang-id="piu-@detailPiutang.NO">
+                            <td>
+                                @detailPiutang.NFAKTUR
+                            </td>
+                            <td>@detailPiutang.NOREF</td>
+                            <td>@detailPiutang.TGL_REF.GetValueOrDefault().ToString("dd/MM/yyyy")</td>
+                            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ongkir)</td>
+                            <td class="sisa-piutang" style="text-align:right">
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
+                                <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
+                            </td>
+                            <td class="bayar-piutang" style="text-align:right">
+                                <span class="nilairef-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
+                            </td>
+                            <td class="potongan-piutang" data-selisih="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" data-rec="@detailPiutang.NO" data-faktur="@detailPiutang.NFAKTUR" style="text-align:right">
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
+                                <input min="0" class="pot-input-box num-only" style="display: none;" />
+                                <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
+                            </td>
+                            <td class="selisih-piutang" data-selisih-gagal="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))" style="text-align:right">
+                                @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
+                                <input min="0" class="selisih-input-box num-only" style="display: none;" />
+                                <span class="selisih-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", (detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT))</span>
+                            </td>
+                            <td class="lebihbayar-piutang" style="text-align:right">
+                                <span class="lebihbayar-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.LEBIH_BAYAR)</span>
+                            </td>
+                            <td class="persen-selisih" data-persen-gagal="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ((detailPiutang.SISA - detailPiutang.BAYAR - detailPiutang.POT) / detailPiutang.SISA * 100))" data-persen-lebihbayar="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", ((detailPiutang?.LEBIH_BAYAR) / detailPiutang.SISA * 100))">
+                                @*<input min="0" class="persen-input-box num-only" style="display: none;" />*@
+                                @{
+                                    var kurangbayar1 = false;
+                                    double? tempPersen1 = 0;
+                                    if (detailPiutang?.LEBIH_BAYAR > 0)
+                                    {
+                                        tempPersen1 = (detailPiutang?.LEBIH_BAYAR / detailPiutang?.SISA * 100);
+                                    }
+                                    else if ((detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) > 0 && (detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) != null)
+                                    {
+                                        tempPersen1 = ((detailPiutang?.SISA - detailPiutang?.BAYAR - detailPiutang?.POT) / detailPiutang?.SISA * 100);
+                                        kurangbayar1 = true;
+                                    }
+                                }
+                                @if (kurangbayar1 == true && tempPersen1 >= 1)
+                                {
+                                    <span class="persen-initial">-@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempPersen1) %</span>
+                                }
+                                else
+                                {
+                                    <span class="persen-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempPersen1) %</span>
+                                }
+                            </td>
+                            @*<td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" onclick="editDetail('piu-@detailPiutang.NO')">
+                                <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+
+                            </button>
+                        </td>*@
+                            <td class="edit-hapus-col">
+                                <button type="button" class="btn btn-primary" disabled="disabled">
+                                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                            <td class="edit-hapus-col">
+                                <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusFaktur" onclick="passFakturInDb('@detailPiutang.NO')">
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        iPd = iPd + 1;
+                    }
+                    <tr data-piutang-id="0">
+                        @Html.HiddenFor(m => m.PiutangDetail.NO)
+                        <td style="width: 150px !important; max-width: 150px !important;padding:5px !important">
+                            @*//change by nurul 22/4/2020*@
+                            @*<div id="FAKTUR" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.PiutangDetail.NFAKTUR)*@
+                            @Html.TextBoxFor(m => m.PiutangDetail.NFAKTUR, new { @readonly = "readonly", placeholder = "Pilih Faktur", @style = "background-color : #eee; cursor :not-allowed; height: 34px; width: 95px !important; max-width: 95px !important;", @class = "nfaktur-class" })
+                            @*<span class="input-group-btn">*@
+                            <button id="tambah-faktur" class="btn btn-default center" type="button" style="height: 34px;margin:0px;width:25px !important;padding:unset" disabled="disabled">
+                                <span class="glyphicon glyphicon-option-horizontal center-block"></span>
+                            </button>
+                            @*</span>*@
+                            @*//end change by nurul 22/4/2020*@
+                        </td>
+                        <td class="noref-piutang" style="text-align:right">
+                            <span class="span-noref-piutang">-</span>
+                            @Html.HiddenFor(m => m.PiutangDetail.NOREF)
+                        </td>
+                        <td class="tglref-piutang" style="text-align:right">
+                            <span class="span-tglref-piutang"></span>
+                            @Html.HiddenFor(m => m.PiutangDetail.TGL_REF)
+                        </td>
+                        <td class="ongkir-piutang" style="text-align:right">
+                            <span class="span-ongkir-piutang">0,00</span>
+                        </td>
+                        <td class="sisa-piutang" style="text-align:right">
+                            <span class="span-sisa-piutang">-</span>
+                            @Html.HiddenFor(m => m.PiutangDetail.SISA)
+                        </td>
+                        <td class="bayar-piutang" style="text-align:right">
+                            <span class="span-bayar-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="potongan-piutang" style="text-align:right">
+                            <span class="span-potongan-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="selisih-piutang" style="text-align:right">
+                            <span class="span-selisih-piutang">0,00</span>
+                            @{
+                                var tempSelisih = (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT);
+                            }
+                            @Html.TextBox("SELISIH", (tempSelisih >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", tempSelisih) : "0,00"), new { @class = "form-control", @style = "display: none;text-align:right" })
+                        </td>
+                        <td class="lebihbayar-piutang" style="text-align:right">
+                            <span class="span-lebihbayar-piutang">0,00</span>
+                            @Html.TextBoxFor(m => m.PiutangDetail.LEBIH_BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
+                        </td>
+                        <td class="persen-selisih" style="text-align:right">
+                            <span class="span-persen-selisih">0 %</span>
+                            @{
+                                var kurangbayar = false;
+                                double? tempPersen = 0;
+                                if (Model?.PiutangDetail?.LEBIH_BAYAR > 0)
+                                {
+                                    tempPersen = Model?.PiutangDetail?.LEBIH_BAYAR;
+                                }
+                                else if ((Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) > 0 && (Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) != null)
+                                {
+                                    tempPersen = ((Model?.PiutangDetail?.SISA - Model?.PiutangDetail?.BAYAR - Model?.PiutangDetail?.POT) / Model?.PiutangDetail.SISA * 100);
+                                    kurangbayar = true;
+                                }
+                            }
+                            @if (kurangbayar == true && tempPersen >= 1)
+                            {
+                                @Html.TextBox("PERSEN_SELISIH", "-" + tempPersen + " %", new { @class = "form-control", @style = "display: none;text-align:right" })
+                            }
+                            else
+                            {
+                                @Html.TextBox("PERSEN_SELISIH", tempPersen + " %", new { @class = "form-control", @style = "display: none;text-align:right" })
+                            }
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('piu-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusFaktur">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

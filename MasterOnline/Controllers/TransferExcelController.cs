@@ -2097,6 +2097,12 @@ namespace MasterOnline.Controllers
         public int percent { get; set; }
         public int countAll { get; set; }
         public string nobuk { get; set; }
+
+        //add by nurul 6/4/2020\
+        public double TBAYAR { get; set; }
+        public double TPOT { get; set; }
+        public double? TLEBIHBAYAR { get; set; }
+        //end add by nurul 6/4/2020
     }
 
     public class BindDownloadExcel
