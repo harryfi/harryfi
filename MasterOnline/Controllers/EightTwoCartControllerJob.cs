@@ -449,15 +449,12 @@ namespace MasterOnline.Controllers
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseServer, typeof(E2CartOrderResult)) as E2CartOrderResult;
 
-                    string[] statusAwaiting = { "1", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
-                    string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
-                    var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
-                    var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto 82Cart" && p.CUST == CUST && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
-                    var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
-                //var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[0]).ToArray();
-                ////var orderFilterResult = "";
-                //List<string> orderFilterResult = new List<string>();
-                //var tes = listOrder.data.Where(p => p.current_state == "4").ToList();
+                string[] statusAwaiting = { "1", "3", "10", "11", "13", "14", "16", "17", "18", "19", "20", "21", "23", "25" };
+                string[] ordersn_list = listOrder.data.Select(p => p.id_order).ToArray();
+                var dariTgl = DateTimeOffset.UtcNow.AddDays(-10).DateTime;
+                jmlhNewOrder = 0;
+                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+
                 if (stat == StatusOrder.UNPAID)
                 {
                     for (int itemOrder = 0; itemOrder < statusAwaiting.Length; itemOrder++)
@@ -465,50 +462,44 @@ namespace MasterOnline.Controllers
                         var orderFilter = listOrder.data.Where(p => p.current_state == statusAwaiting[itemOrder]).ToList();
                         if (orderFilter.Count() > 0)
                         {
-                            if (filtered.Count() > 0)
+                            foreach (var order in orderFilter)
                             {
-                                jmlhNewOrder = jmlhNewOrder + orderFilter.Count();
-                                //await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
-                                var connIdARF01C = Guid.NewGuid().ToString();
-                                TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
-                                List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
-                                string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                                insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                                insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                var kabKot = "3174";
-                                var prov = "31";
-
-
-                                foreach (var order in orderFilter)
+                                try
                                 {
-                                    //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                                    //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
-
-                                    string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
-                                    string nama = fullname.Length > 30 ? order.firstname.Substring(0, 30) : order.lastname.ToString();
-
-                                    insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                                        ((nama ?? "").Replace("'", "`")),
-                                        ((order.delivery_address[0].address1 ?? "").Replace("'", "`")),
-                                        ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
-                                        (NAMA_CUST.Replace(',', '.')),
-                                        ((order.delivery_address[0].address1 + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`")),
-                                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                                        (username),
-                                        ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
-                                        kabKot,
-                                        prov,
-                                        connIdARF01C
-                                        );
-                                }
-                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                                EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-
-                                foreach (var order in orderFilter)
-                                {
-                                    try
+                                    if (!OrderNoInDb.Contains(order.id_order))
                                     {
+                                        jmlhNewOrder++;
+                                        //await GetOrderDetails(iden, filtered.ToArray(), connID, CUST, NAMA_CUST, stat);
+                                        var connIdARF01C = Guid.NewGuid().ToString();
+                                        TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
+                                        List<TEMP_82CART_ORDERS_ITEM> batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
+                                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                                        var kabKot = "3174";
+                                        var prov = "31";
+
+
+                                        string fullname = order.firstname.ToString() + " " + order.lastname.ToString();
+                                        string nama = fullname.Length > 30 ? order.firstname.Substring(0, 30) : order.lastname.ToString();
+
+                                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                                            ((nama ?? "").Replace("'", "`")),
+                                            ((order.delivery_address[0].address1 ?? "").Replace("'", "`")),
+                                            ((order.delivery_address[0].phone_mobile ?? "").Replace("'", "`")),
+                                            (NAMA_CUST.Replace(',', '.')),
+                                            ((order.delivery_address[0].address1 + " " + order.delivery_address[0].address2 ?? "").Replace("'", "`")),
+                                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                                            (username),
+                                            ((order.delivery_address[0].postcode ?? "").Replace("'", "`")),
+                                            kabKot,
+                                            prov,
+                                            connIdARF01C
+                                            );
+                                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+
                                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS");
                                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_82CART_ORDERS_ITEM");
                                         batchinsertItem = new List<TEMP_82CART_ORDERS_ITEM>();
@@ -647,12 +638,11 @@ namespace MasterOnline.Controllers
                                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                                         }
                                     }
-                                    catch (Exception ex3)
-                                    {
-
-                                    }
                                 }
+                                catch (Exception ex3)
+                                {
 
+                                }
                             }
                         }
                     }
@@ -667,29 +657,30 @@ namespace MasterOnline.Controllers
 
                 if (stat == StatusOrder.PAID)
                 {
-                    string[] statusCAP = { "2", "3", "15" };
-                        string ordersn = "";
-                        var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
-                        if(filteredSudahAda.Count() > 0)
+                    string[] statusCAP = { "2", "15" };
+                    string ordersn = "";
+                    jmlhPesananDibayar = 0;
+
+                    for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
+                    {
+                        var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
+                        foreach (var item in orderFilterExisting)
                         {
-                        for (int itemOrderExisting = 0; itemOrderExisting < statusCAP.Length; itemOrderExisting++)
-                        {
-                            var orderFilterExisting = listOrder.data.Where(p => p.current_state == statusCAP[itemOrderExisting]).ToList();
-                            foreach (var item in orderFilterExisting)
+                            if (OrderNoInDb.Contains(item.id_order))
                             {
                                 ordersn = ordersn + "'" + item.id_order + "',";
                             }
                         }
-                                if (!string.IsNullOrEmpty(ordersn))
-                                {
-                                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
-                                    if (rowAffected > 0)
-                                    {
-                                        jmlhPesananDibayar += rowAffected;
-                                    }
-                                }
+                    }
+                    if (!string.IsNullOrEmpty(ordersn))
+                    {
+                        ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                        if (rowAffected > 0)
+                        {
+                            jmlhPesananDibayar++;
                         }
+                    }
 
                     if (jmlhPesananDibayar > 0)
                     {
@@ -697,21 +688,6 @@ namespace MasterOnline.Controllers
                         contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
                     }
                 }
-
-                    //if (listOrder.more)
-                    //{
-                    //    await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
-                    //}
-                    //else
-                    //{
-                    
-                    
-                    //}
-                //}
-                //}
-                //catch (Exception ex2)
-                //{
-                //}
             }
             return ret;
         }
@@ -759,29 +735,26 @@ namespace MasterOnline.Controllers
 
                 var statusCompleted = "5";
                 var orderFilterCompleted = listOrder.data.Where(p => p.current_state == statusCompleted).ToList();
-                //string[] ordersn_list = listOrder.data.Where(p => p.current_state == stat.ToString()).Select(p => p.id_order).ToArray();
+                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
                 string ordersn = "";
+                jmlhNewOrder = 0;
                 foreach (var item in orderFilterCompleted)
                 {
-                    ordersn = ordersn + "'" + item.id_order + "',";
+                    if (OrderNoInDb.Contains(item.id_order))
+                    {
+                        ordersn = ordersn + "'" + item.id_order + "',";
+                    }
                 }
-                if (orderFilterCompleted.Count() > 0)
+                if (orderFilterCompleted.Count() > 0 && !string.IsNullOrEmpty(ordersn))
                 {
                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
                     var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
-                    //if (listOrder.more)
-                    //{
-                    //    await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
-                    //}
-                    //else
-                    //{
                     if (jmlhNewOrder > 0)
                     {
                         var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                         contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhNewOrder) + " Pesanan dari 82Cart sudah selesai.");
                     }
-                    //}
                 }
             }
             return ret;
@@ -808,8 +781,6 @@ namespace MasterOnline.Controllers
             myReq.ContentType = "application/json";
             string responseServer = "";
 
-            //try
-            //{
             using (WebResponse response = myReq.GetResponse())
             {
                 using (Stream stream = response.GetResponseStream())
@@ -818,16 +789,6 @@ namespace MasterOnline.Controllers
                     responseServer = reader.ReadToEnd();
                 }
             }
-            //}
-            //catch (Exception ex)
-            //{
-
-            //}
-
-            //}
-            //catch (Exception ex)
-            //{
-            //}
 
             if (responseServer != null)
             {
@@ -837,13 +798,17 @@ namespace MasterOnline.Controllers
 
                 var statusCancel = "6";
                 var orderFilterCancel = listOrder.data.Where(p => p.current_state == statusCancel).ToList();
-                //string[] ordersn_list = listOrder.data.Where(p => p.current_state == stat.ToString()).Select(p => p.id_order).ToArray();
+                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
                 string ordersn = "";
+                jmlhNewOrder = 0;
                 foreach (var item in orderFilterCancel)
                 {
-                    ordersn = ordersn + "'" + item.id_order + "',";
+                    if (OrderNoInDb.Contains(item.id_order))
+                    {
+                        ordersn = ordersn + "'" + item.id_order + "',";
+                    }
                 }
-                if (orderFilterCancel.Count() > 0)
+                if (orderFilterCancel.Count() > 0 && !string.IsNullOrEmpty(ordersn))
                 {
                     ordersn = ordersn.Substring(0, ordersn.Length - 1);
                     var brgAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "INSERT INTO TEMP_ALL_MP_ORDER_ITEM (BRG,CONN_ID) SELECT DISTINCT BRG,'" + connID + "' AS CONN_ID FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI <> '11' AND BRG <> 'NOT_FOUND'");
@@ -854,27 +819,7 @@ namespace MasterOnline.Controllers
                         var sSQL = "";
                         var sSQL2 = "SELECT * INTO #TEMP FROM (";
                         var listReason = new Dictionary<string, string>();
-                        //if (ordersn_list.Count() > 50)
-                        //{
-                        //    var order50 = new string[50];
-                        //    int i = 0;
-                        //    foreach (var order in listOrder.orders)
-                        //    {
-                        //        order50[i] = order.ordersn;
-                        //        i++;
-                        //        if (i > 50 || order == listOrder.orders.Last())
-                        //        {
-                        //            var list2 = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                        //            listReason = AddDictionary(listReason, list2);
-                        //            i = 0;
-                        //            order50 = new string[50];
-                        //        }
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //listReason = await GetOrderDetailsForCancelReason(iden, ordersn_list);
-                        //}
+
                         foreach (var order in listOrder.data)
                         {
                             string reasonValue;

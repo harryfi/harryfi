@@ -31040,7 +31040,9 @@ namespace MasterOnline.Controllers
                             Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru)).Wait();
                             //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
 #else
-                                        client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru));
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru));
 #endif
                         }
                     }
