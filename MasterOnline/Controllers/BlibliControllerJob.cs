@@ -7290,6 +7290,24 @@ namespace MasterOnline.Controllers
                         }
                         //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
                     }
+                    else if (!string.IsNullOrWhiteSpace(var_item.Sort9))
+                    {
+                        var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
+                        if (var_stf02i_judul_mp_var_2 != null)
+                        {
+                            attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                        }
+                        if (DefiningDariStf02H.Count() > 0)
+                        {
+                            foreach (var item in DefiningDariStf02H)
+                            {
+                                if (!attributeMap.ContainsKey(item.Key))
+                                {
+                                    attributeMap.Add(item.Key, item.Value);
+                                }
+                            }
+                        }
+                    }
 
                     Productitem newVarItem = new Productitem()
                     {
