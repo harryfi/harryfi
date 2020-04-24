@@ -24,6 +24,7 @@ namespace MasterOnline.ViewModels
         public bool adaError { get; set; }
         public List<FakturJson> listFakturBelumLunas { get; set; } = new List<FakturJson>();
         public string noCust { get; set; }
+        public List<tempOngkirFaktur> ListOngkir = new List<tempOngkirFaktur>();
     }
 
     public class BindUploadExcelBayar
@@ -79,6 +80,8 @@ namespace MasterOnline.ViewModels
     {
         public LOG_IMPORT_FAKTUR header { get; set; }
         public List<TABLE_LOG_DETAIL> detail { get; set; } = new List<TABLE_LOG_DETAIL>();
+        public double totalData { get; set; }
+        public int totalSuccess { get; set; }
     }
 
     public class FakturBelumLunasPrompt
@@ -89,5 +92,12 @@ namespace MasterOnline.ViewModels
         public string norefSO { get; set; }
         public DateTime? tglSO { get; set; }
         public double sisa { get; set; }
+        public double ongkir { get; set; }
+    }
+
+    public class tempOngkirFaktur
+    {
+        public string NOBUK_FAKTUR { get; set; }
+        public double ONGKIR { get; set; }
     }
 }

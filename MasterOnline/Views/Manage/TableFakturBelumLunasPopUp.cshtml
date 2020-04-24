@@ -83,7 +83,7 @@
             {
                 noref = faktur.norefSI;
             }
-            var tempPrompt = faktur.nobuk + ";" + noref + ";" + faktur.tglSO?.ToString("dd/MM/yyyy") + ";" + faktur.sisa;
+            var tempPrompt = faktur.nobuk + "|" + noref + "|" + faktur.tglSO?.ToString("dd/MM/yyyy") + "|" + faktur.sisa + "|" + faktur.ongkir;
             <tr>
                 <td>@faktur.nobuk</td>
                 <td>@(faktur.tglSI?.ToString("dd/MM/yyyy"))</td>

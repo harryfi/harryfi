@@ -383,7 +383,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+@*<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
@@ -401,7 +401,50 @@
             </div>
         </div>
     </div>
+</div>*@
+@*//add by nurul 24/4/2020*@
+<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content addpixelmodaltpiutang">
+            <div class="modal-header">
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" id="modalUbahStatusMultiPacking_body" style="max-height: calc(100vh - 210px);overflow-y: auto;">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+                </div>
+                <br />
+                <div class="col-md-12">
+                    <div id="progressBarDelete" class="text-center" style="display:none;">
+                        <table class="col-md-12" id="tbl_progbar2">
+                            <tr>
+                                <td class="col-md-2">
+                                    <label id="lblPBDelete"></label>
+                                </td>
+                                <td class="col-md-10">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" id="pBar_Delete"
+                                             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                                            0% Complete (success)
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="right">
+                    <button type="button" class="btn btn-danger " onclick="$('#konfHapusPiutang').modal('hide');" id="konfHapusPiutang_btn_tidak">Tidak</button>
+                    @*<button type="button" class="btn btn-success" id="modalUbahStatusMultiPacking_btn_ya" onclick="UbahStatusPesananPacking(0);">Ya</button>*@
+                    <button type="button" class="btn btn-success" onclick="beforeDelete();" id="konfHapusPiutang_btn_ya">Ya</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+@*//end add by nurul 24/4/2020*@
 
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
@@ -485,14 +528,14 @@
 <div class="modal fade" id="konfUpload" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload" role="document">
         @*<div class="modal-content modalresponsive">*@
-        <div class="modal-content" modalresponsive >
+        <div class="modal-content modalresponsive" >
             @*<div id="loading_upload" class="text-center">
                     <div id="loading_upload_image">
                         <img src="~/Content/Images/spinner.gif" />
                     </div>
                 </div>*@
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
                 <h4 class="modal-title" id="uploadlabel">Upload Pembayaran</h4>
             </div>
             <div class="modal-body" id="modal-upload-body" style="margin:auto;height:450px">
@@ -575,19 +618,19 @@
                     </div>
                 </div>
                 @*<div>
-            <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
-        </div>*@
+                        <input type="button" class="btn btn-primary pull-right" id="log_btn" value="Lihat Log" onclick="ViewLog()" />
+                    </div>*@
                 @*<div id="uploadbrgviewdiv" class="row">
-        </div>*@
+                    </div>*@
 
                 @*//add by nurul 2/4/2020*@
                 @*<div class="col-md-12">
-            <div id="loading_upload" class="text-center" hidden="hidden">
-                <div id="loading_upload_image">
-                    <img src="~/Content/Images/spinner.gif" />
-                </div>
-            </div>
-        </div>*@
+                        <div id="loading_upload" class="text-center" hidden="hidden">
+                            <div id="loading_upload_image">
+                                <img src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                    </div>*@
                 <br />
                 <div class="col-md-12">
                     <div id="progressBarDownload" class="text-center" style="display:none;">
@@ -630,7 +673,8 @@
                 @*//end add by nurul 2/4/2020*@
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-danger " onclick="$('#konfUpload').modal('hide');" id="konfUpload_btn_tidak">Tidak</button>
+                @*<button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>*@
                 @*<button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>*@
             </div>
         </div>
@@ -640,13 +684,13 @@
     <div class="modal-dialog" id="modal-create" role="document">
         <div class="modal-content modalresponsive">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @*<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>*@
                 <h4 class="modal-title" id="createlabel">Konfirmasi Pelunasan</h4>
             </div>
             <div class="modal-body" id="modal-create-body" style="margin:auto;height:150px">
                 @*<div id="loading_pot" class="text-center">
-            <img src="~/Content/Images/spinner.gif" width="100" />
-        </div>*@
+                        <img src="~/Content/Images/spinner.gif" width="100" />
+                    </div>*@
                 <div class="row">
                     <div class="col-md-10 ">
                         <h5>Proses ini akan melunasi faktur. Apakah anda yakin akan melakukan pelunasan?</h5>
@@ -676,9 +720,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger " onclick="$('#konfCreatePot').modal('hide');" id="konfCreatePot_btn_tidak">Tidak</button>
                 <button type="button" id="create-pot" class="btn btn-primary pull-right">Proses</button>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -756,6 +801,7 @@
                 $('#progressBarUpload').hide();
                 $('#progressBarDownload').hide();
                 $('#progressBarPot').hide();
+                $('#progressBarDelete').hide();
                 refreshTablePiutang1();
             });
             refreshTablePiutang1();
@@ -829,7 +875,7 @@
                 tempNobuk = "";
             });
 
-            
+
         });
 
         //var table = $('#datatable').DataTable({
@@ -1567,7 +1613,7 @@
                     //url: link,
                     //contentType: "application/json; charset=UTF-8",
                     //cache: false,
-                    //data: JSON.stringify($postdata), 
+                    //data: JSON.stringify($postdata),
                     success: function (response) {
                         $modeEdit = 1; // 0 new, 1 edit
                         //$('.piutang_table_section').hide();
@@ -1723,7 +1769,7 @@
             //end change by calvin 26 september 2018
         }
 
-        var $idPiutang = "";
+        var $idPiutangTemp = "";
 
         function undeleteable(){
             alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
@@ -1795,11 +1841,9 @@
             });
         }
 
-        function pass(idPiutang) {
-            this.$idPiutang = idPiutang;
-        }
+        
 
-        function deletePiutang() {
+        @*function deletePiutang() {
             var $savePage = $('#txt_last_page').val();
             var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", encodeURIComponent(this.$idPiutang));
@@ -1821,7 +1865,7 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
         var $fak = '';
 
@@ -2199,7 +2243,7 @@
             var splitStatus = vstatusLoopvSuccess.split(';');
             var vstatusLoop = splitStatus[0];
             var vstatusSuccess = splitStatus[1];
-            
+
 
             if ($('#file_upload_excel')[0].files.length <= 0) {
                 //$('#progressBarUpload').modal('hide');
@@ -2278,12 +2322,13 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
+                        $('#konfUpload_btn_tidak').hide();
                     },
                     success: function (response) {
                         if (response.countAll == undefined) {
                             //$('#loading_upload').hide();
                             //$("#konfUpload").modal('hide');
-                            
+
                             $modeEdit = 1; // 0 new, 1 edit
                             $('.piutang_table_section').hide();
                             $('.piutang_editor_section').show();
@@ -2308,8 +2353,9 @@
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 //setTimeout(popupAlertUploadSaldoAwal, 500);
+                                $('#konfUpload_btn_tidak').show();
                                 $("#konfUpload").modal('hide');
-
+                                
                                 refreshInputan();
                                 getTanggal();
                                 getMarketplace();
@@ -2336,12 +2382,13 @@
                                     //}
                                         $("#modalError").modal('show');
                                         showError(tempNobuk, tempLog);
-                                } 
+                                }
                             } else {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('0% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
                                 //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
+                                $('#konfUpload_btn_tidak').show();
                                 $("#konfUpload").modal('hide');
 
                                 refreshInputan();
@@ -2365,16 +2412,16 @@
                                     //if (ret.nobuk != null) {
                                     //    $("#btn-error").click();
                                     //    showError(ret.nobuk, ret.buktiLog);
-                                        
+
                                     //} else {
                                     //    alert(ret.Errors);
                                     //}
                                         $("#modalError").modal('show');
                                         showError(tempNobuk, tempLog);
-                                } 
+                                }
                             }
-                                                        
-                            
+
+
                         } else {
                             tempNobuk = response.nobuk;
                             tempLog = response.buktiLog;
@@ -2393,6 +2440,7 @@
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('100% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                $('#konfUpload_btn_tidak').show();
                                 //setTimeout(popupAlertUploadSaldoAwal, 500);
 
                                     //$('#loading_upload').hide();
@@ -2431,8 +2479,8 @@
                                 popupAlertUploadSaldoAwal;
                                 if (response.adaError == true) {
                                     //
-                                    
-                                    //if (response.nobuk != null) { 
+
+                                    //if (response.nobuk != null) {
                                     //    //showError(response.nobuk, response.buktiLog);
                                     //        $("#modalError").modal('show');
                                     //        showError(tempNobuk, tempLog);
@@ -2441,14 +2489,15 @@
                                     //}
                                     $("#modalError").modal('show');
                                     showError(tempNobuk, tempLog);
-                                } 
+                                }
 
-                                
+
                                 $("#konfUpload").modal('hide');
                             } else {
                                 $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                                 $('#pBar_uploadFile').html('0% Complete');
                                 $('#btnUploadExcelPiutang').removeAttr('disabled');
+                                $('#konfUpload_btn_tidak').show();
                                 //setTimeout(alert("Proses upload pembayaran piutang gagal. Klik Lihat Error!"), 500);
 
 
@@ -2500,8 +2549,8 @@
                                     //}
                                     $("#modalError").modal('show');
                                     showError(tempNobuk, tempLog);
-                                } 
-                                
+                                }
+
                                 $("#konfUpload").modal('hide');
                             }
                         }
@@ -2705,7 +2754,7 @@
             var link = '@Url.Action("ShowErrorUploadBayar", "Manage")';
             var $bukti = "";
             var $log = "";
-            
+
             if ($nobuk != undefined && $logFile != undefined && $nobuk != null && $logFile != null && $nobuk != "" && $logFile != "") {
                 $bukti = $nobuk;
                 $log = $logFile;
@@ -2939,7 +2988,7 @@
                         percentDanprogress: String(vpercent) + ";" + String(vprogress),
                         statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
                     };
-                    
+
                     $.ajax({
                         type: "POST",
                         url: $urlProgress,
@@ -3008,6 +3057,9 @@
                                     //getFaktur($("#Piutang_CUST").val());
                                     //FakturSelect(listFaktur);
                                     alert('Proses pelunasan kurang bayar sudah selesai.');
+                                    if (response.Errors != null && response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
                                     $('#btn-autoload').click(function () {
                                         $('#file_upload_excel').removeAttr('disabled');
                                     });
@@ -3016,6 +3068,9 @@
                                     $('#pBar_Pot').html('0% Complete');
                                     $('#create-pot').removeAttr('disabled');
                                     alert('Proses pelunasan kurang bayar gagal.');
+                                    if (response.Errors != null && response.Errors.length > 0) {
+                                        alert(response.Errors);
+                                    }
                                     if (response.Errors.length > 0) {
                                         alert(response.Errors);
                                     }
@@ -3055,6 +3110,7 @@
                             alert(error);
                             //$('#loading_spinner').hide();
                             $('#progressBarPot').hide();
+                            $('#create-pot').removeAttr('disabled');
                             $("#konfCreatePot").modal('hide');
                             console.log(error);
                         }
@@ -3111,13 +3167,14 @@
                 type: "GET",
                 url: $link,
                 beforeSend: function () {
-                    //$('#loading_bayarpiutang_tab').show();
+                    $('#loading_detail_piutang_tab').show();
                 },
                 success: function (response) {
                     $('#table_detail').html(response);
-                    //$('#loading_bayarpiutang_tab').hide();
+                    $('#loading_detail_piutang_tab').hide();
                 },
                 error: function (xhr, status, error) {
+                    $('#loading_detail_piutang_tab').hide();
                     console.log(error);
                 }
             });
@@ -3137,7 +3194,7 @@
 
         function afterPromptFaktur(tempVal) {
             if (promptFaktur == "1") {
-                var tempValue = tempVal.split(';');                
+                var tempValue = tempVal.split('|');
                 $('#PiutangDetail_NFAKTUR').val(tempValue[0]);
 
                 var $trId = $('#PiutangDetail_NFAKTUR').closest('tr').attr('data-piutang-id');
@@ -3149,6 +3206,7 @@
                 $($trElement + ' .span-noref-piutang').text(tempValue[1]);
                 $('#PiutangDetail_TGL_REF').val(tempValue[2]);
                 $($trElement + ' .span-tglref-piutang').text(tempValue[2]);
+                $($trElement + ' .span-ongkir-piutang').text(convertToRupiah(tempValue[4]));
                 //getBuyerPrompt(kd);
 
                 $($trElement + ' .btn-primary').removeAttr('disabled');
@@ -3162,7 +3220,107 @@
             promptFaktur = "";
         }
 
+        function pass(idPiutang) {
+            this.$idPiutang = idPiutang;
+            $idPiutangTemp = idPiutang;
+            $('#progressBarDelete').hide();
+        }
 
+        function beforeDelete() {
+            $('#pBar_Delete').css('width', '0%').attr('aria-valuenow', 0);
+            $('#pBar_Delete').html('0% Complete');
+            $('#progressBarDelete').show();
+            deletePiutang($idPiutangTemp, 0, "0;0", "false;false", false);
+        }
+
+        function deletePiutang(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
+            var splitpro = vpercentvprogress.split(';');
+            var vpercent = splitpro[0];
+            var vprogress = splitpro[1];
+
+            var splitStatus = vstatusLoopvSuccess.split(';');
+            var vstatusLoop = splitStatus[0];
+            var vstatusSuccess = splitStatus[1];
+
+            $('#konfHapusPiutang_btn_ya').attr('disabled', 'disabled');
+            $('#lblPBDelete').text('Processing Pelunasan');
+
+            var $savePage = $('#txt_last_page').val();
+            @*var link = '@Url.Action("DeleteBayarPiutang", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", encodeURIComponent(this.$idPiutang));*@
+
+            var $urlProgress = "";
+                    $urlProgress = '@Html.Raw(Url.Action("DeleteBayarPiutang1", "Manage"))';
+
+                    if (vnobuk == null || vnobuk == "") {
+                        vnobuk = $idPiutangTemp;
+                    }
+
+                    $postdata = {
+                        nobuk: vnobuk,
+                        countAll: vcountAll,
+                        percentDanprogress: String(vpercent) + ";" + String(vprogress),
+                        statusLoopSuccess: String(vstatusLoop) + ";" + String(vstatusSuccess)
+                    };
+
+            $.ajax({
+                type: "POST",
+                url: $urlProgress,
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                data: JSON.stringify($postdata),
+                beforeSend: function () {
+                    $('#konfHapusPiutang_btn_tidak').hide();
+                },
+                success: function (response) {
+                    if (response.countAll != null && response.statusLoop == true && response.statusSuccess == false && response.TidakLanjutProses == false) {
+                        $('#pBar_Delete').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        $('#pBar_Delete').html(response.percent + '% Complete');
+
+                        if (response.progress <= response.countAll) {
+                            deletePiutang(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                        }
+
+                    } else if (response.statusSuccess == true) {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('100% Complete');
+                        $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                        $('#konfHapusPiutang_btn_tidak').show();
+                        alert('Proses delete pembayaran piutang sudah selesai.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        $('#table-piutang-partial').html(response);
+                        refreshTablePiutang1($savePage);
+                        $('#konfHapusPiutang').modal('hide');
+                        //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                    } else {
+                        $('#pBar_Delete').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_Delete').html('0% Complete');
+                        $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                        $('#konfHapusPiutang_btn_tidak').show();
+                        alert('Proses delete pembayaran piutang gagal.');
+                        if (response.Errors != null && response.Errors.length > 0) {
+                            alert(response.Errors)
+                        }
+
+                        $('#table-piutang-partial').html(response);
+                        refreshTablePiutang1($savePage);
+                        $('#konfHapusPiutang').modal('hide');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    alert(error);
+                    //$('#loading_spinner').hide();
+                    $('#progressBarDelete').hide();
+                    $('#konfHapusPiutang_btn_ya').removeAttr('disabled');
+                    $('#konfHapusPiutang_btn_tidak').show();
+                    $("#konfHapusPiutang").modal('hide');
+                }
+            });
+        }
     </script>
 
     <script>

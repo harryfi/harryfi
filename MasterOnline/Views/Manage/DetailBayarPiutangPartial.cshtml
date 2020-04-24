@@ -75,15 +75,21 @@
         //var table = $('#datatable').DataTable();
         $('#filter_detail_bayar_field').change(function () {
             var filterBy = $(this).val();
-            switch (filterBy) {
-                default:
-                    $('#filter_detail_bayar_field_option_div').show();
-                    break;
+            //switch (filterBy) {
+            //    default:
+            //        $('#filter_detail_bayar_field_option_div').show();
+            //        break;
+            //}
+            $('#filter_detail_bayar_field_option_div').show();
+            if (filterBy != "Harap Pilih" && $('#filter_detail_bayar_field_option').val() != "Harap Pilih") {
+                searchDetailTableBayarPiutang();
             }
 
         });
         $('#filter_detail_bayar_field_option').change(function () {
-            searchDetailTableBayarPiutang();
+            if ($('#filter_detail_bayar_field').val() != "Harap Pilih" && $('#filter_detail_bayar_field_option').val() != "Harap Pilih") {
+                searchDetailTableBayarPiutang();
+            }
         });
     });
 

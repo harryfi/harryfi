@@ -1,5 +1,8 @@
 ﻿@using System.Globalization
 @model MasterOnline.ViewModels.errorBayarPiutang
+@{ 
+    var dataSuccess = Model.totalSuccess;
+}
 @if (Model?.detail.Count() > 0)
 {
     <div class="row">
@@ -19,6 +22,11 @@
                     @Html.Label("nm_file", file, new { @class = "control-label", disabled = "disabled" })
                 }
             </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group" style="margin-top: 5px;">
+            <label class="control-label" style="padding-left: 10px">Data yang berhasil diproses : @dataSuccess Dari : @Model.totalData </label>
         </div>
     </div>
     <div id="div-scroll-list">
