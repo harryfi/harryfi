@@ -364,14 +364,14 @@ namespace MasterOnline.Models
         public float paid_price { get; set; }
         public string product_main_image { get; set; }
         public float tax_amount { get; set; }
-        public int voucher_platform { get; set; }
+        public double voucher_platform { get; set; }
         public string reason { get; set; }
         public DateTime? sla_time_stamp { get; set; }
         public string product_detail_url { get; set; }
         public string promised_shipping_time { get; set; }
         public string warehouse_code { get; set; }
         public string purchase_order_id { get; set; }
-        public int voucher_seller { get; set; }
+        public double voucher_seller { get; set; }
         public string shipping_type { get; set; }
         public string created_at { get; set; }
         public string voucher_code { get; set; }
@@ -388,7 +388,7 @@ namespace MasterOnline.Models
         public string shop_sku { get; set; }
         public int is_digital { get; set; }
         public float item_price { get; set; }
-        public int shipping_service_cost { get; set; }
+        public double shipping_service_cost { get; set; }
         public string stage_pay_status { get; set; }
         public string tracking_code_pre { get; set; }
         public string tracking_code { get; set; }

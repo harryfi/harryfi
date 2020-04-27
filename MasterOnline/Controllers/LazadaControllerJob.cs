@@ -3094,19 +3094,19 @@ namespace MasterOnline.Controllers
 
                         //if (rowAffected > 0)
                         //{
-                        //    var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.noref + "') AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
+                        //var rowAffectedSI = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SIT01A SET STATUS='2' WHERE NO_REF IN ('" + order.noref + "') AND STATUS <> '2' AND CUST = '" + cust + "' AND ST_POSTING = 'T'");
 
-                        //    var orderDetail = (from a in ErasoftDbContext.SOT01A
-                        //                       join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
-                        //                       where a.NO_REFERENSI == order.noref && a.CUST == cust
-                        //                       select new { b.BRG }).ToList();
-                        //    foreach (var item in orderDetail)
-                        //    {
-                        //        if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
-                        //        {
-                        //            brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
-                        //        }
-                        //    }
+                        var orderDetail = (from a in ErasoftDbContext.SOT01A
+                                           join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+                                           where a.NO_REFERENSI == order.noref && a.CUST == cust
+                                           select new { b.BRG }).ToList();
+                        foreach (var item in orderDetail)
+                        {
+                            if (brgCancelled.Where(p => p.BRG == item.BRG).Count() <= 0)
+                            {
+                                brgCancelled.Add(new TEMP_ALL_MP_ORDER_ITEM() { BRG = item.BRG, CONN_ID = connIDStok });
+                            }
+                        }
                         //}
                         listOrderCancel += "'" + order.noref + "',";
                         if (!string.IsNullOrEmpty(sSQL3))
@@ -3142,7 +3142,7 @@ namespace MasterOnline.Controllers
                     foreach (var item in brgCancelled)
                     {
                         indexCount = indexCount + 1;
-                        sSQL += "SELECT '' AS BRG, '' AS CONN_ID " + System.Environment.NewLine;
+                        sSQL += "SELECT '"+item.BRG+ "' AS BRG, '" + item.CONN_ID + "' AS CONN_ID " + System.Environment.NewLine;
                         if (indexCount < itemCount)
                         {
                             sSQL += "UNION ALL " + System.Environment.NewLine;
