@@ -42518,17 +42518,17 @@ namespace MasterOnline.Controllers
                                     username = "support"
                                 };
                                 var tokpedApi = new TokopediaControllerJob();
-//#if (DEBUG || Debug_AWS)
-                                //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
-                                var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
-                                if (kodeBookingTokped.Result.ToString() == "")
-                                {
-                                    listError.Add(new listErrorPacking
-                                    {
-                                        no_bukti_so = Nobuk,
-                                        error_msg = "Gagal Update Kode Booking pesanan " + Nobuk + "."
-                                    });
-                                }
+                                //#if (DEBUG || Debug_AWS)
+                                Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
+                                //var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
+                                //if (kodeBookingTokped.Result.ToString() == "")
+                                //{
+                                //    listError.Add(new listErrorPacking
+                                //    {
+                                //        no_bukti_so = Nobuk,
+                                //        error_msg = "Gagal Update Kode Booking pesanan " + Nobuk + "."
+                                //    });
+                                //}
                                 //#else
                                 //                                var sqlStorage = new SqlServerStorage(EDBConnID);
                                 //                                var clientJobServer = new BackgroundJobClient(sqlStorage);

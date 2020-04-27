@@ -2429,10 +2429,6 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                else
-                {
-                    throw new Exception("Gagal Update Kode Booking.");
-                }
             }
             return ret;
         }
