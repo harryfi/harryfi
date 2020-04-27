@@ -1,4 +1,5 @@
-﻿@using PagedList.Mvc
+﻿@using System.Globalization
+@using PagedList.Mvc
 @model PagedList.IPagedList<mdlTransaksiPembeli>
 @{
     string currentFilter = ViewBag.CurrentFilter;
@@ -42,6 +43,8 @@
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 80px;">No Faktur</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Marketplace</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">No. Referensi</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 100px;">Kode Barang</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 200px;">Nama Barang</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 80px;">Qty Beli</th>
@@ -70,17 +73,24 @@
             //        tgl = buyer.tgl_si?.ToString("dd/MM/yyyy");
             //    }
             //}
+            var noref = "-";
+            if (buyer.noref != "")
+            {
+                noref = buyer.noref;
+            }
         <tr>
             <td>@buyer.nobuk_si</td>
             <td>@(buyer.tgl_si?.ToString("dd/MM/yyyy"))</td>
+            <td>@(buyer.market + " (" + buyer.perso + ")")</td>
+            <td>@noref</td>
             @*<td>@nobuk</td>
-            <td>@tgl</td>*@
+        <td>@tgl</td>*@
             <td>@buyer.brg</td>
             <td>@buyer.nama</td>
             <td>@buyer.qty</td>
-            <td>@buyer.nilai</td>
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", buyer.nilai)</td>
             <td>@buyer.qty_retur</td>
-            <td>@buyer.nilai_retur</td>
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", buyer.nilai_retur)</td>
         </tr>
         }
     </tbody>

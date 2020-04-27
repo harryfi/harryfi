@@ -755,12 +755,14 @@
                 url: $link,
                 beforeSend: function () {
                     $('#search_buyer_click')[0].disabled = true;
+                    $('#table-buyer-partial').hide();
                     $('#loading_buyer_tab').show();
                 },
                 success: function (response) {
                     $('#search_buyer_click')[0].disabled = false;
                     $('#table-buyer-partial').html(response);
                     $('#loading_buyer_tab').hide();
+                    $('#table-buyer-partial').show();
                 },
                 error: function (xhr, status, error) {
                     $('#search_buyer_click')[0].disabled = false;
@@ -804,12 +806,14 @@
                 url: $link,
                 beforeSend: function () {
                     $('#search_transaksi_click')[0].disabled = true;
+                    $('#table-transaksi-partial').hide();
                     $('#loading_tran_buyer_tab').show();
                 },
                 success: function (response) {
                     $('#search_transaksi_click')[0].disabled = false;
                     $('#table-transaksi-partial').html(response);
                     $('#loading_tran_buyer_tab').hide();
+                    $('#table-transaksi-partial').show();
                 },
                 error: function (xhr, status, error) {
                     $('#search_transaksi_click')[0].disabled = false;
