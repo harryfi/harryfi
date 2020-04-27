@@ -69,7 +69,8 @@
             }
         }
     </style>
-}<style>
+}
+<style>
     #loading_spinner_btnBlibli {
         display: none;
         width: 100%;
@@ -84,6 +85,31 @@
     }
 
     #loading_spinner_image_btnBlibli {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+
+    #loading_spinner_btn82Cart {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_spinner_image_btn82Cart {
         width: 20px;
         height: 20px;
         margin-top: -90px;
@@ -112,8 +138,8 @@
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
-                        <span>Refresh</span>
-                    </button>*@
+                            <span>Refresh</span>
+                        </button>*@
                     <button type="button" onclick="exportExcel()" class=" btn btn-primary" data-style="expand-right">
                         <span>Export ke Excel</span>
                     </button>
@@ -219,6 +245,51 @@
                 <div id="loading_spinner_btnBlibli" style="display:none">
                     <div id="loading_spinner_image_btnBlibli">
                         <img id="spinner_btnBlibli" src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit Harga Jual 82Cart -->
+<div class="modal fade" id="modalEditHargaJual82Cart" tabindex="-1" role="dialog" aria-labelledby="editHargaJualLabel82Cart">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="editHargaJualLabel82Cart">Edit Harga Jual & Grosir 82Cart</h4>
+            </div>
+            <div class="modal-body" id="modal-gudang-qty-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p id="kodeBarang82Cart">-</p>
+                        <p id="namaBarang82Cart">-</p>
+                        <p id="labelAkunMp82Cart">-</p>
+                        <p>Harga Jual awal: Rp <span id="hJualAwal82Cart"></span></p>
+                        <p>Harga Grosir awal: Rp <span id="hJualGrosirAwal82Cart"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-m12">
+                                <b>Masukkan harga jual yang baru:</b>
+                                <input type="text" id="HJUALBARU82Cart" name="HJUALBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-m12">
+                                <b>Masukkan harga grosir yang baru:</b>
+                                <input type="text" id="HJUALPROMOSIBARU82Cart" name="HJUALPROMOSIBARU82Cart" class="form-control" style="margin-top: 10px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveHargaJualBaru82Cart();" id="btnUbahHJual82Cart" type="button" class="btn btn-success">Simpan</button>
+                <div id="loading_spinner_btn82Cart" style="display:none">
+                    <div id="loading_spinner_image_btn82Cart">
+                        <img id="spinner_btn82Cart" src="~/Content/Images/spinner.gif" />
                     </div>
                 </div>
             </div>
@@ -385,7 +456,7 @@
             //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
-        
+
         function pass(recNum, kdBrg, nmBrg, nmMp, hjual) {
             $recNum = recNum;
             $('#kodeBarang').text(kdBrg);
@@ -401,9 +472,21 @@
             $('#labelAkunMpBlibli').text(nmMp);
             $('#hJualAwalBlibli').text(hjual);
             $('#hJualPromosiAwalBlibli').text(hpromosi);
-            
+
             $('#HJUALBARUBlibli').val('');
             $('#HJUALPROMOSIBARUBlibli').val('');
+        }
+
+        function pass82Cart(recNum, kdBrg, nmBrg, nmMp, hjual, hpromosi) {
+            $recNum = recNum;
+            $('#kodeBarang82Cart').text(kdBrg);
+            $('#namaBarang82Cart').text(nmBrg);
+            $('#labelAkunMp82Cart').text(nmMp);
+            $('#hJualAwal82Cart').text(hjual);
+            $('#hJualGrosirAwal82Cart').text(hpromosi);
+
+            $('#HJUALBARU82Cart').val('');
+            $('#HJUALPROMOSIBARU82Cart').val('');
         }
 
         function saveHargaJualBaruBlibli() {
@@ -429,7 +512,7 @@
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
                         //Initialize();
-                        
+
                         $('#modalEditHargaJualBlibli').modal('hide');
                     } else {
                         alert(res.message);
@@ -439,6 +522,44 @@
                 error: function (xhr) {
                     $('#btnUbahHJualBlibli').show();
                     $('#loading_spinner_btnBlibli').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function saveHargaJualBaru82Cart() {
+            var link = '@Html.Raw(Url.Action("UbahHargaJual82Cart", "Manage", new { recNum = "replaceRecNum", hargaJualGrosirBaru = "replaceHargaGrosirBaru", hargaJualIndukBaru = "replaceHargaBaru" }))';
+            link = link.replace("replaceRecNum", encodeURIComponent($recNum));
+            link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
+            link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#btnUbahHJual82Cart').hide();
+                    $('#loading_spinner_btn82Cart').show();
+                },
+                success: function (res) {
+                    $('#btnUbahHJual82Cart').show();
+                    $('#loading_spinner_btn82Cart').hide();
+                    if (res.message == null) {
+                        refreshTableHargaJual();
+                        alert("Harga jual berhasil diubah");
+                        $('#table-hargaJual-partial').html(res);
+                        //Initialize();
+
+                        $('#modalEditHargaJual82Cart').modal('hide');
+                    } else {
+                        alert(res.message);
+                    }
+
+                },
+                error: function (xhr) {
+                    $('#btnUbahHJual82Cart').show();
+                    $('#loading_spinner_btn82Cart').hide();
                     console.log(xhr);
                 }
             });

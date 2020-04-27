@@ -961,7 +961,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_create_product")]
         [NotifyOnFailed("Update Harga Jual Produk {obj} ke 82Cart gagal.")]
-        public async Task<string> E2Cart_UpdatePrice_82Cart(E2CartAPIData iden, string brg_mo, string brg_mp, int price)
+        public async Task<string> E2Cart_UpdatePrice_82Cart(E2CartAPIData iden, string brg_mo, string brg_mp, int priceInduk, int priceGrosir)
         {
             SetupContext(iden);
             long milis = CurrentTimeMillis();
@@ -986,10 +986,21 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
-            //postData += "&id_product_attribute=" + Uri.EscapeDataString("73");
-            postData += "&price=" + Uri.EscapeDataString(price.ToString());
+            if(brg_mp_split[1] == "0")
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&price=" + Uri.EscapeDataString(priceInduk.ToString());
+                postData += "&wholesale_price=" + Uri.EscapeDataString(priceGrosir.ToString());
+            }
+            else
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+                postData += "&price_attribute=" + Uri.EscapeDataString(priceInduk.ToString());
+                postData += "&wholesale_price=" + Uri.EscapeDataString(priceGrosir.ToString());
 
+            }
+            
             var data = Encoding.ASCII.GetBytes(postData);
 
             myReq.Method = "POST";
