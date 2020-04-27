@@ -30896,7 +30896,6 @@ namespace MasterOnline.Controllers
             var kdBlibli = "16";
             var kdElevenia = "9";
             var kdShopee = "17";
-            var kd82Cart = "20";
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer != null)
             {
@@ -31256,36 +31255,6 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin 18 desember 2018
                 //}
-                else if (customer.NAMA.Equals(kd82Cart))//82Cart
-                {
-                    if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))
-                    {
-                        var v82CartAPI = new EightTwoCartControllerJob();
-                        EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
-                        {
-                            no_cust = customer.CUST,
-                            account_store = customer.PERSO,
-                            API_key = customer.API_KEY,
-                            API_credential = customer.Sort1_Cust,
-                            API_url = customer.PERSO,
-                            DatabasePathErasoft = dbPathEra
-                        };
-                        if (hJualInDb.BRG_MP.Contains("PENDING") || hJualInDb.BRG_MP.Contains("PEDITENDING"))
-                        {
-
-                        }
-                        else
-                        {
-#if (DEBUG || Debug_AWS)
-                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru)).Wait();
-                            //E2Cart_UpdateStock_82Cart(DatabasePathErasoft, data, stf02h.BRG, stf02h.BRG_MP, marketPlace.CUST, 0, uname);
-#else
-                                        client.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualBaru));
-#endif
-                        }
-                    }
-
-                }
             }
 
             //change by nurul 13/6/2019
@@ -31473,6 +31442,77 @@ namespace MasterOnline.Controllers
             //hJualInDb.Errors = null;
             //return Json(hJualInDb, JsonRequestBehavior.AllowGet);
             //end change by nurul 13/6/2019
+        }
+
+        [HttpGet]
+        public ActionResult UbahHargaJual82Cart(int? recNum, double hargaJualGrosirBaru, double hargaJualIndukBaru)
+        {
+            var ret = new ReturnJson();
+            var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
+            var brg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").SingleOrDefault(b => b.BRG == hJualInDb.BRG);
+            if (hJualInDb == null)
+            {
+                ret.message = "No Data Found!";
+                return Json(ret, JsonRequestBehavior.AllowGet);
+            }
+
+            var kd82Cart = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "82CART").IdMarket.ToString();
+            var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
+            if (customer.NAMA.Equals(kd82Cart))
+            {
+                if (hargaJualIndukBaru < 0)
+                {
+                    ret.message = "Harga Jual minimal 0.";
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+                if (hargaJualGrosirBaru < 0)
+                {
+                    ret.message = "Harga Jual Grosir minimal 0.";
+                    return Json(ret, JsonRequestBehavior.AllowGet);
+                }
+            }
+            brg.HJUAL = hargaJualIndukBaru;
+            brg.Tgl_Input = DateTime.Today;
+            hJualInDb.HJUAL = hargaJualGrosirBaru;
+            ErasoftDbContext.SaveChanges();
+            
+            if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
+            {
+                var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
+
+                if (customer.NAMA.Equals(kd82Cart))//82Cart
+                {
+                    if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))
+                    {
+                        var v82CartAPI = new EightTwoCartControllerJob();
+                        EightTwoCartControllerJob.E2CartAPIData data = new EightTwoCartControllerJob.E2CartAPIData()
+                        {
+                            no_cust = customer.CUST,
+                            account_store = customer.PERSO,
+                            API_key = customer.API_KEY,
+                            API_credential = customer.Sort1_Cust,
+                            API_url = customer.PERSO,
+                            DatabasePathErasoft = dbPathEra
+                        };
+                        if (hJualInDb.BRG_MP.Contains("PENDING") || hJualInDb.BRG_MP.Contains("PEDITENDING"))
+                        {
+
+                        }
+                        else
+                        {
+#if (DEBUG || Debug_AWS)
+                            Task.Run(() => v82CartAPI.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru)).Wait();
+#else
+                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_UpdatePrice_82Cart(data, hJualInDb.BRG, hJualInDb.BRG_MP, (int)hargaJualIndukBaru, (int)hargaJualGrosirBaru));
+#endif
+                        }
+                    }
+
+                }
+            }
+            return new EmptyResult();
         }
 
         public class ReturnJson
