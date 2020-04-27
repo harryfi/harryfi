@@ -46236,39 +46236,28 @@ namespace MasterOnline.Controllers
             string sSQLsi = "";
             string sSQLbrg = "";
             string sSQLnama = "";
+            string sSQLmarket = "";
+            string sSQLreferensi = "";
             if (getkata.Length > 0)
             {
                 if (search != "")
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLsi += " ( isnull(a.no_bukti,'') like '%" + getkata[i] + "%' )";
-                            sSQLbrg += " ( ISNULL(b.brg, '') like '%" + getkata[i] + "%' )";
-                            sSQLnama += " ( (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' )";
+                            sSQLsi += " AND ";
+                            sSQLbrg += " AND ";
+                            sSQLnama += " AND ";
+                            sSQLmarket += " AND ";
+                            sSQLreferensi += " AND ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLsi += " ( isnull(a.no_bukti,'') like '%" + getkata[i] + "%'";
-                                sSQLbrg += " ( ISNULL(b.brg, '') like '%" + getkata[i] + "%'";
-                                sSQLnama += " ( (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%'";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLsi += " and isnull(a.no_bukti,'') like '%" + getkata[i] + "%' )";
-                                sSQLbrg += " and ISNULL(b.brg, '') like '%" + getkata[i] + "%' )";
-                                sSQLnama += " and (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLsi += " and isnull(a.no_bukti,'') like '%" + getkata[i] + "%' ";
-                                sSQLbrg += " and ISNULL(b.brg, '') like '%" + getkata[i] + "%' ";
-                                sSQLnama += " and (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+                        sSQLsi += " isnull(a.no_bukti,'') like '%" + getkata[i] + "%' ";
+                        sSQLbrg += "  ISNULL(b.brg, '') like '%" + getkata[i] + "%' ";
+                        sSQLnama += "  (e.nama + ' ' + isnull(e.nama2,'')) like '%" + getkata[i] + "%' ";
+                        sSQLmarket += "  (isnull(F.NamaMarket,'') + ' (' + isnull(G.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                        sSQLreferensi += "  A.NO_REF like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -46276,6 +46265,7 @@ namespace MasterOnline.Controllers
 
             string sSQLSelect = "";
             sSQLSelect += "select a.tgl as tgl_si,isnull(a.no_bukti,'') as nobuk_si,ISNULL(b.brg, '') as brg,(e.nama + ' ' + isnull(e.nama2,'')) as nama, isnull(b.qty,0) as qty, (isnull(b.h_satuan,0) * isnull(b.qty,0)) as nilai, isnull(d.qty,0) as qty_retur, (isnull(d.h_satuan,0) * isnull(d.qty,0)) as nilai_retur ";
+            sSQLSelect += ",ISNULL(F.NamaMarket,'') AS MARKET, ISNULL(G.PERSO,'') AS PERSO, ISNULL(A.NO_REF,'-') AS NOREF ";
             string sSQLCount = "";
             sSQLCount += "SELECT COUNT(a.no_bukti) AS JUMLAH ";
             string sSQL2 = "";
@@ -46283,14 +46273,16 @@ namespace MasterOnline.Controllers
             sSQL4 += "left join stf02 e on b.brg=e.brg ";
             sSQL4 += "left join sit01a c on a.no_bukti=c.no_ref and c.jenis_form = '3' ";
             sSQL4 += "left join sit01b d on d.no_bukti=c.no_bukti and d.brg=b.brg ";
+            sSQL4 += "LEFT JOIN ARF01 G ON A.CUST = G.CUST ";
+            sSQL4 += "LEFT JOIN MO.dbo.MARKETPLACE F ON G.NAMA = F.IdMarket ";
             sSQL4 += "where e.type='3' and isnull(a.pemesan,'')='" + buyer + "' and isnull(a.jenis_form,'')='2' and isnull(a.status,'')='1' ";
             sSQL2 += sSQL4;
             sSQLCount += sSQL4;
 
             if (search != "")
             {
-                sSQL2 += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + " ) ";
-                sSQLCount += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + " ) ";
+                sSQL2 += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + "  or " + sSQLmarket + " or " + sSQLreferensi + " ) ";
+                sSQLCount += "and ( " + sSQLsi + " or " + sSQLbrg + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLreferensi + " ) ";
             }
 
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;

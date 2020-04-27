@@ -77,6 +77,12 @@ namespace MasterOnline
         public double? nilai { get; set; }
         public double? qty_retur { get; set; }
         public double? nilai_retur { get; set; }
+
+        //ADD BY NURUL 27/4/2020
+        public string market { get; set; }
+        public string perso { get; set; }
+        public string noref { get; set; }
+        //END ADD BY NURUL 27/4/2020
     }
     //end add by nurul 20/11/2019
 }
