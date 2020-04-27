@@ -1,4 +1,5 @@
-﻿@using PagedList.Mvc
+﻿@using System.Globalization
+@using PagedList.Mvc
 @model PagedList.IPagedList<mdlTransaksiPembeli>
 @{
     string currentFilter = ViewBag.CurrentFilter;
@@ -73,7 +74,7 @@
             //    }
             //}
             var noref = "-";
-            if(buyer.noref != "")
+            if (buyer.noref != "")
             {
                 noref = buyer.noref;
             }
@@ -83,13 +84,13 @@
             <td>@(buyer.market + " (" + buyer.perso + ")")</td>
             <td>@noref</td>
             @*<td>@nobuk</td>
-            <td>@tgl</td>*@
+        <td>@tgl</td>*@
             <td>@buyer.brg</td>
             <td>@buyer.nama</td>
             <td>@buyer.qty</td>
-            <td>@buyer.nilai</td>
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", buyer.nilai)</td>
             <td>@buyer.qty_retur</td>
-            <td>@buyer.nilai_retur</td>
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", buyer.nilai_retur)</td>
         </tr>
         }
     </tbody>
