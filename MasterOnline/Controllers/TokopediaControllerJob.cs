@@ -2201,6 +2201,10 @@ namespace MasterOnline.Controllers
 //#endif
                     }
                 }
+                else
+                {
+                    throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal.");
+                }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{

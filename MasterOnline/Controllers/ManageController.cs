@@ -23729,36 +23729,33 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            //if (lisTokpedShop.Count > 0)
-            //{
-            //    //var tokopediaApi = new TokopediaController();
-            //    foreach (var tblCustomer in lisTokpedShop)
-            //    {
-            //        if (tblCustomer.Sort1_Cust != "")
-            //        {
-            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-            //            {
-            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-            //                {
-            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
-            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            //                    idmarket = tblCustomer.RecNum.Value,
-            //                    DatabasePathErasoft = dbPathEra,
-            //                    username = "Support"
-            //                };
-            //                var tokpedController = new TokopediaControllerJob();
-            //                //await tokpedController.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-            //                //await tokpedController.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
-            //                //await tokpedController.PrintLabel(data, "SO20000242", "468656921;INV/20200327/XX/III/510216560");
-            //                await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
-            //            }
-            //        }
-            //    }
-            //}
+            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            if (lisTokpedShop.Count > 0)
+            {
+                //var tokopediaApi = new TokopediaController();
+                foreach (var tblCustomer in lisTokpedShop)
+                {
+                    if (tblCustomer.Sort1_Cust != "")
+                    {
+                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                        {
+                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+                            {
+                                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                idmarket = tblCustomer.RecNum.Value,
+                                DatabasePathErasoft = dbPathEra,
+                                username = "Support"
+                            };
+                            var tokpedController = new TokopediaControllerJob();
+                            await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
+                        }
+                    }
+                }
+            }
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
             //if (listBLIShop.Count > 0)
@@ -42522,12 +42519,21 @@ namespace MasterOnline.Controllers
                                 };
                                 var tokpedApi = new TokopediaControllerJob();
 //#if (DEBUG || Debug_AWS)
-                                Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
-//#else
-//                                var sqlStorage = new SqlServerStorage(EDBConnID);
-//                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-//                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, SOA_NOREF));
-//#endif
+                                //Task.Run(() => tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF).Wait());
+                                var kodeBookingTokped = tokpedApi.JOBCOD(data, Nobuk, SOA_NOREF);
+                                if (kodeBookingTokped.Result.ToString() == "")
+                                {
+                                    listError.Add(new listErrorPacking
+                                    {
+                                        no_bukti_so = Nobuk,
+                                        error_msg = "Gagal Update Kode Booking pesanan " + Nobuk + "."
+                                    });
+                                }
+                                //#else
+                                //                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                                //                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                //                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(data, Nobuk, SOA_NOREF));
+                                //#endif
                             }
                         }
                         //END ADD BY NURUL 3/4/2020, update no kode booking
@@ -42920,7 +42926,10 @@ namespace MasterOnline.Controllers
                                     }
 
                                     pesananInDb.STATUS_TRANSAKSI = "03";
-                                    pesananInDb.status_kirim = "0";
+                                    if (pesananInDb.status_kirim != "2")
+                                    {
+                                        pesananInDb.status_kirim = "0";
+                                    }
                                     pesananInDb.status_print = "0";
 
                                     var pesanan = new SOT03B();
@@ -43305,7 +43314,10 @@ namespace MasterOnline.Controllers
                                 }
 
                                 pesananInDb.STATUS_TRANSAKSI = "03";
-                                pesananInDb.status_kirim = "0";
+                                if (pesananInDb.status_kirim != "2")
+                                {
+                                    pesananInDb.status_kirim = "0";
+                                }
                                 pesananInDb.status_print = "0";
 
                                 var listBarangPesananInDb = context.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
