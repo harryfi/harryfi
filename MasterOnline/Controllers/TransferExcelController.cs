@@ -1019,12 +1019,12 @@ namespace MasterOnline.Controllers
                                                 var kd_brg = worksheet.Cells[i, 1].Value == null ? "" : worksheet.Cells[i, 1].Value.ToString();
                                                 if (!string.IsNullOrEmpty(kd_brg))
                                                 {
-                                                    var current_brg = listTemp.Where(m => m.BRG == kd_brg).SingleOrDefault();
+                                                    //if (worksheet.Cells[i, 3].Value != null)
+                                                    if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                    {
+                                                        var current_brg = listTemp.Where(m => m.BRG == kd_brg).SingleOrDefault();
                                                     if (current_brg != null)
                                                     {
-                                                        //if (worksheet.Cells[i, 3].Value != null)
-                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
-                                                        {
                                                             //change 7 Nov 2019, stok 0 juga bisa masuk
                                                             //if (Convert.ToInt32(worksheet.Cells[i, 3].Value) > 0)
                                                             if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
@@ -1078,7 +1078,7 @@ namespace MasterOnline.Controllers
                                                                 eraDB.STT01B.Add(stt01b);
                                                                 eraDB.SaveChanges();
                                                             }
-                                                        }
+                                                        
 
                                                         //eraDB.SaveChanges();
                                                     }
@@ -1088,6 +1088,7 @@ namespace MasterOnline.Controllers
                                                         ret.statusSuccess = true;
                                                         ret.lastRow[file_index] = i;
                                                         i = worksheet.Dimension.End.Row;
+                                                    }
                                                     }
                                                 }
                                                 else
