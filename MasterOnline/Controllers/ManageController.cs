@@ -24910,7 +24910,8 @@ namespace MasterOnline.Controllers
             //    });
             //}
             //add by nurul 21/4/2020
-
+            var getOngkir = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b(nolock) where bukti='" + vm.Piutang.BUKTI + "')").ToList();
+            vm.ListOngkir = getOngkir;
             return PartialView("DetailBayarPiutangPartial", vm);
         }
 
