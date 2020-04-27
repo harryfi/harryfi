@@ -1468,6 +1468,32 @@
                                 $("#Piutang_CUST").val(null);
                                 //getFaktur($('#NOBUK_bayar_piutang').val(), null);
                                 $('#tambah-faktur').attr('disabled', 'disabled');
+
+
+                                //add by nurul 27/4/2020
+                                $('#PiutangDetail_NFAKTUR').val(null);
+                                //var $trId = $('#PiutangDetail_NFAKTUR').closest('tr').attr('data-piutang-id');
+                                var $trElement = 'tr[data-piutang-id="0"]';
+                                $($trElement + ' .span-sisa-piutang').text('0,00');
+                                $('#PiutangDetail_SISA').val(null);
+
+                                $('#PiutangDetail_NOREF').val(null);
+                                $($trElement + ' .span-noref-piutang').text('-');
+                                $('#PiutangDetail_TGL_REF').val(null);
+                                $($trElement + ' .span-tglref-piutang').text('-');
+                                $($trElement + ' .span-ongkir-piutang').text('0,00');
+                                //$($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                                //$($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                $($trElement + ' .span-potongan-piutang').val('-').show();
+                                $($trElement + ' .span-bayar-piutang').val('-').show();
+                                $($trElement + ' #PiutangDetail_POT').hide();
+                                $($trElement + ' #PiutangDetail_BAYAR').hide();
+                                $($trElement + ' .span-noref-piutang').text('-');
+                                $($trElement + ' .span-tglref-piutang').text('-');
+                                $($trElement + ' .span-sisa-piutang').text('0,00');
+                                //end add by nurul 27/4/2020
                             } else {
                                 $("#Piutang_CUST").val(value);
                                 //getFaktur($('#NOBUK_bayar_piutang').val(), value);
@@ -1475,6 +1501,30 @@
                                 $tempMP1 = $objSup[0].market;
                                 $tempMP = $objSup[0].idMarket;
 
+                                //add by nurul 27/4/2020
+                                $('#PiutangDetail_NFAKTUR').val(null);
+                                //var $trId = $('#PiutangDetail_NFAKTUR').closest('tr').attr('data-piutang-id');
+                                var $trElement = 'tr[data-piutang-id="0"]';
+                                $($trElement + ' .span-sisa-piutang').text('0,00');
+                                $('#PiutangDetail_SISA').val(null);
+
+                                $('#PiutangDetail_NOREF').val(null);
+                                $($trElement + ' .span-noref-piutang').text('-');
+                                $('#PiutangDetail_TGL_REF').val(null);
+                                $($trElement + ' .span-tglref-piutang').text('-');
+                                $($trElement + ' .span-ongkir-piutang').text('0,00');
+                                //$($trElement + ' #PiutangDetail_POT').removeAttr('disabled');
+                                //$($trElement + ' #PiutangDetail_BAYAR').removeAttr('disabled');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                $($trElement + ' .span-potongan-piutang').val('-').show();
+                                $($trElement + ' .span-bayar-piutang').val('-').show();
+                                $($trElement + ' #PiutangDetail_POT').hide();
+                                $($trElement + ' #PiutangDetail_BAYAR').hide();
+                                $($trElement + ' .span-noref-piutang').text('-');
+                                $($trElement + ' .span-tglref-piutang').text('-');
+                                $($trElement + ' .span-sisa-piutang').text('0,00');
+                                //end add by nurul 27/4/2020
                             }
                         }
                     });
