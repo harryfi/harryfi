@@ -277,7 +277,7 @@ namespace MasterOnline.Controllers
 
                                         Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
                                         {
-                                            SELLER_SKU = "",
+                                            SELLER_SKU = brgMp,
                                             BRG_MP = brgMp,
                                             //KODE_BRG_INDUK = Convert.ToString(item.id_product),
                                             NAMA = nama,
@@ -286,7 +286,7 @@ namespace MasterOnline.Controllers
                                             CATEGORY_CODE = Convert.ToString(item.id_category_default),
                                             CATEGORY_NAME = item.category_default,
                                             IDMARKET = IdMarket,
-                                            IMAGE = "",
+                                            IMAGE = item.cover_image_url ?? "",
                                             DISPLAY = true,
                                             HJUAL = Convert.ToDouble(item.price),
                                             HJUAL_MP = Convert.ToDouble(item.price),
@@ -337,18 +337,24 @@ namespace MasterOnline.Controllers
                                         }
                                         if (item.weight != null)
                                         {
-                                            if (item.weight > 0)//dalam gram
+                                            if (Convert.ToDouble(item.weight) > 0)
                                             {
                                                 newrecord.BERAT = Convert.ToDouble(item.weight);
                                             }
-                                            //else
-                                            //{
-                                            //    newrecord.BERAT = Convert.ToDouble(item.weight);
-                                            //}
-                                            //if (item.weight == 2)//dalam kilo
-                                            //{
-                                            //    newrecord.BERAT = item.weight.value * 1000;
-                                            //}
+                                        }
+                                        if(item.height != null)
+                                        {
+                                            if(Convert.ToDouble(item.height) > 0)
+                                            {
+                                                newrecord.TINGGI = Convert.ToDouble(item.height);
+                                            }
+                                        }
+                                        if (item.width != null)
+                                        {
+                                            if (Convert.ToDouble(item.width) > 0)
+                                            {
+                                                newrecord.LEBAR = Convert.ToDouble(item.width);
+                                            }
                                         }
                                         //if (item.menu != null)
                                         //{
@@ -474,11 +480,35 @@ namespace MasterOnline.Controllers
             var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
             nama = splitItemName[0];
             nama2 = splitItemName[1];
+            if (!string.IsNullOrEmpty(product_varian.attribute_list[0].attribute_group) && !string.IsNullOrEmpty(product_varian.attribute_list[0].attribute))
+            {
+                nama2 = product_varian.attribute_list[0].attribute_group.ToString() + " " + product_varian.attribute_list[0].attribute.ToString();
+            }
             nama3 = "";
+
+            double hargaJual = 0;
+            if(Convert.ToDouble(product_varian.price) > 0)
+            {
+                hargaJual = Convert.ToDouble(product_varian.price);
+            }
+            else
+            {
+                hargaJual = Convert.ToDouble(product_induk.price);
+            }
+
+            var skuBRG = "";
+            if (!string.IsNullOrEmpty(product_varian.attribute_reference))
+            {
+                skuBRG = product_varian.attribute_reference;
+            }
+            else
+            {
+                skuBRG = brgmp_varian;
+            }
 
             Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
             {
-                SELLER_SKU = "",
+                SELLER_SKU = skuBRG,
                 BRG_MP = brgmp_varian,
                 KODE_BRG_INDUK = brg_mp_induk,
                 TYPE = "3",
@@ -488,10 +518,10 @@ namespace MasterOnline.Controllers
                 CATEGORY_CODE = Convert.ToString(product_induk.id_category_default),
                 CATEGORY_NAME = "",
                 IDMARKET = idmarket,
-                IMAGE = "",
+                IMAGE = product_induk.cover_image_url ?? "",
                 DISPLAY = true,
-                HJUAL = Convert.ToDouble(product_varian.price),
-                HJUAL_MP = Convert.ToDouble(product_varian.price),
+                HJUAL = hargaJual,
+                HJUAL_MP = hargaJual,
                 Deskripsi = product_induk.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
                 MEREK = product_induk.id_manufacturer,
                 CUST = CUST,
@@ -526,16 +556,26 @@ namespace MasterOnline.Controllers
             //    typeBrg = 2;
             //}
             //}
-            if (product_varian.weight != null)
+            if (product_induk.weight != null)
             {
-                //if (product_varian.weight == 1)//dalam gram
-                //{
-                newrecord.BERAT = Convert.ToDouble(product_varian.weight);
-                //}
-                //if (item.weight.unit == 2)//dalam kilo
-                //{
-                //    newrecord.BERAT = item.weight.value * 1000;
-                //}
+                if (Convert.ToDouble(product_induk.weight) > 0)
+                {
+                    newrecord.BERAT = Convert.ToDouble(product_induk.weight);
+                }
+            }
+            if (product_induk.height != null)
+            {
+                if (Convert.ToDouble(product_induk.height) > 0)
+                {
+                    newrecord.TINGGI = Convert.ToDouble(product_induk.height);
+                }
+            }
+            if (product_induk.width != null)
+            {
+                if (Convert.ToDouble(product_induk.width) > 0)
+                {
+                    newrecord.LEBAR = Convert.ToDouble(product_induk.width);
+                }
             }
             //if (item.menu != null)
             //{
@@ -2699,7 +2739,6 @@ namespace MasterOnline.Controllers
             public string apiCredential { get; set; }
             public string id_product { get; set; }
             public string name { get; set; }
-            public string reference { get; set; }
             public string ean13 { get; set; }
             public string upc { get; set; }
             public string active { get; set; }
@@ -2709,9 +2748,7 @@ namespace MasterOnline.Controllers
             public string online_only { get; set; }
             public string condition { get; set; }
             public string description_short { get; set; }
-            public string short_description { get; set; }
             public string description { get; set; }
-            public string meta_keyword { get; set; }
             public string meta_keywords { get; set; }
             public string wholesale_price { get; set; }
             public string price { get; set; }
@@ -2722,13 +2759,15 @@ namespace MasterOnline.Controllers
             public string id_category_default { get; set; }
             public string category_default { get; set; }
             public E2CartProductCategory[] category { get; set; }
+            public string cover_image_url { get; set; }
+            public Image_Product[] image_product { get; set; }
             public string id_manufacturer { get; set; }
-            public string manufacturer { get; set; }
-            public float width { get; set; }
-            public float height { get; set; }
-            public float depth { get; set; }
-            public float weight { get; set; }
-            public float additional_shipping_cost { get; set; }
+            public object manufacturer { get; set; }
+            public string width { get; set; }
+            public string height { get; set; }
+            public string depth { get; set; }
+            public string weight { get; set; }
+            public string additional_shipping_cost { get; set; }
             public int quantity { get; set; }
             public int minimal_quantity { get; set; }
             public int out_of_stock { get; set; }
@@ -2737,6 +2776,34 @@ namespace MasterOnline.Controllers
             public string date_upd { get; set; }
             public ProductCombinations[] combinations { get; set; }
         }
+        
+        public class Image_Product
+        {
+            public string id_image { get; set; }
+            public string link_image { get; set; }
+        }
+        
+        public class ProductCombinations
+        {
+            public string id_product_attribute { get; set; }
+            public string attribute_reference { get; set; }
+            public string attribute_ean13 { get; set; }
+            public string upc { get; set; }
+            public string wholesale_price { get; set; }
+            public string price { get; set; }
+            public string weight { get; set; }
+            public string quantity { get; set; }
+            public string default_on { get; set; }
+            public attribute_image[] attribute_image { get; set; }
+            public attribute_list[] attribute_list { get; set; }
+        }
+
+        public class Attribute_Image
+        {
+            public int id_image { get; set; }
+            public string image_url { get; set; }
+        }
+
 
         public class E2CartProductPost
         {
@@ -2782,20 +2849,6 @@ namespace MasterOnline.Controllers
             public string category { get; set; }
         }
 
-        public class ProductCombinations
-        {
-            public string id_product_attribute { get; set; }
-            public string attribute_reference { get; set; }
-            public string attribute_ean13 { get; set; }
-            public string upc { get; set; }
-            public string wholesale_price { get; set; }
-            public string price { get; set; }
-            public string weight { get; set; }
-            public string quantity { get; set; }
-            public string default_on { get; set; }
-            public attribute_image[] attribute_image { get; set; }
-            public attribute_list[] attribute_list { get; set; }
-        }
 
         public class E2CartProductCategory
         {
