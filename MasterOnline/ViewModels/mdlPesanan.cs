@@ -256,6 +256,7 @@ namespace MasterOnline
     public class ViewDetailPesanan
     {
         public List<mdlDetailPesanan> listDetail = new List<mdlDetailPesanan>();
+        public double totalPesanan { get; set; }
     }
     public class mdlDetailPesanan
     {

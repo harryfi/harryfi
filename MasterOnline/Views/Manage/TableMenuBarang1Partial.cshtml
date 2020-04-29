@@ -83,6 +83,7 @@
         <tbody>
             @foreach (var barang in Model)
             {
+                var fordetailPesanan = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOO;
             <tr>
                 <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
                 <td>@barang.BRG</td>
@@ -99,7 +100,7 @@
                     @if (barang.QOO != 0)
                     {
                     <div data-tip="Lihat Detail">
-                        <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@barang.BRG')">@barang.QOO</a>
+                        <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan')">@barang.QOO</a>
                     </div>
                     }
                     else
