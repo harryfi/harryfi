@@ -7009,7 +7009,10 @@ namespace MasterOnline.Controllers
 
                 Productitem newVarItem = new Productitem()
                 {
-                    upcCode = data.dataBarangInDb.BRG,
+                    //change sementara, perubahan ketentuan UPC di blibli
+                    //upcCode = data.dataBarangInDb.BRG,
+                    upcCode = "",
+                    //end change sementara, perubahan ketentuan UPC di blibli
                     merchantSku = data.dataBarangInDb.BRG,
                     price = Convert.ToInt32(Convert.ToDouble(data.Price)),
                     salePrice = Convert.ToInt32(stf02h.HJUAL),
@@ -7293,7 +7296,10 @@ namespace MasterOnline.Controllers
 
                     Productitem newVarItem = new Productitem()
                     {
-                        upcCode = var_item.BRG,
+                        //change sementara, perubahan ketentuan UPC di blibli
+                        //upcCode = var_item.BRG,
+                        upcCode = "",
+                        //change sementara, perubahan ketentuan UPC di blibli
                         merchantSku = var_item.BRG,
                         price = Convert.ToInt32(var_item.HJUAL),
                         salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
