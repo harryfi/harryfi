@@ -2099,18 +2099,18 @@ namespace MasterOnline.Controllers
             iden.token = token;
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            //{
-            //    REQUEST_ID = milis.ToString(),
-            //    REQUEST_ACTION = "Accept Order",
-            //    REQUEST_DATETIME = milisBack,
-            //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-            //    REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
-            //    REQUEST_ATTRIBUTE_3 = "NoRef : " + splitNoRef[0],
-            //    REQUEST_STATUS = "Pending",
-            //};
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Accept Order",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
+                REQUEST_ATTRIBUTE_3 = "NoRef : " + splitNoRef[0],
+                REQUEST_STATUS = "Pending",
+            };
 
-            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             AckOrder newData = new AckOrder();
 
             //remark by calvin 11 maret 2019
@@ -2192,16 +2192,22 @@ namespace MasterOnline.Controllers
                     var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
                     if (pesananInDb != null)
                     {
-//#if (DEBUG || Debug_AWS)
-//                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
-//#else
-//                        string EDBConnID = EDB.GetConnectionString("ConnId");
-//                        var sqlStorage = new SqlServerStorage(EDBConnID);
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //#if (DEBUG || Debug_AWS)
+                        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+                        //#else
+                        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
 
-//                        var Jobclient = new BackgroundJobClient(sqlStorage);
-//                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
-//#endif
+                        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+                        //#endif
                     }
+                }
+                else
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal.");
                 }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -2227,10 +2233,11 @@ namespace MasterOnline.Controllers
 
         //add by nurul 19/3/2020, untuk get kode booking 
         [AutomaticRetry(Attempts = 3)]
-        [Queue("1_manage_pesanan")]
+        [Queue("3_general")]
         public async Task<string> GetSingleOrder(TokopediaAPIData iden, string cust, string nama_cust)
         {
             string ret = "";
+            string connId = Guid.NewGuid().ToString();
             var token = SetupContext(iden);
             iden.token = token;
             var list_ordersn = ErasoftDbContext.SOT01A.Where(a => (a.TRACKING_SHIPMENT == null || a.TRACKING_SHIPMENT == "-" || a.TRACKING_SHIPMENT == "") && a.CUST == cust && (a.NO_REFERENSI.Contains("INV")) && (a.STATUS_TRANSAKSI.Contains("02") || a.STATUS_TRANSAKSI.Contains("03") || a.STATUS_TRANSAKSI.Contains("04"))).ToList();
@@ -2253,14 +2260,22 @@ namespace MasterOnline.Controllers
                     string responseFromServer = "";
                     //try
                     //{
-                        using (WebResponse response = myReq.GetResponse())
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
                         {
-                            using (Stream stream = response.GetResponseStream())
-                            {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
-                            }
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
                         }
+                    }
+                    //using (WebResponse response = await myReq.GetResponse())
+                    //    {
+                    //        using (Stream stream = response.GetResponseStream())
+                    //        {
+                    //            StreamReader reader = new StreamReader(stream);
+                    //            responseFromServer = reader.ReadToEnd();
+                    //        }
+                    //    }
                     //}
                     //catch (WebException e)
                     //{
@@ -2321,14 +2336,22 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
+            }
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
             //}
             //catch (WebException e)
             //{
@@ -2427,10 +2450,6 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                else
-                {
-                    throw new Exception("Gagal Update Kode Booking.");
-                }
             }
             return ret;
         }
@@ -2457,14 +2476,22 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                using (WebResponse response = myReq.GetResponse())
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
+            }
+            //using (WebResponse response = myReq.GetResponse())
+            //{
+            //    using (Stream stream = response.GetResponseStream())
+            //    {
+            //        StreamReader reader = new StreamReader(stream);
+            //        responseFromServer = reader.ReadToEnd();
+            //    }
+            //}
             //}
             //catch (WebException e)
             //{
