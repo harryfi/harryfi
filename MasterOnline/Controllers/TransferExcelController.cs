@@ -819,15 +819,25 @@ namespace MasterOnline.Controllers
                         var file = Request.Files[file_index];
                         if (file != null && file.ContentLength > 0)
                         {
-                            using (Stream inputStream = file.InputStream)
+                            string[] cekFormat = file.FileName.Split('.');
+                            if(cekFormat[1].ToString() == "xlsx")
                             {
-                                MemoryStream memoryStream = inputStream as MemoryStream;
-                                if (memoryStream == null)
+                                using (Stream inputStream = file.InputStream)
                                 {
-                                    memoryStream = new MemoryStream();
-                                    inputStream.CopyTo(memoryStream);
+                                    MemoryStream memoryStream = inputStream as MemoryStream;
+                                    if (memoryStream == null)
+                                    {
+                                        memoryStream = new MemoryStream();
+                                        inputStream.CopyTo(memoryStream);
+                                    }
+                                    ret.byteData = memoryStream.ToArray();
                                 }
-                                ret.byteData = memoryStream.ToArray();
+                            }
+                            else
+                            {
+                                ret.Errors.Add("Format file tidak mendukung. Mohon untuk tidak mengubah format file excel hasil download program.");
+                                ret.statusSuccess = false;
+                                return Json(ret, JsonRequestBehavior.AllowGet);
                             }
                         }
                     }
@@ -842,7 +852,7 @@ namespace MasterOnline.Controllers
                         {
                             using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                             {
-                                eraDB.Database.CommandTimeout = 180;
+                                eraDB.Database.CommandTimeout = 1800;
                                 //loop all worksheets
                                 var worksheet = excelPackage.Workbook.Worksheets[1];
                                 //foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
@@ -850,22 +860,22 @@ namespace MasterOnline.Controllers
                                 string gd = worksheet.Cells[2, 1].Value == null ? "" : worksheet.Cells[2, 1].Value.ToString();
                                 if (!string.IsNullOrEmpty(gd))
                                 {
-                                    var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).FirstOrDefault();
+                                    var gudang = eraDB.STF18.Where(m => m.Kode_Gudang == gd).Select(m => m.Nama_Gudang).FirstOrDefault();
                                     if (gudang != null)
                                     {
                                         //string namaMP = mp.Where(m => m.IdMarket.ToString() == customer.NAMA).SingleOrDefault().NamaMarket;
                                         if (ret.statusLoop == false)
                                         {
-                                            ret.namaGudang.Add(gudang.Nama_Gudang);
+                                            ret.namaGudang.Add(gudang);
                                         }
                                         //ret.namaCust.Add(namaMP + "(" + customer.PERSO + ")");
 
-                                        var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").ToList();
+                                        var listTemp = eraDB.STF02.Where(m => m.TYPE == "3").Select(p => p.BRG).ToList();
                                         if (listTemp.Count > 0)
                                         {
+                                            #region create induk
                                             if (ret.statusLoop == false)
                                             {
-                                                #region create induk
                                                 var stt01a = new STT01A
                                                 {
                                                     Satuan = "",
@@ -1001,6 +1011,7 @@ namespace MasterOnline.Controllers
                                                 //end change by nurul 23/12/2019, perbaikan no bukti
 
                                             }
+                                            #endregion
 
                                             ret.countAll = worksheet.Dimension.End.Row;
 
@@ -1009,7 +1020,7 @@ namespace MasterOnline.Controllers
                                                 prog[1] = "0";
                                             }
 
-                                            #endregion
+                                            
                                             //loop all rows
                                             for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
                                             {
@@ -1022,7 +1033,7 @@ namespace MasterOnline.Controllers
                                                     //if (worksheet.Cells[i, 3].Value != null)
                                                     if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
                                                     {
-                                                        var current_brg = listTemp.Where(m => m.BRG == kd_brg).SingleOrDefault();
+                                                        var current_brg = listTemp.Where(m => m == kd_brg).SingleOrDefault();
                                                     if (current_brg != null)
                                                     {
                                                             //change 7 Nov 2019, stok 0 juga bisa masuk
@@ -1061,7 +1072,7 @@ namespace MasterOnline.Controllers
                                                                     Nobuk = ret.nobuk,
                                                                     Satuan = "2",
                                                                 };
-                                                                stt01b.Kobar = current_brg.BRG;
+                                                                stt01b.Kobar = kd_brg;
                                                                 stt01b.Ke_Gd = gd;
                                                                 //stt01b.Harsat = Convert.ToDouble(worksheet.Cells[i, 4].Value);
                                                                 if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
