@@ -46210,7 +46210,7 @@ namespace MasterOnline.Controllers
         //add by nurul 21/11/2019
         public ActionResult findException(string reqId)
         {
-            if (reqId != null || reqId != "")
+            if (reqId != null && reqId != "")
             {
                 var ex = ErasoftDbContext.API_LOG_MARKETPLACE.Where(a => a.REQUEST_ID == reqId).SingleOrDefault();
                 if (ex != null)
@@ -46745,6 +46745,31 @@ namespace MasterOnline.Controllers
             }
         }
         //END ADD BY NURUL 1/4/2020, PRINT LABEL TOKPED 
+
+        //add by nurul 29/4/2020
+        public ActionResult LihatDetailPesanan(string brgId)
+        {
+            var vm = new ViewDetailPesanan() { };
+            if (brgId != null && brgId != "")
+            {
+                string sSQL = "";
+                sSQL += "SELECT A.NO_BUKTI,A.NO_REFERENSI,A.TGL,ISNULL(E.NAMAMARKET,'') AS NAMAMARKET,ISNULL(D.PERSO,'') AS PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI, B.BRG, QTY = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+                sSQL += "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
+                sSQL += "LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+                sSQL += "LEFT JOIN ARF01 D ON A.CUST=D.CUST ";
+                sSQL += "LEFT JOIN MO..MARKETPLACE E ON D.NAMA=E.IDMARKET ";
+                sSQL += "WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' and brg='" + brgId + "' ";
+                sSQL += "GROUP BY A.NO_BUKTI,A.NO_REFERENSI,A.TGL,E.NAMAMARKET,D.PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI,B.BRG ";
+                sSQL += "ORDER BY A.TGL ASC ";
+                var ex = ErasoftDbContext.Database.SqlQuery<mdlDetailPesanan>(sSQL).ToList();
+                if (ex.Count() > 0)
+                {
+                    vm.listDetail = ex;
+                }
+            }
+            return PartialView("ListDetailPesananBarang", vm);
+        }
+        //end add by nurul 29/4/2020
     }
     public class smolSTF02
     {

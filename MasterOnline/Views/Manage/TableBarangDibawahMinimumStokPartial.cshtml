@@ -112,7 +112,19 @@
                 <td>@barang.QtySales</td>
                 @*add by nurul 16/11/2018*@
                 <td>@barang.QOH</td>
-                <td>@barang.QOO</td>
+                @*<td>@barang.QOO</td>*@
+                <td>
+                    @if (barang.QOO != 0)
+                    {
+                        <div data-tip="Lihat Detail">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@barang.BRG')">@barang.QOO</a>
+                        </div>
+                    }
+                    else
+                    {
+                        @barang.QOO
+                    }
+                </td>
                 <td>@(barang.QOH - barang.QOO)</td>
                 <td>@barang.MIN</td>
                 <td>@barang.SELISIH</td>
