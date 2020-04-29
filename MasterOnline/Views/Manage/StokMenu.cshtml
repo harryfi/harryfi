@@ -236,24 +236,31 @@
                                 <input type='file' id='file_upload_excel' name="file_upload_excel" onchange="checkfile(this);"
                                        accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelSAS();" data-style="expand-right">
                                     <span>Upload</span>
                                 </button>
                                 @*<button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="alert('Proses upload excel saldo awal stock sedang dalam pengembangan. Silahkan hubungi team support.');" data-style="expand-right">
-                        <span>Upload</span>
-                    </button>*@
+            <span>Upload</span>
+        </button>*@
+                            </div>
+                            <div class="col-md-2">
+                                <div id="loading_upload" class="text-center" hidden="hidden">
+                                    <div id="loading_upload_image">
+                                        <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     @*<div class="row">*@
-                    <div class="col-md-12">
+                    @*<div class="col-md-12">
                         <div id="loading_upload" class="text-center" hidden="hidden">
                             <div id="loading_upload_image">
                                 <img src="~/Content/Images/spinner.gif" />
                             </div>
                         </div>
-                    </div>
+                    </div>*@
                     @*</div>*@
                     <br />
                     <br />
@@ -469,7 +476,7 @@
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
                 $('#progressBarUpload').show();
-                uploadFileExcelStockAwal(null, 0, "0;5", "false;false");
+                uploadFileExcelStockAwal(null, 0, "0;0", "false;false");
             }
         }
    
@@ -520,7 +527,7 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        //$('#loading_upload').show();
+                        $('#loading_upload').show();
                     },
                     success: function (response) {
                         if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
@@ -532,6 +539,7 @@
                             }
 
                         } else if (response.statusSuccess == true && response.Errors.length == 0) {
+                            $('#loading_upload').hide();
                             document.getElementById("file_upload_excel").value = "";
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
@@ -539,6 +547,7 @@
                             setTimeout(popupAlertUploadSaldoAwal, 500);
                             //alert('Proses upload dan input Saldo awal stok sudah selesai.');
                         } else if (response.statusSuccess == true && response.Errors.length > 0) {
+                            $('#loading_upload').hide();
                             document.getElementById("file_upload_excel").value = "";
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('100% Complete');
@@ -546,6 +555,7 @@
                             setTimeout(popupAlertUploadSaldoAwal, 500);
                             //alert('Proses upload dan input Saldo awal stok sudah selesai.');
                         } else {
+                            $('#loading_upload').hide();
                             $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                             $('#pBar_uploadFile').html('0% Complete');
                             $('#btnUploadExcelSAS').removeAttr('disabled');
@@ -587,16 +597,16 @@
                     },
                     error: function (xhr, status, error) {
                         var err = "";
-                        for (i = 0; i < response.Errors.length; i++) {
-                            err += response.Errors[i] + "\n";
+                        if (error != null) {
+                            err = error;
                         }
                         alert(err);
                         console.log(error);
-                        $('#progressBarUpload').hide();
-                        //$('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 0);
-                        //$('#pBar_uploadFile').html('0% Complete');
-                        //$('#loading_upload').hide();
+                        $('#loading_upload').hide();
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFile').html('0% Complete');
                         $('#btnUploadExcelSAS').removeAttr('disabled');
+                        document.getElementById("file_upload_excel").value = "";
                     }
                 });
                 

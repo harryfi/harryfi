@@ -5,6 +5,7 @@ using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using MasterOnline.Utils;
+using Spire.Xls;
 
 namespace MasterOnline.Services
 {
@@ -37,20 +38,38 @@ namespace MasterOnline.Services
                         ContentType = file.ContentType,
                         InputStream = inputSteram,
                     };
-                    client.PutObject(putRequest);                    
+                    client.PutObject(putRequest);
 
-                    using (GetObjectResponse response = client.GetObject(_bucketName, _bucketFileName + string.Format(file.FileName)))
-                    {
-                        using (Stream inputStream = response.ResponseStream)
+                    
+                        using (GetObjectResponse response = client.GetObject(_bucketName, _bucketFileName + string.Format(file.FileName)))
                         {
-                            MemoryStream memoryStream = inputStream as MemoryStream;
-                            
-                                if(memoryStream == null)
+                            using (Stream inputStream = response.ResponseStream)
+                            {
+                            if (file.ContentType.Contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                            {
+                                MemoryStream memoryStream = inputStream as MemoryStream;
+
+                                if (memoryStream == null)
                                 {
                                     memoryStream = new MemoryStream();
                                     inputStream.CopyTo(memoryStream);
                                 }
-                            dataByte = memoryStream.ToArray();
+                                dataByte = memoryStream.ToArray();
+                            }
+                            else if (file.ContentType.Contains("application/vnd.ms-excel"))
+                            {
+                                Workbook workbook = new Workbook();
+                                MemoryStream memory = inputSteram as MemoryStream;
+                                if(memory == null)
+                                {
+                                    memory = new MemoryStream();
+                                    inputStream.CopyTo(memory);
+                                    workbook.LoadFromStream(memory);
+                                    //MemoryStream memoryStream1 = new MemoryStream();
+                                    workbook.SaveToStream(memory, FileFormat.Version2013);
+                                    dataByte = memory.ToArray();
+                                }
+                            }
                         }
                     }
                 }

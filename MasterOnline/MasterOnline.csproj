@@ -713,6 +713,7 @@
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_82CART.cs" />
+    <Compile Include="Models\TEMP_SALDOAWAL.cs" />
     <Compile Include="Models\TEMP_UPLOAD_EXCEL_BAYAR.cs" />
     <Compile Include="Models\TABLE_LOG_DETAIL.cs" />
     <Compile Include="Models\ShopeeExcelBayarPiutang.cs" />
