@@ -2204,10 +2204,14 @@ namespace MasterOnline.Controllers
                         //#endif
                     }
                 }
+                else if(result.error_message.Contains("order already ack-ed"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
                 else
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal.");
+                    throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal. " + result.error_message.ToArray() + ".");
                 }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
