@@ -18204,7 +18204,7 @@ namespace MasterOnline.Controllers
                     {
                         dataCustomer.TIDAK_HIT_UANG_R = false;
                         ErasoftDbContext.SaveChanges();
-                        return Json(new { success = false, status = "Proses Update Pesanan dan Stok Ke Marketplace tidak dapat disimpan! Karena account Anda sudah expired." }, JsonRequestBehavior.AllowGet);
+                        return Json(new { success = false, status = "Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan! Tetapi account Anda sudah expired." }, JsonRequestBehavior.AllowGet);
                     }
 
                     //end by fauzi validasi expired account
