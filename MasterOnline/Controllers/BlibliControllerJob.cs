@@ -6987,6 +6987,7 @@ namespace MasterOnline.Controllers
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    string aname = Convert.ToString(stf02h["ANAME_" + i.ToString()]);//add 30 april 2020, get attr name
                     if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
                         if (dsVariasi.Contains(attribute_id))
@@ -6999,10 +7000,11 @@ namespace MasterOnline.Controllers
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                    DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
-
-                            attributeMap.Add(attribute_id, value);
+                            if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                attributeMap.Add(attribute_id, value);
                         }
                     }
                 }
@@ -7085,6 +7087,7 @@ namespace MasterOnline.Controllers
                 {
                     string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
                     string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    string aname = Convert.ToString(stf02h["ANAME_" + i.ToString()]);//add 30 april 2020, get attr name
                     if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
                         if (dsVariasi.Contains(attribute_id))
@@ -7103,18 +7106,22 @@ namespace MasterOnline.Controllers
                             //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
                             if (var_stf02i_distinct.Count() == 0)
                             {
-                                DefiningDariStf02H.Add(attribute_id, value);
-                                //if (attribute_id == "WA-0000002") // Warna
-                                //{
-                                //    ValueVariasiWarna = value;
-                                dsVariasiValues.Add(value);
-                                //}
+                                if (aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                {
+                                    DefiningDariStf02H.Add(attribute_id, value);
+                                    //if (attribute_id == "WA-0000002") // Warna
+                                    //{
+                                    //    ValueVariasiWarna = value;
+                                    dsVariasiValues.Add(value);
+                                    //}
+                                }
                             }
                             //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
 
                             if (!DefiningAttributes.ContainsKey(attribute_id))
                             {
-                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                                if(aname != "Family Colour")//filter family color sementara karena validasi baru di blibli
+                                    DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
                             }
                         }
                     }
