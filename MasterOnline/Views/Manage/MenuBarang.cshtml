@@ -529,17 +529,49 @@
             <div class="modal-header">
                 <h4 class="modal-title" id="modalDetailPesananLabel">Detail Pesanan</h4>
 
-                <div class="row" style="padding-left:15px">
-                        <span>Kode Barang </span>: <span id="kd-brg"></span>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Kode Barang </span><span id="kd-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @*<span id="kd-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="kd-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextBox("kd-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
                 </div>
-                <div class="row" style="padding-left:15px">
-                        <span>Nama Barang </span>: <span id="nm-brg"></span>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Nama Barang </span><span id="nm-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*<span id="nm-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="nm-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextArea("nm-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
                 </div>
-                <div class="row" style="padding-left:15px">
-                        <span>Total Qty Pesanan </span>: <span id="ttl-qty"></span>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Qty Pesanan </span><span id="ttl-qty" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Qty Pesanan</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*@Html.Label("ttl-qty", "", new { @class = "control-label", disabled = "disabled" })*@
+                            @*<span id="ttl-qty" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-qty" class="control-label" disabled="disabled">Kode Barang</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="row" style="padding-left:15px">
-                        <span>Total Pesanan </span>: <span id="ttl-pesanan"></span>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Pesanan </span><span id="ttl-pesanan" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Pesanan</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*<span id="ttl-pesanan" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-pesanan" class="control-label" disabled="disabled">Kode Barang</label>
+                            @*@Html.Label("ttl-pesanan", "", new { @class = "control-label", disabled = "disabled" })*@
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-body">
@@ -572,8 +604,8 @@
     <script type="text/javascript">
         var tempBrg = "";
         var tempNama = "";
-        var tempQty = 0;
-        var tempPesanan = 0;
+        var tempQty = "";
+        var tempPesanan = "";
         //remark by calvin 24 mei 2019
         //var table = $('#datatable').DataTable();
         //var tableKosong = $('#datatable_kosong').DataTable();
@@ -782,8 +814,8 @@
             $('#close-detail').click(function () {
                 tempBrg = "";
                 tempNama = "";
-                tempQty = 0;
-                tempPesanan = 0;
+                tempQty = "";
+                tempPesanan = "";
             });
         });
 
@@ -1056,14 +1088,18 @@
             beforeSend: function () {
                 $('#list-detail').hide();
                 $('#loading_detail_barang_tab').show();
-                $('#kd-brg').text(tempBrg);
+                //$('#kd-brg').text(tempBrg);
+                //$('#nm-brg').text(tempNama);
+                //$('#ttl-qty').text(tempQty);
+                $('#kd-brg').val(tempBrg);
                 $('#nm-brg').text(tempNama);
-                $('#ttl-qty').text(tempQty);
+                $('#ttl-qty').text(": " + tempQty);
             },
             success: function (value) {
                 $('#list-detail').html(value);
                 tempPesanan = qtyPesanan;
-                $('#ttl-pesanan').text(tempPesanan);
+                //$('#ttl-pesanan').text(tempPesanan);
+                $('#ttl-pesanan').text(": " + tempPesanan);
                 $('#loading_detail_barang_tab').hide();
                 $('#list-detail').show();
             },

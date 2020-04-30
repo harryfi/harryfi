@@ -146,7 +146,8 @@ else
     var qtyPesanan = @Html.Raw(Json.Encode(qtyPesanan));
     $(document).ready(function () {
         tempPesanan = qtyPesanan;
-        $('#ttl-pesanan').text(tempPesanan);
+        //$('#ttl-pesanan').text(tempPesanan);
+        $('#ttl-pesanan').text(": " + tempPesanan);
     });
     $(function () {
         $('#tabeldetailpartialpager').on('click', 'a', function () {
