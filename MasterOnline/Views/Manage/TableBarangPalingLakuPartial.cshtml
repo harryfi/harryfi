@@ -95,24 +95,37 @@
                 //{
                 //    QOO = getQOO.JUMLAH;
                 //}
-                <tr>
-                    @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
-                    <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
-                    <td>@barang.BRG</td>
-                    <td>@barang.NAMA @barang.NAMA2</td>
-                    <td>@barang.KET_SORT1</td>
-                    <td>@barang.KET_SORT2</td>
-                    @*<td>@barang.ISI</td>
-                        <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
-                    <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
-                    <td>@barang.QtySales</td>
-                    @*add by nurul 16/11/2018*@
-                    <td>@barang.QOH</td>
-                    <td>@barang.QOO</td>
-                    <td>@(barang.QOH - barang.QOO)</td>
-                    @*end add by nurul*@
+                var fordetailPesanan = barang.BRG + '|' + barang.NAMA + ' ' + barang.NAMA2 + '|' + barang.QOO;
+            <tr>
+                @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
+                <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
+                <td>@barang.BRG</td>
+                <td>@barang.NAMA @barang.NAMA2</td>
+                <td>@barang.KET_SORT1</td>
+                <td>@barang.KET_SORT2</td>
+                @*<td>@barang.ISI</td>
+        <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
+                <td>@barang.QtySales</td>
+                @*add by nurul 16/11/2018*@
+                <td>@barang.QOH</td>
+                @*<td>@barang.QOO</td>*@
+                <td>
+                    @if (barang.QOO != 0)
+                    {
+                        <div data-tip="Lihat Detail">
+                            <a class="user-link" href="#" data-toggle="modal" data-target="#modalDetailPesanan" onclick="LihatDetailPesanan('@fordetailPesanan')">@barang.QOO</a>
+                        </div>
+                    }
+                    else
+                    {
+                        @barang.QOO
+                    }
+                </td>
+                <td>@(barang.QOH - barang.QOO)</td>
+                @*end add by nurul*@
 
-                </tr>
+            </tr>
             }
         </tbody>
     </table>

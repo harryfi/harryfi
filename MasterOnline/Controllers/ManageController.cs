@@ -46222,7 +46222,7 @@ namespace MasterOnline.Controllers
         //add by nurul 21/11/2019
         public ActionResult findException(string reqId)
         {
-            if (reqId != null || reqId != "")
+            if (reqId != null && reqId != "")
             {
                 var ex = ErasoftDbContext.API_LOG_MARKETPLACE.Where(a => a.REQUEST_ID == reqId).SingleOrDefault();
                 if (ex != null)
@@ -46757,6 +46757,144 @@ namespace MasterOnline.Controllers
             }
         }
         //END ADD BY NURUL 1/4/2020, PRINT LABEL TOKPED 
+
+        //add by nurul 29/4/2020
+        public ActionResult LihatDetailPesanan(string brgId, int? page, string search = "")
+        {
+            //var vm = new ViewDetailPesanan() {
+            //    totalPesanan = 0
+            //};
+            //if (brgId != null && brgId != "")
+            //{
+            //    string sSQL = "";
+            //    sSQL += "SELECT A.NO_BUKTI,A.NO_REFERENSI,A.TGL,ISNULL(E.NAMAMARKET,'') AS NAMAMARKET,ISNULL(D.PERSO,'') AS PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI, B.BRG, QTY = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            //    sSQL += "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
+            //    sSQL += "LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            //    sSQL += "LEFT JOIN ARF01 D ON A.CUST=D.CUST ";
+            //    sSQL += "LEFT JOIN MO..MARKETPLACE E ON D.NAMA=E.IDMARKET ";
+            //    sSQL += "WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' and brg='" + brgId + "' ";
+            //    sSQL += "GROUP BY A.NO_BUKTI,A.NO_REFERENSI,A.TGL,E.NAMAMARKET,D.PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI,B.BRG ";
+            //    sSQL += "ORDER BY A.TGL ASC ";
+            //    var ex = ErasoftDbContext.Database.SqlQuery<mdlDetailPesanan>(sSQL).ToList();
+            //    if (ex.Count() > 0)
+            //    {
+            //        vm.listDetail = ex;
+            //        vm.totalPesanan = ex.Count();
+            //    }
+            //}
+            //return PartialView("ListDetailPesananBarang", vm);
+
+
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tempBarang"] = brgId;
+            bool searchStatus = false;
+            if (search.ToUpper() == "BELUM BAYAR")
+            {
+                search = "0";
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "SUDAH BAYAR")
+            {
+                search = "01";
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "PACKING")
+            {
+                search = "02";
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "FAKTUR")
+            {
+                search = "03";
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "SELESAI")
+            {
+                search = "04";
+                searchStatus = true;
+            }
+            else if (search.ToUpper() == "BATAL")
+            {
+                search = "11";
+
+            }
+            string[] getkata = search.Split(' ');
+            string sSQLkode = "";
+            string sSQLmarket = "";
+            string sSQLpembeli = "";
+            string sSQLkurir = "";
+            string sSQLreferensi = "";
+            if (!searchStatus)
+            {
+                if (getkata.Length > 0)
+                {
+                    if (search != "")
+                    {
+                        for (int i = 0; i < getkata.Length; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sSQLkode += " and ";
+                                sSQLmarket += " and ";
+                                sSQLpembeli += " and ";
+                                sSQLkurir += " and ";
+                                sSQLreferensi += " and ";
+                            }
+
+
+                            sSQLkode += " A.NO_BUKTI like '%" + getkata[i] + "%' ";
+                            sSQLmarket += "  (isnull(E.NamaMarket,'') + ' (' + isnull(D.PERSO,'') + ')' ) like '%" + getkata[i] + "%' ";
+                            sSQLpembeli += "  A.NAMAPEMESAN like '%" + getkata[i] + "%' ";
+                            sSQLkurir += "  A.SHIPMENT like '%" + getkata[i] + "%' ";
+                            sSQLreferensi += "  A.NO_REFERENSI like '%" + getkata[i] + "%' ";
+
+                        }
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.NO_BUKTI,A.NO_REFERENSI,A.TGL,ISNULL(E.NAMAMARKET,'') AS NAMAMARKET,ISNULL(D.PERSO,'') AS PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI, B.BRG, QTY = ISNULL(SUM(ISNULL(QTY, 0)), 0) ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.NO_BUKTI) AS JUMLAH FROM ( ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SOT01A A(NOLOCK) INNER JOIN SOT01B B(NOLOCK) ON A.NO_BUKTI = B.NO_BUKTI ";
+            sSQL2 += "LEFT JOIN SIT01A C(NOLOCK) ON A.NO_BUKTI = C.NO_SO ";
+            sSQL2 += "LEFT JOIN ARF01 D(NOLOCK) ON A.CUST=D.CUST ";
+            sSQL2 += "LEFT JOIN MO..MARKETPLACE E(NOLOCK) ON D.NAMA=E.IDMARKET ";
+            sSQL2 += "WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI, '') = '' and brg='" + brgId + "' ";
+            if (search != "")
+            {
+                if (searchStatus)
+                {
+                    sSQL2 += " AND ( A.STATUS_TRANSAKSI = '" + search + "' )";
+                }
+                else
+                {
+                    sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLmarket + ") or (" + sSQLpembeli + ") or (" + sSQLkurir + ") or (" + sSQLreferensi + ") ) ";
+                }
+            }
+            sSQL2 += "GROUP BY A.NO_BUKTI,A.NO_REFERENSI,A.TGL,E.NAMAMARKET,D.PERSO,A.NAMAPEMESAN,A.SHIPMENT,A.STATUS_TRANSAKSI,B.BRG ";
+            var sSQLCount2 = ")A ";
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + sSQLCount2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlDetailPesanan> pageOrders = new StaticPagedList<mdlDetailPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("ListDetailPesananBarang", pageOrders);
+        }
     }
     public class smolSTF02
     {

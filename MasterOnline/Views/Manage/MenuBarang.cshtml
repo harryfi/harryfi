@@ -12,6 +12,28 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
+        
+
+        .sub_title {
+            font-size: 16px;
+        }
+
+        .block_subtitle_label {
+            display: inline-block;
+            width: 135px;
+            font-weight: bold;
+        }
+
+        .user-link {
+            text-decoration: underline;
+        }
+
+        #div-scroll-list {
+            overflow-x: auto;
+            overflow-y: auto;
+            height: 400px;
+        }
+
         #Stf02_Deskripsi {
             resize: vertical;
             height: 100px;
@@ -126,6 +148,74 @@
             -ms-transform: rotate(45deg);
             transform: rotate(45deg);
         }
+
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 300px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+
+
+        #modal-detail-pesanan {
+            margin: auto;
+        }
+
+            #modal-detail-pesanan .modal-content .modal-header {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: white;
+            }
+
+            #modal-detail-pesanan .modal-content .modal-body {
+                height: 125px;
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                background-color: white;
+            }
     </style>
 }
 <div class="row">
@@ -432,12 +522,90 @@
         </div>
     </div>
 </div>
+@*//add by nurul 29/4/2020*@
+<div class="modal fade center" id="modalDetailPesanan" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailPesananLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="width:850px;">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modalDetailPesananLabel">Detail Qty Pesanan</h4>
+
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Kode Barang </span><span id="kd-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Kode Barang</label>
+                        <div class="col-md-3 col-sm-3">
+                            @*<span id="kd-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="kd-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextBox("kd-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Nama Barang </span><span id="nm-brg" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Nama Barang</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*<span id="nm-brg" class="control-label" disabled="disabled"></span>*@
+                            @*<text id="nm-brg" class="control-label" disabled="disabled">Kode Barang</text>*@
+                            @Html.TextArea("nm-brg", "", new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Qty Pesanan </span><span id="ttl-qty" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Qty Pesanan</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*@Html.Label("ttl-qty", "", new { @class = "control-label", disabled = "disabled" })*@
+                            @*<span id="ttl-qty" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-qty" class="control-label" disabled="disabled"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" @*style="padding-left:15px"*@>
+                    @*<span class="control-label col-md-2 col-sm-2">Total Pesanan </span><span id="ttl-pesanan" class="col-md-9 col-sm-9 control-label" disabled = "disabled"></span>*@
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-2 col-sm-2">Total Pesanan</label>
+                        <div class="col-md-10 col-sm-10">
+                            @*<span id="ttl-pesanan" class="control-label" disabled="disabled"></span>*@
+                            <label id="ttl-pesanan" class="control-label" disabled="disabled"></label>
+                            @*@Html.Label("ttl-pesanan", "", new { @class = "control-label", disabled = "disabled" })*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-4 col-sm-6" style="margin-bottom:7px;">
+                        <div class="input-group">
+                            <input id="search_detail" type="text" class="form-control" placeholder="Pencarian">
+                            <span class="input-group-btn">
+                                <button type="button" id="search_detail_click" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div id="list-detail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="close-detail" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by nurul 29/4/2020*@
 @section scripts
 {
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
+        var tempBrg = "";
+        var tempNama = "";
+        var tempQty = "";
+        var tempPesanan = "";
         //remark by calvin 24 mei 2019
         //var table = $('#datatable').DataTable();
         //var tableKosong = $('#datatable_kosong').DataTable();
@@ -629,6 +797,25 @@
 
             $('#Order').change(function () {
                 refreshTableMinimumStok();
+            });
+
+            $('#search_detail').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableDetail();
+                    return false;
+                }
+            });
+            $('#search_detail_click').click(function () {
+                searchTableDetail();
+            });
+
+            $('#close-detail').click(function () {
+                tempBrg = "";
+                tempNama = "";
+                tempQty = "";
+                tempPesanan = "";
             });
         });
 
@@ -880,5 +1067,112 @@
             source.value = (convertToAngka(source.value));
             source.value = (convertToRupiah(source.value));
         }
+
+        //add by nurul 29/4/2020
+        function LihatDetailPesanan($req_id) {
+            if ($req_id != null && $req_id != undefined && $req_id != "") {
+            var tempReqId = $req_id.split('|');
+            tempBrg = tempReqId[0];
+            tempNama = tempReqId[1];
+            tempQty = tempReqId[2];
+                $('#search_detail').val('');
+                $('#txt_last_page_detail').val('')
+        var $link = '@Html.Raw(Url.Action("LihatDetailPesanan", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceID", encodeURIComponent(tempBrg));
+            $link = $link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+            $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_detail').val()));
+
+        $.ajax({
+            type: "GET",
+            url: $link,
+            beforeSend: function () {
+                $('#list-detail').hide();
+                $('#loading_detail_barang_tab').show();
+                //$('#kd-brg').text(tempBrg);
+                //$('#nm-brg').text(tempNama);
+                //$('#ttl-qty').text(tempQty);
+                $('#kd-brg').val(tempBrg);
+                $('#nm-brg').text(tempNama);
+                $('#ttl-qty').text(": " + tempQty);
+            },
+            success: function (value) {
+                $('#list-detail').html(value);
+                tempPesanan = qtyPesanan;
+                //$('#ttl-pesanan').text(tempPesanan);
+                $('#ttl-pesanan').text(": " + tempPesanan);
+                $('#loading_detail_barang_tab').hide();
+                $('#list-detail').show();
+            },
+            error: function (xhr, status, error) {
+                $('#loading_detail_barang_tab').hide();
+                alert(error);
+                console.log(error);
+            }
+            });
+        } else {
+            $('#loading_detail_barang_tab').hide();
+            alert("Tidak ada detail pesanan.");
+        }
+        }
+
+        function searchTableDetail() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+            var link = '@Html.Raw(Url.Action("LihatDetailPesanan", "Manage", new { brgId = "replaceID", search = "replaceSearch" }))';
+            link = link.replace("replaceID", encodeURIComponent(tempBrg));
+            link = link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#list-detail').hide();
+                    $('#loading_detail_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#list-detail').html(response);
+                    $('#loading_detail_barang_tab').hide();
+                    $('#list-detail').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#loading_detail_barang_tab').hide();
+                    console.log(error);
+                }
+                });
+            } else {
+                $('#loading_detail_barang_tab').hide();
+                alert("Tidak ada detail pesanan.");
+            }
+        }
+
+        function refreshTableDetail() {
+            if (tempBrg != null && tempBrg != undefined && tempBrg != "") {
+                var link = '@Html.Raw(Url.Action("LihatDetailPesanan", "Manage", new { brgId = "replaceID", page = "replaceLastPage", search = "replaceSearch" }))';
+                link = link.replace("replaceID", encodeURIComponent(tempBrg));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail').val()));
+                link = link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page_tmb1p').val()));
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#list-detail').hide();
+                        $('#loading_detail_barang_tab').show();
+                    },
+                    success: function (response) {
+                        $('#list-detail').html(response);
+                        $('#loading_detail_barang_tab').hide();
+                        $('#list-detail').show();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#loading_detail_barang_tab').hide();
+                        console.log(error);
+                    }
+                });
+            } else {
+                $('#loading_detail_barang_tab').hide();
+                alert("Tidak ada detail pesanan.");
+            }
+        }
+        //end add by nurul 29/4/2020
     </script>
 }

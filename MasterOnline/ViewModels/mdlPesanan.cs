@@ -252,4 +252,23 @@ namespace MasterOnline
         //public virtual SOT01D SOT01D { get; set; }
 
     }
+
+    public class ViewDetailPesanan
+    {
+        public List<mdlDetailPesanan> listDetail = new List<mdlDetailPesanan>();
+        public double totalPesanan { get; set; }
+    }
+    public class mdlDetailPesanan
+    {
+        public string NO_BUKTI { get; set; }
+        public string NO_REFERENSI { get; set; }
+        public DateTime? TGL { get; set; }
+        public string NAMAMARKET { get; set; }
+        public string PERSO { get; set; }
+        public string NAMAPEMESAN { get; set; }
+        public double QTY { get; set; }
+        public string SHIPMENT { get; set; }
+        public string STATUS_TRANSAKSI { get; set; }
+        public string BRG { get; set; }
+    }
 }
