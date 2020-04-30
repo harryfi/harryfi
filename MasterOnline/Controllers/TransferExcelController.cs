@@ -803,7 +803,28 @@ namespace MasterOnline.Controllers
 
                 if (ret.byteData == null && ret.statusLoop == false)
                 {
-                    dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                    if (Request.Files[0].ContentType.Contains("application/vnd.ms-excel"))
+                    {
+                        using (Stream inputStream = Request.Files[0].InputStream)
+                        {
+                            Workbook workbook = new Workbook();
+                            MemoryStream memory = inputStream as MemoryStream;
+                            if (memory == null)
+                            {
+                                memory = new MemoryStream();
+                                inputStream.CopyTo(memory);
+                                workbook.LoadFromStream(memory);
+                                //MemoryStream memoryStream1 = new MemoryStream();
+                                workbook.SaveToStream(memory, FileFormat.Version2013);
+                                dataByte = memory.ToArray();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        dataByte = UploadFileServices.UploadFile(Request.Files[0]);
+                    }
+                    
                     ret.byteData = dataByte;
                 }
                 else
@@ -1073,6 +1094,7 @@ namespace MasterOnline.Controllers
                                                 }
                                             }
 
+
                                             if (prosesinsertAwal == true)
                                             {
                                                 ret.progress = -1;
@@ -1080,6 +1102,15 @@ namespace MasterOnline.Controllers
                                                 ret.statusSuccess = false;
                                                 transaction.Commit();
                                                 return Json(ret, JsonRequestBehavior.AllowGet);
+                                            }
+                                            else
+                                            {
+                                                if(ret.countAll == 0)
+                                                {
+                                                    ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
+                                                    ret.statusSuccess = false;
+                                                    return Json(ret, JsonRequestBehavior.AllowGet);
+                                                }
                                             }
 
                                             if (checkTemp.Count() > 0)
