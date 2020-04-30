@@ -25049,7 +25049,7 @@ namespace MasterOnline.Controllers
 
                 piutangInDb.TPOT -= detailPiutangInDb.POT;
                 piutangInDb.TBAYAR -= detailPiutangInDb.BAYAR;
-                piutangInDb.TLEBIH_BAYAR = detailPiutangInDb.LEBIH_BAYAR;
+                piutangInDb.TLEBIH_BAYAR -= detailPiutangInDb.LEBIH_BAYAR;
                 ErasoftDbContext.ART03B.Remove(detailPiutangInDb);
                 ErasoftDbContext.SaveChanges();
 
