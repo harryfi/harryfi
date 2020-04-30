@@ -3780,7 +3780,7 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
-            
+
 
             //end add by Tri call bl/lzd api get access key
             ModelState.Clear();
@@ -9351,7 +9351,7 @@ namespace MasterOnline.Controllers
                 {
                     switch (mode)
                     {
-#region Create Product lalu Hide Item
+                        #region Create Product lalu Hide Item
                         case 1:
                             {
                                 foreach (ARF01 tblCustomer in listShopee)
@@ -9388,7 +9388,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             break;
-#endregion
+                        #endregion
                         case 2:
                             {
                                 foreach (ARF01 tblCustomer in listShopee)
@@ -9559,7 +9559,7 @@ namespace MasterOnline.Controllers
 #else
                                                 //clientJobServer.Enqueue<ShopeeControllerJob>(x => x.UpdateProduct(dbPathEra, temp_brg, tblCustomer.CUST, "Barang", "Update Produk", data, temp_brg, tblCustomer.CUST, new List<ShopeeControllerJob.ShopeeLogisticsClass>()));
 #endif
-                                                
+
                                                 //Task.Run(() => shoAPI.UpdateImage(iden, temp_brg, stf02h.BRG_MP).Wait());
                                                 //string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 //if (updateHarga)
@@ -9586,20 +9586,20 @@ namespace MasterOnline.Controllers
 
 
 #if (DEBUG || Debug_AWS)
-                                            EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
-                                            {
-                                                username = usernameLogin,
-                                                no_cust = tblCustomer.CUST,
-                                                account_store = tblCustomer.PERSO,
-                                                API_key = tblCustomer.API_KEY,
-                                                API_credential = tblCustomer.Sort1_Cust,
-                                                API_url = tblCustomer.PERSO,
-                                                DatabasePathErasoft = dbPathEra
-                                            };
-                                            EightTwoCartController c82CartAPI = new EightTwoCartController();
+                                                    EightTwoCartController.E2CartAPIData iden = new EightTwoCartController.E2CartAPIData
+                                                    {
+                                                        username = usernameLogin,
+                                                        no_cust = tblCustomer.CUST,
+                                                        account_store = tblCustomer.PERSO,
+                                                        API_key = tblCustomer.API_KEY,
+                                                        API_credential = tblCustomer.Sort1_Cust,
+                                                        API_url = tblCustomer.PERSO,
+                                                        DatabasePathErasoft = dbPathEra
+                                                    };
+                                                    EightTwoCartController c82CartAPI = new EightTwoCartController();
 
-                                            //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
-                                            Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
+                                                    //c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden);
+                                                    Task.Run(() => c82CartAPI.E2Cart_CreateProduct(dbPathEra, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, "Barang", "Buat Produk", iden).Wait());
 #else
                                                     EightTwoCartControllerJob.E2CartAPIData dataJob = new EightTwoCartControllerJob.E2CartAPIData
                                                     {
@@ -10683,6 +10683,8 @@ namespace MasterOnline.Controllers
             ViewData["LastPage"] = page;
             ViewData["cust"] = cust;
             ViewData["category"] = category;
+            if (string.IsNullOrEmpty(search))
+                search = "a";
             var marketPlace = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault();
             if (marketPlace != null)
             {
@@ -10705,9 +10707,12 @@ namespace MasterOnline.Controllers
                 string userMTA = data.mta_username_email_merchant;//<-- email user merchant
                 string passMTA = data.mta_password_password_merchant;//<-- pass merchant
 
-                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getBrands", data.API_secret_key);
 
-                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                //string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brands=" + search + "&masterCategoryCode=" + category + "&page=" + pagenumber + "&size=10";
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/getBrands", data.API_secret_key);
+
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/getBrands?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&channelId=MasterOnline&brandName=" + search + "&username=" + Uri.EscapeDataString(data.mta_username_email_merchant) + "&page=" + pagenumber + "&size=50&storeId=10001";
 
                 System.Net.HttpWebRequest myReq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(urll);
                 myReq.Method = "GET";
@@ -10738,18 +10743,31 @@ namespace MasterOnline.Controllers
 
                 if (responseFromServer != "")
                 {
-                    var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrand)) as BlibliBrand;
-                    var list_value = new List<BRAND_BLIBLI>();
-                    foreach (var item in ret.value)
+                    //var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrand)) as BlibliBrand;BlibliBrandV2
+                    try
                     {
-                        list_value.Add(new BRAND_BLIBLI()
+                        var ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliBrandV2)) as BlibliBrandV2;
+                        var list_value = new List<BRAND_BLIBLI>();
+                        foreach (var item in ret.content)
                         {
-                            brand_id = item,
-                            name = item
-                        });
+                            if (item.brandApprovalStatus == "APPROVED")
+                            {
+                                list_value.Add(new BRAND_BLIBLI()
+                                {
+                                    brand_id = item.brandName,
+                                    name = item.brandName
+                                });
+                            }
+
+                        }
+                        IPagedList<BRAND_BLIBLI> pageOrders = new StaticPagedList<BRAND_BLIBLI>(list_value, pagenumber + 1, 10, 10);
+                        return PartialView("TablePromptBrandBlibli", pageOrders);
                     }
-                    IPagedList<BRAND_BLIBLI> pageOrders = new StaticPagedList<BRAND_BLIBLI>(list_value, pagenumber + 1, 10, 10);
-                    return PartialView("TablePromptBrandBlibli", pageOrders);
+                    catch(Exception ex)
+                    {
+
+                    }
+                    
                 }
             }
 
@@ -10809,12 +10827,12 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var item in vResultManifactureAPI.data)
                             {
-                                    list_value.Add(new BRAND_82CART()
-                                    {
-                                        id_manufacturer = item.id_manufacturer,
-                                        name = item.name,
-                                        active = item.active
-                                    });
+                                list_value.Add(new BRAND_82CART()
+                                {
+                                    id_manufacturer = item.id_manufacturer,
+                                    name = item.name,
+                                    active = item.active
+                                });
                             }
                             IPagedList<BRAND_82CART> pageOrders = new StaticPagedList<BRAND_82CART>(list_value, pagenumber + 1, 10, 10);
                             return PartialView("TablePromptBrand82Cart", pageOrders);
@@ -17181,7 +17199,7 @@ namespace MasterOnline.Controllers
             //var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
             var namaBuyer = pesananInDb.NAMAPEMESAN;
             var pembeli = ErasoftDbContext.ARF01C.Where(b => b.BUYER_CODE == (pesananInDb.PEMESAN ?? "")).FirstOrDefault();
-            if(pembeli != null)
+            if (pembeli != null)
             {
                 namaBuyer = pembeli.NAMA;
             }
@@ -18163,7 +18181,7 @@ namespace MasterOnline.Controllers
                 {
                     Boolean bstatusSync = Convert.ToBoolean(statusSync);
                     var dataCustomer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == custID);
-                    
+
 
                     //add by fauzi validasi expired account
                     var lastYear = DateTime.UtcNow.AddYears(-1);
@@ -18188,7 +18206,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
                         return Json(new { success = false, status = "Proses Update Pesanan dan Stok Ke Marketplace tidak dapat disimpan! Karena account Anda sudah expired." }, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                     //end by fauzi validasi expired account
 
 
@@ -27199,7 +27217,8 @@ namespace MasterOnline.Controllers
         [Route("manage/persediaan/stokopname")]
         public ActionResult TransaksiStokOpname()
         {
-            var vm = new StokOpnameViewModel() {
+            var vm = new StokOpnameViewModel()
+            {
             };
             return View(vm);
         }
@@ -27240,7 +27259,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            
+
             string sSQLSelect = "";
             sSQLSelect += "SELECT * ";
             string sSQLCount = "";
@@ -27416,7 +27435,7 @@ namespace MasterOnline.Controllers
             try
             {
                 var stokOPDb = ErasoftDbContext.STT04A.Where(p => p.ID == stokId).Single();
-                var ListStokOPDetail = ErasoftDbContext.STT04B.Where(pd => pd.NOBUK== stokOPDb.NOBUK).ToList();
+                var ListStokOPDetail = ErasoftDbContext.STT04B.Where(pd => pd.NOBUK == stokOPDb.NOBUK).ToList();
                 var listBarangStokOPDetail = ListStokOPDetail.Select(p => p.Brg).ToList();
 
                 var vm = new StokOpnameViewModel()
@@ -27488,7 +27507,7 @@ namespace MasterOnline.Controllers
             {
                 Errors = new List<string>()
             };
-            
+
             List<STT01A> newSTT01A = new List<STT01A>();
             List<STT01B> newSTT01B = new List<STT01B>();
 
@@ -27507,7 +27526,7 @@ namespace MasterOnline.Controllers
                 //Cek Stok Fisik
                 string sSQL = "SELECT ISNULL(SUM(QAwal+QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12) - SUM(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12), 0)  AS STOK_FISIK " +
                     "FROM STF08A WHERE Tahun = YEAR(GETDATE()) ";
-                sSQL += "AND BRG='" + item.Brg + "' AND GD = '"+ item.Gud +"'";
+                sSQL += "AND BRG='" + item.Brg + "' AND GD = '" + item.Gud + "'";
                 var stok = ErasoftDbContext.Database.SqlQuery<getStokFisik>(sSQL).Single();
 
                 STT01A stokOpnameA = new STT01A
@@ -27591,7 +27610,7 @@ namespace MasterOnline.Controllers
                     stokOpnameB.Qty = selisihOK;
 
                     jmRowOK++;
-                    
+
 
                     if (jmRowOK == 1)
                     {
@@ -27605,7 +27624,7 @@ namespace MasterOnline.Controllers
                     newSTT01B.Add(stokOpnameB);
                     ErasoftDbContext.STT01B.AddRange(newSTT01B);
                 }
-             
+
             }
 
             using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
@@ -27626,7 +27645,7 @@ namespace MasterOnline.Controllers
                     ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
                 }
             }
-            
+
             var serializer = new System.Web.Script.Serialization.JavaScriptSerializer();
             serializer.MaxJsonLength = Int32.MaxValue;
 
@@ -27635,16 +27654,17 @@ namespace MasterOnline.Controllers
                 Content = serializer.Serialize(ret),
                 ContentType = "application/json"
             };
-            
+
             return result;
         }
-        
+
         public ActionResult GetDataBarangOP(string nobuk)
         {
 
             var listBrgOP = ErasoftDbContext.STF02.Where(c => c.TYPE == "3")
                 .Where(c => !ErasoftDbContext.STT04B.Where(b => b.NOBUK == nobuk).Select(b => b.Brg).Contains(c.BRG))
-                .Select(a => new smolSTF02 {
+                .Select(a => new smolSTF02
+                {
                     BRG = a.BRG,
                     HJUAL = a.HJUAL,
                     NAMA = a.NAMA,
@@ -30869,7 +30889,7 @@ namespace MasterOnline.Controllers
             //}
             ////end add by nurul 10/2/2020, ambil harga beli terakhir dr pbt01b 
             ///end remark by fauzi for tuning search barang
-            
+
             IPagedList<mdlHargaJual> pageOrders = new StaticPagedList<mdlHargaJual>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TableHargaJualPartial", pageOrders);
         }
@@ -31473,7 +31493,7 @@ namespace MasterOnline.Controllers
             brg.Tgl_Input = DateTime.Today;
             hJualInDb.HJUAL = hargaJualGrosirBaru;
             ErasoftDbContext.SaveChanges();
-            
+
             if (!string.IsNullOrEmpty(hJualInDb.BRG_MP))//add by Tri, 24-06-2019
             {
                 var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
@@ -31898,7 +31918,7 @@ namespace MasterOnline.Controllers
                                                 DeliveryTempElevenia = stf02h_induk.DeliveryTempElevenia,
                                                 PICKUP_POINT = stf02h_induk.PICKUP_POINT
                                             };
-#region attribute mp
+                                            #region attribute mp
                                             dupeStf02h.ACODE_1 = stf02h_induk.ACODE_1;
                                             dupeStf02h.ANAME_1 = stf02h_induk.ANAME_1;
                                             if (dupeStf02h.ACODE_1 == "short_description" && dupeStf02h.ANAME_1 == "Short Description")
@@ -32056,7 +32076,7 @@ namespace MasterOnline.Controllers
                                             dupeStf02h.ACODE_50 = stf02h_induk.ACODE_50;
                                             dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
                                             dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
-#endregion
+                                            #endregion
                                             //add by calvin 2 september 2019, karena avalue_39 dipakai untuk simpan unique selling point blibli
                                             dupeStf02h.AVALUE_39 = HttpUtility.HtmlEncode(stf02h_induk.AVALUE_39);
                                             dupeStf02h.LINK_STATUS = "Sinkronisasi Produk Berhasil";
@@ -35281,7 +35301,7 @@ namespace MasterOnline.Controllers
 
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
-                                
+
                                 default:
                                     return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
                             }
@@ -38455,7 +38475,7 @@ namespace MasterOnline.Controllers
                                 username = usernameLogin
                             };
 
-                            
+
                             string[] referensi = item.no_referensi.Split(';');
                             if (referensi.Count() > 0)
                             {
@@ -38470,9 +38490,9 @@ namespace MasterOnline.Controllers
 #endif
 
                                 listSuccess.Add(new listSuccessPrintLabel
-                                        {
-                                            no_referensi = item.no_bukti
-                                        });
+                                {
+                                    no_referensi = item.no_bukti
+                                });
                             }
                             else
                             {
@@ -40946,7 +40966,7 @@ namespace MasterOnline.Controllers
                                         ssql1 += "WHERE A.CUST = '" + cust_id + "' AND A.KET = '" + ret.nobuk + "' and A.NOREF in (" + string_ref + ") ";
                                         ErasoftDbContext.Database.ExecuteSqlCommand(ssql1);
                                     }
-                                    var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";                                    
+                                    var ssql2 = "select * from TEMP_UPLOAD_EXCEL_BAYAR where ket = '" + ret.nobuk + "' and cust ='" + cust_id + "' and nama_file = '" + ret.TipeData + "'";
                                     data_proses.AddRange(ErasoftDbContext.Database.SqlQuery<TEMP_UPLOAD_EXCEL_BAYAR>(ssql2).ToList());
 
                                     data_proses_lanjut.AddRange(data_proses.Where(a => a.NILAI_LAIN != 0 && a.KET2.Contains("TIDAK ADA")).ToList());
@@ -41181,7 +41201,7 @@ namespace MasterOnline.Controllers
                                                     var bayarpiutang = 0d;
                                                     var adaBayar = false;
                                                     totalSisa = ketSisa;
-                                                    bayarpiutang = getData.NILAI_REF;                                                                        
+                                                    bayarpiutang = getData.NILAI_REF;
                                                     if (totalSisa != 0 && ketDATABAYAR == "TIDAK ADA")
                                                     {
 
@@ -41204,7 +41224,7 @@ namespace MasterOnline.Controllers
 
                                                         art03b.NFAKTUR = ketSI;
                                                         art03b.SISA = ketSisa;
-                                                        
+
                                                         //change by nurul 22/4/2020
                                                         //art03b.TGL_REF = getData.TGL;
                                                         if (ketTGLSO != "" && ketTGLSO != null)
@@ -41741,7 +41761,7 @@ namespace MasterOnline.Controllers
                         {
                             ret.statusLoop = true;
                             ret.progress = i + 1;
-                            ret.percent = ((i + 1) * 100) / ret.countAll;                        
+                            ret.percent = ((i + 1) * 100) / ret.countAll;
                             var getData = piutangDetaiInDb[i];
                             if (getData != null)
                             {
@@ -41773,7 +41793,7 @@ namespace MasterOnline.Controllers
                                                 }
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                                 var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
-                                                
+
                                                 ErasoftDbContext.SaveChanges();
                                                 transaction.Commit();
                                             }
@@ -41787,7 +41807,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                                 }
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                                
+
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                                 ret.Errors.Add(errMsg);
                                                 ret.adaError = true;
@@ -41825,7 +41845,7 @@ namespace MasterOnline.Controllers
                                                 }
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                                 var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
-                                                
+
                                                 ErasoftDbContext.SaveChanges();
                                                 transaction.Commit();
                                             }
@@ -41839,7 +41859,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                                 }
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                                
+
                                                 var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                                 ret.Errors.Add(errMsg);
                                                 ret.adaError = true;
@@ -41870,7 +41890,7 @@ namespace MasterOnline.Controllers
                                             }
                                             ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
                                             var totalpot = ErasoftDbContext.ART03B.Where(a => (a.SISA - a.BAYAR) > 0).Sum(a => a.POT);
-                                            
+
                                             ErasoftDbContext.SaveChanges();
                                             transaction.Commit();
                                         }
@@ -41884,7 +41904,7 @@ namespace MasterOnline.Controllers
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("update art03b set pot=0 where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                             }
                                             ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                            
+
                                             var errMsg = ex.InnerException == null ? ex.Message : ex.InnerException.Message + "/n";
                                             ret.Errors.Add(errMsg);
                                             ret.adaError = true;
@@ -42012,10 +42032,10 @@ namespace MasterOnline.Controllers
                         List<int> recnum = new List<int>();
                         for (int i = 0; i < piutangDetaiInDb.Count(); i++)
                         {
-                            
+
                             ret.statusLoop = true;
                             ret.progress = ret.progress + 1;
-                            ret.percent = ((ret.progress) * 100) / ret.countAll;                            
+                            ret.percent = ((ret.progress) * 100) / ret.countAll;
                             var getData = piutangDetaiInDb[i];
                             recnum.Add(Convert.ToInt32(getData));
 
@@ -42045,7 +42065,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM ART03A WHERE BUKTI = '" + ret.nobuk + "'");
                                                 }
-                                                                                                
+
                                                 ErasoftDbContext.SaveChanges();
                                                 transaction.Commit();
                                             }
@@ -42084,7 +42104,7 @@ namespace MasterOnline.Controllers
                                                     ErasoftDbContext.Database.ExecuteSqlCommand("delete from art03b where no =" + recnum[ax] + " and bukti='" + ret.nobuk + "'");
                                                 }
                                                 ErasoftDbContext.Database.ExecuteSqlCommand("UPDATE A SET A.TPOT = B.TOTALPOT, A.TBAYAR = B.TOTALBAYAR, A.TLEBIH_BAYAR = B.TOTALLBAYAR FROM ART03A AS A INNER JOIN (SELECT SUM(POT) AS TOTALPOT, SUM(BAYAR) AS TOTALBAYAR, SUM(LEBIH_BAYAR) AS TOTALLBAYAR, BUKTI FROM ART03B WHERE BUKTI='" + ret.nobuk + "' GROUP BY BUKTI) AS B ON A.BUKTI = B.BUKTI WHERE A.BUKTI = '" + ret.nobuk + "'");
-                                                                                                
+
                                                 ErasoftDbContext.SaveChanges();
                                                 transaction.Commit();
                                             }
@@ -42389,30 +42409,30 @@ namespace MasterOnline.Controllers
                         listNobuk += "'" + Nobuk + "'";
 
                         //add by fauzi for change status 82Cart to DELIVERED CODE 5
-//                        var kd82Cart = "20";
-//                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
-//                        if (mpCust82Cart != null)
-//                        {
-//                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
-//                            {
-//                                var sqlStorage = new SqlServerStorage(EDBConnID);
-//                                var clientJobServer = new BackgroundJobClient(sqlStorage);
-//                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
-//                                idenJob.API_key = mpCust82Cart.API_KEY;
-//                                idenJob.API_credential = mpCust82Cart.Sort1_Cust;
-//                                idenJob.API_url = mpCust82Cart.PERSO;
-//                                idenJob.DatabasePathErasoft = dbPathEra;
-//                                idenJob.username = usernameLogin;
-//                                idenJob.no_cust = mpCust82Cart.CUST;
+                        //                        var kd82Cart = "20";
+                        //                        var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
+                        //                        if (mpCust82Cart != null)
+                        //                        {
+                        //                            if (mpCust82Cart.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust82Cart.API_KEY) && !string.IsNullOrEmpty(mpCust82Cart.PERSO))
+                        //                            {
+                        //                                var sqlStorage = new SqlServerStorage(EDBConnID);
+                        //                                var clientJobServer = new BackgroundJobClient(sqlStorage);
+                        //                                EightTwoCartControllerJob.E2CartAPIData idenJob = new EightTwoCartControllerJob.E2CartAPIData();
+                        //                                idenJob.API_key = mpCust82Cart.API_KEY;
+                        //                                idenJob.API_credential = mpCust82Cart.Sort1_Cust;
+                        //                                idenJob.API_url = mpCust82Cart.PERSO;
+                        //                                idenJob.DatabasePathErasoft = dbPathEra;
+                        //                                idenJob.username = usernameLogin;
+                        //                                idenJob.no_cust = mpCust82Cart.CUST;
 
-//                                //add by fauzi for update status TO DELIVERED CODE 5
-//#if (AWS || DEV)
-//                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5"));
-//#else                            
-//                                new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5");
-//#endif
-//                            }
-//                        }
+                        //                                //add by fauzi for update status TO DELIVERED CODE 5
+                        //#if (AWS || DEV)
+                        //                                clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5"));
+                        //#else                            
+                        //                                new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, mpCust82Cart.CUST, "Pesanan", "Delivered Order", SOA_NOREF, "5");
+                        //#endif
+                        //                            }
+                        //                        }
                         //end
                     }
                     //change by nurul 24/1/2020
@@ -42504,9 +42524,9 @@ namespace MasterOnline.Controllers
                         var SOA_CUST = Convert.ToString(dsSORow["SOA_CUST"]);
                         var kdtokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
                         var mpCust = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdtokped.IdMarket.ToString() && m.CUST == SOA_CUST).FirstOrDefault();
-                        if(mpCust != null)
+                        if (mpCust != null)
                         {
-                            if(mpCust.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust.API_CLIENT_P) && !string.IsNullOrEmpty(mpCust.API_CLIENT_U))
+                            if (mpCust.Sort1_Cust != "" && !string.IsNullOrEmpty(mpCust.API_CLIENT_P) && !string.IsNullOrEmpty(mpCust.API_CLIENT_U))
                             {
                                 TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
                                 {
@@ -42538,7 +42558,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //END ADD BY NURUL 3/4/2020, update no kode booking
-                        
+
                         //add by fauzi for change status 82Cart to SHIPPED
                         var kd82Cart = "20";
                         var mpCust82Cart = ErasoftDbContext.ARF01.Where(m => m.NAMA == kd82Cart && m.CUST == SOA_CUST).FirstOrDefault();
@@ -43238,7 +43258,7 @@ namespace MasterOnline.Controllers
                                 newSIT01A.NAMAPENGIRIM = pesananInDb.SHIPMENT;
                                 //end add by nurul 4/3/2020
 
-#region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+                                #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
                                 if (string.IsNullOrEmpty(Convert.ToString(newSIT01A.NILAI_DISC)))
                                 {
                                     newSIT01A.NILAI_DISC = 0;
@@ -43740,7 +43760,7 @@ namespace MasterOnline.Controllers
                             ret.buktiLog = log;
                         }
                     }
-                         
+
                     using (ErasoftContext eraDB = new ErasoftContext(dbSourceEra, dbPathEra))
                     {
                         eraDB.Database.CommandTimeout = 180;
@@ -43789,14 +43809,14 @@ namespace MasterOnline.Controllers
 
                                         var lastBukti = GenerateAutoNumber(ErasoftDbContext, "CR", "ART03A", "BUKTI");
                                         var noOrder = "CR" + DateTime.UtcNow.AddHours(7).Year.ToString().Substring(2, 2) + Convert.ToString(Convert.ToInt32(lastBukti) + 1).PadLeft(6, '0');
-                                        
+
                                         art03a.BUKTI = noOrder;
                                         ret.nobuk = noOrder;
 
                                         ret.TBAYAR = art03a.TBAYAR;
                                         ret.TPOT = art03a.TPOT;
                                         ret.TLEBIHBAYAR = Convert.ToDouble(art03a.TLEBIH_BAYAR);
-                                        
+
                                         var cekAdaErr = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.LAST_FAKTUR_UPLOADED == noOrder).Select(a => a.LOG_FILE).ToList();
                                         if (cekAdaErr.Count() > 0)
                                         {
@@ -43900,7 +43920,7 @@ namespace MasterOnline.Controllers
                                             ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Add(rec);
                                             ErasoftDbContext.SaveChanges();
                                         }
-                                        
+
                                         list_ref = ErasoftDbContext.TEMP_UPLOAD_EXCEL_BAYAR.Where(a => a.KET == ret.nobuk && a.NAMA_FILE == ret.TipeData && a.CUST == cust_id).Select(A => A.NOREF).ToList();
                                         if (list_ref.Count() > 0)
                                         {
@@ -44113,7 +44133,7 @@ namespace MasterOnline.Controllers
                                     ret.countAll = data_proses_lanjut.Count();
                                     prog[1] = Convert.ToString(Convert.ToInt32(prog[1]) - 1);
                                 }
-                                
+
                                 if (Convert.ToInt32(prog[1]) == 0)
                                 {
                                     prog[1] = "0";
@@ -44490,7 +44510,7 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 #endregion
-                                                                
+
                             }
                             else
                             {
@@ -44593,7 +44613,7 @@ namespace MasterOnline.Controllers
                     }
 
                 }
-                                
+
                 var getOngkir1 = ErasoftDbContext.Database.SqlQuery<tempOngkirFaktur>("select no_bukti as NOBUK_FAKTUR, materai as ONGKIR from sit01a(nolock) where no_bukti in (select NFAKTUR from art03b(nolock) where bukti='" + ret.nobuk + "')").ToList();
                 vm.ListOngkir = getOngkir1;
                 return PartialView("DetailBayarPiutangPartial", vm);
@@ -46600,12 +46620,13 @@ namespace MasterOnline.Controllers
                             var strmsg = "No Bukti " + so.no_bukti + " " + retApi.ToString();
                             temp_strmsg.Add(strmsg);
                         }
-                        else if(retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
+                        else if (retApi.Result.ToString().Contains("Halaman Tidak Ditemukan"))
                         {
                             var strmsg = "No Bukti " + so.no_bukti + " tidak ditemukan labelnya.";
                             temp_strmsg.Add(strmsg);
                         }
-                        else {
+                        else
+                        {
                             var htmlString = retApi.Result;
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
                             temp_htmlString.Add(htmlString);
@@ -46615,7 +46636,8 @@ namespace MasterOnline.Controllers
                 if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
                 {
                     return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                }else if(temp_strmsg.Count() > 0)
+                }
+                else if (temp_strmsg.Count() > 0)
                 {
                     return new JsonResult { Data = new { mo_error = temp_strmsg }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
@@ -46930,6 +46952,38 @@ namespace MasterOnline.Controllers
         public bool success { get; set; }
         public List<string> value { get; set; }
     }
+
+    public class BlibliBrandV2
+    {
+        public BlibliBrandV2Content[] content { get; set; }
+        public string errorCode { get; set; }
+        public string errorMessage { get; set; }
+        public Pagemetadata pageMetaData { get; set; }
+        public string requestId { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Pagemetadata
+    {
+        public int pageNumber { get; set; }
+        public int pageSize { get; set; }
+        public int totalRecords { get; set; }
+    }
+
+    public class BlibliBrandV2Content
+    {
+        public string brandApprovalStatus { get; set; }
+        public string brandName { get; set; }
+        public string code { get; set; }
+        //public string createdBy { get; set; }
+        //public long createdDate { get; set; }
+        public string id { get; set; }
+        public string storeId { get; set; }
+        //public string updatedBy { get; set; }
+        //public long updatedDate { get; set; }
+        //public int version { get; set; }
+    }
+
     public class listKurir
     {
         public string SHIPMENT { get; set; }
