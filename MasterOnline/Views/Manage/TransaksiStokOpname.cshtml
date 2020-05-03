@@ -135,8 +135,10 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>
-                                <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
+                                @*<button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpname').modal('show');" id="excel_stokopname">Excel Stok Opname</button>*@
+                                <button class="btn btn-primary btn_excel_stokopname" onclick="$('#excelStokOpnameMaintenance').modal('show');" id="excel_stokopname_maintenance">Excel Stok Opname</button>
+                                @*<button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>*@
+                                <button class="btn btn-primary btn_tambah_data" onclick="$('#excelStokOpnameMaintenance').modal('show');" >Tambah Baru</button>
                             </div>
                         </div>
                     </div>
@@ -242,6 +244,29 @@
                                 </tr>
                             </table>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="excelStokOpnameMaintenance" tabindex="-1" role="dialog" aria-labelledby="labelExcelStokOpname">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelExcelStokOpname">Excel Stok Opname</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label>
+                            Mohon maaf fitur ini sedang dalam maintenance. Terima kasih.
+                        </label>
                     </div>
                 </div>
             </div>
@@ -365,6 +390,13 @@
             });
 
             $("#excelStokOpname").on("hidden.bs.modal", function () {
+                $('#progressBarUpload').hide();
+                document.getElementById("file_upload_excel").value = "";
+
+                refreshTableStokOpname();
+            });
+
+            $("#excelStokOpnameMaintenance").on("hidden.bs.modal", function () {
                 $('#progressBarUpload').hide();
                 document.getElementById("file_upload_excel").value = "";
 

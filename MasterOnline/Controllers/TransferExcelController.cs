@@ -805,26 +805,29 @@ namespace MasterOnline.Controllers
                 {
                     if (Request.Files[0].ContentType.Contains("application/vnd.ms-excel"))
                     {
-                        using (Stream inputStream = Request.Files[0].InputStream)
-                        {
-                            Workbook workbook = new Workbook();
-                            MemoryStream memory = inputStream as MemoryStream;
-                            if (memory == null)
-                            {
-                                memory = new MemoryStream();
-                                inputStream.CopyTo(memory);
-                                workbook.LoadFromStream(memory);
-                                //MemoryStream memoryStream1 = new MemoryStream();
-                                workbook.SaveToStream(memory, FileFormat.Version2013);
-                                dataByte = memory.ToArray();
-                            }
-                        }
+                        //using (Stream inputStream = Request.Files[0].InputStream)
+                        //{
+                        //    Workbook workbook = new Workbook();
+                        //    MemoryStream memory = inputStream as MemoryStream;
+                        //    if (memory == null)
+                        //    {
+                        //        memory = new MemoryStream();
+                        //        inputStream.CopyTo(memory);
+                        //        workbook.LoadFromStream(memory);
+                        //        //MemoryStream memoryStream1 = new MemoryStream();
+                        //        workbook.SaveToStream(memory, FileFormat.Version97to2003);
+                        //        dataByte = memory.ToArray();
+                        //    }
+                        //}
+                        ret.Errors.Add("Mohon maaf format file .xls saat ini belum mendukung untuk proses Upload Excel Saldo Awal. silahkan untuk mengganti format menjadi .xlsx");
+                        ret.statusSuccess = false;
+                        return Json(ret, JsonRequestBehavior.AllowGet);
                     }
-                    else
+                    else if (Request.Files[0].ContentType.Contains("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     {
                         dataByte = UploadFileServices.UploadFile(Request.Files[0]);
                     }
-                    
+
                     ret.byteData = dataByte;
                 }
                 else
@@ -884,7 +887,7 @@ namespace MasterOnline.Controllers
                     using (MemoryStream stream = new MemoryStream(ret.byteData))
                     {
                         //using (ExcelPackage excelPackage = new ExcelPackage(stream))
-                        using (OfficeOpenXml.ExcelPackage excelPackage = new OfficeOpenXml.ExcelPackage(stream))
+                        using (ExcelPackage excelPackage = new ExcelPackage(stream))
 
                         //FileInfo existingFile = new FileInfo("C:\\Users\\Agashi\\source\\repos\\MODev\\MasterOnline\\Content\\Uploaded\\Setiawan_qty_hargamodal.xlsx");
                         //using (ExcelPackage excelPackage = new ExcelPackage(existingFile))
@@ -1058,7 +1061,21 @@ namespace MasterOnline.Controllers
                                                                     };
                                                                     if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 4].Value)))
                                                                     {
-                                                                        newrecord.HARGA_SATUAN = Convert.ToDouble(worksheet.Cells[i, 4].Value);
+                                                                        if (Convert.ToInt32(worksheet.Cells[i, 4].Value) >= 0)
+                                                                        {
+                                                                            newrecord.HARGA_SATUAN = Convert.ToDouble(worksheet.Cells[i, 4].Value);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            transaction.Rollback();
+                                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01A WHERE NOBUK = @NOBUK ", sParams);
+                                                                            eraDB.Database.ExecuteSqlCommand("DELETE FROM STT01B WHERE NOBUK = @NOBUK ", sParams);
+                                                                            ret.Errors.Add("Ada kesalahan dalam Harga Modal, Harga Modal harus angka tidak boleh karakter huruf atau lainnya. Mohon untuk mencoba lagi proses Upload Excel Saldo Awal.");
+                                                                            ret.statusSuccess = false;
+                                                                            ret.lastRow[file_index] = i;
+                                                                            i = worksheet.Dimension.End.Row;
+                                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                                        }
                                                                     }
 
                                                                     eraDB.TEMP_SALDOAWAL.Add(newrecord);
@@ -1105,8 +1122,9 @@ namespace MasterOnline.Controllers
                                             }
                                             else
                                             {
-                                                if(ret.countAll == 0)
+                                                if (ret.countAll == 0)
                                                 {
+                                                    transaction.Rollback();
                                                     ret.Errors.Add("Mohon untuk mengisi kolom Quantity dan Harga Modal (jika diperlukan) untuk proses Upload Excel Saldo Awal.");
                                                     ret.statusSuccess = false;
                                                     return Json(ret, JsonRequestBehavior.AllowGet);
@@ -1177,21 +1195,33 @@ namespace MasterOnline.Controllers
                                                         //ret.percent == 70 || ret.percent == 80 ||
                                                         //ret.percent == 90 || ret.percent == 100 || ret.percent >= 100)
                                                         //{
-                                                        if (ret.progress == (bagiProses * 1) || ret.progress == (bagiProses * 2) ||
-                                                            ret.progress == (bagiProses * 3))
-                                                        {
-                                                            ret.statusSuccess = false;
-                                                            transaction.Commit();
-                                                            return Json(ret, JsonRequestBehavior.AllowGet);
-                                                        }
 
-                                                        if (ret.percent >= 100)
+
+
+                                                        if (ret.percent >= 100 || ret.progress == ret.countAll - 1)
                                                         {
                                                             transaction.Commit();
                                                             // update stock all barang;
                                                             var doUpdateStock = new ManageController().MarketplaceLogRetryStock();
                                                             ret.statusSuccess = true;
                                                             eraDB.Database.ExecuteSqlCommand("DELETE FROM TEMP_SALDOAWAL");
+                                                            return Json(ret, JsonRequestBehavior.AllowGet);
+                                                        }
+
+                                                        if (ret.countAll > 25)
+                                                        {
+                                                            if (ret.progress == (bagiProses * 1) || ret.progress == (bagiProses * 2) ||
+                                                                                                                       ret.progress == (bagiProses * 3))
+                                                            {
+                                                                ret.statusSuccess = false;
+                                                                transaction.Commit();
+                                                                return Json(ret, JsonRequestBehavior.AllowGet);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            ret.statusSuccess = false;
+                                                            transaction.Commit();
                                                             return Json(ret, JsonRequestBehavior.AllowGet);
                                                         }
 
