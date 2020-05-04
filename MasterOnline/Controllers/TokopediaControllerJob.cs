@@ -2919,7 +2919,7 @@ namespace MasterOnline.Controllers
                     var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Tokopedia.");
 
-                    //new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);//remark by Tri 4 Mei 2020, pindah ke atas
+                    new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
                 }
                 //end add by calvin 1 april 2019
             }
