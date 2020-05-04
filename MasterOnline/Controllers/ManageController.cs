@@ -42207,6 +42207,17 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        ret.statusSuccess = true;
+                        ret.TidakLanjutProses = true;
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM ART03A WHERE BUKTI = '" + ret.nobuk + "'");
+                        if (ret.Errors.Count() > 0)
+                        {
+                            ret.adaError = true;
+                        }
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
                 }
                 else
                 {
