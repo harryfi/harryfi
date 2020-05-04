@@ -3032,28 +3032,32 @@ namespace MasterOnline.Controllers
             {
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                var orderCompleted = result.data.Where(p => p.order_status == 700).ToList();
-                var order701 = result.data.Where(p => p.order_status == 701).ToList(); // order yang dianggap selesai tetapi barang tidak sampai ke buyer
-
-                var connIdARF01C = Guid.NewGuid().ToString();
-                rowCount = result.data.Count();
-
-                string ordersn = "";
-                foreach (var item in orderCompleted)
+                if(result.data != null)
                 {
-                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
-                }
-                foreach (var item in order701)
-                {
-                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
-                }
+                    var orderCompleted = result.data.Where(p => p.order_status == 700).ToList();
+                    var order701 = result.data.Where(p => p.order_status == 701).ToList(); // order yang dianggap selesai tetapi barang tidak sampai ke buyer
 
-                if (ordersn != "")
-                {
-                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
-                    jmlhOrderComplete = jmlhOrderComplete + rowAffected;
+                    var connIdARF01C = Guid.NewGuid().ToString();
+                    rowCount = result.data.Count();
+
+                    string ordersn = "";
+                    foreach (var item in orderCompleted)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+                    foreach (var item in order701)
+                    {
+                        ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                    }
+
+                    if (ordersn != "")
+                    {
+                        ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                        jmlhOrderComplete = jmlhOrderComplete + rowAffected;
+                    }
                 }
+                
             }
             if (rowCount > 99)
             {
