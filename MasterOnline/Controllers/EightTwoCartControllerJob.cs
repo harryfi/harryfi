@@ -411,12 +411,12 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        public async Task<string> E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string ConnID)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
-
+            
             var dateFrom = DateTimeOffset.UtcNow.AddDays(-10).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
@@ -691,12 +691,22 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public async Task<string> E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -761,13 +771,23 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public async Task<string> E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -821,7 +841,7 @@ namespace MasterOnline.Controllers
                         if (rowAffected > 0)
                         {
                             //add by Tri 4 Des 2019, isi cancel reason
-                            var sSQL = "";
+                            var sSQL1 = "";
                             var sSQL2 = "SELECT * INTO #TEMP FROM (";
                             var listReason = new Dictionary<string, string>();
 
@@ -830,14 +850,14 @@ namespace MasterOnline.Controllers
                                 string reasonValue;
                                 if (listReason.TryGetValue(order.id_order, out reasonValue))
                                 {
-                                    if (!string.IsNullOrEmpty(sSQL))
+                                    if (!string.IsNullOrEmpty(sSQL1))
                                     {
-                                        sSQL += " UNION ALL ";
+                                        sSQL1 += " UNION ALL ";
                                     }
-                                    sSQL += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
+                                    sSQL1 += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
                                 }
                             }
-                            sSQL2 += sSQL + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                            sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                             sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_82CART' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
                             sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                             EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
@@ -871,12 +891,21 @@ namespace MasterOnline.Controllers
                         //}
                     }
                 }
-
                 //}
                 //catch (Exception ex2)
                 //{
                 //}
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 

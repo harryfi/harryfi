@@ -2943,22 +2943,10 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
         {
-            // add by fauzi tuning no duplicate hangfire job get order
-            string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
-            sSQL += "union all" + System.Environment.NewLine;
-            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
-            sSQL += "union all" + System.Environment.NewLine;
-            sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
-            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekQueue.Tables[0].Rows.Count > 0)
-            {
-
-            }
-            // end add by fauzi tuning no duplicate hangfire job get order
-
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -2971,6 +2959,16 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, int daysFrom, int daysTo)
@@ -3110,10 +3108,11 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
+        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, string ConnID)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3127,6 +3126,16 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
 
         }
@@ -3258,9 +3267,10 @@ namespace MasterOnline.Controllers
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
+        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, string ConnID)
         {
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3274,6 +3284,16 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // add tuning no duplicate hangfire job get order
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end add tuning no duplicate hangfire job get order
+
             return ret;
         }
 

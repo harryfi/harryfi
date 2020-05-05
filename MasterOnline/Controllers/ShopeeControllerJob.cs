@@ -1773,7 +1773,7 @@ namespace MasterOnline.Controllers
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
+        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string ConnID)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1879,7 +1879,7 @@ namespace MasterOnline.Controllers
                         new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                         //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
 
-                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
+                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, ConnID);
                     }
                     else
                     {
@@ -1901,12 +1901,23 @@ namespace MasterOnline.Controllers
                 //{
                 //}
             }
+
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1984,7 +1995,7 @@ namespace MasterOnline.Controllers
                     if (rowAffected > 0)
                     {
                         //add by Tri 4 Des 2019, isi cancel reason
-                        var sSQL = "";
+                        var sSQL1 = "";
                         var sSQL2 = "SELECT * INTO #TEMP FROM (";
                         var listReason = new Dictionary<string, string>();
                         //if (ordersn_list.Count() > 50)
@@ -2013,14 +2024,14 @@ namespace MasterOnline.Controllers
                             string reasonValue;
                             if (listReason.TryGetValue(order.ordersn, out reasonValue))
                             {
-                                if (!string.IsNullOrEmpty(sSQL))
+                                if (!string.IsNullOrEmpty(sSQL1))
                                 {
-                                    sSQL += " UNION ALL ";
+                                    sSQL1 += " UNION ALL ";
                                 }
-                                sSQL += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
+                                sSQL1 += " SELECT '" + order.ordersn + "' NO_REFERENSI, '" + listReason[order.ordersn] + "' ALASAN ";
                             }
                         }
-                        sSQL2 += sSQL + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                        sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                         sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_SHOPEE' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
                         sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                         EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
@@ -2054,7 +2065,7 @@ namespace MasterOnline.Controllers
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
                     if (listOrder.more)
                     {
-                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, ConnID);
                     }
                     else
                     {
@@ -2071,6 +2082,16 @@ namespace MasterOnline.Controllers
                 //{
                 //}
             }
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -2090,7 +2111,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
+        public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -2167,7 +2188,7 @@ namespace MasterOnline.Controllers
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
                     if (listOrder.more)
                     {
-                        await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
+                        await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, ConnID);
                     }
                     else
                     {
@@ -2184,6 +2205,17 @@ namespace MasterOnline.Controllers
                 //{
                 //}
             }
+
+
+            // tunning untuk tidak duplicate
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
+            {
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            }
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public async Task<string> GetOrderDetailsForTrackNo(ShopeeAPIData iden, string[] ordersn_list)
