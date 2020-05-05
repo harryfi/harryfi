@@ -2945,6 +2945,19 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
+            // add by fauzi tuning no duplicate hangfire job get order
+            string sSQL = "select 'Stok' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%StokControllerJob%' " + System.Environment.NewLine;
+            sSQL += "union all" + System.Environment.NewLine;
+            sSQL += "select 'Order' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Order%'" + System.Environment.NewLine;
+            sSQL += "union all" + System.Environment.NewLine;
+            sSQL += "select 'Product' as tipe,count(*) jumlah from hangfire.job (nolock) where statename='Enqueued' and InvocationData like '%Product%'" + System.Environment.NewLine;
+            var dsCekQueue = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
+            if (dsCekQueue.Tables[0].Rows.Count > 0)
+            {
+
+            }
+            // end add by fauzi tuning no duplicate hangfire job get order
+
             string ret = "";
 
             var daysFrom = -1;
