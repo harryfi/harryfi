@@ -19974,6 +19974,10 @@ namespace MasterOnline.Controllers
 
                 var ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 var listBarangInPesananDetail = ListPesananDetail.Select(p => p.BRG).ToList();
+                //ADD BY NURUL 5/5/2020
+                var sSQLGetMarket = "select namamarket from sot01a a inner join arf01 b on a.cust=b.cust inner join mo..marketplace c on b.nama=c.idmarket where no_bukti='" + pesananInDb.NO_BUKTI + "'";
+                var GetMarket = ErasoftDbContext.Database.SqlQuery<string>(sSQLGetMarket).SingleOrDefault();
+                //END ADD BY NURUL 5/5/2020
 
                 var vm = new PesananViewModel()
                 {
@@ -19989,6 +19993,9 @@ namespace MasterOnline.Controllers
                     //add by nurul 16/4/2019
                     alamatPenerima = al_buyer,
                     //end add by nurul 16/4/2019
+                    //ADD BY NURUL 5/5/2020
+                    namaMarket = GetMarket,
+                    //END ADD BY NURUL 5/5/2020
                 };
 
                 return PartialView("BarangPesananSelesaiPartial", vm);
