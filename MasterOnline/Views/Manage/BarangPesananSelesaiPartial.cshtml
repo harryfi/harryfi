@@ -222,7 +222,6 @@
                                 tempKet += "- " + detPesanan.BRG + "\n" + detPesanan.KET_DETAIL + "\n";
                             }
                         }
-                        @*@Html.TextAreaFor(m => m.Pesanan.KET, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled", Value = (tempKet) })*@
                         @Html.TextArea("Pesanan_KET", tempKet, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled" })
                     }
                     else
