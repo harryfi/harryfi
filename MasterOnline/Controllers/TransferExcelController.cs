@@ -1139,7 +1139,14 @@ namespace MasterOnline.Controllers
                                                     {
                                                         ret.statusLoop = true;
                                                         ret.progress = j;
-                                                        ret.percent = (j * 100) / (ret.countAll - 1);
+                                                        if(ret.progress == 0)
+                                                        {
+                                                            ret.percent = (j * 100) / (ret.countAll);
+                                                        }
+                                                        else
+                                                        {
+                                                            ret.percent = (j * 100) / (ret.countAll - 1);
+                                                        }
                                                         var bagiProses = (ret.countAll - 1) * (Convert.ToDecimal(30) / Convert.ToDecimal(100));
                                                         bagiProses = Decimal.Round(bagiProses);
 
