@@ -1773,7 +1773,7 @@ namespace MasterOnline.Controllers
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string ConnID)
+        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1879,7 +1879,7 @@ namespace MasterOnline.Controllers
                         new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                         //end add by Tri 4 Mei 2020, update stok di jalankan per batch karena batch berikutnya akan memiliki connID yg berbeda
 
-                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar, ConnID);
+                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
                     }
                     else
                     {
@@ -1904,11 +1904,11 @@ namespace MasterOnline.Controllers
 
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -1917,7 +1917,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
+        public async Task<string> GetOrderByStatusCancelled(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -2065,7 +2065,7 @@ namespace MasterOnline.Controllers
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
                     if (listOrder.more)
                     {
-                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, ConnID);
+                        await GetOrderByStatusCancelled(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
                     }
                     else
                     {
@@ -2084,11 +2084,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -2111,7 +2111,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
+        public async Task<string> GetOrderByStatusCompleted(ShopeeAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -2188,7 +2188,7 @@ namespace MasterOnline.Controllers
                     jmlhNewOrder = jmlhNewOrder + rowAffected;
                     if (listOrder.more)
                     {
-                        await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, ConnID);
+                        await GetOrderByStatusCompleted(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder);
                     }
                     else
                     {
@@ -2208,11 +2208,11 @@ namespace MasterOnline.Controllers
 
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 

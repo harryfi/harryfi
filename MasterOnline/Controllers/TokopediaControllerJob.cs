@@ -2943,7 +2943,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
+        public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             var token = SetupContext(iden);
@@ -2961,11 +2961,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -3108,7 +3108,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, string ConnID)
+        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -3128,11 +3128,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -3267,7 +3267,7 @@ namespace MasterOnline.Controllers
         }
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder, string ConnID)
+        public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
         {
             string ret = "";
             var token = SetupContext(iden);
@@ -3286,11 +3286,11 @@ namespace MasterOnline.Controllers
             }
 
             // add tuning no duplicate hangfire job get order
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end add tuning no duplicate hangfire job get order
 

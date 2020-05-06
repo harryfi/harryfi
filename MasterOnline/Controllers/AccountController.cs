@@ -848,28 +848,37 @@ namespace MasterOnline.Controllers
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                             
                             connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             //change by nurul 21/1/2020, interval ubah jadi 30 
                             //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username, connId_JobId)), Cron.MinuteInterval(30), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(30), recurJobOpt);
                             //end change by nurul 21/1/2020, interval ubah jadi 30
 #endif
 
@@ -1094,7 +1103,7 @@ namespace MasterOnline.Controllers
                                 //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 //change 15 mei 2020, ubah jd 30 mnit
@@ -1227,16 +1236,16 @@ namespace MasterOnline.Controllers
                         //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.UNPAID, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, connId_JobId)), Cron.MinuteInterval(30), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(30), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, connId_JobId)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCancelled(iden, ShopeeControllerJob.StatusOrder.CANCELLED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
                         //end change by nurul 10/12/2019, ubah interval
 
                         //add by nurul 17/3/2020

@@ -1873,7 +1873,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public BindingBase GetOrders(string cust, string accessToken, string dbPathEra, string uname, string ConnID)
+        public BindingBase GetOrders(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             SetupContext(dbPathEra, uname);
@@ -1891,11 +1891,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -1904,7 +1904,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public BindingBase GetOrdersRTS(string cust, string accessToken, string dbPathEra, string uname, string ConnID)
+        public BindingBase GetOrdersRTS(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             SetupContext(dbPathEra, uname);
@@ -1922,11 +1922,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -2497,7 +2497,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname, string ConnID)
+        public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             SetupContext(dbPathEra, uname);
@@ -2515,11 +2515,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -2842,7 +2842,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public BindingBase GetOrdersCancelled(string cust, string accessToken, string dbPathEra, string uname, string ConnID)
+        public BindingBase GetOrdersCancelled(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -2875,11 +2875,11 @@ namespace MasterOnline.Controllers
             //end add by Tri 10 Des 2019, cek pesanan belum dibayar
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
@@ -3672,7 +3672,7 @@ namespace MasterOnline.Controllers
         //add by Tri 4 Nov 2019, update pesanan yg sudah ada di MO
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname, string ConnID)
+        public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
             SetupContext(dbPathEra, uname);
@@ -3690,11 +3690,11 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
+            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
             var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
             if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
             {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             }
             // end tunning untuk tidak duplicate
 
