@@ -1,14 +1,15 @@
 ﻿@using System.Globalization
+@model MasterOnline.ViewModels.PesananViewModel
 @*@using MasterOnline.ViewModels*@
 @using PagedList.Mvc
 @model PagedList.IPagedList<PesananHangfireJob>
 @{
-                /**/
+    /**/
 
-                string currentFilter = ViewBag.CurrentFilter;
-                string currentSort = ViewBag.CurrentSort;
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
 
-                var context = new MoDbContext("");
+    var context = new MoDbContext("");
 
 }
 <style>

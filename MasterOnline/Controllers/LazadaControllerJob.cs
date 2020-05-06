@@ -1891,12 +1891,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
-            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
-            {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            }
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -1922,12 +1917,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
-            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
-            {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            }
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2515,12 +2505,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
-            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
-            {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            }
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2875,12 +2860,7 @@ namespace MasterOnline.Controllers
             //end add by Tri 10 Des 2019, cek pesanan belum dibayar
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
-            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
-            {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            }
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -3690,12 +3670,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-            string sSQL = "select top 1 STATENAME from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%' order by id desc";
-            var dsCekValidasiEnq = EDB.GetDataSet("sCon", "QUEUE_COUNT", sSQL);
-            if (dsCekValidasiEnq.Tables[0].Rows.Count > 0)
-            {
-                var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
-            }
+                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
