@@ -411,7 +411,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar, string ConnID)
+        public async Task<string> E2Cart_GetOrderByStatus(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, int jmlhPesananDibayar)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -693,7 +693,16 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "";
+            if (stat == StatusOrder.UNPAID)
+            {
+                queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
+            }
+            else if (stat == StatusOrder.PAID)
+            {
+                queryStatus = "\"}\"" + "," + "\"2\"" + "," + "\"";
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -701,7 +710,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
+        public async Task<string> E2Cart_GetOrderByStatusCompleted(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -768,7 +777,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -777,7 +786,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("3_general")]
-        public async Task<string> E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder, string ConnID)
+        public async Task<string> E2Cart_GetOrderByStatusCancelled(E2CartAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
             string connID = Guid.NewGuid().ToString();
@@ -888,7 +897,7 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + ConnID + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;

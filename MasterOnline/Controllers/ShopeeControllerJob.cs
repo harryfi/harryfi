@@ -1904,7 +1904,16 @@ namespace MasterOnline.Controllers
 
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "";
+            if (stat == StatusOrder.UNPAID)
+            {
+                queryStatus = "\"}\"" + "," + "\"6\"" + "," + "\"";
+            }
+            else if (stat == StatusOrder.READY_TO_SHIP)
+            {
+                queryStatus = "\"}\"" + "," + "\"3\"" + "," + "\"";
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%shopee%' and invocationdata like '%GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
