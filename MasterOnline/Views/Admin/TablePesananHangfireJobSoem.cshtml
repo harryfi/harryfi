@@ -1,5 +1,5 @@
 ﻿@using System.Globalization
-@*@using MasterOnline.ViewModels*@
+@using MasterOnline.ViewModels
 @using PagedList.Mvc
 @model PagedList.IPagedList<PesananHangfireJob>
 @{
@@ -213,6 +213,11 @@
     });
 
 </script>
+<div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
+    <div id="loading_barang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
 <div class="row">
     <div class="col-12">
         <ul id="soem_packing_cust_tabs" class="nav nav-tabs">
@@ -291,18 +296,11 @@
                 </div>
                 <script type="text/javascript">
                 $(function () {
-        $('#tabeljobpartialpager').on('click', 'a', function () {
-            if (this.href != "") {
-                var link = this.href;
-                //link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
-                //link = link.replace("replaceFilter", encodeURIComponent(filterby));
-                //link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
-
-                //link += "&nama_customer=soem";
-
+                    $('#tabeljobpartialpager').on('click', 'a', function () {
+                    if (this.href != "") {
                 $.ajax({
-                    //url: this.href,
-                    url: link,
+                    url: this.href,
+                    //url: link,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
@@ -310,7 +308,7 @@
                     },
                     success: function (response) {
                         //$('#table-pesanan-partial').html(response);
-                        $('#table-market-log-partial-div').html(response);
+                        $('#jobpesanan_soem_content').html(response);
                         $('#loading_barang_tab').hide();
                         $page = @Model.PageNumber;
                         $GetPage = @Model.PageCount;

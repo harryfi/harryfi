@@ -1891,7 +1891,8 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -1917,7 +1918,8 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2505,7 +2507,8 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -2860,7 +2863,8 @@ namespace MasterOnline.Controllers
             //end add by Tri 10 Des 2019, cek pesanan belum dibayar
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
@@ -3670,7 +3674,8 @@ namespace MasterOnline.Controllers
             }
 
             // tunning untuk tidak duplicate
-                var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
