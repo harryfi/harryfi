@@ -3494,6 +3494,232 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult RefreshTablePesananHangfireJob_bayininja(string nama_customer, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tablePesananHangfireJob"] = nama_customer;
+
+            string viewName = "";
+            var EDB = new DatabaseSQL("ERASOFT_1120429");
+            var dbCustomer = "";
+            switch (nama_customer)
+            {
+                case "soem":
+                    viewName = "TablePesananHangfireJobSoem";
+                    EDB = new DatabaseSQL("ERASOFT_100144");
+                    dbCustomer = "ERASOFT_100144";
+                    break;
+                case "bayininja":
+                    viewName = "TablePesananHangfireJobBayininja";
+                    EDB = new DatabaseSQL("ERASOFT_1120429");
+                    dbCustomer = "ERASOFT_1120429";
+                    break;
+                case "mommy":
+                    viewName = "TablePesananHangfireJobMommy";
+                    EDB = new DatabaseSQL("ERASOFT_750320");
+                    dbCustomer = "ERASOFT_750320";
+                    break;
+                default:
+                    viewName = "";
+                    break;
+            }
+
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(STATENAME) AS JUMLAH FROM hangfire.[JOB] WHERE StateName LIKE '%SUCC%'";
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = 0;
+            var resultQueryCount = EDB.GetDataSet("SCon", "QUEUE_COUNT", sSQLCount);
+            if (resultQueryCount.Tables[0].Rows.Count > 0)
+            {
+                totalCount = Convert.ToInt32(resultQueryCount.Tables[0].Rows[0]["JUMLAH"].ToString());
+                if (minimal_harus_ada_item_untuk_current_page > totalCount)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            string sSQLSelect = "";
+
+            sSQLSelect += "SELECT a.Id, a.statename, a.invocationdata, a.arguments, a.createdat, " +
+                "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%proc%' ORDER BY b.id DESC) AS LASTCREATEJOBPROCESS, " +
+                "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%succ%' ORDER BY b.id DESC) AS LASTCREATEJOBSUCCESS " +
+                "FROM hangfire.[job] a " +
+                "WHERE a.invocationdata LIKE '%order%' AND a.statename LIKE '%succ%' ORDER BY a.Id DESC ";
+
+            var listTable = new List<PesananHangfireJob>();
+            var resultDataJob = EDB.GetDataSet("SCon", "QUEUE_JOB", sSQLSelect + sSQLSelect2);
+            if (resultDataJob.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < resultDataJob.Tables[0].Rows.Count; i++)
+                {
+                    var resultConvertInvocation = Newtonsoft.Json.JsonConvert.DeserializeObject(resultDataJob.Tables[0].Rows[i]["INVOCATIONDATA"].ToString(), typeof(FieldInvocationData)) as FieldInvocationData;
+                    string[] splitMarketplace = resultConvertInvocation.Type.Split(',');
+
+                    var tglProcess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                    var tglSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                    TimeSpan selisih = tglSuccess.Subtract(tglProcess);
+                    var resultSelisih = "";
+                    if (selisih.Days > 0)
+                    {
+                        resultSelisih = "(" + selisih.Days + ") hari, (" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Hours > 0)
+                    {
+                        resultSelisih = "(" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Minutes > 0)
+                    {
+                        resultSelisih = "(" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Seconds > 0)
+                    {
+                        resultSelisih = "(" + selisih.Seconds + ") detik";
+                    }
+                    else
+                    {
+                        resultSelisih = "(" + selisih.Seconds + ") detik";
+                    }
+
+                    listTable.Add(new PesananHangfireJob
+                    {
+                        CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7),
+                        ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString()),
+                        STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString(),
+                        METHOD = resultConvertInvocation.Method,
+                        MARKETPLACE = splitMarketplace[0].Replace("MasterOnline.Controllers.", "").Replace("ControllerJob", ""),
+                        LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7),
+                        LASTCREATEJOBSUCCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7),
+                        SELISIH = resultSelisih
+                    });
+                }
+            }
+
+            var pageContent = listTable;
+
+            IPagedList<PesananHangfireJob> pageOrders = new StaticPagedList<PesananHangfireJob>(pageContent, pagenumber + 1, 10, totalCount);
+            return PartialView(viewName, pageOrders);
+        }
+
+        public ActionResult RefreshTablePesananHangfireJob_mommy(string nama_customer, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tablePesananHangfireJob"] = nama_customer;
+
+            string viewName = "";
+            var EDB = new DatabaseSQL("ERASOFT_750320");
+            var dbCustomer = "";
+            switch (nama_customer)
+            {
+                case "soem":
+                    viewName = "TablePesananHangfireJobSoem";
+                    EDB = new DatabaseSQL("ERASOFT_100144");
+                    dbCustomer = "ERASOFT_100144";
+                    break;
+                case "bayininja":
+                    viewName = "TablePesananHangfireJobBayininja";
+                    EDB = new DatabaseSQL("ERASOFT_1120429");
+                    dbCustomer = "ERASOFT_1120429";
+                    break;
+                case "mommy":
+                    viewName = "TablePesananHangfireJobMommy";
+                    EDB = new DatabaseSQL("ERASOFT_750320");
+                    dbCustomer = "ERASOFT_750320";
+                    break;
+                default:
+                    viewName = "";
+                    break;
+            }
+
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(STATENAME) AS JUMLAH FROM hangfire.[JOB] WHERE StateName LIKE '%SUCC%'";
+
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = 0;
+            var resultQueryCount = EDB.GetDataSet("SCon", "QUEUE_COUNT", sSQLCount);
+            if (resultQueryCount.Tables[0].Rows.Count > 0)
+            {
+                totalCount = Convert.ToInt32(resultQueryCount.Tables[0].Rows[0]["JUMLAH"].ToString());
+                if (minimal_harus_ada_item_untuk_current_page > totalCount)
+                {
+                    pagenumber = pagenumber - 1;
+                }
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            string sSQLSelect = "";
+
+            sSQLSelect += "SELECT a.Id, a.statename, a.invocationdata, a.arguments, a.createdat, " +
+                "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%proc%' ORDER BY b.id DESC) AS LASTCREATEJOBPROCESS, " +
+                "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%succ%' ORDER BY b.id DESC) AS LASTCREATEJOBSUCCESS " +
+                "FROM hangfire.[job] a " +
+                "WHERE a.invocationdata LIKE '%order%' AND a.statename LIKE '%succ%' ORDER BY a.Id DESC ";
+
+            var listTable = new List<PesananHangfireJob>();
+            var resultDataJob = EDB.GetDataSet("SCon", "QUEUE_JOB", sSQLSelect + sSQLSelect2);
+            if (resultDataJob.Tables[0].Rows.Count > 0)
+            {
+                for (int i = 0; i < resultDataJob.Tables[0].Rows.Count; i++)
+                {
+                    var resultConvertInvocation = Newtonsoft.Json.JsonConvert.DeserializeObject(resultDataJob.Tables[0].Rows[i]["INVOCATIONDATA"].ToString(), typeof(FieldInvocationData)) as FieldInvocationData;
+                    string[] splitMarketplace = resultConvertInvocation.Type.Split(',');
+
+                    var tglProcess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                    var tglSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                    TimeSpan selisih = tglSuccess.Subtract(tglProcess);
+                    var resultSelisih = "";
+                    if (selisih.Days > 0)
+                    {
+                        resultSelisih = "(" + selisih.Days + ") hari, (" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Hours > 0)
+                    {
+                        resultSelisih = "(" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Minutes > 0)
+                    {
+                        resultSelisih = "(" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                    }
+                    else if (selisih.Seconds > 0)
+                    {
+                        resultSelisih = "(" + selisih.Seconds + ") detik";
+                    }
+                    else
+                    {
+                        resultSelisih = "(" + selisih.Seconds + ") detik";
+                    }
+
+                    listTable.Add(new PesananHangfireJob
+                    {
+                        CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7),
+                        ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString()),
+                        STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString(),
+                        METHOD = resultConvertInvocation.Method,
+                        MARKETPLACE = splitMarketplace[0].Replace("MasterOnline.Controllers.", "").Replace("ControllerJob", ""),
+                        LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7),
+                        LASTCREATEJOBSUCCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7),
+                        SELISIH = resultSelisih
+                    });
+                }
+            }
+
+            var pageContent = listTable;
+
+            IPagedList<PesananHangfireJob> pageOrders = new StaticPagedList<PesananHangfireJob>(pageContent, pagenumber + 1, 10, totalCount);
+            return PartialView(viewName, pageOrders);
+        }
+
         public ActionResult PromptAccount()
         {
             return View("PromptAccount");
