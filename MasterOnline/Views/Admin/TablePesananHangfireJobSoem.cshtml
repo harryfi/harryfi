@@ -1,5 +1,4 @@
 ﻿@using System.Globalization
-@model MasterOnline.ViewModels.PesananViewModel
 @*@using MasterOnline.ViewModels*@
 @using PagedList.Mvc
 @model PagedList.IPagedList<PesananHangfireJob>
@@ -216,15 +215,14 @@
 </script>
 @{
     //var distinctCust = Model.Select(p => new { p.CUST, p.NAMA_CUST }).Distinct().ToList();
-    var namaMarket = context.ARF01.Single(m => m.IdMarket == idMarket).NamaMarket;
 }
 <div class="row">
     <div class="col-12">
         <ul id="soem_packing_cust_tabs" class="nav nav-tabs">
-            @foreach (var item in distinctCust)
+            @*@foreach (var item in distinctCust)
             {
                 <li><a data-toggle="tab" href="#lazada_tab_content__@(item.CUST)">@(item.NAMA_CUST)</a></li>
-            }
+            }*@
             <li><a data-toggle="tab" href="#soem_tab_content__">List Job Pesanan (Soem)</a></li>
         </ul>
         <div class="tab-content">
@@ -252,12 +250,14 @@
                     <table class="table table-striped table-bordered table-hover">
                         <thead>
                             <tr role="row">
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">TANGGAL</th>
-                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 20%;">JOB ID</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">STATUS PESANAN</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">FUNGSI PESANAN</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 35%;">MARKETPLACE</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 15%;">SELISIH WAKTU</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 5%;">JOB CREATED</th>
+                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 5%;">JOB ID</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">STATUS PESANAN</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 8%;">METHOD</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 7%;">MARKETPLACE</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU PROSES</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU SUCCESS</th>
+                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">SELISIH WAKTU</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -265,16 +265,72 @@
                             {
                                 <tr>
                                     <td>@order.CREATEDAT</td>
-                                    <td>@order.JOBID</td>
+                                    <td>@order.ID</td>
                                     <td>@order.STATENAME</td>
-                                    <td>@order.INVOCATIONDATA</td>
-                                    <td>@order.INVOCATIONDATA</td>
-                                    <td>@order.CREATEDAT</td>
+                                    <td>@order.METHOD</td>
+                                    <td>@order.MARKETPLACE</td>
+                                    <td>@order.LASTCREATEJOBPROCESS</td>
+                                    <td>@order.LASTCREATEJOBSUCCESS</td>
+                                    <td>@order.SELISIH</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
+                    @if (Model.PageCount > 1)
+                    {
+                        <div id="tabeljobpartialpager" class="pager">
+                            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananHangfireJob", new
+                       {
+                           //nama_customer,
+                           page,
+                           search = ViewData["searchParam"]
+                       }),
+                        new PagedListRenderOptions
+                        {
+                            LinkToFirstPageFormat = "<<",
+                            LinkToPreviousPageFormat = "prev",
+                            LinkToNextPageFormat = "next",
+                            LinkToLastPageFormat = ">>",
+                            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+                        })
+                            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+                        </div>
+                    }
                 </div>
+                <script type="text/javascript">
+                $(function () {
+        $('#tabeljobpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                var link = this.href;
+                //link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                //link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                //link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
+                //link += "&nama_customer=soem";
+
+                $.ajax({
+                    //url: this.href,
+                    url: link,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_barang_tab').show();
+                    },
+                    success: function (response) {
+                        //$('#table-pesanan-partial').html(response);
+                        $('#table-market-log-partial-div').html(response);
+                        $('#loading_barang_tab').hide();
+                        $page = @Model.PageNumber;
+                        $GetPage = @Model.PageCount;
+
+                    }
+                });
+            }
+            return false;
+        });
+    });
+                </script>
             </div>
         </div>
     </div>
