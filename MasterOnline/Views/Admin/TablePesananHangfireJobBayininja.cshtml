@@ -1,14 +1,13 @@
 ﻿@using System.Globalization
-@*@using MasterOnline.ViewModels*@
+@using MasterOnline.ViewModels
 @using PagedList.Mvc
 @model PagedList.IPagedList<PesananHangfireJob>
 @{
-    /**/
+                /**/
 
-    string currentFilter = ViewBag.CurrentFilter;
-    string currentSort = ViewBag.CurrentSort;
+                string totalSelisih = ViewBag.TotalSelisih;
 
-    var context = new MoDbContext("");
+                var context = new MoDbContext("");
 
 }
 <style>
@@ -200,128 +199,68 @@
 @Html.AntiForgeryToken()
 <script type="text/javascript">
     $(document).ready(function () {
-        if ($('#PackingListLazadaFound')) {
-            if (parseInt($('#PackingListLazadaFound').val()) > 0) {
-                $('#li_jobpesanan_soem_tab_focus').show().on('click', function () {
-                    $('#soem_packing_cust_tabs li:first').find('a').click();
+        if ($('#TotalJob')) {
+            if (parseInt($('#TotalJob').val()) > 0) {
+                $('#li_jobpesanan_bayininja_tab_focus').show().on('click', function () {
+                    $('#bayininja_packing_cust_tabs li:first').find('a').click();
                 });
             }
             else {
-                $('#li_jobpesanan_soem_tab_focus').hide();
+                $('#li_jobpesanan_bayininja_tab_focus').hide();
             }
         }
     });
 
 </script>
+<div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
+    <div id="loading_barang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
 <div class="row">
     <div class="col-12">
-        <ul id="soem_packing_cust_tabs" class="nav nav-tabs">
-            <li><a data-toggle="tab" href="#soem_tab_content__">List Job Pesanan (Soem)</a></li>
-        </ul>
         <div class="tab-content">
             @{
-                var PackingListLazadaFound = 1;
+                var TotalJob = Model.Count();
+                var nomor = 0;
             }
-            @Html.TextBox("PackingListLazadaFound", PackingListLazadaFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+            @Html.TextBox("TotalJob", TotalJob, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
             <div id="soem_tab_content__" class="tab-pane fade in">
-                <input id="txt_last_page__" type="hidden" class="form-control" value="@ViewData["LastPage"]">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <input id="search_table_packing_pesanan_lazada_" type="text" class="form-control" placeholder="Pencarian">
-                            <span class="input-group-btn">
-                                <button type="button" id="search_table_packing_pesanan_lazada_button_" class="btn btn-primary">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <div class="hscroll vscroll table-responsive tbljurnal">
-                    <table class="table table-striped table-bordered table-hover">
-                        <thead>
-                            <tr role="row">
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 5%;">JOB CREATED</th>
-                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 5%;">JOB ID</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">STATUS PESANAN</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 8%;">METHOD</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 7%;">MARKETPLACE</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU PROSES</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU SUCCESS</th>
-                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">SELISIH WAKTU</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var order in Model.ToList())
-                            {
-                                <tr>
-                                    <td>@order.CREATEDAT</td>
-                                    <td>@order.ID</td>
-                                    <td>@order.STATENAME</td>
-                                    <td>@order.METHOD</td>
-                                    <td>@order.MARKETPLACE</td>
-                                    <td>@order.LASTCREATEJOBPROCESS</td>
-                                    <td>@order.LASTCREATEJOBSUCCESS</td>
-                                    <td>@order.SELISIH</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                    @if (Model.PageCount > 1)
-                    {
-                        <div id="tabeljobpartialpager" class="pager">
-                            @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananHangfireJob", new
-                       {
-                           //nama_customer,
-                           page,
-                           search = ViewData["searchParam"]
-                       }),
-                        new PagedListRenderOptions
+            </div>
+            <div class="text-center text-capitalize"><b>Jumlah Job Pesanan: @Model.Count()</b>  <b>Total Selisih: (@totalSelisih)</b></div>
+            <div class="hscroll vscroll table-responsive tbljurnal">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr role="row">
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 2%;">No.</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 5%;">JOB CREATED</th>
+                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 5%;">JOB ID</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">STATUS PESANAN</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 8%;">METHOD</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 7%;">MARKETPLACE</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU PROSES</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 5%;">WAKTU SUCCESS</th>
+                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 10%;">SELISIH WAKTU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.ToList())
                         {
-                            LinkToFirstPageFormat = "<<",
-                            LinkToPreviousPageFormat = "prev",
-                            LinkToNextPageFormat = "next",
-                            LinkToLastPageFormat = ">>",
-                            DisplayEllipsesWhenNotShowingAllPageNumbers = false
-                        })
-                            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
-                        </div>
-                    }
-                </div>
-                <script type="text/javascript">
-                $(function () {
-        $('#tabeljobpartialpager').on('click', 'a', function () {
-            if (this.href != "") {
-                var link = this.href;
-                //link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
-                //link = link.replace("replaceFilter", encodeURIComponent(filterby));
-                //link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
-
-                //link += "&nama_customer=soem";
-
-                $.ajax({
-                    //url: this.href,
-                    url: link,
-                    type: 'GET',
-                    cache: false,
-                    beforeSend: function () {
-                        $('#loading_barang_tab').show();
-                    },
-                    success: function (response) {
-                        //$('#table-pesanan-partial').html(response);
-                        $('#table-market-log-partial-div').html(response);
-                        $('#loading_barang_tab').hide();
-                        $page = @Model.PageNumber;
-                        $GetPage = @Model.PageCount;
-
-                    }
-                });
-            }
-            return false;
-        });
-    });
-                </script>
+                            nomor += 1;
+                            <tr>
+                                <td>@nomor</td>
+                                <td>@order.CREATEDAT</td>
+                                <td>@order.ID</td>
+                                <td>@order.STATENAME</td>
+                                <td>@order.METHOD</td>
+                                <td>@order.MARKETPLACE</td>
+                                <td>@order.LASTCREATEJOBPROCESS</td>
+                                <td>@order.LASTCREATEJOBSUCCESS</td>
+                                <td>@order.SELISIH</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
