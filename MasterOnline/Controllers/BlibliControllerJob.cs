@@ -2315,7 +2315,7 @@ namespace MasterOnline.Controllers
                     dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                     if (string.IsNullOrEmpty(result2.errorCode.Value))
                     {
-                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
                         BlibliQueueFeedData queueData = new BlibliQueueFeedData
                         {

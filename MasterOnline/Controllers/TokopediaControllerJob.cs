@@ -3690,6 +3690,7 @@ namespace MasterOnline.Controllers
                     {
                         StreamReader reader = new StreamReader(stream);
                         responseFromServer = reader.ReadToEnd();
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     }
                 }
             }
