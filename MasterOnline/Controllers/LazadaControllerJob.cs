@@ -2714,6 +2714,10 @@ namespace MasterOnline.Controllers
                                     if (shipping_country.Length > 50)
                                         shipping_country = shipping_country.Substring(0, 50);
 
+                                    string national_registration_number = order.national_registration_number.Replace("'", "`");
+                                    if (national_registration_number.Length > 50)
+                                        national_registration_number = national_registration_number.Substring(0, 50);
+
                                     insertQ += "('" + order.order_id + "','" + nama1 + "','" + nama2 + "','" + order_number + "','" + payment_method + "','" + remarks;
                                     //change by nurul 4/12/2019, local time
                                     //insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
@@ -2723,7 +2727,7 @@ namespace MasterOnline.Controllers
                                     insertQ += "','" + phone + "','" + phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + billing_address2 + "','" + billing_address3 + "','" + billing_address4 + "','" + billing_address5;
                                     insertQ += "','" + customer_email + "','" + city + "','" + post_code + "','" + country + "','" + first_name + "','" + last_name + "','" + shipping_phone + "','" + shipping_phone2;
                                     insertQ += "','" + order.address_shipping.address1.Replace('\'', '`') + "','" + shipping_address2 + "','" + shipping_address3 + "','" + shipping_address4 + "','" + shipping_address5 + "','" + shipping_customer_email + "','" + shipping_city;
-                                    insertQ += "','" + shipping_post_code + "','" + shipping_country + "','" + order.national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
+                                    insertQ += "','" + shipping_post_code + "','" + shipping_country + "','" + national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
                                     insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + order.tax_code + "','" + order.branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
                                     //end change by Tri 17 apr 2020, potong string sesuai max length di temp table
 
