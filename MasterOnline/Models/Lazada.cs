@@ -42,7 +42,7 @@ namespace MasterOnline.Models
 
     public class LazadaCreateBarangResponseData
     {
-        public int item_id { get; set; }
+        public long item_id { get; set; }
         public LazadaCreateBarangResponseDataSku_List[] sku_list { get; set; }
     }
 
@@ -50,7 +50,7 @@ namespace MasterOnline.Models
     {
         public string shop_sku { get; set; }
         public string seller_sku { get; set; }
-        public int sku_id { get; set; }
+        public long sku_id { get; set; }
     }
 
     public class detailUpdateBrg
