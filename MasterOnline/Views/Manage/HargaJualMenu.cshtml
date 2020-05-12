@@ -125,17 +125,28 @@
 <div class="row" id="hargaJual-section">
     <div class="col-lg-12 col-md-12">
         <div class="row hargaJual_table_section marginmin">
-            <div class="col-lg-4 col-sm-6">
-                <div class="input-group">
-                    <input id="search_hargaJual" type="text" class="form-control" placeholder="Pencarian">
-                    <span class="input-group-btn">
-                        <button type="button" id="search_hargaJual_click" class="btn btn-primary">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </span>
-                </div>
-            </div>
             <div class="col-lg-8 col-sm-6">
+                <div class="input-group">
+                    <label class="col-lg-1 col-sm-4" style="padding-top:5px; margin-right:8px;">Search</label>
+                    <div class="col-lg-4 col-sm-4">
+                        <select class="form-control" id="filter_pencarian_field" required="required">
+                            <option value="kodebarang">Kode Barang</option>
+                            <option value="namabarang">Nama Barang</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-5 col-sm-6">
+                        <input id="search_hargaJual" type="text" class="form-control" placeholder="Ketik Pencarian">
+                        </div>
+                    <div class="col-lg-1 col-sm-6">
+                        <span class="input-group-btn">
+                            <button type="button" id="search_hargaJual_click" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                    </div>
+                </div>
+            <div class="col-lg-4 col-sm-6">
                 <div class="pull-right">
                     @*<button type="button" class=" btn btn-default" data-style="expand-right">
                             <span>Refresh</span>
@@ -312,7 +323,8 @@
                 $page = 0;
             //end add by nurul 12/2/2019
                 //Initialize();
-                refreshTableHargaJual();
+                var filterBy = "kodebarang";
+                refreshTableHargaJual(filterBy);
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
                 //    $page = $('#datatable').DataTable().page.info().page;
@@ -320,17 +332,38 @@
                 //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
+                
+
                 $('#search_hargaJual').keypress(function (e) {
                     var key = e.which;
                     if (key == 13)// the enter key code
                     {
-                        searchTableHargaJual();
+                        searchTableHargaJual(filterBy);
                         return false;
                     }
                 });
                 $('#search_hargaJual_click').click(function () {
-                    searchTableHargaJual();
+                    searchTableHargaJual(filterBy);
                 });
+
+                //add by fauzi 12 Mei 2020
+                $('#filter_pencarian_field').change(function () {
+                    filterBy = $(this).val();
+                    switch (filterBy) {
+                        case "kodebarang":
+                            filterBy = "kodebarang";
+                            //searchTablePesanan(filterBy);
+                            break;
+                        case "namabarang":
+                            filterBy = "namabarang";
+                            //searchTablePesanan(filterBy);
+                            break;
+                        default:
+                            break;
+                    }
+
+                });
+
             });
         //add by Tri, 27 Mei 2019
         function exportExcel() {
@@ -508,7 +541,7 @@
                     $('#btnUbahHJualBlibli').show();
                     $('#loading_spinner_btnBlibli').hide();
                     if (res.message == null) {
-                        refreshTableHargaJual();
+                        refreshTableHargaJual(filterBy);
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
                         //Initialize();
@@ -546,7 +579,7 @@
                     $('#btnUbahHJual82Cart').show();
                     $('#loading_spinner_btn82Cart').hide();
                     if (res.message == null) {
-                        refreshTableHargaJual();
+                        refreshTableHargaJual(filterBy);
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
                         //Initialize();
@@ -583,7 +616,7 @@
                     $('#btnUbahHJual').show();
                     $('#loading_spinner_btn').hide();
                     if (res.message == null) {
-                        refreshTableHargaJual();
+                        refreshTableHargaJual(filterBy);
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
                         //Initialize();
@@ -630,10 +663,11 @@
         }
 
         //add by nurul 13/6/2019
-        function refreshTableHargaJual() {
-            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+        function refreshTableHargaJual(filterBy) {
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { page = "replaceLastPage", search = "replaceSearch", filter = "replaceFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hargaJual').val()));
             $link = $link.replace("replaceLastPage", encodeURIComponent($('#txt_last_page').val()));
+            $link = $link.replace("replaceFilter", filterBy);
 
             $.ajax({
                 type: "GET",
@@ -653,9 +687,11 @@
                 }
             });
         }
-        function searchTableHargaJual(){
-            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { search = "replaceSearch" }))';
+        function searchTableHargaJual(filter){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { search = "replaceSearch", filter = "replaceFilter" }))';
             $link = $link.replace("replaceSearch", encodeURIComponent($('#search_hargaJual').val()));
+            //add by fauzi tuning search harga jual
+            $link = $link.replace("replaceFilter", filter);
 
             $.ajax({
                 type: "GET",

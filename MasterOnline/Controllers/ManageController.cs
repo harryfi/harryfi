@@ -30766,10 +30766,11 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 13/6/2019
-        public ActionResult RefreshTableHargaJual(int? page, string search = "")
+        public ActionResult RefreshTableHargaJual(int? page, string search = "", string filter = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
+            ViewData["filterParam"] = filter;
             ViewData["LastPage"] = page;
 
             //add by nurul 2/10/2019, contain search 
@@ -30833,14 +30834,22 @@ namespace MasterOnline.Controllers
                         {
                             sSQLnama += " AND ";
                             sSQLkode += " AND ";
-                            sSQLmarket += " AND ";
-                            sSQLharga += " AND ";
+                            //sSQLmarket += " AND ";
+                            //sSQLharga += " AND ";
                         }
 
-                        sSQLnama += " (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
-                        sSQLkode += "  A.BRG like '%" + getkata[i] + "%' ";
-                        sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
-                        sSQLharga += "  A.HJUAL like '%" + getkata[i] + "%' ";
+                        if(filter == "kodebarang")
+                        {
+                            sSQLkode += "  A.BRG like '%" + getkata[i] + "%' ";
+                        }
+                        else if(filter == "namabarang")
+                        {
+                            sSQLnama += " (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
+                        }
+                        //sSQLnama += " (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
+                        //sSQLkode += "  A.BRG like '%" + getkata[i] + "%' ";
+                        //sSQLmarket += "  (isnull(C.NamaMarket,'') + ' (' + isnull(A.AKUNMARKET,'') + ')') like '%" + getkata[i] + "%' ";
+                        //sSQLharga += "  A.HJUAL like '%" + getkata[i] + "%' ";
                     }
                 }
             }
@@ -30869,7 +30878,15 @@ namespace MasterOnline.Controllers
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR D.NAMA LIKE '%" + search + "%' OR D.NAMA2 LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR (D.NAMA + D.NAMA2) LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
                 //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " or " + sSQLhpokok + " ) ";
-                sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " ) ";
+                //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " ) ";
+                if(filter == "kodebarang")
+                {
+                    sSQL2 += " AND ( " + sSQLkode + " ) ";
+                }
+                else if(filter == "namabarang")
+                {
+                    sSQL2 += " AND ( " + sSQLnama + " ) ";
+                } 
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.BRG ASC ";
