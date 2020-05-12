@@ -134,7 +134,7 @@
                     @* add by nurul 13/6/2019, paging *@
                         @if(Model.PageCount > 1)
 {
-                            < div id = "tabelhargaJualpartialpager" class="pager">
+                            <div id = "tabelhargaJualpartialpager" class="pager">
                                 @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJual", new
                            {
                                page,
