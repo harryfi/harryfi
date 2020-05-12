@@ -20,6 +20,8 @@
     {
         username = username.Substring(0, 17) + "...";
     }
+
+    var market = Model.namaMarket;
 }
 
 <style>
@@ -44,7 +46,6 @@
             width: 27%;
         }
     }
-
 </style>
 
 
@@ -168,11 +169,11 @@
                         @* remark by nurul 4/12/2018 -- <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>*@
                         <span class="input-group-btn">
                             @*  remark by nurul 4/12/2018 -- <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
-            <span class="glyphicon glyphicon-plus"></span>
-        </button>
-        <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
-            <span class="glyphicon glyphicon-eye-open"></span>
-        </button>*@
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                                <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
+                                    <span class="glyphicon glyphicon-eye-open"></span>
+                                </button>*@
                             <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 34px;margin-right:0px;">
                                 <span class="glyphicon glyphicon-option-horizontal"></span>
                             </button>
@@ -186,7 +187,7 @@
         <div class="col-md-6">
             <div class="form-group">
                 @*@Html.LabelFor(m => m.Pesanan.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })*@
-                @Html.LabelFor(m => m.Pesanan.TERM, "Term Of Payment (TOP)", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" , @style= "top: -10px;" })
+                @Html.LabelFor(m => m.Pesanan.TERM, "Term Of Payment (TOP)", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "top: -10px;" })
                 <div class="col-md-6 col-sm-6 col-xs-6">
                     @*@Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, min = 0, max = 999 })*@
                     @Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox num-only", maxlength = 3, min = 0, max = 999 })
@@ -223,7 +224,29 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.KET, "Keterangan", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextAreaFor(m => m.Pesanan.KET, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;" })
+                    @if (market != null)
+                    {
+                        if (market.ToUpper() == "TOKOPEDIA")
+                        {
+                            var tempKet = "";
+                            foreach (var detPesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                            {
+                                if (detPesanan.KET_DETAIL != null && detPesanan.KET_DETAIL != "" && detPesanan.KET_DETAIL != "-")
+                                {
+                                    tempKet += "- " + detPesanan.BRG + "\n" + detPesanan.KET_DETAIL + "\n";
+                                }
+                            }
+                            @Html.TextArea("Pesanan_KET", tempKet, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(m => m.Pesanan.KET, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;" })
+                        }
+                    }
+                    else
+                    {
+                        @Html.TextAreaFor(m => m.Pesanan.KET, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;" })
+                    }
                 </div>
             </div>
         </div>
@@ -356,8 +379,8 @@
                 </thead>
                 <tbody>
                     @{
-                    var listBarang = Model.ListBarang.ToList();
-                    var iPd = 0;
+                        var listBarang = Model.ListBarang.ToList();
+                        var iPd = 0;
                     }
                     @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
                     {
@@ -417,7 +440,7 @@
                                 </button>
                             </td>
                         </tr>
-                    iPd = iPd + 1;
+                        iPd = iPd + 1;
                     }
                     <tr data-pesanan-id="0">
                         @Html.HiddenFor(m => m.PesananDetail.NO_URUT)

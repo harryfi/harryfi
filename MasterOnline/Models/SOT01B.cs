@@ -93,5 +93,10 @@ namespace MasterOnline
         public double PPN { get; set; }
 
         public double NETTO { get; set; }
+
+        //add by nurul 5/5/2020, temp ket tokped 
+        [Column(TypeName = "text")]
+        public string KET_DETAIL { get; set; }
+        //end add by nurul 5/5/2020, temp ket tokped
     }
 }

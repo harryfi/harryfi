@@ -52,6 +52,10 @@ namespace MasterOnline.ViewModels
         public List<listBarang_NotFound> ListBarang_NotFound { get; set; } = new List<listBarang_NotFound>();
         public List<listBarangMarket_NotFound> ListBarangMarket_NotFound { get; set; } = new List<listBarangMarket_NotFound>();
         //end add by nurul 24/3/2020
+
+        //add by nurul 5/5/2020
+        public string namaMarket { get; set; }
+        //end add by nurul 5/5/2020
     }
 
     //add by nurul 24/3/2020
