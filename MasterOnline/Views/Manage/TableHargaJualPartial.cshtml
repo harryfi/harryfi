@@ -138,7 +138,8 @@
             @Html.PagedListPager(Model, page => Url.Action("RefreshTableHargaJual", new
        {
            page,
-           search = ViewData["searchParam"]
+           search = ViewData["searchParam"],
+           filter = ViewData["filterParam"]
        }),
             new PagedListRenderOptions
             {
