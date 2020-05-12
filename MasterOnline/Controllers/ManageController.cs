@@ -31202,7 +31202,7 @@ namespace MasterOnline.Controllers
                                 if (brg_mp[1] == "0")
                                 {
 #if Debug_AWS || DEBUG
-                                    //Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    Task.Run(() => ShopeeApi.UpdatePrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
                                     ShopeeApiJob.UpdatePrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
 #else
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -31213,7 +31213,7 @@ namespace MasterOnline.Controllers
                                 else if (brg_mp[1] != "")
                                 {
 #if Debug_AWS || DEBUG
-                                    //Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
+                                    Task.Run(() => ShopeeApi.UpdateVariationPrice(data, hJualInDb.BRG_MP, (float)hargaJualBaru)).Wait();
                                     ShopeeApiJob.UpdateVariationPrice_Job(dataJob, hJualInDb.BRG_MP, (float)hargaJualBaru);
 #else
                                     var sqlStorage = new SqlServerStorage(EDBConnID);
