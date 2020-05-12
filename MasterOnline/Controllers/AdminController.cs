@@ -3208,6 +3208,263 @@ namespace MasterOnline.Controllers
             return new JsonResult { Data = new { mo_message = "Notify expired running." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
         }
 
+        public ActionResult RefreshTablePesananHangfireJob(string db_customer = "", string email_customer = "")
+        {
+            try
+            {
+                string viewName = "TablePesananHangfireJob";
+                ViewData["EmailCustomer"] = email_customer;
+                var EDB = new DatabaseSQL(db_customer);
+
+                var listTable = new List<PesananHangfireJob>();
+
+                string sSQLSelectGroupMethod = "";
+                sSQLSelectGroupMethod += "SELECT statename, invocationdata, arguments " +
+                    "FROM hangfire.[job] " +
+                    "WHERE invocationdata LIKE '%getorder%' and statename LIKE '%succ%' " +
+                    "GROUP BY statename, invocationdata, arguments ";
+
+                var resultDataJobGroup = EDB.GetDataSet("SCon", "QUEUE_GROUP_JOB", sSQLSelectGroupMethod);
+
+                var TotalHari = 0;
+                var TotalJam = 0;
+                var TotalMenit = 0;
+                var TotalDetik = 0;
+
+                if (resultDataJobGroup.Tables[0].Rows.Count > 0)
+                {
+                    for (int k = 0; k < resultDataJobGroup.Tables[0].Rows.Count; k++)
+                    {
+                        string sSQLSelect = "";
+
+                        sSQLSelect += "SELECT TOP 1 a.Id, a.statename, a.invocationdata, a.arguments, a.createdat, " +
+                            "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%proc%' ORDER BY b.id DESC) AS LASTCREATEJOBPROCESS, " +
+                            "(SELECT TOP 1 b.createdat FROM hangfire.[state] b WHERE b.jobid = a.id AND b.[name] LIKE '%succ%' ORDER BY b.id DESC) AS LASTCREATEJOBSUCCESS " +
+                            "FROM hangfire.[job] a " +
+                            "WHERE " +
+                            "a.invocationdata = '" + resultDataJobGroup.Tables[0].Rows[k]["invocationdata"] + "' AND " +
+                            "a.arguments = '" + resultDataJobGroup.Tables[0].Rows[k]["arguments"] + "' AND " +
+                            "a.statename LIKE '%succ%' ORDER BY a.Id DESC ";
+
+
+                        var resultDataJob = EDB.GetDataSet("SCon", "QUEUE_JOB", sSQLSelect);
+                        if (resultDataJob.Tables[0].Rows.Count > 0)
+                        {
+                            for (int i = 0; i < resultDataJob.Tables[0].Rows.Count; i++)
+                            {
+                                var checkApprove = false;
+                                var resultConvertInvocation = Newtonsoft.Json.JsonConvert.DeserializeObject(resultDataJob.Tables[0].Rows[i]["INVOCATIONDATA"].ToString(), typeof(FieldInvocationData)) as FieldInvocationData;
+                                string[] splitMarketplace = resultConvertInvocation.Type.Split(',');
+
+                                var tglProcess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7);
+                                var tglSuccess = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7);
+                                TimeSpan selisih = tglSuccess.Subtract(tglProcess);
+
+                                var resultSelisih = "";
+                                if (selisih.Days > 0)
+                                {
+                                    TotalHari += selisih.Days;
+                                    TotalJam += selisih.Hours;
+                                    TotalMenit += selisih.Minutes;
+                                    TotalDetik += selisih.Seconds;
+                                    resultSelisih = "(" + selisih.Days + ") hari, (" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                                }
+                                else if (selisih.Hours > 0)
+                                {
+                                    TotalJam += selisih.Hours;
+                                    TotalMenit += selisih.Minutes;
+                                    TotalDetik += selisih.Seconds;
+                                    resultSelisih = "(" + selisih.Hours + ") jam, (" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                                }
+                                else if (selisih.Minutes > 0)
+                                {
+                                    TotalMenit += selisih.Minutes;
+                                    TotalDetik += selisih.Seconds;
+                                    resultSelisih = "(" + selisih.Minutes + ") menit, (" + selisih.Seconds + ") detik";
+                                }
+                                else if (selisih.Seconds > 0)
+                                {
+                                    TotalDetik += selisih.Seconds;
+                                    resultSelisih = "(" + selisih.Seconds + ") detik";
+                                }
+                                else
+                                {
+                                    resultSelisih = "(" + selisih.Seconds + ") detik";
+                                }
+
+                                var statusOrder = "";
+                                var namaToko = "";
+                                var marketplace = splitMarketplace[0].Replace("MasterOnline.Controllers.", "").Replace("ControllerJob", "");
+
+                                if (marketplace.ToUpper() == "LAZADA")
+                                {
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custLazada = splitArguments[0].ToString();
+                                        var tokenLazada = splitArguments[1].ToString();
+                                        var usernameLazada = splitArguments[3].ToString();
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE TOKEN = '" + tokenLazada + "' AND CUST = '" + no_custLazada + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_LAZADA", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameLazada;
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "BLIBLI")
+                                {
+                                    if (resultConvertInvocation.Method.ToUpper() == "GETORDERLIST" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("blibli_pesanan_paid"))
+                                    {
+                                        statusOrder = " (Paid)";
+                                    }
+                                    else if (resultConvertInvocation.Method.ToUpper() == "GETORDERLIST" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("blibli_pesanan_complete"))
+                                    {
+                                        statusOrder = " (Complete)";
+                                    }
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custBlibli = splitArguments[12].ToString();
+                                        string[] tokenBlibli = splitArguments[6].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE TOKEN = '" + tokenBlibli[1] + "' AND CUST = '" + no_custBlibli + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BLIBLI", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "TOKOPEDIA")
+                                {
+                                    if (resultConvertInvocation.Method.ToUpper() == "GETORDERLIST" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"2\"" + "," + "\"\\\""))
+                                    {
+                                        statusOrder = " (Paid)";
+                                    }
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custTokped = splitArguments[11].ToString();
+                                        if (resultConvertInvocation.Method.ToUpper() == "GETORDERLISTCANCEL")
+                                        {
+                                            no_custTokped = splitArguments[10].ToString();
+                                        }
+                                        string[] apiClientUsernameTokped = splitArguments[1].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_CLIENT_U = '" + apiClientUsernameTokped[1] + "' AND CUST = '" + no_custTokped + "' ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_TOKOPEDIA", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "SHOPEE")
+                                {
+                                    if (resultConvertInvocation.Method.ToUpper() == "GETORDERBYSTATUS" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"6\"" + "," + "\"\\\""))
+                                    {
+                                        statusOrder = " (Unpaid)";
+                                    }
+                                    else if (resultConvertInvocation.Method.ToUpper() == "GETORDERBYSTATUS" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"3\"" + "," + "\"\\\""))
+                                    {
+                                        statusOrder = " (Ready To Ship)";
+                                    }
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_custShopee = splitArguments[12].ToString();
+                                        string[] merchantCode = splitArguments[0].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE SORT1_CUST = '" + merchantCode[1] + "' AND CUST = '" + no_custShopee + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPEE", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                        }
+                                    }
+                                }
+                                else if (marketplace.ToUpper() == "EIGHTTWOCART")
+                                {
+                                    if (resultConvertInvocation.Method.ToUpper() == "E2CART_GETORDERBYSTATUS" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"23\"" + "," + "\"\\\""))
+                                    {
+                                        statusOrder = " (Unpaid)";
+                                    }
+                                    else if (resultConvertInvocation.Method.ToUpper() == "E2CART_GETORDERBYSTATUS" &&
+                                    resultDataJob.Tables[0].Rows[i]["arguments"].ToString().Contains("\\\"}\"" + "," + "\"2\"" + "," + "\"\\\""))
+                                    {
+                                        statusOrder = " (Paid)";
+                                    }
+
+                                    string[] splitArguments = resultDataJob.Tables[0].Rows[i]["ARGUMENTS"].ToString().Replace("\"", "").Replace("\\", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "").Split(',');
+
+                                    if (splitArguments.Length > 0)
+                                    {
+                                        var no_cust82Cart = splitArguments[11].ToString();
+                                        string[] apiKey82Cart = splitArguments[3].ToString().Split(':');
+                                        string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKey82Cart[1] + "' AND CUST = '" + no_cust82Cart + "'; ";
+                                        var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_82CART", queryCheckToko);
+                                        if (resultDataToko.Tables[0].Rows.Count > 0)
+                                        {
+                                            checkApprove = true;
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                        }
+                                    }
+                                }
+
+                                if (checkApprove)
+                                {
+                                    listTable.Add(new PesananHangfireJob
+                                    {
+                                        CREATEDAT = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["CREATEDAT"]).AddHours(7),
+                                        ID = Convert.ToInt32(resultDataJob.Tables[0].Rows[i]["ID"].ToString()),
+                                        STATENAME = resultDataJob.Tables[0].Rows[i]["STATENAME"].ToString(),
+                                        METHOD = resultConvertInvocation.Method + statusOrder,
+                                        MARKETPLACE = marketplace + " (" + namaToko + ")",
+                                        LASTCREATEJOBPROCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBPROCESS"]).AddHours(7),
+                                        LASTCREATEJOBSUCCESS = Convert.ToDateTime(resultDataJob.Tables[0].Rows[i]["LASTCREATEJOBSUCCESS"]).AddHours(7),
+                                        SELISIH = resultSelisih
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                var myDateTime = new DateTime(2000, 01, 01);
+                myDateTime = myDateTime.AddDays(TotalHari);
+                myDateTime = myDateTime.AddHours(TotalJam);
+                myDateTime = myDateTime.AddMinutes(TotalMenit);
+                myDateTime = myDateTime.AddSeconds(TotalDetik);
+                var resultAddTime = Convert.ToDateTime(myDateTime).ToString("HH:mm:ss");
+
+                ViewData["TotalSelisih"] = resultAddTime.ToString();
+                var pageContent = listTable;
+
+                IPagedList<PesananHangfireJob> pageOrders = new StaticPagedList<PesananHangfireJob>(pageContent, 0 + 1, 10, 0);
+                return PartialView(viewName, pageOrders);
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, status = "Terjadi Kesalahan, mohon hubungi support." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         public ActionResult PromptAccount()
         {
             return View("PromptAccount");

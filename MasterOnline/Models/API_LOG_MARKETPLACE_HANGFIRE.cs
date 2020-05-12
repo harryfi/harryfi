@@ -32,4 +32,34 @@ namespace MasterOnline
         public int PesananJobEnqueued { get; set; }
         public int CreateProductJobEnqueued { get; set; }
     }
+
+    public class PesananHangfireJob
+    {
+        public long ID { get; set; }
+        public long STATEID { get; set; }
+        public string STATENAME { get; set; }
+        public string METHOD { get; set; }
+        public string MARKETPLACE { get; set; }
+        public DateTime? CREATEDAT { get; set; }
+        public DateTime? EXPIREAT { get; set; }
+        public string NAME { get; set; }
+        public DateTime? LASTCREATEJOBPROCESS { get; set; }
+        public DateTime? LASTCREATEJOBSUCCESS { get; set; }
+        public string SELISIH { get; set; }
+    }
+
+
+    public class FieldInvocationData
+    {
+        public string Type { get; set; }
+        public string Method { get; set; }
+        public string ParameterTypes { get; set; }
+        public object Arguments { get; set; }
+    }
+
+    public class FieldArguments
+    {
+        public string[] Arguments { get; set; }
+    }
+
 }
