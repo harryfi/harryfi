@@ -122,7 +122,7 @@
     function StopActiveUserServers() {
         if(confirm("Yakin non-aktifkan Hangfire seluruh user aktif ?")){
             var link = '@Url.Action("DeactivateRecentActiveUsers", "Admin")';
-    
+
             $.ajax({
                 type: "POST",
                 url: link,
@@ -143,7 +143,7 @@
     function StartActiveUserServers() {
         if(confirm("Yakin aktifkan Hangfire seluruh user aktif ?")){
             var link = '@Url.Action("ActivateRecentActiveUsers", "Admin")';
-    
+
             $.ajax({
                 type: "POST",
                 url: link,
@@ -187,7 +187,7 @@
             });
         }
     }
-    
+
     function ProsesAkhirTahunPrepare() {
         let tahun = $('#txtTahun').val();
         if(tahun){
@@ -196,7 +196,7 @@
             $postdata = {
                 tahun : tahun
             };
-            
+
             $.ajax({
                 type: "POST",
                 url: $link,
@@ -210,7 +210,7 @@
                     $('#txtTahun').attr('disabled', true);
                     $('#btnSyncAll').attr('disabled', true);
                     $('#btnCloseProsesAkhirTahun').attr('disabled', true);
-                    
+
                     $('#proses_akhir_tahun_log').val('');
                     $('#proses_akhir_tahun_label').html(response.arraydbname.length + ' accounts left, processing [' + response.arraydbname[0].onlineshopname + '] ');
                     ProsesAkhirTahunAccount(response.arraydbname, response.arraydbname[0].db_source, response.arraydbname[0].db_name, response.arraydbname[0].onlineshopname);
@@ -294,6 +294,15 @@
             keyboard: false
         });
     }
+
+    var refreshingPesanan = false;
+    function onRefreshSemuaPesananMPComplete() {
+        if (!refreshingPesanan
+        ) {
+            $('#loading_spinner').hide();
+            $('#loading_job').hide();
+        }
+    }
 </script>
 <div class="modal fade" id="konfTarikData" tabindex="-1" role="dialog" aria-labelledby="konfTarikDataLabel">
     <div class="modal-dialog" role="document">
@@ -356,6 +365,55 @@
             <div class="modal-footer">
                 <button type="button" id="btnCloseProsesAkhirTahun" class="btn btn-danger" data-dismiss="modal">Close</button>
                 <button type="button" id="btnSyncAll" class="btn btn-success" onclick="ProsesAkhirTahunPrepare();">Proses</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
+    <div id="loading_barang_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<div class="modal fade" id="konfTarikPesananHangfireJob" tabindex="-1" role="dialog" aria-labelledby="konfTarikPesananHangfireJobLabel">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+        <div class="modal-content" style="width:1350px; left:-230px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfTarikPesananHangfireJobLabel">Pesanan Hangfire Job</h4>
+            </div>
+            <div class="modal-body" style="max-height: calc(100vh - 210px); overflow-y: auto;">
+                <div class="row" style="margin-top: 15px;">
+                    <div class="x_content">
+                        @*<ul id="detail-jobpesanan-tabs" class="nav nav-tabs">
+                            <li id="li_jobpesanan_tab_focus" style="display:none"><a data-toggle="tab" id="jobpesanan_tab_focus" href="#packing_jobpesanan" aria-expanded="false">Report Result</a></li>
+                        </ul>*@
+                        <div id="loading_job" class="text-center" hidden="hidden">
+                            <div id="loading_job_image">
+                                <img style="width: 40px;" src="~/Content/Images/spinner.gif" />
+                            </div>
+                        </div>
+                        @*<div class="tab-content">*@
+                            <div id="packing_jobpesanan" class="tab-pane fade in">
+                                <div class="col-lg-12" id="jobpesanan_content">
+
+                                </div>
+                            </div>
+                            @*<div id="packing_jobpesanan_bayininja" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="jobpesanan_bayininja_content">
+
+                                    </div>
+                                </div>
+                                <div id="packing_jobpesanan_mommy" class="tab-pane fade in">
+                                    <div class="col-lg-12" id="jobpesanan_mommy_content">
+
+                                    </div>
+                                </div>*@
+                        @*</div>*@
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnClosePesananHangfireJob" class="btn btn-danger" data-dismiss="modal" onclick="$('#konfTarikPesananHangfireJob').modal('hide');">Close</button>
             </div>
         </div>
     </div>

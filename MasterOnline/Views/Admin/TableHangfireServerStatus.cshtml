@@ -71,6 +71,44 @@
         }
     }
 
+    function GetPesananHangfireJobCustomer(sender) {
+        $('#konfTarikPesananHangfireJob').modal({
+            show: true,
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        var akundb = $(sender).attr('data-dbpathera');
+        var akunemail = $(sender).attr('data-email');
+
+        $('#loading_spinner').show();
+        $('#loading_job').show();
+
+        var $link = '@Html.Raw(Url.Action("RefreshTablePesananHangfireJob", "Admin", new { db_customer = "replaceDBCustomer", email_customer = "replaceEmailCustomer" }))';
+        $link = $link.replace("replaceDBCustomer", akundb);
+        $link = $link.replace("replaceEmailCustomer", akunemail);
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    refreshingPesanan = true;
+                    //$('#loading_barang_tab').show();
+                },
+                complete: function () {
+                    refreshingPesanan = false;
+                    onRefreshSemuaPesananMPComplete();
+                },
+                success: function (response) {
+                    $('#jobpesanan_content').html(response);
+                    //$('#loading_barang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+    }
+
 </script>
 <div id="loading_barang_tab" style="display: none;width: 100%;height: 100%;position: absolute;z-index: 100;top: 0;right: 0;bottom: 0;left: 0;background-color: rgba(0,0,0,0);">
     <div id="loading_barang_tab_image">
@@ -103,9 +141,26 @@
             <td style="text-align:center">@aktivitas.Email</td>
             <td style="text-align:center">@aktivitas.LAST_LOGIN_DATE</td>
             <td style="text-align:center">@aktivitas.TGL_SUBSCRIPTION</td>
-            <td style="text-align:center">@aktivitas.StokJobEnqueued</td>
-            <td style="text-align:center">@aktivitas.PesananJobEnqueued</td>
-            <td style="text-align:center">@aktivitas.CreateProductJobEnqueued</td>
+            <td style="text-align:center">
+                @aktivitas.StokJobEnqueued
+                <br />
+                <br />
+                <br />
+            </td>
+            <td style="text-align:center">
+                @aktivitas.PesananJobEnqueued
+                <div style="margin-top: 4px;"></div>
+                <button class="btn btn-success" data-email="@aktivitas.Email" data-dbsourceera="@aktivitas.DatabaseSourceErasoft" data-dbpathera="@aktivitas.DatabasePathErasoft" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Check Job Orders"
+                        onclick="GetPesananHangfireJobCustomer(this)">
+                    <span>Check Order</span>
+                </button>
+            </td>
+            <td style="text-align:center">
+                @aktivitas.CreateProductJobEnqueued
+                <br />
+                <br />
+                <br />
+            </td>
             <td style="text-align:center">@aktivitas.LAST_HEARTBEAT</td>
             <td style="text-align:center">@aktivitas.DatabaseSourceErasoft</td>
             <td style="text-align:center">
