@@ -163,12 +163,15 @@
                 border-bottom: 5px solid #1a1a1a;
                 position: absolute;
                 top: 30px;
-                left: 35px;
+                /*left: 35px;*/
                 z-index: 8;
                 font-size: 0;
                 line-height: 0;
-                width: 0;
-                height: 0;
+                /*width: 0;
+                height: 0;*/
+
+                margin-left: -30px;
+                left: 50%;
             }
 
             [data-tip]:after {
@@ -176,7 +179,7 @@
                 content: attr(data-tip);
                 position: absolute;
                 top: 35px;
-                left: 0px;
+                /*left: 0px;*/
                 padding: 2px 5px;
                 background: #1a1a1a;
                 color: #fff;
@@ -191,6 +194,9 @@
                 border-radius: 3px;
                 white-space: normal;
                 word-wrap: normal;
+
+                left: 30px;
+                margin-left: -50px;
             }
 
             [data-tip]:hover:before,
@@ -523,9 +529,9 @@
     </div>
 </div>
 @*//add by nurul 29/4/2020*@
-<div class="modal fade center" id="modalDetailPesanan" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailPesananLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" style="width:850px;">
+<div class="modal fade" id="modalDetailPesanan" style="margin:0;padding:0;" tabindex="-1" role="dialog" aria-labelledby="modalDetailPesananLabel">
+    <div class="modal-dialog" role="document" style="margin-left:200px;">
+        <div class="modal-content" style="width:950px;">
             <div class="modal-header">
                 <h4 class="modal-title" id="modalDetailPesananLabel">Detail Qty Pesanan</h4>
 
