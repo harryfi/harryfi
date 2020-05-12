@@ -3333,12 +3333,13 @@ namespace MasterOnline.Controllers
                                     {
                                         var no_custBlibli = splitArguments[12].ToString();
                                         string[] tokenBlibli = splitArguments[6].ToString().Split(':');
+                                        string[] usernameBlibli = splitArguments[9].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE TOKEN = '" + tokenBlibli[1] + "' AND CUST = '" + no_custBlibli + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_BLIBLI", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
                                             checkApprove = true;
-                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameBlibli[1];
                                         }
                                     }
                                 }
@@ -3360,12 +3361,13 @@ namespace MasterOnline.Controllers
                                             no_custTokped = splitArguments[10].ToString();
                                         }
                                         string[] apiClientUsernameTokped = splitArguments[1].ToString().Split(':');
+                                        string[] usernameTokped = splitArguments[9].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_CLIENT_U = '" + apiClientUsernameTokped[1] + "' AND CUST = '" + no_custTokped + "' ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_TOKOPEDIA", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
                                             checkApprove = true;
-                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameTokped[1];
                                         }
                                     }
                                 }
@@ -3387,13 +3389,14 @@ namespace MasterOnline.Controllers
                                     if (splitArguments.Length > 0)
                                     {
                                         var no_custShopee = splitArguments[12].ToString();
+                                        var usernameShopee = splitArguments[8].ToString().Split(':');
                                         string[] merchantCode = splitArguments[0].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE SORT1_CUST = '" + merchantCode[1] + "' AND CUST = '" + no_custShopee + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_SHOPEE", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
                                             checkApprove = true;
-                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + usernameShopee[1];
                                         }
                                     }
                                 }
@@ -3416,12 +3419,13 @@ namespace MasterOnline.Controllers
                                     {
                                         var no_cust82Cart = splitArguments[11].ToString();
                                         string[] apiKey82Cart = splitArguments[3].ToString().Split(':');
+                                        string[] username82Cart = splitArguments[1].ToString().Split(':');
                                         string queryCheckToko = "SELECT PERSO FROM ARF01 WHERE API_KEY = '" + apiKey82Cart[1] + "' AND CUST = '" + no_cust82Cart + "'; ";
                                         var resultDataToko = EDB.GetDataSet("SCon", "QUEUE_TOKO_82CART", queryCheckToko);
                                         if (resultDataToko.Tables[0].Rows.Count > 0)
                                         {
                                             checkApprove = true;
-                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString();
+                                            namaToko = resultDataToko.Tables[0].Rows[0]["PERSO"].ToString() + " user:" + username82Cart[1];
                                         }
                                     }
                                 }
