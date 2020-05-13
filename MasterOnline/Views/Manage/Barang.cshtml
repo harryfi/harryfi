@@ -1560,7 +1560,7 @@
                                             }
                                         }
 
-                                        if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT")) {
+                                        if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT") || AINPUT_TYPE.toUpperCase().includes("ENUMINPUT")) {
                                             //hidden
                                             fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
