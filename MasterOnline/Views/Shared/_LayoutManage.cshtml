@@ -749,7 +749,7 @@
                     message: x,
                     dir: 'ltr',
                     autoClose: true,
-                    duration: 4000,
+                    duration: 3000,
                     onOpen: null,
                     onClose: null
                 });
@@ -765,10 +765,12 @@
                 var mesg = '<div class="row"><div class="col-md-9">' + description + '</div><div class="col-md-3">' + button + '</div></div>'
                 $.notify({
                     jswrapper: 'body',
-                    message: description + ' ' + button,
+                    //message: description + ' ' + button,
+                    message: description,
                     type: 'error',
                     dir: 'ltr',
-                    autoClose: false,
+                    autoClose: true,
+                    duration: 3000,
                     onOpen: null,
                     onClose: null
                 });
@@ -782,7 +784,7 @@
                     message: x,
                     dir: 'ltr',
                     autoClose: true,
-                    duration: 4000,
+                    duration: 2000,
                     onOpen: null,
                     onClose: null
                 });
@@ -799,7 +801,7 @@
                     message: x,
                     dir: 'ltr',
                     autoClose: true,
-                    duration: 5000,
+                    duration: 3000,
                     onOpen: null,
                     onClose: null
                 });
@@ -812,8 +814,8 @@
                     jswrapper: 'body',
                     message: msg,
                     dir: 'ltr',
-                    autoClose: close,
-                    duration: 4000,
+                    autoClose: true,
+                    duration: 3000,
                     onOpen: null,
                     onClose: null
                 });
