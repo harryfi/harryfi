@@ -324,7 +324,7 @@
             //end add by nurul 12/2/2019
                 //Initialize();
                 var filterBy = "kodebarang";
-                refreshTableHargaJual(filterBy);
+                refreshTableHargaJual("");
                 //add by nurul 12/2/2019
                 //$('#datatable').on('page.dt', function () {
                 //    $page = $('#datatable').DataTable().page.info().page;
@@ -527,6 +527,8 @@
             link = link.replace("replaceRecNum", encodeURIComponent($recNum));
             link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARUBlibli').val()));
             link = link.replace("replaceHargaPromosiBaru", encodeURIComponent($('#HJUALPROMOSIBARUBlibli').val()));
+            var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
+            //var filterBy = "";
 
             $.ajax({
                 type: "GET",
@@ -565,6 +567,8 @@
             link = link.replace("replaceRecNum", encodeURIComponent($recNum));
             link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU82Cart').val()));
             link = link.replace("replaceHargaGrosirBaru", encodeURIComponent($('#HJUALPROMOSIBARU82Cart').val()));
+            var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
+            //var filterBy = "";
 
             $.ajax({
                 type: "GET",
@@ -602,6 +606,8 @@
             var link = '@Html.Raw(Url.Action("UbahHargaJual", "Manage", new { recNum = "replaceRecNum", hargaJualBaru = "replaceHargaBaru" }))';
             link = link.replace("replaceRecNum", encodeURIComponent($recNum));
             link = link.replace("replaceHargaBaru", encodeURIComponent($('#HJUALBARU').val()));
+            var filterBy = encodeURIComponent($('#filter_pencarian_field').val());
+            //var filterBy = "";
 
             $.ajax({
                 type: "GET",
