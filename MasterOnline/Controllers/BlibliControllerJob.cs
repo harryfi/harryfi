@@ -1006,7 +1006,10 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo;
                                 oCommand.Parameters["@qty"].Value = result.value.qty;
                                 oCommand.Parameters["@orderDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate).UtcDateTime.AddHours(7);
-                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
+                                //change by Tri 12 Mei 2020, autocanceldate bisa null
+                                //oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
+                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate.HasValue ? result.value.autoCancelDate.Value : result.value.orderDate).UtcDateTime.AddHours(7);
+                                //end change by Tri 12 Mei 2020, autocanceldate bisa null
 
                                 oCommand.Parameters["@productName"].Value = result.value.productName;
                                 oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
@@ -6085,7 +6088,10 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo;
                                 oCommand.Parameters["@qty"].Value = result.value.qty;
                                 oCommand.Parameters["@orderDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate).UtcDateTime.AddHours(7);
-                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
+                                //change by Tri 12 Mei 2020, autocanceldate bisa null
+                                //oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
+                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate.HasValue ? result.value.autoCancelDate.Value : result.value.orderDate).UtcDateTime.AddHours(7);
+                                //end change by Tri 12 Mei 2020, autocanceldate bisa null
 
                                 oCommand.Parameters["@productName"].Value = result.value.productName;
                                 oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
@@ -8434,7 +8440,7 @@ namespace MasterOnline.Controllers
             public string orderItemNo { get; set; }
             public int qty { get; set; }
             public long orderDate { get; set; }
-            public long autoCancelDate { get; set; }
+            public long? autoCancelDate { get; set; }
             public string productName { get; set; }
             public string productItemName { get; set; }
             public float productPrice { get; set; }
