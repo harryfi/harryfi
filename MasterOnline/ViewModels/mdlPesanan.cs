@@ -271,4 +271,15 @@ namespace MasterOnline
         public string STATUS_TRANSAKSI { get; set; }
         public string BRG { get; set; }
     }
+
+    //add by nurul 13/5/2020
+    public class mdlDetailStok
+    {
+        public string Kode_Gudang { get; set; }
+        public string Nama_Gudang { get; set; }
+        public string BRG { get; set; }
+        public double JUMLAH { get; set; }
+        public string KD_HARGA_JUAL { get; set; }
+    }
+    //end add by nurul 13/5/2020
 }
