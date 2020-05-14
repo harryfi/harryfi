@@ -1362,7 +1362,7 @@
             if (tempBrgStok != null && tempBrgStok != undefined && tempBrgStok != "") {
             var link = '@Html.Raw(Url.Action("LihatDetailStok", "Manage", new { brgId = "replaceID", search = "replaceSearch" }))';
             link = link.replace("replaceID", encodeURIComponent(tempBrgStok));
-                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok_stok').val()));
+                link = link.replace("replaceSearch", encodeURIComponent($('#search_detail_stok').val()));
 
             $.ajax({
                 type: "GET",

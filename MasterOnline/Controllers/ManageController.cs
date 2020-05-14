@@ -46894,7 +46894,7 @@ namespace MasterOnline.Controllers
             {
                 if (getkata.Length > 0)
                 {
-                    if (search != "")
+                    if (search != "" && search != "undefined")
                     {
                         for (int i = 0; i < getkata.Length; i++)
                         {
@@ -46973,7 +46973,7 @@ namespace MasterOnline.Controllers
 
             if (getkata.Length > 0)
             {
-                if (search != "")
+                if (search != "" && search != "undefined")
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
