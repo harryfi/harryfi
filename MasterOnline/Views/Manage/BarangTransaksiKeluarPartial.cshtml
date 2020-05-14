@@ -97,7 +97,7 @@
                 <div class="col-md-3 col-sm-3 col-xs-12">
                     @if (Model.Stok != null)
                     {
-                        if (Model.Stok.ST_Posting == "Y")
+                        if (Model.Stok.ST_Posting == "Y" || Model.Stok.Nobuk.Substring(0, 2) == "OK")
                         {
                             <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
                         }

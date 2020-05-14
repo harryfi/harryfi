@@ -26016,7 +26016,7 @@ namespace MasterOnline.Controllers
             sSQLCount += "SELECT COUNT(ID) AS JUMLAH ";
             string sSQL2 = "";
             sSQL2 += "FROM STT01A ";
-            sSQL2 += "WHERE NOBUK LIKE '%IN%' AND STATUS_LOADING = '0' AND MK = 'M' ";
+            sSQL2 += "WHERE (NOBUK LIKE '%IN%' or NOBUK like '%OM%') AND STATUS_LOADING = '0' AND MK = 'M' ";
             if (search != "")
             {
                 //sSQL2 += "AND (NOBUK LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
@@ -27451,12 +27451,17 @@ namespace MasterOnline.Controllers
                 var stokOPDb = ErasoftDbContext.STT04A.Where(p => p.ID == stokId).Single();
                 var ListStokOPDetail = ErasoftDbContext.STT04B.Where(pd => pd.NOBUK == stokOPDb.NOBUK).ToList();
                 var listBarangStokOPDetail = ListStokOPDetail.Select(p => p.Brg).ToList();
+                var ListBuktiAll = ErasoftDbContext.STT01A.Where(a => a.Ref == stokOPDb.NOBUK).ToList();
+                var ListBuktiOM = ErasoftDbContext.STT01A.Where(a => a.Ref == stokOPDb.NOBUK && a.MK == "M").SingleOrDefault();
+                var ListBuktiOK = ErasoftDbContext.STT01A.Where(a => a.Ref == stokOPDb.NOBUK && a.MK == "K").SingleOrDefault();
 
                 var vm = new StokOpnameViewModel()
                 {
                     StokOpname = stokOPDb,
                     ListBarangStokOpname = ListStokOPDetail,
                     ListBarang = ErasoftDbContext.STF02.Where(a => listBarangStokOPDetail.Contains(a.BRG) && a.TYPE == "3").ToList(),
+                    buktiOM = ListBuktiOM?.Nobuk,
+                    buktiOK = ListBuktiOK?.Nobuk
                 };
 
                 return PartialView("BarangStokOpnamePartial", vm);
@@ -27691,6 +27696,19 @@ namespace MasterOnline.Controllers
         public class getStokFisik
         {
             public double STOK_FISIK { get; set; }
+        }
+
+        public ActionResult GetNoBuktiSOP(string nobuk)
+        {
+            var sBuktiOM = ErasoftDbContext.STT01A.Where(a => a.Ref == nobuk && a.MK == "M").SingleOrDefault();
+            var sBuktiOK = ErasoftDbContext.STT01A.Where(a => a.Ref == nobuk && a.MK == "K").SingleOrDefault();
+
+            var vm = new StokOpnameViewModel()
+            {
+                buktiOM = sBuktiOM?.Nobuk,
+                buktiOK = sBuktiOK?.Nobuk
+            };
+            return Json(vm, JsonRequestBehavior.AllowGet);
         }
 
         // =============================================== Bagian Transaksi Stok Opname (END)

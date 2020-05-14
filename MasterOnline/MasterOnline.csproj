@@ -592,6 +592,7 @@
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Hubs\MasterOnlineHub.cs" />
+    <Compile Include="Hubs\ProgressHub.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
       <DependentUpon>201806190714594_AddPromoSubsAndAlterAccount.cs</DependentUpon>
@@ -1063,6 +1064,7 @@
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\ApplicationPreload.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
+    <Compile Include="Utils\Functions.cs" />
     <Compile Include="Utils\HangfireBootstrapper.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />

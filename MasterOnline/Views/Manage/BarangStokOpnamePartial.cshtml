@@ -20,6 +20,7 @@
     {
         username = username.Substring(0, 17) + "...";
     }
+
 }
 
 @Html.AntiForgeryToken()
@@ -94,24 +95,59 @@
                     {
                         if (Model.StokOpname.POSTING == "1")
                         {
-                            <input id="statpros" type="text" style="width:100px" value="Sudah" disabled class="form-control" />
+                            <input id="statpros" type="text" value="Sudah" disabled class="form-control" />
                         }
                         else
                         {
-                            <input id="statpros" type="text" style="width:100px" value="Belum" disabled class="form-control" />
+                            <input id="statpros" type="text" value="Belum" disabled class="form-control" />
                         }
                     }
                     else
                     {
-                        <input type="text" value="Input" disabled class="form-control" />
+                        <input type="text" value="Belum" disabled class="form-control" />
                     }
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label col-md-4 col-sm-4 col-xs-12">&nbsp;</label>
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">No Bukti Masuk</label>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    @if (Model.StokOpname != null)
+                    {
+                        if (Model.StokOpname.POSTING == "1")
+                        {
+                            <input id="bktOM" type="text" value="@Model.buktiOM" disabled class="form-control" init />
+                        }
+                        else
+                        {
+                            <input id="bktOM" type="text" value="" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input id="bktOM" type="text" value="" disabled class="form-control" />
+                    }
+                </div>
             </div>
             <div class="form-group">
-                <div class="col-md-offset-4 col-md-8 col-sm-8 col-xs-12">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">No Bukti Keluar</label>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    @if (Model.StokOpname != null)
+                    {
+                        if (Model.StokOpname.POSTING == "1")
+                        {
+                            <input id="bktOK" type="text" value="@Model.buktiOK" disabled class="form-control" />
+                        }
+                        else
+                        {
+                            <input id="bktOK" type="text" value="" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input id="bktOK" type="text" value="" disabled class="form-control" />
+                    }
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
                     @if (Model.StokOpname != null)
                     {
                         if (Model.StokOpname.POSTING == "1")
