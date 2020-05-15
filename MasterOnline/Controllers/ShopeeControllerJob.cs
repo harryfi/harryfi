@@ -5695,11 +5695,19 @@ namespace MasterOnline.Controllers
 
                 for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
                 {
-                    HttpBody.attributes.Add(new ShopeeAttributeClass
+                    //HttpBody.attributes.Add(new ShopeeAttributeClass
+                    //{
+                    //    attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+                    //    value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                    //});
+                    if (Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim() != "null")
                     {
-                        attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
-                        value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
-                    });
+                        HttpBody.attributes.Add(new ShopeeAttributeClass
+                        {
+                            attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+                            value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                        });
+                    }
                 }
 
             }
