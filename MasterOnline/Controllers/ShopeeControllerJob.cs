@@ -2673,92 +2673,92 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
                         batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
                         #region cut max length dan ubah '
-                        string payment_method = string.IsNullOrEmpty(order.payment_method) ? order.payment_method.Replace('\'', '`') : "";
+                        string payment_method = !string.IsNullOrEmpty(order.payment_method) ? "" : order.payment_method.Replace('\'', '`');
                         if (payment_method.Length > 100)
                         {
                             payment_method = payment_method.Substring(0, 100);
                         }
-                        string shipping_carrier = string.IsNullOrEmpty(order.shipping_carrier) ? order.shipping_carrier.Replace('\'', '`') : "";
+                        string shipping_carrier = !string.IsNullOrEmpty(order.shipping_carrier) ? order.shipping_carrier.Replace('\'', '`') : "";
                         if (shipping_carrier.Length > 300)
                         {
                             shipping_carrier = shipping_carrier.Substring(0, 300);
                         }
-                        string currency = string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
+                        string currency = !string.IsNullOrEmpty(order.currency) ? order.currency.Replace('\'', '`') : "";
                         if (currency.Length > 50)
                         {
                             currency = currency.Substring(0, 50);
                         }
-                        string Recipient_Address_town = string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Replace('\'', '`') : "";
+                        string Recipient_Address_town = !string.IsNullOrEmpty(order.recipient_address.town) ? order.recipient_address.town.Replace('\'', '`') : "";
                         if (Recipient_Address_town.Length > 300)
                         {
                             Recipient_Address_town = Recipient_Address_town.Substring(0, 300);
                         }
-                        string Recipient_Address_city = string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Replace('\'', '`') : "";
+                        string Recipient_Address_city = !string.IsNullOrEmpty(order.recipient_address.city) ? order.recipient_address.city.Replace('\'', '`') : "";
                         if (Recipient_Address_city.Length > 300)
                         {
                             Recipient_Address_city = Recipient_Address_city.Substring(0, 300);
                         }
-                        string Recipient_Address_name = string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Replace('\'', '`') : "";
+                        string Recipient_Address_name = !string.IsNullOrEmpty(order.recipient_address.name) ? order.recipient_address.name.Replace('\'', '`') : "";
                         if (Recipient_Address_name.Length > 300)
                         {
                             Recipient_Address_name = Recipient_Address_name.Substring(0, 300);
                         }
-                        string Recipient_Address_district = string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Replace('\'', '`') : "";
+                        string Recipient_Address_district = !string.IsNullOrEmpty(order.recipient_address.district) ? order.recipient_address.district.Replace('\'', '`') : "";
                         if (Recipient_Address_district.Length > 300)
                         {
                             Recipient_Address_district = Recipient_Address_district.Substring(0, 300);
                         }
-                        string Recipient_Address_country = string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Replace('\'', '`') : "";
+                        string Recipient_Address_country = !string.IsNullOrEmpty(order.recipient_address.country) ? order.recipient_address.country.Replace('\'', '`') : "";
                         if (Recipient_Address_country.Length > 300)
                         {
                             Recipient_Address_country = Recipient_Address_country.Substring(0, 300);
                         }
-                        string Recipient_Address_zipcode = string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
+                        string Recipient_Address_zipcode = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
                         if (Recipient_Address_zipcode.Length > 300)
                         {
                             Recipient_Address_zipcode = Recipient_Address_zipcode.Substring(0, 300);
                         }
-                        string Recipient_Address_phone = string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
+                        string Recipient_Address_phone = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
                         if (Recipient_Address_phone.Length > 50)
                         {
                             Recipient_Address_phone = Recipient_Address_phone.Substring(0, 50);
                         }
-                        string Recipient_Address_state = string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Replace('\'', '`') : "";
+                        string Recipient_Address_state = !string.IsNullOrEmpty(order.recipient_address.state) ? order.recipient_address.state.Replace('\'', '`') : "";
                         if (Recipient_Address_state.Length > 300)
                         {
                             Recipient_Address_state = Recipient_Address_state.Substring(0, 300);
                         }
-                        string tracking_no = string.IsNullOrEmpty(order.tracking_no) ? order.tracking_no.Replace('\'', '`') : "";
+                        string tracking_no = !string.IsNullOrEmpty(order.tracking_no) ? order.tracking_no.Replace('\'', '`') : "";
                         if (tracking_no.Length > 100)
                         {
                             tracking_no = tracking_no.Substring(0, 100);
                         }
-                        string order_status = string.IsNullOrEmpty(order.order_status) ? order.order_status.Replace('\'', '`') : "";
+                        string order_status = !string.IsNullOrEmpty(order.order_status) ? order.order_status.Replace('\'', '`') : "";
                         if (order_status.Length > 100)
                         {
                             order_status = order_status.Substring(0, 100);
                         }
-                        string service_code = string.IsNullOrEmpty(order.service_code) ? order.service_code.Replace('\'', '`') : "";
+                        string service_code = !string.IsNullOrEmpty(order.service_code) ? order.service_code.Replace('\'', '`') : "";
                         if (service_code.Length > 100)
                         {
                             service_code = service_code.Substring(0, 100);
                         }
-                        string ordersn = string.IsNullOrEmpty(order.ordersn) ? order.ordersn.Replace('\'', '`') : "";
+                        string ordersn = !string.IsNullOrEmpty(order.ordersn) ? order.ordersn.Replace('\'', '`') : "";
                         if (ordersn.Length > 100)
                         {
                             ordersn = ordersn.Substring(0, 100);
                         }
-                        string country = string.IsNullOrEmpty(order.country) ? order.country.Replace('\'', '`') : "";
+                        string country = !string.IsNullOrEmpty(order.country) ? order.country.Replace('\'', '`') : "";
                         if (country.Length > 100)
                         {
                             country = country.Substring(0, 100);
                         }
-                        string dropshipper = string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Replace('\'', '`') : "";
+                        string dropshipper = !string.IsNullOrEmpty(order.dropshipper) ? order.dropshipper.Replace('\'', '`') : "";
                         if (dropshipper.Length > 300)
                         {
                             dropshipper = dropshipper.Substring(0, 300);
                         }
-                        string buyer_username = string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'','`') : "";
+                        string buyer_username = !string.IsNullOrEmpty(order.buyer_username) ? order.buyer_username.Replace('\'','`') : "";
                         if(buyer_username.Length > 300)
                         {
                             buyer_username = buyer_username.Substring(0, 300);
@@ -2781,8 +2781,8 @@ namespace MasterOnline.Controllers
                             escrow_amount = order.escrow_amount,
                             estimated_shipping_fee = order.estimated_shipping_fee,
                             goods_to_declare = order.goods_to_declare,
-                            message_to_seller = order.message_to_seller,
-                            note = order.note,
+                            message_to_seller = (order.message_to_seller ?? "").Replace('\'', '`'),
+                            note = (order.note ?? "").Replace('\'', '`'),
                             note_update_time = DateTimeOffset.FromUnixTimeSeconds(order.note_update_time).UtcDateTime,
                             ordersn = ordersn,
                             order_status = order_status,
@@ -2796,7 +2796,7 @@ namespace MasterOnline.Controllers
                             Recipient_Address_city = Recipient_Address_city,
                             Recipient_Address_town = Recipient_Address_town,
                             Recipient_Address_district = Recipient_Address_district,
-                            Recipient_Address_full_address = order.recipient_address.full_address,
+                            Recipient_Address_full_address = (order.recipient_address.full_address ?? "").Replace('\'', '`'),
                             Recipient_Address_name = Recipient_Address_name,
                             Recipient_Address_phone = Recipient_Address_phone,
                             Recipient_Address_zipcode = Recipient_Address_zipcode,
@@ -2816,17 +2816,22 @@ namespace MasterOnline.Controllers
                         }
                         foreach (var item in order.items)
                         {
-                            string item_name = string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
+                            string item_name = !string.IsNullOrEmpty(item.item_name) ? item.item_name.Replace('\'', '`') : "";
                             if (item_name.Length > 400)
                             {
                                 item_name = item_name.Substring(0, 400);
                             }
-                            string item_sku = string.IsNullOrEmpty(item.item_sku) ? item.item_sku.Replace('\'', '`') : "";
+                            string item_sku = !string.IsNullOrEmpty(item.item_sku) ? item.item_sku.Replace('\'', '`') : "";
                             if (item_sku.Length > 400)
                             {
                                 item_sku = item_sku.Substring(0, 400);
                             }
-                            string variation_sku = string.IsNullOrEmpty(item.variation_sku) ? item.variation_sku.Replace('\'', '`') : "";
+                            string variation_name = !string.IsNullOrEmpty(item.variation_name) ? item.variation_name.Replace('\'', '`') : "";
+                            if (variation_name.Length > 400)
+                            {
+                                variation_name = variation_name.Substring(0, 400);
+                            }
+                            string variation_sku = !string.IsNullOrEmpty(item.variation_sku) ? item.variation_sku.Replace('\'', '`') : "";
                             if (variation_sku.Length > 400)
                             {
                                 variation_sku = variation_sku.Substring(0, 400);
@@ -2841,7 +2846,7 @@ namespace MasterOnline.Controllers
                                 item_sku = item_sku,
                                 variation_discounted_price = item.variation_discounted_price,
                                 variation_id = item.variation_id,
-                                variation_name = item.variation_name,
+                                variation_name = variation_name,
                                 variation_original_price = item.variation_original_price,
                                 variation_quantity_purchased = item.variation_quantity_purchased,
                                 variation_sku = variation_sku,
