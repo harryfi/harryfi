@@ -1097,7 +1097,10 @@ namespace MasterOnline.Controllers
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                //change 15 mei 2020, ubah jd 30 mnit
+                                //recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(30), recurJobOpt);
+                                //end change 15 mei 2020, ubah jd 30 mnit
 
                                 //pending dulu by nurul 11/12/2019
                                 //connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
@@ -1106,7 +1109,7 @@ namespace MasterOnline.Controllers
                                 //end change by nurul 10/12/2019, ubah interval hangfire pesanan dan tambah get pesanan cancel
 
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_canceled_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
                                 //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                                 //await new TokopediaControllerJob().GetOrderListCancel(data, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
 
