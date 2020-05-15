@@ -2631,7 +2631,7 @@ namespace MasterOnline.Controllers
                     //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
                     string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
-                    string tlp = string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
+                    string tlp = !string.IsNullOrEmpty(order.recipient_address.phone) ? order.recipient_address.phone.Replace('\'', '`') : "";
                     if (tlp.Length > 30)
                     {
                         tlp = tlp.Substring(0, 30);
