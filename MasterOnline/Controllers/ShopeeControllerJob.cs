@@ -2636,12 +2636,12 @@ namespace MasterOnline.Controllers
                     {
                         tlp = tlp.Substring(0, 30);
                     }
-                    string AL_KIRIM1 = string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
+                    string AL_KIRIM1 = !string.IsNullOrEmpty(order.recipient_address.full_address) ? order.recipient_address.full_address.Replace('\'', '`') : "";
                     if (AL_KIRIM1.Length > 30)
                     {
                         AL_KIRIM1 = AL_KIRIM1.Substring(0, 30);
                     }
-                    string KODEPOS = string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
+                    string KODEPOS = !string.IsNullOrEmpty(order.recipient_address.zipcode) ? order.recipient_address.zipcode.Replace('\'', '`') : "";
                     if (KODEPOS.Length > 7)
                     {
                         KODEPOS = KODEPOS.Substring(0, 7);
