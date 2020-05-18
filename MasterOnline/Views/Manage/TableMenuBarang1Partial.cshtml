@@ -163,6 +163,14 @@
         $(function () {
             $('#tabelbarang1partialpager').on('click', 'a', function () {
                 if (this.href != "") {
+                    var link = this.href;
+                    link += "&filter=replaceFilter&filtervalue=replaceValueFilter";
+                    //link = link.replace("replaceOrder", $('#Order').val());
+                    var filterby = get_filterby();
+                    var filtervalue = get_filtervalue(filterby);
+                    link = link.replace("replaceFilter", encodeURIComponent(filterby));
+                    link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
+
                     $.ajax({
                         url: this.href,
                         type: 'GET',
