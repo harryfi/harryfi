@@ -85,5 +85,9 @@ namespace MasterOnline
         //add by nurul 26/3/2020
         public string no_job { get; set; }
         //end add by nurul 26/3/2020
+
+        //add by nurul 15/5/2020
+        public string ket { get; set; }
+        //end add by nurul 15/5/2020
     }
 }

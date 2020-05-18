@@ -86,5 +86,17 @@ namespace MasterOnline.ViewModels
         //add by nurul 2/4/2020
         public string KdBooking { get; set; }
         //end add by nurul 2/4/2020
+
+        //add by nurul 15/5/2020
+        public string Ket { get; set; }
+        public List<tempKetTokped> listKetTokped = new List<tempKetTokped>();
+        //end add by nurul 15/5/2020
+    }
+
+    public class tempKetTokped
+    {
+        public string Nobuk { get; set; }
+        public string Brg { get; set; }
+        public string KetDetail { get; set; }
     }
 }

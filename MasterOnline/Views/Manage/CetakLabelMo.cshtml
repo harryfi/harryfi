@@ -673,7 +673,7 @@
                                                     @*<thead>*@
                                                     <tr>
                                                         <th style="width:200px">Kode Barang</th>
-                                                        <th style="width:450px">Nama Produk</th>
+                                                        <th style="width:450px">Nama Barang</th>
                                                         <th style="text-align: right; width:150px">Jumlah Barang</th>
                                                     </tr>
                                                     @*</thead>*@
@@ -683,7 +683,9 @@
                                                             var namaBarang1 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
                                                             var namaBarang2 = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
                                                             var satuan = labelList?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
-                                                            <tr>
+                                                            var ketTokped = (labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == null || labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail == "" ? "-" : labelList?.listKetTokped.SingleOrDefault(b => b.Brg == fakturDetail.BRG)?.KetDetail);
+
+                                                            <tr >
                                                                 <td>
                                                                     @fakturDetail.BRG
                                                                 </td>
@@ -698,9 +700,30 @@
                                                                     @fakturDetail.QTY @satuan
                                                                 </td>
                                                             </tr>
+                                                            if (labelList.Marketplace.ToUpper() == "TOKOPEDIA" && ketTokped != "-")
+                                                            {
+                                                                <tr style="border-top:hidden;">
+                                                                    <td colspan="3">
+                                                                        <table>
+                                                                            <tr>
+                                                                                <th width="60px">Catatan</th>
+                                                                                <td>@ketTokped</td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            }
                                                         }
                                                     </tbody>
                                                 </table>
+                                                @*//ADD BY NURUL 15/5/2020*@
+                                                @if (labelList.Marketplace.ToUpper() == "SHOPEE" && labelList.Ket.Length > 0)
+                                                {
+                                                    <diV>
+                                                        <span class="block_subtitle_label">Ket Pembeli</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)
+                                                    </diV>
+                                                }
+                                                @*//END ADD BY NURUL 15/5/2020*@
                                                 @*end add by nurul 28/1/2019*@
                                                 <hr style="width:620px !important;" />
                                             </div>

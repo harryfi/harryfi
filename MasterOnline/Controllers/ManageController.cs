@@ -21469,6 +21469,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 26/3/2020
                 sSQLSelect += ",ISNULL(D.NO_PO_CUST,'') AS no_job ";
                 //end add by nurul 26/3/2020
+                //add by nurul 15/5/2020
+                sSQLSelect += ",isnull(convert(nvarchar,A.KET),'') ";
+                //end add by nurul 15/5/2020
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "FROM SIT01A A LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI AND A.RECNUM IN (" + string_recnum + ") ";
@@ -46437,6 +46440,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 26/3/2020
                 sSQLSelect += ",ISNULL(A.NO_PO_CUST,'') AS no_job ";
                 //end add by nurul 26/3/2020
+                //add by nurul 15/5/2020
+                sSQLSelect += ",isnull(convert(nvarchar,A.KET),'') ";
+                //end add by nurul 15/5/2020
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
                 sSQL2 += "LEFT JOIN SIT01A D ON A.NO_BUKTI=D.NO_SO ";
@@ -46490,9 +46496,22 @@ namespace MasterOnline.Controllers
                     var tgl = DateTime.Now.ToString("dd/MM/yyyy");
                     var ambilRefTokped = so.so_referensi.Split(';');
                     var refNew = "";
+                    var ket = "";
+                    var ketTokped = new List<tempKetTokped>();
                     if (ambilRefTokped.Count() > 0)
                     {
                         refNew = ambilRefTokped.Last();
+                    }
+
+                    if(so.namamarket.ToUpper() == "SHOPEE")
+                    {
+                        ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                    }
+
+                    if (so.namamarket.ToUpper() == "TOKOPEDIA")
+                    {
+                        EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in ('" + so.so_bukti + "')");
+                        ketTokped = ErasoftDbContext.Database.SqlQuery<tempKetTokped>("Select no_bukti as Nobuk, brg as Brg, Ket_Detail as ketdetail from sot01b where no_bukti='" + so.so_bukti + "'").ToList();
                     }
 
                     if (so.namamarket.ToUpper() == "LAZADA")
@@ -46536,6 +46555,9 @@ namespace MasterOnline.Controllers
                         tglKirim = (tgl == null || tgl == "01-01-0001" || tgl == "01/01/0001" ? DateTime.Now.ToString("dd/MM/yyyy") : tgl),
                         logoKurirApi = logoKurir,
                         KdBooking = kodeBooking,
+
+                        listKetTokped = ketTokped,
+                        Ket = ket,
                     };
 
                     ym.ListCetakLabel.Add(vm);
