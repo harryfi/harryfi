@@ -471,7 +471,7 @@
                                                 @if (isi_ref != "-" && no_ref == "1")
                                                 {
                                                     <div class="row">
-                                                        <div class="col-md-7">
+                                                        <div class="col-md-11">
                                                             <div class="resiyes">
                                                                 <p class="sub_title">
                                                                     <span class="block_subtitle_label" style="width:80px">No Referensi</span><img src="@Url.Action("LihatFakturBarcode", "Manage", new { resi = labelList.isiRef == null || labelList.isiRef == "" ? "-" : labelList.isiRef, market = labelList.Marketplace })" alt="" />
@@ -597,75 +597,75 @@
                                                     </tr>
                                                     @*===========================================================================*@
                                                     @*<tr>
-                                                            <td class="sub_title">
-                                                                @if (no_ref == "0" || no_ref == "-")
-                                                                {
-                                                                    <span class="block_subtitle_label">No. Referensi</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
-                                                                }
-                                                            </td>
-                                                            <td class="sub_title" style="width:550px">
-                                                                <span class="block_subtitle_label">Penerima</span> @labelList.Faktur.NAMAPEMESAN
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="sub_title" style="width:450px">
-                                                                <span class="block_subtitle_label">Kurir</span> @(labelList.Kurir)
-                                                            </td>
-                                                            <td class="sub_title" style="width:550px">
-                                                                <span class="block_subtitle_label">Alamat Penerima</span> @(labelList.alamatPenerima)
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td class="sub_title">
-                                                                <span class="block_subtitle_label">Tanggal</span> @(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))
-                                                            </td>
-                                                            <td class="sub_title">
-                                                                <span class="block_subtitle_label">No. Telepon</span> @(labelList.tlpPembeli)
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            @if (Model.urlNobuk != null && Model?.urlNobuk == "1")
-                                                            {
-                                                                <td class="sub_title noso">
-                                                                    <span class="block_subtitle_label">No. SO</span> @(labelList.Faktur.NO_SO == null || labelList.Faktur.NO_SO == "" ? "-" : labelList.Faktur.NO_SO)
-                                                                </td>
-                                                            }
-                                                            @if (Model.urlTotal != null && Model?.urlTotal == "1")
-                                                            {
-                                                                <td class="sub_title total">
-                                                                    <span class="block_subtitle_label">Total</span> @(labelList.linktotal)
-                                                                </td>
-                                                            }
-                                                        </tr>*@
+                <td class="sub_title">
+                    @if (no_ref == "0" || no_ref == "-")
+                    {
+                        <span class="block_subtitle_label">No. Referensi</span> @(labelList.noRef == null || labelList.noRef == "" ? "-" : labelList.noRef)
+                    }
+                </td>
+                <td class="sub_title" style="width:550px">
+                    <span class="block_subtitle_label">Penerima</span> @labelList.Faktur.NAMAPEMESAN
+                </td>
+            </tr>
+            <tr>
+                <td class="sub_title" style="width:450px">
+                    <span class="block_subtitle_label">Kurir</span> @(labelList.Kurir)
+                </td>
+                <td class="sub_title" style="width:550px">
+                    <span class="block_subtitle_label">Alamat Penerima</span> @(labelList.alamatPenerima)
+                </td>
+            </tr>
+            <tr>
+                <td class="sub_title">
+                    <span class="block_subtitle_label">Tanggal</span> @(labelList.Faktur.TGL.ToString("dd/MM/yyyy"))
+                </td>
+                <td class="sub_title">
+                    <span class="block_subtitle_label">No. Telepon</span> @(labelList.tlpPembeli)
+                </td>
+            </tr>
+            <tr>
+                @if (Model.urlNobuk != null && Model?.urlNobuk == "1")
+                {
+                    <td class="sub_title noso">
+                        <span class="block_subtitle_label">No. SO</span> @(labelList.Faktur.NO_SO == null || labelList.Faktur.NO_SO == "" ? "-" : labelList.Faktur.NO_SO)
+                    </td>
+                }
+                @if (Model.urlTotal != null && Model?.urlTotal == "1")
+                {
+                    <td class="sub_title total">
+                        <span class="block_subtitle_label">Total</span> @(labelList.linktotal)
+                    </td>
+                }
+            </tr>*@
 
                                                 </table>
                                                 @*<table>
-                                                        <tr>
-                                                            <td class="sub_title">
-                                                                <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko == null ? "" : labelList.NamaToko)</span>
-                                                            </td>
-                                                        </tr>
-                                                        @if (Model?.urlAl != null && Model?.urlAl == "1")
-                                                        {
-                                                            <tr>
-                                                                <td class="sub_title">
-                                                                    <div class="alamat_label">
-                                                                        <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        }
-                                                        @if (Model?.urlAl != null && Model?.urlAl == "1")
-                                                        {
-                                                            <tr>
-                                                                <td class="sub_title">
-                                                                    <div class="tlp_label">
-                                                                        <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.TlpToko)</span>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        }
-                                                    </table>*@
+            <tr>
+                <td class="sub_title">
+                    <span class="block_subtitle_label">Nama Penjual</span> <span class="nama_toko_label"> @(labelList.linktoko == null ? "" : labelList.NamaToko)</span>
+                </td>
+            </tr>
+            @if (Model?.urlAl != null && Model?.urlAl == "1")
+            {
+                <tr>
+                    <td class="sub_title">
+                        <div class="alamat_label">
+                            <span class="block_subtitle_label">Alamat Penjual</span> @(labelList.AlamatToko)
+                        </div>
+                    </td>
+                </tr>
+            }
+            @if (Model?.urlAl != null && Model?.urlAl == "1")
+            {
+                <tr>
+                    <td class="sub_title">
+                        <div class="tlp_label">
+                            <span class="block_subtitle_label">No. Telepon Penjual</span> <span class="tlp_toko_label"> @(labelList.linktlptoko == null ? "" : labelList.TlpToko)</span>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </table>*@
 
                                                 @*add by nurul 28/1/2019*@
                                                 <br />
@@ -720,19 +720,19 @@
                                                         }
                                                     </tbody>
                                                 </table>
+                                                <hr style="width:620px !important;" />
+                                                @*end add by nurul 28/1/2019*@
                                                 @*//ADD BY NURUL 15/5/2020*@
                                                 @if (labelList.Marketplace.ToUpper() == "SHOPEE" && labelList.Ket.Length > 0)
                                                 {
                                                     if (Model.urlKet != null && Model?.urlKet == "1")
                                                     {
                                                         <diV>
-                                                            <span class="block_subtitle_label">Ket Pembeli</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)
+                                                            <span class="block_subtitle_label">Catatan</span> @(labelList.Ket == null || labelList.Ket == "" ? "-" : labelList.Ket)
                                                         </diV>
                                                     }
                                                 }
                                                 @*//END ADD BY NURUL 15/5/2020*@
-                                                @*end add by nurul 28/1/2019*@
-                                                <hr style="width:620px !important;" />
                                             </div>
                                         }
                                     </div>
