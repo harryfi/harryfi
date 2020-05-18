@@ -50,6 +50,7 @@ namespace MasterOnline.ViewModels
         public string urlNama { get; set; }
         public string urlFaktur { get; set; }
         public string urlLabel { get; set; }
+        public string urlKet { get; set; }
         //end add by nurul 11/12/2019, for cetak label mo
     }
 

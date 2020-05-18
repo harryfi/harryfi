@@ -553,6 +553,7 @@
                     $('#ctk_nama__' + cust).attr('checked', true);
                     $('#nama_toko__' + cust).val("");
                     $('#tlp_toko__' + cust).val("");
+                    $('#ctk_ket__' + cust).attr('checked', true);
 
                     $('#btn-print-faktur__' + cust).off('click').on('click', function () {
                     var toko = $('#nama_toko__' + cust).val();
@@ -565,6 +566,7 @@
                         var nobuk = "0";
                         var total = "0";
                         var nama = "0";
+                        var ket = "0";
 
                     if ($("#ctk_alamat__" + cust).is(":checked") == true) {
                         alamat = "1";
@@ -596,6 +598,11 @@
                             nama = "1";
                         } else if ($('#ctk_nama__' + cust).is(":checked") == false) {
                             nama = "0";
+                        }
+                        if ($('#ctk_ket__' + cust).is(":checked") == true) {
+                            ket = "1";
+                        } else if ($('#ctk_ket__' + cust).is(":checked") == false) {
+                            ket = "0";
                         }
 
                     var $alamat = '&alamat=' + alamat;
@@ -634,6 +641,7 @@
                             mpLink: mp,
                             nobukLink: nobuk,
                             totalLink: total,
+                            ketLink: ket,
                         };
 
                         $('#modalPrintShopee__label__' + cust).html('Print Pesanan Shopee');
@@ -844,7 +852,7 @@
                                         </div>
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             Nama Toko
-                                        </div>                                        
+                                        </div>
                                         <div class="col-md-1">
                                         </div>
                                     </div>
@@ -868,6 +876,21 @@
                                         </div>
                                         <div class="col-md-3" style="padding-top: 7px;">
                                             Total Harga
+                                        </div>
+                                        <div class="col-md-1">
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:5px">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-2" style="padding-bottom:10px">
+                                            <label class="checkbox-container">
+                                                <input id="ctk_ket__@(item.CUST)" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                                <span id="ctk_ket__@(item.CUST)" class="checkmark"></span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4" style="padding-top: 7px;">
+                                            Catatan Pembeli
                                         </div>
                                         <div class="col-md-1">
                                         </div>
