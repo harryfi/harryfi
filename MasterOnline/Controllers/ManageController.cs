@@ -10763,11 +10763,11 @@ namespace MasterOnline.Controllers
                         IPagedList<BRAND_BLIBLI> pageOrders = new StaticPagedList<BRAND_BLIBLI>(list_value, pagenumber + 1, 10, 10);
                         return PartialView("TablePromptBrandBlibli", pageOrders);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
-                    
+
                 }
             }
 
@@ -30852,11 +30852,11 @@ namespace MasterOnline.Controllers
                             //sSQLharga += " AND ";
                         }
 
-                        if(filter == "kodebarang")
+                        if (filter == "kodebarang")
                         {
                             sSQLkode += "  A.BRG like '%" + getkata[i] + "%' ";
                         }
-                        else if(filter == "namabarang")
+                        else if (filter == "namabarang")
                         {
                             sSQLnama += " (ISNULL(D.NAMA,'') + ' ' + ISNULL(D.NAMA2,'')) like '%" + getkata[i] + "%' ";
                         }
@@ -30893,14 +30893,14 @@ namespace MasterOnline.Controllers
                 //sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR (D.NAMA + D.NAMA2) LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
                 //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " or " + sSQLhpokok + " ) ";
                 //sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLmarket + " or " + sSQLharga + " ) ";
-                if(filter == "kodebarang")
+                if (filter == "kodebarang")
                 {
                     sSQL2 += " AND ( " + sSQLkode + " ) ";
                 }
-                else if(filter == "namabarang")
+                else if (filter == "namabarang")
                 {
                     sSQL2 += " AND ( " + sSQLnama + " ) ";
-                } 
+                }
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.BRG ASC ";
@@ -46894,7 +46894,7 @@ namespace MasterOnline.Controllers
             {
                 if (getkata.Length > 0)
                 {
-                    if (search != "")
+                    if (search != "" && search != "undefined")
                     {
                         for (int i = 0; i < getkata.Length; i++)
                         {
@@ -46959,6 +46959,70 @@ namespace MasterOnline.Controllers
             IPagedList<mdlDetailPesanan> pageOrders = new StaticPagedList<mdlDetailPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("ListDetailPesananBarang", pageOrders);
         }
+
+        //add by nurul 13/5/2020
+        public ActionResult LihatDetailStok(string brgId, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            ViewData["tempBarang"] = brgId;
+            string[] getkata = search.Split(' ');
+            string sSQLkode = "";
+            string sSQLNama = "";
+
+            if (getkata.Length > 0)
+            {
+                if (search != "" && search != "undefined")
+                {
+                    for (int i = 0; i < getkata.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            sSQLkode += " and ";
+                            sSQLNama += " and ";
+                        }
+
+
+                        sSQLkode += " KODE_GUDANG like '%" + getkata[i] + "%' ";
+                        sSQLNama += " NAMA_GUDANG like '%" + getkata[i] + "%' ";
+
+                    }
+                }
+            }
+
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT JUMLAH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0),KODE_GUDANG, NAMA_GUDANG, KD_HARGA_JUAL, STF08A.BRG ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(KODE_GUDANG) AS JUMLAH FROM ( ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF08A (NOLOCK) ";
+            sSQL2 += "INNER JOIN STF18 (NOLOCK) ON STF08A.GD=STF18.KODE_GUDANG ";
+            sSQL2 += "WHERE STF08A.TAHUN=YEAR(SYSDATETIME()) AND STF18.QOH_SALES=0 and STF08A.BRG='" + brgId + "' ";
+            if (search != "")
+            {
+                sSQL2 += " AND ( (" + sSQLkode + ") or (" + sSQLNama + ") ) ";
+            }
+            sSQL2 += "GROUP BY KODE_GUDANG,NAMA_GUDANG, KD_HARGA_JUAL, STF08A.BRG ";
+            var sSQLCount2 = ")A ";
+            var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + sSQLCount2).Single();
+            if (minimal_harus_ada_item_untuk_current_page > totalCount.JUMLAH)
+            {
+                pagenumber = pagenumber - 1;
+            }
+
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY KODE_GUDANG ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlDetailStok>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+
+            IPagedList<mdlDetailStok> pageOrders = new StaticPagedList<mdlDetailStok>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("ListDetailStokBarang", pageOrders);
+        }
+        //end add by nurul 13/5/2020
     }
     public class smolSTF02
     {
