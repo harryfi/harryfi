@@ -2673,7 +2673,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
                         batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
                         #region cut max length dan ubah '
-                        string payment_method = !string.IsNullOrEmpty(order.payment_method) ? "" : order.payment_method.Replace('\'', '`');
+                        string payment_method = !string.IsNullOrEmpty(order.payment_method) ? order.payment_method.Replace('\'', '`') : "";
                         if (payment_method.Length > 100)
                         {
                             payment_method = payment_method.Substring(0, 100);
