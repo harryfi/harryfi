@@ -3991,7 +3991,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Customer (END)
 
         // =============================================== Bagian Barang (START)
-        public ActionResult RefreshTableMenuBarang(int? page, string search = "")
+        public ActionResult RefreshTableMenuBarang(int? page, string search = "", string filter = "", string filtervalue = "")
         {
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
@@ -4004,47 +4004,73 @@ namespace MasterOnline.Controllers
             string sSQLkategori = "";
             string sSQLmerk = "";
             string sSQLharga = "";
+            //if (getkata.Length > 0)
+            //{
+            //    if (search != "")
+            //    {
+            //        for (int i = 0; i < getkata.Length; i++)
+            //        {
+            //            if (getkata.Length == 1)
+            //            {
+            //                sSQLnama += " ( (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' )";
+            //                sSQLkode += " ( a.BRG like '%" + getkata[i] + "%' )";
+            //                sSQLkategori += " ( a.KET_SORT1 like '%" + getkata[i] + "%' )";
+            //                sSQLmerk += " ( a.KET_SORT2 like '%" + getkata[i] + "%' )";
+            //                sSQLharga += " ( a.HJUAL like '%" + getkata[i] + "%' )";
+            //            }
+            //            else
+            //            {
+            //                if (getkata[i] == getkata.First())
+            //                {
+            //                    sSQLnama += " ( (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%'";
+            //                    sSQLkode += " ( a.BRG like '%" + getkata[i] + "%'";
+            //                    sSQLkategori += " ( a.KET_SORT1 like '%" + getkata[i] + "%' ";
+            //                    sSQLmerk += " ( a.KET_SORT2 like '%" + getkata[i] + "%' ";
+            //                    sSQLharga += " ( a.HJUAL like '%" + getkata[i] + "%' ";
+            //                }
+            //                else if (getkata[i] == getkata.Last())
+            //                {
+            //                    sSQLnama += " and (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' )";
+            //                    sSQLkode += " and a.BRG like '%" + getkata[i] + "%' )";
+            //                    sSQLkategori += " and a.KET_SORT1 like '%" + getkata[i] + "%' )";
+            //                    sSQLmerk += " and a.KET_SORT2 like '%" + getkata[i] + "%' )";
+            //                    sSQLharga += " and a.HJUAL like '%" + getkata[i] + "%' )";
+            //                }
+            //                else
+            //                {
+            //                    sSQLnama += " and (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' ";
+            //                    sSQLkode += " and a.BRG like '%" + getkata[i] + "%' ";
+            //                    sSQLkategori += " and a.KET_SORT1 like '%" + getkata[i] + "%' ";
+            //                    sSQLmerk += " and a.KET_SORT2 like '%" + getkata[i] + "%' ";
+            //                    sSQLharga += " and a.HJUAL like '%" + getkata[i] + "%' ";
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
             if (getkata.Length > 0)
             {
                 if (search != "")
                 {
                     for (int i = 0; i < getkata.Length; i++)
                     {
-                        if (getkata.Length == 1)
+                        if (i > 0)
                         {
-                            sSQLnama += " ( (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' )";
-                            sSQLkode += " ( a.BRG like '%" + getkata[i] + "%' )";
-                            sSQLkategori += " ( a.KET_SORT1 like '%" + getkata[i] + "%' )";
-                            sSQLmerk += " ( a.KET_SORT2 like '%" + getkata[i] + "%' )";
-                            sSQLharga += " ( a.HJUAL like '%" + getkata[i] + "%' )";
+                            sSQLkode += " and ";
+                            sSQLnama += " and ";
+                            sSQLkategori += " and ";
+                            sSQLmerk += " and ";
+                            sSQLharga += " and ";
                         }
-                        else
-                        {
-                            if (getkata[i] == getkata.First())
-                            {
-                                sSQLnama += " ( (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%'";
-                                sSQLkode += " ( a.BRG like '%" + getkata[i] + "%'";
-                                sSQLkategori += " ( a.KET_SORT1 like '%" + getkata[i] + "%' ";
-                                sSQLmerk += " ( a.KET_SORT2 like '%" + getkata[i] + "%' ";
-                                sSQLharga += " ( a.HJUAL like '%" + getkata[i] + "%' ";
-                            }
-                            else if (getkata[i] == getkata.Last())
-                            {
-                                sSQLnama += " and (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' )";
-                                sSQLkode += " and a.BRG like '%" + getkata[i] + "%' )";
-                                sSQLkategori += " and a.KET_SORT1 like '%" + getkata[i] + "%' )";
-                                sSQLmerk += " and a.KET_SORT2 like '%" + getkata[i] + "%' )";
-                                sSQLharga += " and a.HJUAL like '%" + getkata[i] + "%' )";
-                            }
-                            else
-                            {
-                                sSQLnama += " and (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' ";
-                                sSQLkode += " and a.BRG like '%" + getkata[i] + "%' ";
-                                sSQLkategori += " and a.KET_SORT1 like '%" + getkata[i] + "%' ";
-                                sSQLmerk += " and a.KET_SORT2 like '%" + getkata[i] + "%' ";
-                                sSQLharga += " and a.HJUAL like '%" + getkata[i] + "%' ";
-                            }
-                        }
+
+
+                        sSQLkode += " ( a.BRG like '%" + getkata[i] + "%' ) ";
+                        sSQLnama += "  ( (ISNULL(a.NAMA,'') + ' ' + ISNULL(a.NAMA2,'')) like '%" + getkata[i] + "%' ) ";
+                        sSQLkategori += " ( a.KET_SORT1 like '%" + getkata[i] + "%' ) ";
+                        sSQLmerk += "  ( a.KET_SORT2 like '%" + getkata[i] + "%' ) ";
+                        sSQLharga += " ( a.HJUAL like '%" + getkata[i] + "%' ) ";
+
                     }
                 }
             }
@@ -4097,6 +4123,7 @@ namespace MasterOnline.Controllers
             //}
 
             string sSQLSelect = "";
+            sSQLSelect += "select brg, NAMA, NAMA2, HJUAL, ID, KET_SORT1, KET_SORT2, LINK_GAMBAR_1, QOH, QOO from (";
             sSQLSelect += "select a.brg,a.NAMA, a.NAMA2, ISNULL(a.HJUAL, 0) HJUAL, ISNULL(a.ID, 0) ID, a.KET_SORT1, a.KET_SORT2, a.LINK_GAMBAR_1, ";
             sSQLSelect += "SUM(CASE WHEN b.JENIS = 'QOH' THEN b.JUMLAH ELSE 0 END) QOH, SUM(CASE WHEN b.JENIS = 'QOO' THEN b.JUMLAH ELSE 0 END) QOO ";
             string sSQLCount = "";
@@ -4109,7 +4136,7 @@ namespace MasterOnline.Controllers
             {
                 sSQL2 += " AND ( " + sSQLkode + " or " + sSQLnama + " or " + sSQLkategori + " or " + sSQLmerk + " or " + sSQLharga + " ) ";
             }
-            sSQL2 += "group by a.brg,a.NAMA, a.NAMA2,a.HJUAL,a.ID,a.KET_SORT1,a.KET_SORT2, a.LINK_GAMBAR_1 ";
+            sSQL2 += "group by a.brg,a.NAMA, a.NAMA2,a.HJUAL,a.ID,a.KET_SORT1,a.KET_SORT2, a.LINK_GAMBAR_1)b ";
             string SSQL3 = ")A ";
             var minimal_harus_ada_item_untuk_current_page = (page * 10) - 9;
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQLSelect + sSQL2 + SSQL3).Single();
@@ -4119,7 +4146,54 @@ namespace MasterOnline.Controllers
             }
 
             string sSQLSelect2 = "";
-            sSQLSelect2 += "ORDER BY a.NAMA ASC,a.brg asc ";
+            //add by nurul 15/5/2020
+            //sSQLSelect2 += "ORDER BY a.NAMA ASC,a.brg asc ";
+            switch (filter)
+            {
+                case "stok":
+                    {
+                        if(filtervalue == "asc")
+                        {
+                            sSQLSelect2 += "ORDER BY QOH ASC, NAMA ASC,brg asc ";
+                        }
+                        else
+                        {
+                            sSQLSelect2 += "ORDER BY QOH DESC, NAMA ASC,brg asc ";
+                        }
+                    }
+                    break;
+                case "qty_pesanan":
+                    {
+                        if (filtervalue == "asc")
+                        {
+                            sSQLSelect2 += "ORDER BY QOO ASC, NAMA ASC,brg asc ";
+                        }
+                        else
+                        {
+                            sSQLSelect2 += "ORDER BY QOO DESC, NAMA ASC,brg asc ";
+                        }
+                    }
+                    break;
+                case "qty_jual":
+                    {
+                        if (filtervalue == "asc")
+                        {
+                            sSQLSelect2 += "ORDER BY (QOH-QOO) ASC, NAMA ASC,brg asc ";
+                        }
+                        else
+                        {
+                            sSQLSelect2 += "ORDER BY (QOH-QOO) DESC, NAMA ASC,brg asc ";
+                        }
+                    }
+                    break;
+                default:
+                    {
+                        sSQLSelect2 += "ORDER BY NAMA ASC,brg asc ";
+                    }
+                    break;
+            }
+            //end add by nurul 15/5/2020
+            
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 

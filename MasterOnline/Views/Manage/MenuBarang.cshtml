@@ -313,6 +313,35 @@
                                 </div>
                             </div>*@
                     </div>
+                    <div class="row barang_table_section">
+                        @*<div class="col-md-2">
+            @Html.Label("", "Urut Berdasarkan")
+            <div class="input-group text">
+                <select class="form-control" id="Order" name="Order" required="required">
+                    <option value="1">Qty Terjual</option>
+                    <option value="2">Qty Siap Jual</option>
+                </select>
+            </div>
+        </div>*@
+                        <label class="col-lg-2 col-sm-12 col-md-2" style="padding-top:20px;">Urut Berdasarkan</label>
+                        <div class="col-lg-2 col-sm-6 col-md-2" style="margin-top:13px;">
+                            <select class="form-control" id="filter_barang_field" required="required">
+                                <option>Harap Pilih</option>
+                                <option value="stok">Stok</option>
+                                <option value="qty_pesanan">Qty Pesanan</option>
+                                <option value="qty_jual">Qty Siap Jual</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-sm-6 col-md-2" style="margin-top:13px;">
+                            <div class="col-12" id="filter_barang_field_option_div">
+                                <select class="form-control" id="filter_barang_field_option" required="required">
+                                    <option>Harap Pilih</option>
+                                    <option value="desc">Terbesar</option>
+                                    <option value="asc">Terkecil</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row" style="margin-top: 5px;">
                         @* remark by calvin 24 mei 2019 <div id="loading_barang_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
@@ -951,6 +980,27 @@
                 searchTableDetailStok();
             });
 
+            //add by nurul 15/5/2020
+            $('#filter_barang_field').change(function () {
+                var filterBy = $(this).val();
+                //switch (filterBy) {
+                //    default:
+                //        $('#filter_detail_bayar_field_option_div').show();
+                //        break;
+                //}
+                $('#filter_barang_field_option_div').show();
+                if (filterBy != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
+                    searchTableBarang();
+                }
+
+            });
+            $('#filter_barang_field_option').change(function () {
+                if ($('#filter_barang_field').val() != "Harap Pilih" && $('#filter_barang_field_option').val() != "Harap Pilih") {
+                    searchTableBarang();
+                }
+            });
+            //end add by nurul 15/5/2020        
+
             $('#close-detail-stok').click(function () {
                 tempBrgStok = "";
                 tempNamaStok = "";
@@ -959,9 +1009,29 @@
             });
         });
 
+        //add by nurul 15/5/2020
+        function get_filterby() {
+            return $('#filter_barang_field').val();
+        }
+        function get_filtervalue(filterby) {
+            var filtervalue = "";
+            switch (filterby) {
+                default:
+                    filtervalue = $('#filter_barang_field_option').val();
+                    break;
+            }
+            return filtervalue;
+        }
+        //end add by nurul 19/5/2020
+
         function searchTableBarang() {
-            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { search = "replaceSearch" }))';
+            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { search = "replaceSearch", filter = "replaceFilter", filtervalue = "replaceValueFilter" }))';
             link = link.replace("replaceSearch", encodeURIComponent($('#search_barang').val()));
+
+            var filterby = get_filterby();
+            var filtervalue = get_filtervalue(filterby);
+            link = link.replace("replaceFilter", encodeURIComponent(filterby));
+            link = link.replace("replaceValueFilter", encodeURIComponent(filtervalue));
 
             $.ajax({
                 type: "GET",
