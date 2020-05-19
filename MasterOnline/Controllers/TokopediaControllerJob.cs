@@ -2953,10 +2953,10 @@ namespace MasterOnline.Controllers
             while (daysFrom > -13)
             {
                 await GetOrderList3days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
             return ret;
         }
@@ -3109,10 +3109,10 @@ namespace MasterOnline.Controllers
             {
                 await GetOrderListCompleted3Days(iden, stat, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
 
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
             return ret;
 
@@ -3256,10 +3256,10 @@ namespace MasterOnline.Controllers
             {
                 await GetOrderListCancel3days(iden, CUST, NAMA_CUST, 1, 0, daysFrom, daysTo);
 
-                daysFrom -= 3;
-                daysTo -= 3;
-                //daysFrom -= 2;
-                //daysTo -= 2;
+                //daysFrom -= 3;
+                //daysTo -= 3;
+                daysFrom -= 2;
+                daysTo -= 2;
             }
             return ret;
         }
