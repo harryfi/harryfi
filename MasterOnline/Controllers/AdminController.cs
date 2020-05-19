@@ -21,6 +21,7 @@ using System.Reflection;
 using PagedList;
 
 using System.Globalization;
+using System.Web.Script.Serialization;
 
 namespace MasterOnline.Controllers
 {

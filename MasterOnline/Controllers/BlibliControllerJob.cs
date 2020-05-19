@@ -628,6 +628,7 @@ namespace MasterOnline.Controllers
         [Queue("3_general")]
         public async Task<string> GetOrderList(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
+            string ret = "";
             if (!string.IsNullOrEmpty(iden.merchant_code))
             {
                 var token = SetupContext(iden);
@@ -644,9 +645,13 @@ namespace MasterOnline.Controllers
                         more = false;
                     }
                 }
+
+                // tunning untuk tidak duplicate
+                    var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + connId + "%' and invocationdata like '%blibli%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+                // end tunning untuk tidak duplicate
             }
 
-            string ret = "";
+
             return ret;
         }
 

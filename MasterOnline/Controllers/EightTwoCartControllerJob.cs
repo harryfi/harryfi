@@ -416,7 +416,7 @@ namespace MasterOnline.Controllers
             string ret = "";
             string connID = Guid.NewGuid().ToString();
             SetupContext(iden);
-
+            
             var dateFrom = DateTimeOffset.UtcNow.AddDays(-10).AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
             var dateTo = DateTimeOffset.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss");
 
@@ -691,6 +691,22 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "";
+            if (stat == StatusOrder.UNPAID)
+            {
+                //queryStatus = "\"}\"" + "," + "\"23\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"23\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","23","\"000003\""
+            }
+            else if (stat == StatusOrder.PAID)
+            {
+                //queryStatus = "\"}\"" + "," + "\"2\"" + "," + "\"";
+                queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            }
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + iden.no_cust + "%' and arguments like '%" + queryStatus + "%' and invocationdata like '%E2Cart_GetOrderByStatus%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%E2Cart_GetOrderByStatusCompleted%' and invocationdata not like '%E2Cart_GetOrderByStatusCancelled%' ");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -761,6 +777,12 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","5","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -821,7 +843,7 @@ namespace MasterOnline.Controllers
                         if (rowAffected > 0)
                         {
                             //add by Tri 4 Des 2019, isi cancel reason
-                            var sSQL = "";
+                            var sSQL1 = "";
                             var sSQL2 = "SELECT * INTO #TEMP FROM (";
                             var listReason = new Dictionary<string, string>();
 
@@ -830,14 +852,14 @@ namespace MasterOnline.Controllers
                                 string reasonValue;
                                 if (listReason.TryGetValue(order.id_order, out reasonValue))
                                 {
-                                    if (!string.IsNullOrEmpty(sSQL))
+                                    if (!string.IsNullOrEmpty(sSQL1))
                                     {
-                                        sSQL += " UNION ALL ";
+                                        sSQL1 += " UNION ALL ";
                                     }
-                                    sSQL += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
+                                    sSQL1 += " SELECT '" + order.id_order + "' NO_REFERENSI, '" + listReason[order.id_order] + "' ALASAN ";
                                 }
                             }
-                            sSQL2 += sSQL + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
+                            sSQL2 += sSQL1 + ") as qry; INSERT INTO SOT01D (NO_BUKTI, CATATAN_1, USERNAME) ";
                             sSQL2 += " SELECT A.NO_BUKTI, ALASAN, 'AUTO_82CART' FROM SOT01A A INNER JOIN #TEMP T ON A.NO_REFERENSI = T.NO_REFERENSI ";
                             sSQL2 += " LEFT JOIN SOT01D D ON A.NO_BUKTI = D.NO_BUKTI WHERE ISNULL(D.NO_BUKTI, '') = ''";
                             EDB.ExecuteSQL("MOConnectionString", CommandType.Text, sSQL2);
@@ -871,12 +893,17 @@ namespace MasterOnline.Controllers
                         //}
                     }
                 }
-
                 //}
                 //catch (Exception ex2)
                 //{
                 //}
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"6\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","6","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.no_cust + "%' and invocationdata like '%E2Cart_GetOrderByStatusCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 

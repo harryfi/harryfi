@@ -1876,7 +1876,7 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrders(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
 
@@ -1889,6 +1889,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrders%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrdersUnpaid%' and invocationdata not like '%GetOrdersRTS%' and invocationdata not like '%GetOrdersCancelled%' and invocationdata not like '%GetOrdersToUpdateMO%' ");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -1897,7 +1903,7 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersRTS(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
 
@@ -1910,6 +1916,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersRTS%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 
@@ -2480,7 +2492,7 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
 
@@ -2493,6 +2505,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersUnpaid%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public BindingBase GetOrdersUnpaidWithPage(string cust, string accessToken, string dbPathEra, string uname, int page)
@@ -2816,16 +2834,18 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
-            //var jmlhNewOrder = 0;//add by calvin 1 april 2019
-            //string connectionID = Guid.NewGuid().ToString();
-            var fromDt = DateTime.Now.AddDays(-14);
-            var toDt = DateTime.Now.AddDays(1);
-
             var MoDbContext = new MoDbContext("");
             var EDB = new DatabaseSQL(dbPathEra);
             string EraServerName = EDB.GetServerName("sConn");
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
             //var username = uname;
+
+            //var jmlhNewOrder = 0;//add by calvin 1 april 2019
+            //string connectionID = Guid.NewGuid().ToString();
+            var fromDt = DateTime.Now.AddDays(-14);
+            var toDt = DateTime.Now.AddDays(1);
+
+            
 
             var orderUnpaidList = (from a in ErasoftDbContext.SOT01A
                                        //change by nurul 10/10/2019, cari semua status kecuali cancel (11)
@@ -2841,6 +2861,11 @@ namespace MasterOnline.Controllers
             //add by Tri 10 Des 2019, cek pesanan belum dibayar
             UpdateOrderUnpaidToCancel(cust, accessToken, dbPathEra, uname);
             //end add by Tri 10 Des 2019, cek pesanan belum dibayar
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersCancelled%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
 
             return ret;
         }
@@ -3634,7 +3659,7 @@ namespace MasterOnline.Controllers
         public BindingBase GetOrdersToUpdateMO(string cust, string accessToken, string dbPathEra, string uname)
         {
             var ret = new BindingBase();
-            //SetupContext(dbPathEra, uname);
+            SetupContext(dbPathEra, uname);
             int page = 0;
             var more = true;
 
@@ -3647,6 +3672,12 @@ namespace MasterOnline.Controllers
                     more = false;
                 }
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\"\\\"" + cust + "\\\"\",\"\\";    // "\"000001\"","\
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + accessToken + "%' and invocationdata like '%lazada%' and invocationdata like '%GetOrdersToUpdateMO%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
 

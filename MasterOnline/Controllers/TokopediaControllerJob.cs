@@ -2946,6 +2946,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhNewOrder)
         {
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -2958,6 +2959,12 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"2\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","2","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderList%' and statename like '%Enque%' and invocationdata not like '%resi%' and invocationdata not like '%GetOrderListCompleted%' and invocationdata not like '%GetOrderListCancel%' and invocationdata not like '%GetSingleOrder%' and invocationdata not like '%CheckPendings%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
         }
         public async Task<string> GetOrderListCompleted3Days(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete, int daysFrom, int daysTo)
@@ -3101,6 +3108,7 @@ namespace MasterOnline.Controllers
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3114,6 +3122,12 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // tunning untuk tidak duplicate
+            var queryStatus = "\\\"}\"" + "," + "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","5","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%"+ queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end tunning untuk tidak duplicate
+
             return ret;
 
         }
@@ -3248,6 +3262,7 @@ namespace MasterOnline.Controllers
         public async Task<string> GetOrderListCancel(TokopediaAPIData iden, string CUST, string NAMA_CUST, int page, int jmlhOrder)
         {
             string ret = "";
+            var token = SetupContext(iden);
 
             var daysFrom = -1;
             var daysTo = 1;
@@ -3261,6 +3276,12 @@ namespace MasterOnline.Controllers
                 daysFrom -= 2;
                 daysTo -= 2;
             }
+
+            // add tuning no duplicate hangfire job get order
+            var queryStatus = "\\\"}\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","\"000003\""
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCancel%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            // end add tuning no duplicate hangfire job get order
+
             return ret;
         }
 

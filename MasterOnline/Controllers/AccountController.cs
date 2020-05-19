@@ -848,10 +848,19 @@ namespace MasterOnline.Controllers
                         if (tblCustomer.TIDAK_HIT_UANG_R == true)
                         {
 #if (DEBUG || Debug_AWS)
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_cancel_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersCancelled(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_update_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersToUpdateMO(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//update pesanan
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
                             new LazadaControllerJob().GetOrdersRTS(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);//pesanan sudah dibayar
 #else
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);

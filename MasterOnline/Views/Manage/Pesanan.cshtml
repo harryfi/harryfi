@@ -15,7 +15,7 @@
     var username = "";
     if (dataSession?.User != null)
     {
-        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        accId = context.User.Single(u => u.Email == dataSession.User.Email).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
     }
     else
