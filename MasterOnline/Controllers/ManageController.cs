@@ -21470,7 +21470,7 @@ namespace MasterOnline.Controllers
                 sSQLSelect += ",ISNULL(D.NO_PO_CUST,'') AS no_job ";
                 //end add by nurul 26/3/2020
                 //add by nurul 15/5/2020
-                sSQLSelect += ",isnull(convert(nvarchar,A.KET),'') ";
+                sSQLSelect += ",D.KET ";
                 //end add by nurul 15/5/2020
                 string sSQL2 = "";
                 //sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
@@ -21535,9 +21535,10 @@ namespace MasterOnline.Controllers
                     //add by nurul 15/5/2020
                     var ket = "";
                     var ketTokped = new List<tempKetTokped>();
-                    if (so.namamarket.ToUpper() == "SHOPEE")
+                    if (so.namamarket.ToUpper() == "SHOPEE" && so.ket != "" && so.ket != "-")
                     {
-                        ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                        //ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                        ket = so.ket;
                     }
 
                     if (so.namamarket.ToUpper() == "TOKOPEDIA")
@@ -46461,7 +46462,7 @@ namespace MasterOnline.Controllers
                 sSQLSelect += ",ISNULL(A.NO_PO_CUST,'') AS no_job ";
                 //end add by nurul 26/3/2020
                 //add by nurul 15/5/2020
-                sSQLSelect += ",isnull(convert(nvarchar,A.KET),'') ";
+                sSQLSelect += ",A.KET ";
                 //end add by nurul 15/5/2020
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
@@ -46525,9 +46526,10 @@ namespace MasterOnline.Controllers
                     }
 
                     //add by nurul 15/5/2020
-                    if (so.namamarket.ToUpper() == "SHOPEE")
+                    if (so.namamarket.ToUpper() == "SHOPEE" && so.ket != "" && so.ket != "-")
                     {
-                        ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                        //ket = ErasoftDbContext.Database.SqlQuery<string>("Select ket from sot01a where no_bukti='" + so.so_bukti + "'").SingleOrDefault();
+                        ket = so.ket;
                     }
 
                     if (so.namamarket.ToUpper() == "TOKOPEDIA")
