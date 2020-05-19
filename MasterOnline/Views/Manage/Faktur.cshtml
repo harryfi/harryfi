@@ -715,7 +715,7 @@
         width: 100%;
         height: 100%;
         position: fixed;
-        z-index: 100;
+        z-index: 9999;
         top: 0;
         right: 0;
         bottom: 0;
@@ -2124,6 +2124,7 @@
         }
         
         function DownloadExcelFaktur() {
+            $('#loading_spinner').show();
             var drTgl = $('#DrTanggal').val();
             var sdTgl = $('#SdTanggal').val();
 
@@ -2131,12 +2132,22 @@
             link += "?drtgl=" + drTgl + "&sdtgl=" + sdTgl;
 
             $.ajax({
+                xhr: function () {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.onprogress = function (evt) {
+                        if (evt.lengthComputable) {
+                            $('#loading_spinner').hide();
+                        }
+                        $('#loading_spinner').hide();
+                    };
+                    return xhr;
+                },
                 type: "GET",
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                async: false,
                 success: function (response) {
+                    $('#loading_spinner').hide();
                     if (response.Errors.length == 0) {
                         var bytes = new Uint8Array(response.byteExcel);
                         saveByteArray(response.namaFile, bytes);

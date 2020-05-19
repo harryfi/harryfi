@@ -14,7 +14,10 @@ namespace MasterOnline.ViewModels
         public List<STT04B> ListBarangStokOpname { get; set; } = new List<STT04B>();
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
         public List<STF18> ListGudang { get; set; } = new List<STF18>();
+        public List<STT01A> ListBuktiMK { get; set; } = new List<STT01A>();
         public List<string> Errors { get; set; } = new List<string>();
+        public string buktiOM { get; set; }
+        public string buktiOK { get; set; }
         public string setGD { get; set; }
     }
 }

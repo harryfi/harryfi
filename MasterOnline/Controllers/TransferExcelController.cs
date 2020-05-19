@@ -20,6 +20,7 @@ using System.Globalization;
 using MasterOnline.Models;
 using Spire.Xls;
 using System.Data.SqlClient;
+using MasterOnline.Utils;
 
 namespace MasterOnline.Controllers
 {
@@ -2000,9 +2001,9 @@ namespace MasterOnline.Controllers
                     {
                         using (ExcelPackage excelPackage = new ExcelPackage(stream))
                         {
-                            using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
+                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
                             {
-                                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                                using (ErasoftContext eraDB = new ErasoftContext(DataSourcePath, dbPathEra))
                                 {
                                     eraDB.Database.CommandTimeout = 180;
                                     var worksheet = excelPackage.Workbook.Worksheets[1];
@@ -2074,7 +2075,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     prog[1] = "0";
                                                 }
-                                                
+
 
                                                 for (int i = Convert.ToInt32(prog[1]); i <= worksheet.Dimension.End.Row; i++)
                                                 {
@@ -2093,7 +2094,7 @@ namespace MasterOnline.Controllers
                                                                 //stok 0 juga bisa masuk
                                                                 if (Convert.ToInt32(worksheet.Cells[i, 3].Value) >= 0)
                                                                 {
-                                                                    STT04B stt04b = new STT04B
+                                                                    var stt04b = new STT04B
                                                                     {
                                                                         Gud = gd,
                                                                         Brg = current_brg.BRG,
@@ -2113,8 +2114,7 @@ namespace MasterOnline.Controllers
                                                                         USERNAME = "UPLOAD_EXCEL_SOP",
                                                                         NOBUK = ret.nobuk,
                                                                     };
-                                                                    newSTT04B.Add(stt04b);
-                                                                    eraDB.STT04B.AddRange(newSTT04B);
+                                                                    eraDB.STT04B.Add(stt04b);
                                                                     eraDB.SaveChanges();
                                                                 }
                                                             }
@@ -2128,30 +2128,8 @@ namespace MasterOnline.Controllers
                                                         }
                                                     }
 
+                                                    Functions.SendProgress("Process in progress...", i, worksheet.Dimension.End.Row);
 
-                                                    if (ret.percent >= 10 || ret.percent >= 20 ||
-                                                        ret.percent >= 30 || ret.percent >= 40 ||
-                                                        ret.percent >= 50 || ret.percent >= 60 ||
-                                                        ret.percent >= 70 || ret.percent >= 80 ||
-                                                        ret.percent >= 90 || ret.percent >= 100)
-                                                    {
-                                                        ret.statusSuccess = false;
-                                                        if (ret.percent >= 100)
-                                                        {
-                                                            try
-                                                            {
-                                                                //eraDB.SaveChanges();
-                                                                transaction.Commit();
-                                                            }
-                                                            catch (Exception ex)
-                                                            {
-                                                                transaction.Rollback();
-                                                                ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
-                                                            }
-                                                            ret.statusSuccess = true;
-                                                        }
-                                                        return Json(ret, JsonRequestBehavior.AllowGet);
-                                                    }
                                                 }
                                             }
                                         }
@@ -2164,6 +2142,17 @@ namespace MasterOnline.Controllers
                                     {
                                         ret.Errors.Add("Kode gudang tidak ditemukan");
                                     }
+                                }
+
+                                try
+                                {
+                                    transaction.Commit();
+                                    ret.statusSuccess = true;
+                                }
+                                catch (Exception ex)
+                                {
+                                    transaction.Rollback();
+                                    ret.Errors.Add(ex.InnerException == null ? ex.Message : "Data tidak berhasil diproses, " + ex.InnerException.Message);
                                 }
                             }
                         }
