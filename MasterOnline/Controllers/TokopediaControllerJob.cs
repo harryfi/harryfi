@@ -531,7 +531,7 @@ namespace MasterOnline.Controllers
                     description = brg_stf02.Deskripsi,
                     is_must_insurance = false,
                     is_free_return = false,
-                    //sku = brg_stf02.BRG,
+                    sku = brg_stf02.BRG,
                     stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
                     wholesale = null,
                     preorder = null,
