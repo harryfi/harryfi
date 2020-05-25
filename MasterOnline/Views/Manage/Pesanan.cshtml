@@ -2351,7 +2351,7 @@
                                            accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                                 </div>
                                 <div class="col-md-2">
-                                    <button type="button" class="btn btn-primary" id="btnUploadExcelSAS" onclick="uploadExcelPesanan();" data-style="expand-right">
+                                    <button type="button" class="btn btn-primary" id="btnUploadExcelPesanan" onclick="uploadExcelPesanan();" data-style="expand-right">
                                         <span>Upload</span>
                                     </button>
                                 </div>
@@ -3646,7 +3646,7 @@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
-<script type="text/javascript">
+    <script type="text/javascript">
         var $modeEditPesanan = 0;
         var $modeEditDibayar = 0;
         var $modeEditSelesai = 0;
@@ -4009,16 +4009,16 @@
                         alert(response.Errors[0]);
                         //document.getElementById('lblRecord_' + cust).innerText = 'gagal download : ' + response.Errors[0];
                     }
-                    
+
                 },
                 error: function (xhr) {
                     //$('#loading_spinner_btn').hide();
                     console.log(xhr);
-                    
+
                 }
             });
     }
-    
+
     function checkfile(s) {
         var validExts = new Array(".xlsx", ".xls");
         var fileExt = s.value;
@@ -4035,8 +4035,8 @@
     }
 
     function uploadExcelPesanan() {
-            if ($('#file_upload_excel')[0].files.length < 1) {
-                $('#file_upload_excel').click();
+        if ($('#file_upload_excel_pesanan')[0].files.length < 1) {
+            $('#file_upload_excel_pesanan').click();
                 $('#progressBarUpload').hide();
             }
             else
@@ -4044,10 +4044,10 @@
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
                 $('#progressBarUpload').show();
-                uploadFileExcelPesanan(null, 0, "0;0", "false;false");
+                uploadFileExcelPesanan(null, 0, "5;0", "false;false");
             }
         }
-   
+
         function uploadFileExcelPesanan(vnobuk, vcountAll, vpercentvprogress, vstatusLoopvSuccess) {
 
             var splitpro = vpercentvprogress.split(';');
@@ -4058,7 +4058,7 @@
             var vstatusLoop = splitStatus[0];
             var vstatusSuccess = splitStatus[1];
 
-            if ($('#file_upload_excel')[0].files.length <= 0) {
+            if ($('#file_upload_excel_pesanan')[0].files.length <= 0) {
                 $('#progressBarUpload').hide();
                 $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                 $('#pBar_uploadFile').html('0% Complete');
@@ -4066,10 +4066,10 @@
             }
             else
             {
-                $('#btnUploadExcelSAS').attr('disabled', 'disabled');
+                $('#btnUploadExcelPesanan').attr('disabled', 'disabled');
 
                 var formdata = new FormData(); //FormData object
-                var fileInput = document.getElementById('file_upload_excel');
+                var fileInput = document.getElementById('file_upload_excel_pesanan');
                 //Iterating through each files selected in fileInput
                 for (i = 0; i < fileInput.files.length; i++) {
                     //Appending each file to FormData object
@@ -4086,7 +4086,7 @@
                 $urlProgress = $urlProgress.replace("rep4progress", vprogress);
                 $urlProgress = $urlProgress.replace("rep5loop", String(vstatusLoop));
                 $urlProgress = $urlProgress.replace("rep6success", String(vstatusSuccess));
-                
+
                 @*var url1 = '@Url.Action("UploadXcelSaldoAwal", "TransferExcel")';*@
                 $.ajax({
                     type: "POST",
@@ -4098,38 +4098,45 @@
                         $('#loading_upload').show();
                     },
                     success: function (response) {
-                        if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
-                            $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
-                            $('#pBar_uploadFile').html(response.percent + '% Complete');
+                        $('#loading_upload').hide();
+                        document.getElementById("file_upload_excel_pesanan").value = "";
+                        $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        $('#pBar_uploadFile').html('100% Complete');
+                        $('#btnUploadExcelPesanan').removeAttr('disabled');
+                        setTimeout(popupAlertUploadSaldoAwal, 500);
 
-                            if (response.progress <= response.countAll) {
-                                uploadFileExcelStockAwal(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
-                            }
+                        //if (response.countAll != null && response.Errors.length == 0 && response.statusLoop == true && response.statusSuccess == false) {
+                        //    $('#pBar_uploadFile').css('width', response.percent + '%').attr('aria-valuenow', response.percent);
+                        //    $('#pBar_uploadFile').html(response.percent + '% Complete');
 
-                        } else if (response.statusSuccess == true && response.Errors.length == 0) {
-                            $('#loading_upload').hide();
-                            document.getElementById("file_upload_excel").value = "";
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('100% Complete');
-                            $('#btnUploadExcelSAS').removeAttr('disabled');
-                            setTimeout(popupAlertUploadSaldoAwal, 500);
-                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
-                        } else if (response.statusSuccess == true && response.Errors.length > 0) {
-                            $('#loading_upload').hide();
-                            document.getElementById("file_upload_excel").value = "";
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('100% Complete');
-                            $('#btnUploadExcelSAS').removeAttr('disabled');
-                            setTimeout(popupAlertUploadSaldoAwal, 500);
-                            //alert('Proses upload dan input Saldo awal stok sudah selesai.');
-                        } else {
-                            $('#loading_upload').hide();
-                            $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
-                            $('#pBar_uploadFile').html('0% Complete');
-                            $('#btnUploadExcelSAS').removeAttr('disabled');
-                            document.getElementById("file_upload_excel").value = "";
-                            alert(response.Errors);
-                        }
+                        //    if (response.progress <= response.countAll) {
+                        //        uploadFileExcelStockAwal(response.nobuk, response.countAll, String(response.percent) + ";" + String(response.progress + 1), String(response.statusLoop) + ";" + String(response.statusSuccess));
+                        //    }
+
+                        //} else if (response.statusSuccess == true && response.Errors.length == 0) {
+                        //    $('#loading_upload').hide();
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('100% Complete');
+                        //    $('#btnUploadExcelSAS').removeAttr('disabled');
+                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
+                        //    //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                        //} else if (response.statusSuccess == true && response.Errors.length > 0) {
+                        //    $('#loading_upload').hide();
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('100% Complete');
+                        //    $('#btnUploadExcelSAS').removeAttr('disabled');
+                        //    setTimeout(popupAlertUploadSaldoAwal, 500);
+                        //    //alert('Proses upload dan input Saldo awal stok sudah selesai.');
+                        //} else {
+                        //    $('#loading_upload').hide();
+                        //    $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
+                        //    $('#pBar_uploadFile').html('0% Complete');
+                        //    $('#btnUploadExcelSAS').removeAttr('disabled');
+                        //    document.getElementById("file_upload_excel").value = "";
+                        //    alert(response.Errors);
+                        //}
                     },
                     error: function (xhr, status, error) {
                         var err = "";
@@ -4141,13 +4148,32 @@
                         $('#loading_upload').hide();
                         $('#pBar_uploadFile').css('width', '100%').attr('aria-valuenow', 100);
                         $('#pBar_uploadFile').html('0% Complete');
-                        $('#btnUploadExcelSAS').removeAttr('disabled');
-                        document.getElementById("file_upload_excel").value = "";
+                        $('#btnUploadExcelPesanan').removeAttr('disabled');
+                        document.getElementById("file_upload_excel_pesanan").value = "";
                     }
                 });
-                
+
             }
-        }
+    }
+        $(function () {
+            // Reference the auto-generated proxy for the hub.
+            var progress = $.connection.progressHub;
+            //console.log(progress);
+
+            // Create a function that the hub can call back to display messages.
+            progress.client.AddProgress = function (message, percentage) {
+                $('#pBar_uploadFile').width(percentage);
+                $('#pBar_uploadFile').attr('aria-valuenow', percentage);
+                $('#pBar_uploadFile').html(percentage + ' Complete');
+
+            };
+
+            $.connection.hub.start().done(function () {
+                var connectionId = $.connection.hub.id;
+                console.log(connectionId);
+            });
+
+        });
         //end add fauzi, untuk upload excel pesanan
 
         $(document).ready(function () {

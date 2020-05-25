@@ -93,5 +93,7 @@ namespace MasterOnline
         public double PPN { get; set; }
 
         public double NETTO { get; set; }
+
+        public string KET_DETAIL { get; set; }
     }
 }
