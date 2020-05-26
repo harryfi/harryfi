@@ -183,6 +183,10 @@
                                     w.document.close();
                                 });
                             }
+
+                            if (!adaError && textareaValue == "") {
+                                $('#modalPrintTokped__' + cust).modal('hide');
+                            }
                             //response.mo_label.forEach(function (item) {
                             //        var w = window.open('about:blank');
                             //        w.document.open();
@@ -758,18 +762,18 @@
                                         <div class="col-md-1">
                                         </div>
                                     </div>
-                                        <br />
-                                        <div class="row">
-                                            <div class="col-md-1">
-                                            </div>
-                                            <div class="col-md-10" style="padding-top:10px">
-                                                <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
-                                            </div>
-                                            <div class="col-md-1">
-                                            </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col-md-1">
+                                        </div>
+                                        <div class="col-md-10" style="padding-top:10px">
+                                            <button id="btn-print-faktur__@(item.CUST)" type="button" class="btn btn-success btn-block">Cetak</button>
+                                        </div>
+                                        <div class="col-md-1">
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     </div>
                     @*end add by nurul 19/3/2020*@
@@ -808,24 +812,24 @@
                             <button id="btnBookingTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="KodeBookingPackingTokped('@(item.CUST)')">Get Kode booking</button>
                             <button id="btnProsesTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
                             @*<button id="btnProsesTokped__@(item.CUST)" type="button" class="btn btn-primary" onclick="RequestPickupPackingTokped('@(item.CUST)')">Request Pickup</button>
-        <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
+                                <button id="btnPrintTokped__@(item.CUST)" type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalPrintTokped">Print</button>*@
                             @*//add by nurul 19/3/2020*@
-                            <button id="btnPrintTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="TokopediaLabelPerPacking('@(item.CUST)')">Print</button>
-                            @*<div class="col-md-3 pull-right" style="text-align:right">
-            <div class="btn-group pull-right" role="group">
-                <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
-                    Print <span class="caret"></span>
-                </button>
-                <div class="dropdown-menu">
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
-                        <span aria-hidden="true"> Label Marketplace</span>
-                    </button>
-                    <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
-                        <span aria-hidden="true"> Label MasterOnline</span>
-                    </button>
-                </div>
-            </div>
-        </div>*@
+                            @*<button id="btnPrintTokped_@(item.CUST)" type="button" class="btn btn-primary" onclick="TokopediaLabelPerPacking('@(item.CUST)')">Print</button>*@
+                            <div class="pull-right" style="text-align:right">
+                                <div class="btn-group pull-right" role="group">
+                                    <button id="pl_lazada_btnGroup" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">
+                                        Print <span class="caret"></span>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','1')">
+                                            <span aria-hidden="true"> Label Marketplace</span>
+                                        </button>
+                                        <button type="button" style="width:100%; background-color:white; border-color:Highlight; color:black !important" id="btnPrintMOTokopedia__@(item.CUST)" class="btn btn-success dropdown-hover" onclick="TokopediaGetLabelPerPacking('@(item.CUST)','2')">
+                                            <span aria-hidden="true"> Label MasterOnline</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                             @*//end add by nurul 19/3/2020*@
                         </div>
                     </div>
