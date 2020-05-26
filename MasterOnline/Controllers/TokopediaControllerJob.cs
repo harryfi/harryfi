@@ -2225,6 +2225,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    var a = result.error_message[0].ToString();
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                     throw new Exception("Update Status Accept Pesanan " + noref + " ke Tokopedia Gagal. " + result.error_message.ToArray() + ".");
                 }

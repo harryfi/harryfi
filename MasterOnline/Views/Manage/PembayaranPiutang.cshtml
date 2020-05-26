@@ -2267,7 +2267,7 @@
                 alert("Invalid file size, valid size is lower than 4Mb/4000Kb. File size " + sizeFile + " Kb.");
             }
             else {
-                if ($tempMP1.toUpperCase() == "SHOPEE" || $tempMP1.toUpperCase() == "LAZADA") {
+                if ($tempMP1.toUpperCase() == "SHOPEE" || $tempMP1.toUpperCase() == "LAZADA" || $tempMP1.toUpperCase() == "TOKOPEDIA" || $tempMP1.toUpperCase() == "BLIBLI") {
                     $('#pBar_uploadFile').css('width', '0%').attr('aria-valuenow', 0);
                     $('#pBar_uploadFile').html('0% Complete');
                     //$('#progressBarUpload').modal('show');
@@ -2343,7 +2343,7 @@
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayar1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "TOKOPEDIA") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarTokped1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "LAZADA") {
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarLazada", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
@@ -2352,7 +2352,7 @@
                     $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBukalapak", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
                 else if ($tempMP1.toUpperCase() == "BLIBLI") {
-                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
+                    $urlProgress = '@Html.Raw(Url.Action("UploadXcelBayarBlibli1", "Manage", new { nobuk = "rep1", countAll = "rep2", percentDanprogress = "rep3percent;rep4progress", statusLoopSuccess = "rep5loop;rep6success", log = "repLog", NoProcess = "repNoProcess" }))';
                 }
 
                 $urlProgress = $urlProgress.replace("rep1", vnobuk);

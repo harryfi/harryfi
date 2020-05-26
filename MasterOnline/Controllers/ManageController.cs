@@ -23761,33 +23761,34 @@ namespace MasterOnline.Controllers
             //};
             //await new TokopediaControllerJob().CheckPendings(data);
 
-            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            //var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            //if (lisTokpedShop.Count > 0)
-            //{
-            //    //var tokopediaApi = new TokopediaController();
-            //    foreach (var tblCustomer in lisTokpedShop)
-            //    {
-            //        if (tblCustomer.Sort1_Cust != "")
-            //        {
-            //            if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-            //            {
-            //                TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
-            //                {
-            //                    merchant_code = tblCustomer.Sort1_Cust, //FSID
-            //                    API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-            //                    API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-            //                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            //                    idmarket = tblCustomer.RecNum.Value,
-            //                    DatabasePathErasoft = dbPathEra,
-            //                    username = "Support"
-            //                };
-            //                var tokpedController = new TokopediaControllerJob();
-            //                await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
-            //            }
-            //        }
-            //    }
-            //}
+            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var lisTokpedShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            if (lisTokpedShop.Count > 0)
+            {
+                //var tokopediaApi = new TokopediaController();
+                foreach (var tblCustomer in lisTokpedShop)
+                {
+                    if (tblCustomer.Sort1_Cust != "")
+                    {
+                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                        {
+                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
+                            {
+                                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                idmarket = tblCustomer.RecNum.Value,
+                                DatabasePathErasoft = dbPathEra,
+                                username = "Support"
+                            };
+                            var tokpedController = new TokopediaControllerJob();
+                            //await tokpedController.GetSingleOrder(data, tblCustomer.CUST, tblCustomer.PERSO);
+                            await tokpedController.PostAckOrder(dbPathEra, "SO20000006", tblCustomer.CUST, "Pesanan", "Accept Order", data, "SO20000006", "502007717;INV/20200514/XX/V/543567604");
+                        }
+                    }
+                }
+            }
 
             //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == "16").ToList();
             //if (listBLIShop.Count > 0)
@@ -40715,7 +40716,7 @@ namespace MasterOnline.Controllers
                             }
                             else if (ret.TipeData.Split('.').Last().ToLower().Contains("xls"))
                             {
-                                if (ret.TipeData.Split('.').Last().ToLower() == ".xls")
+                                if (ret.TipeData.Split('.').Last().ToLower() == "xls")
                                 {
                                     using (Stream inputStream = Request.Files[0].InputStream)
                                     {
@@ -40726,7 +40727,7 @@ namespace MasterOnline.Controllers
                                         data = memoryStream.ToArray();
                                     }
                                 }
-                                else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
+                                else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx")
                                 {
                                     using (Stream inputStream = Request.Files[0].InputStream)
                                     {
@@ -40815,6 +40816,24 @@ namespace MasterOnline.Controllers
                                         }
                                     }
                                 }
+                            }
+                            else
+                            {
+                                ret.Errors.Add("File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />");
+                                ret.adaError = true;
+                                TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
+                                {
+                                    LOG_FILE = ret.buktiLog,
+                                    VARIABLE_1 = ret.nobuk,
+                                    VARIABLE_2 = ret.TipeData,
+                                    TEXT_1 = "File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />",
+                                    TEXT_2 = "",
+                                    TGL_INPUT = DateTime.UtcNow.AddHours(7),
+                                    USERNAME = uname
+                                };
+                                ErasoftDbContext.TABLE_LOG_DETAIL.Add(logDetail);
+                                ErasoftDbContext.SaveChanges();
+                                return Json(ret, JsonRequestBehavior.AllowGet);
                             }
                         }
                     }
@@ -43649,7 +43668,7 @@ namespace MasterOnline.Controllers
                         }
                         else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx" || ret.TipeData.Split('.').Last().ToLower() == "xls")
                         {
-                            if (ret.TipeData.Split('.').Last().ToLower() == ".xls")
+                            if (ret.TipeData.Split('.').Last().ToLower() == "xls")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -43660,7 +43679,7 @@ namespace MasterOnline.Controllers
                                     data = memoryStream.ToArray();
                                 }
                             }
-                            else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
+                            else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -44768,7 +44787,7 @@ namespace MasterOnline.Controllers
             return PartialView("ListErrorPembayaranPiutang", vm);
         }
         //end add by nurul 11/11/2019, upload pembayaran lazada 
-        
+
         public ActionResult UploadXcelBayarTokped()
         {
             BindUploadExcel ret = new BindUploadExcel();
@@ -45280,7 +45299,7 @@ namespace MasterOnline.Controllers
 
                         if (ret.TipeData.Split('.').Last().ToLower() == "xlsx" || ret.TipeData.Split('.').Last().ToLower() == "xls")
                         {
-                            if (ret.TipeData.Split('.').Last().ToLower() == ".xls")
+                            if (ret.TipeData.Split('.').Last().ToLower() == "xls")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -45291,7 +45310,7 @@ namespace MasterOnline.Controllers
                                     data = memoryStream.ToArray();
                                 }
                             }
-                            else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
+                            else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -45618,11 +45637,11 @@ namespace MasterOnline.Controllers
                                                 string_ref += "'" + ref1 + "'";
                                             }
 
-                                            string ssql1 = "UPDATE A SET A.NILAI_LAIN = isnull(B.SISA,0), A.KET2 = B.NO_BUKTI + ';' + CONVERT(NVARCHAR, B.NETTO) + ';' + B.DATABAYAR + ';' + B.BUKTI_BAYAR + ';' + CONVERT(NVARCHAR,B.TGLREF_BAYAR) + ';' + CONVERT(NVARCHAR,B.TGL) ";
+                                            string ssql1 = "UPDATE A SET A.NILAI_LAIN = isnull(B.SISA,0), A.KET2 = B.NO_BUKTI + '|' + CONVERT(NVARCHAR, B.NETTO) + '|' + B.DATABAYAR + '|' + B.BUKTI_BAYAR + '|' + CONVERT(NVARCHAR,B.TGLREF_BAYAR) + '|' + CONVERT(NVARCHAR,B.TGL) + '|' + b.noref_asli  ";
                                             ssql1 += "FROM TEMP_UPLOAD_EXCEL_BAYAR AS A LEFT JOIN ( ";
-                                            ssql1 += "select a.no_bukti, a.no_ref, a.netto, isnull((isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)),0) sisa, ISNULL(CASE WHEN CONVERT(DATE, D.TGL) = '1900-01-01' THEN '' ELSE CONVERT(CHAR(10), D.TGL, 103) END, '') AS TGL ";
+                                            ssql1 += "select a.no_bukti, substring(a.no_ref,11,30) as no_ref, a.no_ref as noref_asli, a.netto, isnull((isnull(b.NETTO,0) - isnull(b.BAYAR,0) - isnull(b.KREDIT,0) + isnull(b.DEBET,0)),0) sisa, ISNULL(CASE WHEN CONVERT(DATE, D.TGL) = '1900-01-01' THEN '' ELSE CONVERT(CHAR(10), D.TGL, 103) END, '') AS TGL ";
                                             ssql1 += ",(case when isnull(c.BUKTI,'') <> '' then 'SUDAH ADA' ELSE 'TIDAK ADA' END) DATABAYAR,ISNULL(C.BUKTI,'')BUKTI_BAYAR, ISNULL(CASE WHEN CONVERT(DATE, C.TGL_REF) = '1900-01-01' THEN '' ELSE CONVERT(CHAR(10), C.TGL_REF, 103) END, '') AS TGLREF_BAYAR ";
-                                            ssql1 += "from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR LEFT JOIN SOT01A D ON A.NO_SO=D.NO_BUKTI WHERE a.CUST= '" + cust_id + "' and a.no_ref in (" + string_ref + ")) ";
+                                            ssql1 += "from sit01a a left join art01d b on a.no_bukti = b.faktur LEFT JOIN ART03B C ON A.NO_BUKTI=C.NFAKTUR LEFT JOIN SOT01A D ON A.NO_SO=D.NO_BUKTI WHERE a.CUST= '" + cust_id + "' and substring(a.no_ref,11,30) in (" + string_ref + ")) ";
                                             ssql1 += "AS B ON A.NOREF = B.no_ref ";
                                             ssql1 += "WHERE A.CUST = '" + cust_id + "' AND A.KET = '" + ret.nobuk + "' and A.NOREF in (" + string_ref + ") ";
                                             ErasoftDbContext.Database.ExecuteSqlCommand(ssql1);
@@ -45840,9 +45859,9 @@ namespace MasterOnline.Controllers
                                         if (getData != null)
                                         {
                                             var current_ref = getData.NOREF;
-                                            if (getData.KET2 != null && getData.KET2.Contains(";"))
+                                            if (getData.KET2 != null && getData.KET2.Contains("|"))
                                             {
-                                                var splitKet = getData.KET2.Split(';');
+                                                var splitKet = getData.KET2.Split('|');
                                                 var ketSI = splitKet[0];
                                                 var ketNetto = Convert.ToDouble(splitKet[1]);
                                                 var ketDATABAYAR = splitKet[2];
@@ -45850,10 +45869,11 @@ namespace MasterOnline.Controllers
                                                 var ketTGLREF_BAYAR = splitKet[4];
                                                 var ketTGLSO = splitKet[5];
                                                 var ketSisa = getData.NILAI_LAIN;
+                                                var norefAsli = splitKet[6];
 
-                                                if (!string.IsNullOrEmpty(current_ref))
+                                                if (!string.IsNullOrEmpty(norefAsli))
                                                 {
-                                                    var noref = current_ref;
+                                                    var noref = norefAsli;
                                                     var so = "";
                                                     double nettoSI = 0;
 
@@ -47430,7 +47450,7 @@ namespace MasterOnline.Controllers
             ret.lastRow = new List<int>();
             var bukti = "";
             var vm = new BayarPiutangViewModel() { };
-            List<mdlTempBayarTokped> recordsTokped = new List<mdlTempBayarTokped>();
+            List<mdlTempBayarBlibli> recordsBlibli = new List<mdlTempBayarBlibli>();
             List<int> recnum_record = new List<int>();
 
             byte[] data = null;
@@ -47473,7 +47493,7 @@ namespace MasterOnline.Controllers
 
                         if (ret.TipeData.Split('.').Last().ToLower() == "xlsx" || ret.TipeData.Split('.').Last().ToLower() == "xls")
                         {
-                            if (ret.TipeData.Split('.').Last().ToLower() == ".xls")
+                            if (ret.TipeData.Split('.').Last().ToLower() == "xls")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -47484,7 +47504,7 @@ namespace MasterOnline.Controllers
                                     data = memoryStream.ToArray();
                                 }
                             }
-                            else if (ret.TipeData.Split('.').Last().ToLower() == ".xlsx")
+                            else if (ret.TipeData.Split('.').Last().ToLower() == "xlsx")
                             {
                                 using (Stream inputStream = Request.Files[0].InputStream)
                                 {
@@ -47499,14 +47519,14 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                ret.Errors.Add("File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />");
+                                ret.Errors.Add("File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx'.<br />");
                                 ret.adaError = true;
                                 TABLE_LOG_DETAIL logDetail = new TABLE_LOG_DETAIL
                                 {
                                     LOG_FILE = ret.buktiLog,
                                     VARIABLE_1 = ret.nobuk,
                                     VARIABLE_2 = ret.TipeData,
-                                    TEXT_1 = "File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx' atau '.csv'.<br />",
+                                    TEXT_1 = "File " + Request.Files[0].FileName + " setidaknya harus dalam format '.xls' atau '.xlsx'.<br />",
                                     TEXT_2 = "",
                                     TGL_INPUT = DateTime.UtcNow.AddHours(7),
                                     USERNAME = uname
@@ -47524,32 +47544,41 @@ namespace MasterOnline.Controllers
                                     string cekCol2 = worksheet.Cells[1, 2].Value == null ? "" : worksheet.Cells[1, 2].Value.ToString();
                                     if (!string.IsNullOrEmpty(cekCol2))
                                     {
-                                        if (cekCol2 == "Description")
+                                        if (cekCol2 == "Order ID")
                                         {
 
                                             for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
                                             {
-                                                if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
+                                                if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 5].Value)))
                                                 {
-                                                    if (Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Transaksi" || Convert.ToString(worksheet.Cells[i, 2].Value).Split(' ').First() == "Pemotongan")
+                                                    if (Convert.ToString(worksheet.Cells[i, 5].Value).Split(' ').First() == "Sales")
                                                     {
-                                                        var tempData = new mdlTempBayarTokped() { };
-                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 1].Value)))
+                                                        var tempData = new mdlTempBayarBlibli() { };
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 5].Value)))
                                                         {
-                                                            tempData.TGL = Convert.ToDateTime(worksheet.Cells[i, 1].Value);
+                                                            tempData.KETERANGAN = Convert.ToString(worksheet.Cells[i, 5].Value);
+                                                        }
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 6].Value)))
+                                                        {
+                                                            tempData.TGL = Convert.ToDateTime(worksheet.Cells[i, 6].Value);
                                                         }
                                                         if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 2].Value)))
                                                         {
-                                                            var tempDesc = Convert.ToString(worksheet.Cells[i, 2].Value).Split('-');
-                                                            tempData.KETERANGAN = tempDesc[0];
-                                                            tempData.REF = tempDesc[1].Substring(1);
-
+                                                            tempData.REF = Convert.ToString(worksheet.Cells[i, 2].Value);
                                                         }
-                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 3].Value)))
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 9].Value)))
                                                         {
-                                                            tempData.NILAI = Convert.ToDouble(worksheet.Cells[i, 3].Value);
+                                                            tempData.HARGA = Convert.ToDouble(worksheet.Cells[i, 9].Value);
                                                         }
-                                                        recordsTokped.Add(tempData);
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 11].Value)))
+                                                        {
+                                                            tempData.POTONGAN = Convert.ToDouble(worksheet.Cells[i, 11].Value);
+                                                        }
+                                                        if (!string.IsNullOrEmpty(Convert.ToString(worksheet.Cells[i, 14].Value)))
+                                                        {
+                                                            tempData.TOTAL = Convert.ToDouble(worksheet.Cells[i, 14].Value);
+                                                        }
+                                                        recordsBlibli.Add(tempData);
                                                         ret.sudahSimpanTemp = true;
                                                     }
                                                 }
@@ -47656,7 +47685,7 @@ namespace MasterOnline.Controllers
                                 List<TEMP_UPLOAD_EXCEL_BAYAR> data_proses = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
                                 List<TEMP_UPLOAD_EXCEL_BAYAR> data_proses_lanjut = new List<TEMP_UPLOAD_EXCEL_BAYAR>();
                                 List<ART03B> list_detail = new List<ART03B>();
-                                if (recordsTokped.Count() != 0)
+                                if (recordsBlibli.Count() != 0)
                                 {
                                     List<string> list_ref = new List<string>();
                                     #region create induk
@@ -47757,18 +47786,26 @@ namespace MasterOnline.Controllers
                                             }
                                         }
                                         ErasoftDbContext.Database.ExecuteSqlCommand("update LOG_IMPORT_FAKTUR set LAST_FAKTUR_UPLOADED = '" + art03a.BUKTI + "' where CUST ='" + cust_id + "' and LOG_FILE ='" + ret.buktiLog + "'");
-
-                                        var detail1 = recordsTokped.GroupBy(a => a.REF)
+                                        //var detail = recordsBlibli.GroupBy(a => a.REF)
+                                        //                                .Select(f => new
+                                        //                                {
+                                        //                                    Tanggal = f.FirstOrDefault().TGL,
+                                        //                                    Nobuk = f.FirstOrDefault().REF,
+                                        //                                    Potongan = f.Sum(b => b.POTONGAN),
+                                        //                                    Bayar = f.Sum(b => b.HARGA),
+                                        //                                    NRef = f.Sum(b => b.TOTAL)
+                                        //                                });
+                                        var detail1 = recordsBlibli.GroupBy(a => a.REF)
                                                         .Select(f => new TEMP_UPLOAD_EXCEL_BAYAR
                                                         {
                                                             NAMA_FILE = ret.TipeData,
                                                             CUST = cust_id,
-                                                            MARKETPLACE = "TOKOPEDIA",
+                                                            MARKETPLACE = "BLIBLI",
                                                             NOREF = f.FirstOrDefault().REF.Trim(),
                                                             TGL = f.FirstOrDefault().TGL,
-                                                            BAYAR = f.Where(b => b.KETERANGAN.Contains("Transaksi")).Sum(b => b.NILAI),
-                                                            POTONGAN = f.Where(b => b.KETERANGAN.Contains("Pemotongan")).Sum(b => b.NILAI),
-                                                            NILAI_REF = (f.Where(b => b.KETERANGAN.Contains("Transaksi")).Sum(b => b.NILAI) - f.Where(b => b.KETERANGAN.Contains("Pemotongan")).Sum(b => b.NILAI)),
+                                                            BAYAR = f.Sum(b => b.HARGA),
+                                                            POTONGAN = f.Sum(b => b.POTONGAN),
+                                                            NILAI_REF = f.Sum(b => b.TOTAL),
                                                             NILAI_LAIN = 0,
                                                             KET = noOrder,
                                                             SUDAH_INPUT = false,
