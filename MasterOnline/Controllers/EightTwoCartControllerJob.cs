@@ -707,7 +707,7 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (var order in orderFilterExisting)
                                 {
-                                    if (OrderNoInDb.Contains(order.id_order))
+                                    if (!OrderNoInDb.Contains(order.id_order))
                                     {
                                         jmlhPesananDibayar++;
                                         ordersn = ordersn + "'" + order.id_order + "',";
@@ -846,32 +846,32 @@ namespace MasterOnline.Controllers
                                         ErasoftDbContext.TEMP_82CART_ORDERS.Add(batchinsert);
                                         ErasoftDbContext.TEMP_82CART_ORDERS_ITEM.AddRange(batchinsertItem);
                                         ErasoftDbContext.SaveChanges();
-                                        //using (SqlCommand CommandSQL = new SqlCommand())
-                                        //{
-                                        //    //call sp to insert buyer data
-                                        //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                        //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+                                        using (SqlCommand CommandSQL = new SqlCommand())
+                                        {
+                                            //call sp to insert buyer data
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
 
-                                        //    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-                                        //};
-                                        //using (SqlCommand CommandSQL = new SqlCommand())
-                                        //{
-                                        //    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                        //    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                                        //    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
-                                        //    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                        //    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
-                                        //    CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
-                                        //    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+                                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                                        };
+                                        using (SqlCommand CommandSQL = new SqlCommand())
+                                        {
+                                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                            CommandSQL.Parameters.Add("@82Cart", SqlDbType.Int).Value = 1;
+                                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
-                                        //    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                                        //}
+                                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                                        }
                                     }
                                 }
                             }
@@ -890,6 +890,7 @@ namespace MasterOnline.Controllers
                         {
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
+                            //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                         }
                     }
                     #endregion

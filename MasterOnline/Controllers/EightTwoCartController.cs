@@ -265,15 +265,22 @@ namespace MasterOnline.Controllers
                                     {
                                         string namaBrg = item.name;
                                         string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                        nama = "";
+                                        nama2 = "";
+                                        nama3 = "";
                                         urlImage = "";
                                         urlImage2 = "";
                                         urlImage3 = "";
-                                        namaBrg = namaBrg.Replace('\'', '`');
+                                        if(namaBrg != null)
+                                        {
+                                            namaBrg = namaBrg.Replace('\'', '`');
 
-                                        var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
-                                        nama = splitItemName[0];
-                                        nama2 = splitItemName[1];
-                                        nama3 = "";
+                                            var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+                                            nama = splitItemName[0];
+                                            nama2 = splitItemName[1];
+                                            nama3 = "";
+                                        }
+                                        
 
                                         Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
                                         {
