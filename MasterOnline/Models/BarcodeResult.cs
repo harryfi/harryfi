@@ -27,9 +27,38 @@ namespace MasterOnline.Models
                 //b.RotateFlipType = (RotateFlipType)Enum.Parse(typeof(RotateFlipType), "rotatenonflipnone", true);
                 if (_text != null || _text != "" || _text != "-")
                 {
-                    Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 350, 60));
-                    context.HttpContext.Response.ContentType = "image/jpg";
-                    bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                    //change by nurul 27/5/2020
+                    //Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 380, 60));
+                    //context.HttpContext.Response.ContentType = "image/jpg";
+                    //bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                    try
+                    {
+                        Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 250, 60));
+                        context.HttpContext.Response.ContentType = "image/jpg";
+                        bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                    }
+                    catch
+                    {
+                        if (_text.Length <= 25)
+                        {
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 350, 60));
+                            context.HttpContext.Response.ContentType = "image/jpg";
+                            bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                        }
+                        else if (_text.Length <= 32)
+                        {
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 400, 60));
+                            context.HttpContext.Response.ContentType = "image/jpg";
+                            bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                        }
+                        else
+                        {
+                            Bitmap bitmap = new Bitmap(b.Encode(type, _text.Trim(), 450, 60));
+                            context.HttpContext.Response.ContentType = "image/jpg";
+                            bitmap.Save(context.HttpContext.Response.OutputStream, ImageFormat.Jpeg);
+                        }
+                    }
+                    //end change by nurul 27/5/2020
                 }
             }
         }
