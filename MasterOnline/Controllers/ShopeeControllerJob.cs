@@ -5681,35 +5681,53 @@ namespace MasterOnline.Controllers
 
             try
             {
-                string sSQL = "SELECT * FROM (";
+                //change 27 mei 2020, ambil dari stf02h saja, karena attribut tidak ambil lg dari db MO
+                //string sSQL = "SELECT * FROM (";
+                //for (int i = 1; i <= 30; i++)
+                //{
+                //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
+                //    if (i < 30)
+                //    {
+                //        sSQL += "UNION ALL " + System.Environment.NewLine;
+                //    }
+                //}
+
+                //DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
+
+                //for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+                //{
+                //    //HttpBody.attributes.Add(new ShopeeAttributeClass
+                //    //{
+                //    //    attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+                //    //    value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                //    //});
+                //    if (Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim() != "null")
+                //    {
+                //        HttpBody.attributes.Add(new ShopeeAttributeClass
+                //        {
+                //            attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+                //            value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                //        });
+                //    }
+                //}
                 for (int i = 1; i <= 30; i++)
                 {
-                    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
-                    if (i < 30)
+                    string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id) && !string.IsNullOrWhiteSpace(value))
                     {
-                        sSQL += "UNION ALL " + System.Environment.NewLine;
-                    }
-                }
-
-                DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
-
-                for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
-                {
-                    //HttpBody.attributes.Add(new ShopeeAttributeClass
-                    //{
-                    //    attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
-                    //    value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
-                    //});
-                    if (Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim() != "null")
-                    {
-                        HttpBody.attributes.Add(new ShopeeAttributeClass
+                        if (value != "null")
                         {
-                            attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
-                            value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
-                        });
+                            HttpBody.attributes.Add(new ShopeeAttributeClass
+                            {
+                                attributes_id = Convert.ToInt64(attribute_id),
+                                value = value.Trim()
+                            });
+                        }
+
                     }
                 }
-
+                //end change 27 mei 2020, ambil dari stf02h saja, karena attribut tidak ambil lg dari db MO
             }
             catch (Exception ex)
             {
