@@ -2507,7 +2507,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            using (WebResponse response = await myReq.GetResponseAsync())
+            using (WebResponse response = myReq.GetResponse())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
