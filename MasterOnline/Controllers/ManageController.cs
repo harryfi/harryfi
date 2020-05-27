@@ -19870,11 +19870,11 @@ namespace MasterOnline.Controllers
                             idenJob.username = usernameLogin;
                             idenJob.no_cust = marketPlace.CUST;
 
-                            //add by fauzi for update status TO SHIPPED CODE 4
+                            //add by fauzi for update status TO PREPARATION IN PROGRESS 3
 #if (AWS || DEV)
-                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "4"));
+                            clientJobServer.Enqueue<EightTwoCartControllerJob>(x => x.E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "3"));
 #else
-                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "4");
+                            new EightTwoCartControllerJob().E2Cart_SetOrderStatus(idenJob, dbPathEra, marketPlace.CUST, "Pesanan", "Shipped Order", pesanan.NO_REFERENSI, "3");
 #endif
                         }
                         break;
