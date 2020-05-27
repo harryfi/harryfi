@@ -696,7 +696,7 @@ namespace MasterOnline.Controllers
                     #region PAID
                     if (stat == StatusOrder.PAID)
                     {
-                        string[] statusCAP = { "2" }; // CODE STATUS PESANAN PAYMENT ACCEPTED
+                        string[] statusCAP = { "2", "3" }; // CODE STATUS PESANAN PAYMENT ACCEPTED, DAN PREPARATION IN PROGRESS INSERT KE DB
                         string ordersn = "";
                         jmlhPesananDibayar = 0;
 
@@ -711,6 +711,16 @@ namespace MasterOnline.Controllers
                                     {
                                         jmlhPesananDibayar++;
                                         ordersn = ordersn + "'" + order.id_order + "',";
+                                        var statusOrderSP = "";
+
+                                        if(statusCAP[itemOrderExisting].ToString() == "2")
+                                        {
+                                            statusOrderSP = "PAID";
+                                        }
+                                        else if(statusCAP[itemOrderExisting].ToString() == "3")
+                                        {
+                                            statusOrderSP = "PREPARATION IN PROGRESS";
+                                        }
 
                                         var connIdARF01C = Guid.NewGuid().ToString();
                                         TEMP_82CART_ORDERS batchinsert = new TEMP_82CART_ORDERS();
@@ -777,7 +787,7 @@ namespace MasterOnline.Controllers
                                             note_update_time = Convert.ToDateTime(dateOrder),
                                             ordersn = order.id_order,
                                             //order_status = order.current_state_name,
-                                            order_status = "PAID",
+                                            order_status = statusOrderSP,
                                             payment_method = order.payment,
                                             //change by nurul 5/12/2019, local time 
                                             //pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
@@ -858,7 +868,7 @@ namespace MasterOnline.Controllers
                                         {
                                             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                                             CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
                                             CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                                             CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
                                             CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
@@ -890,7 +900,7 @@ namespace MasterOnline.Controllers
                         {
                             var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
                             contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhPesananDibayar) + " Pesanan terbayar dari 82Cart.");
-                            //new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
+                            new StokControllerJob().updateStockMarketPlace(connID, iden.DatabasePathErasoft, iden.username);
                         }
                     }
                     #endregion
