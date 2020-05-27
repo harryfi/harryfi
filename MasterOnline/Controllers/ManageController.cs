@@ -49182,6 +49182,7 @@ namespace MasterOnline.Controllers
                 var listSuccess = new List<listSuccessPrintLabel>();
                 string sSQLSelect = "";
                 sSQLSelect += "SELECT A.CUST, A.NAMA_CUST, A.NO_BUKTI as no_bukti,A.NO_REFERENSI as no_referensi,B.PEMBELI as nama_pemesan,A.SHIPMENT as kurir, 0 as jumlah_item ";
+                sSQLSelect += ",ISNULL(A.NO_PO_CUST,'') AS no_job ";
                 string sSQL2 = "";
                 sSQL2 += "FROM SOT01A A INNER JOIN SOT03B B ON A.NO_BUKTI = B.NO_PESANAN AND B.NO_BUKTI = '" + bukti + "' AND A.CUST IN ('" + cust + "') AND A.RECNUM IN (" + string_recnum + ") ";
 
@@ -49191,43 +49192,54 @@ namespace MasterOnline.Controllers
                 var ListStt01a = ErasoftDbContext.Database.SqlQuery<PackingPerMP>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
                 foreach (var item in ListStt01a)
                 {
-                    var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
-                    if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
+                    if (string.IsNullOrEmpty(item.no_job))
                     {
-                        if (marketPlace.STATUS_API == "1")
+                        var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == item.CUST);
+                        if (!string.IsNullOrEmpty(marketPlace.STATUS_API))
                         {
-                            TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
+                            if (marketPlace.STATUS_API == "1")
                             {
-                                merchant_code = marketPlace.Sort1_Cust, //FSID
-                                API_client_password = marketPlace.API_CLIENT_P, //Client ID
-                                API_client_username = marketPlace.API_CLIENT_U, //Client Secret
-                                API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                token = marketPlace.TOKEN,
-                                idmarket = marketPlace.RecNum.Value,
-                                DatabasePathErasoft = dbPathEra,
-                                username = usernameLogin
-                            };
-                            string[] referensi = item.no_referensi.Split(';');
-                            if (referensi.Count() > 0)
-                            {
-                                //var sqlStorage = new SqlServerStorage(EDBConnID);
-                                //var clientJobServer = new BackgroundJobClient(sqlStorage);
-                                //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, item.no_bukti, item.no_referensi));
-                                var tokpedAPI = new TokopediaControllerJob();
-                                var kdBooking = tokpedAPI.JOBCOD(iden, item.no_bukti, item.no_referensi);
-                                if (kdBooking.Result.ToString() != "")
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                 {
-                                    listSuccess.Add(new listSuccessPrintLabel
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
+                                };
+                                string[] referensi = item.no_referensi.Split(';');
+                                if (referensi.Count() > 0)
+                                {
+                                    //var sqlStorage = new SqlServerStorage(EDBConnID);
+                                    //var clientJobServer = new BackgroundJobClient(sqlStorage);
+                                    //clientJobServer.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, item.no_bukti, item.no_referensi));
+                                    var tokpedAPI = new TokopediaControllerJob();
+                                    var kdBooking = tokpedAPI.JOBCOD(iden, item.no_bukti, item.no_referensi);
+                                    if (kdBooking.Result.ToString() != "")
                                     {
-                                        no_referensi = item.no_bukti
-                                    });
+                                        listSuccess.Add(new listSuccessPrintLabel
+                                        {
+                                            no_referensi = item.no_bukti
+                                        });
+                                    }
+                                    else
+                                    {
+                                        listErrors.Add(new PackingListErrors
+                                        {
+                                            keyname = item.no_bukti,
+                                            errorMessage = "Pesanan tidak ditemukan kode bookingnya."
+                                        });
+                                    }
                                 }
                                 else
                                 {
                                     listErrors.Add(new PackingListErrors
                                     {
                                         keyname = item.no_bukti,
-                                        errorMessage = "Pesanan tidak ditemukan kode bookingnya."
+                                        errorMessage = "Pesanan tidak bisa diproses Get Kode Booking."
                                     });
                                 }
                             }
@@ -49236,7 +49248,7 @@ namespace MasterOnline.Controllers
                                 listErrors.Add(new PackingListErrors
                                 {
                                     keyname = item.no_bukti,
-                                    errorMessage = "Pesanan tidak bisa diproses Get Kode Booking."
+                                    errorMessage = "Status Link ke Marketplace tidak aktif."
                                 });
                             }
                         }
@@ -49254,7 +49266,7 @@ namespace MasterOnline.Controllers
                         listErrors.Add(new PackingListErrors
                         {
                             keyname = item.no_bukti,
-                            errorMessage = "Status Link ke Marketplace tidak aktif."
+                            errorMessage = "Kode Booking sudah ada."
                         });
                     }
                 }

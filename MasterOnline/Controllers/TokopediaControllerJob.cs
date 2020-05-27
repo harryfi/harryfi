@@ -2219,7 +2219,7 @@ namespace MasterOnline.Controllers
                         //#endif
                     }
                 }
-                else if(result.error_message.Contains("order already ack-ed"))
+                else if (result.error_message.Contains("order already ack-ed"))
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
@@ -2454,20 +2454,31 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 JOBCODResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(JOBCODResult)) as JOBCODResult;
-                if (result.status == "200")
+                var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                if (pesananIndb != null)
                 {
-                    var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
-                    if (pesananIndb != null)
+                    ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                    //if (result.status == "200")
+                    //{
+                    //    //var pesananIndb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo).SingleOrDefault();
+                    //    //if (pesananIndb != null)
+                    //    //{
+                    //      ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
+                    //    if (ret != "" && ret != null)
+                    //    {
+                    //        //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
+                    //        pesananIndb.status_kirim = "2";
+                    //        pesananIndb.NO_PO_CUST = ret;
+                    //        ErasoftDbContext.SaveChanges();
+                    //        //} else if (pesananIndb.STATUS_TRANSAKSI == "02" && (pesananIndb.SHIPMENT.Contains("SiCepat") || pesananIndb.SHIPMENT.Contains("AnterAja") || pesananIndb.SHIPMENT.Contains("J&T") || pesananIndb.SHIPMENT.Contains("JNE") || pesananIndb.SHIPMENT.Contains("Lion")))
+                    //    }
+                    //    //}
+                    //}
+                    if (ret != "" && ret != null)
                     {
-                        ret = result.data.order_data.Where(a => a.order.invoice_number == splitNoRef.Last()).Select(a => a.booking_data.booking_code).FirstOrDefault();
-                        if (ret != "" && ret != null)
-                        {
-                            //EDB.ExecuteSQL("sConn", CommandType.Text, "UPDATE SOT01A SET STATUS_KIRIM='2' WHERE NO_BUKTI = '" + NO_BUKTI_SOT01A + "'");
-                            pesananIndb.status_kirim = "2";
-                            pesananIndb.NO_PO_CUST = ret;
-                            ErasoftDbContext.SaveChanges();
-                            //} else if (pesananIndb.STATUS_TRANSAKSI == "02" && (pesananIndb.SHIPMENT.Contains("SiCepat") || pesananIndb.SHIPMENT.Contains("AnterAja") || pesananIndb.SHIPMENT.Contains("J&T") || pesananIndb.SHIPMENT.Contains("JNE") || pesananIndb.SHIPMENT.Contains("Lion")))
-                        }
+                        pesananIndb.status_kirim = "2";
+                        pesananIndb.NO_PO_CUST = ret;
+                        ErasoftDbContext.SaveChanges();
                     }
                 }
             }
@@ -3067,7 +3078,7 @@ namespace MasterOnline.Controllers
             {
                 //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
-                if(result.data != null)
+                if (result.data != null)
                 {
                     var orderCompleted = result.data.Where(p => p.order_status == 700).ToList();
                     var order701 = result.data.Where(p => p.order_status == 701).ToList(); // order yang dianggap selesai tetapi barang tidak sampai ke buyer
@@ -3092,7 +3103,7 @@ namespace MasterOnline.Controllers
                         jmlhOrderComplete = jmlhOrderComplete + rowAffected;
                     }
                 }
-                
+
             }
             if (rowCount > 99)
             {
@@ -3135,7 +3146,7 @@ namespace MasterOnline.Controllers
 
             // tunning untuk tidak duplicate
             var queryStatus = "\\\"}\"" + "," + "\"5\"" + "," + "\"\\\"" + CUST + "\\\"\"";  //     \"}","5","\"000003\""
-            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%"+ queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
+            var execute = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "delete from hangfire.job where arguments like '%" + queryStatus + "%' and arguments like '%" + iden.API_secret_key + "%' and invocationdata like '%tokopedia%' and invocationdata like '%GetOrderListCompleted%' and statename like '%Enque%' and invocationdata not like '%resi%'");
             // end tunning untuk tidak duplicate
 
             return ret;
