@@ -8370,35 +8370,40 @@
                     beforeSend: function() {
                         $('#loading_spinner').show();
                     },
-                    success: function(response) {
-                        //lihatPesananSudahDibayar
-                        alert('Data berhasil disimpan!');
-                        $('#modalFixNotFound').modal('hide');
-                        //samakan dengan function lihatPesananSudahDibayar onSuccess
-                        //add by nurul 1/11/2018
-                        $modeEdit = 1;
-                        $modeEditDibayar = 1;
-                        //end add
-                        $('#form-partial-sudah-dibayar').html(response);
-                        $('#see_tgl_pesanan').removeAttr('style');
-                        //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                        //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
-                        //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
-                        //ADD BY NURUL 16/4/2019
-                        //$('#see_alamat_pembeli').val().show();
-                        //END ADD BY NURUL 16/4/2019
-                        $('#TGL').parent().hide();
-                        $('.pesanan_sudah_dibayar_section').hide();
-                        $('.pesanan_editor_sudah_dibayar_section').show();
-                        //add by nurul 17/10/2018
-                        $('#myTab li a').each(function () {
-                            $(this).removeAttr('data-toggle');
+                    success: function (response) {
+                        if (response.Errors != null) {
+                            alert(response.Errors[0]);
+                        }
+                        else {
+                            //lihatPesananSudahDibayar
+                            alert('Data berhasil disimpan!');
+                            $('#modalFixNotFound').modal('hide');
+                            //samakan dengan function lihatPesananSudahDibayar onSuccess
+                            //add by nurul 1/11/2018
+                            $modeEdit = 1;
+                            $modeEditDibayar = 1;
+                            //end add
+                            $('#form-partial-sudah-dibayar').html(response);
+                            $('#see_tgl_pesanan').removeAttr('style');
+                            //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
+                            //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
+                            //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                            //ADD BY NURUL 16/4/2019
+                            //$('#see_alamat_pembeli').val().show();
+                            //END ADD BY NURUL 16/4/2019
+                            $('#TGL').parent().hide();
+                            $('.pesanan_sudah_dibayar_section').hide();
+                            $('.pesanan_editor_sudah_dibayar_section').show();
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
 
-                            if ($(this).attr('id') === 'nunggu-tab') return;
+                                if ($(this).attr('id') === 'nunggu-tab') return;
 
-                            $(this).addClass('disabled-tab');
-                        });
-                        //end add
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
+                        }
                         $('#loading_spinner').hide();
                         //end samakan dengan function lihatPesananSudahDibayar onSuccess
                     },
