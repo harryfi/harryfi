@@ -8789,15 +8789,15 @@ namespace MasterOnline.Controllers
 
                 if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
                 {
-                    for (int i = 0; i < imgPath.Length; i++)
-                    {
-                        if (!string.IsNullOrEmpty(imgPath[i]))
-                        {
-                            var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                            if (uploadImg.status == 1)
-                                imageUrl[i] = uploadImg.message;
-                        }
-                    }
+                    //for (int i = 0; i < imgPath.Length; i++)
+                    //{
+                    //    if (!string.IsNullOrEmpty(imgPath[i]))
+                    //    {
+                    //        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                    //        if (uploadImg.status == 1)
+                    //            imageUrl[i] = uploadImg.message;
+                    //    }
+                    //}
 
                     //add by nurul 14/1/2020, handle deskripsi enter2x
                     var note = barangInDb.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
@@ -8828,23 +8828,45 @@ namespace MasterOnline.Controllers
                     dataLazada.harga = productMarketPlace.HJUAL.ToString();
                     dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                    if (!string.IsNullOrEmpty(imageUrl[2]))
-                    {
-                        dataLazada.imageUrl3 = imageUrl[2];
-                    }
-                    if (!string.IsNullOrEmpty(imageUrl[1]))
-                    {
-                        dataLazada.imageUrl2 = imageUrl[1];
-                    }
-                    if (!string.IsNullOrEmpty(imageUrl[0]))
-                    {
-                        dataLazada.imageUrl = imageUrl[0];
-                    }
+                    //if (!string.IsNullOrEmpty(imageUrl[2]))
+                    //{
+                    //    dataLazada.imageUrl3 = imageUrl[2];
+                    //}
+                    //if (!string.IsNullOrEmpty(imageUrl[1]))
+                    //{
+                    //    dataLazada.imageUrl2 = imageUrl[1];
+                    //}
+                    //if (!string.IsNullOrEmpty(imageUrl[0]))
+                    //{
+                    //    dataLazada.imageUrl = imageUrl[0];
+                    //}
                     var brg_notInLzd = EDB.GetDataSet("CString", "STF02", "SELECT B.BRG, B.BRG_MP FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE (A.BRG = '" + barangInDb.BRG + "' OR A.PART = '" + barangInDb.BRG + "') AND ISNULL(B.BRG_MP, '') = '' AND IDMARKET = " + tblCustomer.RecNum);
                     var brg_inLzd = EDB.GetDataSet("CString", "STF02", "SELECT B.BRG, B.BRG_MP FROM STF02 A INNER JOIN STF02H B ON A.BRG = B.BRG WHERE (A.BRG = '" + barangInDb.BRG + "' OR A.PART = '" + barangInDb.BRG + "') AND ISNULL(B.BRG_MP, '') <> '' AND IDMARKET = " + tblCustomer.RecNum);
                     //if (string.IsNullOrWhiteSpace(productMarketPlace[0].BRG_MP) && productMarketPlace[0].DISPLAY)
                     if (brg_notInLzd.Tables[0].Rows.Count > 0 && productMarketPlace.DISPLAY)
                     {
+                        for (int i = 0; i < imgPath.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(imgPath[i]))
+                            {
+                                var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                                if (uploadImg.status == 1)
+                                    imageUrl[i] = uploadImg.message;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[2]))
+                        {
+                            dataLazada.imageUrl3 = imageUrl[2];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[1]))
+                        {
+                            dataLazada.imageUrl2 = imageUrl[1];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[0]))
+                        {
+                            dataLazada.imageUrl = imageUrl[0];
+                        }
+
                         string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
                         EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
                         //var result = lzdApi.CreateProduct(dataLazada);
@@ -8865,6 +8887,27 @@ namespace MasterOnline.Controllers
                     //}
                     if (brg_inLzd.Tables[0].Rows.Count > 0)
                     {
+                        for (int i = 0; i < imgPath.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(imgPath[i]))
+                            {
+                                var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                                if (uploadImg.status == 1)
+                                    imageUrl[i] = uploadImg.message;
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[2]))
+                        {
+                            dataLazada.imageUrl3 = imageUrl[2];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[1]))
+                        {
+                            dataLazada.imageUrl2 = imageUrl[1];
+                        }
+                        if (!string.IsNullOrEmpty(imageUrl[0]))
+                        {
+                            dataLazada.imageUrl = imageUrl[0];
+                        }
                         var result = lzdApi.UpdateProduct(dataLazada);
                     }
                 }
@@ -8885,15 +8928,15 @@ namespace MasterOnline.Controllers
             var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
             if (!string.IsNullOrEmpty(tblCustomer.TOKEN) /*&& productMarketPlace.DISPLAY*/)
             {
-                for (int i = 0; i < imgPath.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(imgPath[i]))
-                    {
-                        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                        if (uploadImg.status == 1)
-                            imageUrl[i] = uploadImg.message;
-                    }
-                }
+                //for (int i = 0; i < imgPath.Length; i++)
+                //{
+                //    if (!string.IsNullOrEmpty(imgPath[i]))
+                //    {
+                //        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                //        if (uploadImg.status == 1)
+                //            imageUrl[i] = uploadImg.message;
+                //    }
+                //}
 
                 //add by nurul 14/1/2020, handle deskripsi enter2x
                 var note = dataBarang.Stf02.Deskripsi.Replace("\r\n", "").Replace("&nbsp;", " ").Replace("<em>", "<i>").Replace("</em>", "</i>");
@@ -8924,27 +8967,27 @@ namespace MasterOnline.Controllers
                 dataLazada.harga = productMarketPlace.HJUAL.ToString();
                 dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                if (!string.IsNullOrEmpty(imageUrl[2]))
-                {
-                    dataLazada.imageUrl3 = imageUrl[2];
-                }
-                if (!string.IsNullOrEmpty(imageUrl[1]))
-                {
-                    dataLazada.imageUrl2 = imageUrl[1];
-                }
-                if (!string.IsNullOrEmpty(imageUrl[0]))
-                {
-                    dataLazada.imageUrl = imageUrl[0];
-                }
-                //add 6/9/2019, 5 gambar
-                if (!string.IsNullOrEmpty(imageUrl[3]))
-                {
-                    dataLazada.imageUrl4 = imageUrl[3];
-                }
-                if (!string.IsNullOrEmpty(imageUrl[4]))
-                {
-                    dataLazada.imageUrl5 = imageUrl[4];
-                }
+                //if (!string.IsNullOrEmpty(imageUrl[2]))
+                //{
+                //    dataLazada.imageUrl3 = imageUrl[2];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[1]))
+                //{
+                //    dataLazada.imageUrl2 = imageUrl[1];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[0]))
+                //{
+                //    dataLazada.imageUrl = imageUrl[0];
+                //}
+                ////add 6/9/2019, 5 gambar
+                //if (!string.IsNullOrEmpty(imageUrl[3]))
+                //{
+                //    dataLazada.imageUrl4 = imageUrl[3];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[4]))
+                //{
+                //    dataLazada.imageUrl5 = imageUrl[4];
+                //}
                 //end add 6/9/2019, 5 gambar
                 //if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_3))
                 //{
@@ -8962,6 +9005,36 @@ namespace MasterOnline.Controllers
                 //change by calvin 9 juni 2019
                 if (mode == 1 && productMarketPlace.DISPLAY)
                 {
+                    for (int i = 0; i < imgPath.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(imgPath[i]))
+                        {
+                            var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                            if (uploadImg.status == 1)
+                                imageUrl[i] = uploadImg.message;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[2]))
+                    {
+                        dataLazada.imageUrl3 = imageUrl[2];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[1]))
+                    {
+                        dataLazada.imageUrl2 = imageUrl[1];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[0]))
+                    {
+                        dataLazada.imageUrl = imageUrl[0];
+                    }
+                    //add 6/9/2019, 5 gambar
+                    if (!string.IsNullOrEmpty(imageUrl[3]))
+                    {
+                        dataLazada.imageUrl4 = imageUrl[3];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[4]))
+                    {
+                        dataLazada.imageUrl5 = imageUrl[4];
+                    }
                     string sSQL = "DELETE FROM API_LOG_MARKETPLACE WHERE REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND REQUEST_ACTION = 'Buat Produk' AND CUST = '" + tblCustomer.CUST + "' AND CUST_ATTRIBUTE_1 = '" + dataLazada.kdBrg + "'";
                     EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
 
@@ -8977,6 +9050,36 @@ namespace MasterOnline.Controllers
                 }
                 else if (mode == 2)
                 {
+                    for (int i = 0; i < imgPath.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(imgPath[i]))
+                        {
+                            var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                            if (uploadImg.status == 1)
+                                imageUrl[i] = uploadImg.message;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[2]))
+                    {
+                        dataLazada.imageUrl3 = imageUrl[2];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[1]))
+                    {
+                        dataLazada.imageUrl2 = imageUrl[1];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[0]))
+                    {
+                        dataLazada.imageUrl = imageUrl[0];
+                    }
+                    //add 6/9/2019, 5 gambar
+                    if (!string.IsNullOrEmpty(imageUrl[3]))
+                    {
+                        dataLazada.imageUrl4 = imageUrl[3];
+                    }
+                    if (!string.IsNullOrEmpty(imageUrl[4]))
+                    {
+                        dataLazada.imageUrl5 = imageUrl[4];
+                    }
                     var result = lzdApi.UpdateProduct(dataLazada);
                 }
                 //clientJobServer.Enqueue<LazadaControllerJob>(x => x.CreateProduct(dbPathEra, dataLazada.kdBrg, tblCustomer.CUST, "Barang", "Buat Produk", usernameLogin, dataLazada));
