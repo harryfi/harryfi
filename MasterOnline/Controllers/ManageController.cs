@@ -3720,6 +3720,7 @@ namespace MasterOnline.Controllers
                         API_secret_key = customer.Customers.API_KEY,
                         mta_username_email_merchant = customer.Customers.EMAIL,
                         mta_password_password_merchant = customer.Customers.PASSWORD,
+                        merchant_code = customer.Sort1_Cust,
                         idmarket = customer.Customers.RecNum.Value
                     };
                     Task.Run(() => BliApi.GetToken(data, true, true).Wait());
