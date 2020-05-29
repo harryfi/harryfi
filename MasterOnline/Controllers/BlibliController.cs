@@ -175,9 +175,19 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (WebException e)
                     {
-
+                        string err = "";
+                        //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                            }
+                        }
                     }
                     //dataStream.Close();
                     //response.Close();
