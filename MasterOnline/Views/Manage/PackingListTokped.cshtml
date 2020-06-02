@@ -176,12 +176,16 @@
                             $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
 
                             if (response.mo_label != undefined) {
-                                response.mo_label.forEach(function (item) {
+                                //response.mo_label.forEach(function (item) {
+                                //    var w = window.open('about:blank');
+                                //    w.document.open();
+                                //    w.document.write(item);
+                                //    w.document.close();
+                                //});
                                     var w = window.open('about:blank');
                                     w.document.open();
-                                    w.document.write(item);
+                                    w.document.write(response.mo_label);
                                     w.document.close();
-                                });
                             }
 
                             if (!adaError && textareaValue == "") {
