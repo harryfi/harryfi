@@ -898,14 +898,23 @@ namespace MasterOnline.Controllers
                             //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                             //    }
                             //}
-                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+
+                            //change by Tri 29 mei 2020, loop sesuai attribute sku
+                            //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            for (int i = 0; i < dsSku.Count; i++)
+                            //end change by Tri 29 mei 2020, loop sesuai attribute sku
                             {
-                                if (!attributesAdded.Contains(dsSku[i].ToString()))
-                                {
-                                    xmlString += "<" + dsSku[i].ToString() + ">";
-                                    xmlString += XmlEscape(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
-                                    xmlString += "</" + dsSku[i].ToString() + ">";
-                                }
+                                //add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                string value = "";
+                                var cekAttr = (lzdAttrSkuWithVal.TryGetValue(dsSku[i].ToString(), out value) ? value : "");
+                                if (!string.IsNullOrEmpty(cekAttr))
+                                    //end add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                    if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                    {
+                                        xmlString += "<" + dsSku[i].ToString() + ">";
+                                        xmlString += XmlEscape(lzdAttrSkuWithVal[dsSku[i].ToString()].ToString());
+                                        xmlString += "</" + dsSku[i].ToString() + ">";
+                                    }
                             }
                             //end change 16 Mei 2019, get attr from api
 

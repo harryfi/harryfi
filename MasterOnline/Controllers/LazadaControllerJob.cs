@@ -555,22 +555,31 @@ namespace MasterOnline.Controllers
                             //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                             //    }
                             //}
-                            for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
-                            {
-                                if (!attributesAdded.Contains(dsSku[i].ToString()))
-                                {
-                                    try
-                                    {
-                                        var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                                        xmlString += "<" + dsSku[i].ToString() + ">";
-                                        xmlString += XmlEscape(getAttrValue);
-                                        xmlString += "</" + dsSku[i].ToString() + ">";
-                                    }
-                                    catch (Exception ex)
-                                    {
 
+                            //change by Tri 29 mei 2020, loop sesuai attribute sku
+                            //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                            for (int i = 0; i < dsSku.Count; i++)
+                            //end change by Tri 29 mei 2020, loop sesuai attribute sku
+                            {
+                                //add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                string value = "";
+                                var cekAttr = (lzdAttrSkuWithVal.TryGetValue(dsSku[i].ToString(), out value) ? value : "");
+                                if (!string.IsNullOrEmpty(cekAttr))
+                                    //end add by Tri 29 mei 2020, cek dl ada value atau tidak
+                                    if (!attributesAdded.Contains(dsSku[i].ToString()))
+                                    {
+                                        try
+                                        {
+                                            var getAttrValue = lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                            xmlString += "<" + dsSku[i].ToString() + ">";
+                                            xmlString += XmlEscape(getAttrValue);
+                                            xmlString += "</" + dsSku[i].ToString() + ">";
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
                                     }
-                                }
                             }
                             //end change 8 Apriil 2019, get attr from api
                             var qty_stock = new StokControllerJob(dbPathEra, uname).GetQOHSTF08A(item.BRG, "ALL");
