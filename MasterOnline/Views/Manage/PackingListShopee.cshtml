@@ -446,7 +446,9 @@
         $('.checkbox_packing_shopee').each( function() {
             if($(this).attr("data-cust") == cust && $(this).is(":checked")){
                 rows_selected.push($(this).attr("data-recnum"));
-                row_bukti.push($(this).attr("data-bukti"));
+                //row_bukti.push($(this).attr("data-bukti"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
             }
         });
 
@@ -772,7 +774,7 @@
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
                     <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
                         <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>

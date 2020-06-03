@@ -4152,7 +4152,7 @@ namespace MasterOnline.Controllers
             {
                 case "stok":
                     {
-                        if(filtervalue == "asc")
+                        if (filtervalue == "asc")
                         {
                             sSQLSelect2 += "ORDER BY QOH ASC, NAMA ASC,brg asc ";
                         }
@@ -4193,7 +4193,7 @@ namespace MasterOnline.Controllers
                     break;
             }
             //end add by nurul 15/5/2020
-            
+
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
@@ -49042,17 +49042,19 @@ namespace MasterOnline.Controllers
                 List<string> orderItemIds = new List<string>();
                 List<string> temp_htmlString = new List<string>();
                 List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
 
                 //add by nurul 16/12/2019
                 bool gakketemulagi = false;
-                bool JNEgakketemulagi = false;
-                var tempResiLazada = new List<tempBarcodeLazada>();
-                var lastIndexBarcode = 0;
-                var lastIndexReferensi = 0;
-                var lastIndexPortCode = 0;
-                var lastIndexHarga = 0;
-                var lastIndexKurir = 0;
-                var lastIndexTgl = 0;
+                var tempLblTokped = new List<tempLabelTokopedia>();
+
+                var lastIndexHeader = 0;
+                var lastIndexResi = 0;
+                var lastIndexInvoice = 0;
+                var lastIndexInsurance = 0;
+                var lastIndexAddress = 0;
+                var lastIndexProduct = 0;
+
                 //end add by nurul 16/12/2019
 
                 var listNobuk = "";
@@ -49118,131 +49120,7 @@ namespace MasterOnline.Controllers
                         {
                             var htmlString = retApi.Result;
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
-
-                            //add by nurul 29/5/2020
-                            if (label == "2")
-                            {
-                                while (!gakketemulagi) //lex - ninja
-                                {
-                                    //var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-
-                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
-
-                                    //var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                    //var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17))); 
-
-                                    var idxKurir = htmlString.IndexOf("Dikirim Oleh :", lastIndexKurir);
-
-                                    if (idxKurir < 0) { gakketemulagi = true; break; }
-
-                                    var idxKurir2 = htmlString.IndexOf("src=\"", idxKurir);
-                                    var idxEndKurir = htmlString.IndexOf("\" style", idxKurir);
-                                    var noKurir = htmlString.Substring((idxKurir2 + 5), (idxEndKurir - (idxKurir2 + 5)));
-
-                                    lastIndexTgl = idxEndKurir;
-                                    var idxTgl = htmlString.IndexOf("<div><b>", lastIndexTgl);
-                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                    var idxEndTgl = htmlString.IndexOf("</b>", idxTgl);
-                                    var noTgl = htmlString.Substring((idxTgl + 8), (idxEndTgl - (idxTgl + 8)));
-
-                                    lastIndexBarcode = idxEndTgl;
-                                    var idxBarcode = htmlString.IndexOf("Tracking Number: ", lastIndexBarcode);
-                                    //if (idxBarcode < 0) { gakketemulagi = true; break; }
-                                    var idxEndBarcode = htmlString.IndexOf("</div>", idxBarcode);
-                                    var noBarcode = htmlString.Substring((idxBarcode + 17), (idxEndBarcode - (idxBarcode + 17)));
-
-                                    lastIndexPortCode = idxEndBarcode;
-                                    var idxPortCode = htmlString.IndexOf("Port Code: ", lastIndexPortCode);
-                                    var idxPortCode2 = htmlString.IndexOf(">", idxPortCode);
-                                    var idxEndPortCode = htmlString.IndexOf("</span>", idxPortCode2);
-                                    var noPortCode = htmlString.Substring((idxPortCode2 + 1), (idxEndPortCode - (idxPortCode2 + 1)));
-
-                                    lastIndexHarga = idxEndPortCode;
-                                    var idxHarga = htmlString.IndexOf("<!-- ###=== Right Column - COD Collection ===### -->", lastIndexHarga);
-                                    var idxHarga2 = htmlString.IndexOf(";\">", idxHarga);
-                                    var idxEndHarga = htmlString.IndexOf("</div>", idxHarga);
-                                    var hargaAPI = htmlString.Substring((idxHarga2 + 3), (idxEndHarga - (idxHarga2 + 3)));
-
-                                    lastIndexReferensi = idxEndHarga;
-                                    var idxReferensi = htmlString.IndexOf("Order Number: ", lastIndexReferensi);
-                                    var idxEndReferensi = htmlString.IndexOf("</div>", idxReferensi);
-                                    var noReferensi = htmlString.Substring((idxReferensi + 14), (idxEndReferensi - (idxReferensi + 14)));
-
-                                    lastIndexBarcode = idxEndReferensi;
-                                    lastIndexPortCode = idxEndReferensi;
-                                    lastIndexHarga = idxEndReferensi;
-                                    lastIndexReferensi = idxEndReferensi;
-                                    lastIndexKurir = idxEndReferensi;
-                                    lastIndexTgl = idxEndReferensi;
-
-                                    tempResiLazada.Add(new tempBarcodeLazada()
-                                    {
-                                        referensiApi = noReferensi,
-                                        ResiApi = noBarcode,
-                                        PortCodeApi = noPortCode,
-                                        HargaApi = hargaAPI,
-                                        urlLogoKurirApi = noKurir,
-                                        tglApi = noTgl
-                                    });
-
-                                }
-
-                                while (!JNEgakketemulagi) //JNE
-                                {
-                                    var JNEidxReferensi = htmlString.IndexOf("Nomor Order:", lastIndexReferensi);
-
-                                    if (JNEidxReferensi < 0) { JNEgakketemulagi = true; break; }
-
-                                    var JNEidxReferensi2 = htmlString.IndexOf(";\">", JNEidxReferensi);
-                                    var JNEidxEndReferensi = htmlString.IndexOf("</span>", JNEidxReferensi2);
-                                    var JNEnoReferensi = htmlString.Substring((JNEidxReferensi2 + 3), (JNEidxEndReferensi - (JNEidxReferensi2 + 3)));
-
-                                    lastIndexBarcode = JNEidxEndReferensi;
-                                    var JNEidxBarcode = htmlString.IndexOf("Kode Tracking: <b>", lastIndexBarcode);
-                                    //var idxTgl2 = htmlString.IndexOf(">", idxTgl);
-                                    var JNEidxEndBarcode = htmlString.IndexOf("</b>", JNEidxBarcode);
-                                    var JNEnoBarcode = htmlString.Substring((JNEidxBarcode + 18), (JNEidxEndBarcode - (JNEidxBarcode + 18)));
-
-                                    lastIndexKurir = JNEidxEndBarcode;
-                                    var JNEidxKurir = htmlString.IndexOf("class=\"lm-logo\"", lastIndexKurir);
-                                    var JNEidxKurir2 = htmlString.IndexOf("src=\"", JNEidxKurir);
-                                    var JNEidxEndKurir = htmlString.IndexOf("\" style", JNEidxKurir2);
-                                    var JNEnoKurir = htmlString.Substring((JNEidxKurir2 + 5), (JNEidxEndKurir - (JNEidxKurir2 + 5)));
-
-                                    lastIndexHarga = JNEidxEndKurir;
-                                    var JNEidxHarga = htmlString.IndexOf("Bayar di Tempat:", lastIndexHarga);
-                                    var JNEidxHarga2 = htmlString.IndexOf("Rp. ", JNEidxHarga);
-                                    var JNEidxEndHarga = htmlString.IndexOf(" </b>", JNEidxHarga2);
-                                    var JNEhargaAPI = htmlString.Substring((JNEidxHarga2 + 4), (JNEidxEndHarga - (JNEidxHarga2 + 4)));
-
-                                    lastIndexBarcode = JNEidxEndReferensi;
-                                    lastIndexHarga = JNEidxEndReferensi;
-                                    lastIndexReferensi = JNEidxEndReferensi;
-                                    lastIndexKurir = JNEidxEndReferensi;
-
-                                    tempResiLazada.Add(new tempBarcodeLazada()
-                                    {
-                                        referensiApi = JNEnoReferensi,
-                                        ResiApi = JNEnoBarcode,
-                                        HargaApi = JNEhargaAPI,
-                                        urlLogoKurirApi = JNEnoKurir,
-                                    });
-
-                                }
-                            }
-
-
-
-                            htmlString += "<script>";
-                            htmlString += "var ctk = document.getElementsByClassName('address_container_right'); ";
-                            htmlString += "for (var a = 0; a < ctk.length; a++){ ctk[a].style.display = 'none'; } ; ";
-                            htmlString += "var ctk1 = document.getElementsByClassName('hidden-print'); ";
-                            htmlString += "for (var b = 0; b < ctk1.length; b++){ ctk1[b].style.display = 'none'; } ; ";
-                            htmlString += "</script>";
-                            htmlString += "<style type='text/css'> @@media print { .address_container {page-break-after: always;} }</style>";
-
-                            //end add by nurul 29/5/2020
-
+                            
                             temp_htmlString.Add(htmlString);
                         }
                     }
@@ -49253,19 +49131,94 @@ namespace MasterOnline.Controllers
                 {
                     htmlString_new += temp_htmlString[i];
                 }
-                //htmlString_new += "<script>";
-                //htmlString_new += "var ctk = document.getElementsByClassName('small'); ";
-                //htmlString_new += "for (var a = 0; a < ctk.length; a++){ ctk[a].style.display = 'none'; } ; ";
-                //htmlString_new += "var ctk = document.getElementsByClassName('hidden-print'); ";
-                //htmlString_new += "for (var b = 0; a < ctk.length; a++){ ctk[a].style.display = 'none'; } ; ";
-                //htmlString_new += "</script>";
-                //htmlString_new += "<style type='text/css'>@@media print { .address_container {page -break-after: always;} }</style>";
                 
+                while (!gakketemulagi)
+                {
+                    var idxHeader = htmlString_new.IndexOf("<table class=\"header\"", lastIndexHeader);
+
+                    if (idxHeader < 0) { gakketemulagi = true; break; }
+
+                    var idxEndHeader = htmlString_new.IndexOf("</table>", idxHeader);
+                    var getHeader = htmlString_new.Substring((idxHeader), (idxEndHeader - (idxHeader)));
+                    var header = getHeader + "</table>";
+
+                    lastIndexResi = idxEndHeader;
+                    var idxResi = htmlString_new.IndexOf("<img id=\"barcode-printout-1\"", lastIndexResi);
+                    var getResi = "";
+                    var idxEndResi = idxEndHeader;
+                    if (idxResi < (idxEndHeader + 3000) && idxResi > 0)
+                    {
+                        var idxResi2 = htmlString_new.IndexOf("alt=\"", idxResi);
+                        idxEndResi = htmlString_new.IndexOf("\" />", idxResi2);
+                        getResi = htmlString_new.Substring((idxResi2 + 5), (idxEndResi - (idxResi2 + 5)));
+                    }
+
+                    lastIndexInvoice = idxEndHeader;
+                    var idxInvoice = htmlString_new.IndexOf("<table class=\"meta\" cellspacing=\"0\" cellpadding=\"0\">", lastIndexInvoice);
+                    var Invoice = "";
+                    var idxEndInvoice = idxEndHeader;
+                    if (getResi == "")
+                    {
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice);
+                        var getInvoice = htmlString_new.Substring((idxInvoice), (idxEndInvoice - (idxInvoice)));
+                        Invoice = getInvoice + "</table>";
+                    }
+                    else
+                    {
+                        var idxInvoice2 = htmlString_new.IndexOf("<img", idxInvoice);
+                        var getInvoice1 = htmlString_new.Substring((idxInvoice), (idxInvoice2 - (idxInvoice)));
+                        var idxInvoice3 = htmlString_new.IndexOf("<div", idxInvoice2);
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice3);
+                        var getInvoice = htmlString_new.Substring((idxInvoice3), (idxEndInvoice - (idxInvoice3)));
+                        Invoice = getInvoice1 + getInvoice + "</table>";
+                    }
+
+                    lastIndexInsurance = idxEndInvoice;
+                    var idxInsurance = htmlString_new.IndexOf("<table class=\"insurance\"", lastIndexInsurance);
+                    var Insurance = "";
+                    var idxEndInsurance = idxEndInvoice;
+                    if (idxInsurance < (idxEndInvoice + 2000) && idxInsurance > 0)
+                    {
+                        idxEndInsurance = htmlString_new.IndexOf("</table>", idxInsurance);
+                        var getInsurance = htmlString_new.Substring((idxInsurance), (idxEndInsurance - (idxInsurance)));
+                        Insurance = getInsurance + "</table>";
+                    }
+
+                    lastIndexAddress = idxEndInsurance;
+                    var idxAddress = htmlString_new.IndexOf("<table class=\"shipment-address\"", lastIndexAddress);
+                    var idxEndAddress = htmlString_new.IndexOf("</table>", idxAddress);
+                    var getAddress = htmlString_new.Substring((idxAddress), (idxEndAddress - (idxAddress)));
+                    var Address = getAddress + "</table>";
+
+                    lastIndexProduct = idxEndAddress;
+                    var idxProduct = htmlString_new.IndexOf("<table class=\"products\"", lastIndexProduct);
+                    var idxEndProduct = htmlString_new.IndexOf("</table>", idxProduct);
+                    var getProduct = htmlString_new.Substring((idxProduct), (idxEndProduct - (idxProduct)));
+                    var Product = getProduct + "</table>";
+
+                    lastIndexHeader = idxEndHeader;
+                    lastIndexResi = idxEndResi;
+                    lastIndexInvoice = idxEndInvoice;
+                    lastIndexInsurance = idxEndInsurance;
+                    lastIndexAddress = idxEndAddress;
+                    lastIndexProduct = idxEndProduct;
+
+                    tempLblTokped.Add(new tempLabelTokopedia()
+                    {
+                        Header = header,
+                        Resi = getResi,
+                        Invoice = Invoice,
+                        Insurance = Insurance,
+                        Address = Address,
+                        Product = Product
+                    });
+                }
+
 
                 if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
                 {
                     //return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = htmlString_new }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else if (temp_strmsg.Count() > 0)
                 {
@@ -49276,14 +49229,15 @@ namespace MasterOnline.Controllers
                     if (label == "1")
                     {
                         //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
-                        return new JsonResult { Data = new { mo_label = htmlString_new }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                     else if (label == "2")
                     {
-                        return new JsonResult { Data = new { mo_label = tempResiLazada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                     }
+                    
                 }
             }
             catch (Exception ex)
@@ -49624,6 +49578,28 @@ namespace MasterOnline.Controllers
             return PartialView("ListDetailStokBarang", pageOrders);
         }
         //end add by nurul 13/5/2020
+
+        //add by nurul 2/6/2020
+        public ActionResult CetakLabelTokped(List<tempLabelTokopedia> data)
+        {
+            try
+            {
+                if (data.Count() > 0)
+                {
+                    var ym = new FakturViewModel()
+                    {
+                        listLabelTokped = data
+                    };
+                    return View(ym);
+                }
+                return new JsonResult { Data = new { mo_error = "Tidak ada data. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 2/6/2020
     }
     public class smolSTF02
     {

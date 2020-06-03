@@ -6389,6 +6389,7 @@
     <Content Include="Views\Manage\PackingList82Cart.cshtml" />
     <Content Include="Views\Admin\TablePesananHangfireJob.cshtml" />
     <Content Include="Views\Manage\ListDetailStokBarang.cshtml" />
+    <Content Include="Views\Manage\CetakLabelTokped.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

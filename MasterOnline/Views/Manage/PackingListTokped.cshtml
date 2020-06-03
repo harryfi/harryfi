@@ -107,7 +107,9 @@
         $('.checkbox_packing_tokped').each( function() {
             if($(this).attr("data-cust") == cust && $(this).is(":checked")){
                 rows_selected.push($(this).attr("data-recnum"));
-                row_bukti.push($(this).attr("data-bukti"));
+                //row_bukti.push($(this).attr("data-bukti"));
+                var bukti = $(this).attr("data-bukti") + " ";
+                row_bukti.push(bukti);
             }
         });
 
@@ -139,66 +141,130 @@
                     cache: false,
                     data: JSON.stringify($postdata),
                     success: function (response) {
+                        //if (response != null) {
+                        //        var textareaValue = "";
+
+                        //        var adaUrl = false;
+                        //        var urlValue = "";
+                        //        var urltext = "";
+                        //        //if (response.label != undefined) {
+                        //        //    adaUrl = true;
+                        //        //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + response.label + "'>Print</a> </br>";
+                        //        //    urlValue = buttonHtml;
+                        //        //}
+
+                        //        //if (urltext != "") {
+                        //        //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + urltext + "'>Print</a> </br>";
+                        //        //    urlValue = buttonHtml;
+                        //        //}
+                        //        //if (adaUrl) {
+                        //        //    textareaValue += "Url AWB :</br>";
+                        //        //    textareaValue += urlValue;
+                        //        //}
+
+                        //        var adaError = false;
+                        //        var errorValue = "";
+                        //        if (response.mo_error != undefined) {
+                        //            response.mo_error.forEach(function (item) {
+                        //                adaError = true;
+                        //                errorValue += item + ". </br>";
+                        //            });
+                        //        }
+                        //        if (adaError) {
+                        //            textareaValue += "</br>";
+                        //            textareaValue += "Error Orders :</br>";
+                        //            textareaValue += errorValue;
+                        //        }
+                        //    $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
+
+                        //    if (response.mo_label != undefined) {
+                        //        //response.mo_label.forEach(function (item) {
+                        //        //    var w = window.open('about:blank');
+                        //        //    w.document.open();
+                        //        //    w.document.write(item);
+                        //        //    w.document.close();
+                        //        //});
+                        //            var w = window.open('about:blank');
+                        //            w.document.open();
+                        //            w.document.write(response.mo_label);
+                        //            w.document.close();
+                        //    }
+
+                        //    if (!adaError && textareaValue == "") {
+                        //        $('#modalPrintTokped__' + cust).modal('hide');
+                        //    }
+                        //    //response.mo_label.forEach(function (item) {
+                        //    //        var w = window.open('about:blank');
+                        //    //        w.document.open();
+                        //    //        w.document.write(item);
+                        //    //        w.document.close();
+                        //    //    });
+                        //}
+
                         if (response != null) {
-                                var textareaValue = "";
+                            var textareaValue = "";
 
-                                var adaUrl = false;
-                                var urlValue = "";
-                                var urltext = "";
-                                //if (response.label != undefined) {
-                                //    adaUrl = true;
-                                //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + response.label + "'>Print</a> </br>";
-                                //    urlValue = buttonHtml;
-                                //}
-
-                                //if (urltext != "") {
-                                //    var buttonHtml = "<a class='btn btn-success' target='_blank' href='" + urltext + "'>Print</a> </br>";
-                                //    urlValue = buttonHtml;
-                                //}
-                                //if (adaUrl) {
-                                //    textareaValue += "Url AWB :</br>";
-                                //    textareaValue += urlValue;
-                                //}
-
-                                var adaError = false;
-                                var errorValue = "";
-                                if (response.mo_error != undefined) {
-                                    response.mo_error.forEach(function (item) {
-                                        adaError = true;
-                                        errorValue += item + ". </br>";
-                                    });
-                                }
-                                if (adaError) {
-                                    textareaValue += "</br>";
-                                    textareaValue += "Error Orders :</br>";
-                                    textareaValue += errorValue;
-                                }
+                            var adaUrl = false;
+                            var urlValue = "";
+                            var urltext = "";
+                            var adaError = false;
+                            var errorValue = "";
+                            if (response.mo_error != undefined) {
+                                response.mo_error.forEach(function (item) {
+                                    adaError = true;
+                                    errorValue += item + ". </br>";
+                                });
+                            }
+                            if (adaError) {
+                                textareaValue += "</br>";
+                                textareaValue += "Error Orders :</br>";
+                                textareaValue += errorValue;
+                            }
                             $('#modalPrintTokped__textarea__' + cust).html(textareaValue);
 
-                            if (response.mo_label != undefined) {
-                                //response.mo_label.forEach(function (item) {
-                                //    var w = window.open('about:blank');
-                                //    w.document.open();
-                                //    w.document.write(item);
-                                //    w.document.close();
-                                //});
-                                    var w = window.open('about:blank');
-                                    w.document.open();
-                                    w.document.write(response.mo_label);
-                                    w.document.close();
-                            }
+                            if (response.mo_label != undefined && response.mo_label != null) {
 
-                            if (!adaError && textareaValue == "") {
-                                $('#modalPrintTokped__' + cust).modal('hide');
+                                $postdata2 = {
+                                    data: response.mo_label,
+                                };
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("CetakLabelTokped", "Manage")',
+                                    contentType: "application/json; charset=UTF-8",
+                                    cache: false,
+                                    beforeSend: function () {
+                                        $('#modalPrintLabelOption__' + cust).modal('hide');
+                                        $('#modalPrintTokped__' + cust).modal('hide');
+                                        $('#loading_spinner').show();
+                                    },
+                                    data: JSON.stringify($postdata2),
+                                    success: function (response) {
+                                        if (response != null) {
+                                            if (response.mo_error == null) {
+                                                $('#loading_spinner').hide();
+                                                var w = window.open('about:blank');
+                                                w.document.open();
+                                                w.document.write(response);
+                                                w.document.close();
+
+                                            } else {
+                                                alert(response.mo_error);
+                                                $('#loading_spinner').hide();
+                                            }
+                                        }
+
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.log(error);
+                                        $('#loading_spinner').hide();
+                                    }
+                                });
+                            } else {
+                                alert(response.mo_error);
+                                $('#loading_spinner').hide();
                             }
-                            //response.mo_label.forEach(function (item) {
-                            //        var w = window.open('about:blank');
-                            //        w.document.open();
-                            //        w.document.write(item);
-                            //        w.document.close();
-                            //    });
                         }
-
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
@@ -640,9 +706,9 @@
                 <div id="tokped_tab_content__@(item.CUST)" class="tab-pane fade in">
                     <input id="txt_last_page__@(item.CUST)" type="hidden" class="form-control" value="@ViewData["LastPage"]">
                     @*add by nurul 19/3/2020*@
-                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)">
+                    <div class="modal fade" id="modalPrintLabelOption__@(item.CUST)" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel__@(item.CUST)"> 
                         <div class="modal-dialog" id="modal-print-option" role="document">
-                            <div class="modal-content " style="margin:auto;height:470px;width:650px;">
+                            <div class="modal-content " style="margin:auto;height:470px;width:650px;overflow-y:auto">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     <h4 class="modal-title" id="printOptionLabel__@(item.CUST)">Cetak Label</h4>
