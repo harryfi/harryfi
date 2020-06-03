@@ -172,39 +172,61 @@
                 }
                 @foreach (var stok in Model.ListBarangStok.Where(pb => pb.Nobuk == Model?.Stok?.Nobuk).ToList())
                 {
-                    <tr data-barang-id="brg-@stok.No">
-                        <td>
-                            @stok.Kobar
-                        </td>
-                        <td class="nama-barang">
-                            @listBarang.Single(b => b.BRG == stok.Kobar).NAMA @listBarang.Single(b => b.BRG == stok.Kobar).NAMA2
-                        </td>
-                        <td class="stn-barang">
-                            @(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
-                        </td>
-                        <td class="harga-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
-                        </td>
-                        <td class="gd-barang">
-                            @stok.Ke_Gd
-                        </td>
-                        <td class="qty-barang">
-                            @stok.Qty
-                        </td>
-                        <td class="netto-barang" style="text-align:right">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button type="button" class="btn btn-primary" disabled="disabled">
-                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stok.No')">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                    </tr>
+                <tr data-barang-id="brg-@stok.No">
+                    <td>
+                        @stok.Kobar
+                    </td>
+                    <td class="nama-barang">
+                        @{
+                            var checkBrg = @listBarang.Where(b => b.BRG == stok.Kobar).FirstOrDefault() == null ? null : @listBarang.Single(b => b.BRG == stok.Kobar).NAMA == null ? null : @listBarang.Single(b => b.BRG == stok.Kobar).NAMA;
+                            var namaDepan = checkBrg;
+                            var namaBelakang = "";
+                        }
+
+                        @if (checkBrg == null)
+                        {
+                            namaDepan = "(Data pada master barang tidak ada.)";
+                        }
+                        else
+                        {
+                            namaBelakang = @listBarang.Single(b => b.BRG == stok.Kobar).NAMA2 == null ? null : @listBarang.Single(b => b.BRG == stok.Kobar).NAMA2;
+                        }
+
+                        @namaDepan @namaBelakang
+                        @if (checkBrg == null)
+                        {
+                            <img id="new_expired_mp_sub_icon" alt="logo" style="width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                        }
+                    </td>
+                    <td class="stn-barang">
+                        @if (checkBrg != null)
+                        {
+                            @(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2);
+                        }
+                    </td>
+                    <td class="harga-barang" style="text-align:right">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
+                    </td>
+                    <td class="gd-barang">
+                        @stok.Ke_Gd
+                    </td>
+                    <td class="qty-barang">
+                        @stok.Qty
+                    </td>
+                    <td class="netto-barang" style="text-align:right">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" disabled="disabled">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stok.No')">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
                 }
                 <tr data-stok-id="0">
                     @Html.HiddenFor(m => m.BarangStok.No)
