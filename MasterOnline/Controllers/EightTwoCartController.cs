@@ -212,7 +212,25 @@ namespace MasterOnline.Controllers
                 totalData = totalData//add 18 Juli 2019, show total record
             };
 
-            string urll = string.Format("{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.API_credential,
+                REQUEST_ATTRIBUTE_3 = page.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            var limit = "10";
+            var offset = 10 * page;
+
+            string urll = string.Format("{0}/api/v1/getProduct?apiKey={1}&apiCredential={2}&limit={3}&offset={4}", iden.API_url, iden.API_key, iden.API_credential, limit, offset);
+
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -232,6 +250,9 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
+                ret.message = ex.Message.ToString();
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
             if (!string.IsNullOrEmpty(responseServer))
@@ -245,201 +266,219 @@ namespace MasterOnline.Controllers
                     {
                         if (resultAPI.data != null && resultAPI.error == "none")
                         {
-                            List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
-                            var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET.Equals(IdMarket)).Select(t => new { t.CUST, t.BRG_MP }).ToList();
-                            //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
-                            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
-                            string brgMp = "";
-
-                            foreach (var item in resultAPI.data)
+                            if (resultAPI.data.Count() > 0)
                             {
-                                brgMp = Convert.ToString(item.id_product) + ";0";
-                                //if (item.status.ToUpper() != "DELETE" && item.status.ToUpper() != "BANNED")
-                                if (item.active == "1")
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                                if (resultAPI.data.Count() == 10)
+                                    ret.nextPage = 1;
+
+                                List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
+                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET.Equals(IdMarket)).Select(t => new { t.CUST, t.BRG_MP }).ToList();
+                                //var tempBrg_local = (from a in ErasoftDbContext.TEMP_BRG_MP where a.IDMARKET == IdMarket select new tempBrg_local { BRG_MP = a.BRG_MP, IDMARKET = a.IDMARKET }).ToList();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == IdMarket).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
+                                string brgMp = "";
+
+                                foreach (var item in resultAPI.data)
                                 {
-                                    ret.totalData++;//add 18 Juli 2019, show total record
-                                    var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
-                                    //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
-                                    var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
-                                    if (CektempbrginDB == null && CekbrgInDB == null)
+                                    brgMp = Convert.ToString(item.id_product) + ";0";
+                                    //if (item.status.ToUpper() != "DELETE" && item.status.ToUpper() != "BANNED")
+                                    if (item.active == "1")
                                     {
-                                        string namaBrg = item.name;
-                                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                                        nama = "";
-                                        nama2 = "";
-                                        nama3 = "";
-                                        urlImage = "";
-                                        urlImage2 = "";
-                                        urlImage3 = "";
-                                        if(namaBrg != null)
+                                        ret.totalData++;//add 18 Juli 2019, show total record
+                                        var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                                        //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
+                                        var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
+                                        if (CektempbrginDB == null && CekbrgInDB == null)
                                         {
-                                            namaBrg = namaBrg.Replace('\'', '`');
-
-                                            var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
-                                            nama = splitItemName[0];
-                                            nama2 = splitItemName[1];
+                                            string namaBrg = item.name;
+                                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                            nama = "";
+                                            nama2 = "";
                                             nama3 = "";
-                                        }
-                                        
-
-                                        Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                                        {
-                                            SELLER_SKU = brgMp,
-                                            BRG_MP = brgMp,
-                                            //KODE_BRG_INDUK = Convert.ToString(item.id_product),
-                                            NAMA = nama,
-                                            NAMA2 = nama2,
-                                            NAMA3 = nama3,
-                                            CATEGORY_CODE = Convert.ToString(item.id_category_default),
-                                            CATEGORY_NAME = item.category_default,
-                                            IDMARKET = IdMarket,
-                                            IMAGE = item.cover_image_url ?? "",
-                                            DISPLAY = true,
-                                            HJUAL = Convert.ToDouble(item.price),
-                                            HJUAL_MP = Convert.ToDouble(item.price),
-                                            Deskripsi = item.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
-                                            MEREK = item.id_manufacturer,
-                                            CUST = iden.no_cust,
-                                        };
-                                        newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
-                                                                                                                          //add by Tri, 26 Feb 2019
-                                        var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE).FirstOrDefault();
-                                        if (kategory != null)
-                                        {
-                                            newrecord.CATEGORY_NAME = kategory.NAME;
-                                        }
-
-                                        int typeBrg = 0;
-                                        //if (!string.IsNullOrEmpty(Convert.ToString(item.other.sku)))
-                                        //    newrecord.SELLER_SKU = item.other.sku;
-                                        if (item.combinations.Length == 0)//barang non varian
-                                        {
-                                            newrecord.TYPE = "3";
-                                        }
-                                        else
-                                        {
-                                            if (item.combinations.Length > 1)
+                                            urlImage = "";
+                                            urlImage2 = "";
+                                            urlImage3 = "";
+                                            if (namaBrg != null)
                                             {
-                                                typeBrg = 1;
-                                                newrecord.TYPE = "4";
-                                                foreach (var varID in item.combinations)
-                                                {
-                                                    var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
-                                                    var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
-                                                    var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
-                                                    if (CektempbrginDB2 == null && CekbrgInDB2 == null)
-                                                    {
-                                                        var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
-                                                        ret.recordCount += retVar.recordCount;
-                                                    }
-                                                }
-                                                ret.totalData += item.combinations.Count();
+                                                namaBrg = namaBrg.Replace('\'', '`');
+
+                                                var splitItemName = new StokControllerJob().SplitItemName(namaBrg);
+                                                nama = splitItemName[0];
+                                                nama2 = splitItemName[1];
+                                                nama3 = "";
+                                            }
+
+
+                                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                                            {
+                                                SELLER_SKU = brgMp,
+                                                BRG_MP = brgMp,
+                                                //KODE_BRG_INDUK = Convert.ToString(item.id_product),
+                                                NAMA = nama,
+                                                NAMA2 = nama2,
+                                                NAMA3 = nama3,
+                                                CATEGORY_CODE = Convert.ToString(item.id_category_default),
+                                                CATEGORY_NAME = item.category_default,
+                                                IDMARKET = IdMarket,
+                                                IMAGE = item.cover_image_url ?? "",
+                                                DISPLAY = true,
+                                                HJUAL = Convert.ToDouble(item.price),
+                                                HJUAL_MP = Convert.ToDouble(item.price),
+                                                Deskripsi = item.description.Replace("\r\n", "<br />").Replace("\n", "<br />"),
+                                                MEREK = item.id_manufacturer,
+                                                CUST = iden.no_cust,
+                                            };
+                                            newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                                                                                                              //add by Tri, 26 Feb 2019
+                                            var kategory = MoDbContext.Category82Cart.Where(m => m.ID_CATEGORY == newrecord.CATEGORY_CODE).FirstOrDefault();
+                                            if (kategory != null)
+                                            {
+                                                newrecord.CATEGORY_NAME = kategory.NAME;
+                                            }
+
+                                            int typeBrg = 0;
+                                            //if (!string.IsNullOrEmpty(Convert.ToString(item.other.sku)))
+                                            //    newrecord.SELLER_SKU = item.other.sku;
+                                            if (item.combinations.Length == 0)//barang non varian
+                                            {
+                                                newrecord.TYPE = "3";
                                             }
                                             else
                                             {
-                                                //newrecord.TYPE = "3";
-                                                //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
-                                                typeBrg = 2;
-                                            }
-                                        }
-                                        if (item.weight != null)
-                                        {
-                                            if (Convert.ToDouble(item.weight) > 0)
-                                            {
-                                                newrecord.BERAT = Convert.ToDouble(item.weight);
-                                            }
-                                        }
-                                        if(item.height != null)
-                                        {
-                                            if(Convert.ToDouble(item.height) > 0)
-                                            {
-                                                newrecord.TINGGI = Convert.ToDouble(item.height);
-                                            }
-                                        }
-                                        if (item.width != null)
-                                        {
-                                            if (Convert.ToDouble(item.width) > 0)
-                                            {
-                                                newrecord.LEBAR = Convert.ToDouble(item.width);
-                                            }
-                                        }
-                                        //if (item.menu != null)
-                                        //{
-                                        //    if (!string.IsNullOrEmpty(Convert.ToString(item.menu.id)))
-                                        //    {
-                                        //        newrecord.PICKUP_POINT = Convert.ToString(item.menu.id);
-                                        //    }
-                                        //}
-                                        if (item.combinations != null)
-                                            if (item.combinations.Length > 1)
-                                            {
-                                                if (item.combinations[0].attribute_image.Length > 0)
+                                                if (item.combinations.Length > 1)
                                                 {
-                                                    newrecord.IMAGE = item.combinations[0].attribute_image[0].image_url;
-                                                }
-                                                foreach (var detail in item.combinations)
-                                                {
-                                                    if (detail.attribute_image.Length > 0)
+                                                    typeBrg = 1;
+                                                    newrecord.TYPE = "4";
+                                                    foreach (var varID in item.combinations)
                                                     {
-                                                        newrecord.IMAGE = detail.attribute_image[0].image_url;
-
-                                                        if (detail.attribute_image.Length > 2 && typeBrg != 2)
+                                                        var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
+                                                        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
+                                                        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brg_mp_variant)).FirstOrDefault();
+                                                        if (CektempbrginDB2 == null && CekbrgInDB2 == null)
                                                         {
-                                                            newrecord.IMAGE2 = detail.attribute_image[1].image_url;
-                                                            if (detail.attribute_image.Length > 3)
-                                                            {
-                                                                newrecord.IMAGE3 = detail.attribute_image[2].image_url;
-                                                                if (detail.attribute_image.Length > 4)
-                                                                {
-                                                                    newrecord.IMAGE4 = detail.attribute_image[3].image_url;
-                                                                    if (detail.attribute_image.Length > 5)
-                                                                    {
-                                                                        newrecord.IMAGE5 = detail.attribute_image[4].image_url;
+                                                            var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
+                                                            ret.recordCount += retVar.recordCount;
+                                                        }
+                                                    }
+                                                    ret.totalData += item.combinations.Count();
+                                                }
+                                                else
+                                                {
+                                                    //newrecord.TYPE = "3";
+                                                    //newrecord.KODE_BRG_INDUK = Convert.ToString(item.id_product);
+                                                    typeBrg = 2;
+                                                }
+                                            }
+                                            if (item.weight != null)
+                                            {
+                                                if (Convert.ToDouble(item.weight) > 0)
+                                                {
+                                                    newrecord.BERAT = Convert.ToDouble(item.weight);
+                                                }
+                                            }
+                                            if (item.height != null)
+                                            {
+                                                if (Convert.ToDouble(item.height) > 0)
+                                                {
+                                                    newrecord.TINGGI = Convert.ToDouble(item.height);
+                                                }
+                                            }
+                                            if (item.width != null)
+                                            {
+                                                if (Convert.ToDouble(item.width) > 0)
+                                                {
+                                                    newrecord.LEBAR = Convert.ToDouble(item.width);
+                                                }
+                                            }
+                                            //if (item.menu != null)
+                                            //{
+                                            //    if (!string.IsNullOrEmpty(Convert.ToString(item.menu.id)))
+                                            //    {
+                                            //        newrecord.PICKUP_POINT = Convert.ToString(item.menu.id);
+                                            //    }
+                                            //}
+                                            if (item.combinations != null)
+                                                if (item.combinations.Length > 1)
+                                                {
+                                                    if (item.combinations[0].attribute_image.Length > 0)
+                                                    {
+                                                        newrecord.IMAGE = item.combinations[0].attribute_image[0].image_url;
+                                                    }
+                                                    foreach (var detail in item.combinations)
+                                                    {
+                                                        if (detail.attribute_image.Length > 0)
+                                                        {
+                                                            newrecord.IMAGE = detail.attribute_image[0].image_url;
 
+                                                            if (detail.attribute_image.Length > 2 && typeBrg != 2)
+                                                            {
+                                                                newrecord.IMAGE2 = detail.attribute_image[1].image_url;
+                                                                if (detail.attribute_image.Length > 3)
+                                                                {
+                                                                    newrecord.IMAGE3 = detail.attribute_image[2].image_url;
+                                                                    if (detail.attribute_image.Length > 4)
+                                                                    {
+                                                                        newrecord.IMAGE4 = detail.attribute_image[3].image_url;
+                                                                        if (detail.attribute_image.Length > 5)
+                                                                        {
+                                                                            newrecord.IMAGE5 = detail.attribute_image[4].image_url;
+
+                                                                        }
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 }
-                                            }
 
-                                        listNewRecord.Add(newrecord);
-                                        ret.recordCount = ret.recordCount + 1;
-                                    }
-                                    else if (item.combinations.Length > 1)
-                                    {
-                                        foreach (var varID in item.combinations)
-                                        {
-                                            var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
-                                            var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
-                                            var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
-                                            if (CektempbrginDB2 == null && CekbrgInDB2 == null)
-                                            {
-                                                var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
-                                                ret.recordCount += retVar.recordCount;
-                                            }
+                                            listNewRecord.Add(newrecord);
+                                            ret.recordCount = ret.recordCount + 1;
                                         }
-                                        ret.totalData += item.combinations.Count();
+                                        //else if (item.combinations.Length > 1)
+                                        //{
+                                        //    foreach (var varID in item.combinations)
+                                        //    {
+                                        //        var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
+                                        //        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
+                                        //        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
+                                        //        if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                        //        {
+                                        //            var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
+                                        //            ret.recordCount += retVar.recordCount;
+                                        //        }
+                                        //    }
+                                        //    ret.totalData += item.combinations.Count();
+                                        //}
                                     }
+
+                                }
+                                if (listNewRecord.Count() > 0)
+                                {
+                                    ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
+                                    ErasoftDbContext.SaveChanges();
                                 }
 
                             }
-                            if (listNewRecord.Count() > 0)
+                            else
                             {
-                                ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
-                                ErasoftDbContext.SaveChanges();
+                                ret.message = "Gagal mendapatkan produk";
+                                currentLog.REQUEST_EXCEPTION = ret.message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                             }
-
-
                         }
                         else
                         {
-
+                            ret.message = "Gagal mendapatkan produk";
+                            currentLog.REQUEST_EXCEPTION = ret.message;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                     else
                     {
+                        ret.message = "Gagal mendapatkan produk";
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         ret.nextPage = 0;
                     }
                 }
@@ -447,6 +486,8 @@ namespace MasterOnline.Controllers
                 {
                     ret.exception = 1;
                     ret.message = ex.Message.ToString();
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
 
             }
