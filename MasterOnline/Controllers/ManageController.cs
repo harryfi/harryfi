@@ -6539,6 +6539,76 @@ namespace MasterOnline.Controllers
         }
         #endregion
         //end add by Tri, 6 Mei 2019
+
+        //add by fauzi 20 Mei 2020
+        #region category 82Cart
+        [HttpGet]
+        public ActionResult GetKategori82CartByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => k.ID_PARENT == "0" && k.ACTIVE == "1").OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategori82Cart = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_PARENT) && k.ACTIVE == "1").OrderBy(k => k.NAME).ToList();
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        [HttpGet]
+        public ActionResult GetKategori82CartByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_82CART> listKategori82Cart = new List<CATEGORY_82CART>();
+            if (!string.IsNullOrEmpty(code))
+            {
+                var category = MoDbContext.Category82Cart.Where(k => codelist.Contains(k.ID_CATEGORY) && k.ACTIVE == "1").FirstOrDefault();
+                listKategori82Cart.Add(category);
+
+                if (category.ID_PARENT != "")
+                {
+                    bool TopParent = false;
+                    while (!TopParent)
+                    {
+                        category = MoDbContext.Category82Cart.Where(k => k.ID_CATEGORY.Equals(category.ID_PARENT) && k.ACTIVE == "1").FirstOrDefault();
+                        listKategori82Cart.Add(category);
+                        if (string.IsNullOrEmpty(category.ID_PARENT))
+                        {
+                            TopParent = true;
+                        }
+                    }
+                }
+            }
+
+            var serializer = new JavaScriptSerializer();
+            serializer.MaxJsonLength = Int32.MaxValue;
+            var result = new ContentResult
+            {
+                Content = serializer.Serialize(listKategori82Cart),
+                ContentType = "application/json"
+            };
+            return result;
+        }
+        #endregion
+        //end by fauzi 20 Mei 2020
+
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -35439,6 +35509,7 @@ namespace MasterOnline.Controllers
                                         else
                                         {
                                             retBarang.RecordCount = result82Cart.recordCount;
+                                            //var resultCategory82Cart = await v82CartAPI.E2Cart_GetCategoryProduct_2
                                         }
                                         //}
                                         //else

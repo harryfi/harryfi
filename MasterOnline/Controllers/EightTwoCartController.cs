@@ -1381,6 +1381,228 @@ namespace MasterOnline.Controllers
 
         }
 
+        //Get All Product Category for sinkronisasi.
+        public async Task<BindingBase82Cart> E2Cart_GetCategoryProduct_Sync(E2CartAPIData iden)
+        {
+            BindingBase82Cart ret = new BindingBase82Cart();
+            ret.status = 0;
+            ret.exception = 0;
+            ret.message = "";
+            ret.recordCount = 0;
+
+            string urll = string.Format("{0}/api/v1/getCategory?apiKey={1}&apiCredential={2}", iden.API_url, iden.API_key, iden.API_credential);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.ContentType = "application/json";
+            string responseServer = "";
+
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(responseServer))
+            {
+                var vresultCategoryAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseServer, typeof(E2CartProductCategoryResult)) as E2CartProductCategoryResult;
+                if (vresultCategoryAPI.error == "none" && vresultCategoryAPI.data != null)
+                {
+                    if(vresultCategoryAPI.data.Count() > 0)
+                    {
+                        try
+                        {
+                            List<CATEGORY_82CART> listNewRecord = new List<CATEGORY_82CART>();
+
+                            foreach (var category in vresultCategoryAPI.data)
+                            {
+                                var categoryInDB = MoDbContext.Category82Cart.ToList();
+                                var statusInsertHeader = true;
+                                if (categoryInDB.Count() > 0)
+                                {
+                                    var catItemDB = categoryInDB.Where(p => p.NAME == category.name && p.ID_PARENT == category.id_parent && p.ID_CATEGORY == category.id_category).SingleOrDefault();
+                                    if (catItemDB != null)
+                                    {
+                                        statusInsertHeader = false;
+                                    }
+                                }
+
+                                if (statusInsertHeader)
+                                {
+                                    Models.CATEGORY_82CART newrecord = new CATEGORY_82CART()
+                                    {
+                                        ID_CATEGORY = category.id_category,
+                                        NAME = category.name,
+                                        ID_PARENT = category.id_parent,
+                                        LEVEL_DEPTH = category.level_depth,
+                                        POSITION = category.position,
+                                        ACTIVE = category.active
+                                    };
+
+                                    listNewRecord.Add(newrecord);
+                                }
+
+                                if (category.child != null)
+                                if (category.child.Count() > 0)
+                                {
+                                    foreach (var itemChild in category.child)
+                                    {
+                                        var statusInsertChild = true;
+                                        if (categoryInDB.Count() > 0)
+                                        {
+                                            var catItemDBChild = categoryInDB.Where(p => p.NAME == itemChild.name && p.ID_PARENT == itemChild.id_parent && p.ID_CATEGORY == itemChild.id_category).SingleOrDefault();
+                                            if (catItemDBChild != null)
+                                            {
+                                                statusInsertChild = false;
+                                            }
+                                        }
+                                        if (statusInsertChild)
+                                        {
+                                            Models.CATEGORY_82CART newrecordChild = new CATEGORY_82CART()
+                                            {
+                                                ID_CATEGORY = itemChild.id_category,
+                                                NAME = itemChild.name,
+                                                ID_PARENT = itemChild.id_parent,
+                                                LEVEL_DEPTH = itemChild.level_depth,
+                                                POSITION = itemChild.position,
+                                                ACTIVE = itemChild.active
+                                            };
+
+                                            listNewRecord.Add(newrecordChild);
+                                        }
+
+                                        if (itemChild.child != null)
+                                        if (itemChild.child.Count() > 0)
+                                        {
+                                            foreach (var itemChildDetail in itemChild.child)
+                                            {
+                                                var statusInsertDetailChild = true;
+                                                if (categoryInDB.Count() > 0)
+                                                {
+                                                    var catItemDBChildDetail = categoryInDB.Where(p => p.NAME == itemChildDetail.name && p.ID_PARENT == itemChildDetail.id_parent && p.ID_CATEGORY == itemChildDetail.id_category).SingleOrDefault();
+                                                    if (catItemDBChildDetail != null)
+                                                    {
+                                                        statusInsertDetailChild = false;
+                                                    }
+                                                }
+                                                if (statusInsertDetailChild)
+                                                {
+                                                    Models.CATEGORY_82CART newrecordChildDetail = new CATEGORY_82CART()
+                                                    {
+                                                        ID_CATEGORY = itemChildDetail.id_category,
+                                                        NAME = itemChildDetail.name,
+                                                        ID_PARENT = itemChildDetail.id_parent,
+                                                        LEVEL_DEPTH = itemChildDetail.level_depth,
+                                                        POSITION = itemChildDetail.position,
+                                                        ACTIVE = itemChildDetail.active
+                                                    };
+
+                                                    listNewRecord.Add(newrecordChildDetail);
+                                                }
+
+                                                if (itemChildDetail.child != null)
+                                                if (itemChildDetail.child.Count() > 0)
+                                                {
+                                                    foreach (var itemChildDetail1 in itemChildDetail.child)
+                                                    {
+                                                        var statusInsertDetailChild_1 = true;
+                                                        if (categoryInDB.Count() > 0)
+                                                        {
+                                                            var catItemDBChildDetail_1 = categoryInDB.Where(p => p.NAME == itemChildDetail1.name && p.ID_PARENT == itemChildDetail1.id_parent && p.ID_CATEGORY == itemChildDetail1.id_category).SingleOrDefault();
+                                                            if (catItemDBChildDetail_1 != null)
+                                                            {
+                                                                statusInsertDetailChild_1 = false;
+                                                            }
+                                                        }
+                                                        if (statusInsertDetailChild_1)
+                                                        {
+                                                            Models.CATEGORY_82CART newrecordChildDetail_1 = new CATEGORY_82CART()
+                                                            {
+                                                                ID_CATEGORY = itemChildDetail1.id_category,
+                                                                NAME = itemChildDetail1.name,
+                                                                ID_PARENT = itemChildDetail1.id_parent,
+                                                                LEVEL_DEPTH = itemChildDetail1.level_depth,
+                                                                POSITION = itemChildDetail1.position,
+                                                                ACTIVE = itemChildDetail1.active
+                                                            };
+
+                                                            listNewRecord.Add(newrecordChildDetail_1);
+                                                        }
+
+                                                        if (itemChildDetail1.child != null)
+                                                        if (itemChildDetail1.child.Count() > 0)
+                                                        {
+                                                            foreach (var itemChildDetail2 in itemChildDetail1.child)
+                                                            {
+                                                                var statusInsertDetailChild_2 = true;
+                                                                if (categoryInDB.Count() > 0)
+                                                                {
+                                                                    var catItemDBChildDetail_2 = categoryInDB.Where(p => p.NAME == itemChildDetail2.name && p.ID_PARENT == itemChildDetail2.id_parent && p.ID_CATEGORY == itemChildDetail2.id_category).SingleOrDefault();
+                                                                    if (catItemDBChildDetail_2 != null)
+                                                                    {
+                                                                        statusInsertDetailChild_2 = false;
+                                                                    }
+                                                                }
+                                                                if (statusInsertDetailChild_2)
+                                                                {
+                                                                    Models.CATEGORY_82CART newrecordChildDetail_2 = new CATEGORY_82CART()
+                                                                    {
+                                                                        ID_CATEGORY = itemChildDetail2.id_category,
+                                                                        NAME = itemChildDetail2.name,
+                                                                        ID_PARENT = itemChildDetail2.id_parent,
+                                                                        LEVEL_DEPTH = itemChildDetail2.level_depth,
+                                                                        POSITION = itemChildDetail2.position,
+                                                                        ACTIVE = itemChildDetail2.active
+                                                                    };
+
+                                                                    listNewRecord.Add(newrecordChildDetail_2);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //if (vresultCategoryAPI.data[0].child[0].child[0].name == "Categories")
+                            //{
+                            //    foreach (var child in vresultCategoryAPI.data[0].child[0].child)
+                            //    {
+                            //        if (child.name != "")
+                            //        {
+                            //            ret.message = child.name;
+                            //        }
+                            //    }
+                            //}
+
+                            MoDbContext.Category82Cart.AddRange(listNewRecord);
+                            MoDbContext.SaveChanges();
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                }
+                }
+            }
+
+            return ret;
+
+        }
+
         //Add Product Category.
         public async Task<BindingBase82Cart> E2Cart_AddCategoryProduct(E2CartAPIData iden, string idparentCategory, string nama_category)
         {
