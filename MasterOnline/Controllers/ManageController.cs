@@ -8221,6 +8221,13 @@ namespace MasterOnline.Controllers
 
                     if (barangInDb != null)
                     {
+                        //add by Tri 3 jun 2020, update nama barang varian
+                        var updateNama = false;
+                        if(barangInDb.NAMA != dataBarang.Stf02.NAMA || barangInDb.NAMA2 != dataBarang.Stf02.NAMA2)
+                        {
+                            updateNama = true;
+                        }
+                        //end add by Tri 3 jun 2020, update nama barang varian
                         KodeBarang = barangInDb.BRG;
                         barangInDb.NAMA = dataBarang.Stf02.NAMA;
                         barangInDb.NAMA2 = dataBarang.Stf02.NAMA2;
@@ -8600,6 +8607,55 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //end add by calvin
+
+                        //add by Tri 3 jun 2020, update nama barang varian
+                        if (updateNama)
+                        {
+                            var listVarian = ErasoftDbContext.STF02.Where(m => m.PART == barangInDb.BRG).ToList();
+                            if(listVarian.Count > 0)
+                            {
+
+                                var kategori = ErasoftDbContext.STF02E.Single(k => k.LEVEL == "1" && k.KODE == barangInDb.Sort1);
+                                var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+                                if(stf20b.Count > 0)
+                                {
+                                    foreach (var item in listVarian)
+                                    {
+                                        string ket_varlv1 = "";
+                                        string ket_varlv2 = "";
+                                        string ket_varlv3 = "";
+                                        if (!string.IsNullOrEmpty(item.Sort8))
+                                        {
+                                            ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item.Sort8).FirstOrDefault()?.KET_VAR;
+                                        }
+                                        if (!string.IsNullOrEmpty(item.Sort9))
+                                        {
+                                            ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault()?.KET_VAR;
+                                        }
+                                        if (!string.IsNullOrEmpty(item.Sort10))
+                                        {
+                                            ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == item.Sort10).FirstOrDefault()?.KET_VAR;
+                                        }
+
+                                        if(string.IsNullOrEmpty(ket_varlv1) && string.IsNullOrEmpty(ket_varlv2) && string.IsNullOrEmpty(ket_varlv3))
+                                        {
+                                            //belum ada mapping
+                                        }
+                                        else
+                                        {
+                                            var nama2Var = barangInDb.NAMA2;
+                                            nama2Var += (string.IsNullOrEmpty(ket_varlv1) ? "" : " " + ket_varlv1);
+                                            nama2Var += (string.IsNullOrEmpty(ket_varlv2) ? "" : " " + ket_varlv2);
+                                            nama2Var += (string.IsNullOrEmpty(ket_varlv3) ? "" : " " + ket_varlv3);
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02 SET NAMA = '" + barangInDb.NAMA + "', NAMA2 = '" + nama2Var + "' WHERE BRG = '" + item.BRG+"'");
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                        //end add by Tri 3 jun 2020, update nama barang varian
+
                     }
                 }
                 if (!insert)
@@ -13055,6 +13111,50 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.STF02H.RemoveRange(listStf02hToDelete);
                 ErasoftDbContext.SaveChanges();
             }
+
+            //add by Tri 3 jun 2020, update nama barang varian
+            var listStf02ToUpdate = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && listStf02inDbCekDuplikat.Contains(p.BRG)).ToList();
+
+            if(listStf02ToUpdate.Count > 0)
+            {
+                foreach(var items in listStf02ToUpdate)
+                {
+                    if(STF02_Induk.NAMA != items.NAMA || !items.NAMA2.Contains(STF02_Induk.NAMA2))
+                    {
+                        string ket_varlv1 = "";
+                        string ket_varlv2 = "";
+                        string ket_varlv3 = "";
+                        if (!string.IsNullOrEmpty(items.Sort8))
+                        {
+                            ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == items.Sort8).FirstOrDefault()?.KET_VAR;
+                        }
+                        if (!string.IsNullOrEmpty(items.Sort9))
+                        {
+                            ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == items.Sort9).FirstOrDefault()?.KET_VAR;
+                        }
+                        if (!string.IsNullOrEmpty(items.Sort10))
+                        {
+                            ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == items.Sort10).FirstOrDefault()?.KET_VAR;
+                        }
+
+                        if (string.IsNullOrEmpty(ket_varlv1) && string.IsNullOrEmpty(ket_varlv2) && string.IsNullOrEmpty(ket_varlv3))
+                        {
+                            //belum ada mapping
+                        }
+                        else
+                        {
+                            var nama2Var = STF02_Induk.NAMA2;
+                            nama2Var += (string.IsNullOrEmpty(ket_varlv1) ? "" : " " + ket_varlv1);
+                            nama2Var += (string.IsNullOrEmpty(ket_varlv2) ? "" : " " + ket_varlv2);
+                            nama2Var += (string.IsNullOrEmpty(ket_varlv3) ? "" : " " + ket_varlv3);
+                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02 SET NAMA = '" + STF02_Induk.NAMA + "', NAMA2 = '" + nama2Var + "' WHERE BRG = '" + items.BRG + "'");
+                        }
+                    }
+                    
+                }
+            }
+            
+            //end add by Tri 3 jun 2020, update nama barang varian
 
             #region Save Variant
             if (ListNewVariantData_Stf02.Count() > 0)
