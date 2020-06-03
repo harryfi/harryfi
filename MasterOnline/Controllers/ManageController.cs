@@ -4153,7 +4153,7 @@ namespace MasterOnline.Controllers
             {
                 case "stok":
                     {
-                        if(filtervalue == "asc")
+                        if (filtervalue == "asc")
                         {
                             sSQLSelect2 += "ORDER BY QOH ASC, NAMA ASC,brg asc ";
                         }
@@ -4194,7 +4194,7 @@ namespace MasterOnline.Controllers
                     break;
             }
             //end add by nurul 15/5/2020
-            
+
             sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
@@ -49043,17 +49043,19 @@ namespace MasterOnline.Controllers
                 List<string> orderItemIds = new List<string>();
                 List<string> temp_htmlString = new List<string>();
                 List<string> temp_strmsg = new List<string>();
+                List<string> temp_strmsg_label = new List<string>();
 
                 //add by nurul 16/12/2019
                 bool gakketemulagi = false;
-                bool JNEgakketemulagi = false;
-                var tempResiLazada = new List<tempBarcodeLazada>();
-                var lastIndexBarcode = 0;
-                var lastIndexReferensi = 0;
-                var lastIndexPortCode = 0;
-                var lastIndexHarga = 0;
-                var lastIndexKurir = 0;
-                var lastIndexTgl = 0;
+                var tempLblTokped = new List<tempLabelTokopedia>();
+
+                var lastIndexHeader = 0;
+                var lastIndexResi = 0;
+                var lastIndexInvoice = 0;
+                var lastIndexInsurance = 0;
+                var lastIndexAddress = 0;
+                var lastIndexProduct = 0;
+
                 //end add by nurul 16/12/2019
 
                 var listNobuk = "";
@@ -49119,13 +49121,105 @@ namespace MasterOnline.Controllers
                         {
                             var htmlString = retApi.Result;
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
+                            
                             temp_htmlString.Add(htmlString);
                         }
                     }
                 }
+
+                var htmlString_new = "";
+                for (int i = 0; i < temp_htmlString.Count; i++)
+                {
+                    htmlString_new += temp_htmlString[i];
+                }
+                
+                while (!gakketemulagi)
+                {
+                    var idxHeader = htmlString_new.IndexOf("<table class=\"header\"", lastIndexHeader);
+
+                    if (idxHeader < 0) { gakketemulagi = true; break; }
+
+                    var idxEndHeader = htmlString_new.IndexOf("</table>", idxHeader);
+                    var getHeader = htmlString_new.Substring((idxHeader), (idxEndHeader - (idxHeader)));
+                    var header = getHeader + "</table>";
+
+                    lastIndexResi = idxEndHeader;
+                    var idxResi = htmlString_new.IndexOf("<img id=\"barcode-printout-1\"", lastIndexResi);
+                    var getResi = "";
+                    var idxEndResi = idxEndHeader;
+                    if (idxResi < (idxEndHeader + 3000) && idxResi > 0)
+                    {
+                        var idxResi2 = htmlString_new.IndexOf("alt=\"", idxResi);
+                        idxEndResi = htmlString_new.IndexOf("\" />", idxResi2);
+                        getResi = htmlString_new.Substring((idxResi2 + 5), (idxEndResi - (idxResi2 + 5)));
+                    }
+
+                    lastIndexInvoice = idxEndHeader;
+                    var idxInvoice = htmlString_new.IndexOf("<table class=\"meta\" cellspacing=\"0\" cellpadding=\"0\">", lastIndexInvoice);
+                    var Invoice = "";
+                    var idxEndInvoice = idxEndHeader;
+                    if (getResi == "")
+                    {
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice);
+                        var getInvoice = htmlString_new.Substring((idxInvoice), (idxEndInvoice - (idxInvoice)));
+                        Invoice = getInvoice + "</table>";
+                    }
+                    else
+                    {
+                        var idxInvoice2 = htmlString_new.IndexOf("<img", idxInvoice);
+                        var getInvoice1 = htmlString_new.Substring((idxInvoice), (idxInvoice2 - (idxInvoice)));
+                        var idxInvoice3 = htmlString_new.IndexOf("<div", idxInvoice2);
+                        idxEndInvoice = htmlString_new.IndexOf("</table>", idxInvoice3);
+                        var getInvoice = htmlString_new.Substring((idxInvoice3), (idxEndInvoice - (idxInvoice3)));
+                        Invoice = getInvoice1 + getInvoice + "</table>";
+                    }
+
+                    lastIndexInsurance = idxEndInvoice;
+                    var idxInsurance = htmlString_new.IndexOf("<table class=\"insurance\"", lastIndexInsurance);
+                    var Insurance = "";
+                    var idxEndInsurance = idxEndInvoice;
+                    if (idxInsurance < (idxEndInvoice + 2000) && idxInsurance > 0)
+                    {
+                        idxEndInsurance = htmlString_new.IndexOf("</table>", idxInsurance);
+                        var getInsurance = htmlString_new.Substring((idxInsurance), (idxEndInsurance - (idxInsurance)));
+                        Insurance = getInsurance + "</table>";
+                    }
+
+                    lastIndexAddress = idxEndInsurance;
+                    var idxAddress = htmlString_new.IndexOf("<table class=\"shipment-address\"", lastIndexAddress);
+                    var idxEndAddress = htmlString_new.IndexOf("</table>", idxAddress);
+                    var getAddress = htmlString_new.Substring((idxAddress), (idxEndAddress - (idxAddress)));
+                    var Address = getAddress + "</table>";
+
+                    lastIndexProduct = idxEndAddress;
+                    var idxProduct = htmlString_new.IndexOf("<table class=\"products\"", lastIndexProduct);
+                    var idxEndProduct = htmlString_new.IndexOf("</table>", idxProduct);
+                    var getProduct = htmlString_new.Substring((idxProduct), (idxEndProduct - (idxProduct)));
+                    var Product = getProduct + "</table>";
+
+                    lastIndexHeader = idxEndHeader;
+                    lastIndexResi = idxEndResi;
+                    lastIndexInvoice = idxEndInvoice;
+                    lastIndexInsurance = idxEndInsurance;
+                    lastIndexAddress = idxEndAddress;
+                    lastIndexProduct = idxEndProduct;
+
+                    tempLblTokped.Add(new tempLabelTokopedia()
+                    {
+                        Header = header,
+                        Resi = getResi,
+                        Invoice = Invoice,
+                        Insurance = Insurance,
+                        Address = Address,
+                        Product = Product
+                    });
+                }
+
+
                 if (temp_strmsg.Count() > 0 && temp_htmlString.Count > 0)
                 {
-                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    //return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                    return new JsonResult { Data = new { mo_error = temp_strmsg, mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                 }
                 else if (temp_strmsg.Count() > 0)
                 {
@@ -49135,14 +49229,16 @@ namespace MasterOnline.Controllers
                 {
                     if (label == "1")
                     {
-                        return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        //return new JsonResult { Data = new { mo_label = temp_htmlString }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(temp_htmlString, JsonRequestBehavior.AllowGet);
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                     }
                     else if (label == "2")
                     {
-                        return new JsonResult { Data = new { mo_label = tempResiLazada }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+                        return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                     }
+                    
                 }
             }
             catch (Exception ex)
@@ -49483,6 +49579,28 @@ namespace MasterOnline.Controllers
             return PartialView("ListDetailStokBarang", pageOrders);
         }
         //end add by nurul 13/5/2020
+
+        //add by nurul 2/6/2020
+        public ActionResult CetakLabelTokped(List<tempLabelTokopedia> data)
+        {
+            try
+            {
+                if (data.Count() > 0)
+                {
+                    var ym = new FakturViewModel()
+                    {
+                        listLabelTokped = data
+                    };
+                    return View(ym);
+                }
+                return new JsonResult { Data = new { mo_error = "Tidak ada data. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult { Data = new { mo_error = "Gagal memproses pesanan. Mohon hubungi support." }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+            }
+        }
+        //end add by nurul 2/6/2020
     }
     public class smolSTF02
     {
