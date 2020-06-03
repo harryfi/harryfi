@@ -120,7 +120,10 @@ namespace MasterOnline.Controllers
         public async Task<BliBliToken> GetToken(BlibliAPIData data, bool syncData, bool resetToken)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
-            var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
+            //change 29 mei 2020, api client username dan password akan memiliki value yg sama di semua akun blibli. diisi data MO
+            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
+            var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust.Equals(data.merchant_code) && !string.IsNullOrEmpty(p.Sort1_Cust) && p.NAMA == "16").SingleOrDefault();
+            //end change 29 mei 2020, api client username dan password akan memiliki value yg sama di semua akun blibli. diisi data MO
             if (arf01inDB != null)
             {
                 bool TokenExpired = true;
@@ -172,9 +175,19 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (WebException e)
                     {
-
+                        string err = "";
+                        //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                        if (e.Status == WebExceptionStatus.ProtocolError)
+                        {
+                            WebResponse resp = e.Response;
+                            using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                            {
+                                err = sr.ReadToEnd();
+                            }
+                        }
                     }
                     //dataStream.Close();
                     //response.Close();
