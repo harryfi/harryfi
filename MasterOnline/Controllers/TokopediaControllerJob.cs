@@ -2235,7 +2235,7 @@ namespace MasterOnline.Controllers
                     }
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                     //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
-                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg);
                 }
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -3755,7 +3755,51 @@ namespace MasterOnline.Controllers
                     {
                         StreamReader reader = new StreamReader(stream);
                         responseFromServer = reader.ReadToEnd();
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    }
+                }
+                if(responseFromServer != "")
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(UpdatePriceResponse)) as UpdatePriceResponse;
+                    if(result != null)
+                    {
+                        if(result.header.error_code != 0)
+                        {
+                            currentLog.REQUEST_EXCEPTION = (result.header.reason ?? result.header.messages);
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            throw new Exception(currentLog.REQUEST_EXCEPTION);
+                        }
+                        else
+                        {
+                            if(result.data != null)
+                            {
+                                if(result.data.failed_rows > 0)
+                                {
+                                    if(result.data.failed_rows_data.Length > 0)
+                                    {
+                                        var rowFailedMessage = "";
+                                        foreach (var itemRow in result.data.failed_rows_data)
+                                        {
+                                            if (!string.IsNullOrEmpty(itemRow.message) && itemRow.product_id != 0)
+                                            {
+                                                rowFailedMessage = rowFailedMessage + Convert.ToString(itemRow.message) + " product id:" + Convert.ToString(itemRow.product_id) + ";";
+                                            }
+                                        }
+                                        currentLog.REQUEST_EXCEPTION = "failed_rows_data:" + rowFailedMessage;
+                                    }
+                                    else
+                                    {
+                                        currentLog.REQUEST_EXCEPTION = responseFromServer;
+                                    }                                    
+                                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                    throw new Exception(currentLog.REQUEST_EXCEPTION);
+                                }
+                                else
+                                {
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -4898,12 +4942,14 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
-                if (string.IsNullOrEmpty(result.header.reason))
+                //if (string.IsNullOrEmpty(result.header.reason))
+                if (result.header.error_code == 0)
                 {
                     try
                     {
                         string a = "";
                         int i = 0;
+                        if(result.data != null)
                         foreach (var attribs in result.data)
                         {
                             a = Convert.ToString(i + 1);
@@ -6647,5 +6693,38 @@ namespace MasterOnline.Controllers
             public string[] error_message { get; set; }
         }
         //end add by nurul 23/3/2020
+
+        //add 4 jun 2020
+
+        public class UpdatePriceResponse
+        {
+            public UpdatePriceResponseHeader header { get; set; }
+            public UpdatePriceResponseData data { get; set; }
+        }
+
+        public class UpdatePriceResponseHeader
+        {
+            //public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class UpdatePriceResponseData
+        {
+            public int succeed_rows { get; set; }
+            public int failed_rows { get; set; }
+            public UpdatePriceResponseFailed_Rows_Data[] failed_rows_data { get; set; }
+        }
+
+        public class UpdatePriceResponseFailed_Rows_Data
+        {
+            public long product_id { get; set; }
+            //public long new_price { get; set; }
+            //public long new_stock { get; set; }
+            public string message { get; set; }
+        }
+        //end add 4 jun 2020
+
     }
 }
