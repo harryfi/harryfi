@@ -28501,6 +28501,7 @@ namespace MasterOnline.Controllers
                 #region Proses Upload
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var listPesananInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => new { noref = p.NO_REFERENSI, nobuk = p.NO_BUKTI }).ToList();
                 var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
                 //add by Tri, 20/9/19
                 if (lastRecnumARF01C == null)
@@ -28569,13 +28570,25 @@ namespace MasterOnline.Controllers
                         messageWarning = "";
                         adaWarning = false;
                         fakturLolosValidasi = true;
-                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        //var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && (p.NO_REF ?? "").Contains(faktur_invoice) && p.CUST == cust).FirstOrDefault();
+
                         if (cekFakturExists != null)
                         {
                             fakturLolosValidasi = false;
                             //log faktur sudah pernah di upload
                             message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
                             tw.WriteLine(message);
+                        }
+                        else 
+                        {
+                            var cekPesananExists = listPesananInDb.Where(p => (p.noref ?? "").Contains(faktur_invoice)).FirstOrDefault();
+                            if (cekPesananExists != null)
+                            {
+                                fakturLolosValidasi = false;
+                                message = "Faktur [" + faktur_invoice + "] sudah ada di pesanan : [" + cekPesananExists.nobuk + "]." + System.Environment.NewLine;
+                                tw.WriteLine(message);
+                            }
                         }
 
                         status_allow_insert = false;
@@ -29238,6 +29251,7 @@ namespace MasterOnline.Controllers
                 #region Proses Upload
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var listPesananInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => new { noref = p.NO_REFERENSI, nobuk = p.NO_BUKTI }).ToList(); 
                 var market = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).FirstOrDefault();
                 //add by Tri, 20/9/19
                 if (lastRecnumARF01C == null)
@@ -29306,13 +29320,24 @@ namespace MasterOnline.Controllers
                         messageWarning = "";
                         adaWarning = false;
                         fakturLolosValidasi = true;
-                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        //var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && (p.NO_REF ?? "").Contains(faktur_invoice) && p.CUST == cust).FirstOrDefault(); 
                         if (cekFakturExists != null)
                         {
                             fakturLolosValidasi = false;
                             //log faktur sudah pernah di upload
                             message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
                             tw.WriteLine(message);
+                        }
+                        else
+                        {
+                            var cekPesananExists = listPesananInDb.Where(p => (p.noref ?? "").Contains(faktur_invoice)).FirstOrDefault();
+                            if (cekPesananExists != null)
+                            {
+                                fakturLolosValidasi = false;
+                                message = "Faktur [" + faktur_invoice + "] sudah ada di pesanan : [" + cekPesananExists.nobuk + "]." + System.Environment.NewLine;
+                                tw.WriteLine(message);
+                            }
                         }
                     }
                     //else
