@@ -2515,13 +2515,30 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-            using (WebResponse response = myReq.GetResponse())
+            try
             {
-                using (Stream stream = response.GetResponseStream())
+                using (WebResponse response = myReq.GetResponse())
                 {
-                    StreamReader reader = new StreamReader(stream);
-                    responseFromServer = reader.ReadToEnd();
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
                 }
+            }
+            catch (WebException e)
+            {
+                string err = "";
+                if (e.Status == WebExceptionStatus.ProtocolError)
+                {
+                    WebResponse resp = e.Response;
+                    using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                    {
+                        //err = sr.ReadToEnd();
+                        responseFromServer = sr.ReadToEnd();
+                    }
+                }
+                //throw new Exception(err);
             }
             //using (WebResponse response = myReq.GetResponse())
             //{
