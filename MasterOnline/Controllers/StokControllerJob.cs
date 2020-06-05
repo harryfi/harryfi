@@ -2473,7 +2473,7 @@ namespace MasterOnline.Controllers
                 REQUEST_ACTION = "Update Stock",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = "Kode Barang : " + brg,
-                REQUEST_ATTRIBUTE_2 = "Barang MP : " + brg_mp,
+                REQUEST_ATTRIBUTE_2 = "MO Stock : " + Convert.ToString(qty), //updating to stock
                 REQUEST_STATUS = "Pending",
             };
             var ErasoftDbContext = new ErasoftContext(EraServerName, dbPathEra);
@@ -2488,7 +2488,7 @@ namespace MasterOnline.Controllers
 
             qty = Convert.ToInt32(qtyOnHand);
             
-            string urll = string.Format("{0}/api/v1/editInventory", iden.API_url);
+            string urll = string.Format("{0}/api/v1/editProductdetail", iden.API_url);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
 
@@ -2497,9 +2497,20 @@ namespace MasterOnline.Controllers
             //Required parameters, other parameters can be add
             var postData = "apiKey=" + Uri.EscapeDataString(iden.API_key);
             postData += "&apiCredential=" + Uri.EscapeDataString(iden.API_credential);
-            postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
-            postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
-            postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
+            if (brg_mp_split[1] == "0")
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&quantity=" + Uri.EscapeDataString(qty.ToString());
+            }
+            else
+            {
+                postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+                postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+                postData += "&quantity_attribute=" + Uri.EscapeDataString(qty.ToString());
+            }
+            //postData += "&id_product=" + Uri.EscapeDataString(brg_mp_split[0]);
+            ////postData += "&id_product_attribute=" + Uri.EscapeDataString(brg_mp_split[1]);
+            //postData += "&stock=" + Uri.EscapeDataString(qty.ToString());
 
             var data = Encoding.ASCII.GetBytes(postData);
 
@@ -2530,6 +2541,7 @@ namespace MasterOnline.Controllers
                     var resultAPI = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ResultUpdateStock82Cart)) as ResultUpdateStock82Cart;
                     if(resultAPI.error != "none" && resultAPI.error != null)
                     {
+                        currentLog.REQUEST_ATTRIBUTE_3 = "Exception"; //marketplace stock
                         currentLog.REQUEST_EXCEPTION = resultAPI.error.ToString();
                         manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
                         throw new Exception(resultAPI.error.ToString());
@@ -2543,6 +2555,7 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 string msg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                currentLog.REQUEST_ATTRIBUTE_3 = "Exception"; //marketplace stock
                 currentLog.REQUEST_EXCEPTION = msg;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, no_cust, currentLog, "82Cart");
                 throw new Exception(msg);
