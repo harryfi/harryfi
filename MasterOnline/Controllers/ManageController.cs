@@ -33774,7 +33774,12 @@ namespace MasterOnline.Controllers
                                 //var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK.Trim()).FirstOrDefault();
                                 //var tempBrgInduk = tempBrgInduktemp.Where(b => (b.BRG_MP == null ? "" : b.BRG_MP) == item.KODE_BRG_INDUK).FirstOrDefault();
                                 var brgInduk = eraDB.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
-                                var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
+                                
+                                //change by Tri 5 jun 2020, cek berdasarkan seller sku di temp bukan brg_mp
+                                //var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
+                                var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.SELLER_SKU == item.KODE_BRG_INDUK).FirstOrDefault();
+                                //end change by Tri 5 jun 2020, cek berdasarkan seller sku di temp bukan brg_mp
+
                                 if (brgInduk != null)
                                 {
                                     //var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG.Trim()).FirstOrDefault();
@@ -35154,6 +35159,12 @@ namespace MasterOnline.Controllers
                         var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
                         if (marketplace != null)
                         {
+                            //add by Tri 5 jun 2020, hapus data lama sebelum tarik ulang data
+                            if (totalData == 0)
+                            {
+                                EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TEMP_BRG_MP WHERE CUST = '" + cust + "'");
+                            }
+                            //end add by Tri 5 jun 2020, hapus data lama sebelum tarik ulang data
                             var retBarang = new SyncBarangViewModel
                             {
                                 Recursive = false,
@@ -49224,7 +49235,7 @@ namespace MasterOnline.Controllers
                         {
                             var htmlString = retApi.Result;
                             EDB.ExecuteSQL("sConn", CommandType.Text, "Update SOT01A set status_print = '1' where no_bukti in (''," + so.no_bukti + ")");
-                            
+
                             temp_htmlString.Add(htmlString);
                         }
                     }
@@ -49235,7 +49246,7 @@ namespace MasterOnline.Controllers
                 {
                     htmlString_new += temp_htmlString[i];
                 }
-                
+
                 while (!gakketemulagi)
                 {
                     var idxHeader = htmlString_new.IndexOf("<table class=\"header\"", lastIndexHeader);
@@ -49341,7 +49352,7 @@ namespace MasterOnline.Controllers
                         return new JsonResult { Data = new { mo_label = tempLblTokped }, JsonRequestBehavior = JsonRequestBehavior.AllowGet };
                         //return Json(tempResiLazada, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                 }
             }
             catch (Exception ex)
