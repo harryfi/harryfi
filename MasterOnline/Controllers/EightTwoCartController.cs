@@ -435,21 +435,21 @@ namespace MasterOnline.Controllers
                                             listNewRecord.Add(newrecord);
                                             ret.recordCount = ret.recordCount + 1;
                                         }
-                                        //else if (item.combinations.Length > 1)
-                                        //{
-                                        //    foreach (var varID in item.combinations)
-                                        //    {
-                                        //        var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
-                                        //        var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
-                                        //        var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
-                                        //        if (CektempbrginDB2 == null && CekbrgInDB2 == null)
-                                        //        {
-                                        //            var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
-                                        //            ret.recordCount += retVar.recordCount;
-                                        //        }
-                                        //    }
-                                        //    ret.totalData += item.combinations.Count();
-                                        //}
+                                        else if (item.combinations.Length > 1)
+                                        {
+                                            foreach (var varID in item.combinations)
+                                            {
+                                                var brg_mp_variant = Convert.ToString(item.id_product) + ";" + varID.id_product_attribute.ToString();
+                                                var CektempbrginDB2 = tempbrginDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
+                                                var CekbrgInDB2 = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(varID.id_product_attribute.ToString())).FirstOrDefault();
+                                                if (CektempbrginDB2 == null && CekbrgInDB2 == null)
+                                                {
+                                                    var retVar = await E2Cart_GetProductVariant(iden, item, varID, brg_mp_variant, brgMp, iden.no_cust, IdMarket);
+                                                    ret.recordCount += retVar.recordCount;
+                                                }
+                                            }
+                                            ret.totalData += item.combinations.Count();
+                                        }
                                     }
 
                                 }
