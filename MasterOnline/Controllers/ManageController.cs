@@ -33743,7 +33743,7 @@ namespace MasterOnline.Controllers
                         //var stf02htemp = eraDB.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
                         var listBrg = dataBrg.Select(m => m.SELLER_SKU).ToList();
                         var stf02temp = eraDB.STF02.Where(m => listBrg.Contains(m.BRG)).ToList();
-                        var tempBrgInduktemp = eraDB.TEMP_BRG_MP.Where(t => listBrg.Contains(t.SELLER_SKU) && t.IDMARKET == customer.RecNum).ToList();
+                        //var tempBrgInduktemp = eraDB.TEMP_BRG_MP.Where(t => listBrg.Contains(t.SELLER_SKU) && t.IDMARKET == customer.RecNum).ToList();
                         var stf02htemp = eraDB.STF02H.Where(t => listBrg.Contains(t.BRG) && t.IDMARKET == customer.RecNum).ToList();
 
                         var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
@@ -33777,7 +33777,7 @@ namespace MasterOnline.Controllers
                                 
                                 //change by Tri 5 jun 2020, cek berdasarkan seller sku di temp bukan brg_mp
                                 //var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
-                                var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.SELLER_SKU == item.KODE_BRG_INDUK).FirstOrDefault();
+                                var tempBrgInduk = eraDB.TEMP_BRG_MP.Where(b => b.SELLER_SKU == item.KODE_BRG_INDUK && b.CUST == customer.CUST).FirstOrDefault();
                                 //end change by Tri 5 jun 2020, cek berdasarkan seller sku di temp bukan brg_mp
 
                                 if (brgInduk != null)
