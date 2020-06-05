@@ -2177,6 +2177,7 @@ namespace MasterOnline.Controllers
 
 
             string responseFromServer = "";
+            var isSuccess = false;
             //try
             //{
             var client = new HttpClient();
@@ -2186,13 +2187,23 @@ namespace MasterOnline.Controllers
             HttpResponseMessage clientResponse = await client.PostAsync(
                 urll, content);
 
-            using (HttpContent responseContent = clientResponse.Content)
+            if (clientResponse != null)
             {
-                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                if (clientResponse.IsSuccessStatusCode)
                 {
-                    responseFromServer = await reader.ReadToEndAsync();
+                    isSuccess = true;
                 }
-            };
+                responseFromServer = await clientResponse.Content.ReadAsStringAsync();
+            }
+            //using (HttpContent responseContent = clientResponse.Content)
+            //{
+            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    {
+            //        responseFromServer = await reader.ReadToEndAsync();
+            //    }
+            //};
+
+            var httpReason = clientResponse.ReasonPhrase;
             //}
             //catch (Exception ex)
             //{
@@ -2202,41 +2213,60 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 ActOrderResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActOrderResult)) as ActOrderResult;
-                if (result.status == "200 Ok")
+                //if (result.status == "200 Ok")
+                //{
+                //    var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
+                //    if (pesananInDb != null)
+                //    {
+                //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //        //#if (DEBUG || Debug_AWS)
+                //        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
+                //        //#else
+                //        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
+                //        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                //        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
+                //        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
+                //        //#endif
+                //    }
+                //}
+                //else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //}
+                //else
+                //{
+                //    var err_msg = "";
+                //    if (result.error_message.Count() > 0)
+                //    {
+                //        foreach (var err in result.error_message)
+                //        {
+                //            err_msg += " " + err + ".";
+                //        }
+                //    }
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
+                //    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                //}
+
+                if (isSuccess)
                 {
                     var pesananInDb = ErasoftDbContext.SOT01A.Where(a => a.NO_BUKTI == ordNo && a.NO_REFERENSI == noref).FirstOrDefault();
                     if (pesananInDb != null)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                        //#if (DEBUG || Debug_AWS)
-                        //                        await JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI);
-                        //#else
-                        //                        string EDBConnID = EDB.GetConnectionString("ConnId");
-                        //                        var sqlStorage = new SqlServerStorage(EDBConnID);
-
-                        //                        var Jobclient = new BackgroundJobClient(sqlStorage);
-                        //                        Jobclient.Enqueue<TokopediaControllerJob>(x => x.JOBCOD(iden, pesananInDb.NO_BUKTI, pesananInDb.NO_REFERENSI));
-                        //#endif
                     }
                 }
-                else if (result.error_message[0].Contains("order already ack-ed") || result.error_message[0].Contains("400") || result.error_message[0].Contains("450") || result.error_message[0].Contains("500") || result.error_message[0].Contains("600"))
+                else if(httpReason == "Bad Request")
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 }
                 else
                 {
-                    var err_msg = "";
-                    if (result.error_message.Count() > 0)
-                    {
-                        foreach (var err in result.error_message)
-                        {
-                            err_msg += " " + err + ".";
-                        }
-                    }
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                    //throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.error_message[0] + ".");
-                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + err_msg );
+                    throw new Exception("Update Status Accept Pesanan " + splitNoRef[1] + " ke Tokopedia Gagal. " + result.header.messages + ". " + result.header.reason);
                 }
+
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
@@ -6642,10 +6672,23 @@ namespace MasterOnline.Controllers
         //add class postActOrder
         public class ActOrderResult
         {
+            //change by nurul 4/6/2020
+            //public string data { get; set; }
+            //public string status { get; set; }
+            //public string[] error_message { get; set; }
+            public TokopediaAckOrderHeader header { get; set; }
             public string data { get; set; }
-            public string status { get; set; }
-            public string[] error_message { get; set; }
-        }
+            //end change by nurul 4/6/2020
+        }    
         //end add by nurul 23/3/2020
+        //add by nurul 4/6/2020
+        public class TokopediaAckOrderHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public string error_code { get; set; }
+        }
+        //end add by nurul 4/6/2020
     }
 }
