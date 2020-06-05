@@ -6736,7 +6736,7 @@ namespace MasterOnline.Controllers
         public class ReqPickupResult
         {
             public TokopediaAckOrderHeader header { get; set; }
-            public string data { get; set; }
+            public TokpedReqPickupData data { get; set; }
         }
         public class TokpedReqPickupData
         {
