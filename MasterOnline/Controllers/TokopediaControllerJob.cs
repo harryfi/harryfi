@@ -2229,7 +2229,14 @@ namespace MasterOnline.Controllers
                 {
                     isSuccess = true;
                 }
-                responseFromServer = await clientResponse.Content.ReadAsStringAsync();
+                //responseFromServer = await clientResponse.Content.ReadAsStringAsync();
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
             }
             //using (HttpContent responseContent = clientResponse.Content)
             //{
