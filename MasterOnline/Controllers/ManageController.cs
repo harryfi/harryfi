@@ -18429,6 +18429,8 @@ namespace MasterOnline.Controllers
             var sSql3 = "select BRG,NAMA,NAMA2 from stf02 where [type]='3' and brg in (select brg from stf02h where idmarket='" + idMarket + "')";
             var ListBarang = ErasoftDbContext.Database.SqlQuery<listBarang_NotFound>(sSql3).ToList();
             //end change by nurul 24/3/2020
+            var ListKodeBarangMarket2 = ListBarang.Select(p => p.BRG).ToList();
+            ListBarangMarket = ListBarangMarket.Where(p => ListKodeBarangMarket2.Contains(p.BRG)).ToList();
 
             var vm = new PesananViewModel()
             {
@@ -18462,7 +18464,19 @@ namespace MasterOnline.Controllers
 
                 if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
                 {
+                    //change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
+                    //dataStf02h.BRG_MP = catatan_split[2];
+                    if(!string.IsNullOrEmpty(dataStf02h.BRG_MP))
+                        if (dataStf02h.BRG_MP != catatan_split[2])
+                        {
+                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                        }
                     dataStf02h.BRG_MP = catatan_split[2];
+                    dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    dataStf02h.LINK_STATUS = "Fix Barang Not Found Berhasil";
+                    dataStf02h.LINK_ERROR = "0;;;";
+                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TEMP_BRG_MP WHERE BRG_MP LIKE '%"+ catatan_split[2] + "%' AND IDMARKET = " + dataStf02h.IDMARKET);
+                    //end change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
                 }
                 //}
                 ErasoftDbContext.SaveChanges();
@@ -18540,7 +18554,19 @@ namespace MasterOnline.Controllers
 
                 if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
                 {
+                    //change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
+                    //dataStf02h.BRG_MP = catatan_split[2];
+                    if (!string.IsNullOrEmpty(dataStf02h.BRG_MP))
+                        if (dataStf02h.BRG_MP != catatan_split[2])
+                        {
+                            return JsonErrorMessage("Barang :" + dataStf02h.BRG + " sudah link dengan barang lain(kode barang mp :" + dataStf02h.BRG_MP + ")\nSilahkan lakukan unlink produk ini terlebih dahulu.");
+                        }
                     dataStf02h.BRG_MP = catatan_split[2];
+                    dataStf02h.LINK_DATETIME = DateTime.UtcNow.AddHours(7);
+                    dataStf02h.LINK_STATUS = "Fix Barang Not Found Berhasil";
+                    dataStf02h.LINK_ERROR = "0;;;";
+                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM TEMP_BRG_MP WHERE BRG_MP LIKE '%" + catatan_split[2] + "%' AND IDMARKET = " + dataStf02h.IDMARKET);
+                    //end change by Tri 29 mei 2020, tambah validasi tidak bisa pilih barang yg sudah link dengan brg lain dan hapus data di temp agar tidak bisa di sinkro lg
                 }
                 //}
                 ErasoftDbContext.SaveChanges();
