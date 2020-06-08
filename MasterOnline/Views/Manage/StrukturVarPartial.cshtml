@@ -201,11 +201,11 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_3.VALUE_JUDUL_VAR))
                             {
-                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = Model.Variant_Level_3.VALUE_JUDUL_VAR, placeholder = "Nama Variasi " })
+                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = Model.Variant_Level_3.VALUE_JUDUL_VAR, placeholder = "Nama Variasi ", disabled = "disabled" })
                             }
                             else
                             {
-                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = "", placeholder = "Nama Variasi " })
+                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = "", placeholder = "Nama Variasi ", disabled = "disabled" })
                             }
                         </div>
                         <div class="col-md-5 col-sm-5 col-xs-12">
@@ -239,13 +239,13 @@
                                     }
                                     <tr>
                                         <td class="kode-opt-var-level3">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", @maxlength = 2, @data_val_length_max = 2, placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", @maxlength = 2, @data_val_length_max = 2, placeholder = "Ex: 01", disabled = "disabled" })
                                         </td>
                                         <td class="nama-opt-var-level3">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L", disabled = "disabled" })
                                         </td>
                                         <td class="edit-hapus-col">
-                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(3)">
+                                            <button type="button" class="btn btn-primary" disabled onclick="simpanOptLevel(3)">
                                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                             </button>
                                         </td>
