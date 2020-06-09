@@ -13171,7 +13171,7 @@ namespace MasterOnline.Controllers
             #endregion
             //end Autoload (Overwrite) STF02
 
-            var VariantMO = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+            var VariantMO = ErasoftDbContext.STF02.AsNoTracking().Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
             var listBrgVariantMO = VariantMO.Select(p => p.BRG).ToList();
             var VariantMO_H = ErasoftDbContext.STF02H.Where(p => listBrgVariantMO.Contains(p.BRG)).ToList();
 
