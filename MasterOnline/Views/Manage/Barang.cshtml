@@ -3530,8 +3530,8 @@
 
         //add by fauzi for 82Cart 27 Mei 2020
          function ClearCategory82Cart(divIDpertama,divIDselanjutnya,i,undoing){
-            var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__ID_CATEGORY';
-            var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__NAME';
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + i +'__CATEGORY_NAME';
             var msg = "Kosongkan Kategori ?";
             if (undoing) {
                 msg = "Kembalikan Seperti Semula ?";
@@ -3556,8 +3556,8 @@
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarket82Cart.toString() && (spec < 0 || spec == i)) {
                     var selectCategory82CartID = 'Category_82Cart_' + listMarket[i].RecNum;
-                    var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__ID_CATEGORY';
-                    var fieldCategoryName = '#ListHargaJualPermarket_' + i +'__NAME';
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + i +'__CATEGORY_CODE';
+                    var fieldCategoryName = '#ListHargaJualPermarket_' + i +'__CATEGORY_NAME';
                     var nextselectID = "Category_82Cart_2_" + listMarket[i].RecNum;
                     var category82CartSelanjutnya =  '#category_82Cart_selanjutnya_' + listMarket[i].RecNum;
                     var listMarketRecNum = listMarket[i].RecNum;
@@ -3571,7 +3571,7 @@
 
                         if (ListHargaJualPermarketView[0] != undefined) {
 
-                            $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['__ID_CATEGORY']);
+                            $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['__CATEGORY_CODE']);
 
                             var fieldCategoryCodeValue = $(fieldCategoryCode).val();
                             FuncGetKategori82CartByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);

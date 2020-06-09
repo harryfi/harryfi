@@ -1454,17 +1454,15 @@
                                                                         }
                                                                         else
                                                                         {
-                                                                            <div class="row">
+                                                                            @*<div class="row">
                                                                                 <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
                                                                                     <img src="~/Content/Images/spinner.gif" width="100" />
                                                                                 </div>
                                                                                 <div id="attribute_82Cart_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
-                                                                            </div>
-                                                                            <div class="row">
-                                                                                <div class="col-md-12">
+                                                                            </div>*@
                                                                                     <div class="row">
-                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        <div class="col-md-1 col-sm-1 col-xs-12">
                                                                                             @Html.Label("Category *", new { @class = "control-label" })
                                                                                         </div>
                                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
@@ -1506,8 +1504,6 @@
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
-                                                                                </div>
-                                                                            </div>
                                                                         }
                                                                     </div>
                                                                 </div>
