@@ -3586,7 +3586,7 @@ namespace MasterOnline.Controllers
             public string requestid { get; set; }
             public string error { get; set; }
             public string results { get; set; }
-            public ResultUpdateStockData[] data { get; set; }
+            public object data { get; set; }
         }
 
         public class ResultUpdateStockData
